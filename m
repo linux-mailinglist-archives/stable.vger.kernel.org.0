@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEA66B9D36
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 18:42:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5AF96B9D37
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 18:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229797AbjCNRmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 13:42:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35906 "EHLO
+        id S229742AbjCNRmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 13:42:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbjCNRmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 13:42:04 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20603.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::603])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5762930EB1
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 10:42:03 -0700 (PDT)
+        with ESMTP id S229538AbjCNRmG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 13:42:06 -0400
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2048.outbound.protection.outlook.com [40.107.102.48])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BCDC2CC52
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 10:42:04 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cweHpoYRGDCdS4kQM6K8EaRFBt1i+06pfPJVrxCN5+u7ax3rEFzV2nkWJWNFwsiXBs3ThRYSjJAOgHZteFAEC8zVEkTXKs3/wbXv2444OrsuGCxEFBYFUQ7GvXM3aD0hrzaUOG20ox0+MSq7ePxuSvpjqjj1IvSH6pTqgCI47kQ+OmwAhNsiZLLfs76LMlnsbMPYDYxyTeO55b9rBcTzlOtm4wIKErRTfxoiMLCiVM29HBuoHVvlnnENEIEYfIpj8Buh0CfZr1NOeJMzDqgv7mGRVnPuTZEQZLLW5C/AErYUNckSl3vc1+E1g9yM2UWlH6UkI5Ms1zHDkyh8EPBScw==
+ b=PtefikOTuaGAsBg1jNHikm3OLmGbFqnKHqMMC0eoeAQENgEXfPUTM6W7rhMuu+qjyuCopqGLadQGT4CmzEfDK7YP/YTtPbOhJzCbg735SQ8/t+o/kDrG95xeeof2A/a9xCLAFn1Esf61NAk9hnPBSutKpKlyonh56pc7oMVJLElzyZ2xXVdSEtoNcLmM5DvzRC4p5fVybAip7FkcJuGplCMoVqjZcZeXrbq4PHTTwMdZsrXnn/VaMEifqbLk9mr6PT2QRAtHXCZRvUtU99Zwlmnv5BuEAcyO0ismY0wPTlS8dYTvDC4LVoSp+UnEYOpiBeryFvHgiveyUFlGdrB26w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qqTC/maiFcNV/kZgIvcjAqdXSmxTFJNGdy3CdGRRINQ=;
- b=nTJVFW+xTQBoJ/70+i/wdQZMu6OL8snTcvLZ0Pi0kOhl0h80wf+asIk3VEmGUen/7NHoGpfBVagCEl6xxv7i0JY7pcyM/VpSLG1D3+hIUioXF3P/zogGCgO5aO0SCs/qrx9B5V3iv8D19waFlyqRWNE99j40CY7md6X6uLmuQ76jiRNdGe9UG4wCRaI/Xt1KbPpyh4yMPqbKEd/D3zXnBQLjNhMM1OMH9Dd7awU5XoX+kvCCm5ZNgC7fqRBBAqY/rNaMFa+72LwITy3dPk9UiHspQC0J2IdMcfPRPNHqGYbGjkYl3U0qbSYlH49r4x5x/PDnUurH/Q1Cey7iWYQq/w==
+ bh=GiLntmzeYDDTzNlbbI9LkZ7jUtKCF0ROz+Ryt5ZzoO8=;
+ b=VsSHJOLbKyIQrv4eBQFEop4N8yOvKtZbwygJQaf/4HiBsaOeUuUK9ky7Bfh9z6WV2MkB0g3vobbHm6qQUBhUFhmNXod8MKc0YF4sPwK6/9TzTv33Aour3MegypL5Z6XpUQDacgrCvIXOFe8c6HV1MlN9071Q3vX+/y0PHcbK4G7E1+5oF9LtXw+rJ9207d6AUmUu5Y64U7Byr7czOqdJl0Cc0fkjCEEIONQygUTxn7J53N2F+gIjIm4siuddOB2FuaK12/U1g0QgqnZ/eCq2bTK/zArBcyk/naclMhRy2CnYeTNmIsjmzCkavWj6QBEN0Dnhw5AnIGIJVaXQODyEdQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
  dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
  header.from=amd.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qqTC/maiFcNV/kZgIvcjAqdXSmxTFJNGdy3CdGRRINQ=;
- b=Z1E+p/8t1voULF0fWqzj75BfHLrf70Lc1oNXA4a1z/1Zm5JToTvQmQ8I1YHkKCM3h8m1R1nErUt6eNjJDxrSoa6W1kgHYbiPZunWRD7RGpwJf7yPFyiy/2tDc+sfy6iRlDRswysPOI6qfraa5s04kMoWpdrkmgX6ZsJJ+wa9h2w=
-Received: from DM6PR03CA0079.namprd03.prod.outlook.com (2603:10b6:5:333::12)
- by PH7PR12MB7915.namprd12.prod.outlook.com (2603:10b6:510:27c::10) with
+ bh=GiLntmzeYDDTzNlbbI9LkZ7jUtKCF0ROz+Ryt5ZzoO8=;
+ b=DzsmvNg+W+pdZiy6Kkmblg6BifK4sMwzbgG7zmLqFXO5a+uxBIdyMcTeCdDKRZVBuNsR2RZUE//W+FezJy1wXHFxznI7DWeXvdM/Nnjx1P9vd3MgsW+1SmcGH7PED5ITfxYS0PeqLaEGsqLI95I0olLqCbuytgmovJcbWKYcnNo=
+Received: from DM6PR17CA0030.namprd17.prod.outlook.com (2603:10b6:5:1b3::43)
+ by DS0PR12MB7851.namprd12.prod.outlook.com (2603:10b6:8:14a::8) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26; Tue, 14 Mar
- 2023 17:41:58 +0000
-Received: from DM6NAM11FT015.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:333:cafe::f7) by DM6PR03CA0079.outlook.office365.com
- (2603:10b6:5:333::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.24; Tue, 14 Mar
+ 2023 17:42:01 +0000
+Received: from DM6NAM11FT096.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:1b3:cafe::ed) by DM6PR17CA0030.outlook.office365.com
+ (2603:10b6:5:1b3::43) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26 via Frontend
- Transport; Tue, 14 Mar 2023 17:41:58 +0000
+ Transport; Tue, 14 Mar 2023 17:42:01 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -46,24 +46,24 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT015.mail.protection.outlook.com (10.13.172.133) with Microsoft SMTP
+ DM6NAM11FT096.mail.protection.outlook.com (10.13.173.145) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6199.11 via Frontend Transport; Tue, 14 Mar 2023 17:41:58 +0000
+ 15.20.6199.11 via Frontend Transport; Tue, 14 Mar 2023 17:42:01 +0000
 Received: from tr4.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Tue, 14 Mar
- 2023 12:41:57 -0500
+ 2023 12:41:58 -0500
 From:   Alex Deucher <alexander.deucher@amd.com>
 To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
         <sashal@kernel.org>
-CC:     Alvin Lee <Alvin.Lee2@amd.com>,
-        Daniel Wheeler <Daniel.Wheeler@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+CC:     Samson Tam <Samson.Tam@amd.com>,
+        Nevenko Stupar <Nevenko.Stupar@amd.com>,
+        Alan Liu <HaoPing.Liu@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         "Alex Deucher" <alexander.deucher@amd.com>
-Subject: [PATCH 1/2] drm/amd/display: Allow subvp on vactive pipes that are 2560x1440@60
-Date:   Tue, 14 Mar 2023 13:41:39 -0400
-Message-ID: <20230314174140.505833-2-alexander.deucher@amd.com>
+Subject: [PATCH 2/2] drm/amd/display: adjust MALL size available for DCN32 and DCN321
+Date:   Tue, 14 Mar 2023 13:41:40 -0400
+Message-ID: <20230314174140.505833-3-alexander.deucher@amd.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230314174140.505833-1-alexander.deucher@amd.com>
 References: <20230314174140.505833-1-alexander.deucher@amd.com>
@@ -75,108 +75,216 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT015:EE_|PH7PR12MB7915:EE_
-X-MS-Office365-Filtering-Correlation-Id: 764c856d-edeb-4d63-1b40-08db24b36945
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT096:EE_|DS0PR12MB7851:EE_
+X-MS-Office365-Filtering-Correlation-Id: 17b1c4a6-24e6-416d-d669-08db24b36b33
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dVdtnchQlLuvy2CMzBDvnFFe4dQHW2bNzIkBAuSo0yYZCcGJpTbuogixx+DnY+tOhUBIyg6MKWbIDzy31cB2dRr8KaUDb/74mfWpVgTtgGL1PXJlxRI2TV4Ge2GEyTP9CgbasDLyWLhhxYgHPKvHq0G0D9QeCYYjipg7mcZpSjD85XLpIlVo2mUnNBTmosJdNvNSN5v/sQYb5XinwqDMv1iW+7VhpQIN1LyJMUhzckNdbvy3FRisjtKO/94KB1x2LeemhoR/jQZzG1CZd5ysHA7hYT79Z6SG4gk50XGLEHuvAC/LNqxYE2WKAJ0dnD73VrQmxI74vXzUE+PIjb6E9FX/gIHoECa5gR5LWEH8v3EE0cLXwBx509fSZIX1YUihgtqDo9l/Smy7f1BO+/n/YI3rPEaJzE7PvVbnmkc2bsqFGugMOyGWTzpJMjDRo/TU65k4AZbIJ74HH48JMFC6pA97kQ3LUoc8GF2yqf8p0omBTQrzd0QJejzZOMa+sFwD6ufO0mHH/2i3B8J40yKMAec4NJLItLilMjUMaAtFkSAyTTJnWKZX1VwnISgx1qOEbgAHyq7ppZGqBbMeJ3T33reIH/Cbi2rID+J4DTnu17Ba6fWlZ9dZ6K89HoejmKyFsrve/mY4Lr+i91PgGrYTm2Ys6nXw/Lys6xRcf3tbafy2lHZHHnhqprMHtelLgxmi+Zg5aMalgFuESXJ72ccaEY1XckXTF08bPPYy4ew2ImghmmWTFAAIwds2S0MR/voZEwLhyXg3kgsVSuhiOGy3UQ==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(376002)(396003)(39860400002)(346002)(136003)(451199018)(40470700004)(36840700001)(46966006)(4326008)(110136005)(54906003)(316002)(70586007)(41300700001)(36860700001)(356005)(70206006)(83380400001)(8936002)(82310400005)(478600001)(426003)(47076005)(5660300002)(336012)(86362001)(8676002)(2616005)(40460700003)(16526019)(7696005)(186003)(40480700001)(6666004)(26005)(36756003)(82740400003)(1076003)(81166007)(2906002)(36900700001)(44824005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: KYOSeJ7TY7DzhrTDl/ACSN0gppWKTj7jqBABHRT2sXTUHoZ1hKXfp4EiIdhbn9YBzTiKBh1NmaHgDoEwkjdmJTNVKhuqbEv3wOUp6ezpc6mD+0of6qFxKzTq872MuvR8RuA7WMuLTqEj8LoMu535omLQJFf8/Z47Ylar/y8IRzGpgOHKSCCf8ah5Eq01zE0yT1vuD1zbwBrTS2OVoRn+wPFZKEJiDi8UK0Ue5EY/+hu8an6C3k8j9Tnc1rBgfdEkrDiU/d9T1YbF2+jsjoa55pCCtOcj36pEVzFzSLsr0vRTeRTcT1IHupAfzWKcmO7eqxVRT8sRVkiViBCAdWFwt5aShZgvIa/xHNWBRPPUYx9qjGHBG2RKiHei9EY6ysWmWJ4Vf+O++JQgzugho2RttTCDMwYWAdxSLaVDot73KjhlSMYSfslT+QdyiHQMSYkK9Z2phrqWo0Yy3OI5D6/xNzYROH8yMnnBktSRGnsDYaJetCQZSbVuuHbgNuqYfNs5sBIAQ8OHfjvKYBU+ZTAthNtrdkO2KyNrvDB+K412eorFcW6S38hMlc/+NjusTlvHkx8w359F2nWmdh8EhFCeykZ6csfa9gLPs+Fj1ahRz4LGuvAtCMKcvWPTrtJACwB4VjS/j4HZTpiJRO3RyAGeEWQOXz88VRELxzB2aRKNS884xvju38M/0703Pt0Cy/yoHwbxVdcYuFdWNBAgLiKzUpQLuMu/kBDOXzqe6itr72c=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(136003)(376002)(39860400002)(346002)(396003)(451199018)(36840700001)(40470700004)(46966006)(5660300002)(40460700003)(36756003)(83380400001)(186003)(47076005)(478600001)(82310400005)(16526019)(426003)(1076003)(6666004)(26005)(7696005)(2616005)(336012)(40480700001)(356005)(8676002)(70586007)(41300700001)(70206006)(4326008)(8936002)(316002)(110136005)(54906003)(86362001)(36860700001)(81166007)(82740400003)(2906002)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 17:41:58.6158
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 17:42:01.8581
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 764c856d-edeb-4d63-1b40-08db24b36945
+X-MS-Exchange-CrossTenant-Network-Message-Id: 17b1c4a6-24e6-416d-d669-08db24b36b33
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT015.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT096.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7915
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7851
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,SPF_HELO_PASS,
-        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Lee <Alvin.Lee2@amd.com>
+From: Samson Tam <Samson.Tam@amd.com>
 
-Enable subvp on specifically 1440p@60hz displays even though it can
-switch in vactive.
+[Why]
+MALL size available can vary for different SKUs.
+Use num_chans read from VBIOS to determine the available MALL size we can use
 
-Tested-by: Daniel Wheeler <Daniel.Wheeler@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alvin Lee <Alvin.Lee2@amd.com>
+[How]
+Define max_chans for DCN32 and DCN321.
+If num_chans is max_chans, then return max_chans as we can access the
+ entire MALL space.
+Otherwise, define avail_chans as the number of available channels we are
+ allowed instead.
+Return corresponding number of channels back and use this to calculate
+ available MALL size.
+
+Reviewed-by: Nevenko Stupar <Nevenko.Stupar@amd.com>
+Acked-by: Alan Liu <HaoPing.Liu@amd.com>
+Signed-off-by: Samson Tam <Samson.Tam@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-(cherry picked from commit 2ebd1036209c2e7b61e6bc6e5bee4b67c1684ac6)
+(cherry picked from commit 235fef6c7fd341026eee90cc546e6e8ff8b2c315)
 Cc: stable@vger.kernel.org # 6.1.x
 ---
- .../drm/amd/display/dc/dcn32/dcn32_resource.h |  2 ++
- .../drm/amd/display/dc/dml/dcn32/dcn32_fpu.c  | 31 ++++++++++++++++++-
- 2 files changed, 32 insertions(+), 1 deletion(-)
+ .../drm/amd/display/dc/dcn32/dcn32_resource.c | 62 ++++++++++++++++++-
+ .../drm/amd/display/dc/dcn32/dcn32_resource.h |  2 +
+ .../amd/display/dc/dcn321/dcn321_resource.c   |  9 ++-
+ .../drm/amd/display/dc/dml/dcn32/dcn32_fpu.c  |  5 +-
+ .../amd/display/dc/dml/dcn321/dcn321_fpu.c    |  5 +-
+ 5 files changed, 78 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
+index 9919c39f7ea0..d70c64a9fcb2 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
+@@ -2109,13 +2109,19 @@ static bool dcn32_resource_construct(
+ 	dc->caps.max_cursor_size = 64;
+ 	dc->caps.min_horizontal_blanking_period = 80;
+ 	dc->caps.dmdata_alloc_size = 2048;
+-	dc->caps.mall_size_per_mem_channel = 0;
++	dc->caps.mall_size_per_mem_channel = 4;
+ 	dc->caps.mall_size_total = 0;
+ 	dc->caps.cursor_cache_size = dc->caps.max_cursor_size * dc->caps.max_cursor_size * 8;
+ 
+ 	dc->caps.cache_line_size = 64;
+ 	dc->caps.cache_num_ways = 16;
+-	dc->caps.max_cab_allocation_bytes = 67108864; // 64MB = 1024 * 1024 * 64
++
++	/* Calculate the available MALL space */
++	dc->caps.max_cab_allocation_bytes = dcn32_calc_num_avail_chans_for_mall(
++		dc, dc->ctx->dc_bios->vram_info.num_chans) *
++		dc->caps.mall_size_per_mem_channel * 1024 * 1024;
++	dc->caps.mall_size_total = dc->caps.max_cab_allocation_bytes;
++
+ 	dc->caps.subvp_fw_processing_delay_us = 15;
+ 	dc->caps.subvp_prefetch_end_to_mall_start_us = 15;
+ 	dc->caps.subvp_swath_height_margin_lines = 16;
+@@ -2545,3 +2551,55 @@ struct pipe_ctx *dcn32_acquire_idle_pipe_for_head_pipe_in_layer(
+ 
+ 	return idle_pipe;
+ }
++
++unsigned int dcn32_calc_num_avail_chans_for_mall(struct dc *dc, int num_chans)
++{
++	/*
++	 * DCN32 and DCN321 SKUs may have different sizes for MALL
++	 *  but we may not be able to access all the MALL space.
++	 *  If the num_chans is power of 2, then we can access all
++	 *  of the available MALL space.  Otherwise, we can only
++	 *  access:
++	 *
++	 *  max_cab_size_in_bytes = total_cache_size_in_bytes *
++	 *    ((2^floor(log2(num_chans)))/num_chans)
++	 *
++	 * Calculating the MALL sizes for all available SKUs, we
++	 *  have come up with the follow simplified check.
++	 * - we have max_chans which provides the max MALL size.
++	 *  Each chans supports 4MB of MALL so:
++	 *
++	 *  total_cache_size_in_bytes = max_chans * 4 MB
++	 *
++	 * - we have avail_chans which shows the number of channels
++	 *  we can use if we can't access the entire MALL space.
++	 *  It is generally half of max_chans
++	 * - so we use the following checks:
++	 *
++	 *   if (num_chans == max_chans), return max_chans
++	 *   if (num_chans < max_chans), return avail_chans
++	 *
++	 * - exception is GC_11_0_0 where we can't access max_chans,
++	 *  so we define max_avail_chans as the maximum available
++	 *  MALL space
++	 *
++	 */
++	int gc_11_0_0_max_chans = 48;
++	int gc_11_0_0_max_avail_chans = 32;
++	int gc_11_0_0_avail_chans = 16;
++	int gc_11_0_3_max_chans = 16;
++	int gc_11_0_3_avail_chans = 8;
++	int gc_11_0_2_max_chans = 8;
++	int gc_11_0_2_avail_chans = 4;
++
++	if (ASICREV_IS_GC_11_0_0(dc->ctx->asic_id.hw_internal_rev)) {
++		return (num_chans == gc_11_0_0_max_chans) ?
++			gc_11_0_0_max_avail_chans : gc_11_0_0_avail_chans;
++	} else if (ASICREV_IS_GC_11_0_2(dc->ctx->asic_id.hw_internal_rev)) {
++		return (num_chans == gc_11_0_2_max_chans) ?
++			gc_11_0_2_max_chans : gc_11_0_2_avail_chans;
++	} else { // if (ASICREV_IS_GC_11_0_3(dc->ctx->asic_id.hw_internal_rev)) {
++		return (num_chans == gc_11_0_3_max_chans) ?
++			gc_11_0_3_max_chans : gc_11_0_3_avail_chans;
++	}
++}
 diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.h b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.h
-index f76120e67c16..cf7633fab098 100644
+index cf7633fab098..615244a1f95d 100644
 --- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.h
 +++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.h
-@@ -142,6 +142,8 @@ void dcn32_restore_mall_state(struct dc *dc,
- 		struct dc_state *context,
- 		struct mall_temp_config *temp_config);
+@@ -144,6 +144,8 @@ void dcn32_restore_mall_state(struct dc *dc,
  
-+bool dcn32_allow_subvp_with_active_margin(struct pipe_ctx *pipe);
+ bool dcn32_allow_subvp_with_active_margin(struct pipe_ctx *pipe);
+ 
++unsigned int dcn32_calc_num_avail_chans_for_mall(struct dc *dc, int num_chans);
 +
  /* definitions for run time init of reg offsets */
  
  /* CLK SRC */
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn321/dcn321_resource.c b/drivers/gpu/drm/amd/display/dc/dcn321/dcn321_resource.c
+index 6292ac515d1a..d320e21680da 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn321/dcn321_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn321/dcn321_resource.c
+@@ -1697,11 +1697,18 @@ static bool dcn321_resource_construct(
+ 	dc->caps.max_cursor_size = 64;
+ 	dc->caps.min_horizontal_blanking_period = 80;
+ 	dc->caps.dmdata_alloc_size = 2048;
+-	dc->caps.mall_size_per_mem_channel = 0;
++	dc->caps.mall_size_per_mem_channel = 4;
+ 	dc->caps.mall_size_total = 0;
+ 	dc->caps.cursor_cache_size = dc->caps.max_cursor_size * dc->caps.max_cursor_size * 8;
+ 	dc->caps.cache_line_size = 64;
+ 	dc->caps.cache_num_ways = 16;
++
++	/* Calculate the available MALL space */
++	dc->caps.max_cab_allocation_bytes = dcn32_calc_num_avail_chans_for_mall(
++		dc, dc->ctx->dc_bios->vram_info.num_chans) *
++		dc->caps.mall_size_per_mem_channel * 1024 * 1024;
++	dc->caps.mall_size_total = dc->caps.max_cab_allocation_bytes;
++
+ 	dc->caps.max_cab_allocation_bytes = 33554432; // 32MB = 1024 * 1024 * 32
+ 	dc->caps.subvp_fw_processing_delay_us = 15;
+ 	dc->caps.subvp_prefetch_end_to_mall_start_us = 15;
 diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-index 04cc96e70098..91a3839bc297 100644
+index 91a3839bc297..e22b4b3880af 100644
 --- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
 +++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-@@ -676,7 +676,9 @@ static bool dcn32_assign_subvp_pipe(struct dc *dc,
- 		 */
- 		if (pipe->plane_state && !pipe->top_pipe &&
- 				pipe->stream->mall_stream_config.type == SUBVP_NONE && refresh_rate < 120 && !pipe->plane_state->address.tmz_surface &&
--				vba->ActiveDRAMClockChangeLatencyMarginPerState[vba->VoltageLevel][vba->maxMpcComb][vba->pipe_plane[pipe_idx]] <= 0) {
-+				(vba->ActiveDRAMClockChangeLatencyMarginPerState[vba->VoltageLevel][vba->maxMpcComb][vba->pipe_plane[pipe_idx]] <= 0 ||
-+				(vba->ActiveDRAMClockChangeLatencyMarginPerState[vba->VoltageLevel][vba->maxMpcComb][vba->pipe_plane[pipe_idx]] > 0 &&
-+						dcn32_allow_subvp_with_active_margin(pipe)))) {
- 			while (pipe) {
- 				num_pipes++;
- 				pipe = pipe->bottom_pipe;
-@@ -2558,3 +2560,30 @@ void dcn32_zero_pipe_dcc_fraction(display_e2e_pipe_params_st *pipes,
- 	pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
- 	pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
- }
-+
-+bool dcn32_allow_subvp_with_active_margin(struct pipe_ctx *pipe)
-+{
-+	bool allow = false;
-+	uint32_t refresh_rate = 0;
-+
-+	/* Allow subvp on displays that have active margin for 2560x1440@60hz displays
-+	 * only for now. There must be no scaling as well.
-+	 *
-+	 * For now we only enable on 2560x1440@60hz displays to enable 4K60 + 1440p60 configs
-+	 * for p-state switching.
-+	 */
-+	if (pipe->stream && pipe->plane_state) {
-+		refresh_rate = (pipe->stream->timing.pix_clk_100hz * 100 +
-+						pipe->stream->timing.v_total * pipe->stream->timing.h_total - 1)
-+						/ (double)(pipe->stream->timing.v_total * pipe->stream->timing.h_total);
-+		if (pipe->stream->timing.v_addressable == 1440 &&
-+				pipe->stream->timing.h_addressable == 2560 &&
-+				refresh_rate >= 55 && refresh_rate <= 65 &&
-+				pipe->plane_state->src_rect.height == 1440 &&
-+				pipe->plane_state->src_rect.width == 2560 &&
-+				pipe->plane_state->dst_rect.height == 1440 &&
-+				pipe->plane_state->dst_rect.width == 2560)
-+			allow = true;
-+	}
-+	return allow;
-+}
+@@ -2381,8 +2381,11 @@ void dcn32_update_bw_bounding_box_fpu(struct dc *dc, struct clk_bw_params *bw_pa
+ 		}
+ 
+ 		/* Override from VBIOS for num_chan */
+-		if (dc->ctx->dc_bios->vram_info.num_chans)
++		if (dc->ctx->dc_bios->vram_info.num_chans) {
+ 			dcn3_2_soc.num_chans = dc->ctx->dc_bios->vram_info.num_chans;
++			dcn3_2_soc.mall_allocated_for_dcn_mbytes = (double)(dcn32_calc_num_avail_chans_for_mall(dc,
++				dc->ctx->dc_bios->vram_info.num_chans) * dc->caps.mall_size_per_mem_channel);
++		}
+ 
+ 		if (dc->ctx->dc_bios->vram_info.dram_channel_width_bytes)
+ 			dcn3_2_soc.dram_channel_width_bytes = dc->ctx->dc_bios->vram_info.dram_channel_width_bytes;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+index 0ea406145c1d..b80cef70fa60 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+@@ -534,8 +534,11 @@ void dcn321_update_bw_bounding_box_fpu(struct dc *dc, struct clk_bw_params *bw_p
+ 		}
+ 
+ 		/* Override from VBIOS for num_chan */
+-		if (dc->ctx->dc_bios->vram_info.num_chans)
++		if (dc->ctx->dc_bios->vram_info.num_chans) {
+ 			dcn3_21_soc.num_chans = dc->ctx->dc_bios->vram_info.num_chans;
++			dcn3_21_soc.mall_allocated_for_dcn_mbytes = (double)(dcn32_calc_num_avail_chans_for_mall(dc,
++				dc->ctx->dc_bios->vram_info.num_chans) * dc->caps.mall_size_per_mem_channel);
++		}
+ 
+ 		if (dc->ctx->dc_bios->vram_info.dram_channel_width_bytes)
+ 			dcn3_21_soc.dram_channel_width_bytes = dc->ctx->dc_bios->vram_info.dram_channel_width_bytes;
 -- 
 2.39.2
 
