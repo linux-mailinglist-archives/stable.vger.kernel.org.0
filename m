@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BEB76B8F79
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 11:15:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F7A6B9072
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 11:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbjCNKPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 06:15:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37576 "EHLO
+        id S229827AbjCNKpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 06:45:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229529AbjCNKPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 06:15:10 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28827F02C
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 03:14:28 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id u3-20020a17090a450300b00239db6d7d47so14603867pjg.4
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 03:14:28 -0700 (PDT)
+        with ESMTP id S229800AbjCNKpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 06:45:38 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F200B14E84
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 03:45:05 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id 6-20020a17090a190600b00237c5b6ecd7so19871197pjg.4
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 03:45:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678788808;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678790705;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=cY+OLNb/0io4I79I/7MEbVPEHg9ZBbw1rsUSTfoQLec=;
-        b=LsDfeBbdDqmMuFj8fkC0SKMIgJIo0LWJ1tNKnjttntb8L767sy8/V05e7+vRM23Aa8
-         plIQO5NZAzovylrmxhBiX3JA/9ek+iI5WKZdmKbu79NqlBRvO3RpAD/dZZp7OsN72lLp
-         NUq8/1bzMa1WOfM0BMjPNYXsHbom07R9PbWwH98dqev+etvzpH2OEezn0O0nD2lb6Psw
-         COY8PBVRQRhVxO0z8560gAIM2DZllK8W2SWE+EOOnWEZxfPOPlAM0qNjPXoq5ewArWoD
-         jZC5VBreIj6GlyGOeD2t/gUP+WNBIswsav6jGeC5LAr3+1ELsCUuErLJOrR4mngeRTsR
-         vSOw==
+        bh=QUuG8IlzLmlm1FJvgpjsNG7HVB1sXDvIEx8cUXT6k8Q=;
+        b=HZGONCOGY+6H1sMECd3UJKZN+768aQueTG1WwiEzIWM5NPsXuAIWDugcnYwgauF8eH
+         KiYcH94dPbrdevsVNSLFvvjeFmhbYT0JzG/cWNIDs7c8H007IbKyhabceCfjpor/n++O
+         e8uiD2W67GVeSmHc3/QyyBsKjkCjkU7p6WVbxmOQ5XWNc/94l5zhL/98JLjiGchGIgj5
+         z6u8rJqY4hDlHw8UPRIV0h8g1OH5E72z6+uJDA0cYhGdWEwHg8FYGGjedlWmva2R4bPy
+         5Dkbx/YGPnkRXv7BVOP7af3bzixSYoctonVeHGN5ZzlSNSMBo+Z5h/mB0hkApsx78TYW
+         qhfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678788808;
+        d=1e100.net; s=20210112; t=1678790705;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=cY+OLNb/0io4I79I/7MEbVPEHg9ZBbw1rsUSTfoQLec=;
-        b=TyxoZ3WeeM9ld7lWDW+PSFzrTj+KYtCPMVgHs2JGCyYupBYkc2ZkH5ivQoXHXzTL9g
-         Ab4oh1UDe/6r3/g+dQwBV8Pn9yzYqlPfuBEy6/CDvWeN4kKcFMQVU+DOt29dFsHdt49j
-         1vj6p4x4FJGXIpTRa0+EKkaRwQX7u1nWx2Oq5Ds7nKL6NBvbwxE7FdVDgnwdH3bzrt7T
-         4RzGH/MyIreGouAcJXkvZ0upEVyswkZkqSH+vxVaW9lLZyj/Vj6zGIKv+12IQ6TGYLh3
-         BXxIqxS1AnW+EkXK6zMtbmCXJ2WEpdAb4ZQny5NjJOEITJ1pdHTw3+eKDGMBZyQD4Zow
-         P1ig==
-X-Gm-Message-State: AO0yUKU2ZRWHRcZe0IHEKrXgrOIYAhlY89HNttaHtKu7OIz/No4pqCMj
-        EGGhArgdTxJX97Y1fHsNuMLtyzTglwxzhxIv2qfWb35p
-X-Google-Smtp-Source: AK7set/i0HgFrzAa13r/bfRHsgW/wvRVm3cPnPvzRY2CmkjRiugd+s8kCXd80HIaHnmHDXwhJ9cgyw==
-X-Received: by 2002:a17:902:f552:b0:19e:6966:cddc with SMTP id h18-20020a170902f55200b0019e6966cddcmr19483126plf.1.1678788807887;
-        Tue, 14 Mar 2023 03:13:27 -0700 (PDT)
+        bh=QUuG8IlzLmlm1FJvgpjsNG7HVB1sXDvIEx8cUXT6k8Q=;
+        b=bEtsIl6/vdUxpSTWRej+9KiH7k+TQO9LHse8DUf36CXzotTbmOdMRDsZ4nzCkV0GEl
+         9gGWyyRkESDjIrvc8Fqpw8+pmKYduBxxpbATmir100u8KXO4G0jJmNZECF8YCCK0lzm6
+         ZWeQWYMNjZcNefotjLAqWZ9JdAW1v3Y6LNR3GhhmUvX041MU/kDKI4+J70TcCLm5dlwq
+         +OkgMizbNzuxTnGeLGY7gJcMzIFx7sDi7RycIJUfjbG+INjA5uOifP4nF9V4wjXqjTh3
+         +qs2rMhDdDaw4bVmyErIK7gBF+V1EzD3OkC+f0ZcozpPlfravb6pVnEwCiNRga1uLyf5
+         IAKg==
+X-Gm-Message-State: AO0yUKXW2jqQB2n/d+VVRvi+nwo1u/7YQ0Ha9T5uXY/KhqElXxyMEPXU
+        tds6sv+MSNjC6n4TBEORv48HSYzRaOUaB/YubTSrl1t4
+X-Google-Smtp-Source: AK7set97qoC58d3xp+Iej8kbAQd8XGMANxr4I+3DZHtzyuHzVVHxgm/BrhdMOdNSIw/PhRffxq0M8Q==
+X-Received: by 2002:a17:903:1103:b0:19c:da7f:a234 with SMTP id n3-20020a170903110300b0019cda7fa234mr44325958plh.67.1678790704045;
+        Tue, 14 Mar 2023 03:45:04 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ko14-20020a17090307ce00b001a0403f6a97sm1380382plb.202.2023.03.14.03.13.27
+        by smtp.gmail.com with ESMTPSA id v10-20020a170902e8ca00b001967580f60fsm1429035plg.260.2023.03.14.03.45.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Mar 2023 03:13:27 -0700 (PDT)
-Message-ID: <641048c7.170a0220.3c507.36da@mx.google.com>
-Date:   Tue, 14 Mar 2023 03:13:27 -0700 (PDT)
+        Tue, 14 Mar 2023 03:45:03 -0700 (PDT)
+Message-ID: <6410502f.170a0220.6b102.324f@mx.google.com>
+Date:   Tue, 14 Mar 2023 03:45:03 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
+X-Kernelci-Branch: queue/5.4
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.276-34-ge787294ce440f
+X-Kernelci-Kernel: v5.4.235-64-gb9b2446990c5
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.19 build: 197 builds: 7 failed, 190 passed,
- 28 warnings (v4.19.276-34-ge787294ce440f)
+Subject: stable-rc/queue/5.4 build: 188 builds: 5 failed, 183 passed, 3 errors,
+ 77 warnings (v5.4.235-64-gb9b2446990c5)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,16 +71,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 197 builds: 7 failed, 190 passed, 28 warnings (=
-v4.19.276-34-ge787294ce440f)
+stable-rc/queue/5.4 build: 188 builds: 5 failed, 183 passed, 3 errors, 77 w=
+arnings (v5.4.235-64-gb9b2446990c5)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.276-34-ge787294ce440f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.235-64-gb9b2446990c5/
 
 Tree: stable-rc
-Branch: queue/4.19
-Git Describe: v4.19.276-34-ge787294ce440f
-Git Commit: e787294ce440f640b61b7f1429643b1c1d595f77
+Branch: queue/5.4
+Git Describe: v5.4.235-64-gb9b2446990c5
+Git Commit: b9b2446990c5cfddedd672eeb5b352565a72d2d2
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -94,68 +94,129 @@ arm:
 mips:
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
+    lasat_defconfig: (gcc-10) FAIL
 
-riscv:
-    allnoconfig: (gcc-10) FAIL
-    defconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-
-Warnings Detected:
+Errors and Warnings Detected:
 
 arc:
+    axs103_smp_defconfig (gcc-10): 1 warning
+    hsdk_defconfig (gcc-10): 1 warning
+    nsimosci_hs_defconfig (gcc-10): 1 warning
+    nsimosci_hs_smp_defconfig (gcc-10): 1 warning
+    vdk_hs38_smp_defconfig (gcc-10): 1 warning
 
 arm64:
     defconfig (gcc-10): 3 warnings
     defconfig+arm64-chromebook (gcc-10): 3 warnings
 
 arm:
-    omap1_defconfig (gcc-10): 1 warning
+    aspeed_g4_defconfig (gcc-10): 1 warning
+    aspeed_g5_defconfig (gcc-10): 1 warning
+    assabet_defconfig (gcc-10): 1 warning
+    at91_dt_defconfig (gcc-10): 1 warning
+    bcm2835_defconfig (gcc-10): 1 warning
+    collie_defconfig (gcc-10): 1 warning
+    davinci_all_defconfig (gcc-10): 1 warning
+    exynos_defconfig (gcc-10): 1 warning
+    gemini_defconfig (gcc-10): 1 warning
+    h3600_defconfig (gcc-10): 1 warning
+    hisi_defconfig (gcc-10): 1 warning
+    imx_v6_v7_defconfig (gcc-10): 1 warning
+    integrator_defconfig (gcc-10): 1 warning
+    lpc18xx_defconfig (gcc-10): 1 warning
+    lpc32xx_defconfig (gcc-10): 1 warning
+    multi_v5_defconfig (gcc-10): 1 warning
+    multi_v7_defconfig (gcc-10): 1 warning
+    mxs_defconfig (gcc-10): 1 warning
+    neponset_defconfig (gcc-10): 1 warning
+    nhk8815_defconfig (gcc-10): 1 warning
+    omap2plus_defconfig (gcc-10): 1 warning
+    pxa_defconfig (gcc-10): 1 warning
+    qcom_defconfig (gcc-10): 1 warning
+    realview_defconfig (gcc-10): 1 warning
+    s5pv210_defconfig (gcc-10): 1 warning
+    sama5_defconfig (gcc-10): 1 warning
+    shannon_defconfig (gcc-10): 1 warning
+    shmobile_defconfig (gcc-10): 1 warning
+    spear3xx_defconfig (gcc-10): 1 warning
+    sunxi_defconfig (gcc-10): 1 warning
+    tegra_defconfig (gcc-10): 1 warning
+    u8500_defconfig (gcc-10): 1 warning
+    versatile_defconfig (gcc-10): 1 warning
+    vexpress_defconfig (gcc-10): 1 warning
 
 i386:
     allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 3 warnings
     tinyconfig (gcc-10): 2 warnings
 
 mips:
-    lemote2f_defconfig (gcc-10): 1 warning
+    lasat_defconfig (gcc-10): 3 errors, 1 warning
     loongson3_defconfig (gcc-10): 1 warning
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
     mtx1_defconfig (gcc-10): 3 warnings
-    nlm_xlp_defconfig (gcc-10): 1 warning
+    qi_lb60_defconfig (gcc-10): 1 warning
 
 riscv:
+    defconfig (gcc-10): 1 warning
 
 x86_64:
-    allnoconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-    x86_64_defconfig (gcc-10): 2 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
+    allnoconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 5 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
 
+Errors summary:
+
+    1    arch/mips/lasat/picvue_proc.c:87:20: error: =E2=80=98pvc_display_t=
+asklet=E2=80=99 undeclared (first use in this function)
+    1    arch/mips/lasat/picvue_proc.c:42:44: error: expected =E2=80=98)=E2=
+=80=99 before =E2=80=98&=E2=80=99 token
+    1    arch/mips/lasat/picvue_proc.c:33:13: error: =E2=80=98pvc_display=
+=E2=80=99 defined but not used [-Werror=3Dunused-function]
 
 Warnings summary:
 
+    37   drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of=
+ =E2=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier=
+ from pointer target type [-Wdiscarded-qualifiers]
     7    ld: warning: creating DT_TEXTREL in a PIE
-    6    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+    5    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of=
+ 'is_hdmi2_sink' discards 'const' qualifier from pointer target type [-Wdis=
+carded-qualifiers]
     4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
+    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+ to integer of different size [-Wpointer-to-int-cast]
     3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    {standard input}:132: Warning: macro instruction expanded into mul=
-tiple instructions
+    2    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpolin=
+e, please patch it in with alternatives and annotate it with ANNOTATE_NOSPE=
+C_ALTERNATIVE.
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
+    1    cc1: all warnings being treated as errors
 
 Section mismatches summary:
 
-    13   WARNING: modpost: Found 1 section mismatch(es).
+    10   WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section =
+mismatch in reference from the variable __ksymtab_vic_init_cascaded to the =
+function .init.text:vic_init_cascaded()
+    1    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mi=
+smatch in reference from the variable __ksymtab_ixp4xx_irq_init to the func=
+tion .init.text:ixp4xx_irq_init()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -171,23 +232,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -201,10 +247,14 @@ y section `.head.text'
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
 n mismatches
 
 Warnings:
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -221,23 +271,42 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -261,8 +330,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of 'is_=
+hdmi2_sink' discards 'const' qualifier from pointer target type [-Wdiscarde=
+d-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -271,8 +345,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -346,8 +425,12 @@ colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -356,8 +439,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -366,13 +454,33 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
-ismatches
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -380,12 +488,13 @@ defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
 ismatches
 
 Warnings:
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -393,12 +502,13 @@ defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warn=
 ings, 0 section mismatches
 
 Warnings:
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -431,7 +541,9 @@ ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -440,8 +552,13 @@ eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -465,8 +582,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -475,8 +597,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -500,20 +626,33 @@ haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of 'is_=
+hdmi2_sink' discards 'const' qualifier from pointer target type [-Wdiscarde=
+d-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
 
 Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -530,30 +669,32 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -581,6 +722,11 @@ on mismatches
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mismatc=
+h in reference from the variable __ksymtab_ixp4xx_irq_init to the function =
+.init.text:ixp4xx_irq_init()
+
 ---------------------------------------------------------------------------=
 -----
 jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
@@ -603,27 +749,29 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+lasat_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    arch/mips/lasat/picvue_proc.c:42:44: error: expected =E2=80=98)=E2=80=
+=99 before =E2=80=98&=E2=80=99 token
+    arch/mips/lasat/picvue_proc.c:87:20: error: =E2=80=98pvc_display_taskle=
+t=E2=80=99 undeclared (first use in this function)
+    arch/mips/lasat/picvue_proc.c:33:13: error: =E2=80=98pvc_display=E2=80=
+=99 defined but not used [-Werror=3Dunused-function]
+
+Warnings:
+    cc1: all warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -641,18 +789,29 @@ loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
 Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -691,12 +850,8 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:132: Warning: macro instruction expanded into multiple=
- instructions
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -727,6 +882,11 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 -----
 markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -783,16 +943,28 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -806,13 +978,22 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -821,28 +1002,23 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -861,42 +1037,38 @@ nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
 
 Warnings:
-    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of 'is_=
+hdmi2_sink' discards 'const' qualifier from pointer target type [-Wdiscarde=
+d-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of 'is_=
+hdmi2_sink' discards 'const' qualifier from pointer target type [-Wdiscarde=
+d-qualifiers]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -970,23 +1142,33 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
 
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1000,8 +1182,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1024,20 +1211,34 @@ s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1046,13 +1247,22 @@ sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1071,11 +1281,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1083,7 +1300,9 @@ spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1097,8 +1316,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1127,18 +1351,18 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
- mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1152,13 +1376,17 @@ y section `.head.text'
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
 
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
+Warnings:
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1171,12 +1399,19 @@ u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1185,21 +1420,38 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+ section mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of 'is_=
+hdmi2_sink' discards 'const' qualifier from pointer target type [-Wdiscarde=
+d-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1228,10 +1480,18 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
 ection mismatches
 
 Warnings:
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1239,9 +1499,17 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-2 warnings, 0 section mismatches
+5 warnings, 0 section mismatches
 
 Warnings:
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
+    drivers/gpu/drm/drm_edid.c:5119:21: warning: passing argument 1 of =E2=
+=80=98is_hdmi2_sink=E2=80=99 discards =E2=80=98const=E2=80=99 qualifier fro=
+m pointer target type [-Wdiscarded-qualifiers]
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
