@@ -2,82 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6186B9AC8
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 17:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 255016B9B87
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 17:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229665AbjCNQNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 12:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37056 "EHLO
+        id S230357AbjCNQby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 12:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjCNQNe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 12:13:34 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B30AB893
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 09:13:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678810397; x=1710346397;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=faJaWntiVCGWz9Mq8eHxleM80Hs/dIosUCg+ytVAJQE=;
-  b=kRLxFL0Stk3Cm0/RTjCXEp79c57CIrDQTXbr0iBv2rVSwQ9AQ96oM5jA
-   2K0/gSGW6+jvCMuH+ot9tnmf6T1kkq9dLagNJH1BhBp80uUmUGjpioknn
-   1LkwtFgaEBIQHRXV3QSebOr0UMOHrhOeKlAAfidLKbOqYHn5ew63CzPr8
-   L7MEqhTY62xDZFadvn/xUTBno2GyQQNTZulVBFmPc2gHBp8c3Qgzgh9sj
-   viiYru7kfNVWQP0PcYcbyndt3KrXM2mDQwQFS+G+Dr1VPxqRhBqNc9JL8
-   TUrcW5eHUbILo/6+DPPnf2rDdPPHy5cyD0nRvStSGQcADvPWVQL9Q23Mb
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10649"; a="317866765"
-X-IronPort-AV: E=Sophos;i="5.98,260,1673942400"; 
-   d="scan'208";a="317866765"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2023 09:09:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10649"; a="822424203"
-X-IronPort-AV: E=Sophos;i="5.98,260,1673942400"; 
-   d="scan'208";a="822424203"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
-  by fmsmga001.fm.intel.com with ESMTP; 14 Mar 2023 09:09:43 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pc7Da-00071I-3A;
-        Tue, 14 Mar 2023 16:09:42 +0000
-Date:   Wed, 15 Mar 2023 00:08:54 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Wei Chen <harperchen1110@gmail.com>
-Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH v3] i2c: xgene-slimpro: Fix out-of-bounds bug in
- xgene_slimpro_i2c_xfer()
-Message-ID: <ZBCcFsRVwUSwI436@0f0c699f4fc0>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230314160416.2813398-1-harperchen1110@gmail.com>
+        with ESMTP id S229988AbjCNQbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 12:31:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A455653F;
+        Tue, 14 Mar 2023 09:31:41 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A78361847;
+        Tue, 14 Mar 2023 16:31:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D989CC433EF;
+        Tue, 14 Mar 2023 16:31:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678811500;
+        bh=ARC9WBAhBVNF4Tztw+npvVi7tSsxTYJsQSXYXedfHHg=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=qj2EMqg+tWF6I0RiRIFJxaGmxwCo4aQ9Pwt/roF+/gI36ZhlwL2tqAM1P+PmBCf5Z
+         c2FXor5ppSLyGiHzoTNmItOaOC/NGcfdw+uVUHuZxlHyudsqjWT5y/0kUYxlms86PX
+         yqOj1HvKbbWmEofHGXiGeU75lV7OEtZkVum4Fe+LiYBzShRoVvnEn2CwmLuN5F3BSQ
+         szjnOa1MG9n4VrEAljHEYnqeIF3erX2GMQAPCNYsZyQk7G688+wm4qomx9milYSwxE
+         1jW6l8zvArDZRUt/5CU/DcbXAE2+/tXW1/sKrwHoYggaKzVS0YE7AuVZTOYfAi4+r3
+         0XeVxW+WjIHOA==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1pc7Yo-0001sY-Fs;
+        Tue, 14 Mar 2023 16:31:38 +0000
+Date:   Tue, 14 Mar 2023 16:31:38 +0000
+Message-ID: <86fsa7xpjp.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     David Matlack <dmatlack@google.com>
+Cc:     Oliver Upton <oliver.upton@linux.dev>, kvm@vger.kernel.org,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Will Deacon <will@kernel.org>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>
+Subject: Re: [PATCH] KVM: arm64: Retry fault if vma_lookup() results become invalid
+In-Reply-To: <20230313235454.2964067-1-dmatlack@google.com>
+References: <20230313235454.2964067-1-dmatlack@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: dmatlack@google.com, oliver.upton@linux.dev, kvm@vger.kernel.org, james.morse@arm.com, suzuki.poulose@arm.com, yuzenghui@huawei.com, will@kernel.org, mtosatti@redhat.com, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, stable@vger.kernel.org, seanjc@google.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+[Dropping Christoffer's 11 year obsolete address...]
 
-Thanks for your patch.
+On Mon, 13 Mar 2023 23:54:54 +0000,
+David Matlack <dmatlack@google.com> wrote:
+> 
+> Read mmu_invalidate_seq before dropping the mmap_lock so that KVM can
+> detect if the results of vma_lookup() (e.g. vma_shift) become stale
+> before it acquires kvm->mmu_lock. This fixes a theoretical bug where a
+> VMA could be changed by userspace after vma_lookup() and before KVM
+> reads the mmu_invalidate_seq, causing KVM to install page table entries
+> based on a (possibly) no-longer-valid vma_shift.
+> 
+> Re-order the MMU cache top-up to earlier in user_mem_abort() so that it
+> is not done after KVM has read mmu_invalidate_seq (i.e. so as to avoid
+> inducing spurious fault retries).
+> 
+> This bug has existed since KVM/ARM's inception. It's unlikely that any
+> sane userspace currently modifies VMAs in such a way as to trigger this
+> race. And even with directed testing I was unable to reproduce it. But a
+> sufficiently motivated host userspace might be able to exploit this
+> race.
+> 
+> Fixes: 94f8e6418d39 ("KVM: ARM: Handle guest faults in KVM")
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+Ah, good luck with that one! :D user_mem_abort() used to be so nice
+and simple at the time! And yet...
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH v3] i2c: xgene-slimpro: Fix out-of-bounds bug in xgene_slimpro_i2c_xfer()
-Link: https://lore.kernel.org/stable/20230314160416.2813398-1-harperchen1110%40gmail.com
+> Cc: stable@vger.kernel.org
+> Reported-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: David Matlack <dmatlack@google.com>
 
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+
+Oliver, how do you want to deal with this one? queue it right now? Or
+wait until the dust settles on my two other patches?
+
+I don't mind either way, I can either take it as part of the same
+series, or rebase my stuff on it.
+
+Thanks,
+
+	M.
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
-
-
-
+Without deviation from the norm, progress is not possible.
