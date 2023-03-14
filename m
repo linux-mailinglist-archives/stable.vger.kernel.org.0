@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0F26B9475
+	by mail.lfdr.de (Postfix) with ESMTP id 2961E6B9473
 	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbjCNMpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56516 "EHLO
+        id S231576AbjCNMpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:45:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231618AbjCNMpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:45:13 -0400
+        with ESMTP id S231544AbjCNMpL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:45:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE23D6153A;
-        Tue, 14 Mar 2023 05:44:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50841C5B6;
+        Tue, 14 Mar 2023 05:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D70BEB8190A;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8949EB811F5;
+        Tue, 14 Mar 2023 12:43:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AAE7C433D2;
         Tue, 14 Mar 2023 12:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989C2C433EF;
-        Tue, 14 Mar 2023 12:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678797822;
-        bh=yjNMJTJ0RO3C3iNpdBJYuDltmk9wej9BzuKPkT0X7wc=;
+        s=k20201202; t=1678797824;
+        bh=voqCg8hWNP7CnMJpCaiH8vm9+tbFEmkocUiBXj6O6sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCaSIXvktG/72fG2JXBem6IRjuK5pnPi6W352sHDDPcuiu/+E6orkwi7Vb0qn+h1G
-         z57NaVRWvYerDJfS1CaLX8uXA9t8Byk+7Fw9hEpRAtf2AP1Qp8xlaAn0To1W7Nyzje
-         5sleWyg4iglIzUpe8MFQtQOlFcDTQhKgpYdTiEGi8TXa7e1dGbvHgSbRMCIuTwUJ+b
-         N1SUF08qtPEJGrr6hWlJ7gRLoW2e0okcqI9MlTGdjJ6S98Tp+sRb0jsgGwQ87FHLEp
-         hFBHFDa2Ef85BKvmc7ywiuV/WgND37QPVnNS4QeBZ2wPzsp17QRXFMTJgatvQxodmA
-         yKHi8PhZ6J0QQ==
+        b=XhfvXTJXH+lcMMo77ss6tUQ3GR/VuTXu1JpN4cri2HzFo1fPQp58KW+RWFrRmSD6Y
+         FhVEnhF3A2dDAp5OGzAbTkht9Uav278m/ArRY7NkI3z7RsHTU+dl7LF5rTz6fadjfA
+         oLUT3jOzgvMYVTL8ZQEVnJetPtFJ4/uYFkNqKTJJ1JwXqo7yFF214CSDwhbSwyMMMP
+         //W7yznGC/cLV5ZiA+th+75HNQAz8xi5H+FUZB0iht/m4NPXWFWwIVIkX/hzBw2qLC
+         I962hYjrk13/whL/kLLLIT5RH90U19LxeA8kXDb7J0QZfAa+6O7jBN9/GDscWouV9i
+         qa1j7ksxrsrwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Horatio Zhang <Hongkun.Zhang@amd.com>,
-        longlyao <Longlong.Yao@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
+Cc:     Alex Hung <alex.hung@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         airlied@linux.ie, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 12/13] drm/amdgpu: fix ttm_bo calltrace warning in psp_hw_fini
-Date:   Tue, 14 Mar 2023 08:43:24 -0400
-Message-Id: <20230314124325.470931-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 13/13] drm/amd/display: fix shift-out-of-bounds in CalculateVMAndRowBytes
+Date:   Tue, 14 Mar 2023 08:43:25 -0400
+Message-Id: <20230314124325.470931-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230314124325.470931-1-sashal@kernel.org>
 References: <20230314124325.470931-1-sashal@kernel.org>
@@ -59,74 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatio Zhang <Hongkun.Zhang@amd.com>
+From: Alex Hung <alex.hung@amd.com>
 
-[ Upstream commit 23f4a2d29ba57bf88095f817de5809d427fcbe7e ]
+[ Upstream commit 031f196d1b1b6d5dfcb0533b431e3ab1750e6189 ]
 
-The call trace occurs when the amdgpu is removed after
-the mode1 reset. During mode1 reset, from suspend to resume,
-there is no need to reinitialize the ta firmware buffer
-which caused the bo pin_count increase redundantly.
+[WHY]
+When PTEBufferSizeInRequests is zero, UBSAN reports the following
+warning because dml_log2 returns an unexpected negative value:
 
-[  489.885525] Call Trace:
-[  489.885525]  <TASK>
-[  489.885526]  amdttm_bo_put+0x34/0x50 [amdttm]
-[  489.885529]  amdgpu_bo_free_kernel+0xe8/0x130 [amdgpu]
-[  489.885620]  psp_free_shared_bufs+0xb7/0x150 [amdgpu]
-[  489.885720]  psp_hw_fini+0xce/0x170 [amdgpu]
-[  489.885815]  amdgpu_device_fini_hw+0x2ff/0x413 [amdgpu]
-[  489.885960]  ? blocking_notifier_chain_unregister+0x56/0xb0
-[  489.885962]  amdgpu_driver_unload_kms+0x51/0x60 [amdgpu]
-[  489.886049]  amdgpu_pci_remove+0x5a/0x140 [amdgpu]
-[  489.886132]  ? __pm_runtime_resume+0x60/0x90
-[  489.886134]  pci_device_remove+0x3e/0xb0
-[  489.886135]  __device_release_driver+0x1ab/0x2a0
-[  489.886137]  driver_detach+0xf3/0x140
-[  489.886138]  bus_remove_driver+0x6c/0xf0
-[  489.886140]  driver_unregister+0x31/0x60
-[  489.886141]  pci_unregister_driver+0x40/0x90
-[  489.886142]  amdgpu_exit+0x15/0x451 [amdgpu]
+  shift exponent 4294966273 is too large for 32-bit type 'int'
 
-Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
-Signed-off-by: longlyao <Longlong.Yao@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+[HOW]
+
+In the case PTEBufferSizeInRequests is zero, skip the dml_log2() and
+assign the result directly.
+
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alex Hung <alex.hung@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c   | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 087147f09933a..3b8825a3e2336 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -1695,7 +1695,7 @@ static int psp_hdcp_initialize(struct psp_context *psp)
- 	psp->hdcp_context.context.mem_context.shared_mem_size = PSP_HDCP_SHARED_MEM_SIZE;
- 	psp->hdcp_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
+index 479e2c1a13018..49da8119b28e9 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
+@@ -1802,7 +1802,10 @@ static unsigned int CalculateVMAndRowBytes(
+ 	}
  
--	if (!psp->hdcp_context.context.initialized) {
-+	if (!psp->hdcp_context.context.mem_context.shared_buf) {
- 		ret = psp_ta_init_shared_buf(psp, &psp->hdcp_context.context.mem_context);
- 		if (ret)
- 			return ret;
-@@ -1762,7 +1762,7 @@ static int psp_dtm_initialize(struct psp_context *psp)
- 	psp->dtm_context.context.mem_context.shared_mem_size = PSP_DTM_SHARED_MEM_SIZE;
- 	psp->dtm_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
- 
--	if (!psp->dtm_context.context.initialized) {
-+	if (!psp->dtm_context.context.mem_context.shared_buf) {
- 		ret = psp_ta_init_shared_buf(psp, &psp->dtm_context.context.mem_context);
- 		if (ret)
- 			return ret;
-@@ -1830,7 +1830,7 @@ static int psp_rap_initialize(struct psp_context *psp)
- 	psp->rap_context.context.mem_context.shared_mem_size = PSP_RAP_SHARED_MEM_SIZE;
- 	psp->rap_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
- 
--	if (!psp->rap_context.context.initialized) {
-+	if (!psp->rap_context.context.mem_context.shared_buf) {
- 		ret = psp_ta_init_shared_buf(psp, &psp->rap_context.context.mem_context);
- 		if (ret)
- 			return ret;
+ 	if (SurfaceTiling == dm_sw_linear) {
+-		*dpte_row_height = dml_min(128, 1 << (unsigned int) dml_floor(dml_log2(PTEBufferSizeInRequests * *PixelPTEReqWidth / Pitch), 1));
++		if (PTEBufferSizeInRequests == 0)
++			*dpte_row_height = 1;
++		else
++			*dpte_row_height = dml_min(128, 1 << (unsigned int) dml_floor(dml_log2(PTEBufferSizeInRequests * *PixelPTEReqWidth / Pitch), 1));
+ 		*dpte_row_width_ub = (dml_ceil(((double) SwathWidth - 1) / *PixelPTEReqWidth, 1) + 1) * *PixelPTEReqWidth;
+ 		*PixelPTEBytesPerRow = *dpte_row_width_ub / *PixelPTEReqWidth * *PTERequestSize;
+ 	} else if (ScanDirection != dm_vert) {
 -- 
 2.39.2
 
