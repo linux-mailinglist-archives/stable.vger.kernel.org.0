@@ -2,108 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44FD56B94A6
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4546B9486
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232277AbjCNMrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60880 "EHLO
+        id S232177AbjCNMqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231254AbjCNMqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:46:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C96C2A2C25;
-        Tue, 14 Mar 2023 05:45:03 -0700 (PDT)
+        with ESMTP id S232107AbjCNMp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:45:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5AE3C01;
+        Tue, 14 Mar 2023 05:44:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C155DB81905;
-        Tue, 14 Mar 2023 12:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D0BC433EF;
-        Tue, 14 Mar 2023 12:43:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65B1061773;
+        Tue, 14 Mar 2023 12:43:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D41D2C4339C;
+        Tue, 14 Mar 2023 12:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678797827;
-        bh=itsdBSsZuZQchIHMp91AhtheSQCQbjR2HIoL5bDPqO8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=jfY8aUGnDnzWQ+PmYJfMSZDAf1RKOJ/aBrlBSU1QQd2PqiVkOK84I/xppVpFa11yI
-         kvEcAVkLljsriZgGo2pj/DjeJUKRw5cHxeE3cT0+qADn2sbkvkdNUeE7Jps3LERwC7
-         qTWONZUXz+yfdgqE42LthV6ih2aav0QyszquVivasMkdPoJFtkFUJqSMtSf3YBzX6w
-         LdrxSrNBkhWDLtWnWLHCg0FJBrl20gN+tW2T+45NICXkq6f+OTMnwiATQZbysZu+nT
-         HQJfFKyYBU6TbMfr2TWOdTxhc8F5U08KYiGt2n4SN1MdXKYlGty9S/NlsQIEBmgwb8
-         qeEG7C2q60IwQ==
+        s=k20201202; t=1678797828;
+        bh=UZ/pKeFho25nxzsR7ToDZuBnj1qqvUk5s71vj7Pfj7Q=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cdV4nSGSKt2FpCL5+vNT34X2BGTWsvXlzB7pLKhHt4NmZDe+HWyB0Hk3Yvy9v3ufL
+         1d3T9oUZJwSr3KOUNylrrzWbQue+roIKFeW3NsGw1N5888/8l8gkNrBhPum3pPvZ0I
+         WjFg1BdcF9jhLTiByVpmPwJq8+/6Hdt7DghVGczu3EmEurBzHkNEjO/3HPpd2dsWiw
+         tEK7/TXqPZyzjWtc6U22Qv9yxdy5TSgPieV1riSyzF3WitNnrj4A60hTz+rSlWLf1x
+         FecGT7Pq3foh3w2arNk9SwNAG255RBYrbIe14Z2OYte0NNDQVqVR3QhbhP/X+76RS9
+         IqhbyAn1DeRbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tobias Schramm <t.schramm@manjaro.org>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/10] mmc: atmel-mci: fix race between stop command and start of next command
-Date:   Tue, 14 Mar 2023 08:43:35 -0400
-Message-Id: <20230314124344.471127-1-sashal@kernel.org>
+Cc:     Yifei Liu <yifeliu@cs.stonybrook.edu>,
+        Erez Zadok <ezk@cs.stonybrook.edu>,
+        Manish Adkar <madkar@cs.stonybrook.edu>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, dwmw2@infradead.org,
+        linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 02/10] jffs2: correct logic when creating a hole in jffs2_write_begin
+Date:   Tue, 14 Mar 2023 08:43:36 -0400
+Message-Id: <20230314124344.471127-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230314124344.471127-1-sashal@kernel.org>
+References: <20230314124344.471127-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Schramm <t.schramm@manjaro.org>
+From: Yifei Liu <yifeliu@cs.stonybrook.edu>
 
-[ Upstream commit eca5bd666b0aa7dc0bca63292e4778968241134e ]
+[ Upstream commit 23892d383bee15b64f5463bd7195615734bb2415 ]
 
-This commit fixes a race between completion of stop command and start of a
-new command.
-Previously the command ready interrupt was enabled before stop command
-was written to the command register. This caused the command ready
-interrupt to fire immediately since the CMDRDY flag is asserted constantly
-while there is no command in progress.
-Consequently the command state machine will immediately advance to the
-next state when the tasklet function is executed again, no matter
-actual completion state of the stop command.
-Thus a new command can then be dispatched immediately, interrupting and
-corrupting the stop command on the CMD line.
-Fix that by dropping the command ready interrupt enable before calling
-atmci_send_stop_cmd. atmci_send_stop_cmd does already enable the
-command ready interrupt, no further writes to ATMCI_IER are necessary.
+Bug description and fix:
 
-Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Link: https://lore.kernel.org/r/20221230194315.809903-2-t.schramm@manjaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+1. Write data to a file, say all 1s from offset 0 to 16.
+
+2. Truncate the file to a smaller size, say 8 bytes.
+
+3. Write new bytes (say 2s) from an offset past the original size of the
+file, say at offset 20, for 4 bytes.  This is supposed to create a "hole"
+in the file, meaning that the bytes from offset 8 (where it was truncated
+above) up to the new write at offset 20, should all be 0s (zeros).
+
+4. Flush all caches using "echo 3 > /proc/sys/vm/drop_caches" (or unmount
+and remount) the f/s.
+
+5. Check the content of the file.  It is wrong.  The 1s that used to be
+between bytes 9 and 16, before the truncation, have REAPPEARED (they should
+be 0s).
+
+We wrote a script and helper C program to reproduce the bug
+(reproduce_jffs2_write_begin_issue.sh, write_file.c, and Makefile).  We can
+make them available to anyone.
+
+The above example is shown when writing a small file within the same first
+page.  But the bug happens for larger files, as long as steps 1, 2, and 3
+above all happen within the same page.
+
+The problem was traced to the jffs2_write_begin code, where it goes into an
+'if' statement intended to handle writes past the current EOF (i.e., writes
+that may create a hole).  The code computes a 'pageofs' that is the floor
+of the write position (pos), aligned to the page size boundary.  In other
+words, 'pageofs' will never be larger than 'pos'.  The code then sets the
+internal jffs2_raw_inode->isize to the size of max(current inode size,
+pageofs) but that is wrong: the new file size should be the 'pos', which is
+larger than both the current inode size and pageofs.
+
+Similarly, the code incorrectly sets the internal jffs2_raw_inode->dsize to
+the difference between the pageofs minus current inode size; instead it
+should be the current pos minus the current inode size.  Finally,
+inode->i_size was also set incorrectly.
+
+The patch below fixes this bug.  The bug was discovered using a new tool
+for finding f/s bugs using model checking, called MCFS (Model Checking File
+Systems).
+
+Signed-off-by: Yifei Liu <yifeliu@cs.stonybrook.edu>
+Signed-off-by: Erez Zadok <ezk@cs.stonybrook.edu>
+Signed-off-by: Manish Adkar <madkar@cs.stonybrook.edu>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/atmel-mci.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/jffs2/file.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
-index 6f971a3e7e494..493ed8c824195 100644
---- a/drivers/mmc/host/atmel-mci.c
-+++ b/drivers/mmc/host/atmel-mci.c
-@@ -1818,7 +1818,6 @@ static void atmci_tasklet_func(struct tasklet_struct *t)
- 				atmci_writel(host, ATMCI_IER, ATMCI_NOTBUSY);
- 				state = STATE_WAITING_NOTBUSY;
- 			} else if (host->mrq->stop) {
--				atmci_writel(host, ATMCI_IER, ATMCI_CMDRDY);
- 				atmci_send_stop_cmd(host, data);
- 				state = STATE_SENDING_STOP;
- 			} else {
-@@ -1851,8 +1850,6 @@ static void atmci_tasklet_func(struct tasklet_struct *t)
- 				 * command to send.
- 				 */
- 				if (host->mrq->stop) {
--					atmci_writel(host, ATMCI_IER,
--					             ATMCI_CMDRDY);
- 					atmci_send_stop_cmd(host, data);
- 					state = STATE_SENDING_STOP;
- 				} else {
+diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
+index bd7d58d27bfc6..97a3c09fd96b6 100644
+--- a/fs/jffs2/file.c
++++ b/fs/jffs2/file.c
+@@ -138,19 +138,18 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
+ 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+-	uint32_t pageofs = index << PAGE_SHIFT;
+ 	int ret = 0;
+ 
+ 	jffs2_dbg(1, "%s()\n", __func__);
+ 
+-	if (pageofs > inode->i_size) {
+-		/* Make new hole frag from old EOF to new page */
++	if (pos > inode->i_size) {
++		/* Make new hole frag from old EOF to new position */
+ 		struct jffs2_raw_inode ri;
+ 		struct jffs2_full_dnode *fn;
+ 		uint32_t alloc_len;
+ 
+-		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new page\n",
+-			  (unsigned int)inode->i_size, pageofs);
++		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new position\n",
++			  (unsigned int)inode->i_size, (uint32_t)pos);
+ 
+ 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
+ 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+@@ -170,10 +169,10 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		ri.mode = cpu_to_jemode(inode->i_mode);
+ 		ri.uid = cpu_to_je16(i_uid_read(inode));
+ 		ri.gid = cpu_to_je16(i_gid_read(inode));
+-		ri.isize = cpu_to_je32(max((uint32_t)inode->i_size, pageofs));
++		ri.isize = cpu_to_je32((uint32_t)pos);
+ 		ri.atime = ri.ctime = ri.mtime = cpu_to_je32(JFFS2_NOW());
+ 		ri.offset = cpu_to_je32(inode->i_size);
+-		ri.dsize = cpu_to_je32(pageofs - inode->i_size);
++		ri.dsize = cpu_to_je32((uint32_t)pos - inode->i_size);
+ 		ri.csize = cpu_to_je32(0);
+ 		ri.compr = JFFS2_COMPR_ZERO;
+ 		ri.node_crc = cpu_to_je32(crc32(0, &ri, sizeof(ri)-8));
+@@ -203,7 +202,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			goto out_err;
+ 		}
+ 		jffs2_complete_reservation(c);
+-		inode->i_size = pageofs;
++		inode->i_size = pos;
+ 		mutex_unlock(&f->sem);
+ 	}
+ 
 -- 
 2.39.2
 
