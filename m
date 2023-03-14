@@ -2,73 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1E86B8A74
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 06:36:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AAEB6B8A31
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 06:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229929AbjCNFgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 01:36:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51102 "EHLO
+        id S229564AbjCNFRd convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 14 Mar 2023 01:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229869AbjCNFgh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 01:36:37 -0400
-X-Greylist: delayed 27667 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 13 Mar 2023 22:36:27 PDT
-Received: from defaultworkshop.klidefectmanagement.com.novalocal (unknown [103.30.145.160])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D726A429
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 22:36:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=asda.co.uk;
-        s=x; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:
-        Subject:To:From:Reply-To:Sender:Cc:Content-ID:Content-Description:Resent-Date
-        :Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-        References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
-        List-Owner:List-Archive; bh=T+qfesr2Kj1U6apIvbpjCEMf1RW8ex1UcTZxbZxTdZM=; b=t
-        MlbyqycSJslh4VMfZ3Y9Hbxx29ibtlf6eXcx/YC61ZNJFobv7xCIzkuZgAtEUcHPjzNn3c5z6v2Jo
-        cL6UpbJZNZO5dvjsUq6wndhRPPQs1G2u+dz3cLIA4fvrir/FlChh3+DKGj905oKNEK5K50tR/0Uja
-        0sz6K7bdEepT/AzQ=;
-Received: from ec2-52-11-215-80.us-west-2.compute.amazonaws.com ([52.11.215.80] helo=asda.co.uk)
-        by defaultworkshop.klidefectmanagement.com.novalocal with esmtpa (Exim 4.94.2)
-        (envelope-from <sales1@asda.co.uk>)
-        id 1pblzh-0006Bi-Go
-        for stable@vger.kernel.org; Tue, 14 Mar 2023 00:29:58 +0700
-Reply-To: sales@asda-c.com
-From:   ASDA Stores Limited <sales1@asda.co.uk>
-To:     stable@vger.kernel.org
-Subject: First quarter procurement order/enquiry
-Date:   13 Mar 2023 17:29:56 +0000
-Message-ID: <20230313152049.C9F2971EAF03C1AF@asda.co.uk>
+        with ESMTP id S229494AbjCNFRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 01:17:32 -0400
+X-Greylist: delayed 3209 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 13 Mar 2023 22:17:29 PDT
+Received: from mail.thepenbay.com.tw (mail.thepenbay.com.tw [210.61.229.150])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5563994F7D
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 22:17:29 -0700 (PDT)
+Received: from [191.101.130.246] (191-101-130-246-hostedby.bcr.host [191.101.130.246] (may be forged))
+        (authenticated bits=0)
+        by mail.thepenbay.com.tw (8.14.4/8.14.4/hgmail=1) with ESMTP id 32E0JsZM006752;
+        Tue, 14 Mar 2023 13:15:08 +0800
+Message-Id: <202303140515.32E0JsZM006752@mail.thepenbay.com.tw>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=3.4 required=5.0 tests=BAYES_50,DKIM_INVALID,
-        DKIM_SIGNED,KHOP_HELO_FCRDNS,MAY_BE_FORGED,PDS_RDNS_DYNAMIC_FP,
-        RDNS_DYNAMIC,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=no
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Congratulations,
+To:     Recipients <noreply@un.org>
+From:   "UN" <noreply@un.org>
+Date:   Mon, 13 Mar 2023 22:14:33 -0700
+Reply-To: noreply@un.org
+X-Spam-Status: No, score=3.0 required=5.0 tests=BAYES_50,LOTS_OF_MONEY,
+        MAY_BE_FORGED,MONEY_FRAUD_3,SPF_FAIL,SPF_HELO_NONE,
+        TO_EQ_FM_DOM_SPF_FAIL,TO_EQ_FM_SPF_FAIL autolearn=no
         autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear stable
-I'm a procurement manager  with ASDA Group (the owners of ASDA=20
-Stores) and your company product has caught our interest.=20
-Therefore, we request you send
-list and prices of your hot selling items (products) for our=20
-evaluation/pick.
+United Nations General for Economic Development.
 
-Soon as we receive your reply, we shall send you our company=20
-profile and buying proposal. You can also check our website below=20
-for detailed info of our purchase area and trading capacity.
+Congratulations,
 
-Your immediate response E-mail:  sales@asda-c.com   shall be=20
-appreciated.
+Your email was randomly selected for the 2023 Relief Compensation of $1.5M Package for First Quarter United Nations Reimbursement program 2023. This is to support individuals; businesses and corporate boodies. Please reach Dr. Lami Bello for more information.
 
-Best Wishes
+Contact Name: Dr. Lami Bello
+Email: lamibello@naver.com 
 
-Ms Stelle Montgomery
-Purchasing Dept.
-ASDA Stores Limited
-Tel:  +44 7418367220
-WhatsApp: + 44-7502985874
-Website: www.asda.com
+Regards,
+
+Nicolas Ellis 
+Assistant Secretary General-Mr. Elliott Harris
+General for Economic Development
