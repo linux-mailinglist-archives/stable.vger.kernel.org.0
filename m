@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A326B94DC
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8068B6B94CF
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231836AbjCNMu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:50:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49254 "EHLO
+        id S232271AbjCNMtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232542AbjCNMuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:50:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F313A6143;
-        Tue, 14 Mar 2023 05:46:22 -0700 (PDT)
+        with ESMTP id S231929AbjCNMsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:48:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1741A4029;
+        Tue, 14 Mar 2023 05:45:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 730EAB81974;
-        Tue, 14 Mar 2023 12:44:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264C4C433D2;
-        Tue, 14 Mar 2023 12:44:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3421E61787;
+        Tue, 14 Mar 2023 12:44:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FED0C4339B;
+        Tue, 14 Mar 2023 12:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678797872;
-        bh=E8JmovzNaomgost4CO4gFqcP4MICGl60tu//f4SphD0=;
+        s=k20201202; t=1678797873;
+        bh=Vvlkfw1XBPKnsH1TRnFkFFGGOcbsDu06ehvesBWwqbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KpOnj7te8IJLl7/PzlN6S4kjfncPUYgnIwyakDpY9/L1M+smS/GKCejPqFN5tuwrL
-         QOszK5Vx8DuQm83xzPn/i+6P60wifiuVAox0uh5nACoUXzB3An4vosp04ejXOKc5+I
-         luPWLG1AYgXPL66i+7UR4IrkebVmGNpgYpzeHKx5K7yIf7wfkzLGTtE77Vb6+reabj
-         pmZGU33s2LXIv+VLIdWsAp3DZPsQx76uNBFQoJ1P6e2Se/vqhglEYU/6KSX9QByBKf
-         CmXdOBDVDuNLXleqYPRY5000Z54ms5iHdxSZm72aQaBwmQVnDhgASob3TQSoanbJks
-         aB17MkyysPeKw==
+        b=osfMhknKMZwDNevKq/filbkSqHQdS0SXowxS2pSC+dXBaFfwBfR4s/4mPuCOgToDU
+         HQOyUk+E4DoqypaGt1qM+rKR3vq3Gl6BBGMmiU8bX8iaacIA/tRT81LcbWWIMmqOMy
+         d3pPBHjm6YfuvtgdmwADVvW+m2bsWaGeLou/4HPPqy43y4DnWqXnegMxjjD4iQZSpj
+         Jyf8pxBx/nFIG80JRJsrMGFHTlZwZMl8gX3HYsHM/6KwyNcv+DELgSiNgFtnxQ5Rp5
+         VRx2TsFHRIDb5RxlEXqxFZqT+gBIl8LV9Ol3+w4qqiF99hAMm5xuUnArQQv9sQTjBG
+         Z/AVTItjJlCoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baokun Li <libaokun1@huawei.com>,
-        syzbot+77d6fcc37bbb92f26048@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, adilger.kernel@dilger.ca,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/7] ext4: fix task hung in ext4_xattr_delete_inode
-Date:   Tue, 14 Mar 2023 08:44:22 -0400
-Message-Id: <20230314124424.471460-5-sashal@kernel.org>
+Cc:     Qu Huang <qu.huang@linux.dev>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, oded.gabbay@gmail.com,
+        christian.koenig@amd.com, airlied@linux.ie,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 6/7] drm/amdkfd: Fix an illegal memory access
+Date:   Tue, 14 Mar 2023 08:44:23 -0400
+Message-Id: <20230314124424.471460-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230314124424.471460-1-sashal@kernel.org>
 References: <20230314124424.471460-1-sashal@kernel.org>
@@ -50,103 +51,87 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Qu Huang <qu.huang@linux.dev>
 
-[ Upstream commit 0f7bfd6f8164be32dbbdf36aa1e5d00485c53cd7 ]
+[ Upstream commit 4fc8fff378b2f2039f2a666d9f8c570f4e58352c ]
 
-Syzbot reported a hung task problem:
-==================================================================
-INFO: task syz-executor232:5073 blocked for more than 143 seconds.
-      Not tainted 6.2.0-rc2-syzkaller-00024-g512dee0c00ad #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:syz-exec232 state:D stack:21024 pid:5073 ppid:5072 flags:0x00004004
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5244 [inline]
- __schedule+0x995/0xe20 kernel/sched/core.c:6555
- schedule+0xcb/0x190 kernel/sched/core.c:6631
- __wait_on_freeing_inode fs/inode.c:2196 [inline]
- find_inode_fast+0x35a/0x4c0 fs/inode.c:950
- iget_locked+0xb1/0x830 fs/inode.c:1273
- __ext4_iget+0x22e/0x3ed0 fs/ext4/inode.c:4861
- ext4_xattr_inode_iget+0x68/0x4e0 fs/ext4/xattr.c:389
- ext4_xattr_inode_dec_ref_all+0x1a7/0xe50 fs/ext4/xattr.c:1148
- ext4_xattr_delete_inode+0xb04/0xcd0 fs/ext4/xattr.c:2880
- ext4_evict_inode+0xd7c/0x10b0 fs/ext4/inode.c:296
- evict+0x2a4/0x620 fs/inode.c:664
- ext4_orphan_cleanup+0xb60/0x1340 fs/ext4/orphan.c:474
- __ext4_fill_super fs/ext4/super.c:5516 [inline]
- ext4_fill_super+0x81cd/0x8700 fs/ext4/super.c:5644
- get_tree_bdev+0x400/0x620 fs/super.c:1282
- vfs_get_tree+0x88/0x270 fs/super.c:1489
- do_new_mount+0x289/0xad0 fs/namespace.c:3145
- do_mount fs/namespace.c:3488 [inline]
- __do_sys_mount fs/namespace.c:3697 [inline]
- __se_sys_mount+0x2d3/0x3c0 fs/namespace.c:3674
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fa5406fd5ea
-RSP: 002b:00007ffc7232f968 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fa5406fd5ea
-RDX: 0000000020000440 RSI: 0000000020000000 RDI: 00007ffc7232f970
-RBP: 00007ffc7232f970 R08: 00007ffc7232f9b0 R09: 0000000000000432
-R10: 0000000000804a03 R11: 0000000000000202 R12: 0000000000000004
-R13: 0000555556a7a2c0 R14: 00007ffc7232f9b0 R15: 0000000000000000
- </TASK>
-==================================================================
+In the kfd_wait_on_events() function, the kfd_event_waiter structure is
+allocated by alloc_event_waiters(), but the event field of the waiter
+structure is not initialized; When copy_from_user() fails in the
+kfd_wait_on_events() function, it will enter exception handling to
+release the previously allocated memory of the waiter structure;
+Due to the event field of the waiters structure being accessed
+in the free_waiters() function, this results in illegal memory access
+and system crash, here is the crash log:
 
-The problem is that the inode contains an xattr entry with ea_inum of 15
-when cleaning up an orphan inode <15>. When evict inode <15>, the reference
-counting of the corresponding EA inode is decreased. When EA inode <15> is
-found by find_inode_fast() in __ext4_iget(), it is found that the EA inode
-holds the I_FREEING flag and waits for the EA inode to complete deletion.
-As a result, when inode <15> is being deleted, we wait for inode <15> to
-complete the deletion, resulting in an infinite loop and triggering Hung
-Task. To solve this problem, we only need to check whether the ino of EA
-inode and parent is the same before getting EA inode.
+localhost kernel: RIP: 0010:native_queued_spin_lock_slowpath+0x185/0x1e0
+localhost kernel: RSP: 0018:ffffaa53c362bd60 EFLAGS: 00010082
+localhost kernel: RAX: ff3d3d6bff4007cb RBX: 0000000000000282 RCX: 00000000002c0000
+localhost kernel: RDX: ffff9e855eeacb80 RSI: 000000000000279c RDI: ffffe7088f6a21d0
+localhost kernel: RBP: ffffe7088f6a21d0 R08: 00000000002c0000 R09: ffffaa53c362be64
+localhost kernel: R10: ffffaa53c362bbd8 R11: 0000000000000001 R12: 0000000000000002
+localhost kernel: R13: ffff9e7ead15d600 R14: 0000000000000000 R15: ffff9e7ead15d698
+localhost kernel: FS:  0000152a3d111700(0000) GS:ffff9e855ee80000(0000) knlGS:0000000000000000
+localhost kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+localhost kernel: CR2: 0000152938000010 CR3: 000000044d7a4000 CR4: 00000000003506e0
+localhost kernel: Call Trace:
+localhost kernel: _raw_spin_lock_irqsave+0x30/0x40
+localhost kernel: remove_wait_queue+0x12/0x50
+localhost kernel: kfd_wait_on_events+0x1b6/0x490 [hydcu]
+localhost kernel: ? ftrace_graph_caller+0xa0/0xa0
+localhost kernel: kfd_ioctl+0x38c/0x4a0 [hydcu]
+localhost kernel: ? kfd_ioctl_set_trap_handler+0x70/0x70 [hydcu]
+localhost kernel: ? kfd_ioctl_create_queue+0x5a0/0x5a0 [hydcu]
+localhost kernel: ? ftrace_graph_caller+0xa0/0xa0
+localhost kernel: __x64_sys_ioctl+0x8e/0xd0
+localhost kernel: ? syscall_trace_enter.isra.18+0x143/0x1b0
+localhost kernel: do_syscall_64+0x33/0x80
+localhost kernel: entry_SYSCALL_64_after_hwframe+0x44/0xa9
+localhost kernel: RIP: 0033:0x152a4dff68d7
 
-Link: https://syzkaller.appspot.com/bug?extid=77d6fcc37bbb92f26048
-Reported-by: syzbot+77d6fcc37bbb92f26048@syzkaller.appspotmail.com
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230110133436.996350-1-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Allocate the structure with kcalloc, and remove redundant 0-initialization
+and a redundant loop condition check.
+
+Signed-off-by: Qu Huang <qu.huang@linux.dev>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_events.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 23334cfeac552..724e9f0ed733a 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -384,6 +384,17 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
- 	struct inode *inode;
- 	int err;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+index 892077377339a..8f23192b67095 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+@@ -529,16 +529,13 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
+ 	struct kfd_event_waiter *event_waiters;
+ 	uint32_t i;
  
-+	/*
-+	 * We have to check for this corruption early as otherwise
-+	 * iget_locked() could wait indefinitely for the state of our
-+	 * parent inode.
-+	 */
-+	if (parent->i_ino == ea_ino) {
-+		ext4_error(parent->i_sb,
-+			   "Parent and EA inode have the same ino %lu", ea_ino);
-+		return -EFSCORRUPTED;
-+	}
-+
- 	inode = ext4_iget(parent->i_sb, ea_ino, EXT4_IGET_NORMAL);
- 	if (IS_ERR(inode)) {
- 		err = PTR_ERR(inode);
+-	event_waiters = kmalloc_array(num_events,
+-					sizeof(struct kfd_event_waiter),
+-					GFP_KERNEL);
++	event_waiters = kcalloc(num_events, sizeof(struct kfd_event_waiter),
++				GFP_KERNEL);
+ 	if (!event_waiters)
+ 		return NULL;
+ 
+-	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
++	for (i = 0; i < num_events; i++)
+ 		init_wait(&event_waiters[i].wait);
+-		event_waiters[i].activated = false;
+-	}
+ 
+ 	return event_waiters;
+ }
 -- 
 2.39.2
 
