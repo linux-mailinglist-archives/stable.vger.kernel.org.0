@@ -2,168 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB796B94DA
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29FB56B948A
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232456AbjCNMtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34824 "EHLO
+        id S232182AbjCNMqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:46:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232374AbjCNMso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:48:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB95A402B;
-        Tue, 14 Mar 2023 05:45:50 -0700 (PDT)
+        with ESMTP id S231686AbjCNMps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:45:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E32DA1FDC;
+        Tue, 14 Mar 2023 05:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB73E61774;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFA55B81929;
+        Tue, 14 Mar 2023 12:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C00FC433EF;
         Tue, 14 Mar 2023 12:44:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C408C4339B;
-        Tue, 14 Mar 2023 12:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678797844;
-        bh=UZ/pKeFho25nxzsR7ToDZuBnj1qqvUk5s71vj7Pfj7Q=;
+        s=k20201202; t=1678797845;
+        bh=lCLsMt3NL3qouQq0xW8PNLryrGaViEFM5EBTwI63YHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9GHGo0rL5T0J8LASu7uZVpC/b8LOU5tzvosO5J6BsGHMNJqEh7UD5M7m2HYh1woQ
-         sTHcNhp0+yNOUqkvXW+LXb7PT/Qj+813/KoAI9bCxRsZNDEsuaK0pDhZsBeNKfHNF4
-         mwHcxsJO+HqHUzFpXP+OwrhXkN9Q7A+42EVDL8yeLMLMPj3j7deCS5Vp/J/iQvxN7U
-         B4G3OGd0aRTjLHL8iqp6giHpJj2W00MAXCl8qKCa1oLAd+5JSrqB/Zz/1jnpj20Q1J
-         XB9Z2K54pW7NFVSyftovQAo3dVHVvr2mzL2mS4X6EO3pU1jBw6OCf4CQkGYec9/9nF
-         lYEYuuvg6uXgA==
+        b=KFzk/XaCa7ZiF97gnH/ySDVlNOWUrQcPwqaB+swurBCqloA0vtwSkGFYOdsbNrvpH
+         F15qqq0Dw/hShdKEh91EwDXJgOC17dfK9925BqOzlOdC7/9Xs6fDdDvP/LZFkX8wck
+         34MZzG4rTB4eGQNOn9O0CCWBFDEl3ma5pcYRPEHz1BHmm8NlrPT7/EKTd2LKGmXVL5
+         yWMIfZtE796svUoFMKWE2YJfoyV2oSZSkcG8QYfn4UQVWo659YERKWZyn9MU7Tu2G4
+         pPIm8rWv8kvcw15jBnBEj+y9PUE1V2+zdvX7tAYVN1lzo/Worc3wsjZ+pbInHO8L4m
+         q0uXTzbcUcYJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yifei Liu <yifeliu@cs.stonybrook.edu>,
-        Erez Zadok <ezk@cs.stonybrook.edu>,
-        Manish Adkar <madkar@cs.stonybrook.edu>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, dwmw2@infradead.org,
-        linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 2/8] jffs2: correct logic when creating a hole in jffs2_write_begin
-Date:   Tue, 14 Mar 2023 08:43:54 -0400
-Message-Id: <20230314124400.471257-2-sashal@kernel.org>
+Cc:     David Gow <davidgow@google.com>,
+        =?UTF-8?q?Sergio=20Gonz=C3=A1lez=20Collado?= 
+        <sergio.collado@gmail.com>, Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, hpa@zytor.com, x86@kernel.org
+Subject: [PATCH AUTOSEL 5.10 3/8] rust: arch/um: Disable FP/SIMD instruction to match x86
+Date:   Tue, 14 Mar 2023 08:43:55 -0400
+Message-Id: <20230314124400.471257-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230314124400.471257-1-sashal@kernel.org>
 References: <20230314124400.471257-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifei Liu <yifeliu@cs.stonybrook.edu>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit 23892d383bee15b64f5463bd7195615734bb2415 ]
+[ Upstream commit 8849818679478933dd1d9718741f4daa3f4e8b86 ]
 
-Bug description and fix:
+The kernel disables all SSE and similar FP/SIMD instructions on
+x86-based architectures (partly because we shouldn't be using floats in
+the kernel, and partly to avoid the need for stack alignment, see:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53383 )
 
-1. Write data to a file, say all 1s from offset 0 to 16.
+UML does not do the same thing, which isn't in itself a problem, but
+does add to the list of differences between UML and "normal" x86 builds.
 
-2. Truncate the file to a smaller size, say 8 bytes.
+In addition, there was a crash bug with LLVM < 15 / rustc < 1.65 when
+building with SSE, so disabling it fixes rust builds with earlier
+compiler versions, see:
+https://github.com/Rust-for-Linux/linux/pull/881
 
-3. Write new bytes (say 2s) from an offset past the original size of the
-file, say at offset 20, for 4 bytes.  This is supposed to create a "hole"
-in the file, meaning that the bytes from offset 8 (where it was truncated
-above) up to the new write at offset 20, should all be 0s (zeros).
-
-4. Flush all caches using "echo 3 > /proc/sys/vm/drop_caches" (or unmount
-and remount) the f/s.
-
-5. Check the content of the file.  It is wrong.  The 1s that used to be
-between bytes 9 and 16, before the truncation, have REAPPEARED (they should
-be 0s).
-
-We wrote a script and helper C program to reproduce the bug
-(reproduce_jffs2_write_begin_issue.sh, write_file.c, and Makefile).  We can
-make them available to anyone.
-
-The above example is shown when writing a small file within the same first
-page.  But the bug happens for larger files, as long as steps 1, 2, and 3
-above all happen within the same page.
-
-The problem was traced to the jffs2_write_begin code, where it goes into an
-'if' statement intended to handle writes past the current EOF (i.e., writes
-that may create a hole).  The code computes a 'pageofs' that is the floor
-of the write position (pos), aligned to the page size boundary.  In other
-words, 'pageofs' will never be larger than 'pos'.  The code then sets the
-internal jffs2_raw_inode->isize to the size of max(current inode size,
-pageofs) but that is wrong: the new file size should be the 'pos', which is
-larger than both the current inode size and pageofs.
-
-Similarly, the code incorrectly sets the internal jffs2_raw_inode->dsize to
-the difference between the pageofs minus current inode size; instead it
-should be the current pos minus the current inode size.  Finally,
-inode->i_size was also set incorrectly.
-
-The patch below fixes this bug.  The bug was discovered using a new tool
-for finding f/s bugs using model checking, called MCFS (Model Checking File
-Systems).
-
-Signed-off-by: Yifei Liu <yifeliu@cs.stonybrook.edu>
-Signed-off-by: Erez Zadok <ezk@cs.stonybrook.edu>
-Signed-off-by: Manish Adkar <madkar@cs.stonybrook.edu>
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Sergio González Collado <sergio.collado@gmail.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/file.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ arch/x86/Makefile.um | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
-index bd7d58d27bfc6..97a3c09fd96b6 100644
---- a/fs/jffs2/file.c
-+++ b/fs/jffs2/file.c
-@@ -138,19 +138,18 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
- 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
- 	pgoff_t index = pos >> PAGE_SHIFT;
--	uint32_t pageofs = index << PAGE_SHIFT;
- 	int ret = 0;
+diff --git a/arch/x86/Makefile.um b/arch/x86/Makefile.um
+index 1db7913795f51..e51c53d10efe7 100644
+--- a/arch/x86/Makefile.um
++++ b/arch/x86/Makefile.um
+@@ -1,6 +1,12 @@
+ # SPDX-License-Identifier: GPL-2.0
+ core-y += arch/x86/crypto/
  
- 	jffs2_dbg(1, "%s()\n", __func__);
- 
--	if (pageofs > inode->i_size) {
--		/* Make new hole frag from old EOF to new page */
-+	if (pos > inode->i_size) {
-+		/* Make new hole frag from old EOF to new position */
- 		struct jffs2_raw_inode ri;
- 		struct jffs2_full_dnode *fn;
- 		uint32_t alloc_len;
- 
--		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new page\n",
--			  (unsigned int)inode->i_size, pageofs);
-+		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new position\n",
-+			  (unsigned int)inode->i_size, (uint32_t)pos);
- 
- 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
- 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
-@@ -170,10 +169,10 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 		ri.mode = cpu_to_jemode(inode->i_mode);
- 		ri.uid = cpu_to_je16(i_uid_read(inode));
- 		ri.gid = cpu_to_je16(i_gid_read(inode));
--		ri.isize = cpu_to_je32(max((uint32_t)inode->i_size, pageofs));
-+		ri.isize = cpu_to_je32((uint32_t)pos);
- 		ri.atime = ri.ctime = ri.mtime = cpu_to_je32(JFFS2_NOW());
- 		ri.offset = cpu_to_je32(inode->i_size);
--		ri.dsize = cpu_to_je32(pageofs - inode->i_size);
-+		ri.dsize = cpu_to_je32((uint32_t)pos - inode->i_size);
- 		ri.csize = cpu_to_je32(0);
- 		ri.compr = JFFS2_COMPR_ZERO;
- 		ri.node_crc = cpu_to_je32(crc32(0, &ri, sizeof(ri)-8));
-@@ -203,7 +202,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 			goto out_err;
- 		}
- 		jffs2_complete_reservation(c);
--		inode->i_size = pageofs;
-+		inode->i_size = pos;
- 		mutex_unlock(&f->sem);
- 	}
++#
++# Disable SSE and other FP/SIMD instructions to match normal x86
++#
++KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
++KBUILD_RUSTFLAGS += -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2
++
+ ifeq ($(CONFIG_X86_32),y)
+ START := 0x8048000
  
 -- 
 2.39.2
