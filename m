@@ -2,187 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A4746B913B
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 12:13:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 377976B9182
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 12:21:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229686AbjCNLNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 07:13:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49054 "EHLO
+        id S230231AbjCNLVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 07:21:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230458AbjCNLNp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 07:13:45 -0400
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F501241DC
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 04:13:09 -0700 (PDT)
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32E7Ejeo006154;
-        Tue, 14 Mar 2023 11:12:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2022-7-12; bh=o9IYDBCOXaU0KjyTQJfnR+eJnWFnBOW73x3oC21qAGs=;
- b=pazV5oSF23t4nlZEy6c7VexIwU7CtGATWUcVZJ8Rzq6v+OYF9xGTa71FthxOfAlBvhyC
- lrCfjQa1MAMl09V6olXA3E0di4z6NDB9n3awAuQrIx6HdPtMJv8D7EeZ/KSKcTwoujsk
- QUBAWdpcJENZn0IaygyuFMU0Yl+cRvMuptkh/LkLs9AwpAhIJKHm/aAgV3NTt1W9u3Rg
- UTpiIXj/z9JRVYA2ckpL88ZO2QItYJupf59MSOllwe/HJH/9FCUrsA6Lc2hYK4oUvq+Q
- IjXKN37DavmRmj+UgstrAbSFEzICvx0dcRlT3RX4cSzi1dHIWtNrAxOiaL+YDjDAdnj0 3w== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3p8gjbe8y8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 11:12:02 +0000
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 32E9SLFL033520;
-        Tue, 14 Mar 2023 11:12:01 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3p8g35pk0s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Mar 2023 11:12:01 +0000
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32EBC1KX027360;
-        Tue, 14 Mar 2023 11:12:01 GMT
-Received: from ca-dev110.us.oracle.com (ca-dev110.us.oracle.com [10.129.136.45])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3p8g35pk0b-1;
-        Tue, 14 Mar 2023 11:12:01 +0000
-From:   Rhythm Mahajan <rhythm.m.mahajan@oracle.com>
-To:     tglx@linutronix.de
-Cc:     rhythm.m.mahajan@oracle.com, mingo@redhat.com, hpa@zytor.com,
-        bp@suse.de, gregkh@linuxfoundation.org,
-        pawan.kumar.gupta@linux.intel.com, cascardo@canonical.com,
-        surajjs@amazon.com, daniel.sneddon@linux.intel.com,
-        peterz@infradead.org, stable@vger.kernel.org
-Subject: [PATCH 4.14] x86/cpu: Fix LFENCE serialization check in init_amd()
-Date:   Tue, 14 Mar 2023 04:11:59 -0700
-Message-Id: <20230314111159.3536249-1-rhythm.m.mahajan@oracle.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S230525AbjCNLVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 07:21:17 -0400
+X-Greylist: delayed 54233 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 14 Mar 2023 04:20:51 PDT
+Received: from ns2.wdyn.eu (ns2.wdyn.eu [IPv6:2a03:4000:40:5b2::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C91829F20E;
+        Tue, 14 Mar 2023 04:20:50 -0700 (PDT)
+Message-ID: <55ede120-b055-e834-e617-fe3069227652@wetzel-home.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
+        s=wetzel-home; t=1678792845;
+        bh=AKdufBax7JBm+SdHfz0SyRXWzbmYWFvYmCpJ06ilROo=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=Et23m/TURJzthnvYmuaBRWYozsMNaqlavpAo04KDShMgHIiUXLEWYlOwXPdDciJjv
+         iOxYI40PUtgwA24urhMO81k9AD7aPGi1p8vLIBn4YkjqHyJZ6xYN+U0EU8Z8WtV8U5
+         qKPX6guILmIYBFCMq8RJhovEQyy8zEWqfqjGduEo=
+Date:   Tue, 14 Mar 2023 12:20:43 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-14_04,2023-03-14_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0 mlxscore=0
- phishscore=0 suspectscore=0 adultscore=0 mlxlogscore=999 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2303140096
-X-Proofpoint-ORIG-GUID: wEYhMJE7S8p9vQ5oAjJclwUB6YIy5rKc
-X-Proofpoint-GUID: wEYhMJE7S8p9vQ5oAjJclwUB6YIy5rKc
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH] wifi: mac80211: Serialize calls to drv_wake_tx_queue()
+Content-Language: en-US
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     nbd@nbd.name, linux-wireless@vger.kernel.org,
+        Thomas Mann <rauchwolke@gmx.net>, stable@vger.kernel.org,
+        =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@toke.dk>
+References: <20230313201542.72325-1-alexander@wetzel-home.de>
+ <130d44bccb317cc82d57caf5b8ca1471fe0faed4.camel@sipsolutions.net>
+From:   Alexander Wetzel <alexander@wetzel-home.de>
+In-Reply-To: <130d44bccb317cc82d57caf5b8ca1471fe0faed4.camel@sipsolutions.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit: 3f235279828c ("x86/cpu: Restore AMD's DE_CFG MSR after resume")
-renamed the MSR_F10H_DECFG_LFENCE_SERIALIZE macro to
-MSR_AMD64_DE_CFG_LFENCE_SERIALIZE.
-The fix changed MSR_F10H_DECFG_LFENCE_SERIALIZE to
-MSR_AMD64_DE_CFG_LFENCE_SERIALIZE_BIT in the init_amd() function,
-but should have used MSR_AMD64_DE_CFG_LFENCE_SERIALIZE.
-This causes a discrepancy in the LFENCE serialization
-check in the init_amd() function.
+On 13.03.23 21:33, Johannes Berg wrote:
+> On Mon, 2023-03-13 at 21:15 +0100, Alexander Wetzel wrote:
+>>
+>> While drivers with native iTXQ support are able to handle that,
+>>
+> 
+> questionable. Looking at iwlwifi:
+> 
+> void iwl_mvm_mac_wake_tx_queue(struct ieee80211_hw *hw,
+>                                 struct ieee80211_txq *txq)
+> {
+>          struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+> ...
+>          list_add_tail(&mvmtxq->list, &mvm->add_stream_txqs);
+> ...
+> }
+> 
+> which might explain some rare and hard to debug list corruptions in the
+> driver that we've seen reports of ...
+> 
 
-This causes a ~16% sysbench memory regression, when running:
-  sysbench --test=memory run
+Shall I change the scope of the fix from "only 6.2" to any stable kernel?
+'Fixes: ba8c3d6f16a1 ("mac80211: add an intermediate software queue 
+implementation")'
 
-Fixes: 3f235279828c2a8aff3164fef08d58f7af2d64fc("x86/cpu: Restore AMD's DE_CFG MSR after resume
-")
-Signed-off-by: Rhythm Mahajan <rhythm.m.mahajan@oracle.com>
----
+Or is that a overreaction and we better stick to what we know for sure 
+and keep the 'Fixes: c850e31f79f0 ("wifi: mac80211: add internal handler 
+for wake_tx_queue")'?
 
-The test result before the commit 3f2352798("x86/cpu: Restore AMD's DE_CFG MSR after resume")
+>> To avoid what seems to be a not needed distinction between native and
+>> drivers using ieee80211_handle_wake_tx_queue(), the serialization is
+>> done for drv_wake_tx_queue() here.
+> 
+> So probably no objection to that, at least for now, though in the common
+> path (what I showed above was the 'first use' path), iwlwifi actually
+> hits different HW resources, so it _could_ benefit from concurrent TX
+> after fixing that bug.
+> 
 
-    $ sysbench --test=memory run
-    sysbench 1.0.17 (using system LuaJIT 2.0.4)
+I could also directly add a driver a driver flag, allowing drivers to 
+opt in to overlapping calls. And then set the flag for mt76, since Felix 
+prefers to not change the behavior and knows this driver works with it.
 
-    Running the test with following options:
-    Number of threads: 1
-    Initializing random number generator from current time
+>> The serialization works by detecting and blocking concurrent calls into
+>> drv_wake_tx_queue() and - when needed - restarting all queues after the
+>> wake_tx_queue ops returned from the driver.
+> 
+> This seems ... overly complex? It feels like you're implementing a kind
+> of spinlock (using atomic bit ops) with very expensive handling of
+> contention?
+> 
 
-    Running memory speed test with the following options:
-      block size: 1KiB
-      total size: 102400MiB
-      operation: write
-      scope: global
+Exactly. With the benefit that when we run uncontested the overhead is 
+close to zero.
+But this should also be true for spinlocks. And when we spin on 
+contention it even better... So I'll change it to use a spinlock instead.
 
-    Initializing worker threads...
+> Since drivers are supposed to handle concurrent TX per AC, you could
+I assume you mean multiple drv_wake_tx_queue() can run in parallel, as 
+long as they are serving different ACs?
+In a prior test patch I just blocked concurrent calls for the same ac.
 
-    Threads started!
+While that may be enough for full iTXQ drivers I have doubts that this 
+is sufficient for the ones using ieee80211_handle_wake_tx_queue.
 
-    Total operations: 27466829 (2746182.07 per second)
+I at least was unable to identify any code in the rt2800usb driver which 
+looked dangerous for concurrent execution. (Large parts are protected by 
+a driver spinlock)
 
-    26823.08 MiB transferred (2681.82 MiB/sec)
+I ended up with the assumption, that the DMA handover - or something 
+related to that - must cause the queue freezes. (Or my ability to detect 
+critical calls is not good enough, yet.)
 
-    General statistics:
-	total time:                          10.0001s
-	total number of events:              27466829
+The patch still fixed the issue, of course. All races in the examined 
+regression are for IEEE80211_AC_BE, so it's sufficient fix when we 
+decide that's save.
 
-    Latency (ms):
-	     min:                                    0.00
-	     avg:                                    0.00
-	     max:                                    0.20
-	     95th percentile:                        0.00
-	     sum:                                 4041.60
+Nevertheless I decided to better serialize any calls to 
+drv_wake_tx_queue(). When we don't do that we may get a much harder to 
+detect/trigger regression. Even more rarely hit and due to that probably 
+never reported and fixed.
 
-    Threads fairness:
-	events (avg/stddev):           27466829.0000/0.00
-	execution time (avg/stddev):   4.0416/0.00
+> almost just do something like this:
+> 
+> diff --git a/include/net/mac80211.h b/include/net/mac80211.h
+> index f07a3c1b4d9a..1946e28868ea 100644
+> --- a/include/net/mac80211.h
+> +++ b/include/net/mac80211.h
+> @@ -7108,10 +7108,8 @@ struct ieee80211_txq *ieee80211_next_txq(struct ieee80211_hw *hw, u8 ac);
+>    */
+>   void ieee80211_txq_schedule_start(struct ieee80211_hw *hw, u8 ac);
+>   
+> -/* (deprecated) */
+> -static inline void ieee80211_txq_schedule_end(struct ieee80211_hw *hw, u8 ac)
+> -{
+> -}
+> +/** ... */
+> +void ieee80211_txq_schedule_end(struct ieee80211_hw *hw, u8 ac);
+>   
+>   void __ieee80211_schedule_txq(struct ieee80211_hw *hw,
+>   			      struct ieee80211_txq *txq, bool force);
+> diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+> index 1fae44fb1be6..606ca8620d20 100644
+> --- a/net/mac80211/tx.c
+> +++ b/net/mac80211/tx.c
+> @@ -4250,11 +4250,17 @@ void ieee80211_txq_schedule_start(struct ieee80211_hw *hw, u8 ac)
+>   	} else {
+>   		local->schedule_round[ac] = 0;
+>   	}
+> -
+> -	spin_unlock_bh(&local->active_txq_lock[ac]);
+>   }
+>   EXPORT_SYMBOL(ieee80211_txq_schedule_start);
+>   
+> +void ieee80211_txq_schedule_end(struct ieee80211_hw *hw, u8 ac)
+> +{
+> +	struct ieee80211_local *local = hw_to_local(hw);
+> +
+> +	spin_unlock_bh(&local->active_txq_lock[ac]);
+> +}
+> +EXPORT_SYMBOL(ieee80211_txq_schedule_end);
+> +
+>   void __ieee80211_subif_start_xmit(struct sk_buff *skb,
+>   				  struct net_device *dev,
+>   				  u32 info_flags,
+>
 
-The test result after the commit 3f2352798("x86/cpu: Restore AMD's DE_CFG MSR after resume")
+Holding active_txq_lock[ac] all that time - it's normally acquired and 
+released multiple times in between - seems to be a bit too daring for a 
+"stable" patch. I would feel better using a new spinlock - one drivers 
+can opt out of. Would that be acceptable, too?
 
-    $ sysbench --test=memory run
-    sysbench 1.0.17 (using system LuaJIT 2.0.4)
+Scheduling it in ieee80211_schedule_txq() also requires that lock.
+Would your idea not often force userspace TX to spin for 
+active_txq_lock[ac] after the skb has been added to the iTXQ, just to 
+then find a empty queue?
 
-    Running the test with following options:
-    Number of threads: 1
-    Initializing random number generator from current time
+I also still would place the spinlock in drv_wake_tx_queue(). After all 
+ieee80211_txq_schedule_start/end is kind of optional and e.g. iwlwifi is 
+not using it.
 
-    Running memory speed test with the following options:
-      block size: 1KiB
-      total size: 102400MiB
-      operation: write
-      scope: global
+> 
+> 
+> assuming that TXQ drivers actually still call
+> ieee80211_txq_schedule_end() which says it's deprecated.
+> 
+> That even has _bh() so the tasklet can't be running anyway ...
+> 
+> So if the concurrency really is only TX vs. tasklet, then you could even
+> just keep the BHs disabled (in _start spin_unlock only and then in _end
+> local_bh_disable)?
+> 
+>> Which may also be the solution for the regression in 6.2:
+>> Do it now for ieee80211_handle_wake_tx_queue() and apply this patch
+>> to the development tree only.
+> 
+> I'd argue the other way around - do it for all to fix these issues, and
+> then audit drivers such as iwlwifi or even make concurrency here opt-in.
+> 
+> Felix did see some benefits of the concurrency I think though, so he
+> might have a different opinion.
 
-    Initializing worker threads...
+What about handling it that way:
 
-    Threads started!
+Keep serializing drv_wake_tx_queue(). But use a new spinlock the drivers 
+can opt out from.
+  1) No flag set:
+     drv_wake_tx_queue() can be running only once at any time
 
-    Total operations: 33758407 (3375232.84 per second)
+  2) IEEE80211_HW_CONCURRENT_AC_TX
+     drv_wake_tx_queue() can be running once per AC at any time
 
-    32967.19 MiB transferred (3296.13 MiB/sec)
+  3) IEEE80211_HW_CONCURRENT
+     current behavior.
 
-    General statistics:
-	total time:                          10.0001s
-	total number of events:              33758407
-
-    Latency (ms):
-	     min:                                    0.00
-	     avg:                                    0.00
-	     max:                                    0.06
-	     95th percentile:                        0.00
-	     sum:                                 4115.95
-
-    Threads fairness:
-	events (avg/stddev):           33758407.0000/0.00
-	execution time (avg/stddev):   4.1160/0.00
----
- arch/x86/kernel/cpu/amd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index ee5d0f943ec8c..4122afeaaaff5 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -941,7 +941,7 @@ static void init_amd(struct cpuinfo_x86 *c)
- 		 * serializing.
- 		 */
- 		ret = rdmsrl_safe(MSR_AMD64_DE_CFG, &val);
--		if (!ret && (val & MSR_AMD64_DE_CFG_LFENCE_SERIALIZE_BIT)) {
-+		if (!ret && (val & MSR_AMD64_DE_CFG_LFENCE_SERIALIZE)) {
- 			/* A serializing LFENCE stops RDTSC speculation */
- 			set_cpu_cap(c, X86_FEATURE_LFENCE_RDTSC);
- 		} else {
--- 
-2.39.2
-
+Alexander
