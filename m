@@ -2,106 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3607E6B9C45
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 17:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6226B9D63
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 18:49:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230114AbjCNQyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 12:54:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
+        id S229841AbjCNRtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 13:49:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjCNQya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 12:54:30 -0400
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8720665C7D;
-        Tue, 14 Mar 2023 09:54:28 -0700 (PDT)
-Received: by mail-ot1-x32f.google.com with SMTP id a4-20020a056830008400b0069432af1380so8732614oto.13;
-        Tue, 14 Mar 2023 09:54:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678812868;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=EonhBFpRiqDdLBEHZpZFnmSI1fVQAggjhLPOkfzboxU=;
-        b=GuoqaT0ezIyiRlJ3FdQWwOTI1X530tBwzC970F6RfB+Bfx8PoriAp7ZVm+6yaPInDj
-         3TzgvnQTVasY62fklUd3uMQdNDD0qwgQkOPXdHBRo70mtdQebaz/NTqOsWDkj4JEASPL
-         7nmVkNlzpZhwU+6pijbaFFpyp73sxO3jX+MDechRyakZeXAG3Z7M2hXzAGjgoBvqxiNh
-         lEzhnrTXc3PM4pMZ1bdSH0gJtd+oNQaDlYSyxoc9VzKcxo5YVYI0jwoM9WrvVUF4Pgij
-         pYblBZ1TjYSh9IwkAVzQG5LJlLihUD1uxMLgQ2O6NcWsT47d3t97dmKKrMPBfG6gsTMU
-         y2Sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678812868;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EonhBFpRiqDdLBEHZpZFnmSI1fVQAggjhLPOkfzboxU=;
-        b=cWPhZ1p4ogLAwZ5l7fMTinJxU/XyCZaqIedcLTCXdhkMqUCYCCntYdaMdWfa4vFnBL
-         0bf2mVsw8HFJQB0GB4Hn/IjAl6DBYs/B5dMGVf45p9Pr1z7CCV56Ba/3a1mOehs+Fnxd
-         tOqqt2mN5To2ruqpWY56qdSgOy6ovYZb0DO/3N+Tg+dYxahZfzdhoGEjJJdrngkNnT4o
-         0U2Ezudaues2NdPIDKfZe/s3ofVpkc5FL1e1q3K/XM6r+pPKgoXPhRjnYYQkJ/43w3bS
-         8hImT0bDuw+JLXc5mmJDGoaESuv0UVoFHdIeSz4fwEpPy4x86oKEXRJVCKbiOjZPIuxr
-         Y1Uw==
-X-Gm-Message-State: AO0yUKVKljdZk0mwHqNBrcPtYVBU3HTRmH7fj0K7TIVEbmvdzd1c+1iC
-        wVNIlOSa5tbnMZSYR0QYpVc=
-X-Google-Smtp-Source: AK7set+agmiBPmN2KvGz5ZmQoo9mQgcUQ1XTE074qe/FTMBBkL62pXyAk0rETJSA4Gm0vgNKpyILxw==
-X-Received: by 2002:a9d:4c4:0:b0:68d:4eb7:49d9 with SMTP id 62-20020a9d04c4000000b0068d4eb749d9mr21722524otm.37.1678812867863;
-        Tue, 14 Mar 2023 09:54:27 -0700 (PDT)
-Received: from chcpu13.cse.ust.hk (191host119.mobilenet.cse.ust.hk. [143.89.191.119])
-        by smtp.gmail.com with ESMTPSA id z30-20020a9d71de000000b0069463b0207asm1332874otj.30.2023.03.14.09.54.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Mar 2023 09:54:27 -0700 (PDT)
-From:   Wei Chen <harperchen1110@gmail.com>
-To:     andi.shyti@kernel.org
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Wei Chen <harperchen1110@gmail.com>
-Subject: [PATCH v4] i2c: xgene-slimpro: Fix out-of-bounds bug in xgene_slimpro_i2c_xfer()
-Date:   Tue, 14 Mar 2023 16:54:21 +0000
-Message-Id: <20230314165421.2823691-1-harperchen1110@gmail.com>
+        with ESMTP id S229698AbjCNRtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 13:49:20 -0400
+X-Greylist: delayed 995 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 14 Mar 2023 10:49:17 PDT
+Received: from fallback1.i.mail.ru (fallback1.i.mail.ru [79.137.243.67])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9582DA0299;
+        Tue, 14 Mar 2023 10:49:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru; s=mail4;
+        h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:From:From:Subject:Content-Type:Content-Transfer-Encoding:To:Cc; bh=yhfDTxZ4fRjQ2lEhZgTwS9jqNs5/tKIjwB16ZH1hFZI=;
+        t=1678816158;x=1678906158; 
+        b=AXhpvIdd19adeWGrLXim2rhP7OJOYcVjmLT3PZ9gRp62n4/70ZYhyYmzBHP30BVtumly/1qH9h54hgFpe9L+Hgw+wvXf/V+dJFAgBI7GjFFaCLTkwfPk+6q8hvv6PncvrRXdRlm8ssE0IVVWGJqjP3ccQM+u7FBcg3LcFdROK+zsztrpkQB1ywtH25PMTWt97rKTSFN7NSzMg8yOkZwt3EgazeriulUNT7Pn9Tb9JlNfuOZnbkUWXgEzOQOfWXyLZ0dlU+T/HbgVMX5DEj9BhOGCfvx+o+ddmveUbnGJ7RQ1SujwdvUtcY8H9EcEdErTwhGIki65Fl9pTSb/gAv+1Q==;
+Received: from [10.12.4.22] (port=47798 helo=smtp41.i.mail.ru)
+        by fallback1.i.mail.ru with esmtp (envelope-from <listdansp@mail.ru>)
+        id 1pc82H-008xys-7f; Tue, 14 Mar 2023 20:02:05 +0300
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru; s=mail4;
+        h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:From:From:Subject:Content-Type:Content-Transfer-Encoding:To:Cc; bh=yhfDTxZ4fRjQ2lEhZgTwS9jqNs5/tKIjwB16ZH1hFZI=;
+        t=1678813325;x=1678903325; 
+        b=MG1t0RLC4kAajAyj477BlgCtrS2o7Hqt+ABfpIXOYdqLVbAdzfRZGZXxBwCg8KsLDWAovIkXou1vMmglUeaStdVuYayXNBX7YRxTmjRxa3h1nS3OHyToBm/EKj+AvjXJrUqZvRMdiza7FkCe6EvwXHUdjwTEV2e0kRUGe+uyEP/tH3nB5GBUif4wt9eS/JLnf+F4xAFI/Icc5nCHb9dbAahFGEF4UP7Yhwgh5FhE48pT9YxYBGthNQnsC+ugkHgmWgEVq0cIqGw5RQgruGnBULr5YhD0LhsmXDuqTctBBulCmYxb+pcR1DCBrWinY5c5P2rXoUoYirXmmgfo1jkinA==;
+Received: by smtp41.i.mail.ru with esmtpa (envelope-from <listdansp@mail.ru>)
+        id 1pc82B-005Cqp-9c; Tue, 14 Mar 2023 20:01:59 +0300
+From:   Danila Chernetsov <listdansp@mail.ru>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Danila Chernetsov <listdansp@mail.ru>, Bin Liu <b-liu@ti.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        lvc-project@linuxtesting.org
+Subject: [PATCH 5.10 0/1] usb: musb: core: drop redundant checks
+Date:   Tue, 14 Mar 2023 17:01:12 +0000
+Message-Id: <20230314170113.11968-1-listdansp@mail.ru>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Mailru-Src: smtp
+X-7564579A: B8F34718100C35BD
+X-77F55803: 4F1203BC0FB41BD9BCEC41593EBD83573328AE13154FE908333A02E638E8A8D8182A05F538085040FA0DFA96644829E416ED7F01E7207288C9FEE78E7BE1EBE0B0F2F256699C37DF
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE7922E451CE6E839B1EA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F79006371005780D56A98C20EA1F7E6F0F101C6723150C8DA25C47586E58E00D9D99D84E1BDDB23E98D2D38B6F1F7B995052D5CEAE2E846A451F9991C9C32BEAE4F42A5A20879F7C8C5043D14489FFFB0AA5F4BF176DF2183F8FC7C0A29E2F051442AF778941B15DA834481FA18204E546F3947CD6CDBB52967A4FABF6B57BC7E64490618DEB871D839B7333395957E7521B51C2DFABB839C843B9C08941B15DA834481F8AA50765F7900637687B3714F5A29B87389733CBF5DBD5E9B5C8C57E37DE458BD9DD9810294C998ED8FC6C240DEA76428AA50765F7900637B4C9D997413845C7D81D268191BDAD3DBD4B6F7A4D31EC0BEA7A3FFF5B025636D81D268191BDAD3D78DA827A17800CE7EF7004CDD23AB229EC76A7562686271ED91E3A1F190DE8FD2E808ACE2090B5E14AD6D5ED66289B5259CC434672EE63711DD303D21008E298D5E8D9A59859A8B6B372FE9A2E580EFC725E5C173C3A84C32695002DD8BDA04435872C767BF85DA2F004C90652538430E4A6367B16DE6309
+X-C1DE0DAB: 0D63561A33F958A5A2ED83C866616EDF56EED8FE08986FA31ACC0AAF15C102E04EAF44D9B582CE87C8A4C02DF684249C2E763F503762DF508151CC1E5A7F5336
+X-C8649E89: 4E36BF7865823D7055A7F0CF078B5EC49A30900B95165D349DAEDEF7DE8FDCFAE7D48C063C30C30CD8314EDCA1D70F150E7FA07E3BB0C6359D38E02995287AC81D7E09C32AA3244CC41D686228C62430A17CA1C42C79FE7AA8CE788DE6831205DCA3B3C10BC03908
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5ycPtXkTV4k65bRjmOUUP8cvGozZ33TWg5HZplvhhXbhDGzqmQDTd6OAevLeAnq3Ra9uf7zvY2zzsIhlcp/Y7m53TZgf2aB4JOg4gkr2biojOXwBDQf4j7NteatRcCEN3w==
+X-Mailru-Sender: 4CE1109FD677D2770147F6A9E21DCA7B69F168FADF6A6FA715ED8F335757C58D2241BB377472528A7E3C9C7AF06D9E7B78274A4A9E9E44FD3C3897ABF9FF211DE8284E426C7B2D9A5FEEDEB644C299C0ED14614B50AE0675
+X-Mras: Ok
+X-7564579A: 646B95376F6C166E
+X-77F55803: 6242723A09DB00B4BD2EB812D5A6E5F7D3C1BE093F4DBF3E1F5D791277A7C5DA049FFFDB7839CE9E316722B9905B3D2230EF1A958FBE15A291EDF5E99D7EE7B44C1AE67808EA0321
+X-7FA49CB5: 0D63561A33F958A57C61C1AE9CDDA8C13DD4CA65F987BC908049221497B9B158CACD7DF95DA8FC8BD5E8D9A59859A8B6A096F61ED9298604
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5xhPKz0ZEsZ5k6NOOPWz5QAiZSCXKGQRq3/7KxbCLSB2ESzQkaOXqCBFZPLWFrEGlV1shfWe2EVcxl5toh0c/aCGOghz/frdRhzMe95NxDFdAc2jUOxWGfzNNUdZ69PPZQ==
+X-Mailru-MI: C000000000000800
+X-Mras: Ok
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The data->block[0] variable comes from user and is a number between
-0-255. Without proper check, the variable may be very large to cause
-an out-of-bounds when performing memcpy in slimpro_i2c_blkwr.
+hw_ep can't be NULL but compared to NULL in 5.10 stable releases. 
+The problem has been fixed by the following 
+patch which can be cleanly applied to the 5.10 branch. 
 
-Fix this bug by checking the value of writelen.
-
-Fixes: f6505fbabc42 ("i2c: add SLIMpro I2C device driver on APM X-Gene platform")
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Cc: stable@vger.kernel.org
----
-Changes in v2:
- - Put length check inside slimpro_i2c_blkwr
-Changes in v3:
- - Correct the format of patch
-Changes in v4:
- - CC stable email address
-
- drivers/i2c/busses/i2c-xgene-slimpro.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-index bc9a3e7e0c96..0f7263e2276a 100644
---- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-+++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-@@ -308,6 +308,9 @@ static int slimpro_i2c_blkwr(struct slimpro_i2c_dev *ctx, u32 chip,
- 	u32 msg[3];
- 	int rc;
- 
-+	if (writelen > I2C_SMBUS_BLOCK_MAX)
-+		return -EINVAL;
-+
- 	memcpy(ctx->dma_buffer, data, writelen);
- 	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, writelen,
- 			       DMA_TO_DEVICE);
--- 
-2.25.1
-
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
