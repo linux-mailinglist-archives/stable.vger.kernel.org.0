@@ -2,80 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 067576B9A3E
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 16:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA786B9A99
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 17:04:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbjCNPrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 11:47:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42300 "EHLO
+        id S229811AbjCNQEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 12:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231667AbjCNPrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 11:47:35 -0400
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B30CB3702;
-        Tue, 14 Mar 2023 08:47:03 -0700 (PDT)
-Received: by mail-ot1-x32b.google.com with SMTP id f19-20020a9d5f13000000b00693ce5a2f3eso8638229oti.8;
-        Tue, 14 Mar 2023 08:47:03 -0700 (PDT)
+        with ESMTP id S230297AbjCNQEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 12:04:39 -0400
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4D853290;
+        Tue, 14 Mar 2023 09:04:29 -0700 (PDT)
+Received: by mail-ot1-x332.google.com with SMTP id p13-20020a9d744d000000b0069438f0db7eso8678579otk.3;
+        Tue, 14 Mar 2023 09:04:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678808794;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9wkL7da/Rc4tgZfDJba08p3nQBvevz/W1pJs6r+8hiM=;
-        b=l1TKIKKkpRKwKxb/IFWMOKMfFCaiu0JzS+cCKpgDub+29WiowdhrYfMyKMGSgePP8T
-         VtV4SOfbn6MFnypcKwrLV87JX3ko2E2cLNJRJcMIIQuxJnAs6yot0sPXzw+y14Bn14tD
-         eln42spk6lykzoXPqncoI9/qODgeps8iynPmjm7LfQFceYNUgAW3fb2M7ALrymotnYHE
-         F6OzAy95qWNMhAYGnsRzzIVVxoJ0Dvi40LsN8SaK0jtAme9h47mcuXcIEG5QeO6LjF3Q
-         CXISEAsbXWP7V5SPW0Of6ENgBUx0PczcwJXvh+/XQF5uLMeFtmqZLtCOvYmC/MAlKld9
-         8CPg==
+        d=gmail.com; s=20210112; t=1678809868;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0V1xObPOu1sKOo+zU+U91XCBQL6wMo8D/re2Ep+Sd8c=;
+        b=Nd1h0JZpPla3jCeVZ1zmfgs/A5lsBso9dx3o9uaMBnU7ovfuVL4Btpd4Jjb9KTw5yJ
+         aiyrdBxue+cetazW9tJbrvTYC1pCiPbT1wnAfD9bagmSmWtwXCEFiIUEJ97LkjQ6HUA8
+         U3Z9z8cRe7Dh48GsbaEDxvFmJh9RtsbLLjl0bRxi5jgC6I0nlU4ArWhzEmPNpJc5AUb4
+         g0g4OvOY63wcQRomcoYP/ttsMIEREcU3jQCqu4mjIwuCF9CQp8+Wt/Fu+91KrV717RkQ
+         h/hmzJ7hinywYxt1QICr9++nEECZ/N19KxG18Hsu7/q1E1zZodX5OWMAv3fO+BPOQ+oL
+         FInw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678808794;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9wkL7da/Rc4tgZfDJba08p3nQBvevz/W1pJs6r+8hiM=;
-        b=UYbRaJAqaGlnw+yq+Bmnydet99Mkf7PBGocaw43t+w0Pg1A4xIDvg2D8EGxR/XunTG
-         RkawEMRmmmAwGrh/PVZHxd8AYA2Uc1clVwWZ9KAGjjjlsPrMAWvy8v8Y6yP5YU96D6kr
-         Uc9KuCINYtYFsZZIDnG1baaJ1ojoeT5n4zPMXXTh9k1hqYcfwDRzk1RDzSmKD+yr7cUF
-         bEZrRe6OeLa9j6P0uteV415nJs4zxdyyd6b7oq+CD0Mw6/NA0ahtFZbZx4wRObYzqtkq
-         +fAjp5imD/MO+xlxXEEnM4LsbSDtwI+AeAPwWI5NaHqfUVN8cg4QBpPdl2xbvZ1cleXB
-         UXUA==
-X-Gm-Message-State: AO0yUKXydhteLucnMlWLUieHzyBTyugc1UAa0fhv7F7T4TPBmHz85Kkd
-        yaH+6kz8uTiDqBzFaEQKPF9EqHT3wXKMsq3fMHU=
-X-Google-Smtp-Source: AK7set//Z2qMLoNwWnbRcQ8l+8WelU3TiH20TsphZ7N50Gfa09Xj34+xbWP1VnWe3BCEG+e271UZKcGXir1lYpLxCZk=
-X-Received: by 2002:a9d:5a90:0:b0:688:cf52:6e18 with SMTP id
- w16-20020a9d5a90000000b00688cf526e18mr12756257oth.4.1678808792329; Tue, 14
- Mar 2023 08:46:32 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1678809868;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0V1xObPOu1sKOo+zU+U91XCBQL6wMo8D/re2Ep+Sd8c=;
+        b=NtvMVuTnJk84kUL0ByRs2rFJuBqQIwaWcBZtzPPljs859pFxwTyU8zRCMwDigLfBE1
+         gJnFCM21ts+/jltPxK8L5HpEy9cwBBJVxw4kRzU287P+/GtWc5RQKaRhsyD6oPqxqkFp
+         8AZqQFcGFzNSedD25YB6o3eWd9lQ5NPjTJopRW3jiOY8BGoCd8+05TxaS+gTVNjoRj5u
+         fS32s2GKPBFiM0VWMKJsl/LpM635xiHFFwVeYq76qB8/0kI8q0KQUqjPFWGnQcpeRaNR
+         F95bnH/1Y78j9DxbpvLrQJZ9bqCJByS+XN59NwAtGO8A+ZwerPFtjB4v9BgscbYU4Vbp
+         /UhA==
+X-Gm-Message-State: AO0yUKVtWQGcTQrAO5v3gjRpCwObJdzZxwMv9EMwyWNEWeTN+K4oeMl5
+        1cVWcPwApiS8QPotUATDTu4=
+X-Google-Smtp-Source: AK7set94TsrHo854JTD8IoFkuuoEcNBJlUmrlBDp9qrrNBZXdGOkUyGEG1VV/8LCaCCYvf1OIp+mIA==
+X-Received: by 2002:a05:6830:6504:b0:699:221e:b07d with SMTP id cm4-20020a056830650400b00699221eb07dmr347642otb.11.1678809868351;
+        Tue, 14 Mar 2023 09:04:28 -0700 (PDT)
+Received: from chcpu13.cse.ust.hk (191host119.mobilenet.cse.ust.hk. [143.89.191.119])
+        by smtp.gmail.com with ESMTPSA id q5-20020a4a3005000000b0051a6cb524b6sm1194392oof.2.2023.03.14.09.04.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Mar 2023 09:04:28 -0700 (PDT)
+From:   Wei Chen <harperchen1110@gmail.com>
+To:     andi.shyti@kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Wei Chen <harperchen1110@gmail.com>
+Subject: [PATCH v3] i2c: xgene-slimpro: Fix out-of-bounds bug in xgene_slimpro_i2c_xfer()
+Date:   Tue, 14 Mar 2023 16:04:16 +0000
+Message-Id: <20230314160416.2813398-1-harperchen1110@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20230214140858.1133292-1-rick.wertenbroek@gmail.com>
- <20230214140858.1133292-9-rick.wertenbroek@gmail.com> <0fa5cef4-7096-7f59-422a-98011d01437c@opensource.wdc.com>
-In-Reply-To: <0fa5cef4-7096-7f59-422a-98011d01437c@opensource.wdc.com>
-From:   Rick Wertenbroek <rick.wertenbroek@gmail.com>
-Date:   Tue, 14 Mar 2023 16:45:56 +0100
-Message-ID: <CAAEEuhpiQDRy6EQwwf0e+e6MVv893YU6+Sbyz5k+Owp2vAi-nQ@mail.gmail.com>
-Subject: Re: [PATCH v2 8/9] PCI: rockchip: Use u32 variable to access 32-bit registers
-To:     Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc:     alberto.dassatti@heig-vd.ch, xxm@rock-chips.com,
-        rick.wertenbroek@heig-vd.ch, stable@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Mikko Kovanen <mikko.kovanen@aavamobile.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -83,112 +68,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 15, 2023 at 2:34=E2=80=AFAM Damien Le Moal
-<damien.lemoal@opensource.wdc.com> wrote:
->
-> On 2/14/23 23:08, Rick Wertenbroek wrote:
-> > Previously u16 variables were used to access 32-bit registers, this
-> > resulted in not all of the data being read from the registers. Also
-> > the left shift of more than 16-bits would result in moving data out
-> > of the variable. Use u32 variables to access 32-bit registers
-> >
-> > Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe co=
-ntroller")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Rick Wertenbroek <rick.wertenbroek@gmail.com>
-> > ---
-> >  drivers/pci/controller/pcie-rockchip-ep.c | 10 +++++-----
-> >  drivers/pci/controller/pcie-rockchip.h    |  1 +
-> >  2 files changed, 6 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/co=
-ntroller/pcie-rockchip-ep.c
-> > index ca5b363ba..b7865a94e 100644
-> > --- a/drivers/pci/controller/pcie-rockchip-ep.c
-> > +++ b/drivers/pci/controller/pcie-rockchip-ep.c
-> > @@ -292,15 +292,15 @@ static int rockchip_pcie_ep_set_msi(struct pci_ep=
-c *epc, u8 fn, u8 vfn,
-> >  {
-> >       struct rockchip_pcie_ep *ep =3D epc_get_drvdata(epc);
-> >       struct rockchip_pcie *rockchip =3D &ep->rockchip;
-> > -     u16 flags;
-> > +     u32 flags;
-> >
-> >       flags =3D rockchip_pcie_read(rockchip,
-> >                                  ROCKCHIP_PCIE_EP_FUNC_BASE(fn) +
-> >                                  ROCKCHIP_PCIE_EP_MSI_CTRL_REG);
-> >       flags &=3D ~ROCKCHIP_PCIE_EP_MSI_CTRL_MMC_MASK;
-> >       flags |=3D
-> > -        ((multi_msg_cap << 1) <<  ROCKCHIP_PCIE_EP_MSI_CTRL_MMC_OFFSET=
-) |
-> > -        PCI_MSI_FLAGS_64BIT;
-> > +        (multi_msg_cap << ROCKCHIP_PCIE_EP_MSI_CTRL_MMC_OFFSET) |
->
-> ROCKCHIP_PCIE_EP_MSI_CTRL_MMC_OFFSET is 17 and multi_msg_cap is a u8...
-> Not nice.
->
-> Locally, I added the local variable:
->
-> u32 mmc =3D multi_msg_cap;
->
-> And use mmc instead of multi_msg_cap to avoid issues. Also,
->
-> > +        (PCI_MSI_FLAGS_64BIT << ROCKCHIP_PCIE_EP_MSI_FLAGS_OFFSET);
-> >       flags &=3D ~ROCKCHIP_PCIE_EP_MSI_CTRL_MASK_MSI_CAP;
-> >       rockchip_pcie_write(rockchip, flags,
-> >                           ROCKCHIP_PCIE_EP_FUNC_BASE(fn) +
-> > @@ -312,7 +312,7 @@ static int rockchip_pcie_ep_get_msi(struct pci_epc =
-*epc, u8 fn, u8 vfn)
-> >  {
-> >       struct rockchip_pcie_ep *ep =3D epc_get_drvdata(epc);
-> >       struct rockchip_pcie *rockchip =3D &ep->rockchip;
-> > -     u16 flags;
-> > +     u32 flags;
-> >
-> >       flags =3D rockchip_pcie_read(rockchip,
-> >                                  ROCKCHIP_PCIE_EP_FUNC_BASE(fn) +
-> > @@ -374,7 +374,7 @@ static int rockchip_pcie_ep_send_msi_irq(struct roc=
-kchip_pcie_ep *ep, u8 fn,
-> >                                        u8 interrupt_num)
-> >  {
-> >       struct rockchip_pcie *rockchip =3D &ep->rockchip;
-> > -     u16 flags, mme, data, data_mask;
-> > +     u32 flags, mme, data, data_mask;
-> >       u8 msi_count;
-> >       u64 pci_addr, pci_addr_mask =3D 0xff;
-> >       u32 r;
-> > diff --git a/drivers/pci/controller/pcie-rockchip.h b/drivers/pci/contr=
-oller/pcie-rockchip.h
-> > index e90c2a2b8..11dbf53cd 100644
-> > --- a/drivers/pci/controller/pcie-rockchip.h
-> > +++ b/drivers/pci/controller/pcie-rockchip.h
-> > @@ -227,6 +227,7 @@
-> >  #define ROCKCHIP_PCIE_EP_CMD_STATUS                  0x4
-> >  #define   ROCKCHIP_PCIE_EP_CMD_STATUS_IS             BIT(19)
-> >  #define ROCKCHIP_PCIE_EP_MSI_CTRL_REG                        0x90
-> > +#define   ROCKCHIP_PCIE_EP_MSI_FLAGS_OFFSET                  16
->
-> You are not using this macro anywhere. The name is also not very
-> descriptive. Better have it as:
->
-> #define   ROCKCHIP_PCIE_EP_MSI_CTRL_ME          BIT(16)
->
-> to match the TRM name and be clear that the bit indicates if MSI is
-> enabled or not.
->
+The data->block[0] variable comes from user and is a number between
+0-255. Without proper check, the variable may be very large to cause
+an out-of-bounds when performing memcpy in slimpro_i2c_blkwr.
 
-This is already the case, the #define is already there.
-#define ROCKCHIP_PCIE_EP_MSI_CTRL_ME BIT(16)
-The other offset is for all the MSI flags together, this offset is used
-when the flags are retrieved altogether, see rockchip_pcie_ep_set_msi()
-The ME bit is also used when we need to check the bit specifically, see
-rockchip_pcie_ep_get_msi().
+Fix this bug by checking the value of writelen.
 
-> >  #define   ROCKCHIP_PCIE_EP_MSI_CTRL_MMC_OFFSET               17
-> >  #define   ROCKCHIP_PCIE_EP_MSI_CTRL_MMC_MASK         GENMASK(19, 17)
-> >  #define   ROCKCHIP_PCIE_EP_MSI_CTRL_MME_OFFSET               20
->
-> --
-> Damien Le Moal
-> Western Digital Research
->
+Fixes: f6505fbabc42 ("i2c: add SLIMpro I2C device driver on APM X-Gene platform")
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+---
+Changes in v2:
+ - Put length check inside slimpro_i2c_blkwr
+Changes in v3:
+ - Correct the format of patch
+
+ drivers/i2c/busses/i2c-xgene-slimpro.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
+index bc9a3e7e0c96..0f7263e2276a 100644
+--- a/drivers/i2c/busses/i2c-xgene-slimpro.c
++++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+@@ -308,6 +308,9 @@ static int slimpro_i2c_blkwr(struct slimpro_i2c_dev *ctx, u32 chip,
+ 	u32 msg[3];
+ 	int rc;
+ 
++	if (writelen > I2C_SMBUS_BLOCK_MAX)
++		return -EINVAL;
++
+ 	memcpy(ctx->dma_buffer, data, writelen);
+ 	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, writelen,
+ 			       DMA_TO_DEVICE);
+-- 
+2.25.1
+
