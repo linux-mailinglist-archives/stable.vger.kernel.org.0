@@ -2,117 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF026B93CD
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D809B6B93DF
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:34:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231539AbjCNMbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34282 "EHLO
+        id S230152AbjCNMeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231540AbjCNMao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:30:44 -0400
-Received: from nbd.name (nbd.name [46.4.11.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C1974A4F;
-        Tue, 14 Mar 2023 05:29:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-        s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:Subject:From
-        :References:Cc:To:MIME-Version:Date:Message-ID:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=T7AdpE3kF45Ahs5PgnL6KmsAScwyT077PLll9xZ5w0Q=; b=KfG5JminPgVX72tE/xsbcPH199
-        DAt+sP+QEMiv4NBh5HE4BA1EjqCbDYGSSgnvDKbSRZGOv0K3WHupckZKxfbqOVeEMpTgxaC0axKyj
-        V5FQl0ZKbKqsq2uHrdFmMZ644YkvtTEzIoyVrUyzlfFwyEgcHrp7zVhfvhW+b0dkVSxI=;
-Received: from p54ae9730.dip0.t-ipconnect.de ([84.174.151.48] helo=nf.local)
-        by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <nbd@nbd.name>)
-        id 1pc3l8-001rqH-2X; Tue, 14 Mar 2023 13:28:06 +0100
-Message-ID: <519b5bb9-8899-ae7c-4eff-f3116cdfdb56@nbd.name>
-Date:   Tue, 14 Mar 2023 13:28:04 +0100
+        with ESMTP id S230162AbjCNMeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:34:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B3451F5E5
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 05:32:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678797076;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=HbhFOMCQBCCU5HlpK+i5DLDhtUolKyI3cW+PZX4tqo8=;
+        b=Dw+kkwR3qcGJ4BHp4EswuzG2czQ9T+BVML/bvcuhkZkbGbYJAKXFYjE6bC34692tLOKqJ8
+        m3+Ph30HxTlcVpkOl78WLSupRFlOqTWeH/e+t7idA43Am27Mpo7zXjVicSP5fq22NxK4MS
+        Tr6I8QlNeqhbigooQbSaS3vi//TeH9I=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-640-e6XR-hsROv2KE7AfBS2lNg-1; Tue, 14 Mar 2023 08:31:13 -0400
+X-MC-Unique: e6XR-hsROv2KE7AfBS2lNg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AD53E85CCE1;
+        Tue, 14 Mar 2023 12:31:12 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.39.195.88])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 81436C15A0B;
+        Tue, 14 Mar 2023 12:31:11 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Javier Martinez Canillas <javierm@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        dri-devel@lists.freedesktop.org, linux-efi@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] efi: sysfb_efi: Fix DMI quirks not working for simpledrm
+Date:   Tue, 14 Mar 2023 13:31:02 +0100
+Message-Id: <20230314123103.522115-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Content-Language: en-US
-To:     Alexander Wetzel <alexander@wetzel-home.de>,
-        Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-wireless@vger.kernel.org, Thomas Mann <rauchwolke@gmx.net>,
-        stable@vger.kernel.org,
-        =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <toke@toke.dk>
-References: <20230313201542.72325-1-alexander@wetzel-home.de>
- <130d44bccb317cc82d57caf5b8ca1471fe0faed4.camel@sipsolutions.net>
- <55ede120-b055-e834-e617-fe3069227652@wetzel-home.de>
-From:   Felix Fietkau <nbd@nbd.name>
-Subject: Re: [PATCH] wifi: mac80211: Serialize calls to drv_wake_tx_queue()
-In-Reply-To: <55ede120-b055-e834-e617-fe3069227652@wetzel-home.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14.03.23 12:20, Alexander Wetzel wrote:
->> assuming that TXQ drivers actually still call
->> ieee80211_txq_schedule_end() which says it's deprecated.
->> 
->> That even has _bh() so the tasklet can't be running anyway ...
->> 
->> So if the concurrency really is only TX vs. tasklet, then you could even
->> just keep the BHs disabled (in _start spin_unlock only and then in _end
->> local_bh_disable)?
->> 
->>> Which may also be the solution for the regression in 6.2:
->>> Do it now for ieee80211_handle_wake_tx_queue() and apply this patch
->>> to the development tree only.
->> 
->> I'd argue the other way around - do it for all to fix these issues, and
->> then audit drivers such as iwlwifi or even make concurrency here opt-in.
->> 
->> Felix did see some benefits of the concurrency I think though, so he
->> might have a different opinion.
-> 
-> What about handling it that way:
-> 
-> Keep serializing drv_wake_tx_queue(). But use a new spinlock the drivers
-> can opt out from.
->    1) No flag set:
->       drv_wake_tx_queue() can be running only once at any time
-> 
->    2) IEEE80211_HW_CONCURRENT_AC_TX
->       drv_wake_tx_queue() can be running once per AC at any time
-> 
->    3) IEEE80211_HW_CONCURRENT
->       current behavior.
+Commit 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup
+for all arches") moved the sysfb_apply_efi_quirks() call in sysfb_init()
+from before the [sysfb_]parse_mode() call to after it.
+But sysfb_apply_efi_quirks() modifies the global screen_info struct which
+[sysfb_]parse_mode() parses, so doing it later is too late.
 
-I think if you really insist on handling this through drv_wake_tx_queue 
-locking, it really shouldn't be done through extra hw flags, because the 
-locking requirements are too different.
+This has broken all DMI based quirks for correcting wrong firmware efifb
+settings when simpledrm is used.
 
-I took a quick look at all the drivers that implement iTXQ themselves 
-and what their requirements are.
+To fix this move the sysfb_apply_efi_quirks() call back to its old place
+and split the new setup of the efifb_fwnode (which requires
+the platform_device) into its own function and call that at
+the place of the moved sysfb_apply_efi_quirks(pd) calls.
 
-Only two drivers need changes:
-- ath10k: needs a per-AC lock, because it does a scheduling round in the 
-wake_tx_queue call.
-- iwlwifi: needs a global lock, since it touches a common list. None of 
-your proposed locking types are enough for this one.
+Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
+Cc: stable@vger.kernel.org
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/firmware/efi/sysfb_efi.c  | 5 ++++-
+ drivers/firmware/sysfb.c          | 4 +++-
+ drivers/firmware/sysfb_simplefb.c | 2 +-
+ include/linux/sysfb.h             | 9 +++++++--
+ 4 files changed, 15 insertions(+), 5 deletions(-)
 
-The rest seem fine to me:
-- ath9k has a per-hw-queue lock
-- mt76 only schedules a kthread
-- rtw88 uses a global lock + workqueue for scheduling
-- rtw89 uses a (potentially unnecessary) ieee80211_schedule_txq call + 
-workqueue for scheduling
+diff --git a/drivers/firmware/efi/sysfb_efi.c b/drivers/firmware/efi/sysfb_efi.c
+index f06fdacc9bc8..e76d6803bdd0 100644
+--- a/drivers/firmware/efi/sysfb_efi.c
++++ b/drivers/firmware/efi/sysfb_efi.c
+@@ -341,7 +341,7 @@ static const struct fwnode_operations efifb_fwnode_ops = {
+ #ifdef CONFIG_EFI
+ static struct fwnode_handle efifb_fwnode;
+ 
+-__init void sysfb_apply_efi_quirks(struct platform_device *pd)
++__init void sysfb_apply_efi_quirks(void)
+ {
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
+ 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
+@@ -355,7 +355,10 @@ __init void sysfb_apply_efi_quirks(struct platform_device *pd)
+ 		screen_info.lfb_height = temp;
+ 		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
+ 	}
++}
+ 
++__init void sysfb_set_efifb_fwnode(struct platform_device *pd)
++{
+ 	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI && IS_ENABLED(CONFIG_PCI)) {
+ 		fwnode_init(&efifb_fwnode, &efifb_fwnode_ops);
+ 		pd->dev.fwnode = &efifb_fwnode;
+diff --git a/drivers/firmware/sysfb.c b/drivers/firmware/sysfb.c
+index 3fd3563d962b..3c197db42c9d 100644
+--- a/drivers/firmware/sysfb.c
++++ b/drivers/firmware/sysfb.c
+@@ -81,6 +81,8 @@ static __init int sysfb_init(void)
+ 	if (disabled)
+ 		goto unlock_mutex;
+ 
++	sysfb_apply_efi_quirks();
++
+ 	/* try to create a simple-framebuffer device */
+ 	compatible = sysfb_parse_mode(si, &mode);
+ 	if (compatible) {
+@@ -107,7 +109,7 @@ static __init int sysfb_init(void)
+ 		goto unlock_mutex;
+ 	}
+ 
+-	sysfb_apply_efi_quirks(pd);
++	sysfb_set_efifb_fwnode(pd);
+ 
+ 	ret = platform_device_add_data(pd, si, sizeof(*si));
+ 	if (ret)
+diff --git a/drivers/firmware/sysfb_simplefb.c b/drivers/firmware/sysfb_simplefb.c
+index ce9c007ed66f..82c64cb9f531 100644
+--- a/drivers/firmware/sysfb_simplefb.c
++++ b/drivers/firmware/sysfb_simplefb.c
+@@ -141,7 +141,7 @@ __init struct platform_device *sysfb_create_simplefb(const struct screen_info *s
+ 	if (!pd)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	sysfb_apply_efi_quirks(pd);
++	sysfb_set_efifb_fwnode(pd);
+ 
+ 	ret = platform_device_add_resources(pd, &res, 1);
+ 	if (ret)
+diff --git a/include/linux/sysfb.h b/include/linux/sysfb.h
+index 8ba8b5be5567..c1ef5fc60a3c 100644
+--- a/include/linux/sysfb.h
++++ b/include/linux/sysfb.h
+@@ -70,11 +70,16 @@ static inline void sysfb_disable(void)
+ #ifdef CONFIG_EFI
+ 
+ extern struct efifb_dmi_info efifb_dmi_list[];
+-void sysfb_apply_efi_quirks(struct platform_device *pd);
++void sysfb_apply_efi_quirks(void);
++void sysfb_set_efifb_fwnode(struct platform_device *pd);
+ 
+ #else /* CONFIG_EFI */
+ 
+-static inline void sysfb_apply_efi_quirks(struct platform_device *pd)
++static inline void sysfb_apply_efi_quirks(void)
++{
++}
++
++static inline void sysfb_set_efifb_fwnode(struct platform_device *pd)
+ {
+ }
+ 
+-- 
+2.39.1
 
-If you want to address this in the least invasive way, add a per-AC lock 
-to ath10k's wake_tx_queue handler, a global lock to iwlwifi, and a 
-per-AC lock inside ieee80211_handle_wake_tx_queue().
-
-That way no locking is needed around the drv_wake_tx_queue calls.
-
-- Felix
