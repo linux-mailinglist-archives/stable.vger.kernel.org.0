@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8156B946B
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD396B94CD
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:49:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229826AbjCNMpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:45:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
+        id S232409AbjCNMtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:49:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231264AbjCNMpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:45:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA4E16323;
-        Tue, 14 Mar 2023 05:44:08 -0700 (PDT)
+        with ESMTP id S232290AbjCNMsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:48:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F52A4020;
+        Tue, 14 Mar 2023 05:45:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21693B81909;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A84D861778;
         Tue, 14 Mar 2023 12:43:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F359C433A0;
-        Tue, 14 Mar 2023 12:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 693C8C4339C;
+        Tue, 14 Mar 2023 12:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678797819;
-        bh=lPyjNvz2bCkJaqdrEKRI/V0acTlrg7j5T1U32WQUh5w=;
+        s=k20201202; t=1678797821;
+        bh=AY/Ig6/D6B8kAit4w8uSAEvPz3sYAX7+kRJBXfUowsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvLCNMI0AQQAJOM19wpxHylBfnI4zTH04ePpBLzYdP6isjMJqsLlwpiqFSFqaMKgN
-         FkmWpp2tAQyEfOi4RW3NbjJ6cE+WI3UCJHnRVIJT7cIOkWboo/K9/ZpEKKTTKcw9Sz
-         lj/rNK1OdYK86zZ0RAQVrvY8Xz8pbeUUUHQZR13DKsQgfj+r+W2ylXg1UHKnoHzN0I
-         qq8v7iIUe1Xbkk5mYNWhi1lABpFrAG5OZKWjnhHAbKYR4pcsSjX+EwoxXOEExtDPIo
-         6e1GAnVIAkPQXZDMs9eRkLVQGWARCvTi61ucjuHZf97bqXgb6Snb/BIA0SInmnT7Z8
-         yRUX7t4XOM9jg==
+        b=Uj4TR13Tn0i9WVmZXplhgEvNsZZOlPOcPN2xNh3Vy+9khy4mkN2QSG/bpVDPr1V/q
+         bvabTkIZtxPTiu1wQhiJC+rNmAFJdo1KfoEw375ytWJXxT2bXSM9J30sCip2griLly
+         ktAqmCXyadV9PVvjs4aVaQl4LrovUF7rsBf9ntfnBCk87rHxc96AWRAG9RSMvpciF7
+         Z6pbo/Q9w13nWY4V2fCSN4MJMLW1w/TaQ+ON6KDxjsDIBidG2jxZ3xgAyDPp+zzsac
+         xVqoQKaoHjCRZDZHPRm0Sq24bUIffy1tTAlfytDeD8sWNMZgQXpgKkskuCM5cXNqdW
+         wB/gHYQRkcFTQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Huacai Chen <chenhuacai@loongson.cn>,
+Cc:     Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 6.1 10/13] LoongArch: Only call get_timer_irq() once in constant_clockevent_init()
-Date:   Tue, 14 Mar 2023 08:43:22 -0400
-Message-Id: <20230314124325.470931-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 11/13] sh: intc: Avoid spurious sizeof-pointer-div warning
+Date:   Tue, 14 Mar 2023 08:43:23 -0400
+Message-Id: <20230314124325.470931-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230314124325.470931-1-sashal@kernel.org>
 References: <20230314124325.470931-1-sashal@kernel.org>
@@ -48,107 +49,57 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
 
-[ Upstream commit bb7a78e343468873bf00b2b181fcfd3c02d8cb56 ]
+[ Upstream commit 250870824c1cf199b032b1ef889c8e8d69d9123a ]
 
-Under CONFIG_DEBUG_ATOMIC_SLEEP=y and CONFIG_DEBUG_PREEMPT=y, we can see
-the following messages on LoongArch, this is because using might_sleep()
-in preemption disable context.
+GCC warns about the pattern sizeof(void*)/sizeof(void), as it looks like
+the abuse of a pattern to calculate the array size. This pattern appears
+in the unevaluated part of the ternary operator in _INTC_ARRAY if the
+parameter is NULL.
 
-[    0.001127] smp: Bringing up secondary CPUs ...
-[    0.001222] Booting CPU#1...
-[    0.001244] 64-bit Loongson Processor probed (LA464 Core)
-[    0.001247] CPU1 revision is: 0014c012 (Loongson-64bit)
-[    0.001250] FPU1 revision is: 00000000
-[    0.001252] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:283
-[    0.001255] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 0, name: swapper/1
-[    0.001257] preempt_count: 1, expected: 0
-[    0.001258] RCU nest depth: 0, expected: 0
-[    0.001259] Preemption disabled at:
-[    0.001261] [<9000000000223800>] arch_dup_task_struct+0x20/0x110
-[    0.001272] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 6.2.0-rc7+ #43
-[    0.001275] Hardware name: Loongson Loongson-3A5000-7A1000-1w-A2101/Loongson-LS3A5000-7A1000-1w-A2101, BIOS vUDK2018-LoongArch-V4.0.05132-beta10 12/13/202
-[    0.001277] Stack : 0072617764726148 0000000000000000 9000000000222f1c 90000001001e0000
-[    0.001286]         90000001001e3be0 90000001001e3be8 0000000000000000 0000000000000000
-[    0.001292]         90000001001e3be8 0000000000000040 90000001001e3cb8 90000001001e3a50
-[    0.001297]         9000000001642000 90000001001e3be8 be694d10ce4139dd 9000000100174500
-[    0.001303]         0000000000000001 0000000000000001 00000000ffffe0a2 0000000000000020
-[    0.001309]         000000000000002f 9000000001354116 00000000056b0000 ffffffffffffffff
-[    0.001314]         0000000000000000 0000000000000000 90000000014f6e90 9000000001642000
-[    0.001320]         900000000022b69c 0000000000000001 0000000000000000 9000000001736a90
-[    0.001325]         9000000100038000 0000000000000000 9000000000222f34 0000000000000000
-[    0.001331]         00000000000000b0 0000000000000004 0000000000000000 0000000000070000
-[    0.001337]         ...
-[    0.001339] Call Trace:
-[    0.001342] [<9000000000222f34>] show_stack+0x5c/0x180
-[    0.001346] [<90000000010bdd80>] dump_stack_lvl+0x60/0x88
-[    0.001352] [<9000000000266418>] __might_resched+0x180/0x1cc
-[    0.001356] [<90000000010c742c>] mutex_lock+0x20/0x64
-[    0.001359] [<90000000002a8ccc>] irq_find_matching_fwspec+0x48/0x124
-[    0.001364] [<90000000002259c4>] constant_clockevent_init+0x68/0x204
-[    0.001368] [<900000000022acf4>] start_secondary+0x40/0xa8
-[    0.001371] [<90000000010c0124>] smpboot_entry+0x60/0x64
+The replacement uses an alternate approach to return 0 in case of NULL
+which does not generate the pattern sizeof(void*)/sizeof(void), but still
+emits the warning if _INTC_ARRAY is called with a nonarray parameter.
 
-Here are the complete call chains:
+This patch is required for successful compilation with -Werror enabled.
 
-smpboot_entry()
-  start_secondary()
-    constant_clockevent_init()
-      get_timer_irq()
-        irq_find_matching_fwnode()
-          irq_find_matching_fwspec()
-            mutex_lock()
-              might_sleep()
-                __might_sleep()
-                  __might_resched()
+The idea to use _Generic for type distinction is taken from Comment #7
+in https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108483 by Jakub Jelinek
 
-In order to avoid the above issue, we should break the call chains,
-using timer_irq_installed variable as check condition to only call
-get_timer_irq() once in constant_clockevent_init() is a simple and
-proper way.
-
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Link: https://lore.kernel.org/r/619fa552-c988-35e5-b1d7-fe256c46a272@mkarcher.dialup.fu-berlin.de
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/loongarch/kernel/time.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ include/linux/sh_intc.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/loongarch/kernel/time.c b/arch/loongarch/kernel/time.c
-index 786735dcc8d67..d2b7d5df132a9 100644
---- a/arch/loongarch/kernel/time.c
-+++ b/arch/loongarch/kernel/time.c
-@@ -135,16 +135,17 @@ static int get_timer_irq(void)
+diff --git a/include/linux/sh_intc.h b/include/linux/sh_intc.h
+index c255273b02810..37ad81058d6ae 100644
+--- a/include/linux/sh_intc.h
++++ b/include/linux/sh_intc.h
+@@ -97,7 +97,10 @@ struct intc_hw_desc {
+ 	unsigned int nr_subgroups;
+ };
  
- int constant_clockevent_init(void)
- {
--	int irq;
- 	unsigned int cpu = smp_processor_id();
- 	unsigned long min_delta = 0x600;
- 	unsigned long max_delta = (1UL << 48) - 1;
- 	struct clock_event_device *cd;
--	static int timer_irq_installed = 0;
-+	static int irq = 0, timer_irq_installed = 0;
+-#define _INTC_ARRAY(a) a, __same_type(a, NULL) ? 0 : sizeof(a)/sizeof(*a)
++#define _INTC_SIZEOF_OR_ZERO(a) (_Generic(a,                 \
++                                 typeof(NULL):  0,           \
++                                 default:       sizeof(a)))
++#define _INTC_ARRAY(a) a, _INTC_SIZEOF_OR_ZERO(a)/sizeof(*a)
  
--	irq = get_timer_irq();
--	if (irq < 0)
--		pr_err("Failed to map irq %d (timer)\n", irq);
-+	if (!timer_irq_installed) {
-+		irq = get_timer_irq();
-+		if (irq < 0)
-+			pr_err("Failed to map irq %d (timer)\n", irq);
-+	}
- 
- 	cd = &per_cpu(constant_clockevent_device, cpu);
- 
+ #define INTC_HW_DESC(vectors, groups, mask_regs,	\
+ 		     prio_regs,	sense_regs, ack_regs)	\
 -- 
 2.39.2
 
