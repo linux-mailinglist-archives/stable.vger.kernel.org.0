@@ -2,78 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DB86B9C77
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 18:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAFF6B9C7B
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 18:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbjCNRGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 13:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59806 "EHLO
+        id S229648AbjCNRIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 13:08:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230029AbjCNRGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 13:06:48 -0400
-Received: from mx01.omp.ru (mx01.omp.ru [90.154.21.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067096A04D;
-        Tue, 14 Mar 2023 10:06:44 -0700 (PDT)
-Received: from [192.168.1.103] (31.173.83.0) by msexch01.omp.ru (10.188.4.12)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.14; Tue, 14 Mar
- 2023 20:06:34 +0300
-Subject: Re: [PATCH 5.10 1/1] usb: musb: core: drop redundant checks
-To:     Danila Chernetsov <listdansp@mail.ru>, <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Bin Liu <b-liu@ti.com>, <linux-usb@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <lvc-project@linuxtesting.org>
-References: <20230314170113.11968-1-listdansp@mail.ru>
- <20230314170113.11968-2-listdansp@mail.ru>
-From:   Sergey Shtylyov <s.shtylyov@omp.ru>
-Organization: Open Mobile Platform
-Message-ID: <04bbe1e9-8b6b-9b06-f00c-40ccda1b47ae@omp.ru>
-Date:   Tue, 14 Mar 2023 20:06:34 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        with ESMTP id S229475AbjCNRIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 13:08:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A47D715C95;
+        Tue, 14 Mar 2023 10:08:16 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59B73B8136E;
+        Tue, 14 Mar 2023 17:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88004C433D2;
+        Tue, 14 Mar 2023 17:08:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678813694;
+        bh=ucM21cLRUuIM1P+fjJ7tyXVrvw8aDslNNA8co2hjLB0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CQwA8hQi6papIwLzlFCwnT8ZgfxGYB2LsuTVCVtFvYeeMxK4u4qRxhb/NYejRj78g
+         N+xHIw0JZfELVtT+p65MmB7c5tmgUhvmAEVq2ZRlzn8d2Ep76OavoWeOf10Monumx9
+         KVSgQrxRkAPML1uZicpPU0RrnQjrGmVV4zE475+3hq3kpTScUqY2iviptRobfIg0f9
+         wjdPGTCMNO5WeKwjE0rfZn2lFuAE6XDbzul3kV1qwjmAfrj0rvnlPO9IhRDalJzLso
+         6MIzkKrpqlQdEkUuOJcyKSyHwsyzTjQNye0xdVmUGQTdDWD2O4rlsxv/CuP3eUnByC
+         IdykfYulsxTgA==
+Date:   Tue, 14 Mar 2023 17:08:09 +0000
+From:   Conor Dooley <conor@kernel.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, conor.dooley@microchip.com,
+        ndesaulniers@google.com, trix@redhat.com,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        llvm@lists.linux.dev, patches@lists.linux.dev,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] riscv: Handle zicsr/zifencei issues between clang and
+ binutils
+Message-ID: <75037eb4-7be4-4182-a377-18343491c7da@spud>
+References: <20230313-riscv-zicsr-zifencei-fiasco-v1-1-dd1b7840a551@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20230314170113.11968-2-listdansp@mail.ru>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [31.173.83.0]
-X-ClientProxiedBy: msexch01.omp.ru (10.188.4.12) To msexch01.omp.ru
- (10.188.4.12)
-X-KSE-ServerInfo: msexch01.omp.ru, 9
-X-KSE-AntiSpam-Interceptor-Info: scan successful
-X-KSE-AntiSpam-Version: 5.9.59, Database issued on: 03/14/2023 16:49:10
-X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
-X-KSE-AntiSpam-Method: none
-X-KSE-AntiSpam-Rate: 59
-X-KSE-AntiSpam-Info: Lua profiles 176098 [Mar 14 2023]
-X-KSE-AntiSpam-Info: Version: 5.9.59.0
-X-KSE-AntiSpam-Info: Envelope from: s.shtylyov@omp.ru
-X-KSE-AntiSpam-Info: LuaCore: 507 507 08d345461d9bcca7095738422a5279ab257bb65a
-X-KSE-AntiSpam-Info: {rep_avail}
-X-KSE-AntiSpam-Info: {Tracking_uf_ne_domains}
-X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
-X-KSE-AntiSpam-Info: {relay has no DNS name}
-X-KSE-AntiSpam-Info: {SMTP from is not routable}
-X-KSE-AntiSpam-Info: {Found in DNSBL: 31.173.83.0 in (user)
- b.barracudacentral.org}
-X-KSE-AntiSpam-Info: {Found in DNSBL: 31.173.83.0 in (user) dbl.spamhaus.org}
-X-KSE-AntiSpam-Info: d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;lore.kernel.org:7.1.1;omp.ru:7.1.1;127.0.0.199:7.1.2
-X-KSE-AntiSpam-Info: ApMailHostAddress: 31.173.83.0
-X-KSE-AntiSpam-Info: {DNS response errors}
-X-KSE-AntiSpam-Info: Rate: 59
-X-KSE-AntiSpam-Info: Status: not_detected
-X-KSE-AntiSpam-Info: Method: none
-X-KSE-AntiSpam-Info: Auth:dmarc=temperror header.from=omp.ru;spf=temperror
- smtp.mailfrom=omp.ru;dkim=none
-X-KSE-Antiphishing-Info: Clean
-X-KSE-Antiphishing-ScanningType: Heuristic
-X-KSE-Antiphishing-Method: None
-X-KSE-Antiphishing-Bases: 03/14/2023 16:52:00
-X-KSE-AttachmentFiltering-Interceptor-Info: protection disabled
-X-KSE-Antivirus-Interceptor-Info: scan successful
-X-KSE-Antivirus-Info: Clean, bases: 3/14/2023 3:31:00 PM
-X-KSE-BulkMessagesFiltering-Scan-Result: InTheLimit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="1CEuDSeV8bwTFyS+"
+Content-Disposition: inline
+In-Reply-To: <20230313-riscv-zicsr-zifencei-fiasco-v1-1-dd1b7840a551@kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -81,29 +58,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/14/23 8:01 PM, Danila Chernetsov wrote:
 
-> From: Sergey Shtylyov <s.shtylyov@omp.ru>
-> 
-> commit b0ec7e55fce65f125bd1d7f02e2dc4de62abee34 upstream. 
-> 
-> In musb_{save|restore}_context() the expression '&musb->endpoints[i]' just
-> cannot be NULL, so the checks have no sense at all -- after dropping them,
-> the local variables 'hw_ep' are no longer necessary, so drop them as well.
-> 
-> Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-> analysis tool.
-> 
-> Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-> Link: https://lore.kernel.org/r/3f8f60d9-f1b5-6b2c-1222-39b156151a22@omp.ru
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Danila Chernetsov <listdansp@mail.ru>
+--1CEuDSeV8bwTFyS+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hey Nathan,
+
+On Mon, Mar 13, 2023 at 04:00:23PM -0700, Nathan Chancellor wrote:
+> There are two related issues that appear in certain combinations with
+> clang and GNU binutils.
+>=20
+> The first occurs when a version of clang that supports zicsr or zifencei
+> via '-march=3D' [1] (i.e, >=3D 17.x) is used in combination with a version
+> of GNU binutils that do not recognize zicsr and zifencei in the
+> '-march=3D' value (i.e., < 2.36):
+>=20
+>   riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_c2p0_zicsr2p0_zifence=
+i2p0: Invalid or unknown z ISA extension: 'zifencei'
+>   riscv64-linux-gnu-ld: failed to merge target specific data of file fs/e=
+fivarfs/file.o
+>   riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_c2p0_zicsr2p0_zifence=
+i2p0: Invalid or unknown z ISA extension: 'zifencei'
+>   riscv64-linux-gnu-ld: failed to merge target specific data of file fs/e=
+fivarfs/super.o
+>=20
+> The second occurs when a version of clang that does not support zicsr or
+> zifencei via '-march=3D' (i.e., <=3D 16.x) is used in combination with a
+> version of GNU as that defaults to a newer ISA base spec, which requires
+> specifying zicsr and zifencei in the '-march=3D' value explicitly (i.e, >=
+=3D
+> 2.38):
+>=20
+>   ../arch/riscv/kernel/kexec_relocate.S: Assembler messages:
+>   ../arch/riscv/kernel/kexec_relocate.S:147: Error: unrecognized opcode `=
+fence.i', extension `zifencei' required
+>   clang-12: error: assembler command failed with exit code 1 (use -v to s=
+ee invocation)
+>=20
+> This is the same issue addressed by commit 6df2a016c0c8 ("riscv: fix
+> build with binutils 2.38") (see [2] for additional information) but
+> older versions of clang miss out on it because the cc-option check
+> fails:
+>=20
+>   clang-12: error: invalid arch name 'rv64imac_zicsr_zifencei', unsupport=
+ed standard user-level extension 'zicsr'
+>   clang-12: error: invalid arch name 'rv64imac_zicsr_zifencei', unsupport=
+ed standard user-level extension 'zicsr'
+>=20
+> To resolve the first issue, only attempt to add zicsr and zifencei to
+> the march string when using the GNU assembler 2.38 or newer, which is
+> when the default ISA spec was updated, requiring these extensions to be
+> specified explicitly. LLVM implements an older version of the base
+> specification for all currently released versions, so these instructions
+> are available as part of the 'i' extension. If LLVM's implementation is
+> updated in the future, a CONFIG_AS_IS_LLVM condition can be added to
+> CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI.
+>=20
+> To resolve the second issue, use version 2.2 of the base ISA spec when
+> using an older version of clang that does not support zicsr or zifencei
+> via '-march=3D', as that is the spec version most compatible with the one
+> clang/LLVM implements and avoids the need to specify zicsr and zifencei
+> explicitly due to still being a part of 'i'.
+>=20
+> [1]: https://github.com/llvm/llvm-project/commit/22e199e6afb1263c943c0c0d=
+4498694e15bf8a16
+> [2]: https://lore.kernel.org/ZAxT7T9Xy1Fo3d5W@aurel32.net/
+>=20
+> Cc: stable@vger.kernel.org
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1808
+> Co-developed-by: Conor Dooley <conor.dooley@microchip.com>
+> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+
+TBH, barely identifiable as having much to do with my V1 anymore, so
+could easily have dropped those.
+Either way, thanks for sorting this out while I've been sick :)
+
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 > ---
->  drivers/usb/musb/musb_core.c | 16 ++--------------
->  1 file changed, 2 insertions(+), 14 deletions(-)
+> This is essentially a v3 of Conor's v1 and v2 but since I am sending the
+> patch after finding a separate but related issue, I left it at v1:
+>=20
+> - v1: https://lore.kernel.org/20230223220546.52879-1-conor@kernel.org/
+> - v2: https://lore.kernel.org/20230308220842.1231003-1-conor@kernel.org/
+>=20
+> I have built allmodconfig with the following toolchain combinations to
+> confirm this problem is resolved:
+>=20
+> - clang 12/17 + GNU as and ld 2.35/2.39
+> - clang 12/17 with the integrated assembler + GNU ld 2.35/2.39
+> - clang 12/17 with the integrated assembler + ld.lld
+>=20
+> There are a couple of other incompatibilities between clang-17 and GNU
+> binutils that I had to patch to get allmodconfig to build successfully
+> but those are less likely to be hit in practice because the full LLVM
+> stack can be used with LLVM versions 13.x and newer.
 
-   Hum... why do you need it it 5.10.y?
+> I will follow up
+> with separate issues and patches.
 
-[...]
+Cool, I'll "look forward" to those...
 
-MBR, Sergey
+Thanks,
+Conor.
+
+--1CEuDSeV8bwTFyS+
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZBCp+AAKCRB4tDGHoIJi
+0roxAQCXsosSBtzf9Ovi8xT5U07z0OBYx29ltaw6MCTxk1St1AD/R4eRfRoNh6BC
+vrfhzHF5bwseLnWtO2Yc8FoBMRGegQc=
+=UId/
+-----END PGP SIGNATURE-----
+
+--1CEuDSeV8bwTFyS+--
