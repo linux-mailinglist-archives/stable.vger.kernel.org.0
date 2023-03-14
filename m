@@ -2,116 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0756BA141
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 22:13:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5962B6BA191
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 22:49:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbjCNVNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 17:13:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52366 "EHLO
+        id S229674AbjCNVty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 17:49:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229545AbjCNVNv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 17:13:51 -0400
-Received: from ns2.wdyn.eu (ns2.wdyn.eu [5.252.227.236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7D604144B1;
-        Tue, 14 Mar 2023 14:13:43 -0700 (PDT)
-From:   Alexander Wetzel <alexander@wetzel-home.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
-        s=wetzel-home; t=1678828420;
-        bh=G+YXrV9mEfcORBO7r3DbkkvLYIFxLUBPwTGIj4ibxx4=;
-        h=From:To:Cc:Subject:Date;
-        b=lrT67AEhyHz76OXPuj8s81Bipr7TITIOGHbQOrfDCOtQr9CQvvj5ChGjxYvCx9IJt
-         S4MVBdgiUruARiBZsa7NjXKgfkjx8uBbKIgxt3V+pW4sIt44Hzw2qyoA9v3eo41xeL
-         6PnQWe4a/pdcHlBdaoyj1uxRfIMkBB4FdMepQCx0=
-To:     johannes@sipsolutions.net
-Cc:     nbd@nbd.name, linux-wireless@vger.kernel.org,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        Thomas Mann <rauchwolke@gmx.net>, stable@vger.kernel.org
-Subject: [PATCH] wifi: mac80211: Serialize ieee80211_handle_wake_tx_queue()
-Date:   Tue, 14 Mar 2023 22:11:22 +0100
-Message-Id: <20230314211122.111688-1-alexander@wetzel-home.de>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S229666AbjCNVtx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 17:49:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907B851C89;
+        Tue, 14 Mar 2023 14:49:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27BEC61A04;
+        Tue, 14 Mar 2023 21:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94B21C433EF;
+        Tue, 14 Mar 2023 21:49:50 +0000 (UTC)
+Date:   Tue, 14 Mar 2023 17:49:48 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: Re: [for-linus][PATCH 5/5] tracing: Make tracepoint lockdep check
+ actually test something
+Message-ID: <20230314174948.17a01cd4@gandalf.local.home>
+In-Reply-To: <f4f52692-9f6c-467a-8988-113aced754eb@paulmck-laptop>
+References: <20230314190236.203370742@goodmis.org>
+        <20230314190310.486609095@goodmis.org>
+        <f4f52692-9f6c-467a-8988-113aced754eb@paulmck-laptop>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ieee80211_handle_wake_tx_queue must not run concurrent multiple times.
-It calls ieee80211_txq_schedule_start() and the drivers migrated to iTXQ
-do not expect overlapping drv_tx() calls.
+On Tue, 14 Mar 2023 14:08:28 -0700
+"Paul E. McKenney" <paulmck@kernel.org> wrote:
 
-This fixes 'c850e31f79f0 ("wifi: mac80211: add internal handler for
-wake_tx_queue")', which introduced ieee80211_handle_wake_tx_queue.
-Drivers started to use it with 'a790cc3a4fad ("wifi: mac80211: add
-wake_tx_queue callback to drivers")'.
-But only after fixing an independent bug with
-'4444bc2116ae ("wifi: mac80211: Proper mark iTXQs for resumption")'
-problematic concurrent calls really happened and exposed the initial
-issue.
+> On Tue, Mar 14, 2023 at 03:02:41PM -0400, Steven Rostedt wrote:
+> > From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+> > 
+> > A while ago where the trace events had the following:
+> > 
+> >    rcu_read_lock_sched_notrace();
+> >    rcu_dereference_sched(...);
+> >    rcu_read_unlock_sched_notrace();
+> > 
+> > If the tracepoint is enabled, it could trigger RCU issues if called in
+> > the wrong place. And this warning was only triggered if lockdep was
+> > enabled. If the tracepoint was never enabled with lockdep, the bug would
+> > not be caught. To handle this, the above sequence was done when lockdep
+> > was enabled regardless if the tracepoint was enabled or not (although the
+> > always enabled code really didn't do anything, it would still trigger a
+> > warning).
+> > 
+> > But a lot has changed since that lockdep code was added. One is, that
+> > sequence no longer triggers any warning. Another is, the tracepoint when
+> > enabled doesn't even do that sequence anymore.
+> > 
+> > The main check we care about today is whether RCU is "watching" or not.
+> > So if lockdep is enabled, always check if rcu_is_watching() which will
+> > trigger a warning if it is not (tracepoints require RCU to be watching).
+> > 
+> > Note, that old sequence did add a bit of overhead when lockdep was enabled,
+> > and with the latest kernel updates, would cause the system to slow down
+> > enough to trigger kernel "stalled" warnings.
+> > 
+> > Link: http://lore.kernel.org/lkml/20140806181801.GA4605@redhat.com
+> > Link: http://lore.kernel.org/lkml/20140807175204.C257CAC5@viggo.jf.intel.com
+> > Link: https://lore.kernel.org/lkml/20230307184645.521db5c9@gandalf.local.home/
+> > Link: https://lore.kernel.org/linux-trace-kernel/20230310172856.77406446@gandalf.local.home
+> > 
+> > Cc: stable@vger.kernel.org
+> > Cc: Masami Hiramatsu <mhiramat@kernel.org>
+> > Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> > Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> > Cc: Joel Fernandes <joel@joelfernandes.org>
+> > Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > Fixes: e6753f23d961 ("tracepoint: Make rcuidle tracepoint callers use SRCU")
+> > Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>  
+> 
+> Acked-by: Paul E. McKenney <paulmck@kernel.org>
+> 
 
-Fixes: c850e31f79f0 ("wifi: mac80211: add internal handler for wake_tx_queue")
-Reported-by: Thomas Mann <rauchwolke@gmx.net>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217119
-Link: https://lore.kernel.org/r/b8efebc6-4399-d0b8-b2a0-66843314616b@leemhuis.info/
-Link: https://lore.kernel.org/r/b7445607128a6b9ed7c17fcdcf3679bfaf4aaea.camel@sipsolutions.net>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
----
+Thanks Paul!
 
-@Thomas
-Would be good when you can test that patch again.
-But it would be really strange if it's not working, too...
-
-@Johannes
-Based on your last mail you prefer to hard serialize it and not use a
-spin lock per AC. So I kept that part from the first patch.
-
-Alexander
----
- net/mac80211/ieee80211_i.h | 3 +++
- net/mac80211/util.c        | 3 +++
- 2 files changed, 6 insertions(+)
-
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index ecc232eb1ee8..e082582e0aa2 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1284,6 +1284,9 @@ struct ieee80211_local {
- 	struct list_head active_txqs[IEEE80211_NUM_ACS];
- 	u16 schedule_round[IEEE80211_NUM_ACS];
- 
-+	/* serializes ieee80211_handle_wake_tx_queue */
-+	spinlock_t handle_wake_tx_queue_lock;
-+
- 	u16 airtime_flags;
- 	u32 aql_txq_limit_low[IEEE80211_NUM_ACS];
- 	u32 aql_txq_limit_high[IEEE80211_NUM_ACS];
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index 1a28fe5cb614..3aceb3b731bf 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -314,6 +314,8 @@ void ieee80211_handle_wake_tx_queue(struct ieee80211_hw *hw,
- 	struct ieee80211_sub_if_data *sdata = vif_to_sdata(txq->vif);
- 	struct ieee80211_txq *queue;
- 
-+	spin_lock(&local->handle_wake_tx_queue_lock);
-+
- 	/* Use ieee80211_next_txq() for airtime fairness accounting */
- 	ieee80211_txq_schedule_start(hw, txq->ac);
- 	while ((queue = ieee80211_next_txq(hw, txq->ac))) {
-@@ -321,6 +323,7 @@ void ieee80211_handle_wake_tx_queue(struct ieee80211_hw *hw,
- 		ieee80211_return_txq(hw, queue, false);
- 	}
- 	ieee80211_txq_schedule_end(hw, txq->ac);
-+	spin_unlock(&local->handle_wake_tx_queue_lock);
- }
- EXPORT_SYMBOL(ieee80211_handle_wake_tx_queue);
- 
--- 
-2.39.2
-
+-- Steve
