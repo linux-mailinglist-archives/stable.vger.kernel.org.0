@@ -2,100 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4596B6B9DCF
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 19:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D736B9DD8
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 19:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230164AbjCNSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 14:04:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
+        id S229513AbjCNSGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 14:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229665AbjCNSEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 14:04:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC66A0F16;
-        Tue, 14 Mar 2023 11:04:36 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 055FB6187A;
-        Tue, 14 Mar 2023 18:04:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E3FC433D2;
-        Tue, 14 Mar 2023 18:04:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678817075;
-        bh=wu6X3gPI/hIU0QOGg6AY3AuhGQQOgWXBa5uRUVDWnnA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sr0CSaRyqsbLYuxEs73gvW0v9Bv+eX56sZNzyAp5yiOHoOFZ/6wiKH09+sSM83VYt
-         ouomMg+sw6PeEskYx2DJ5Ib4aRRwdJLBxZiseKWxZNtDZepQ0LwMVeGCEYEUXRjwPB
-         9SRBEHzJ3JES3myjQI/EsOBgavNQb5KcGVJ5bIkOcjGdiMz1Cw4Hx+1q8260ePFp6a
-         rCjEfhI5QEYZ8ca05nQJpi3PEUA4+2nx0OowQtBdxnqnNCkz3F/AwDCUVmHOUcKBiY
-         7wDMFeRQH5wfKhe5jOmgfWJd33SnzXGqd3xM8RgswSMlRh1etiLVy2ej+ds9Mq+6h7
-         kTSYsKv67J5Fw==
-Date:   Tue, 14 Mar 2023 18:04:30 +0000
-From:   Lee Jones <lee@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Tung Nguyen <tung.q.nguyen@dektech.com.au>, stable@vger.kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net
-Subject: Re: [STABLE REQUEST] tipc: improve function tipc_wait_for_cond()
-Message-ID: <20230314180430.GY9667@google.com>
-References: <20190219042048.23243-1-tung.q.nguyen@dektech.com.au>
- <20190219042048.23243-2-tung.q.nguyen@dektech.com.au>
- <20230314174537.GA1642994@google.com>
- <ZBC1opyrsZkYb3Gb@kroah.com>
+        with ESMTP id S229636AbjCNSGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 14:06:01 -0400
+Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com [IPv6:2607:f8b0:4864:20::c2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2405AF2AC
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 11:05:59 -0700 (PDT)
+Received: by mail-oo1-xc2d.google.com with SMTP id a23-20020a4ad5d7000000b005250867d3d9so2436338oot.10
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 11:05:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678817158;
+        h=content-disposition:mime-version:reply-to:message-id:subject:to
+         :from:date:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=eaM0/aCsFK0EYrSF1Yk5K88ESExmasw+qhmdwBmYPk0=;
+        b=qP/GA07jzRiUSbXhav5CaAQe2/Nobz3ffphlpbGCXgRixF6oTqPnk27EEEyhA0XMtE
+         FYCx0RGPHksmhD8HMOabxfDQtabxu/JhdgmNDCe9NPnMYJeN3ZcjLrY9KJTLNZUYreR+
+         TntkQ6qGWM2p0eCTWd43Nrd5Lzlc7mo38YqzZujhrYheiknkJqMni6MA/iJtKHhlIyMb
+         62D43Aw+hrdwf3Jsa1b7aPk8NbKlaS82b29Y6WpQf86fVoehgymF+vqDi6EzI9QhNOzE
+         bT152fgwHjEfPQQZv+fiC6hCWu6qjiwOGydsj8wS5sktzXbCaLDFHoha4OYtcBjZsmh4
+         3raQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678817158;
+        h=content-disposition:mime-version:reply-to:message-id:subject:to
+         :from:date:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eaM0/aCsFK0EYrSF1Yk5K88ESExmasw+qhmdwBmYPk0=;
+        b=Q7N4bBvYcu1CItDRYb3PA6omgxAN0YxIXNzBypIB3rr0dSs6Do7f+BvzliPKb/i5zj
+         FnaxghTELzmc/DDleeBz1/ri8YOjCRRHl/cWG8OYey/bB5eV15gKk2pM4gZPWW3Rvudo
+         2F7O0JCG+O7PhzOQ+t/VRSXJi7W4JF3hY2tXqg/JLj1apXUs392+z6kPL7+NV/QxZ8wk
+         x/9UvFO1akH1hVLwmRRBBhYm+qR1TZBRyw7Y2Yu6C4YW1xqofDCphUgy62MFFX0hbN2p
+         LWxiysqJOEC5sSHDvWBA8dA94XALplt+pPhS+sI3P02ZyZGQ0VFrV/7zZysOk6+RCIqm
+         9Hpw==
+X-Gm-Message-State: AO0yUKUc8HsEdDhQUuQ7RsjmuqHALhMKWFoCOSw6Ag6pqUsqCbzq6knm
+        6N2keLYzcI2BRfRpyNtDF0hColVJug==
+X-Google-Smtp-Source: AK7set+2AMku1FAYlKosqarY6kfkETOqDU2xH61H2hQrYq23ImMeFZebGaibs1f0vOI19zS4eV9KsQ==
+X-Received: by 2002:a4a:b149:0:b0:525:4e79:8715 with SMTP id e9-20020a4ab149000000b005254e798715mr15406903ooo.8.1678817158630;
+        Tue, 14 Mar 2023 11:05:58 -0700 (PDT)
+Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
+        by smtp.gmail.com with ESMTPSA id b25-20020a4ad899000000b0051763d6497fsm1256093oov.38.2023.03.14.11.05.57
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Mar 2023 11:05:58 -0700 (PDT)
+Sender: Corey Minyard <tcminyard@gmail.com>
+Received: from minyard.net (unknown [IPv6:2001:470:b8f6:1b:d290:38d8:4c6f:34f2])
+        by serve.minyard.net (Postfix) with ESMTPSA id 5C577180044
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 18:05:57 +0000 (UTC)
+Date:   Tue, 14 Mar 2023 13:05:56 -0500
+From:   Corey Minyard <minyard@acm.org>
+To:     stable@vger.kernel.org
+Subject: Please apply db05ddf7f32 to 5.4.x and 5.10.x
+Message-ID: <ZBC3hOAa/4vzTLTV@minyard.net>
+Reply-To: minyard@acm.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZBC1opyrsZkYb3Gb@kroah.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 14 Mar 2023, Greg KH wrote:
+Please apply:
 
-> On Tue, Mar 14, 2023 at 05:45:37PM +0000, Lee Jones wrote:
-> > Dear Stable,
-> >
-> > > Commit 844cf763fba6 ("tipc: make macro tipc_wait_for_cond() smp safe")
-> > > replaced finish_wait() with remove_wait_queue() but still used
-> > > prepare_to_wait(). This causes unnecessary conditional
-> > > checking  before adding to wait queue in prepare_to_wait().
-> > >
-> > > This commit replaces prepare_to_wait() with add_wait_queue()
-> > > as the pair function with remove_wait_queue().
-> > >
-> > > Acked-by: Ying Xue <ying.xue@windriver.com>
-> > > Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-> > > Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-> > > ---
-> > >  net/tipc/socket.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-> > > index 1217c90a363b..81b87916a0eb 100644
-> > > --- a/net/tipc/socket.c
-> > > +++ b/net/tipc/socket.c
-> > > @@ -388,7 +388,7 @@ static int tipc_sk_sock_err(struct socket *sock, long *timeout)
-> > >  		rc_ = tipc_sk_sock_err((sock_), timeo_);		       \
-> > >  		if (rc_)						       \
-> > >  			break;						       \
-> > > -		prepare_to_wait(sk_sleep(sk_), &wait_, TASK_INTERRUPTIBLE);    \
-> > > +		add_wait_queue(sk_sleep(sk_), &wait_);                         \
-> > >  		release_sock(sk_);					       \
-> > >  		*(timeo_) = wait_woken(&wait_, TASK_INTERRUPTIBLE, *(timeo_)); \
-> > >  		sched_annotate_sleep();				               \
-> >
-> > Could we have this ol' classic backported to v4.19 and v4.14 please?
->
-> What is the git commit id?
+db05ddf7f32 ("ipmi:watchdog: Set panic count to proper value on a panic to stable kernel")
 
-Sorry, it's 223b7329ec6a0.
+to the stable branches from 5.4.x to 5.10.x.
 
---
-Lee Jones [李琼斯]
+It requires as a pre-requisite:
+
+a01a89b1db ("ipmi/watchdog: replace atomic_add() and atomic_sub()")
+
+This change went in to 5.16 and a backport war requested and put into
+5.15.  It was missed in the earlier kernels; it didn't apply because
+the prerequisite was missed.  It fixes a lockup at panic time.  I think
+distros have picked it up, but I had a user report this.
+
+Thank you,
+
+-corey
