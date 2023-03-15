@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 161FC6BB0F0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D72756BB170
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:27:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232361AbjCOMXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46130 "EHLO
+        id S232384AbjCOM11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbjCOMWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CEE794A72
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:44 -0700 (PDT)
+        with ESMTP id S232512AbjCOM1G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D1C97491
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D5A2DCE1986
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0FFBC433D2;
-        Wed, 15 Mar 2023 12:21:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8F7B81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2DD6C433EF;
+        Wed, 15 Mar 2023 12:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882888;
-        bh=+PRn6Hdhuu9hqgLOrvFAc4IxVnZYao6pqfxr4Tfu/6U=;
+        s=korg; t=1678883156;
+        bh=oxZq7lq2Z5LRxuZx6TyZO40tToDw9pNkvhhU5kEbxZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vq0cR1iKupqEGbD8KheklJPv2oH6BusCeIL+Iq5MxuIYdQPcrXfATxyuakS4AgG+g
-         tWwn4fkyzYoqrtmdFKls5BOJoSgFB1ZYkCXyUPtnjVXy9YRpvUYz1n/YNsq4VBhPWL
-         1Spgz9OYATUyyGDu1irmbYjgUjmFU2kexYg0v2+A=
+        b=OUEGY8AGViUFCpERFgMQPvaPo0xqPq0G/VvM8XAslOJnQmXZTNI6T2T8woeTfLisn
+         7Mw6dHyLFZQtodPLQCEEzRkz5hi8Y0GlN73meD3eMIZGLmwbkgtmuHM+2zfyh1L/kg
+         XIuhCPesb0RznqtJMOL38mkz1DL8CVvNVd/KwrjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
-        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 010/104] ext4: fix WARNING in ext4_update_inline_data
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 035/145] RISC-V: Avoid dereferening NULL regs in die()
 Date:   Wed, 15 Mar 2023 13:11:41 +0100
-Message-Id: <20230315115732.447293617@linuxfoundation.org>
+Message-Id: <20230315115740.231245322@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
-commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
+[ Upstream commit f2913d006fcdb61719635e093d1b5dd0dafecac7 ]
 
-Syzbot found the following issue:
-EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
-fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
-fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-Modules linked in:
-CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
-RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
-RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
-RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
-R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
-R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
-FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __alloc_pages_node include/linux/gfp.h:237 [inline]
- alloc_pages_node include/linux/gfp.h:260 [inline]
- __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
- __do_kmalloc_node mm/slab_common.c:956 [inline]
- __kmalloc+0xfe/0x190 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- kzalloc include/linux/slab.h:720 [inline]
- ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
- ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
- ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
- ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
- ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
- ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
- lookup_open fs/namei.c:3413 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x12ac/0x2dd0 fs/namei.c:3711
- do_filp_open+0x264/0x4f0 fs/namei.c:3741
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_openat fs/open.c:1342 [inline]
- __se_sys_openat fs/open.c:1337 [inline]
- __x64_sys_openat+0x243/0x290 fs/open.c:1337
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+I don't think we can actually die() without a regs pointer, but the
+compiler was warning about a NULL check after a dereference.  It seems
+prudent to just avoid the possibly-NULL dereference, given that when
+die()ing the system is already toast so who knows how we got there.
 
-Above issue happens as follows:
-ext4_iget
-   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
-ext4_try_add_inline_entry
-   __ext4_mark_inode_dirty
-      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
-         ext4_xattr_shift_entries
-	 ->after shift i_inline_off is incorrect, actually is change to 176
-ext4_try_add_inline_entry
-  ext4_update_inline_dir
-    get_max_inline_xattr_value_size
-      if (EXT4_I(inode)->i_inline_off)
-	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
-			EXT4_I(inode)->i_inline_off);
-        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
-	->As entry is incorrect, then 'free' may be negative
-   ext4_update_inline_data
-      value = kzalloc(len, GFP_NOFS);
-      -> len is unsigned int, maybe very large, then trigger warning when
-         'kzalloc()'
-
-To resolve the above issue we need to update 'i_inline_off' after
-'ext4_xattr_shift_entries()'.  We do not need to set
-EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
-already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
-when it is needed may trigger a BUG_ON in ext4_writepages().
-
-Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20220920200037.6727-1-palmer@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Stable-dep-of: 130aee3fd998 ("riscv: Avoid enabling interrupts in die()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/riscv/kernel/traps.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2804,6 +2804,9 @@ shift:
- 			(void *)header, total_ino);
- 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index 6084bd93d2f58..502cba5029ca4 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -33,6 +33,7 @@ void die(struct pt_regs *regs, const char *str)
+ {
+ 	static int die_counter;
+ 	int ret;
++	long cause;
  
-+	if (ext4_has_inline_data(inode))
-+		error = ext4_find_inline_data_nolock(inode);
-+
- cleanup:
- 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
- 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
+ 	oops_enter();
+ 
+@@ -42,11 +43,13 @@ void die(struct pt_regs *regs, const char *str)
+ 
+ 	pr_emerg("%s [#%d]\n", str, ++die_counter);
+ 	print_modules();
+-	show_regs(regs);
++	if (regs)
++		show_regs(regs);
+ 
+-	ret = notify_die(DIE_OOPS, str, regs, 0, regs->cause, SIGSEGV);
++	cause = regs ? regs->cause : -1;
++	ret = notify_die(DIE_OOPS, str, regs, 0, cause, SIGSEGV);
+ 
+-	if (regs && kexec_should_crash(current))
++	if (kexec_should_crash(current))
+ 		crash_kexec(regs);
+ 
+ 	bust_spinlocks(0);
+-- 
+2.39.2
+
 
 
