@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADD86BB1E3
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FEA26BB34C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232605AbjCOMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39600 "EHLO
+        id S232995AbjCOMnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232623AbjCOMbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2377B51C87
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:16 -0700 (PDT)
+        with ESMTP id S232999AbjCOMm4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B34EF6041B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDBC6B81E0A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A839C4339B;
-        Wed, 15 Mar 2023 12:30:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C123661D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D54C433EF;
+        Wed, 15 Mar 2023 12:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883413;
-        bh=TBlpEnTSCU3V6LeGvXbRTeA8LzZEfDzjzls42LkK9sc=;
+        s=korg; t=1678884081;
+        bh=dZM0juNaGCRHAds9/PYC3jKkQ2TJwJQyn5SyU+39jfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxFiOhkN5J48Saerj0xUGcLCBNvHWRiVjpkF/ga4PnN+RxJwo/xDYjMnETfuhGRxD
-         ikCbM8ANhMNOHvz7PnC8rnzezoTRfzH66Ab9/Y+yttMDXx5BZwAX4xSDeVtKi9sbRv
-         nvvWtTEmGzEt0eivaZCu9mheOGblfguyOlVqQQQs=
+        b=acTnSRDTeSV8/PE8YBdWsOCgxIGp3qLju5iZu0HY/Wwc/q9S95qPIfKOYuKOwRQQr
+         M6ljrFs8OWBhNCNEMb1YdRUmZCO5X0DxYsAjxtzFPNZahsL+syX8Wx0u2KFWqF3jwH
+         FCr0KaVlr5bAltx8itqpktSGAm00eHygfPJT0iUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 107/145] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+Subject: [PATCH 6.2 070/141] bpf, sockmap: Fix an infinite loop error when len is 0 in tcp_bpf_recvmsg_parser()
 Date:   Wed, 15 Mar 2023 13:12:53 +0100
-Message-Id: <20230315115742.506375747@linuxfoundation.org>
+Message-Id: <20230315115742.093890944@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
+[ Upstream commit d900f3d20cc3169ce42ec72acc850e662a4d4db2 ]
 
-NO_IRQ is a relic from the old days. It is not used anymore in core
-functions. By the way, function irq_of_parse_and_map() returns value 0
-on error.
+When the buffer length of the recvmsg system call is 0, we got the
+flollowing soft lockup problem:
 
-In some drivers, NO_IRQ is erroneously used to check the return of
-irq_of_parse_and_map().
+watchdog: BUG: soft lockup - CPU#3 stuck for 27s! [a.out:6149]
+CPU: 3 PID: 6149 Comm: a.out Kdump: loaded Not tainted 6.2.0+ #30
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:remove_wait_queue+0xb/0xc0
+Code: 5e 41 5f c3 cc cc cc cc 0f 1f 80 00 00 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 41 57 <41> 56 41 55 41 54 55 48 89 fd 53 48 89 f3 4c 8d 6b 18 4c 8d 73 20
+RSP: 0018:ffff88811b5978b8 EFLAGS: 00000246
+RAX: 0000000000000000 RBX: ffff88811a7d3780 RCX: ffffffffb7a4d768
+RDX: dffffc0000000000 RSI: ffff88811b597908 RDI: ffff888115408040
+RBP: 1ffff110236b2f1b R08: 0000000000000000 R09: ffff88811a7d37e7
+R10: ffffed10234fa6fc R11: 0000000000000001 R12: ffff88811179b800
+R13: 0000000000000001 R14: ffff88811a7d38a8 R15: ffff88811a7d37e0
+FS:  00007f6fb5398740(0000) GS:ffff888237180000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000000 CR3: 000000010b6ba002 CR4: 0000000000370ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ tcp_msg_wait_data+0x279/0x2f0
+ tcp_bpf_recvmsg_parser+0x3c6/0x490
+ inet_recvmsg+0x280/0x290
+ sock_recvmsg+0xfc/0x120
+ ____sys_recvmsg+0x160/0x3d0
+ ___sys_recvmsg+0xf0/0x180
+ __sys_recvmsg+0xea/0x1a0
+ do_syscall_64+0x3f/0x90
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-It is not a real bug today because the only architectures using the
-drivers being fixed by this patch define NO_IRQ as 0, but there are
-architectures which define NO_IRQ as -1. If one day those
-architectures start using the non fixed drivers, there will be a
-problem.
+The logic in tcp_bpf_recvmsg_parser is as follows:
 
-Long time ago Linus advocated for not using NO_IRQ, see
-https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
+msg_bytes_ready:
+	copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
+	if (!copied) {
+		wait data;
+		goto msg_bytes_ready;
+	}
 
-He re-iterated the same view recently in
-https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
+In this case, "copied" always is 0, the infinite loop occurs.
 
-So test !irq instead of tesing irq == NO_IRQ.
+According to the Linux system call man page, 0 should be returned in this
+case. Therefore, in tcp_bpf_recvmsg_parser(), if the length is 0, directly
+return. Also modify several other functions with the same problem.
 
-All other usage of NO_IRQ for powerpc were removed in previous cycles so
-the time has come to remove NO_IRQ completely for powerpc.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
+Fixes: 1f5be6b3b063 ("udp: Implement udp_bpf_recvmsg() for sockmap")
+Fixes: 9825d866ce0d ("af_unix: Implement unix_dgram_bpf_recvmsg()")
+Fixes: c5d2177a72a1 ("bpf, sockmap: Fix race in ingress receive verdict with redirect to self")
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Cc: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20230303080946.1146638-1-liujian56@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/irq.h    | 3 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 +-
- 2 files changed, 1 insertion(+), 4 deletions(-)
+ net/ipv4/tcp_bpf.c  | 6 ++++++
+ net/ipv4/udp_bpf.c  | 3 +++
+ net/unix/unix_bpf.c | 3 +++
+ 3 files changed, 12 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
-index 2b3278534bc14..858393f7fd7d7 100644
---- a/arch/powerpc/include/asm/irq.h
-+++ b/arch/powerpc/include/asm/irq.h
-@@ -16,9 +16,6 @@
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index cf26d65ca3893..ebf9175119370 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -186,6 +186,9 @@ static int tcp_bpf_recvmsg_parser(struct sock *sk,
+ 	if (unlikely(flags & MSG_ERRQUEUE))
+ 		return inet_recv_error(sk, msg, len, addr_len);
  
- extern atomic_t ppc_n_lost_interrupts;
++	if (!len)
++		return 0;
++
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock))
+ 		return tcp_recvmsg(sk, msg, len, flags, addr_len);
+@@ -244,6 +247,9 @@ static int tcp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
+ 	if (unlikely(flags & MSG_ERRQUEUE))
+ 		return inet_recv_error(sk, msg, len, addr_len);
  
--/* This number is used when no interrupt has been assigned */
--#define NO_IRQ			(0)
--
- /* Total number of virq in the platform */
- #define NR_IRQS		CONFIG_NR_IRQS
++	if (!len)
++		return 0;
++
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock))
+ 		return tcp_recvmsg(sk, msg, len, flags, addr_len);
+diff --git a/net/ipv4/udp_bpf.c b/net/ipv4/udp_bpf.c
+index e5dc91d0e0793..0735d820e413f 100644
+--- a/net/ipv4/udp_bpf.c
++++ b/net/ipv4/udp_bpf.c
+@@ -68,6 +68,9 @@ static int udp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
+ 	if (unlikely(flags & MSG_ERRQUEUE))
+ 		return inet_recv_error(sk, msg, len, addr_len);
  
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index 823397c802def..f8bbe05d9ef29 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -205,7 +205,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
++	if (!len)
++		return 0;
++
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock))
+ 		return sk_udp_recvmsg(sk, msg, len, flags, addr_len);
+diff --git a/net/unix/unix_bpf.c b/net/unix/unix_bpf.c
+index e9bf155139612..2f9d8271c6ec7 100644
+--- a/net/unix/unix_bpf.c
++++ b/net/unix/unix_bpf.c
+@@ -54,6 +54,9 @@ static int unix_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
+ 	struct sk_psock *psock;
+ 	int copied;
  
- 	for_each_compatible_node(np, NULL, compat) {
- 		irq = irq_of_parse_and_map(np, 0);
--		if (irq == NO_IRQ) {
-+		if (!irq) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
- 			of_node_put(np);
++	if (!len)
++		return 0;
++
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock))
+ 		return __unix_recvmsg(sk, msg, len, flags);
 -- 
 2.39.2
 
