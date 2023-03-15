@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2463D6BB1D3
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C8E6BB13A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232531AbjCOMbE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40942 "EHLO
+        id S232406AbjCOMZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232525AbjCOMaj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D53E9E319
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:40 -0700 (PDT)
+        with ESMTP id S232409AbjCOMZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3838B303
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE28261CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F9FC433D2;
-        Wed, 15 Mar 2023 12:29:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6E94B81E04
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6DCC433D2;
+        Wed, 15 Mar 2023 12:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883379;
-        bh=yBdfyn5nOnxEPBgiukEqv9eTSbVvU2JgPuc2MNVNOVI=;
+        s=korg; t=1678883040;
+        bh=R4MN49f155TioWtNHt/MnyrxvGq4lKdgbq4h84Uv6B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Au64awAcRl/cyfYC3QMeJoA9hr2ttPs7PagHzEKLhR6NET7U4Hatr/8j/GuQMCpan
-         TwiRXoTSSl850jngJ7C28ruPKrvDPXTn2rzGioh+qFaZImfNMpfLyjsM0FD30Vm/+z
-         BCv1AhaXgx3PxZXgx8xXBe5IFNeHL4ggzUGuFbx0=
+        b=vUQvpdeAQmpmX0n6R1bvu1SDZOhxcBwHvkZZDsDls85OmH3eK/+SaMBsTh8u2kyZf
+         pAERDc+8DLfV0khqvfc3uvr5MobSnQ1vKfolvbexTzM1DackxdNkMFEE7ZlQuMiHRL
+         yFo7L0N9KwJhUIFpyIBMdeJP98c/lfRlZR44ijTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.15 122/145] sched/fair: Consider capacity inversion in util_fits_cpu()
+        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
+        Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 5.10 097/104] powerpc/vmlinux.lds: Dont discard .rela* for relocatable builds
 Date:   Wed, 15 Mar 2023 13:13:08 +0100
-Message-Id: <20230315115742.994493454@linuxfoundation.org>
+Message-Id: <20230315115736.115786272@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8 upstream.
+commit 07b050f9290ee012a407a0f64151db902a1520f5 upstream.
 
-We do consider thermal pressure in util_fits_cpu() for uclamp_min only.
-With the exception of the biggest cores which by definition are the max
-performance point of the system and all tasks by definition should fit.
+Relocatable kernels must not discard relocations, they need to be
+processed at runtime. As such they are included for CONFIG_RELOCATABLE
+builds in the powerpc linker script (line 340).
 
-Even under thermal pressure, the capacity of the biggest CPU is the
-highest in the system and should still fit every task. Except when it
-reaches capacity inversion point, then this is no longer true.
+However they are also unconditionally discarded later in the
+script (line 414). Previously that worked because the earlier inclusion
+superseded the discard.
 
-We can handle this by using the inverted capacity as capacity_orig in
-util_fits_cpu(). Which not only addresses the problem above, but also
-ensure uclamp_max now considers the inverted capacity. Force fitting
-a task when a CPU is in this adverse state will contribute to making the
-thermal throttling last longer.
+However commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and
+riscv") introduced an earlier use of DISCARD as part of the RO_DATA
+macro (line 137). With binutils < 2.36 that causes the DISCARD
+directives later in the script to be applied earlier, causing .rela* to
+actually be discarded at link time, leading to build warnings and a
+kernel that doesn't boot:
 
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-10-qais.yousef@arm.com
-(cherry picked from commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8)
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+  ld: warning: discarding dynamic section .rela.init.rodata
+
+Fix it by conditionally discarding .rela* only when CONFIG_RELOCATABLE
+is disabled.
+
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+
+Link: https://lore.kernel.org/r/20230105132349.384666-2-mpe@ellerman.id.au
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/vmlinux.lds.S |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4159,12 +4159,16 @@ static inline int util_fits_cpu(unsigned
- 	 * For uclamp_max, we can tolerate a drop in performance level as the
- 	 * goal is to cap the task. So it's okay if it's getting less.
- 	 *
--	 * In case of capacity inversion, which is not handled yet, we should
--	 * honour the inverted capacity for both uclamp_min and uclamp_max all
--	 * the time.
-+	 * In case of capacity inversion we should honour the inverted capacity
-+	 * for both uclamp_min and uclamp_max all the time.
- 	 */
--	capacity_orig = capacity_orig_of(cpu);
--	capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
-+	capacity_orig = cpu_in_capacity_inversion(cpu);
-+	if (capacity_orig) {
-+		capacity_orig_thermal = capacity_orig;
-+	} else {
-+		capacity_orig = capacity_orig_of(cpu);
-+		capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
-+	}
- 
- 	/*
- 	 * We want to force a task to fit a cpu as implied by uclamp_max.
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -379,9 +379,12 @@ SECTIONS
+ 	DISCARDS
+ 	/DISCARD/ : {
+ 		*(*.EMB.apuinfo)
+-		*(.glink .iplt .plt .rela* .comment)
++		*(.glink .iplt .plt .comment)
+ 		*(.gnu.version*)
+ 		*(.gnu.attributes)
+ 		*(.eh_frame)
++#ifndef CONFIG_RELOCATABLE
++		*(.rela*)
++#endif
+ 	}
+ }
 
 
