@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8904C6BB27D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBAC6BB1EC
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbjCOMgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52982 "EHLO
+        id S232647AbjCOMbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232508AbjCOMga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0FC9F229
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:30 -0700 (PDT)
+        with ESMTP id S232577AbjCOMbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D399820D16
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3903BB81E11
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB3EEC433D2;
-        Wed, 15 Mar 2023 12:34:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41471B81DFA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E38C433D2;
+        Wed, 15 Mar 2023 12:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883677;
-        bh=q5ZOKpxiyQ4ociMUOi0GN0rLZknI2D2yj73EJ1+ckZc=;
+        s=korg; t=1678883429;
+        bh=bxTptbUVa63UoQCRWI3jLiKQBHLWc7zNuIcPhaE4q9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNs6Jjer+CXyA2AXRHqhFN5hff4Js6pIIte/XOUzBQ2lAlwXQmFvCFeCOd823dz8S
-         aGjdSDDfA/Bsn2QggPzbBguMzYm8bXPRlM5aNAshwoR0fSPiWxI3JEvdgqKZZLlR41
-         EUDOLkh+4+oQWivnk/ERq+rglo9LJ6DhuuTPryKc=
+        b=Je/Kev0X3qcTzd9drfEwihSFz59G0zMk+34Wc+9h4W2BnakHssZPEcCmk88/nxMeX
+         AF4LnFF6szGmZQLjHAV9710OSoKeNEh3fvLWMtgUH44cvoIA10gE24Log5ZzNerNG6
+         v6U2yjU7wffrDTQRNW8wF8lZSH49iPGlhvo6oxFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Walsh <vk3heg@vk3heg.net>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Finn Thain <fthain@linux-m68k.org>,
+        patches@lists.linux.dev, Edward Humes <aurxenon@lunos.org>,
+        Matt Turner <mattst88@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 090/143] m68k: mm: Move initrd phys_to_virt handling after paging_init()
+Subject: [PATCH 5.15 110/145] alpha: fix R_ALPHA_LITERAL reloc for large modules
 Date:   Wed, 15 Mar 2023 13:12:56 +0100
-Message-Id: <20230315115743.258612699@linuxfoundation.org>
+Message-Id: <20230315115742.596348193@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,71 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Edward Humes <aurxenon@lunos.org>
 
-[ Upstream commit d4b97925e87eb133e400fe4a482d750c74ce392f ]
+[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
 
-When booting with an initial ramdisk on platforms where physical memory
-does not start at address zero (e.g. on Amiga):
+Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
+modules.
 
-    initrd: 0ef0602c - 0f800000
-    Zone ranges:
-      DMA      [mem 0x0000000008000000-0x000000f7ffffffff]
-      Normal   empty
-    Movable zone start for each node
-    Early memory node ranges
-      node   0: [mem 0x0000000008000000-0x000000000f7fffff]
-    Initmem setup node 0 [mem 0x0000000008000000-0x000000000f7fffff]
-    Unable to handle kernel access at virtual address (ptrval)
-    Oops: 00000000
-    Modules linked in:
-    PC: [<00201d3c>] memcmp+0x28/0x56
+This was because the Alpha's apply_relocate_add was relying on the kernel's
+module loader to have sorted the GOT towards the very end of the module as it
+was mapped into memory in order to correctly assign the global pointer. While
+this behavior would mostly work fine for small kernel modules, this approach
+would overflow on kernel modules with large GOT's since the global pointer
+would be very far away from the GOT, and thus, certain entries would be out of
+range.
 
-As phys_to_virt() relies on m68k_memoffset and module_fixup(), it must
-not be called before paging_init().  Hence postpone the phys_to_virt
-handling for the initial ramdisk until after calling paging_init().
+This patch fixes this by instead using the Tru64 behavior of assigning the
+global pointer to be 32KB away from the start of the GOT. The change made
+in this patch won't work for multi-GOT kernel modules as it makes the
+assumption the module only has one GOT located at the beginning of .got,
+although for the vast majority kernel modules, this should be fine. Of the
+kernel modules that would previously result in a relocation error, none of
+them, even modules like nouveau, have even come close to filling up a single
+GOT, and they've all worked fine under this patch.
 
-While at it, reduce #ifdef clutter by using IS_ENABLED() instead.
-
-Fixes: 376e3fdecb0dcae2 ("m68k: Enable memtest functionality")
-Reported-by: Stephen Walsh <vk3heg@vk3heg.net>
-Link: https://lists.debian.org/debian-68k/2022/09/msg00007.html
-Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Link: https://lore.kernel.org/r/4f45f05f377bf3f5baf88dbd5c3c8aeac59d94f0.camel@physik.fu-berlin.de
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Finn Thain <fthain@linux-m68k.org>
-Link: https://lore.kernel.org/r/dff216da09ab7a60217c3fc2147e671ae07d636f.1677528627.git.geert@linux-m68k.org
+Signed-off-by: Edward Humes <aurxenon@lunos.org>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/setup_mm.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/alpha/kernel/module.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index 3a2bb2e8fdad4..fbff1cea62caa 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -326,16 +326,16 @@ void __init setup_arch(char **cmdline_p)
- 		panic("No configuration setup");
- 	}
+diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
+index 5b60c248de9ea..cbefa5a773846 100644
+--- a/arch/alpha/kernel/module.c
++++ b/arch/alpha/kernel/module.c
+@@ -146,10 +146,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
+ 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
+ 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
  
--#ifdef CONFIG_BLK_DEV_INITRD
--	if (m68k_ramdisk.size) {
-+	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && m68k_ramdisk.size)
- 		memblock_reserve(m68k_ramdisk.addr, m68k_ramdisk.size);
-+
-+	paging_init();
-+
-+	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && m68k_ramdisk.size) {
- 		initrd_start = (unsigned long)phys_to_virt(m68k_ramdisk.addr);
- 		initrd_end = initrd_start + m68k_ramdisk.size;
- 		pr_info("initrd: %08lx - %08lx\n", initrd_start, initrd_end);
- 	}
--#endif
--
--	paging_init();
+-	/* The small sections were sorted to the end of the segment.
+-	   The following should definitely cover them.  */
+-	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
+ 	got = sechdrs[me->arch.gotsecindex].sh_addr;
++	gp = got + 0x8000;
  
- #ifdef CONFIG_NATFEAT
- 	nf_init();
+ 	for (i = 0; i < n; i++) {
+ 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
 -- 
 2.39.2
 
