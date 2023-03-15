@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 792C36BB31A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2826BB1B3
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbjCOMlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36040 "EHLO
+        id S232254AbjCOMaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232957AbjCOMlQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:16 -0400
+        with ESMTP id S232399AbjCOM3b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C0329E1C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A7799D6C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49761B81DF9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2674C433D2;
-        Wed, 15 Mar 2023 12:39:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 396DFB81E09
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE2EC433EF;
+        Wed, 15 Mar 2023 12:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883971;
-        bh=tax5HNBs2jRqEFy9ozSMBd2IV1cguXW46DqrkOX6Ppo=;
+        s=korg; t=1678883311;
+        bh=Kxzp0WkM7C8HohFwB+qHemJadR7+CtPtYdWoZ57ZbdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA1JQsbAQ61xyeDCRM/oYPe0ia/smZ70wckzkYjq8SKWi+F7/pISnu/FuQgY4Ha1Q
-         TKM+zD6+GAEGXl6+4g1+lBGfOf4MAa1FWY+iRmZtdlWPUy+XOfp27ss7rbkt3+1zZk
-         nIH/Hqc26S0TvBgfP9Njme/1YK76lEO1j34T51fk=
+        b=1iVa2RcyFZ1UjZIE9iEWy/WeGwiVWbQc6sV98yWFzbMiFD839T4Fdl6VdHoA0u4ww
+         9oCefOJ9H5OlsfMVDjHOhnVk3JIPsc98wyn6wohKfLgkhbYgNlppykqtxDfG9wzQpQ
+         Q8eQxRRUou4/NboBy9Vvvzihkma781yQzR2IdQRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 057/141] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
-Date:   Wed, 15 Mar 2023 13:12:40 +0100
-Message-Id: <20230315115741.704609788@linuxfoundation.org>
+Subject: [PATCH 5.15 095/145] xfs: remove XFS_PREALLOC_SYNC
+Date:   Wed, 15 Mar 2023 13:12:41 +0100
+Message-Id: <20230315115742.118046006@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +56,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
+commit 472c6e46f589c26057596dcba160712a5b3e02c5 upstream.
 
-ila_xlat_nl_cmd_get_mapping() generates an empty skb,
-triggerring a recent sanity check [1].
+[partial backport for dependency -
+ xfs_ioc_space() still uses XFS_PREALLOC_SYNC]
 
-Instead, return an error code, so that user space
-can get it.
+Callers can acheive the same thing by calling xfs_log_force_inode()
+after making their modifications. There is no need for
+xfs_update_prealloc_flags() to do this.
 
-[1]
-skb_assert_len
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-Modules linked in:
-CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
-pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
-lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-sp : ffff80001e0d6c40
-x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
-x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
-x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
-x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
-x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
-x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
-x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
-x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
-x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
-Call trace:
-skb_assert_len include/linux/skbuff.h:2527 [inline]
-__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-dev_queue_xmit include/linux/netdevice.h:3033 [inline]
-__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
-__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
-netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
-__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
-netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
-netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
-nlmsg_unicast include/net/netlink.h:1099 [inline]
-genlmsg_unicast include/net/genetlink.h:433 [inline]
-genlmsg_reply include/net/genetlink.h:443 [inline]
-ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
-genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
-genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
-genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
-netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
-genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
-netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
-netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
-netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg net/socket.c:734 [inline]
-____sys_sendmsg+0x558/0x844 net/socket.c:2479
-___sys_sendmsg net/socket.c:2533 [inline]
-__sys_sendmsg+0x26c/0x33c net/socket.c:2562
-__do_sys_sendmsg net/socket.c:2571 [inline]
-__se_sys_sendmsg net/socket.c:2569 [inline]
-__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
-__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
-el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
-do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
-el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
-el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
-irq event stamp: 136484
-hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
-hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
-softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
-softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
-softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
----[ end trace 0000000000000000 ]---
-skb len=0 headroom=0 headlen=0 tailroom=192
-mac=(0,0) net=(0,-1) trans=-1
-shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
-csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
-hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
-dev name=nlmon0 feat=0x0000000000005861
-
-Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ila/ila_xlat.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/xfs_file.c | 13 +++++++------
+ fs/xfs/xfs_pnfs.c |  6 ++++--
+ 2 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
-index 47447f0241df6..bee45dfeb1874 100644
---- a/net/ipv6/ila/ila_xlat.c
-+++ b/net/ipv6/ila/ila_xlat.c
-@@ -477,6 +477,7 @@ int ila_xlat_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
+diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+index 240eb932c014b..752b676c92e3f 100644
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -95,8 +95,6 @@ xfs_update_prealloc_flags(
+ 		ip->i_diflags &= ~XFS_DIFLAG_PREALLOC;
  
- 	rcu_read_lock();
+ 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+-	if (flags & XFS_PREALLOC_SYNC)
+-		xfs_trans_set_sync(tp);
+ 	return xfs_trans_commit(tp);
+ }
  
-+	ret = -ESRCH;
- 	ila = ila_lookup_by_params(&xp, ilan);
- 	if (ila) {
- 		ret = ila_dump_info(ila,
+@@ -1059,9 +1057,6 @@ xfs_file_fallocate(
+ 		}
+ 	}
+ 
+-	if (file->f_flags & O_DSYNC)
+-		flags |= XFS_PREALLOC_SYNC;
+-
+ 	error = xfs_update_prealloc_flags(ip, flags);
+ 	if (error)
+ 		goto out_unlock;
+@@ -1084,8 +1079,14 @@ xfs_file_fallocate(
+ 	 * leave shifted extents past EOF and hence losing access to
+ 	 * the data that is contained within them.
+ 	 */
+-	if (do_file_insert)
++	if (do_file_insert) {
+ 		error = xfs_insert_file_space(ip, offset, len);
++		if (error)
++			goto out_unlock;
++	}
++
++	if (file->f_flags & O_DSYNC)
++		error = xfs_log_force_inode(ip);
+ 
+ out_unlock:
+ 	xfs_iunlock(ip, iolock);
+diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
+index 8865f7d4404ae..3a82a13d880c2 100644
+--- a/fs/xfs/xfs_pnfs.c
++++ b/fs/xfs/xfs_pnfs.c
+@@ -164,10 +164,12 @@ xfs_fs_map_blocks(
+ 		 * that the blocks allocated and handed out to the client are
+ 		 * guaranteed to be present even after a server crash.
+ 		 */
+-		error = xfs_update_prealloc_flags(ip,
+-				XFS_PREALLOC_SET | XFS_PREALLOC_SYNC);
++		error = xfs_update_prealloc_flags(ip, XFS_PREALLOC_SET);
++		if (!error)
++			error = xfs_log_force_inode(ip);
+ 		if (error)
+ 			goto out_unlock;
++
+ 	} else {
+ 		xfs_iunlock(ip, lock_flags);
+ 	}
 -- 
 2.39.2
 
