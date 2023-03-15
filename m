@@ -2,50 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30BEB6BB059
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D386BB2D2
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231863AbjCOMRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
+        id S232649AbjCOMi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231896AbjCOMRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F025692BEB
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:16 -0700 (PDT)
+        with ESMTP id S232877AbjCOMih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE56A2C08
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 06C07CE19B9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A6CC433D2;
-        Wed, 15 Mar 2023 12:17:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B96061CC2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F8BC433D2;
+        Wed, 15 Mar 2023 12:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882633;
-        bh=rJPeWwbnRYnWl4o4ffFUz6NgOq7JeUbcKtJvaCtR4j4=;
+        s=korg; t=1678883857;
+        bh=fioF359d8FJ067o9MJKO9N/YlzuEa6BbcD88fm+/4P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRVVEt3UE8PbvNwR6CbdEM90PwxXxhzynecL4fCNUcC9HVFCZXocKwz+qhb6GQ3Ki
-         fZ8DQrMmrMLuxPyzFhPZvUGyj/8cJ1YqNiTBOoRQIREtMFvj8OPKTRWpuwYh7fenUY
-         +2UPuIiS1P/IYqSGEkwO+qx4q9X+jB7/lQuyNB8I=
+        b=y5ev37QBIloNNFERMHq0gDadf0VuMouLnASpJd+UVGIRI4VNFUZeIplhkhKRvYZYh
+         CDPSjnYUifgkrd+BRVHpJqTfYOfxe9GvDP0xf+L6RBWOhS7vt+ROZ5oIKb1bSEv6T3
+         S4v6jG5UFDEy8+0zyHDasz7+gaynMB8zRYki1x4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 04/68] ext4: fix RENAME_WHITEOUT handling for inline directories
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Pekka Paalanen <ppaalanen@gmail.com>,
+        Sebastian Wick <sebastian.wick@redhat.com>,
+        Vitaly.Prosyak@amd.com, Uma Shankar <uma.shankar@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Joshua Ashton <joshua@froggi.es>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+        Pekka Paalanen <pekka.paalanen@collabora.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 015/141] drm/display: Dont block HDR_OUTPUT_METADATA on unknown EOTF
 Date:   Wed, 15 Mar 2023 13:11:58 +0100
-Message-Id: <20230315115726.278471473@linuxfoundation.org>
+Message-Id: <20230315115740.452098505@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,88 +61,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Harry Wentland <harry.wentland@amd.com>
 
-commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
+commit e5eef23e267c72521d81f23f7f82d1f523d4a253 upstream.
 
-A significant number of xfstests can cause ext4 to log one or more
-warning messages when they are run on a test file system where the
-inline_data feature has been enabled.  An example:
+The EDID of an HDR display defines EOTFs that are supported
+by the display and can be set in the HDR metadata infoframe.
+Userspace is expected to read the EDID and set an appropriate
+HDR_OUTPUT_METADATA.
 
-"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
- #16385: comm fsstress: No space for directory leaf checksum. Please
-run e2fsck -D."
+In drm_parse_hdr_metadata_block the kernel reads the supported
+EOTFs from the EDID and stores them in the
+drm_connector->hdr_sink_metadata. While doing so it also
+filters the EOTFs to the EOTFs the kernel knows about.
+When an HDR_OUTPUT_METADATA is set it then checks to
+make sure the EOTF is a supported EOTF. In cases where
+the kernel doesn't know about a new EOTF this check will
+fail, even if the EDID advertises support.
 
-The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
-070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
-589, 626, 631, and 650.
+Since it is expected that userspace reads the EDID to understand
+what the display supports it doesn't make sense for DRM to block
+an HDR_OUTPUT_METADATA if it contains an EOTF the kernel doesn't
+understand.
 
-In this situation, the warning message indicates a bug in the code that
-performs the RENAME_WHITEOUT operation on a directory entry that has
-been stored inline.  It doesn't detect that the directory is stored
-inline, and incorrectly attempts to compute a dirent block checksum on
-the whiteout inode when creating it.  This attempt fails as a result
-of the integrity checking in get_dirent_tail (usually due to a failure
-to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
-is then emitted.
+This comes with the added benefit of future-proofing metadata
+support. If the spec defines a new EOTF there is no need to
+update DRM and an compositor can immediately make use of it.
 
-Fix this by simply collecting the inlined data state at the time the
-search for the source directory entry is performed.  Existing code
-handles the rest, and this is sufficient to eliminate all spurious
-warning messages produced by the tests above.  Go one step further
-and do the same in the code that resets the source directory entry in
-the event of failure.  The inlined state should be present in the
-"old" struct, but given the possibility of a race there's no harm
-in taking a conservative approach and getting that information again
-since the directory entry is being reread anyway.
+Bug: https://gitlab.freedesktop.org/wayland/weston/-/issues/609
 
-Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
-Cc: stable@kernel.org
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+v2: Distinguish EOTFs defind in kernel and ones defined
+    in EDID in the commit description (Pekka)
+
+v3: Rebase; drm_hdmi_infoframe_set_hdr_metadata moved
+    to drm_hdmi_helper.c
+
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Cc: Pekka Paalanen <ppaalanen@gmail.com>
+Cc: Sebastian Wick <sebastian.wick@redhat.com>
+Cc: Vitaly.Prosyak@amd.com
+Cc: Uma Shankar <uma.shankar@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Joshua Ashton <joshua@froggi.es>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: amd-gfx@lists.freedesktop.org
+Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
+Reviewed-By: Joshua Ashton <joshua@froggi.es>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230113162428.33874-2-harry.wentland@amd.com
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/display/drm_hdmi_helper.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1502,11 +1502,10 @@ static struct buffer_head *__ext4_find_e
- 		int has_inline_data = 1;
- 		ret = ext4_find_inline_entry(dir, fname, res_dir,
- 					     &has_inline_data);
--		if (has_inline_data) {
--			if (inlined)
--				*inlined = 1;
-+		if (inlined)
-+			*inlined = has_inline_data;
-+		if (has_inline_data)
- 			goto cleanup_and_exit;
--		}
- 	}
+--- a/drivers/gpu/drm/display/drm_hdmi_helper.c
++++ b/drivers/gpu/drm/display/drm_hdmi_helper.c
+@@ -44,10 +44,8 @@ int drm_hdmi_infoframe_set_hdr_metadata(
  
- 	if ((namelen <= 2) && (name[0] == '.') &&
-@@ -3630,7 +3629,8 @@ static void ext4_resetent(handle_t *hand
- 	 * so the old->de may no longer valid and need to find it again
- 	 * before reset old inode info.
- 	 */
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		retval = PTR_ERR(old.bh);
- 	if (!old.bh)
-@@ -3795,7 +3795,8 @@ static int ext4_rename(struct inode *old
- 			return retval;
- 	}
+ 	/* Sink EOTF is Bit map while infoframe is absolute values */
+ 	if (!is_eotf_supported(hdr_metadata->hdmi_metadata_type1.eotf,
+-	    connector->hdr_sink_metadata.hdmi_type1.eotf)) {
+-		DRM_DEBUG_KMS("EOTF Not Supported\n");
+-		return -EINVAL;
+-	}
++	    connector->hdr_sink_metadata.hdmi_type1.eotf))
++		DRM_DEBUG_KMS("Unknown EOTF %d\n", hdr_metadata->hdmi_metadata_type1.eotf);
  
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		return PTR_ERR(old.bh);
- 	/*
+ 	err = hdmi_drm_infoframe_init(frame);
+ 	if (err < 0)
 
 
