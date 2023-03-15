@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8926BB25E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 211AF6BB0AE
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232818AbjCOMfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52670 "EHLO
+        id S232126AbjCOMUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:20:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbjCOMf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9F061888
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:06 -0700 (PDT)
+        with ESMTP id S232122AbjCOMUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97437193E1
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB72EB81E0D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D940C433EF;
-        Wed, 15 Mar 2023 12:34:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D5C861D4C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B948C433EF;
+        Wed, 15 Mar 2023 12:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883640;
-        bh=05b9O+id9fdWxUMUqvGYbjFpl4C6EGrQ82+VpQIesVI=;
+        s=korg; t=1678882790;
+        bh=AleEvc/ZZVB1bBO3rGEueez43tKhIpwprdOFv0+M6ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1hrOsfWpcJ9tYFa3hAMW1WJf8W1YbhhqcXWbNXkhNVwgTH3nyXjbskQ/pKoIbf0/
-         yhBA4oom4gUYeKJQ9LbpmJXkIdgxo8pfc1tP5KV+mBAqUdc2VSxmFUMbBj2xWVK0pb
-         h+Yp11mJJbw5I3PoLAzKsHDXKbjJ71U7Yu22Bx9g=
+        b=2QhyrHjQTClL1zHbNpRoJqzb00fAQbxX1Kl+WX5qSbg+qLizx+ZOsLAls3I3l4xxm
+         6gMpYoPJ5xJpXHuGCkeBkjZX6+lt8u9uBRe8xpsB1gh1DoLZPRKj0VqIcvUX+F291R
+         FsBWyE7kS/mqFqX+3xu41lkPv/a/MKs1R6U4pskA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 074/143] net: tls: fix possible race condition between do_tls_getsockopt_conf() and do_tls_setsockopt_conf()
+Subject: [PATCH 5.4 46/68] scsi: megaraid_sas: Update max supported LD IDs to 240
 Date:   Wed, 15 Mar 2023 13:12:40 +0100
-Message-Id: <20230315115742.798553090@linuxfoundation.org>
+Message-Id: <20230315115727.927581183@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,173 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
 
-[ Upstream commit 49c47cc21b5b7a3d8deb18fc57b0aa2ab1286962 ]
+[ Upstream commit bfa659177dcba48cf13f2bd88c1972f12a60bf1c ]
 
-ctx->crypto_send.info is not protected by lock_sock in
-do_tls_getsockopt_conf(). A race condition between do_tls_getsockopt_conf()
-and error paths of do_tls_setsockopt_conf() may lead to a use-after-free
-or null-deref.
+The firmware only supports Logical Disk IDs up to 240 and LD ID 255 (0xFF)
+is reserved for deleted LDs. However, in some cases, firmware was assigning
+LD ID 254 (0xFE) to deleted LDs and this was causing the driver to mark the
+wrong disk as deleted. This in turn caused the wrong disk device to be
+taken offline by the SCSI midlayer.
 
-More discussion:  https://lore.kernel.org/all/Y/ht6gQL+u6fj3dG@hog/
+To address this issue, limit the LD ID range from 255 to 240. This ensures
+the deleted LD ID is properly identified and removed by the driver without
+accidently deleting any valid LDs.
 
-Fixes: 3c4d7559159b ("tls: kernel TLS support")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20230228023344.9623-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ae6874ba4b43 ("scsi: megaraid_sas: Early detection of VD deletion through RaidMap update")
+Reported-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Link: https://lore.kernel.org/r/20230302105342.34933-2-chandrakanth.patil@broadcom.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_main.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas.h    | 2 ++
+ drivers/scsi/megaraid/megaraid_sas_fp.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index 3735cb00905df..b32c112984dd9 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -405,13 +405,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(crypto_info_aes_gcm_128->iv,
- 		       cctx->iv + TLS_CIPHER_AES_GCM_128_SALT_SIZE,
- 		       TLS_CIPHER_AES_GCM_128_IV_SIZE);
- 		memcpy(crypto_info_aes_gcm_128->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_AES_GCM_128_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval,
- 				 crypto_info_aes_gcm_128,
- 				 sizeof(*crypto_info_aes_gcm_128)))
-@@ -429,13 +427,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(crypto_info_aes_gcm_256->iv,
- 		       cctx->iv + TLS_CIPHER_AES_GCM_256_SALT_SIZE,
- 		       TLS_CIPHER_AES_GCM_256_IV_SIZE);
- 		memcpy(crypto_info_aes_gcm_256->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_AES_GCM_256_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval,
- 				 crypto_info_aes_gcm_256,
- 				 sizeof(*crypto_info_aes_gcm_256)))
-@@ -451,13 +447,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(aes_ccm_128->iv,
- 		       cctx->iv + TLS_CIPHER_AES_CCM_128_SALT_SIZE,
- 		       TLS_CIPHER_AES_CCM_128_IV_SIZE);
- 		memcpy(aes_ccm_128->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_AES_CCM_128_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval, aes_ccm_128, sizeof(*aes_ccm_128)))
- 			rc = -EFAULT;
- 		break;
-@@ -472,13 +466,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(chacha20_poly1305->iv,
- 		       cctx->iv + TLS_CIPHER_CHACHA20_POLY1305_SALT_SIZE,
- 		       TLS_CIPHER_CHACHA20_POLY1305_IV_SIZE);
- 		memcpy(chacha20_poly1305->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_CHACHA20_POLY1305_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval, chacha20_poly1305,
- 				sizeof(*chacha20_poly1305)))
- 			rc = -EFAULT;
-@@ -493,13 +485,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(sm4_gcm_info->iv,
- 		       cctx->iv + TLS_CIPHER_SM4_GCM_SALT_SIZE,
- 		       TLS_CIPHER_SM4_GCM_IV_SIZE);
- 		memcpy(sm4_gcm_info->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_SM4_GCM_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval, sm4_gcm_info, sizeof(*sm4_gcm_info)))
- 			rc = -EFAULT;
- 		break;
-@@ -513,13 +503,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(sm4_ccm_info->iv,
- 		       cctx->iv + TLS_CIPHER_SM4_CCM_SALT_SIZE,
- 		       TLS_CIPHER_SM4_CCM_IV_SIZE);
- 		memcpy(sm4_ccm_info->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_SM4_CCM_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval, sm4_ccm_info, sizeof(*sm4_ccm_info)))
- 			rc = -EFAULT;
- 		break;
-@@ -535,13 +523,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(crypto_info_aria_gcm_128->iv,
- 		       cctx->iv + TLS_CIPHER_ARIA_GCM_128_SALT_SIZE,
- 		       TLS_CIPHER_ARIA_GCM_128_IV_SIZE);
- 		memcpy(crypto_info_aria_gcm_128->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_ARIA_GCM_128_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval,
- 				 crypto_info_aria_gcm_128,
- 				 sizeof(*crypto_info_aria_gcm_128)))
-@@ -559,13 +545,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(crypto_info_aria_gcm_256->iv,
- 		       cctx->iv + TLS_CIPHER_ARIA_GCM_256_SALT_SIZE,
- 		       TLS_CIPHER_ARIA_GCM_256_IV_SIZE);
- 		memcpy(crypto_info_aria_gcm_256->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_ARIA_GCM_256_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval,
- 				 crypto_info_aria_gcm_256,
- 				 sizeof(*crypto_info_aria_gcm_256)))
-@@ -614,11 +598,9 @@ static int do_tls_getsockopt_no_pad(struct sock *sk, char __user *optval,
- 	if (len < sizeof(value))
- 		return -EINVAL;
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index aa62cc8ffd0af..ce0c36fa26bf7 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -1515,6 +1515,8 @@ struct megasas_ctrl_info {
+ #define MEGASAS_MAX_LD_IDS			(MEGASAS_MAX_LD_CHANNELS * \
+ 						MEGASAS_MAX_DEV_PER_CHANNEL)
  
--	lock_sock(sk);
- 	value = -EINVAL;
- 	if (ctx->rx_conf == TLS_SW || ctx->rx_conf == TLS_HW)
- 		value = ctx->rx_no_pad;
--	release_sock(sk);
- 	if (value < 0)
- 		return value;
- 
-@@ -635,6 +617,8 @@ static int do_tls_getsockopt(struct sock *sk, int optname,
- {
- 	int rc = 0;
- 
-+	lock_sock(sk);
++#define MEGASAS_MAX_SUPPORTED_LD_IDS		240
 +
- 	switch (optname) {
- 	case TLS_TX:
- 	case TLS_RX:
-@@ -651,6 +635,9 @@ static int do_tls_getsockopt(struct sock *sk, int optname,
- 		rc = -ENOPROTOOPT;
- 		break;
- 	}
-+
-+	release_sock(sk);
-+
- 	return rc;
- }
+ #define MEGASAS_MAX_SECTORS                    (2*1024)
+ #define MEGASAS_MAX_SECTORS_IEEE		(2*128)
+ #define MEGASAS_DBG_LVL				1
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fp.c b/drivers/scsi/megaraid/megaraid_sas_fp.c
+index 8bfb46dbbed3a..ff20f47090810 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fp.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fp.c
+@@ -359,7 +359,7 @@ u8 MR_ValidateMapInfo(struct megasas_instance *instance, u64 map_id)
+ 		ld = MR_TargetIdToLdGet(i, drv_map);
  
+ 		/* For non existing VDs, iterate to next VD*/
+-		if (ld >= (MAX_LOGICAL_DRIVES_EXT - 1))
++		if (ld >= MEGASAS_MAX_SUPPORTED_LD_IDS)
+ 			continue;
+ 
+ 		raid = MR_LdRaidGet(ld, drv_map);
 -- 
 2.39.2
 
