@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A116BB2DC
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3532E6BB0E4
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:22:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232859AbjCOMjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:39:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52784 "EHLO
+        id S232315AbjCOMWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:22:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232835AbjCOMiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3ADA2F3F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:50 -0700 (PDT)
+        with ESMTP id S232102AbjCOMVy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:21:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902A77EA20
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BDACB81E0B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B5EC4339B;
-        Wed, 15 Mar 2023 12:37:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 010AE61ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DE3C433D2;
+        Wed, 15 Mar 2023 12:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883865;
-        bh=B63P0pRqD6TtSoVKi2T8I0DYDEQT3ZDjPfqa8+1ghhw=;
+        s=korg; t=1678882864;
+        bh=jVEiBh1cumllNMhx16BB4Cbs4L0KoBrTLkdI4yOcI0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmhBhiJ5hjTbQsMf1k1zAIQYgNKrNHZ+3BxVkqTRBUqdvsRZUparyIwpxps865BCc
-         qgu4ZZNy2pvx9du7K6hCMOOLGXrYQdWudO44PskDVAOV9hMRAMS17RWlBqK/cHYyYQ
-         +a8DEZty8baVoj2xGaIf5UpFTU9k7QR+oLt2h0Ec=
+        b=uLltyhcr5f5FOQ4nxRw0ck8xVPQxbdC98vhHHOzz4A3KIIUGELtQHBE1m68EdntKU
+         xh+lnG1fvxtPFx6IyjZ44ye5nFUH+6KsjSq0wjafFcSOdASVAW7P1wLdjFJYObQD3N
+         XXek/irwT48DZAos/27uNbaQ1YuVckOAc5IndoNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6.2 018/141] staging: rtl8723bs: Fix key-store index handling
+        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 030/104] drm/msm: Fix potential invalid ptr free
 Date:   Wed, 15 Mar 2023 13:12:01 +0100
-Message-Id: <20230315115740.545672441@linuxfoundation.org>
+Message-Id: <20230315115733.292831926@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,173 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 05cbcc415c9b8c8bc4f9a09f8e03610a89042f03 upstream.
+[ Upstream commit 8a86f213f4426f19511a16d886871805b35c3acf ]
 
-There are 2 issues with the key-store index handling
+The error path cleanup expects that chain and syncobj are either NULL or
+valid pointers.  But post_deps was not allocated with __GFP_ZERO.
 
-1. The non WEP key stores can store keys with indexes 0 - BIP_MAX_KEYID,
-   this means that they should be an array with BIP_MAX_KEYID + 1
-   entries. But some of the arrays where just BIP_MAX_KEYID entries
-   big. While one other array was hardcoded to a size of 6 entries,
-   instead of using the BIP_MAX_KEYID define.
-
-2. The rtw_cfg80211_set_encryption() and wpa_set_encryption() functions
-   index check where checking that the passed in key-index would fit
-   inside both the WEP key store (which only has 4 entries) as well as
-   in the non WEP key stores. This breaks any attempts to set non WEP
-   keys with index 4 or 5.
-
-Issue 2. specifically breaks wifi connection with some access points
-which advertise PMF support. Without this fix connecting to these
-access points fails with the following wpa_supplicant messages:
-
- nl80211: kernel reports: key addition failed
- wlan0: WPA: Failed to configure IGTK to the driver
- wlan0: RSN: Failed to configure IGTK
- wlan0: CTRL-EVENT-DISCONNECTED bssid=... reason=1 locally_generated=1
-
-Fix 1. by using the right size for the key-stores. After this 2. can
-safely be fixed by checking the right max-index value depending on the
-used algorithm, fixing wifi not working with some PMF capable APs.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230306153512.162104-1-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ab723b7a992a ("drm/msm: Add syncobj support.")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Patchwork: https://patchwork.freedesktop.org/patch/523051/
+Link: https://lore.kernel.org/r/20230215235048.1166484-1-robdclark@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/include/rtw_security.h  |    8 ++---
- drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c |   26 ++++++++++-------
- drivers/staging/rtl8723bs/os_dep/ioctl_linux.c    |   33 +++++++++++-----------
- 3 files changed, 36 insertions(+), 31 deletions(-)
+ drivers/gpu/drm/msm/msm_gem_submit.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/rtl8723bs/include/rtw_security.h
-+++ b/drivers/staging/rtl8723bs/include/rtw_security.h
-@@ -107,13 +107,13 @@ struct security_priv {
- 
- 	u32 dot118021XGrpPrivacy;	/*  This specify the privacy algthm. used for Grp key */
- 	u32 dot118021XGrpKeyid;		/*  key id used for Grp Key (tx key index) */
--	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID];	/*  802.1x Group Key, for inx0 and inx1 */
--	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID];
--	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID];
-+	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID + 1];	/*  802.1x Group Key, for inx0 and inx1 */
-+	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID + 1];
-+	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID + 1];
- 	union pn48		dot11Grptxpn;			/*  PN48 used for Grp Key xmit. */
- 	union pn48		dot11Grprxpn;			/*  PN48 used for Grp Key recv. */
- 	u32 dot11wBIPKeyid;						/*  key id used for BIP Key (tx key index) */
--	union Keytype	dot11wBIPKey[6];		/*  BIP Key, for index4 and index5 */
-+	union Keytype	dot11wBIPKey[BIP_MAX_KEYID + 1];	/*  BIP Key, for index4 and index5 */
- 	union pn48		dot11wBIPtxpn;			/*  PN48 used for Grp Key xmit. */
- 	union pn48		dot11wBIPrxpn;			/*  PN48 used for Grp Key recv. */
- 
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-@@ -711,6 +711,7 @@ exit:
- static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
- {
+diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
+index aa5c60a7132d8..c4e5037512b9d 100644
+--- a/drivers/gpu/drm/msm/msm_gem_submit.c
++++ b/drivers/gpu/drm/msm/msm_gem_submit.c
+@@ -494,8 +494,8 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
  	int ret = 0;
-+	u8 max_idx;
- 	u32 wep_key_idx, wep_key_len;
- 	struct adapter *padapter = rtw_netdev_priv(dev);
- 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-@@ -724,26 +725,29 @@ static int rtw_cfg80211_set_encryption(s
- 		goto exit;
- 	}
+ 	uint32_t i, j;
  
--	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
--	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
--	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
--		if (param->u.crypt.idx >= WEP_KEYS
--			|| param->u.crypt.idx >= BIP_MAX_KEYID) {
--			ret = -EINVAL;
--			goto exit;
--		}
--	} else {
--		{
-+	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
-+	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
-+	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
- 		ret = -EINVAL;
- 		goto exit;
- 	}
-+
-+	if (strcmp(param->u.crypt.alg, "WEP") == 0)
-+		max_idx = WEP_KEYS - 1;
-+	else
-+		max_idx = BIP_MAX_KEYID;
-+
-+	if (param->u.crypt.idx > max_idx) {
-+		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
-+		ret = -EINVAL;
-+		goto exit;
- 	}
+-	post_deps = kmalloc_array(nr_syncobjs, sizeof(*post_deps),
+-	                          GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
++	post_deps = kcalloc(nr_syncobjs, sizeof(*post_deps),
++			    GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
+ 	if (!post_deps)
+ 		return ERR_PTR(-ENOMEM);
  
- 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
- 		wep_key_idx = param->u.crypt.idx;
- 		wep_key_len = param->u.crypt.key_len;
- 
--		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len <= 0)) {
-+		if (wep_key_len <= 0) {
- 			ret = -EINVAL;
- 			goto exit;
+@@ -510,7 +510,6 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
  		}
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-@@ -46,6 +46,7 @@ static int wpa_set_auth_algs(struct net_
- static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
- {
- 	int ret = 0;
-+	u8 max_idx;
- 	u32 wep_key_idx, wep_key_len, wep_total_len;
- 	struct ndis_802_11_wep	 *pwep = NULL;
- 	struct adapter *padapter = rtw_netdev_priv(dev);
-@@ -60,19 +61,22 @@ static int wpa_set_encryption(struct net
- 		goto exit;
- 	}
  
--	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
--	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
--	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
--		if (param->u.crypt.idx >= WEP_KEYS ||
--		    param->u.crypt.idx >= BIP_MAX_KEYID) {
--			ret = -EINVAL;
--			goto exit;
--		}
--	} else {
--		{
--			ret = -EINVAL;
--			goto exit;
--		}
-+	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
-+	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
-+	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
-+		ret = -EINVAL;
-+		goto exit;
-+	}
-+
-+	if (strcmp(param->u.crypt.alg, "WEP") == 0)
-+		max_idx = WEP_KEYS - 1;
-+	else
-+		max_idx = BIP_MAX_KEYID;
-+
-+	if (param->u.crypt.idx > max_idx) {
-+		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
-+		ret = -EINVAL;
-+		goto exit;
- 	}
+ 		post_deps[i].point = syncobj_desc.point;
+-		post_deps[i].chain = NULL;
  
- 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
-@@ -84,9 +88,6 @@ static int wpa_set_encryption(struct net
- 		wep_key_idx = param->u.crypt.idx;
- 		wep_key_len = param->u.crypt.key_len;
- 
--		if (wep_key_idx > WEP_KEYS)
--			return -EINVAL;
--
- 		if (wep_key_len > 0) {
- 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
- 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, key_material);
+ 		if (syncobj_desc.flags) {
+ 			ret = -EINVAL;
+-- 
+2.39.2
+
 
 
