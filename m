@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E016BB00C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6143B6BB1A3
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231545AbjCOMOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37328 "EHLO
+        id S232557AbjCOM3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbjCOMOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DF3328D3A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:49 -0700 (PDT)
+        with ESMTP id S232462AbjCOM26 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35CEA24C92
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1989961D43
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27311C433EF;
-        Wed, 15 Mar 2023 12:14:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C124B81DF6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD33FC433D2;
+        Wed, 15 Mar 2023 12:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882488;
-        bh=c7tGUYA013QtiqGYgo8bGXfA3C78bzqWeZKOXJecwQI=;
+        s=korg; t=1678883274;
+        bh=a8MgM0fMPx7jmxyJgESNRpiBuYX3smxiGbxlv3S/QGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y75ejcfMtDmF4RFMBcjegR8Tuqv5SQg48+uN1wEHy6ddHyeBImtqdm+EdALCBVBKn
-         biiZnYMS2gIGTcmICJ+iqPjBxVD8dw4NDFptH0gVz8jKpGsNPFwjN+wV7JXJ9ihuCU
-         lpILQR7QILd8x6jV1b66q82GRxfDyNTTwaKl+sbM=
+        b=C1r3IfaRXJBZlV9WiKbF9g5sTD0wQg/7wFl/N7syEIp2c60qF06w9cP05YuuDTc+0
+         kez+ChXJAXDUkQpvOcg3PIOvIrnMty9SsIMWp4lAT2aqXeKqoPGULFQ3X4JuRkREKQ
+         +dnlKnkBWoDbn32/4ZMgMEqGkoAFQqmq2Dw0ozqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        stable@kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 05/21] ext4: move where set the MAY_INLINE_DATA flag is set
+        patches@lists.linux.dev,
+        syzbot+9d16c39efb5fade84574@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 082/145] ext4: Fix deadlock during directory rename
 Date:   Wed, 15 Mar 2023 13:12:28 +0100
-Message-Id: <20230315115719.019767816@linuxfoundation.org>
+Message-Id: <20230315115741.695533464@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,54 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 1dcdce5919115a471bf4921a57f20050c545a236 upstream.
+[ Upstream commit 3c92792da8506a295afb6d032b4476e46f979725 ]
 
-The only caller of ext4_find_inline_data_nolock() that needs setting of
-EXT4_STATE_MAY_INLINE_DATA flag is ext4_iget_extra_inode().  In
-ext4_write_inline_data_end() we just need to update inode->i_inline_off.
-Since we are going to add one more caller that does not need to set
-EXT4_STATE_MAY_INLINE_DATA, just move setting of EXT4_STATE_MAY_INLINE_DATA
-out to ext4_iget_extra_inode().
+As lockdep properly warns, we should not be locking i_rwsem while having
+transactions started as the proper lock ordering used by all directory
+handling operations is i_rwsem -> transaction start. Fix the lock
+ordering by moving the locking of the directory earlier in
+ext4_rename().
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Cc: stable@kernel.org
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-2-yebin@huaweicloud.com
+Reported-by: syzbot+9d16c39efb5fade84574@syzkaller.appspotmail.com
+Fixes: 0813299c586b ("ext4: Fix possible corruption when moving a directory")
+Link: https://syzkaller.appspot.com/bug?extid=9d16c39efb5fade84574
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230301141004.15087-1-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c |    1 -
- fs/ext4/inode.c  |    7 ++++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ fs/ext4/namei.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -163,7 +163,6 @@ int ext4_find_inline_data_nolock(struct
- 					(void *)ext4_raw_inode(&is.iloc));
- 		EXT4_I(inode)->i_inline_size = EXT4_MIN_INLINE_DATA_SIZE +
- 				le32_to_cpu(is.s.here->e_value_size);
--		ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index aa689adeeafdf..c79c61002a620 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3827,10 +3827,20 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 			return retval;
  	}
- out:
- 	brelse(is.iloc.bh);
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4752,8 +4752,13 @@ static inline int ext4_iget_extra_inode(
  
- 	if (EXT4_INODE_HAS_XATTR_SPACE(inode)  &&
- 	    *magic == cpu_to_le32(EXT4_XATTR_MAGIC)) {
-+		int err;
++	/*
++	 * We need to protect against old.inode directory getting converted
++	 * from inline directory format into a normal one.
++	 */
++	if (S_ISDIR(old.inode->i_mode))
++		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
 +
- 		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
--		return ext4_find_inline_data_nolock(inode);
-+		err = ext4_find_inline_data_nolock(inode);
-+		if (!err && ext4_has_inline_data(inode))
-+			ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-+		return err;
- 	} else
- 		EXT4_I(inode)->i_inline_off = 0;
- 	return 0;
+ 	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
+ 				 &old.inlined);
+-	if (IS_ERR(old.bh))
+-		return PTR_ERR(old.bh);
++	if (IS_ERR(old.bh)) {
++		retval = PTR_ERR(old.bh);
++		goto unlock_moved_dir;
++	}
++
+ 	/*
+ 	 *  Check for inode number is _not_ due to possible IO errors.
+ 	 *  We might rmdir the source, keep it as pwd of some process
+@@ -3887,11 +3897,6 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
+ 				goto end_rename;
+ 		}
+-		/*
+-		 * We need to protect against old.inode directory getting
+-		 * converted from inline directory format into a normal one.
+-		 */
+-		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
+ 		retval = ext4_rename_dir_prepare(handle, &old);
+ 		if (retval) {
+ 			inode_unlock(old.inode);
+@@ -4021,12 +4026,15 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 	} else {
+ 		ext4_journal_stop(handle);
+ 	}
+-	if (old.dir_bh)
+-		inode_unlock(old.inode);
+ release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
+ 	brelse(new.bh);
++
++unlock_moved_dir:
++	if (S_ISDIR(old.inode->i_mode))
++		inode_unlock(old.inode);
++
+ 	return retval;
+ }
+ 
+-- 
+2.39.2
+
 
 
