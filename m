@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A7A46BB01C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B68E96BB304
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbjCOMP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37968 "EHLO
+        id S232880AbjCOMlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231871AbjCOMPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82AE67DD0A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:19 -0700 (PDT)
+        with ESMTP id S233004AbjCOMkm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE65A2C05
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E6EBB81DFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9B2C433D2;
-        Wed, 15 Mar 2023 12:15:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B628DB81E19
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14789C433D2;
+        Wed, 15 Mar 2023 12:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882517;
-        bh=LqwQRxQJ8yM/tgpG0HtjBBaEWie9NUFFmB+B0q2b/o8=;
+        s=korg; t=1678883968;
+        bh=Aa4ZP2AHjIUZpZfLv26qdbkeUYnxlEZRhbBOHpzRNfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtusAzn9DLg+IxycIFA3VUzIS9wtAedxTLePjydZAb2b0M1bzZAI6wUBiSfJliY4Z
-         aJ5+6kYWquhGPk221+PZH32y3MvYuR9WfjJRLfDzwezNlbwlRa0NfcWst9AUkJqEVr
-         XrKIlVPticmYlMjr5+Z1cTKaUrIvpS2ieTdmmBbI=
+        b=LuFlAyZ5w6o1Qo6X7MO/37f6YZ4chos7pRCi+0PZcq3CwXZ5fdbG6HiKjq8V/HXmh
+         Wp4UELo+ycp+20OUdJUOTPpob8Jw00ouM8zh7A/jaVX88/KfGdhRfgqvSgy8Nfailr
+         ZSf38D93msp1gm9GdV6df2xREM+DlYrMfhbcrYhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alvaro Karsz <alvaro.karsz@solid-run.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        patches@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/21] PCI: Add SolidRun vendor ID
+Subject: [PATCH 6.2 056/141] drm/msm/dpu: disable features unsupported by QCM2290
 Date:   Wed, 15 Mar 2023 13:12:39 +0100
-Message-Id: <20230315115719.429277732@linuxfoundation.org>
+Message-Id: <20230315115741.675819914@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit db6c4dee4c104f50ed163af71c53bfdb878a8318 ]
+[ Upstream commit a2a448b4d9bcb5bff0e0f687b7932a7be9ca898a ]
 
-Add SolidRun vendor ID to pci_ids.h
+QCM2290 doesn't seem to support reg-dma, UBWC and CSC. Drop
+corresponding features being incorrectly enabled for qcm2290.
 
-The vendor ID is used in 2 different source files, the SNET vDPA driver
-and PCI quirks.
-
-Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Message-Id: <20230110165638.123745-2-alvaro.karsz@solid-run.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Loic Poulain <loic.poulain@linaro.org>
+Fixes: 5334087ee743 ("drm/msm: add support for QCM2290 MDSS")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/522209/
+Link: https://lore.kernel.org/r/20230211231259.1308718-3-dmitry.baryshkov@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pci_ids.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index d4eae72202fab..0122286beda53 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -3045,6 +3045,8 @@
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index 83f1dd2c22bd7..ffcd90ba3e81e 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -12,11 +12,15 @@
+ #include "dpu_hw_catalog.h"
+ #include "dpu_kms.h"
  
- #define PCI_VENDOR_ID_3COM_2		0xa727
+-#define VIG_MASK \
++#define VIG_BASE_MASK \
+ 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) |\
+-	BIT(DPU_SSPP_CSC_10BIT) | BIT(DPU_SSPP_CDP) |\
++	BIT(DPU_SSPP_CDP) |\
+ 	BIT(DPU_SSPP_TS_PREFILL) | BIT(DPU_SSPP_EXCL_RECT))
  
-+#define PCI_VENDOR_ID_SOLIDRUN		0xd063
++#define VIG_MASK \
++	(VIG_BASE_MASK | \
++	BIT(DPU_SSPP_CSC_10BIT))
 +
- #define PCI_VENDOR_ID_DIGIUM		0xd161
- #define PCI_DEVICE_ID_DIGIUM_HFC4S	0xb410
+ #define VIG_MSM8998_MASK \
+ 	(VIG_MASK | BIT(DPU_SSPP_SCALER_QSEED3))
  
+@@ -29,7 +33,7 @@
+ #define VIG_SM8250_MASK \
+ 	(VIG_MASK | BIT(DPU_SSPP_QOS_8LVL) | BIT(DPU_SSPP_SCALER_QSEED3LITE))
+ 
+-#define VIG_QCM2290_MASK (VIG_MASK | BIT(DPU_SSPP_QOS_8LVL))
++#define VIG_QCM2290_MASK (VIG_BASE_MASK | BIT(DPU_SSPP_QOS_8LVL))
+ 
+ #define DMA_MSM8998_MASK \
+ 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) |\
+@@ -286,7 +290,6 @@ static const struct dpu_caps qcm2290_dpu_caps = {
+ 	.max_mixer_width = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
+ 	.max_mixer_blendstages = 0x4,
+ 	.smart_dma_rev = DPU_SSPP_SMART_DMA_V2,
+-	.ubwc_version = DPU_HW_UBWC_VER_20,
+ 	.has_dim_layer = true,
+ 	.has_idle_pc = true,
+ 	.max_linewidth = 2160,
+@@ -2007,8 +2010,6 @@ static const struct dpu_mdss_cfg qcm2290_dpu_cfg = {
+ 	.intf = qcm2290_intf,
+ 	.vbif_count = ARRAY_SIZE(sdm845_vbif),
+ 	.vbif = sdm845_vbif,
+-	.reg_dma_count = 1,
+-	.dma_cfg = &sdm845_regdma,
+ 	.perf = &qcm2290_perf_data,
+ 	.mdss_irqs = IRQ_SC7180_MASK,
+ };
 -- 
 2.39.2
 
