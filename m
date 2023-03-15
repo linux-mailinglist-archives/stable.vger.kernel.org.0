@@ -2,229 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 305EA6BB5AF
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 15:14:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A1B6BB5B9
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 15:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232509AbjCOOOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 10:14:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52980 "EHLO
+        id S231397AbjCOOQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 10:16:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232235AbjCOONt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 10:13:49 -0400
-Received: from JPN01-OS0-obe.outbound.protection.outlook.com (mail-os0jpn01on2132.outbound.protection.outlook.com [40.107.113.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6718C970;
-        Wed, 15 Mar 2023 07:13:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CbwK7GEZy/icCYpCxajHhO/wECYvvGe7hN8s7mHRP7Raf8xqRkTjC6t9VUXLAu7LPNsuJu2jVH7qqMuqRxWDhjcN7jHXWvDDRV8CgeaQ7yEJB/6RWsZVF2PtPryH+B+yax/ozSnhl8wdYPM+mC2MvpL/2FxyJr91G6L7PO3lhzRKPBinrVJWr5sM4D1gb85P5KQaRld2k2C9Cu8g6mBtVxR1Kthw5QqZewND9CrClirzFDZkTLokU4brBIQoY0i+SpvTURuZN623SA5dGAmDDNNIanHhjS9FTIyGxKtoNYYxF7Kr4viVIfxcnS2BBp+nFspCdbbqUyV0MBeyFtL6MQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0uoFxrilnqalAoPThWd2aVPAo408gdNvMZOhaRi51L4=;
- b=TQbdi8xXQ7bMWx9u8wrv2g9ZLyI33nEDPvElNc4HLh7WCJKPNhP2cGv7XSpBdGTSArbpp4gf05A6XZtwrfKrAcGqpD7LXg+FL0/hyBF6PdI/XEAricLY/4oLm7+bWOu7bBcE+7ozp18HbOQV20uu/N/QX8gFTBL5bS8B1TbuPDeKR4fGdMdPZc3iz24qoKoBekg9SA/vE/mzqJ1E+Dah4SjfWMPux88yb9XHKjIMZ/Ds3lmW7K/ILL15ag5/9v5jBevcd0cqRIEnDPMJjOh1jhenEhZSVb/iTRveRohyxmOF74R7BqUQ7idoprKKgIppGTEUgoB5CKOYaCFknRV3ng==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0uoFxrilnqalAoPThWd2aVPAo408gdNvMZOhaRi51L4=;
- b=FgZEvFpPGq0/SKXYELHrpdDPnGNo5P2tUxPrkLD9r2eGGG8L+KQCMmOM6dH18MZUXshkXniiFQ4m0Yr2S2iI+7gPmUXfL9cc8iUaPY2NFQva3qtMNvaxT9Qo1ZUkBJLBV8RuEx5qzIswiYrx+WN9Sef3JFOpAlDoB7wYpYT9YI0=
-Received: from TYCPR01MB10588.jpnprd01.prod.outlook.com (2603:1096:400:309::8)
- by OS3PR01MB9707.jpnprd01.prod.outlook.com (2603:1096:604:1e9::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26; Wed, 15 Mar
- 2023 14:12:46 +0000
-Received: from TYCPR01MB10588.jpnprd01.prod.outlook.com
- ([fe80::dc49:e307:b424:4a53]) by TYCPR01MB10588.jpnprd01.prod.outlook.com
- ([fe80::dc49:e307:b424:4a53%5]) with mapi id 15.20.6178.026; Wed, 15 Mar 2023
- 14:12:46 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     "patches@lists.linux.dev" <patches@lists.linux.dev>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "pavel@denx.de" <pavel@denx.de>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
-        "sudipm.mukherjee@gmail.com" <sudipm.mukherjee@gmail.com>,
-        "srw@sladewatkins.net" <srw@sladewatkins.net>,
-        "rwarsow@gmx.de" <rwarsow@gmx.de>
-Subject: RE: [PATCH 4.19 00/39] 4.19.278-rc1 review
-Thread-Topic: [PATCH 4.19 00/39] 4.19.278-rc1 review
-Thread-Index: AQHZVzfuhR3skiOhnUWjVQ9NMNaQlK773mWQ
-Date:   Wed, 15 Mar 2023 14:12:46 +0000
-Message-ID: <TYCPR01MB105881FA616DC8A6623140062B7BF9@TYCPR01MB10588.jpnprd01.prod.outlook.com>
-References: <20230315115721.234756306@linuxfoundation.org>
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=renesas.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TYCPR01MB10588:EE_|OS3PR01MB9707:EE_
-x-ms-office365-filtering-correlation-id: c554a381-f43c-4cb6-fb8a-08db255f59ef
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: qMWueu+NWEaA70JIOEHK8iJBNdQfnHr94Kczm1EJJyOj1MmnVdIkv2S5ZOeXtHCZYoDme4D7pVXBsGOtPykoQJUYg1E6Si3zik2CDC1PKD9pnzUb7r28wCZZLbtChxnD+h82t8dYTjUOioHCUog24hlcgIsqQDAQKRfBjJ8jPozebRbw5YuqNGqrkVCxHP4ZjmSe07+UMFBUvsIBHQd+JtNzCqta5iThWkC90dzVefVq7rK/Dp1PtNJYKEJVeOaMlPefuq6cgibMZQyRqQNuk2d3PHpjc50mX/3ASb3rBhSjZrPpu1s67us6NvBxnF9UIkpcCU8y3uZJ9M6xLKtwsa3VU5mnRBcI720jwfB5BdN5AO+0HvIFmlL/KC31Xe35nFzk40RiEMmNEnS+TYW1g1HJ84O7i30IhSFh+uDAldR/S9iIY+N1MBXFDFboleyEHvv5b3x8i53P6kGkb9SyRsvEnx40ngaDfZZ0v0z2xFFN/bQY1JlJumeuTEXkfXzJcX0Ve5lpyR1y51iFNTYcpRlzwy1xUZr18PqrG2GuHN4j02dvGfYTRUFyxfJmh5jOTVJkWIzUPloIUxAkM/cSMd/eC+UuVNTqalc4IrAa56PGO+XEmF4/i3L+V8/JuYkupJXUIamiHzNz22NfuD0KnOoA5EucWgOTxIFa2wJtSqvqeeCrX7Ywd40Bri65WgY7nyRcV0CmRe0FvrmSUwBjHG6FgNrWkGvkhMlb6nTaMZ8=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYCPR01MB10588.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(346002)(39860400002)(376002)(366004)(136003)(396003)(451199018)(7416002)(52536014)(5660300002)(2906002)(41300700001)(86362001)(33656002)(38100700002)(38070700005)(8936002)(122000001)(71200400001)(478600001)(66476007)(64756008)(66446008)(66556008)(966005)(8676002)(110136005)(66946007)(76116006)(4326008)(55016003)(54906003)(316002)(26005)(7696005)(83380400001)(6506007)(186003)(9686003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?Windows-1252?Q?LLeuVswBMhEjS4JPwuRasQ8ei5hvlq0dIvFQSwOBcRoWpFeOH1w2aRCH?=
- =?Windows-1252?Q?4Yc6nj1Il7vOcdkbxaJyyxGIWKZw2jcGfLSrTBjAExAC2WWDVj44JCLP?=
- =?Windows-1252?Q?UCZ72478+KaZtJWFln2tyPhvwUNc6XsNtWjWuaV09pcXjZJgyobpg4b9?=
- =?Windows-1252?Q?VTfPsBMhziVmPyVaRouXKejMAD24orEH0hBYM9Lk9eoe9sL0Dxeako/m?=
- =?Windows-1252?Q?YvoMamKhUIzlkCQmiqsa+rU13j2tB2z3tEDkWXXDM7gFRYPk48QpVgVj?=
- =?Windows-1252?Q?34i35Cy+y5lprdJdVx/zUj7Zfd7rPVm/YFe7MjXnZDfZUENRHN3zNUwx?=
- =?Windows-1252?Q?9vJOvoQq1OpjLOoBHjeHSPLO4N3Z6ZVdWjqb+EdxNkar32nN7TtW0e/1?=
- =?Windows-1252?Q?lMaQMflOT9TpRFe5IsDPnvUrZQrJGnrb+6qGoyissRlZLVSK8CiwK6WN?=
- =?Windows-1252?Q?ElVvR1XmoZn9PSwJIlDOVsQr6nopdI8L5lMA9ApNl4Df17cK4GjP0b3X?=
- =?Windows-1252?Q?HtqxPe4+94BcGO1tEkScq/rnZFxpS28EPMqgadh+rE1JYVJ5sGm3zzyl?=
- =?Windows-1252?Q?d5J/FsK3sIsFRkAKSO64igmu278Mcs8ETnNDpYC6vHpzbN2Tg5jq/m+I?=
- =?Windows-1252?Q?awI4qH9JuMLxNoTvkNseNcnZoDxUw0AfyNto9gxCHqf8axXmaBuPkn5+?=
- =?Windows-1252?Q?/dIXWkYdYfxchLukaSeOwZS6egtfuMzdakQLtItAr2QW6VEAmy5cKdGJ?=
- =?Windows-1252?Q?3G6UT1s/FQ27R/EipUAwsexb29nQPggJjSOv4I5UopgAi5r/T47PCQfH?=
- =?Windows-1252?Q?NpnTZBRW6AVPA78RgFMlNPWTp4b0s5jBe8lkeGWukbjrLe51Ww9ovTp2?=
- =?Windows-1252?Q?ibmb1QrVC/PPG/uHqkeb28em2X2/OkFU0Xh6gtCvl0GlVYslRI/JudF5?=
- =?Windows-1252?Q?FVVQ+4NPdlKZ7UikFmtGXS4cTxSGy2Nv4qXlFSm0qlx/SwXpLIK04J1C?=
- =?Windows-1252?Q?RK7lBfpBsWu5ZLLCisckTVbz9sCytwHignQ7oInIsAWxKq9+ilggdB3h?=
- =?Windows-1252?Q?VsIBKN0Y9i3uG9lKjsGmyyLkadZAlAS9tklzpMVgCJWU30u2Dv223cOb?=
- =?Windows-1252?Q?Z0R0IkS8WxH/FRl8ML/flW2x5Bc7K2gdEhtzlM+cVdnq3UvB52Jiy6bq?=
- =?Windows-1252?Q?91k0TyD/H/D48zvIbiD1vIoVqbA+9Pue7I4ixDKeURbNRm1coZsWZZfI?=
- =?Windows-1252?Q?6ptCz2PGYJvxId1ko4yWLE9AS0UmkNtKvrcy8cZMWMxQcjV9kyVxcj9E?=
- =?Windows-1252?Q?sycUZr/5uLE9RvwA/7Vn3OMPXfJwpW/LcU6P8z2aYKfQeDLG7iWRp2jg?=
- =?Windows-1252?Q?/OcdAcFyLdkyhDqMymgJCk9vYwRh5T9P3gDLP9UwASDB2YhB4DxRDy/x?=
- =?Windows-1252?Q?XGxikrq+LXdOkLQhTEoCQRGRPXSG4TB8QTQVIAMwIoeK/lwQ1pW1jKdv?=
- =?Windows-1252?Q?avflZeWNmKdQU/8zn5vX1vyk35SIpSRDoo3zhD4OIvbFSkm8GacMkxMB?=
- =?Windows-1252?Q?WYL5o0MLxOfGcPBfxTMdzd3+aDP1OyVIX4BRMd0ex8bsfVHTY0EZJTgw?=
- =?Windows-1252?Q?P+oOS317TiqHKcaohpi+OHqmhnvxktpotQzFIxT00kuBKsbMl1Nyokck?=
- =?Windows-1252?Q?hLLXBDB7ads99hQF43p0KUVuNIwz0hJuCnKfyQAoNVU0Mnfe47GEyQ?=
- =?Windows-1252?Q?=3D=3D?=
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S231766AbjCOOQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 10:16:29 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4053934C35
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 07:16:01 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id y4so46705814edo.2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 07:16:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pqrs.dk; s=google; t=1678889759;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=oFlsa6HtfdlDO+5W0pHOXKXz4uVBrG6uhwA+mTGh/F4=;
+        b=UGMpDSGL8X5RFbzk+SEfLtR+9GJKEnTWGNIdPmBJGWII5fmtVJp57KaAbMkCgDbJb+
+         +8GCmf9p0z3p6oHvimw007lQGVU/hqtHOT1SAewubK0Ucm6lG0u2Eg+J6aal9KzsMyXv
+         Lw6KTdWkHzGq95NRgsqVjI/+4RQWYPFFYUiWY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678889759;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oFlsa6HtfdlDO+5W0pHOXKXz4uVBrG6uhwA+mTGh/F4=;
+        b=OvUSQkcap+j4+etT1ID7TElM4aK55WXuVi9jKK09LwXqmelxhXqNo+tmWb+V2EeFZl
+         K9/fl6QYUkFN4xdnn1aTy7zu04YPZ2Ci3mtVsCX/efxGTuto1VQIIXv2gevLeGdgAtIT
+         mmupgqrUlS0iVaKPd2E94LQoQP4XKl32KwaUxRlASwJ8Tzl7W8nfTZslk6/hFWhaEVyS
+         9ztwjKtjaAzX1f5LK6NqWmSReBF/SB6GqVO+IhkWkbqE+M83kUOGHXBt/RhsgZuNHDqR
+         PpdoDWVmaFUT0haD2hN9bTuStQwcso2catlv4SpXqaVfC8HU9Eus6KtF/R2IzZoMagA9
+         mVfQ==
+X-Gm-Message-State: AO0yUKVfW1A66YF592EnJWx0fCHEaXLfaxvITCwvCInwlYOVQHMsTuB4
+        /FZBJi192mlKw4TwFR3A0xJZ8g==
+X-Google-Smtp-Source: AK7set8oPIsIHljWEG7Btn7/oqvtoKP54iIoNGcUixTywJ0v44k5S6228+JMg1jI54PO01KBJ+54IA==
+X-Received: by 2002:a17:907:a804:b0:92a:edd4:638 with SMTP id vo4-20020a170907a80400b0092aedd40638mr2911718ejc.22.1678889758698;
+        Wed, 15 Mar 2023 07:15:58 -0700 (PDT)
+Received: from localhost.localdomain (80.71.142.18.ipv4.parknet.dk. [80.71.142.18])
+        by smtp.gmail.com with ESMTPSA id m20-20020a509994000000b004aef147add6sm2532280edb.47.2023.03.15.07.15.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Mar 2023 07:15:58 -0700 (PDT)
+From:   =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alvin@pqrs.dk>
+To:     MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Marek Vasut <marex@denx.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>
+Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] extcon: usbc-tusb320: unregister typec port on driver removal
+Date:   Wed, 15 Mar 2023 15:15:47 +0100
+Message-Id: <20230315141547.825057-1-alvin@pqrs.dk>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TYCPR01MB10588.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c554a381-f43c-4cb6-fb8a-08db255f59ef
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Mar 2023 14:12:46.3609
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: B3JK4iAiV4fDkfR9bD96xDL0mJS4P4lgPC9l2yN0P3Ur+6HMc6pMKJmmLUDWYIBBo9lhVMdCGywnQX6gyPCvK4BWy8wwLC2S7DDQTD4D6sM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3PR01MB9707
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg,
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Sent: 15 March 2023 12:12
->=20
-> This is the start of the stable review cycle for the 4.19.278 release.
-> There are 39 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
-> Anything received after that time might be too late.
+The driver can register a typec port if suitable firmware properties are
+present. But if the driver is removed through sysfs unbind, rmmod or
+similar, then it does not clean up after itself and the typec port
+device remains registered. This can be seen in sysfs, where stale typec
+ports get left over in /sys/class/typec.
 
-Tested-by: Chris Paterson (CIP) <chris.paterson2@renesas.com>
-CI Pipeline: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/=
--/pipelines/807195668
+In order to fix this we have to add an i2c_driver remove function and
+call typec_unregister_port(), which is a no-op in the case where no
+typec port is created and the pointer remains NULL.
 
-We (CIP) are seeing some build issues with Linux 4.19.278-rc1 (7cfb8ee7c98e=
-).
+In the process we should also put the fwnode_handle when the typec port
+isn't registered anymore, including if an error occurs during probe. The
+typec subsystem does not increase or decrease the reference counter for
+us, so we track it in the driver's private data.
 
+Note that the conditional check on TYPEC_PWR_MODE_PD was removed in the
+probe path because a call to tusb320_set_adv_pwr_mode() will perform an
+even more robust validation immediately after, hence there is no
+functional change here.
 
-1)
-In various arm, arm64 and x86 configurations we see:
-kernel/cgroup/cgroup.c: In function 'cgroup_attach_lock':
-kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function 'get=
-_online_cpus'; did you mean 'get_online_mems'? [-Werror=3Dimplicit-function=
--declaration]
-  get_online_cpus();
-  ^~~~~~~~~~~~~~~
-  get_online_mems
-kernel/cgroup/cgroup.c: In function 'cgroup_attach_unlock':
-kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function 'put=
-_online_cpus'; did you mean 'num_online_cpus'? [-Werror=3Dimplicit-function=
--declaration]
-  put_online_cpus();
-  ^~~~~~~~~~~~~~~
-  num_online_cpus
+Fixes: bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+---
+v2: properly assign priv->connector_fwnode = connector;
+---
+ drivers/extcon/extcon-usbc-tusb320.c | 42 ++++++++++++++++++++++------
+ 1 file changed, 34 insertions(+), 8 deletions(-)
 
-For example: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/=
--/jobs/3938632173#L1274
+diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
+index b408ce989c22..10dff1c512c4 100644
+--- a/drivers/extcon/extcon-usbc-tusb320.c
++++ b/drivers/extcon/extcon-usbc-tusb320.c
+@@ -78,6 +78,7 @@ struct tusb320_priv {
+ 	struct typec_capability	cap;
+ 	enum typec_port_type port_type;
+ 	enum typec_pwr_opmode pwr_opmode;
++	struct fwnode_handle *connector_fwnode;
+ };
+ 
+ static const char * const tusb_attached_states[] = {
+@@ -391,27 +392,25 @@ static int tusb320_typec_probe(struct i2c_client *client,
+ 	/* Type-C connector found. */
+ 	ret = typec_get_fw_cap(&priv->cap, connector);
+ 	if (ret)
+-		return ret;
++		goto err_put;
+ 
+ 	priv->port_type = priv->cap.type;
+ 
+ 	/* This goes into register 0x8 field CURRENT_MODE_ADVERTISE */
+ 	ret = fwnode_property_read_string(connector, "typec-power-opmode", &cap_str);
+ 	if (ret)
+-		return ret;
++		goto err_put;
+ 
+ 	ret = typec_find_pwr_opmode(cap_str);
+ 	if (ret < 0)
+-		return ret;
+-	if (ret == TYPEC_PWR_MODE_PD)
+-		return -EINVAL;
++		goto err_put;
+ 
+ 	priv->pwr_opmode = ret;
+ 
+ 	/* Initialize the hardware with the devicetree settings. */
+ 	ret = tusb320_set_adv_pwr_mode(priv);
+ 	if (ret)
+-		return ret;
++		goto err_put;
+ 
+ 	priv->cap.revision		= USB_TYPEC_REV_1_1;
+ 	priv->cap.accessory[0]		= TYPEC_ACCESSORY_AUDIO;
+@@ -422,10 +421,25 @@ static int tusb320_typec_probe(struct i2c_client *client,
+ 	priv->cap.fwnode		= connector;
+ 
+ 	priv->port = typec_register_port(&client->dev, &priv->cap);
+-	if (IS_ERR(priv->port))
+-		return PTR_ERR(priv->port);
++	if (IS_ERR(priv->port)) {
++		ret = PTR_ERR(priv->port);
++		goto err_put;
++	}
++
++	priv->connector_fwnode = connector;
+ 
+ 	return 0;
++
++err_put:
++	fwnode_handle_put(connector);
++
++	return ret;
++}
++
++static void tusb320_typec_remove(struct tusb320_priv *priv)
++{
++	typec_unregister_port(priv->port);
++	fwnode_handle_put(priv->connector_fwnode);
+ }
+ 
+ static int tusb320_probe(struct i2c_client *client)
+@@ -438,7 +452,9 @@ static int tusb320_probe(struct i2c_client *client)
+ 	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
++
+ 	priv->dev = &client->dev;
++	i2c_set_clientdata(client, priv);
+ 
+ 	priv->regmap = devm_regmap_init_i2c(client, &tusb320_regmap_config);
+ 	if (IS_ERR(priv->regmap))
+@@ -489,10 +505,19 @@ static int tusb320_probe(struct i2c_client *client)
+ 					tusb320_irq_handler,
+ 					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 					client->name, priv);
++	if (ret)
++		tusb320_typec_remove(priv);
+ 
+ 	return ret;
+ }
+ 
++static void tusb320_remove(struct i2c_client *client)
++{
++	struct tusb320_priv *priv = i2c_get_clientdata(client);
++
++	tusb320_typec_remove(priv);
++}
++
+ static const struct of_device_id tusb320_extcon_dt_match[] = {
+ 	{ .compatible = "ti,tusb320", .data = &tusb320_ops, },
+ 	{ .compatible = "ti,tusb320l", .data = &tusb320l_ops, },
+@@ -502,6 +527,7 @@ MODULE_DEVICE_TABLE(of, tusb320_extcon_dt_match);
+ 
+ static struct i2c_driver tusb320_extcon_driver = {
+ 	.probe_new	= tusb320_probe,
++	.remove		= tusb320_remove,
+ 	.driver		= {
+ 		.name	= "extcon-tusb320",
+ 		.of_match_table = tusb320_extcon_dt_match,
+-- 
+2.39.2
 
-Presumably this issue is caused by "cgroup: Fix threadgroup_rwsem <-> cpus_=
-read_lock() deadlock", but I haven't had a chance to revert and re-test.
-
-
-2)
-For arm_multiconfig_v7 builds we're seeing a some errors when building the =
-exynos5422 device trees:
-arch/arm/boot/dts/exynos5422-odroidhc1.dtb: ERROR (phandle_references): /th=
-ermal-zones/gpu-thermal/cooling-maps/map0: Reference to non-existent node o=
-r label "gpu"
-arch/arm/boot/dts/exynos5422-odroidhc1.dtb: ERROR (phandle_references): /th=
-ermal-zones/gpu-thermal/cooling-maps/map1: Reference to non-existent node o=
-r label "gpu"
-ERROR: Input tree has errors, aborting (use -f to force output)
-make[1]: *** [scripts/Makefile.lib:294: arch/arm/boot/dts/exynos5422-odroid=
-hc1.dtb] Error 2
-make[1]: *** Waiting for unfinished jobs....
-  DTC     arch/arm/boot/dts/hi3519-demb.dtb
-  DTC     arch/arm/boot/dts/hisi-x5hd2-dkb.dtb
-arch/arm/boot/dts/exynos5422-odroidxu3.dtb: ERROR (phandle_references): /th=
-ermal-zones/gpu-thermal/cooling-maps/map3: Reference to non-existent node o=
-r label "gpu"
-arch/arm/boot/dts/exynos5422-odroidxu3.dtb: ERROR (phandle_references): /th=
-ermal-zones/gpu-thermal/cooling-maps/map4: Reference to non-existent node o=
-r label "gpu"
-ERROR: Input tree has errors, aborting (use -f to force output)
-make[1]: *** [scripts/Makefile.lib:294: arch/arm/boot/dts/exynos5422-odroid=
-xu3.dtb] Error 2
-arch/arm/boot/dts/exynos5422-odroidxu3-lite.dtb: ERROR (phandle_references)=
-: /thermal-zones/gpu-thermal/cooling-maps/map3: Reference to non-existent n=
-ode or label "gpu"
-arch/arm/boot/dts/exynos5422-odroidxu3-lite.dtb: ERROR (phandle_references)=
-: /thermal-zones/gpu-thermal/cooling-maps/map4: Reference to non-existent n=
-ode or label "gpu"
-ERROR: Input tree has errors, aborting (use -f to force output)
-make[1]: *** [scripts/Makefile.lib:294: arch/arm/boot/dts/exynos5422-odroid=
-xu3-lite.dtb] Error 2
-arch/arm/boot/dts/exynos5422-odroidxu4.dtb: ERROR (phandle_references): /th=
-ermal-zones/gpu-thermal/cooling-maps/map3: Reference to non-existent node o=
-r label "gpu"
-arch/arm/boot/dts/exynos5422-odroidxu4.dtb: ERROR (phandle_references): /th=
-ermal-zones/gpu-thermal/cooling-maps/map4: Reference to non-existent node o=
-r label "gpu"
-ERROR: Input tree has errors, aborting (use -f to force output)
-make[1]: *** [scripts/Makefile.lib:294: arch/arm/boot/dts/exynos5422-odroid=
-xu4.dtb] Error 2
-make: *** [arch/arm/Makefile:348: dtbs] Error 2
-
-Log: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/3=
-938632189#L8634
-
-Presumably caused by "ARM: dts: exynos: Add GPU thermal zone cooling maps f=
-or Odroid XU3/XU4/HC1", but I haven't had a chance to revert and re-test.
-
-
-Kind regards, Chris
