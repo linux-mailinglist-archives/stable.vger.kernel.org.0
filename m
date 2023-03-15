@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 288236BB336
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A2B6BB1CE
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233072AbjCOMmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35544 "EHLO
+        id S232614AbjCOMax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232887AbjCOMmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A609A2263
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:54 -0700 (PDT)
+        with ESMTP id S232257AbjCOMaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5609E535
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 383FD61D49
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E79C433EF;
-        Wed, 15 Mar 2023 12:40:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84B6DB81E02
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B5CC4339B;
+        Wed, 15 Mar 2023 12:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884023;
-        bh=zOkZ0Qt3ypqKG3Ynxn0s+Eno8eY4IY2xUM6CsyMOplk=;
+        s=korg; t=1678883361;
+        bh=9aLc/dZMv1Mnb+n+JFuQAMUSSBE8ceuGdKrYlkpVbcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sexf4Ycp83BWicIWpb0I5aKVKNgyQQ1V0e2OKloZEI7mvsvc/7krfvMnKCtIzsPTs
-         /NKWwNNkMXP0HCDk8SqSSfzikpjF0CWsI7+eNxLwamv+HZiPgXRBrf733m2oD9DHTD
-         LOGfMVgI+xUeJcObBq1uu8B4Dy0u/v7RVF3nxSsQ=
+        b=iBb4M0+pNG4ecETUHCV6FjcyvEnvu7nzuQrXTSoqj7mSSAmeY2wepAdiShqsTgVgG
+         2E/HMba0VspxSEQEXFxu+ZgtEpho0TeLspsDXuN8ioGnEB43v/bzftrx3Fq/rxXkZc
+         GGHgYuBeXpsm63XtG2ltLaNU3xKmHTXOBe4TBZvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kalyan Thota <quic_kalyant@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
+        Jai Luthra <j-luthra@ti.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 078/141] drm/msm/dpu: clear DSPP reservations in rm release
+Subject: [PATCH 5.15 115/145] media: ov5640: Fix analogue gain control
 Date:   Wed, 15 Mar 2023 13:13:01 +0100
-Message-Id: <20230315115742.345525887@linuxfoundation.org>
+Message-Id: <20230315115742.753243798@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +58,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalyan Thota <quic_kalyant@quicinc.com>
+From: Paul Elder <paul.elder@ideasonboard.com>
 
-[ Upstream commit 5ec498ba86550909f2611b07087d57a71a78c336 ]
+[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
 
-Clear DSPP reservations from the global state during
-rm release
+Gain control is badly documented in publicly available (including
+leaked) documentation.
 
-Fixes: e47616df008b ("drm/msm/dpu: add support for color processing blocks in dpu driver")
-Signed-off-by: Kalyan Thota <quic_kalyant@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Patchwork: https://patchwork.freedesktop.org/patch/522443/
-Link: https://lore.kernel.org/r/1676286704-818-2-git-send-email-quic_kalyant@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
+(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
+one application note states is equal to x1.047. The documentation also
+states that 0x40 is equel to x1.000. The pre-gain thus seems to be
+expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
+What the pre-gain does is however unspecified.
+
+There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
+expressed as a 10-bit "real gain format" value. One application note
+sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
+expressed in 1/16 increments, up to x63.9375.
+
+The manual gain is stored in registers 0x350a and 0x350b, also as a
+10-bit "real gain format" value. It is documented in the application
+note as a Q6.4 values, up to x63.9375.
+
+One version of the datasheet indicates that the sensor supports a
+digital gain:
+
+  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
+  controlled automatically by the automatic gain control (AGC) block.
+
+It isn't clear how that would be controlled manually.
+
+There appears to be no indication regarding whether the gain controlled
+through registers 0x350a and 0x350b is an analogue gain only or also
+includes digital gain. The words "real gain" don't necessarily mean
+"combined analogue and digital gains". Some OmniVision sensors (such as
+the OV8858) are documented as supoprting different formats for the gain
+values, selectable through a register bit, and they are called "real
+gain format" and "sensor gain format". For that sensor, we have (one of)
+the gain registers documented as
+
+  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
+  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
+
+  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
+  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
+  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
+  0x70 is 4x gain
+
+(The second part of the text makes little sense)
+
+"Real gain" may thus refer to the combination of the coarse and fine
+analogue gains as a single value.
+
+The OV5640 0x350a and 0x350b registers thus appear to control analogue
+gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
+control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
+
+If registers 0x350a and 0x350b are later found to control digital gain
+as well, the driver could then restrict the range of the analogue gain
+control value to lower than x64 and add a separate digital gain control.
+
+Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
+Reviewed-by: Jai Luthra <j-luthra@ti.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/i2c/ov5640.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-index 7ada957adbbb8..58abf5fe97e20 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-@@ -572,6 +572,8 @@ void dpu_rm_release(struct dpu_global_state *global_state,
- 		ARRAY_SIZE(global_state->ctl_to_enc_id), enc->base.id);
- 	_dpu_rm_clear_mapping(global_state->dsc_to_enc_id,
- 		ARRAY_SIZE(global_state->dsc_to_enc_id), enc->base.id);
-+	_dpu_rm_clear_mapping(global_state->dspp_to_enc_id,
-+		ARRAY_SIZE(global_state->dspp_to_enc_id), enc->base.id);
- }
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index db5a19babe67d..a141552531f7e 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2776,7 +2776,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
+ 	/* Auto/manual gain */
+ 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
+ 					     0, 1, 1, 1);
+-	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
++	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
+ 					0, 1023, 1, 0);
  
- int dpu_rm_reserve(
+ 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
 -- 
 2.39.2
 
