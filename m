@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C6A6BAFFE
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F786BB26A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbjCOMO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36902 "EHLO
+        id S232661AbjCOMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbjCOMO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8F9D2D154
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:26 -0700 (PDT)
+        with ESMTP id S232425AbjCOMfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EFD24BF0
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77489B81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFCC1C433D2;
-        Wed, 15 Mar 2023 12:14:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3898861D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DE13C433EF;
+        Wed, 15 Mar 2023 12:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882464;
-        bh=ffR0AxOhFyFLdgN3itd7DSzS/9h778cfw+UlfKJoXiI=;
+        s=korg; t=1678883619;
+        bh=M+jEZo/G0TdDBpQSFA7NpqpK31M80bqJFkKMAZKjnno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHy0tyftg64xjWCj09FAcnkZQS68hYolM2GrBr0E2tPOKRCm9lGVicY24XwzWArCm
-         9waFYBUPzYrUqf4pgiHq3wwoV7FnPjVw2lUQ/Iks+vDGY5dDHNpDXpfN7wjiP9smC3
-         jPK93ZimksF6DXMafWxX0e6YdwIHMlPSrFGS/tf0=
+        b=MdnVvSyzSNK4QZdA7cTKnVg9EoEOX+ZeKo4GFHvK+l3qE6ervnwTuZ/GaD1zDLwkH
+         6wxE1tkJUBXiDLWHWh1iWrqEZDkEKRQWg/ym63dtE0MCJm3LO23SNdrppUB7Uj1W+x
+         EDHWcC3E7atINUSa0khBPYxi2BeoaRTID7ekGSwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Gaurav Jain <gaurav.jain@nxp.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/21] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+Subject: [PATCH 6.1 067/143] tls: rx: fix return value for async crypto
 Date:   Wed, 15 Mar 2023 13:12:33 +0100
-Message-Id: <20230315115719.208491701@linuxfoundation.org>
+Message-Id: <20230315115742.569483149@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,111 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
+[ Upstream commit 4d42cd6bc2ac1b9be50ade13771daec90c9d18b1 ]
 
-ila_xlat_nl_cmd_get_mapping() generates an empty skb,
-triggerring a recent sanity check [1].
+Gaurav reports that TLS Rx is broken with async crypto
+accelerators. The commit under fixes missed updating
+the retval byte counting logic when updating how records
+are stored. Even tho both before and after the change
+'decrypted' was updated inside the main loop, it was
+completely overwritten when processing the async
+completions. Now that the rx_list only holds
+non-zero-copy records we need to add, not overwrite.
 
-Instead, return an error code, so that user space
-can get it.
-
-[1]
-skb_assert_len
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-Modules linked in:
-CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
-pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
-lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-sp : ffff80001e0d6c40
-x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
-x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
-x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
-x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
-x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
-x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
-x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
-x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
-x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
-Call trace:
-skb_assert_len include/linux/skbuff.h:2527 [inline]
-__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-dev_queue_xmit include/linux/netdevice.h:3033 [inline]
-__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
-__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
-netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
-__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
-netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
-netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
-nlmsg_unicast include/net/netlink.h:1099 [inline]
-genlmsg_unicast include/net/genetlink.h:433 [inline]
-genlmsg_reply include/net/genetlink.h:443 [inline]
-ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
-genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
-genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
-genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
-netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
-genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
-netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
-netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
-netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg net/socket.c:734 [inline]
-____sys_sendmsg+0x558/0x844 net/socket.c:2479
-___sys_sendmsg net/socket.c:2533 [inline]
-__sys_sendmsg+0x26c/0x33c net/socket.c:2562
-__do_sys_sendmsg net/socket.c:2571 [inline]
-__se_sys_sendmsg net/socket.c:2569 [inline]
-__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
-__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
-el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
-do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
-el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
-el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
-irq event stamp: 136484
-hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
-hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
-softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
-softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
-softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
----[ end trace 0000000000000000 ]---
-skb len=0 headroom=0 headlen=0 tailroom=192
-mac=(0,0) net=(0,-1) trans=-1
-shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
-csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
-hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
-dev name=nlmon0 feat=0x0000000000005861
-
-Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-and-bisected-by: Gaurav Jain <gaurav.jain@nxp.com>
+Fixes: cbbdee9918a2 ("tls: rx: async: don't put async zc on the list")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217064
+Tested-by: Gaurav Jain <gaurav.jain@nxp.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230227181201.1793772-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ila/ila_xlat.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/tls/tls_sw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
-index 3123b9de91b5e..9dd76af884f1d 100644
---- a/net/ipv6/ila/ila_xlat.c
-+++ b/net/ipv6/ila/ila_xlat.c
-@@ -442,6 +442,7 @@ static int ila_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 38dcd9b401027..992092aeebad9 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -2114,7 +2114,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 		else
+ 			err = process_rx_list(ctx, msg, &control, 0,
+ 					      async_copy_bytes, is_peek);
+-		decrypted = max(err, 0);
++		decrypted += max(err, 0);
+ 	}
  
- 	rcu_read_lock();
- 
-+	ret = -ESRCH;
- 	ila = ila_lookup_by_params(&xp, ilan);
- 	if (ila) {
- 		ret = ila_dump_info(ila,
+ 	copied += decrypted;
 -- 
 2.39.2
 
