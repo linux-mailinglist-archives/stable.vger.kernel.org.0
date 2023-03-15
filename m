@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BA46BB2C3
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C3496BB369
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232855AbjCOMi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52558 "EHLO
+        id S233102AbjCOMo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:44:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232805AbjCOMiK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E38B14EAA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:16 -0700 (PDT)
+        with ESMTP id S232911AbjCOMoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67097A0B02
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2EC5B81E0B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A1FC433D2;
-        Wed, 15 Mar 2023 12:37:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2353C61D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36928C433D2;
+        Wed, 15 Mar 2023 12:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883834;
-        bh=472eO7hMRZYeAIBmNoAbzfIu+41jxoIM6eyjzAmbC7U=;
+        s=korg; t=1678884165;
+        bh=4hA0UNGutR386XUrVPRimDEMLtXi6x/I/v+1rtJavXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLh3hl2S9vxb6Ikev+HTZworgVpCHn7ezPPBMxUNo0gg4Nthp3e8i4X5GxR1Ih5/r
-         Nxjlh5kBVymFZ6ufYnBmHhEO3qTR+PZkUu0FONnSyLBVlYZhNHItfXFGETJ9gNNCj1
-         Slwvkx8sZouKPDRIxEvUKDS/gXsRb/fWFUOO6rak=
+        b=dxZwlbM7jciU5ho3WJ5kWs7QYUILQgDa3iZuMZiACJVOlUCmqTd+Nt5TrYNrUcoRd
+         9cECfi7o8XpL+7VZlV/djcaJ1RthvL3Ey8/pwXfynZ7wlTmx8ijZNWjYoV0Y1xyAC0
+         rl0kH9r0WX9+FvgpOuNH0aMY41G27y1ITSSGBlZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bjorn Andersson <quic_bjorande@quicinc.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Rob Clark <robdclark@chromium.org>,
+        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 119/143] drm/msm/adreno: fix runtime PM imbalance at unbind
+Subject: [PATCH 6.2 102/141] net/smc: fix fallback failed while sendmsg with fastopen
 Date:   Wed, 15 Mar 2023 13:13:25 +0100
-Message-Id: <20230315115744.125890110@linuxfoundation.org>
+Message-Id: <20230315115743.102987646@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-[ Upstream commit 6153c44392b04ff2da1e9aa82ba87da9ab9a0fc1 ]
+[ Upstream commit ce7ca794712f186da99719e8b4e97bd5ddbb04c3 ]
 
-A recent commit moved enabling of runtime PM from adreno_gpu_init() to
-adreno_load_gpu() (called on first open()), which means that unbind()
-may now be called with runtime PM disabled in case the device was never
-opened in between.
+Before determining whether the msg has unsupported options, it has been
+prematurely terminated by the wrong status check.
 
-Make sure to only forcibly suspend and disable runtime PM at unbind() in
-case runtime PM has been enabled to prevent a disable count imbalance.
+For the application, the general usages of MSG_FASTOPEN likes
 
-This specifically avoids leaving runtime PM disabled when the device
-is later opened after a successful bind:
+fd = socket(...)
+/* rather than connect */
+sendto(fd, data, len, MSG_FASTOPEN)
 
-	msm_dpu ae01000.display-controller: [drm:adreno_load_gpu [msm]] *ERROR* Couldn't power up the GPU: -13
+Hence, We need to check the flag before state check, because the sock
+state here is always SMC_INIT when applications tries MSG_FASTOPEN.
+Once we found unsupported options, fallback it to TCP.
 
-Fixes: 4b18299b3365 ("drm/msm/adreno: Defer enabling runpm until hw_init()")
-Reported-by: Bjorn Andersson <quic_bjorande@quicinc.com>
-Link: https://lore.kernel.org/lkml/20230203181245.3523937-1-quic_bjorande@quicinc.com
-Cc: stable@vger.kernel.org	# 6.0
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Patchwork: https://patchwork.freedesktop.org/patch/523549/
-Link: https://lore.kernel.org/r/20230221101430.14546-2-johan+linaro@kernel.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: ee9dfbef02d1 ("net/smc: handle sockopts forcing fallback")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+
+v2 -> v1: Optimize code style
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
-index 36f062c7582f9..c5c4c93b3689c 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_device.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
-@@ -558,7 +558,8 @@ static void adreno_unbind(struct device *dev, struct device *master,
- 	struct msm_drm_private *priv = dev_get_drvdata(master);
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d9413d43b1045..e8018b0fb7676 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2644,16 +2644,14 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct smc_sock *smc;
+-	int rc = -EPIPE;
++	int rc;
  
--	WARN_ON_ONCE(adreno_system_suspend(dev));
-+	if (pm_runtime_enabled(dev))
-+		WARN_ON_ONCE(adreno_system_suspend(dev));
- 	gpu->funcs->destroy(gpu);
+ 	smc = smc_sk(sk);
+ 	lock_sock(sk);
+-	if ((sk->sk_state != SMC_ACTIVE) &&
+-	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
+-	    (sk->sk_state != SMC_INIT))
+-		goto out;
  
- 	priv->gpu_pdev = NULL;
++	/* SMC does not support connect with fastopen */
+ 	if (msg->msg_flags & MSG_FASTOPEN) {
++		/* not connected yet, fallback */
+ 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+ 			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
+ 			if (rc)
+@@ -2662,6 +2660,11 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 			rc = -EINVAL;
+ 			goto out;
+ 		}
++	} else if ((sk->sk_state != SMC_ACTIVE) &&
++		   (sk->sk_state != SMC_APPCLOSEWAIT1) &&
++		   (sk->sk_state != SMC_INIT)) {
++		rc = -EPIPE;
++		goto out;
+ 	}
+ 
+ 	if (smc->use_fallback) {
 -- 
 2.39.2
 
