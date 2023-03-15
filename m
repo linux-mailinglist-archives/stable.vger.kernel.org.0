@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41136BB288
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44A946BB04A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbjCOMhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53692 "EHLO
+        id S231928AbjCOMRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232584AbjCOMgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35795253
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:45 -0700 (PDT)
+        with ESMTP id S230176AbjCOMQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95A193E25
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B31416128D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7069C433D2;
-        Wed, 15 Mar 2023 12:35:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5C813CE19B9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3148FC433D2;
+        Wed, 15 Mar 2023 12:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883745;
-        bh=BHUuBjkMYYw14rcSJs6e+Ug+e9lRBaisVFneinvOT1Q=;
+        s=korg; t=1678882598;
+        bh=g8hFL0OgZIqd0O5DyB5K/9JIPChpqrAsXzWtVUfKOHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqX4uJh76j8cbWkwUeEfxzmSd7k8eBwfSQYpdJ3M+yJpopzhsy5kLVZsCk9bPWmKK
-         7JTBvtGVg5BHYL4tFv4YivH95x8eAlP7Qei0sKVoM7hemF9U5WHXhn0LkmhRgYxQPf
-         Wrdo6pZ0MbYDoAn7KsW9UeVQlXZwmPke8nsYG7ZA=
+        b=ZSGLAyc04sEkmFJpnH2uSNbp8KHiRDLiiHGUs1NsjsWTnZ6RbgQB2PVbxZ0Uw2dcN
+         +qHkJ8n4S7Keo+BsiCZtqpMBLk4VRLMH/A4gwiIs7aU9qmG7+nSIvQxrD3Onm2MPsJ
+         Sel/oB1hbLfl/0v8r2kSnaYGKTMb7bmBQuCX1P3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 086/143] net: phylib: get rid of unnecessary locking
+        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+        Cai Xinchen <caixinchen1@huawei.com>,
+        Imran Khan <imran.f.khan@oracle.com>,
+        Xuewen Yan <xuewen.yan@unisoc.com>
+Subject: [PATCH 4.19 38/39] cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock
 Date:   Wed, 15 Mar 2023 13:12:52 +0100
-Message-Id: <20230315115743.144037814@linuxfoundation.org>
+Message-Id: <20230315115722.652817372@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,174 +55,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit f4b47a2e9463950df3e7c8b70e017877c1d4eb11 ]
+commit 4f7e7236435ca0abe005c674ebd6892c6e83aeb3 upstream.
 
-The locking in phy_probe() and phy_remove() does very little to prevent
-any races with e.g. phy_attach_direct(), but instead causes lockdep ABBA
-warnings. Remove it.
+Bringing up a CPU may involve creating and destroying tasks which requires
+read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
+cpus_read_lock(). However, cpuset's ->attach(), which may be called with
+thredagroup_rwsem write-locked, also wants to disable CPU hotplug and
+acquires cpus_read_lock(), leading to a deadlock.
 
-======================================================
-WARNING: possible circular locking dependency detected
-6.2.0-dirty #1108 Tainted: G        W   E
-------------------------------------------------------
-ip/415 is trying to acquire lock:
-ffff5c268f81ef50 (&dev->lock){+.+.}-{3:3}, at: phy_attach_direct+0x17c/0x3a0 [libphy]
+Fix it by guaranteeing that ->attach() is always called with CPU hotplug
+disabled and removing cpus_read_lock() call from cpuset_attach().
 
-but task is already holding lock:
-ffffaef6496cb518 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x154/0x560
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (rtnl_mutex){+.+.}-{3:3}:
-       __lock_acquire+0x35c/0x6c0
-       lock_acquire.part.0+0xcc/0x220
-       lock_acquire+0x68/0x84
-       __mutex_lock+0x8c/0x414
-       mutex_lock_nested+0x34/0x40
-       rtnl_lock+0x24/0x30
-       sfp_bus_add_upstream+0x34/0x150
-       phy_sfp_probe+0x4c/0x94 [libphy]
-       mv3310_probe+0x148/0x184 [marvell10g]
-       phy_probe+0x8c/0x200 [libphy]
-       call_driver_probe+0xbc/0x15c
-       really_probe+0xc0/0x320
-       __driver_probe_device+0x84/0x120
-       driver_probe_device+0x44/0x120
-       __device_attach_driver+0xc4/0x160
-       bus_for_each_drv+0x80/0xe0
-       __device_attach+0xb0/0x1f0
-       device_initial_probe+0x1c/0x2c
-       bus_probe_device+0xa4/0xb0
-       device_add+0x360/0x53c
-       phy_device_register+0x60/0xa4 [libphy]
-       fwnode_mdiobus_phy_device_register+0xc0/0x190 [fwnode_mdio]
-       fwnode_mdiobus_register_phy+0x160/0xd80 [fwnode_mdio]
-       of_mdiobus_register+0x140/0x340 [of_mdio]
-       orion_mdio_probe+0x298/0x3c0 [mvmdio]
-       platform_probe+0x70/0xe0
-       call_driver_probe+0x34/0x15c
-       really_probe+0xc0/0x320
-       __driver_probe_device+0x84/0x120
-       driver_probe_device+0x44/0x120
-       __driver_attach+0x104/0x210
-       bus_for_each_dev+0x78/0xdc
-       driver_attach+0x2c/0x3c
-       bus_add_driver+0x184/0x240
-       driver_register+0x80/0x13c
-       __platform_driver_register+0x30/0x3c
-       xt_compat_calc_jump+0x28/0xa4 [x_tables]
-       do_one_initcall+0x50/0x1b0
-       do_init_module+0x50/0x1fc
-       load_module+0x684/0x744
-       __do_sys_finit_module+0xc4/0x140
-       __arm64_sys_finit_module+0x28/0x34
-       invoke_syscall+0x50/0x120
-       el0_svc_common.constprop.0+0x6c/0x1b0
-       do_el0_svc+0x34/0x44
-       el0_svc+0x48/0xf0
-       el0t_64_sync_handler+0xb8/0xc0
-       el0t_64_sync+0x1a0/0x1a4
-
--> #0 (&dev->lock){+.+.}-{3:3}:
-       check_prev_add+0xb4/0xc80
-       validate_chain+0x414/0x47c
-       __lock_acquire+0x35c/0x6c0
-       lock_acquire.part.0+0xcc/0x220
-       lock_acquire+0x68/0x84
-       __mutex_lock+0x8c/0x414
-       mutex_lock_nested+0x34/0x40
-       phy_attach_direct+0x17c/0x3a0 [libphy]
-       phylink_fwnode_phy_connect.part.0+0x70/0xe4 [phylink]
-       phylink_fwnode_phy_connect+0x48/0x60 [phylink]
-       mvpp2_open+0xec/0x2e0 [mvpp2]
-       __dev_open+0x104/0x214
-       __dev_change_flags+0x1d4/0x254
-       dev_change_flags+0x2c/0x7c
-       do_setlink+0x254/0xa50
-       __rtnl_newlink+0x430/0x514
-       rtnl_newlink+0x58/0x8c
-       rtnetlink_rcv_msg+0x17c/0x560
-       netlink_rcv_skb+0x64/0x150
-       rtnetlink_rcv+0x20/0x30
-       netlink_unicast+0x1d4/0x2b4
-       netlink_sendmsg+0x1a4/0x400
-       ____sys_sendmsg+0x228/0x290
-       ___sys_sendmsg+0x88/0xec
-       __sys_sendmsg+0x70/0xd0
-       __arm64_sys_sendmsg+0x2c/0x40
-       invoke_syscall+0x50/0x120
-       el0_svc_common.constprop.0+0x6c/0x1b0
-       do_el0_svc+0x34/0x44
-       el0_svc+0x48/0xf0
-       el0t_64_sync_handler+0xb8/0xc0
-       el0t_64_sync+0x1a0/0x1a4
-
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(rtnl_mutex);
-                               lock(&dev->lock);
-                               lock(rtnl_mutex);
-  lock(&dev->lock);
-
- *** DEADLOCK ***
-
-Fixes: 298e54fa810e ("net: phy: add core phylib sfp support")
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reviewed-and-tested-by: Imran Khan <imran.f.khan@oracle.com>
+Reported-and-tested-by: Xuewen Yan <xuewen.yan@unisoc.com>
+Fixes: 05c7b7a92cc8 ("cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug")
+Cc: stable@vger.kernel.org # v5.17+
+Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ kernel/cgroup/cgroup.c |   49 ++++++++++++++++++++++++++++++++++++++++++++-----
+ kernel/cgroup/cpuset.c |    7 +------
+ 2 files changed, 45 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 8cff61dbc4b57..7fbb0904b3c0f 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -3041,8 +3041,6 @@ static int phy_probe(struct device *dev)
- 	if (phydrv->flags & PHY_IS_INTERNAL)
- 		phydev->is_internal = true;
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2210,6 +2210,45 @@ int task_cgroup_path(struct task_struct
+ EXPORT_SYMBOL_GPL(task_cgroup_path);
  
--	mutex_lock(&phydev->lock);
--
- 	/* Deassert the reset signal */
- 	phy_device_reset(phydev, 0);
+ /**
++ * cgroup_attach_lock - Lock for ->attach()
++ * @lock_threadgroup: whether to down_write cgroup_threadgroup_rwsem
++ *
++ * cgroup migration sometimes needs to stabilize threadgroups against forks and
++ * exits by write-locking cgroup_threadgroup_rwsem. However, some ->attach()
++ * implementations (e.g. cpuset), also need to disable CPU hotplug.
++ * Unfortunately, letting ->attach() operations acquire cpus_read_lock() can
++ * lead to deadlocks.
++ *
++ * Bringing up a CPU may involve creating and destroying tasks which requires
++ * read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
++ * cpus_read_lock(). If we call an ->attach() which acquires the cpus lock while
++ * write-locking threadgroup_rwsem, the locking order is reversed and we end up
++ * waiting for an on-going CPU hotplug operation which in turn is waiting for
++ * the threadgroup_rwsem to be released to create new tasks. For more details:
++ *
++ *   http://lkml.kernel.org/r/20220711174629.uehfmqegcwn2lqzu@wubuntu
++ *
++ * Resolve the situation by always acquiring cpus_read_lock() before optionally
++ * write-locking cgroup_threadgroup_rwsem. This allows ->attach() to assume that
++ * CPU hotplug is disabled on entry.
++ */
++static void cgroup_attach_lock(void)
++{
++	get_online_cpus();
++	percpu_down_write(&cgroup_threadgroup_rwsem);
++}
++
++/**
++ * cgroup_attach_unlock - Undo cgroup_attach_lock()
++ * @lock_threadgroup: whether to up_write cgroup_threadgroup_rwsem
++ */
++static void cgroup_attach_unlock(void)
++{
++	percpu_up_write(&cgroup_threadgroup_rwsem);
++	put_online_cpus();
++}
++
++/**
+  * cgroup_migrate_add_task - add a migration target task to a migration context
+  * @task: target task
+  * @mgctx: target migration context
+@@ -2694,7 +2733,7 @@ struct task_struct *cgroup_procs_write_s
+ 	if (kstrtoint(strstrip(buf), 0, &pid) || pid < 0)
+ 		return ERR_PTR(-EINVAL);
  
-@@ -3110,12 +3108,10 @@ static int phy_probe(struct device *dev)
- 	phydev->state = PHY_READY;
+-	percpu_down_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_lock();
  
- out:
--	/* Assert the reset signal */
-+	/* Re-assert the reset signal on error */
- 	if (err)
- 		phy_device_reset(phydev, 1);
+ 	rcu_read_lock();
+ 	if (pid) {
+@@ -2725,7 +2764,7 @@ struct task_struct *cgroup_procs_write_s
+ 	goto out_unlock_rcu;
  
--	mutex_unlock(&phydev->lock);
--
- 	return err;
+ out_unlock_threadgroup:
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_unlock();
+ out_unlock_rcu:
+ 	rcu_read_unlock();
+ 	return tsk;
+@@ -2740,7 +2779,7 @@ void cgroup_procs_write_finish(struct ta
+ 	/* release reference from cgroup_procs_write_start() */
+ 	put_task_struct(task);
+ 
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_unlock();
+ 	for_each_subsys(ss, ssid)
+ 		if (ss->post_attach)
+ 			ss->post_attach();
+@@ -2799,7 +2838,7 @@ static int cgroup_update_dfl_csses(struc
+ 
+ 	lockdep_assert_held(&cgroup_mutex);
+ 
+-	percpu_down_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_lock();
+ 
+ 	/* look up all csses currently attached to @cgrp's subtree */
+ 	spin_lock_irq(&css_set_lock);
+@@ -2830,7 +2869,7 @@ static int cgroup_update_dfl_csses(struc
+ 	ret = cgroup_migrate_execute(&mgctx);
+ out_finish:
+ 	cgroup_migrate_finish(&mgctx);
+-	percpu_up_write(&cgroup_threadgroup_rwsem);
++	cgroup_attach_unlock();
+ 	return ret;
  }
  
-@@ -3125,9 +3121,7 @@ static int phy_remove(struct device *dev)
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1528,13 +1528,9 @@ static void cpuset_attach(struct cgroup_
+ 	cgroup_taskset_first(tset, &css);
+ 	cs = css_cs(css);
  
- 	cancel_delayed_work_sync(&phydev->state_queue);
++	lockdep_assert_cpus_held();     /* see cgroup_attach_lock() */
+ 	mutex_lock(&cpuset_mutex);
  
--	mutex_lock(&phydev->lock);
- 	phydev->state = PHY_DOWN;
--	mutex_unlock(&phydev->lock);
+-	/*
+-	 * It should hold cpus lock because a cpu offline event can
+-	 * cause set_cpus_allowed_ptr() failed.
+-	 */
+-	get_online_cpus();
+ 	/* prepare for attach */
+ 	if (cs == &top_cpuset)
+ 		cpumask_copy(cpus_attach, cpu_possible_mask);
+@@ -1553,7 +1549,6 @@ static void cpuset_attach(struct cgroup_
+ 		cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
+ 		cpuset_update_task_spread_flag(cs, task);
+ 	}
+-       put_online_cpus();
  
- 	sfp_bus_del_upstream(phydev->sfp_bus);
- 	phydev->sfp_bus = NULL;
--- 
-2.39.2
-
+ 	/*
+ 	 * Change mm for all threadgroup leaders. This is expensive and may
 
 
