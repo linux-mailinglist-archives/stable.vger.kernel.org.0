@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39DD66BB2AB
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C676BB1FF
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232553AbjCOMh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:37:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52700 "EHLO
+        id S232678AbjCOMcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232862AbjCOMhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6688FBFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:30 -0700 (PDT)
+        with ESMTP id S232552AbjCOMbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C749850FB8
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 473C9CE19A7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7885FC433D2;
-        Wed, 15 Mar 2023 12:36:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D107B61ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDC51C4339B;
+        Wed, 15 Mar 2023 12:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883769;
-        bh=hVaj6og0LbClymWKNGcpAzAKCpHUuhLXZEtvPd4Q1VA=;
+        s=korg; t=1678883460;
+        bh=UFax8ChcHz89KEeLFaoHTzZWrkyBpqimqMVr5v6hN3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sczpZMlMD3nApiLR3MVgdpGN+DmKGRlcNOsOV/GaKYKGtS/LUbxzBHBJyQAG9Rx9E
-         hkE9/kYolWEaoHqaewhAQeVCS7XXpq3O7itJJdpeCL7WIxpICBSh7HC6VyNowaQFdm
-         da9kqlm+SXTfOG6pZkgywQHflmFiPFh8Urg54OEs=
+        b=YXt6FPF6Q09wD/ULFWJtxuCx1vUZ7pL31Ti0Ip8ht2uex6IeNGGz+J52kwjw/d4V4
+         uV6J2bCUH5BXVwho/toGOxCel+olpoxoCaDUpegw0PyGf/vq9agPrj6PMtYhcjHxrh
+         S00hN+MLUJt/DodKBHiY2y/W5Nk95vzKqXxD1LUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 125/143] powerpc/64: Dont recurse irq replay
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Alexandru Matei <alexandru.matei@uipath.com>
+Subject: [PATCH 5.15 145/145] KVM: VMX: Fix crash due to uninitialized current_vmcs
 Date:   Wed, 15 Mar 2023 13:13:31 +0100
-Message-Id: <20230315115744.314911806@linuxfoundation.org>
+Message-Id: <20230315115743.681328887@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,259 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Alexandru Matei <alexandru.matei@uipath.com>
 
-[ Upstream commit 5746ca131e2496ccd5bb4d7a0244d6c38070cbf5 ]
+commit 93827a0a36396f2fd6368a54a020f420c8916e9b upstream.
 
-Interrupt handlers called by soft-pending irq replay code can run
-softirqs, softirq replay enables and disables local irqs, which allows
-interrupts to come in including soft-masked interrupts, and it can
-cause pending irqs to be replayed again. That makes the soft irq replay
-state machine and possible races more complicated and fragile than it
-needs to be.
+KVM enables 'Enlightened VMCS' and 'Enlightened MSR Bitmap' when running as
+a nested hypervisor on top of Hyper-V. When MSR bitmap is updated,
+evmcs_touch_msr_bitmap function uses current_vmcs per-cpu variable to mark
+that the msr bitmap was changed.
 
-Use irq_enter/irq_exit around irq replay to prevent softirqs running
-while interrupts are being replayed. Softirqs will now be run at the
-irq_exit() call after all the irq replaying is done. This prevents irqs
-being replayed while irqs are being replayed, and should hopefully make
-things simpler and easier to think about and debug.
+vmx_vcpu_create() modifies the msr bitmap via vmx_disable_intercept_for_msr
+-> vmx_msr_bitmap_l01_changed which in the end calls this function. The
+function checks for current_vmcs if it is null but the check is
+insufficient because current_vmcs is not initialized. Because of this, the
+code might incorrectly write to the structure pointed by current_vmcs value
+left by another task. Preemption is not disabled, the current task can be
+preempted and moved to another CPU while current_vmcs is accessed multiple
+times from evmcs_touch_msr_bitmap() which leads to crash.
 
-A new PACA_IRQ_REPLAYING is added to prevent asynchronous interrupt
-handlers hard-enabling EE while pending irqs are being replayed, because
-that causes new pending irqs to arrive which is also a complexity. This
-means pending irqs won't be profiled quite so well because perf irqs
-can't be taken.
+The manipulation of MSR bitmaps by callers happens only for vmcs01 so the
+solution is to use vmx->vmcs01.vmcs instead of current_vmcs.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230121102618.2824429-1-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  BUG: kernel NULL pointer dereference, address: 0000000000000338
+  PGD 4e1775067 P4D 0
+  Oops: 0002 [#1] PREEMPT SMP NOPTI
+  ...
+  RIP: 0010:vmx_msr_bitmap_l01_changed+0x39/0x50 [kvm_intel]
+  ...
+  Call Trace:
+   vmx_disable_intercept_for_msr+0x36/0x260 [kvm_intel]
+   vmx_vcpu_create+0xe6/0x540 [kvm_intel]
+   kvm_arch_vcpu_create+0x1d1/0x2e0 [kvm]
+   kvm_vm_ioctl_create_vcpu+0x178/0x430 [kvm]
+   kvm_vm_ioctl+0x53f/0x790 [kvm]
+   __x64_sys_ioctl+0x8a/0xc0
+   do_syscall_64+0x5c/0x90
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: ceef7d10dfb6 ("KVM: x86: VMX: hyper-v: Enlightened MSR-Bitmap support")
+Cc: stable@vger.kernel.org
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
+Link: https://lore.kernel.org/r/20230123221208.4964-1-alexandru.matei@uipath.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+[manual backport: evmcs.h got renamed to hyperv.h in a later
+version, modified in evmcs.h instead]
+Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/hw_irq.h |   6 +-
- arch/powerpc/kernel/irq_64.c      | 101 +++++++++++++++++++-----------
- 2 files changed, 70 insertions(+), 37 deletions(-)
+ arch/x86/kvm/vmx/evmcs.h |   11 -----------
+ arch/x86/kvm/vmx/vmx.c   |    9 +++++++--
+ 2 files changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/hw_irq.h b/arch/powerpc/include/asm/hw_irq.h
-index eb6d094083fd6..317659fdeacf2 100644
---- a/arch/powerpc/include/asm/hw_irq.h
-+++ b/arch/powerpc/include/asm/hw_irq.h
-@@ -36,15 +36,17 @@
- #define PACA_IRQ_DEC		0x08 /* Or FIT */
- #define PACA_IRQ_HMI		0x10
- #define PACA_IRQ_PMI		0x20
-+#define PACA_IRQ_REPLAYING	0x40
+--- a/arch/x86/kvm/vmx/evmcs.h
++++ b/arch/x86/kvm/vmx/evmcs.h
+@@ -162,16 +162,6 @@ static inline u16 evmcs_read16(unsigned
+ 	return *(u16 *)((char *)current_evmcs + offset);
+ }
  
- /*
-  * Some soft-masked interrupts must be hard masked until they are replayed
-  * (e.g., because the soft-masked handler does not clear the exception).
-+ * Interrupt replay itself must remain hard masked too.
-  */
- #ifdef CONFIG_PPC_BOOK3S
--#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE|PACA_IRQ_PMI)
-+#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE|PACA_IRQ_PMI|PACA_IRQ_REPLAYING)
- #else
--#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE)
-+#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE|PACA_IRQ_REPLAYING)
- #endif
- 
- #endif /* CONFIG_PPC64 */
-diff --git a/arch/powerpc/kernel/irq_64.c b/arch/powerpc/kernel/irq_64.c
-index eb2b380e52a0d..9dc0ad3c533a8 100644
---- a/arch/powerpc/kernel/irq_64.c
-+++ b/arch/powerpc/kernel/irq_64.c
-@@ -70,22 +70,19 @@ int distribute_irqs = 1;
- 
- static inline void next_interrupt(struct pt_regs *regs)
+-static inline void evmcs_touch_msr_bitmap(void)
+-{
+-	if (unlikely(!current_evmcs))
+-		return;
+-
+-	if (current_evmcs->hv_enlightenments_control.msr_bitmap)
+-		current_evmcs->hv_clean_fields &=
+-			~HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP;
+-}
+-
+ static inline void evmcs_load(u64 phys_addr)
  {
--	/*
--	 * Softirq processing can enable/disable irqs, which will leave
--	 * MSR[EE] enabled and the soft mask set to IRQS_DISABLED. Fix
--	 * this up.
--	 */
--	if (!(local_paca->irq_happened & PACA_IRQ_HARD_DIS))
--		hard_irq_disable();
--	else
--		irq_soft_mask_set(IRQS_ALL_DISABLED);
-+	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
-+		WARN_ON(!(local_paca->irq_happened & PACA_IRQ_HARD_DIS));
-+		WARN_ON(irq_soft_mask_return() != IRQS_ALL_DISABLED);
-+	}
+ 	struct hv_vp_assist_page *vp_ap =
+@@ -192,7 +182,6 @@ static inline u64 evmcs_read64(unsigned
+ static inline u32 evmcs_read32(unsigned long field) { return 0; }
+ static inline u16 evmcs_read16(unsigned long field) { return 0; }
+ static inline void evmcs_load(u64 phys_addr) {}
+-static inline void evmcs_touch_msr_bitmap(void) {}
+ #endif /* IS_ENABLED(CONFIG_HYPERV) */
  
- 	/*
- 	 * We are responding to the next interrupt, so interrupt-off
- 	 * latencies should be reset here.
+ #define EVMPTR_INVALID (-1ULL)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3779,8 +3779,13 @@ static void vmx_msr_bitmap_l01_changed(s
+ 	 * 'Enlightened MSR Bitmap' feature L0 needs to know that MSR
+ 	 * bitmap has changed.
  	 */
-+	lockdep_hardirq_exit();
- 	trace_hardirqs_on();
- 	trace_hardirqs_off();
-+	lockdep_hardirq_enter();
- }
- 
- static inline bool irq_happened_test_and_clear(u8 irq)
-@@ -97,22 +94,11 @@ static inline bool irq_happened_test_and_clear(u8 irq)
- 	return false;
- }
- 
--void replay_soft_interrupts(void)
-+static void __replay_soft_interrupts(void)
- {
- 	struct pt_regs regs;
- 
- 	/*
--	 * Be careful here, calling these interrupt handlers can cause
--	 * softirqs to be raised, which they may run when calling irq_exit,
--	 * which will cause local_irq_enable() to be run, which can then
--	 * recurse into this function. Don't keep any state across
--	 * interrupt handler calls which may change underneath us.
--	 *
--	 * Softirqs can not be disabled over replay to stop this recursion
--	 * because interrupts taken in idle code may require RCU softirq
--	 * to run in the irq RCU tracking context. This is a hard problem
--	 * to fix without changes to the softirq or idle layer.
--	 *
- 	 * We use local_paca rather than get_paca() to avoid all the
- 	 * debug_smp_processor_id() business in this low level function.
- 	 */
-@@ -120,13 +106,20 @@ void replay_soft_interrupts(void)
- 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
- 		WARN_ON_ONCE(mfmsr() & MSR_EE);
- 		WARN_ON(!(local_paca->irq_happened & PACA_IRQ_HARD_DIS));
-+		WARN_ON(local_paca->irq_happened & PACA_IRQ_REPLAYING);
- 	}
- 
-+	/*
-+	 * PACA_IRQ_REPLAYING prevents interrupt handlers from enabling
-+	 * MSR[EE] to get PMIs, which can result in more IRQs becoming
-+	 * pending.
-+	 */
-+	local_paca->irq_happened |= PACA_IRQ_REPLAYING;
+-	if (static_branch_unlikely(&enable_evmcs))
+-		evmcs_touch_msr_bitmap();
++	if (IS_ENABLED(CONFIG_HYPERV) && static_branch_unlikely(&enable_evmcs)) {
++		struct hv_enlightened_vmcs *evmcs = (void *)vmx->vmcs01.vmcs;
 +
- 	ppc_save_regs(&regs);
- 	regs.softe = IRQS_ENABLED;
- 	regs.msr |= MSR_EE;
- 
--again:
- 	/*
- 	 * Force the delivery of pending soft-disabled interrupts on PS3.
- 	 * Any HV call will have this side effect.
-@@ -175,13 +168,14 @@ void replay_soft_interrupts(void)
- 		next_interrupt(&regs);
- 	}
- 
--	/*
--	 * Softirq processing can enable and disable interrupts, which can
--	 * result in new irqs becoming pending. Must keep looping until we
--	 * have cleared out all pending interrupts.
--	 */
--	if (local_paca->irq_happened & ~PACA_IRQ_HARD_DIS)
--		goto again;
-+	local_paca->irq_happened &= ~PACA_IRQ_REPLAYING;
-+}
-+
-+void replay_soft_interrupts(void)
-+{
-+	irq_enter(); /* See comment in arch_local_irq_restore */
-+	__replay_soft_interrupts();
-+	irq_exit();
- }
- 
- #if defined(CONFIG_PPC_BOOK3S_64) && defined(CONFIG_PPC_KUAP)
-@@ -200,13 +194,13 @@ static inline void replay_soft_interrupts_irqrestore(void)
- 	if (kuap_state != AMR_KUAP_BLOCKED)
- 		set_kuap(AMR_KUAP_BLOCKED);
- 
--	replay_soft_interrupts();
-+	__replay_soft_interrupts();
- 
- 	if (kuap_state != AMR_KUAP_BLOCKED)
- 		set_kuap(kuap_state);
- }
- #else
--#define replay_soft_interrupts_irqrestore() replay_soft_interrupts()
-+#define replay_soft_interrupts_irqrestore() __replay_soft_interrupts()
- #endif
- 
- notrace void arch_local_irq_restore(unsigned long mask)
-@@ -219,9 +213,13 @@ notrace void arch_local_irq_restore(unsigned long mask)
- 		return;
- 	}
- 
--	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
--		WARN_ON_ONCE(in_nmi() || in_hardirq());
-+	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
-+		WARN_ON_ONCE(in_nmi());
-+		WARN_ON_ONCE(in_hardirq());
-+		WARN_ON_ONCE(local_paca->irq_happened & PACA_IRQ_REPLAYING);
++		if (evmcs->hv_enlightenments_control.msr_bitmap)
++			evmcs->hv_clean_fields &=
++				~HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP;
 +	}
+ }
  
-+again:
- 	/*
- 	 * After the stb, interrupts are unmasked and there are no interrupts
- 	 * pending replay. The restart sequence makes this atomic with
-@@ -248,6 +246,12 @@ notrace void arch_local_irq_restore(unsigned long mask)
- 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
- 		WARN_ON_ONCE(!(mfmsr() & MSR_EE));
- 
-+	/*
-+	 * If we came here from the replay below, we might have a preempt
-+	 * pending (due to preempt_enable_no_resched()). Have to check now.
-+	 */
-+	preempt_check_resched();
-+
- 	return;
- 
- happened:
-@@ -261,6 +265,7 @@ notrace void arch_local_irq_restore(unsigned long mask)
- 		irq_soft_mask_set(IRQS_ENABLED);
- 		local_paca->irq_happened = 0;
- 		__hard_irq_enable();
-+		preempt_check_resched();
- 		return;
- 	}
- 
-@@ -296,12 +301,38 @@ notrace void arch_local_irq_restore(unsigned long mask)
- 	irq_soft_mask_set(IRQS_ALL_DISABLED);
- 	trace_hardirqs_off();
- 
-+	/*
-+	 * Now enter interrupt context. The interrupt handlers themselves
-+	 * also call irq_enter/exit (which is okay, they can nest). But call
-+	 * it here now to hold off softirqs until the below irq_exit(). If
-+	 * we allowed replayed handlers to run softirqs, that enables irqs,
-+	 * which must replay interrupts, which recurses in here and makes
-+	 * things more complicated. The recursion is limited to 2, and it can
-+	 * be made to work, but it's complicated.
-+	 *
-+	 * local_bh_disable can not be used here because interrupts taken in
-+	 * idle are not in the right context (RCU, tick, etc) to run softirqs
-+	 * so irq_enter must be called.
-+	 */
-+	irq_enter();
-+
- 	replay_soft_interrupts_irqrestore();
- 
-+	irq_exit();
-+
-+	if (unlikely(local_paca->irq_happened != PACA_IRQ_HARD_DIS)) {
-+		/*
-+		 * The softirq processing in irq_exit() may enable interrupts
-+		 * temporarily, which can result in MSR[EE] being enabled and
-+		 * more irqs becoming pending. Go around again if that happens.
-+		 */
-+		trace_hardirqs_on();
-+		preempt_enable_no_resched();
-+		goto again;
-+	}
-+
- 	trace_hardirqs_on();
- 	irq_soft_mask_set(IRQS_ENABLED);
--	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
--		WARN_ON(local_paca->irq_happened != PACA_IRQ_HARD_DIS);
- 	local_paca->irq_happened = 0;
- 	__hard_irq_enable();
- 	preempt_enable();
--- 
-2.39.2
-
+ void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu, u32 msr, int type)
 
 
