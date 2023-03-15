@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 636CA6BB12D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD876BB2B0
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232042AbjCOMZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57660 "EHLO
+        id S232816AbjCOMiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232208AbjCOMZE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:04 -0400
+        with ESMTP id S232664AbjCOMhZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4F199C2D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64029B9A9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3BE61D40
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83E8C4339C;
-        Wed, 15 Mar 2023 12:23:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 270C361D5C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1B6C433D2;
+        Wed, 15 Mar 2023 12:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882993;
-        bh=LeDfhv3dIOY5Ep3qwvO4rn9GSOS0rv5X429rZamhs2A=;
+        s=korg; t=1678883742;
+        bh=pQklDcOpLt+p0Nb+ZBaDaCWYy/8v2Ff0jqMLgPhDK4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oM7RIpfASYlTIsssE2fx1SdZrRgZToVz8cns6R5eYQ9gQG1FwY7NbGw/G2g+M9QOk
-         9+AvPXsfZ3hCVi2fIvF9k/Voxcc2zWjShpYCzEAq35Kc8GMkKF1cxtg4m25ItIGlPO
-         +MnirwsftHGSBl94nApNssEezQ2qnMbP+7u7rcXY=
+        b=nP5OcYBmPLzjH7XS53Ebcl14mLoPTuNGOzx0Gdcj6Q5Do2z2Kud1TsiDSdz/n5ITQ
+         gEY00Vsc1ICfzgsAhI48ntwI3yfA1zXwmf9BSdqm/cZkIpEFKDVd0mc2RNXhPZ/B//
+         G18y93Fd1GckizfRqANkhq0iD94rqxiSl9qW23mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.10 080/104] drm/i915: Dont use BAR mappings for ring buffers with LLC
+        patches@lists.linux.dev, Rongguang Wei <weirongguang@kylinos.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 085/143] net: stmmac: add to set device wake up flag when stmmac init phy
 Date:   Wed, 15 Mar 2023 13:12:51 +0100
-Message-Id: <20230315115735.257059643@linuxfoundation.org>
+Message-Id: <20230315115743.116161536@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,54 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Harrison <John.C.Harrison@Intel.com>
+From: Rongguang Wei <weirongguang@kylinos.cn>
 
-commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
+[ Upstream commit a9334b702a03b693f54ebd3b98f67bf722b74870 ]
 
-Direction from hardware is that ring buffers should never be mapped
-via the BAR on systems with LLC. There are too many caching pitfalls
-due to the way BAR accesses are routed. So it is safest to just not
-use it.
+When MAC is not support PMT, driver will check PHY's WoL capability
+and set device wakeup capability in stmmac_init_phy(). We can enable
+the WoL through ethtool, the driver would enable the device wake up
+flag. Now the device_may_wakeup() return true.
 
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.9+
-Tested-by: Jouni Högander <jouni.hogander@intel.com>
-Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
-(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But if there is a way which enable the PHY's WoL capability derectly,
+like in BIOS. The driver would not know the enable thing and would not
+set the device wake up flag. The phy_suspend may failed like this:
+
+[   32.409063] PM: dpm_run_callback(): mdio_bus_phy_suspend+0x0/0x50 returns -16
+[   32.409065] PM: Device stmmac-1:00 failed to suspend: error -16
+[   32.409067] PM: Some devices failed to suspend, or early wake event detected
+
+Add to set the device wakeup enable flag according to the get_wol
+function result in PHY can fix the error in this scene.
+
+v2: add a Fixes tag.
+
+Fixes: 1d8e5b0f3f2c ("net: stmmac: Support WOL with phy")
+Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_ring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_ring.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ring.c
-@@ -49,7 +49,7 @@ int intel_ring_pin(struct intel_ring *ri
- 	if (unlikely(ret))
- 		goto err_unpin;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 84e1740b12f1b..3c1d4b27668fe 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1168,6 +1168,7 @@ static int stmmac_init_phy(struct net_device *dev)
  
--	if (i915_vma_is_map_and_fenceable(vma))
-+	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
- 		addr = (void __force *)i915_vma_pin_iomap(vma);
- 	else
- 		addr = i915_gem_object_pin_map(vma->obj,
-@@ -91,7 +91,7 @@ void intel_ring_unpin(struct intel_ring
- 		return;
+ 		phylink_ethtool_get_wol(priv->phylink, &wol);
+ 		device_set_wakeup_capable(priv->device, !!wol.supported);
++		device_set_wakeup_enable(priv->device, !!wol.wolopts);
+ 	}
  
- 	i915_vma_unset_ggtt_write(vma);
--	if (i915_vma_is_map_and_fenceable(vma))
-+	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
- 		i915_vma_unpin_iomap(vma);
- 	else
- 		i915_gem_object_unpin_map(vma->obj);
+ 	return ret;
+-- 
+2.39.2
+
 
 
