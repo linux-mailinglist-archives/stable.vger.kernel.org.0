@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 544316BB32E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 687A46BB144
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233051AbjCOMmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:42:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
+        id S232473AbjCOM0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232659AbjCOMlx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:53 -0400
+        with ESMTP id S232399AbjCOMZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A3E8B303
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1FA199C30
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 736D261D5C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E31C433EF;
-        Wed, 15 Mar 2023 12:40:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E65F61D59
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7130FC4339B;
+        Wed, 15 Mar 2023 12:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884041;
-        bh=q5ZOKpxiyQ4ociMUOi0GN0rLZknI2D2yj73EJ1+ckZc=;
+        s=korg; t=1678883037;
+        bh=FyLFH4moPHQXrd4ubtdqYkd47qEAk2710SQC+pAn5gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUDM3ik2T7Sk/tjTUSPKh5mWMl9XG0hk/4RyH37KpkDLBbcXXwL5lflzWZzC8bzEi
-         /YCkkwY2xHrSljFFcMyrSES/ps/l6CAKYVeBSLAyP7FFLrmhgYTCVvqCP5YIodViRC
-         zJ/4IJk0XmsSjV3PXNKlubZenQILjSRxTNxtuYI8=
+        b=ESCd26mJmDLrccGD80gVRxyEnHj2lO6J0Jkaoz7yAxl78eRZfaicG2OEyajuwE35U
+         BBWEku7CKC3H4k4XwrDlMtc0l9il22BU5r64OxCS77OHsQcI7KZOriq5nprbw1Z/1G
+         WkwILnQUShw+YS/XYqGLkVYrhDJUO6a7XrS2wQog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Walsh <vk3heg@vk3heg.net>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Finn Thain <fthain@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 084/141] m68k: mm: Move initrd phys_to_virt handling after paging_init()
+        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
+        Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 5.10 096/104] powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT
 Date:   Wed, 15 Mar 2023 13:13:07 +0100
-Message-Id: <20230315115742.534772042@linuxfoundation.org>
+Message-Id: <20230315115736.065132542@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit d4b97925e87eb133e400fe4a482d750c74ce392f ]
+commit 4b9880dbf3bdba3a7c56445137c3d0e30aaa0a40 upstream.
 
-When booting with an initial ramdisk on platforms where physical memory
-does not start at address zero (e.g. on Amiga):
+The powerpc linker script explicitly includes .exit.text, because
+otherwise the link fails due to references from __bug_table and
+__ex_table. The code is freed (discarded) at runtime along with
+.init.text and data.
 
-    initrd: 0ef0602c - 0f800000
-    Zone ranges:
-      DMA      [mem 0x0000000008000000-0x000000f7ffffffff]
-      Normal   empty
-    Movable zone start for each node
-    Early memory node ranges
-      node   0: [mem 0x0000000008000000-0x000000000f7fffff]
-    Initmem setup node 0 [mem 0x0000000008000000-0x000000000f7fffff]
-    Unable to handle kernel access at virtual address (ptrval)
-    Oops: 00000000
-    Modules linked in:
-    PC: [<00201d3c>] memcmp+0x28/0x56
+That has worked in the past despite powerpc not defining
+RUNTIME_DISCARD_EXIT because DISCARDS appears late in the powerpc linker
+script (line 410), and the explicit inclusion of .exit.text
+earlier (line 280) supersedes the discard.
 
-As phys_to_virt() relies on m68k_memoffset and module_fixup(), it must
-not be called before paging_init().  Hence postpone the phys_to_virt
-handling for the initial ramdisk until after calling paging_init().
+However commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and
+riscv") introduced an earlier use of DISCARD as part of the RO_DATA
+macro (line 136). With binutils < 2.36 that causes the DISCARD
+directives later in the script to be applied earlier [1], causing
+.exit.text to actually be discarded at link time, leading to build
+errors:
 
-While at it, reduce #ifdef clutter by using IS_ENABLED() instead.
+  '.exit.text' referenced in section '__bug_table' of crypto/algboss.o: defined in
+  discarded section '.exit.text' of crypto/algboss.o
+  '.exit.text' referenced in section '__ex_table' of drivers/nvdimm/core.o: defined in
+  discarded section '.exit.text' of drivers/nvdimm/core.o
 
-Fixes: 376e3fdecb0dcae2 ("m68k: Enable memtest functionality")
-Reported-by: Stephen Walsh <vk3heg@vk3heg.net>
-Link: https://lists.debian.org/debian-68k/2022/09/msg00007.html
-Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Link: https://lore.kernel.org/r/4f45f05f377bf3f5baf88dbd5c3c8aeac59d94f0.camel@physik.fu-berlin.de
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Finn Thain <fthain@linux-m68k.org>
-Link: https://lore.kernel.org/r/dff216da09ab7a60217c3fc2147e671ae07d636f.1677528627.git.geert@linux-m68k.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by defining RUNTIME_DISCARD_EXIT, which causes the generic
+DISCARDS macro to not include .exit.text at all.
+
+1: https://lore.kernel.org/lkml/87fscp2v7k.fsf@igel.home/
+
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230105132349.384666-1-mpe@ellerman.id.au
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/m68k/kernel/setup_mm.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
-index 3a2bb2e8fdad4..fbff1cea62caa 100644
---- a/arch/m68k/kernel/setup_mm.c
-+++ b/arch/m68k/kernel/setup_mm.c
-@@ -326,16 +326,16 @@ void __init setup_arch(char **cmdline_p)
- 		panic("No configuration setup");
- 	}
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -8,6 +8,7 @@
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
+ #define EMITS_PT_NOTE
+ #define RO_EXCEPTION_TABLE_ALIGN	0
++#define RUNTIME_DISCARD_EXIT
  
--#ifdef CONFIG_BLK_DEV_INITRD
--	if (m68k_ramdisk.size) {
-+	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && m68k_ramdisk.size)
- 		memblock_reserve(m68k_ramdisk.addr, m68k_ramdisk.size);
-+
-+	paging_init();
-+
-+	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && m68k_ramdisk.size) {
- 		initrd_start = (unsigned long)phys_to_virt(m68k_ramdisk.addr);
- 		initrd_end = initrd_start + m68k_ramdisk.size;
- 		pr_info("initrd: %08lx - %08lx\n", initrd_start, initrd_end);
- 	}
--#endif
--
--	paging_init();
- 
- #ifdef CONFIG_NATFEAT
- 	nf_init();
--- 
-2.39.2
-
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
 
 
