@@ -2,50 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 799DC6BB346
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9556BB1E1
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232947AbjCOMnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:43:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35496 "EHLO
+        id S232572AbjCOMb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232955AbjCOMmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E4EA2C3F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:26 -0700 (PDT)
+        with ESMTP id S232570AbjCOMbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF85410A5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E202561D74
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04C21C433D2;
-        Wed, 15 Mar 2023 12:41:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C15B61D72
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553ACC433EF;
+        Wed, 15 Mar 2023 12:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884073;
-        bh=1BmJ+h7AKBzQz0Hws51bHogpZpwzUQwVKxNSlLSMEUc=;
+        s=korg; t=1678883410;
+        bh=17j1IuYxoghYGpS1B5DGIQJubZwkdi+SKKGet2h/y5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/NBHPdUYeMxnPl6fHanIOMtRzXRcmqw+hxryCKzbWV4y388qNCWNud2D7SwzWOiv
-         p8uKk+oX/obHxwj2ClVTg5bnt8tefFUUYKhGjEK7gDl/XYLBhtlbLHsUdazMiM1h6G
-         S+LHP1HM9Kolo2JySeGmXZV9CfozxNzPpVzVsK4k=
+        b=B/FGZA98ESxzLo9dKTR5E2KNxpdt6sEy2fzWVkKR8lB0LMjqCIjizOkcYzsCyORZv
+         Kswvs3HKfac63jgBLlyDmRKap7RuSzYwKZs94AnOBHGusS1cX+nAb0TAb4qrAeSyu0
+         hjlEl8bSfAWCSOdisZL5EQDey6AND0ufd8EdzVN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 095/141] platform/x86: dell-ddv: Fix temperature scaling
-Date:   Wed, 15 Mar 2023 13:13:18 +0100
-Message-Id: <20230315115742.892893819@linuxfoundation.org>
+        patches@lists.linux.dev, Tom Saeger <tom.saeger@oracle.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Dennis Gilmore <dennis@ausil.us>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Rich Felker <dalias@libc.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 133/145] sh: define RUNTIME_DISCARD_EXIT
+Date:   Wed, 15 Mar 2023 13:13:19 +0100
+Message-Id: <20230315115743.321836050@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,53 +63,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Tom Saeger <tom.saeger@oracle.com>
 
-[ Upstream commit 0331b1b0ba65376ecf1c69414aa7696fef0930cb ]
+commit c1c551bebf928889e7a8fef7415b44f9a64975f4 upstream.
 
-After using the built-in UEFI hardware diagnostics to compare
-the measured battery temperature, i noticed that the temperature
-is actually expressed in tenth degree kelvin, similar to the
-SBS-Data standard. For example, a value of 2992 is displayed as
-26 degrees celsius.
-Fix the scaling so that the correct values are being displayed.
+sh vmlinux fails to link with GNU ld < 2.40 (likely < 2.36) since
+commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv").
 
-Tested on a Dell Inspiron 3505.
+This is similar to fixes for powerpc and s390:
+commit 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT").
+commit a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
+with GNU ld < 2.36").
 
-Fixes: a77272c16041 ("platform/x86: dell: Add new dell-wmi-ddv driver")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20230218115318.20662-2-W_Armin@gmx.de
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  $ sh4-linux-gnu-ld --version | head -n1
+  GNU ld (GNU Binutils for Debian) 2.35.2
+
+  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu- microdev_defconfig
+  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu-
+
+  `.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
+  defined in discarded section `.exit.text' of crypto/algboss.o
+  `.exit.text' referenced in section `__bug_table' of
+  drivers/char/hw_random/core.o: defined in discarded section
+  `.exit.text' of drivers/char/hw_random/core.o
+  make[2]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
+  make[1]: *** [Makefile:1252: vmlinux] Error 2
+
+arch/sh/kernel/vmlinux.lds.S keeps EXIT_TEXT:
+
+	/*
+	 * .exit.text is discarded at runtime, not link time, to deal with
+	 * references from __bug_table
+	 */
+	.exit.text : AT(ADDR(.exit.text)) { EXIT_TEXT }
+
+However, EXIT_TEXT is thrown away by
+DISCARD(include/asm-generic/vmlinux.lds.h) because
+sh does not define RUNTIME_DISCARD_EXIT.
+
+GNU ld 2.40 does not have this issue and builds fine.
+This corresponds with Masahiro's comments in a494398bde27:
+"Nathan [Chancellor] also found that binutils
+commit 21401fc7bf67 ("Duplicate output sections in scripts") cured this
+issue, so we cannot reproduce it with binutils 2.36+, but it is better
+to not rely on it."
+
+Link: https://lkml.kernel.org/r/9166a8abdc0f979e50377e61780a4bba1dfa2f52.1674518464.git.tom.saeger@oracle.com
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
+Link: https://lore.kernel.org/all/20230123194218.47ssfzhrpnv3xfez@oracle.com/
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Dennis Gilmore <dennis@ausil.us>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/dell/dell-wmi-ddv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/sh/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/dell/dell-wmi-ddv.c b/drivers/platform/x86/dell/dell-wmi-ddv.c
-index f99c4cb686fdc..96fede24877f3 100644
---- a/drivers/platform/x86/dell/dell-wmi-ddv.c
-+++ b/drivers/platform/x86/dell/dell-wmi-ddv.c
-@@ -14,7 +14,6 @@
- #include <linux/errno.h>
- #include <linux/kernel.h>
- #include <linux/kstrtox.h>
--#include <linux/math.h>
- #include <linux/module.h>
- #include <linux/limits.h>
- #include <linux/power_supply.h>
-@@ -192,7 +191,8 @@ static ssize_t temp_show(struct device *dev, struct device_attribute *attr, char
- 	if (ret < 0)
- 		return ret;
- 
--	return sysfs_emit(buf, "%d\n", DIV_ROUND_CLOSEST(value, 10));
-+	/* Use 2731 instead of 2731.5 to avoid unnecessary rounding */
-+	return sysfs_emit(buf, "%d\n", value - 2731);
- }
- 
- static ssize_t eppid_show(struct device *dev, struct device_attribute *attr, char *buf)
--- 
-2.39.2
-
+--- a/arch/sh/kernel/vmlinux.lds.S
++++ b/arch/sh/kernel/vmlinux.lds.S
+@@ -4,6 +4,7 @@
+  * Written by Niibe Yutaka and Paul Mundt
+  */
+ OUTPUT_ARCH(sh)
++#define RUNTIME_DISCARD_EXIT
+ #include <asm/thread_info.h>
+ #include <asm/cache.h>
+ #include <asm/vmlinux.lds.h>
 
 
