@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C9B66BB2D5
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1736BB365
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232963AbjCOMi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
+        id S233120AbjCOMoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:44:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232964AbjCOMii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99042A0B08
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:41 -0700 (PDT)
+        with ESMTP id S232984AbjCOMn5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D5EA4B3C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CD1E61ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC59C433EF;
-        Wed, 15 Mar 2023 12:37:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E1BAB81E05
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB874C4339B;
+        Wed, 15 Mar 2023 12:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883839;
-        bh=rhxdufBm4e5kulz1JA4K+9qV2V4DEANXj5Xbx4cjepw=;
+        s=korg; t=1678884155;
+        bh=XXhWnAJ1mPexiyOnY6ivwMe4/AfJL2NSd6aZbOxjhik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VjEvis635WMCCVWvVMefUKWOV1wxexLVmP716lMEjdz3cZAYypKyZt1rumdm/AJmH
-         YYUiJxy3k9gr8tY92x2XxO+orsEU+SPVokFgvHuS7slVuutVdAPRv0oVyYIg9zQEC/
-         P62vZYML7voItvDp6u6elmRkYnmI1thbbW7jbzqE=
+        b=WGQWvF/HpZtbP/5r+dh9VtFtEnxNlRAul3UAJ7phbrDqof3UF5Jip4l1miwijwlcn
+         DoP5FZF2A0sf/A6+Bvvzq0zb8sxQzSwMSmUecPUn/3QHjnohG6xnipcbkc+3OnZBOG
+         TR1HUEMIbcpIymQkS7WyjfQzeV70H54oGR8JpGsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, SeongJae Park <sj@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 6.1 143/143] UML: define RUNTIME_DISCARD_EXIT
+        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 126/141] powerpc/64: Fix task_cpu in early boot when booting non-zero cpuid
 Date:   Wed, 15 Mar 2023 13:13:49 +0100
-Message-Id: <20230315115745.018889460@linuxfoundation.org>
+Message-Id: <20230315115743.826453024@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,40 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit b99ddbe8336ee680257c8ab479f75051eaa49dcf upstream.
+[ Upstream commit 9fa24404f5044967753a6cd3e5e36f57686bec6e ]
 
-With CONFIG_VIRTIO_UML=y, GNU ld < 2.36 fails to link UML vmlinux
-(w/wo CONFIG_LD_SCRIPT_STATIC).
+powerpc/64 can boot on a non-zero SMP processor id. Initially, the boot
+CPU is said to be "assumed to be 0" until early_init_devtree() discovers
+the id from the device tree. That is not a good description because the
+assumption can be wrong and that has to be handled, the better
+description is that 0 is used as a placeholder, and things are fixed
+after the real id is discovered.
 
-  `.exit.text' referenced in section `.uml.exitcall.exit' of arch/um/drivers/virtio_uml.o: defined in discarded section `.exit.text' of arch/um/drivers/virtio_uml.o
-  collect2: error: ld returned 1 exit status
+smp_processor_id() is set to the boot cpuid, but task_cpu(current) is
+not, which causes the smp_processor_id() == task_cpu(current) invariant
+to be broken until init_idle() in sched_init().
 
-This fix is similar to the following commits:
+This is quite fragile and could lead to subtle bugs in future. One bug
+is that validate_sp_size uses task_cpu() to get the process stack, so
+any stack trace from the booting CPU between early_init_devtree()
+and sched_init() will have problems. Early on paca_ptrs[0] will be
+poisoned, so that can cause machine checks dereferencing that memory
+in real mode. Later, validating the current stack pointer against the
+idle task of a different secondary will probably cause no stack trace
+to be printed.
 
-- 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT")
-- a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
-  with GNU ld < 2.36")
-- c1c551bebf92 ("sh: define RUNTIME_DISCARD_EXIT")
+Fix this by setting thread_info->cpu right after smp_processor_id() is
+set to the boot cpuid.
 
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Reported-by: SeongJae Park <sj@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: SeongJae Park <sj@kernel.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+[mpe: Fix SMP=n build as reported by sfr]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221216115930.2667772-3-npiggin@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/vmlinux.lds.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/setup_64.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/um/kernel/vmlinux.lds.S
-+++ b/arch/um/kernel/vmlinux.lds.S
-@@ -1,4 +1,4 @@
--
-+#define RUNTIME_DISCARD_EXIT
- KERNEL_STACK_SIZE = 4096 * (1 << CONFIG_KERNEL_STACK_ORDER);
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index a0dee7354fe6b..a43865e0fb4bf 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -396,6 +396,11 @@ void __init early_setup(unsigned long dt_ptr)
+ 	}
+ 	fixup_boot_paca(paca_ptrs[boot_cpuid]);
+ 	setup_paca(paca_ptrs[boot_cpuid]); /* install the paca into registers */
++	// smp_processor_id() now reports boot_cpuid
++
++#ifdef CONFIG_SMP
++	task_thread_info(current)->cpu = boot_cpuid; // fix task_cpu(current)
++#endif
  
- #ifdef CONFIG_LD_SCRIPT_STATIC
+ 	/*
+ 	 * Configure exception handlers. This include setting up trampolines
+-- 
+2.39.2
+
 
 
