@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC1166BB29E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 261096BB34E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232921AbjCOMhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
+        id S232815AbjCOMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232726AbjCOMhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:12 -0400
+        with ESMTP id S233073AbjCOMnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659CFA0B2A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3512C62FEC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5E9061D69
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF458C433D2;
-        Wed, 15 Mar 2023 12:36:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37FEE61D66
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D6BDC433EF;
+        Wed, 15 Mar 2023 12:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883766;
-        bh=kq3BrUowsgV/gXng+qdT32gnUa2E/oaKHyxWEtfLW2k=;
+        s=korg; t=1678884099;
+        bh=YCiaxZq2SVJH5A/l+iyK6Xqo5Ui+qe+X9yrP4Y/FeXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnpSS/wCILKIDI3ure+IlrbmUkJYk49dDMcR/zYs3OIzL2ZZgLCYO5Y+i/toyp2aQ
-         u/i2z+tFSqkU27KzVg6L3Q5DpKX40uxq0FC+Cy4bwk5wgKBz7+sdqL9kxj/Hm1ZI6y
-         Mr90AoSEXyGIBf389oQC7/vdFbrVecu1GeMVsVlI=
+        b=hOW06CypuCNblW+A4TuvnUHIDyi3apQo8rFvdilOwmdhGDLXToP3YQnL5x5pR/thP
+         kvH0tgdl4xDXAVBFS3CcNnKDGJomOnSmDCUu+HxSX/9v5QmdMDiIgY+Y5+Xgsq5+++
+         Bi6IsP2WBwbAWYa1cbeF3UTttj/i46XQDvb70F8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 124/143] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+Subject: [PATCH 6.2 107/141] erofs: Revert "erofs: fix kvcalloc() misuse with __GFP_NOFAIL"
 Date:   Wed, 15 Mar 2023 13:13:30 +0100
-Message-Id: <20230315115744.285927745@linuxfoundation.org>
+Message-Id: <20230315115743.259078846@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
+[ Upstream commit 647dd2c3f0e16b71a1a77897d038164d48eea154 ]
 
-NO_IRQ is a relic from the old days. It is not used anymore in core
-functions. By the way, function irq_of_parse_and_map() returns value 0
-on error.
+Let's revert commit 12724ba38992 ("erofs: fix kvcalloc() misuse with
+__GFP_NOFAIL") since kvmalloc() already supports __GFP_NOFAIL in commit
+a421ef303008 ("mm: allow !GFP_KERNEL allocations for kvmalloc").  So
+the original fix was wrong.
 
-In some drivers, NO_IRQ is erroneously used to check the return of
-irq_of_parse_and_map().
+Actually there was some issue as [1] discussed, so before that mm fix
+is landed, the warn could still happen but applying this commit first
+will cause less.
 
-It is not a real bug today because the only architectures using the
-drivers being fixed by this patch define NO_IRQ as 0, but there are
-architectures which define NO_IRQ as -1. If one day those
-architectures start using the non fixed drivers, there will be a
-problem.
+[1] https://lore.kernel.org/r/20230305053035.1911-1-hsiangkao@linux.alibaba.com
 
-Long time ago Linus advocated for not using NO_IRQ, see
-https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
-
-He re-iterated the same view recently in
-https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
-
-So test !irq instead of tesing irq == NO_IRQ.
-
-All other usage of NO_IRQ for powerpc were removed in previous cycles so
-the time has come to remove NO_IRQ completely for powerpc.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
+Fixes: 12724ba38992 ("erofs: fix kvcalloc() misuse with __GFP_NOFAIL")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Link: https://lore.kernel.org/r/20230309053148.9223-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/irq.h    | 3 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 +-
- 2 files changed, 1 insertion(+), 4 deletions(-)
+ fs/erofs/zdata.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
-index 5c1516a5ba8f6..deadd2149426a 100644
---- a/arch/powerpc/include/asm/irq.h
-+++ b/arch/powerpc/include/asm/irq.h
-@@ -16,9 +16,6 @@
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 5200bb86e2643..ccf7c55d477fe 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -1032,12 +1032,12 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
  
- extern atomic_t ppc_n_lost_interrupts;
+ 	if (!be->decompressed_pages)
+ 		be->decompressed_pages =
+-			kcalloc(be->nr_pages, sizeof(struct page *),
+-				GFP_KERNEL | __GFP_NOFAIL);
++			kvcalloc(be->nr_pages, sizeof(struct page *),
++				 GFP_KERNEL | __GFP_NOFAIL);
+ 	if (!be->compressed_pages)
+ 		be->compressed_pages =
+-			kcalloc(pclusterpages, sizeof(struct page *),
+-				GFP_KERNEL | __GFP_NOFAIL);
++			kvcalloc(pclusterpages, sizeof(struct page *),
++				 GFP_KERNEL | __GFP_NOFAIL);
  
--/* This number is used when no interrupt has been assigned */
--#define NO_IRQ			(0)
--
- /* Total number of virq in the platform */
- #define NR_IRQS		CONFIG_NR_IRQS
+ 	z_erofs_parse_out_bvecs(be);
+ 	err2 = z_erofs_parse_in_bvecs(be, &overlapped);
+@@ -1085,7 +1085,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
+ 	}
+ 	if (be->compressed_pages < be->onstack_pages ||
+ 	    be->compressed_pages >= be->onstack_pages + Z_EROFS_ONSTACK_PAGES)
+-		kfree(be->compressed_pages);
++		kvfree(be->compressed_pages);
+ 	z_erofs_fill_other_copies(be, err);
  
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index e2e4f6d8150d6..56d91dbef5770 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -205,7 +205,7 @@ static void __init node_irq_request(const char *compat, irq_handler_t errirq_han
+ 	for (i = 0; i < be->nr_pages; ++i) {
+@@ -1104,7 +1104,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
+ 	}
  
- 	for_each_compatible_node(np, NULL, compat) {
- 		irq = irq_of_parse_and_map(np, 0);
--		if (irq == NO_IRQ) {
-+		if (!irq) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
- 			of_node_put(np);
+ 	if (be->decompressed_pages != be->onstack_pages)
+-		kfree(be->decompressed_pages);
++		kvfree(be->decompressed_pages);
+ 
+ 	pcl->length = 0;
+ 	pcl->partial = true;
 -- 
 2.39.2
 
