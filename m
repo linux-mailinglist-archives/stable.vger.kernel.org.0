@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DDD6BB01E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACDEA6BB0FD
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231767AbjCOMPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:15:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
+        id S232385AbjCOMXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:23:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231142AbjCOMP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:26 -0400
+        with ESMTP id S232259AbjCOMXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E67957E7A5
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A53D7EA20
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0833B81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDC8EC4339B;
-        Wed, 15 Mar 2023 12:15:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C574B81DFE
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3400C433EF;
+        Wed, 15 Mar 2023 12:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882522;
-        bh=kj87XhVVOGCIsKzLZLGOrHQLs83k6hN1rJD+BkXRRc8=;
+        s=korg; t=1678882922;
+        bh=iOsGcY0bD7kpgKsxFZBAxtwYErOt6OZcbC/NHHT5ZQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEuhQAPlRUqJkcNek3Zu8GDmtWDXsO9ranVq+JyGgHvPrklp3XqW5SVxo/WzrRguA
-         zKZP4Sh2SrWA+D85B439kbGQHn030P3U/BDTR2bc5TlshFUcNlpFGJFrWiTjjjubr1
-         5dDkjz6PIizd0Xjkg5BGv431mdV5MwufTkgAz+PA=
+        b=2UEM+29jwD7O1y8XmPMQ9Gy+gh2ybayd9YjOckvgWKcbg4aGCcc30daRvtFXX3PVh
+         e8vNTlCTL6KI8es+/2R6gk1FuNcT6qg6cS4G9lfM16QLizTm+2A5EWSAsVcD7aDxVQ
+         zYB3e9reElB3ATBn67yXLWw73JLxfXdZyjxSy31A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven J. Magnani" <steve@digidescorp.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/39] udf: reduce leakage of blocks related to named streams
+        patches@lists.linux.dev, Benjamin Coddington <bcodding@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 053/104] SUNRPC: Fix a server shutdown leak
 Date:   Wed, 15 Mar 2023 13:12:24 +0100
-Message-Id: <20230315115721.633207556@linuxfoundation.org>
+Message-Id: <20230315115734.204564277@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,121 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven J. Magnani <steve.magnani@digidescorp.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit ab9a3a737284b3d9e1d2ba43a0ef31b3ef2e2417 ]
+[ Upstream commit 9ca6705d9d609441d34f8b853e1e4a6369b3b171 ]
 
-Windows is capable of creating UDF files having named streams.
-One example is the "Zone.Identifier" stream attached automatically
-to files downloaded from a network. See:
-  https://msdn.microsoft.com/en-us/library/dn392609.aspx
+Fix a race where kthread_stop() may prevent the threadfn from ever getting
+called.  If that happens the svc_rqst will not be cleaned up.
 
-Modification of a file having one or more named streams in Linux causes
-the stream directory to become detached from the file, essentially leaking
-all blocks pertaining to the file's streams.
-
-Fix by saving off information about an inode's streams when reading it,
-for later use when its on-disk data is updated.
-
-Link: https://lore.kernel.org/r/20190814125002.10869-1-steve@digidescorp.com
-Signed-off-by: Steven J. Magnani <steve@digidescorp.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Stable-dep-of: fc8033a34a3c ("udf: Preserve link count of system files")
+Fixes: ed6473ddc704 ("NFSv4: Fix callback server shutdown")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 24 +++++++++++++++++++++++-
- fs/udf/super.c |  2 ++
- fs/udf/udf_i.h |  5 ++++-
- 3 files changed, 29 insertions(+), 2 deletions(-)
+ net/sunrpc/svc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index af1180104e560..99d297b667ce1 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1470,6 +1470,8 @@ static int udf_read_inode(struct inode *inode, bool hidden_inode)
- 		iinfo->i_lenEAttr = le32_to_cpu(fe->lengthExtendedAttr);
- 		iinfo->i_lenAlloc = le32_to_cpu(fe->lengthAllocDescs);
- 		iinfo->i_checkpoint = le32_to_cpu(fe->checkpoint);
-+		iinfo->i_streamdir = 0;
-+		iinfo->i_lenStreams = 0;
- 	} else {
- 		inode->i_blocks = le64_to_cpu(efe->logicalBlocksRecorded) <<
- 		    (inode->i_sb->s_blocksize_bits - 9);
-@@ -1483,6 +1485,16 @@ static int udf_read_inode(struct inode *inode, bool hidden_inode)
- 		iinfo->i_lenEAttr = le32_to_cpu(efe->lengthExtendedAttr);
- 		iinfo->i_lenAlloc = le32_to_cpu(efe->lengthAllocDescs);
- 		iinfo->i_checkpoint = le32_to_cpu(efe->checkpoint);
-+
-+		/* Named streams */
-+		iinfo->i_streamdir = (efe->streamDirectoryICB.extLength != 0);
-+		iinfo->i_locStreamdir =
-+			lelb_to_cpu(efe->streamDirectoryICB.extLocation);
-+		iinfo->i_lenStreams = le64_to_cpu(efe->objectSize);
-+		if (iinfo->i_lenStreams >= inode->i_size)
-+			iinfo->i_lenStreams -= inode->i_size;
-+		else
-+			iinfo->i_lenStreams = 0;
- 	}
- 	inode->i_generation = iinfo->i_unique;
+diff --git a/net/sunrpc/svc.c b/net/sunrpc/svc.c
+index d38788cd9433a..af657a482ad2d 100644
+--- a/net/sunrpc/svc.c
++++ b/net/sunrpc/svc.c
+@@ -800,6 +800,7 @@ EXPORT_SYMBOL_GPL(svc_set_num_threads);
+ static int
+ svc_stop_kthreads(struct svc_serv *serv, struct svc_pool *pool, int nrservs)
+ {
++	struct svc_rqst	*rqstp;
+ 	struct task_struct *task;
+ 	unsigned int state = serv->sv_nrthreads-1;
  
-@@ -1745,9 +1757,19 @@ static int udf_update_inode(struct inode *inode, int do_sync)
- 		       iinfo->i_ext.i_data,
- 		       inode->i_sb->s_blocksize -
- 					sizeof(struct extendedFileEntry));
--		efe->objectSize = cpu_to_le64(inode->i_size);
-+		efe->objectSize =
-+			cpu_to_le64(inode->i_size + iinfo->i_lenStreams);
- 		efe->logicalBlocksRecorded = cpu_to_le64(lb_recorded);
- 
-+		if (iinfo->i_streamdir) {
-+			struct long_ad *icb_lad = &efe->streamDirectoryICB;
-+
-+			icb_lad->extLocation =
-+				cpu_to_lelb(iinfo->i_locStreamdir);
-+			icb_lad->extLength =
-+				cpu_to_le32(inode->i_sb->s_blocksize);
-+		}
-+
- 		udf_adjust_time(iinfo, inode->i_atime);
- 		udf_adjust_time(iinfo, inode->i_mtime);
- 		udf_adjust_time(iinfo, inode->i_ctime);
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 5d179616578cf..ec082b27e9fba 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -146,9 +146,11 @@ static struct inode *udf_alloc_inode(struct super_block *sb)
- 
- 	ei->i_unique = 0;
- 	ei->i_lenExtents = 0;
-+	ei->i_lenStreams = 0;
- 	ei->i_next_alloc_block = 0;
- 	ei->i_next_alloc_goal = 0;
- 	ei->i_strat4096 = 0;
-+	ei->i_streamdir = 0;
- 	init_rwsem(&ei->i_data_sem);
- 	ei->cached_extent.lstart = -1;
- 	spin_lock_init(&ei->i_extent_cache_lock);
-diff --git a/fs/udf/udf_i.h b/fs/udf/udf_i.h
-index 2ef0e212f08a3..00d773d1b7cf0 100644
---- a/fs/udf/udf_i.h
-+++ b/fs/udf/udf_i.h
-@@ -42,12 +42,15 @@ struct udf_inode_info {
- 	unsigned		i_efe : 1;	/* extendedFileEntry */
- 	unsigned		i_use : 1;	/* unallocSpaceEntry */
- 	unsigned		i_strat4096 : 1;
--	unsigned		reserved : 26;
-+	unsigned		i_streamdir : 1;
-+	unsigned		reserved : 25;
- 	union {
- 		struct short_ad	*i_sad;
- 		struct long_ad		*i_lad;
- 		__u8		*i_data;
- 	} i_ext;
-+	struct kernel_lb_addr	i_locStreamdir;
-+	__u64			i_lenStreams;
- 	struct rw_semaphore	i_data_sem;
- 	struct udf_ext_cache cached_extent;
- 	/* Spinlock for protecting extent cache */
+@@ -808,7 +809,10 @@ svc_stop_kthreads(struct svc_serv *serv, struct svc_pool *pool, int nrservs)
+ 		task = choose_victim(serv, pool, &state);
+ 		if (task == NULL)
+ 			break;
+-		kthread_stop(task);
++		rqstp = kthread_data(task);
++		/* Did we lose a race to svo_function threadfn? */
++		if (kthread_stop(task) == -EINTR)
++			svc_exit_thread(rqstp);
+ 		nrservs++;
+ 	} while (nrservs < 0);
+ 	return 0;
 -- 
 2.39.2
 
