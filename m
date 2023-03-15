@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19C046BB2C6
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2F76BB33F
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232860AbjCOMib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53692 "EHLO
+        id S232883AbjCOMmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232947AbjCOMiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1659AFDB
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:18 -0700 (PDT)
+        with ESMTP id S232877AbjCOMmY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595FBA5697
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B723B81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 895FDC433D2;
-        Wed, 15 Mar 2023 12:37:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27BAB61D51
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B757C4339B;
+        Wed, 15 Mar 2023 12:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883836;
-        bh=R63HPpZq8h7gdUMFQmD6fmDT7vOIDou4F1fXXxV7wgE=;
+        s=korg; t=1678884065;
+        bh=EEaSLg5I0mxMPHW2OzHjCNFAD5jE5zPg2goGsXWRWbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/UKaqL0j5ZEjpF5g59KLi2p1Q5fu8M4/gQmzzgfDmD6gcOClI0gj2zfufChnVP/l
-         dGO8D64FjxNQJ8OBlqJIy/WewU7dON6ji65CIVEn7voXxnSfKneIAwI8Sdk2jyd+32
-         8E0KD2aFG08HhO69QQRd3DY9jF1UC86PNNnpJvQk=
+        b=HDpy1rb87PXCUIQLQyvfy8MTUDOnM7sweJudSEMqVa/np+SKht4JrBxSV9pNbdMYM
+         DVraIUes8Hc275ltSjdUST1W5u6Nh9P9kjhGR+Yyuj6mFCxGQz1cgjPBvvhxZUjLyE
+         3RVBMwaw2v9x/wlBaoT60B0hkfMCedzOsH3uObhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+7699d9e5635c10253a27@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Rao Shoaib <rao.shoaib@oracle.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 110/143] af_unix: fix struct pid leaks in OOB support
+Subject: [PATCH 6.2 093/141] netfilter: conntrack: adopt safer max chain length
 Date:   Wed, 15 Mar 2023 13:13:16 +0100
-Message-Id: <20230315115743.838907537@linuxfoundation.org>
+Message-Id: <20230315115742.824111283@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,84 +56,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 2aab4b96900272885bc157f8b236abf1cdc02e08 ]
+[ Upstream commit c77737b736ceb50fdf150434347dbd81ec76dbb1 ]
 
-syzbot reported struct pid leak [1].
+Customers using GKE 1.25 and 1.26 are facing conntrack issues
+root caused to commit c9c3b6811f74 ("netfilter: conntrack: make
+max chain length random").
 
-Issue is that queue_oob() calls maybe_add_creds() which potentially
-holds a reference on a pid.
+Even if we assume Uniform Hashing, a bucket often reachs 8 chained
+items while the load factor of the hash table is smaller than 0.5
 
-But skb->destructor is not set (either directly or by calling
-unix_scm_to_skb())
+With a limit of 16, we reach load factors of 3.
+With a limit of 32, we reach load factors of 11.
+With a limit of 40, we reach load factors of 15.
+With a limit of 50, we reach load factors of 24.
 
-This means that subsequent kfree_skb() or consume_skb() would leak
-this reference.
+This patch changes MIN_CHAINLEN to 50, to minimize risks.
 
-In this fix, I chose to fully support scm even for the OOB message.
+Ideally, we could in the future add a cushion based on expected
+load factor (2 * nf_conntrack_max / nf_conntrack_buckets),
+because some setups might expect unusual values.
 
-[1]
-BUG: memory leak
-unreferenced object 0xffff8881053e7f80 (size 128):
-comm "syz-executor242", pid 5066, jiffies 4294946079 (age 13.220s)
-hex dump (first 32 bytes):
-01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-backtrace:
-[<ffffffff812ae26a>] alloc_pid+0x6a/0x560 kernel/pid.c:180
-[<ffffffff812718df>] copy_process+0x169f/0x26c0 kernel/fork.c:2285
-[<ffffffff81272b37>] kernel_clone+0xf7/0x610 kernel/fork.c:2684
-[<ffffffff812730cc>] __do_sys_clone+0x7c/0xb0 kernel/fork.c:2825
-[<ffffffff849ad699>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-[<ffffffff849ad699>] do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
-[<ffffffff84a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 314001f0bf92 ("af_unix: Add OOB support")
-Reported-by: syzbot+7699d9e5635c10253a27@syzkaller.appspotmail.com
+Fixes: c9c3b6811f74 ("netfilter: conntrack: make max chain length random")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Rao Shoaib <rao.shoaib@oracle.com>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230307164530.771896-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/unix/af_unix.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index f0c2293f1d3b8..7d17601ceee79 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2104,7 +2104,8 @@ static int unix_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
- #define UNIX_SKB_FRAGS_SZ (PAGE_SIZE << get_order(32768))
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index ead11a9c261f3..19e3afb23fdaf 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -96,8 +96,8 @@ static DEFINE_MUTEX(nf_conntrack_mutex);
+ #define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
+ #define GC_SCAN_EXPIRED_MAX	(64000u / HZ)
  
- #if IS_ENABLED(CONFIG_AF_UNIX_OOB)
--static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other)
-+static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other,
-+		     struct scm_cookie *scm, bool fds_sent)
- {
- 	struct unix_sock *ousk = unix_sk(other);
- 	struct sk_buff *skb;
-@@ -2115,6 +2116,11 @@ static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other
- 	if (!skb)
- 		return err;
+-#define MIN_CHAINLEN	8u
+-#define MAX_CHAINLEN	(32u - MIN_CHAINLEN)
++#define MIN_CHAINLEN	50u
++#define MAX_CHAINLEN	(80u - MIN_CHAINLEN)
  
-+	err = unix_scm_to_skb(scm, skb, !fds_sent);
-+	if (err < 0) {
-+		kfree_skb(skb);
-+		return err;
-+	}
- 	skb_put(skb, 1);
- 	err = skb_copy_datagram_from_iter(skb, 0, &msg->msg_iter, 1);
+ static struct conntrack_gc_work conntrack_gc_work;
  
-@@ -2242,7 +2248,7 @@ static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
- 
- #if IS_ENABLED(CONFIG_AF_UNIX_OOB)
- 	if (msg->msg_flags & MSG_OOB) {
--		err = queue_oob(sock, msg, other);
-+		err = queue_oob(sock, msg, other, &scm, fds_sent);
- 		if (err)
- 			goto out_err;
- 		sent++;
 -- 
 2.39.2
 
