@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484446BB256
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A17E36BB2FC
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232660AbjCOMfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
+        id S232741AbjCOMkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232212AbjCOMfK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A309E52F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:42 -0700 (PDT)
+        with ESMTP id S232739AbjCOMkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781AF12BC8
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D898DCE1831
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A62EC433EF;
-        Wed, 15 Mar 2023 12:33:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4101461D71
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59477C433A7;
+        Wed, 15 Mar 2023 12:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883612;
-        bh=fH9geY99T4+v1UiodIWGzlwR35ZXTwQZMz4ie8NFuoU=;
+        s=korg; t=1678883941;
+        bh=VwdZI8/Vy7+BoFJ7kt/D42QSaD+nspysXt+cM/Cuu9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHTSCYmRPuT0J3oiRrZXm1evm6dFgaIQmd4chsxKiNKzKcJAG+0ZfJzsRGDxV+FQo
-         NeekOp+hyJXkQMPyBGQqqlL9F5oAarpYZ4rW2oYm04R7r/vsOo3k97iXowi+5tGgyG
-         I6l9iDhAt3+4rnsvc/e+vkP3JbXCCsFAZTY/Nxv0=
+        b=t/icestHD/Y1hf8qbjsugWK9VQebXOvGjt9aV2xtXynu9Zu5wmirOTKnPLYyXXVqi
+         2SssJT519IMwdPR0BXIQSDm+m+kjmzmBhPVYhphG+MLHQJ3iQPXOh/7vk7Ztytvef9
+         Bu++0GQcvUNoCOkuwPGG8okO13/RM0Lk+TKjw6rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Mason <jdmason@kudzu.us>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 064/143] bgmac: fix *initial* chip reset to support BCM5358
+Subject: [PATCH 6.2 047/141] drm/msm: Fix potential invalid ptr free
 Date:   Wed, 15 Mar 2023 13:12:30 +0100
-Message-Id: <20230315115742.477613183@linuxfoundation.org>
+Message-Id: <20230315115741.401173773@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,87 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit f99e6d7c4ed3be2531bd576425a5bd07fb133bd7 ]
+[ Upstream commit 8a86f213f4426f19511a16d886871805b35c3acf ]
 
-While bringing hardware up we should perform a full reset including the
-switch bit (BGMAC_BCMA_IOCTL_SW_RESET aka SICF_SWRST). It's what
-specification says and what reference driver does.
+The error path cleanup expects that chain and syncobj are either NULL or
+valid pointers.  But post_deps was not allocated with __GFP_ZERO.
 
-This seems to be critical for the BCM5358. Without this hardware doesn't
-get initialized properly and doesn't seem to transmit or receive any
-packets.
-
-Originally bgmac was calling bgmac_chip_reset() before setting
-"has_robosw" property which resulted in expected behaviour. That has
-changed as a side effect of adding platform device support which
-regressed BCM5358 support.
-
-Fixes: f6a95a24957a ("net: ethernet: bgmac: Add platform device support")
-Cc: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20230227091156.19509-1-zajec5@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: ab723b7a992a ("drm/msm: Add syncobj support.")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Patchwork: https://patchwork.freedesktop.org/patch/523051/
+Link: https://lore.kernel.org/r/20230215235048.1166484-1-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bgmac.c | 8 ++++++--
- drivers/net/ethernet/broadcom/bgmac.h | 2 ++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/msm_gem_submit.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
-index 3038386a5afd8..1761df8fb7f96 100644
---- a/drivers/net/ethernet/broadcom/bgmac.c
-+++ b/drivers/net/ethernet/broadcom/bgmac.c
-@@ -890,13 +890,13 @@ static void bgmac_chip_reset_idm_config(struct bgmac *bgmac)
+diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
+index 1c4be193fd23f..8ac1cd27746a0 100644
+--- a/drivers/gpu/drm/msm/msm_gem_submit.c
++++ b/drivers/gpu/drm/msm/msm_gem_submit.c
+@@ -626,8 +626,8 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
+ 	int ret = 0;
+ 	uint32_t i, j;
  
- 		if (iost & BGMAC_BCMA_IOST_ATTACHED) {
- 			flags = BGMAC_BCMA_IOCTL_SW_CLKEN;
--			if (!bgmac->has_robosw)
-+			if (bgmac->in_init || !bgmac->has_robosw)
- 				flags |= BGMAC_BCMA_IOCTL_SW_RESET;
+-	post_deps = kmalloc_array(nr_syncobjs, sizeof(*post_deps),
+-	                          GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
++	post_deps = kcalloc(nr_syncobjs, sizeof(*post_deps),
++			    GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
+ 	if (!post_deps)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -642,7 +642,6 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
  		}
- 		bgmac_clk_enable(bgmac, flags);
- 	}
  
--	if (iost & BGMAC_BCMA_IOST_ATTACHED && !bgmac->has_robosw)
-+	if (iost & BGMAC_BCMA_IOST_ATTACHED && (bgmac->in_init || !bgmac->has_robosw))
- 		bgmac_idm_write(bgmac, BCMA_IOCTL,
- 				bgmac_idm_read(bgmac, BCMA_IOCTL) &
- 				~BGMAC_BCMA_IOCTL_SW_RESET);
-@@ -1490,6 +1490,8 @@ int bgmac_enet_probe(struct bgmac *bgmac)
- 	struct net_device *net_dev = bgmac->net_dev;
- 	int err;
+ 		post_deps[i].point = syncobj_desc.point;
+-		post_deps[i].chain = NULL;
  
-+	bgmac->in_init = true;
-+
- 	bgmac_chip_intrs_off(bgmac);
- 
- 	net_dev->irq = bgmac->irq;
-@@ -1542,6 +1544,8 @@ int bgmac_enet_probe(struct bgmac *bgmac)
- 	/* Omit FCS from max MTU size */
- 	net_dev->max_mtu = BGMAC_RX_MAX_FRAME_SIZE - ETH_FCS_LEN;
- 
-+	bgmac->in_init = false;
-+
- 	err = register_netdev(bgmac->net_dev);
- 	if (err) {
- 		dev_err(bgmac->dev, "Cannot register net device\n");
-diff --git a/drivers/net/ethernet/broadcom/bgmac.h b/drivers/net/ethernet/broadcom/bgmac.h
-index e05ac92c06504..d73ef262991d6 100644
---- a/drivers/net/ethernet/broadcom/bgmac.h
-+++ b/drivers/net/ethernet/broadcom/bgmac.h
-@@ -472,6 +472,8 @@ struct bgmac {
- 	int irq;
- 	u32 int_mask;
- 
-+	bool in_init;
-+
- 	/* Current MAC state */
- 	int mac_speed;
- 	int mac_duplex;
+ 		if (syncobj_desc.flags) {
+ 			ret = -EINVAL;
 -- 
 2.39.2
 
