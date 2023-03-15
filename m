@@ -2,161 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E006BB213
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B49F6BB196
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232708AbjCOMch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:32:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40182 "EHLO
+        id S232023AbjCOM2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232545AbjCOMcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:16 -0400
+        with ESMTP id S232527AbjCOM20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D0664866
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672F89DE37
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7598B81E03
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A23C4339B;
-        Wed, 15 Mar 2023 12:31:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4937BB81DFF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD487C433A1;
+        Wed, 15 Mar 2023 12:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883496;
-        bh=lutpwpwnAu+9sRdOaQBNruAyjo0m/6uhA7y2FE3denY=;
+        s=korg; t=1678883240;
+        bh=H+I7i9XyA716jcMukxZSzJn95vXblwM3o3qrJIJtZso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0jyPFwZO7iKVjJn1JPNFMScZHi34TnrZLWwDk40a8/CONrx4kb/AU7ok6nUtlitu
-         2Dv5QkCp+VE16w5F6UxMwsrl6ugoWR0lgtOxDRNVaQdv2rySFYJtzLc0vi1A7BZnQ1
-         MKsj/fr2fZoMCFtG5VuEnL5+RmMBKpTTXV8eGmUA=
+        b=xsWn3pX4BGt+FfGj0jR4hva5YG9Z5XZDn16OOapbl0U1MIHoldI0aG3LS4DLagqtp
+         yVa9dzS4mBAeLDDVqkqcXuegi3qsxDlzIHE181stHgLeHpplr55lmczUsPf96oCYdI
+         NaP615a9Ij+k+5fGDeJMuilTF3X7J+35ppkNobVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
-        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 021/143] ext4: fix WARNING in ext4_update_inline_data
+        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 041/145] regulator: core: Use ktime_get_boottime() to determine how long a regulator was off
 Date:   Wed, 15 Mar 2023 13:11:47 +0100
-Message-Id: <20230315115741.144430122@linuxfoundation.org>
+Message-Id: <20230315115740.431945870@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,TVD_PH_BODY_ACCOUNTS_PRE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
+[ Upstream commit 80d2c29e09e663761c2778167a625b25ffe01b6f ]
 
-Syzbot found the following issue:
-EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
-fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
-fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-Modules linked in:
-CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
-RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
-RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
-RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
-R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
-R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
-FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __alloc_pages_node include/linux/gfp.h:237 [inline]
- alloc_pages_node include/linux/gfp.h:260 [inline]
- __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
- __do_kmalloc_node mm/slab_common.c:956 [inline]
- __kmalloc+0xfe/0x190 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- kzalloc include/linux/slab.h:720 [inline]
- ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
- ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
- ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
- ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
- ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
- ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
- lookup_open fs/namei.c:3413 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x12ac/0x2dd0 fs/namei.c:3711
- do_filp_open+0x264/0x4f0 fs/namei.c:3741
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_openat fs/open.c:1342 [inline]
- __se_sys_openat fs/open.c:1337 [inline]
- __x64_sys_openat+0x243/0x290 fs/open.c:1337
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+For regulators with 'off-on-delay-us' the regulator framework currently
+uses ktime_get() to determine how long the regulator has been off
+before re-enabling it (after a delay if needed). A problem with using
+ktime_get() is that it doesn't account for the time the system is
+suspended. As a result a regulator with a longer 'off-on-delay' (e.g.
+500ms) that was switched off during suspend might still incurr in a
+delay on resume before it is re-enabled, even though the regulator
+might have been off for hours. ktime_get_boottime() accounts for
+suspend time, use it instead of ktime_get().
 
-Above issue happens as follows:
-ext4_iget
-   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
-ext4_try_add_inline_entry
-   __ext4_mark_inode_dirty
-      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
-         ext4_xattr_shift_entries
-	 ->after shift i_inline_off is incorrect, actually is change to 176
-ext4_try_add_inline_entry
-  ext4_update_inline_dir
-    get_max_inline_xattr_value_size
-      if (EXT4_I(inode)->i_inline_off)
-	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
-			EXT4_I(inode)->i_inline_off);
-        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
-	->As entry is incorrect, then 'free' may be negative
-   ext4_update_inline_data
-      value = kzalloc(len, GFP_NOFS);
-      -> len is unsigned int, maybe very large, then trigger warning when
-         'kzalloc()'
-
-To resolve the above issue we need to update 'i_inline_off' after
-'ext4_xattr_shift_entries()'.  We do not need to set
-EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
-already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
-when it is needed may trigger a BUG_ON in ext4_writepages().
-
-Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a8ce7bd89689 ("regulator: core: Fix off_on_delay handling")
+Cc: stable@vger.kernel.org    # 5.13+
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20230223003301.v2.1.I9719661b8eb0a73b8c416f9c26cf5bd8c0563f99@changeid
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/regulator/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2790,6 +2790,9 @@ shift:
- 			(void *)header, total_ino);
- 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index c7b1e15bf7bb5..cd10880378a6d 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1540,7 +1540,7 @@ static int set_machine_constraints(struct regulator_dev *rdev)
+ 	}
  
-+	if (ext4_has_inline_data(inode))
-+		error = ext4_find_inline_data_nolock(inode);
-+
- cleanup:
- 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
- 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
+ 	if (rdev->desc->off_on_delay)
+-		rdev->last_off = ktime_get();
++		rdev->last_off = ktime_get_boottime();
+ 
+ 	/* If the constraints say the regulator should be on at this point
+ 	 * and we have control then make sure it is enabled.
+@@ -2629,7 +2629,7 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
+ 		 * this regulator was disabled.
+ 		 */
+ 		ktime_t end = ktime_add_us(rdev->last_off, rdev->desc->off_on_delay);
+-		s64 remaining = ktime_us_delta(end, ktime_get());
++		s64 remaining = ktime_us_delta(end, ktime_get_boottime());
+ 
+ 		if (remaining > 0)
+ 			_regulator_enable_delay(remaining);
+@@ -2868,7 +2868,7 @@ static int _regulator_do_disable(struct regulator_dev *rdev)
+ 	}
+ 
+ 	if (rdev->desc->off_on_delay)
+-		rdev->last_off = ktime_get();
++		rdev->last_off = ktime_get_boottime();
+ 
+ 	trace_regulator_disable_complete(rdev_get_name(rdev));
+ 
+-- 
+2.39.2
+
 
 
