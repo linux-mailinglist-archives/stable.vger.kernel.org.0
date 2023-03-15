@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3406BB0CF
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56E006BB213
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232053AbjCOMV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45400 "EHLO
+        id S232708AbjCOMch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjCOMVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:21:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2910224BE6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:20:26 -0700 (PDT)
+        with ESMTP id S232545AbjCOMcQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D0664866
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B2A2ECE1986
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9490C433D2;
-        Wed, 15 Mar 2023 12:20:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7598B81E03
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A23C4339B;
+        Wed, 15 Mar 2023 12:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882822;
-        bh=Z988REYkg8SerAdj278z5rsfPVWrHg/WSV0fDC2WsyY=;
+        s=korg; t=1678883496;
+        bh=lutpwpwnAu+9sRdOaQBNruAyjo0m/6uhA7y2FE3denY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxcqmxMlu2YvVkwTa9g+kPRXxHehXMYA8QtXT5s6qCdXyViyMArbOfNgdfgTBVixD
-         tKBWc9Hs2gZ84iAkcE2d3b9SpLrhhHPqA4MhSNP0arlTglCyzBQyT2gcBbkenmsZpm
-         LopoLP5gDTGrMlC9/VXpNH3VKowOYPqG4D/T/PZ8=
+        b=y0jyPFwZO7iKVjJn1JPNFMScZHi34TnrZLWwDk40a8/CONrx4kb/AU7ok6nUtlitu
+         2Dv5QkCp+VE16w5F6UxMwsrl6ugoWR0lgtOxDRNVaQdv2rySFYJtzLc0vi1A7BZnQ1
+         MKsj/fr2fZoMCFtG5VuEnL5+RmMBKpTTXV8eGmUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 015/104] irqdomain: Look for existing mapping only once
-Date:   Wed, 15 Mar 2023 13:11:46 +0100
-Message-Id: <20230315115732.683738321@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
+        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 021/143] ext4: fix WARNING in ext4_update_inline_data
+Date:   Wed, 15 Mar 2023 13:11:47 +0100
+Message-Id: <20230315115741.144430122@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,133 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 6e6f75c9c98d2d246d90411ff2b6f0cd271f4cba ]
+commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
 
-Avoid looking for an existing mapping twice when creating a new mapping
-using irq_create_fwspec_mapping() by factoring out the actual allocation
-which is shared with irq_create_mapping_affinity().
+Syzbot found the following issue:
+EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
+fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
+fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+Modules linked in:
+CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
+RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
+RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
+RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
+R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
+R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
+FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __alloc_pages_node include/linux/gfp.h:237 [inline]
+ alloc_pages_node include/linux/gfp.h:260 [inline]
+ __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
+ __do_kmalloc_node mm/slab_common.c:956 [inline]
+ __kmalloc+0xfe/0x190 mm/slab_common.c:981
+ kmalloc include/linux/slab.h:584 [inline]
+ kzalloc include/linux/slab.h:720 [inline]
+ ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
+ ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
+ ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
+ ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
+ ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
+ ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
+ lookup_open fs/namei.c:3413 [inline]
+ open_last_lookups fs/namei.c:3481 [inline]
+ path_openat+0x12ac/0x2dd0 fs/namei.c:3711
+ do_filp_open+0x264/0x4f0 fs/namei.c:3741
+ do_sys_openat2+0x124/0x4e0 fs/open.c:1310
+ do_sys_open fs/open.c:1326 [inline]
+ __do_sys_openat fs/open.c:1342 [inline]
+ __se_sys_openat fs/open.c:1337 [inline]
+ __x64_sys_openat+0x243/0x290 fs/open.c:1337
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-The new helper function will also be used to fix a shared-interrupt
-mapping race, hence the Fixes tag.
+Above issue happens as follows:
+ext4_iget
+   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
+ext4_try_add_inline_entry
+   __ext4_mark_inode_dirty
+      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
+         ext4_xattr_shift_entries
+	 ->after shift i_inline_off is incorrect, actually is change to 176
+ext4_try_add_inline_entry
+  ext4_update_inline_dir
+    get_max_inline_xattr_value_size
+      if (EXT4_I(inode)->i_inline_off)
+	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
+			EXT4_I(inode)->i_inline_off);
+        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
+	->As entry is incorrect, then 'free' may be negative
+   ext4_update_inline_data
+      value = kzalloc(len, GFP_NOFS);
+      -> len is unsigned int, maybe very large, then trigger warning when
+         'kzalloc()'
 
-Fixes: b62b2cf5759b ("irqdomain: Fix handling of type settings for existing mappings")
-Cc: stable@vger.kernel.org      # 4.8
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-5-johan+linaro@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To resolve the above issue we need to update 'i_inline_off' after
+'ext4_xattr_shift_entries()'.  We do not need to set
+EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
+already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
+when it is needed may trigger a BUG_ON in ext4_writepages().
+
+Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c | 60 +++++++++++++++++++++++-------------------
- 1 file changed, 33 insertions(+), 27 deletions(-)
+ fs/ext4/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index fe07888a7d96a..d18c25a41673f 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -637,6 +637,34 @@ unsigned int irq_create_direct_mapping(struct irq_domain *domain)
- }
- EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2790,6 +2790,9 @@ shift:
+ 			(void *)header, total_ino);
+ 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
  
-+static unsigned int __irq_create_mapping_affinity(struct irq_domain *domain,
-+						  irq_hw_number_t hwirq,
-+						  const struct irq_affinity_desc *affinity)
-+{
-+	struct device_node *of_node = irq_domain_get_of_node(domain);
-+	int virq;
++	if (ext4_has_inline_data(inode))
++		error = ext4_find_inline_data_nolock(inode);
 +
-+	pr_debug("irq_create_mapping(0x%p, 0x%lx)\n", domain, hwirq);
-+
-+	/* Allocate a virtual interrupt number */
-+	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
-+				      affinity);
-+	if (virq <= 0) {
-+		pr_debug("-> virq allocation failed\n");
-+		return 0;
-+	}
-+
-+	if (irq_domain_associate(domain, virq, hwirq)) {
-+		irq_free_desc(virq);
-+		return 0;
-+	}
-+
-+	pr_debug("irq %lu on domain %s mapped to virtual irq %u\n",
-+		hwirq, of_node_full_name(of_node), virq);
-+
-+	return virq;
-+}
-+
- /**
-  * irq_create_mapping_affinity() - Map a hardware interrupt into linux irq space
-  * @domain: domain owning this hardware interrupt or NULL for default domain
-@@ -649,14 +677,11 @@ EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
-  * on the number returned from that call.
-  */
- unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
--				       irq_hw_number_t hwirq,
--				       const struct irq_affinity_desc *affinity)
-+					 irq_hw_number_t hwirq,
-+					 const struct irq_affinity_desc *affinity)
- {
--	struct device_node *of_node;
- 	int virq;
- 
--	pr_debug("irq_create_mapping(0x%p, 0x%lx)\n", domain, hwirq);
--
- 	/* Look for default domain if necessary */
- 	if (domain == NULL)
- 		domain = irq_default_domain;
-@@ -664,34 +689,15 @@ unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
- 		WARN(1, "%s(, %lx) called with NULL domain\n", __func__, hwirq);
- 		return 0;
- 	}
--	pr_debug("-> using domain @%p\n", domain);
--
--	of_node = irq_domain_get_of_node(domain);
- 
- 	/* Check if mapping already exists */
- 	virq = irq_find_mapping(domain, hwirq);
- 	if (virq) {
--		pr_debug("-> existing mapping on virq %d\n", virq);
-+		pr_debug("existing mapping on virq %d\n", virq);
- 		return virq;
- 	}
- 
--	/* Allocate a virtual interrupt number */
--	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
--				      affinity);
--	if (virq <= 0) {
--		pr_debug("-> virq allocation failed\n");
--		return 0;
--	}
--
--	if (irq_domain_associate(domain, virq, hwirq)) {
--		irq_free_desc(virq);
--		return 0;
--	}
--
--	pr_debug("irq %lu on domain %s mapped to virtual irq %u\n",
--		hwirq, of_node_full_name(of_node), virq);
--
--	return virq;
-+	return __irq_create_mapping_affinity(domain, hwirq, affinity);
- }
- EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
- 
-@@ -831,7 +837,7 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
- 			return 0;
- 	} else {
- 		/* Create mapping */
--		virq = irq_create_mapping(domain, hwirq);
-+		virq = __irq_create_mapping_affinity(domain, hwirq, NULL);
- 		if (!virq)
- 			return virq;
- 	}
--- 
-2.39.2
-
+ cleanup:
+ 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
+ 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
 
 
