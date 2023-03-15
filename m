@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3F56BB260
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABEA16BB1A2
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232799AbjCOMfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51458 "EHLO
+        id S232143AbjCOM3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232651AbjCOMf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A238699D6C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:11 -0700 (PDT)
+        with ESMTP id S232441AbjCOM26 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D8F26580
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 830AF61D71
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A85C433EF;
-        Wed, 15 Mar 2023 12:34:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A71D61D58
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A20C433D2;
+        Wed, 15 Mar 2023 12:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883651;
-        bh=B5f9pzFk1lgO1q76ZOhNXhYImMXbJUNjwv+Qc6KYeKo=;
+        s=korg; t=1678882977;
+        bh=IaUGkZVqxGnL0mqpjePcS7Sj8d/nkLTKelU5Kj1UfdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsXA/PGGF4M9wNwzpRMjLVLu8NoiXDccTTmEfHcq5R1HoIvhYeJV4dpK3tLA4dwg7
-         FYfTHVAh8hNJvx05RMNeWYFNIULFgCB0hDGeyk0VOXREX2y1CjiVZg3DTauOiUXR7g
-         SujbOB4SaKhj6Qv8Ia63Ha9OMlqCoLIHzb+xXIFs=
+        b=QpnWaOjA6guxpDwDjBCV9CS8GNf7BGJIlJDq86sVTSi33dqOv5if7BsaKaRLwoAOu
+         JxRShNxV265Dh9eu4bYtFj6NASf6gjoC/iRRZisXb47HA/lGdIsRU4nju9uT5Qr4GU
+         XRTp5Z/quRo/6kmV70p27scHdGSyU5N3ReDWB1Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marcin Witkowski <marcin.witkowski@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Rongguang Wei <weirongguang@kylinos.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 048/143] spi: intel: Check number of chip selects after reading the descriptor
+Subject: [PATCH 5.10 043/104] net: stmmac: add to set device wake up flag when stmmac init phy
 Date:   Wed, 15 Mar 2023 13:12:14 +0100
-Message-Id: <20230315115741.981607434@linuxfoundation.org>
+Message-Id: <20230315115733.806711092@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,49 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Rongguang Wei <weirongguang@kylinos.cn>
 
-[ Upstream commit 574fbb95cd9d88bdc9c9c4c64223a38a61d7de9a ]
+[ Upstream commit a9334b702a03b693f54ebd3b98f67bf722b74870 ]
 
-The flash decriptor contains the number of flash components that we use
-to figure out how many flash chips there are connected. Therefore we
-need to read it first before deciding how many chip selects the
-controller has.
+When MAC is not support PMT, driver will check PHY's WoL capability
+and set device wakeup capability in stmmac_init_phy(). We can enable
+the WoL through ethtool, the driver would enable the device wake up
+flag. Now the device_may_wakeup() return true.
 
-Reported-by: Marcin Witkowski <marcin.witkowski@intel.com>
-Fixes: 3f03c618bebb ("spi: intel: Add support for second flash chip")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20230215110040.42186-1-mika.westerberg@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+But if there is a way which enable the PHY's WoL capability derectly,
+like in BIOS. The driver would not know the enable thing and would not
+set the device wake up flag. The phy_suspend may failed like this:
+
+[   32.409063] PM: dpm_run_callback(): mdio_bus_phy_suspend+0x0/0x50 returns -16
+[   32.409065] PM: Device stmmac-1:00 failed to suspend: error -16
+[   32.409067] PM: Some devices failed to suspend, or early wake event detected
+
+Add to set the device wakeup enable flag according to the get_wol
+function result in PHY can fix the error in this scene.
+
+v2: add a Fixes tag.
+
+Fixes: 1d8e5b0f3f2c ("net: stmmac: Support WOL with phy")
+Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-intel.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-intel.c b/drivers/spi/spi-intel.c
-index 3ac73691fbb54..54fc226e1cdf6 100644
---- a/drivers/spi/spi-intel.c
-+++ b/drivers/spi/spi-intel.c
-@@ -1366,14 +1366,14 @@ static int intel_spi_populate_chip(struct intel_spi *ispi)
- 	if (!spi_new_device(ispi->master, &chip))
- 		return -ENODEV;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 1ec000d4c7705..04c59102a2863 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1145,6 +1145,7 @@ static int stmmac_init_phy(struct net_device *dev)
  
--	/* Add the second chip if present */
--	if (ispi->master->num_chipselect < 2)
--		return 0;
--
- 	ret = intel_spi_read_desc(ispi);
- 	if (ret)
- 		return ret;
+ 		phylink_ethtool_get_wol(priv->phylink, &wol);
+ 		device_set_wakeup_capable(priv->device, !!wol.supported);
++		device_set_wakeup_enable(priv->device, !!wol.wolopts);
+ 	}
  
-+	/* Add the second chip if present */
-+	if (ispi->master->num_chipselect < 2)
-+		return 0;
-+
- 	chip.platform_data = NULL;
- 	chip.chip_select = 1;
- 
+ 	return ret;
 -- 
 2.39.2
 
