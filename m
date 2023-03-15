@@ -2,234 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8806BBFF8
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 23:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD226BC0B9
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 00:17:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231802AbjCOWom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 18:44:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
+        id S231889AbjCOXR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 19:17:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229751AbjCOWom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 18:44:42 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7361714EA3;
-        Wed, 15 Mar 2023 15:44:40 -0700 (PDT)
-Date:   Wed, 15 Mar 2023 22:44:37 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1678920278;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=GjmlrFQTqGturbIE+fgewqog6NLlHfnD7mWRE0jhQv8=;
-        b=nMhDrjSJUw9bqF/tIXTVi8+ftXNoYlgUXzLg72prueoXkTzqyzT0ERLkgWMYQ7r4oq7HIx
-        1P5vFoy8rUjxIRRsj/xrP4ULAoGaTqrDsw3gO9HYg3e1yu55btoptvYSPMJzeqA8Or/ohC
-        9bsWRn4zVqqjOWdCbJMfB7yGrte8lqVGadGi6UPcSZVtLJNBIC2K0JOeaRFhLgCiPmeaWp
-        RlzpZn2gkBZzg8vNGO8xKFBPY7cc+LAWHv+jDGXgvT+b8WInzTYlwF0BCdK+8xl7FY5V2+
-        Mkcjvhh8Qfv+tWhTnDNe/vHkfY/fbrGmOrSOpWeT3WzH7XhotL4xA84H6hSV+A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1678920278;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=GjmlrFQTqGturbIE+fgewqog6NLlHfnD7mWRE0jhQv8=;
-        b=zIgROjbG15WKCvx1h/VK2V7yaE7w7oTHNpC3HVSHpo9lWHh55jYYk57rKZhc1hfRot8PTY
-        ingboI/CmGYG28CQ==
-From:   "tip-bot2 for Shawn Wang" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/resctrl: Clear staged_config[] before and after
- it is used
-Cc:     Xin Hao <xhao@linux.alibaba.com>,
-        Shawn Wang <shawnwang@linux.alibaba.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
+        with ESMTP id S229547AbjCOXR3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 19:17:29 -0400
+Received: from mail-oo1-xc2a.google.com (mail-oo1-xc2a.google.com [IPv6:2607:f8b0:4864:20::c2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B803A99269
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 16:17:27 -0700 (PDT)
+Received: by mail-oo1-xc2a.google.com with SMTP id t5-20020a4ac885000000b005251f70a740so3053589ooq.8
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 16:17:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678922247;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=gwSCDeK79SYEEdlhQIkBg13sIJL26ZxbOAa1pqepk2Y=;
+        b=DGckXOVNcWZ+6DQxaleHX9UIT1Fpp5qA8pRDBrLtyRDjN9NSMXRBEU6x+tw99slyds
+         iplncvsXkxl+Z3OE8yq1hzanM0H/pcY9YaVjgvzA+/MyP7WWXU2t16IH3PGIjB/8JUlX
+         hRwztGbswJw5PuL9EnQQ/+zzRNvg/CRxToNzkJYPYgz+6rkq2iLYsDR1VQuTupBth/IU
+         YICliYUwjNXoAa+Lcbvpl9ueO9WO59hzEjh5vKqf2++Z7CMDYwCfXAt0ybo2rXFNEXsS
+         Db6s4X7DQaCqwdyDQU1u4Nr9b17AQ0PFCeEY56nN+jc6q3oVnh9s82+Ocn4BUgHve0DL
+         CQWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678922247;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gwSCDeK79SYEEdlhQIkBg13sIJL26ZxbOAa1pqepk2Y=;
+        b=dVgb6/q8quiv/aofH2V2VlzhPPbbu3dOm0yYvqaqp5yulTxQWBqy134aVdIjdQhVTq
+         qnmMHUCEO9NPdpIxGlTtSqz4VFPv4pYlEnUJIhCMCD+ExpQ7g72zeg+k3GeXD9Ib7CXj
+         rZJACKDc+71RHiCKvJmPWgOfGBBnNbJFDTZyWBPC3Q4Wte4L1exGFu9Lxntit6TaF0aU
+         3E/gP5WaysrFqng+qlFcy7GtMPNXbKEurU3khX+S6pN8jctoQpIk00/fpJnllaus/jTL
+         vd9rcofg46b/LLmMh5OU+heH7hyXX3M+04EJvT4SaJqP7/H7K9THlGhRTfVKL43VBfr3
+         ToIQ==
+X-Gm-Message-State: AO0yUKXGdgS/eL0kbH47MjOrG59yjC5IqM8VrJmbPLpo/h8OFUzbSdLF
+        NcTHCsZ7BzKJCCN3LBNtgau0RA==
+X-Google-Smtp-Source: AK7set8qpD+/GUvRXDQbwTfZtgdsA7+ODOopgvgWwSVBKPv0PeeUa/K95ezyKAgTIqrJ0J9f8v0OTw==
+X-Received: by 2002:a4a:4846:0:b0:525:4316:7dac with SMTP id p67-20020a4a4846000000b0052543167dacmr21573068ooa.5.1678922246932;
+        Wed, 15 Mar 2023 16:17:26 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.75.19])
+        by smtp.gmail.com with ESMTPSA id f25-20020a4a8319000000b00517a7ac36c8sm2779571oog.24.2023.03.15.16.17.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Mar 2023 16:17:26 -0700 (PDT)
+Message-ID: <c30fa569-91bf-619c-612f-1c796a61d1a4@linaro.org>
+Date:   Wed, 15 Mar 2023 17:17:25 -0600
 MIME-Version: 1.0
-Message-ID: <167892027751.5837.1271275229889484859.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 5.10 000/104] 5.10.175-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230315115731.942692602@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+Hello!
 
-Commit-ID:     0424a7dfe9129b93f29b277511a60e87f052ac6b
-Gitweb:        https://git.kernel.org/tip/0424a7dfe9129b93f29b277511a60e87f052ac6b
-Author:        Shawn Wang <shawnwang@linux.alibaba.com>
-AuthorDate:    Tue, 17 Jan 2023 13:14:50 -08:00
-Committer:     Dave Hansen <dave.hansen@linux.intel.com>
-CommitterDate: Wed, 15 Mar 2023 15:19:43 -07:00
+On 15/03/23 06:11, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.175 release.
+> There are 104 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.175-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-x86/resctrl: Clear staged_config[] before and after it is used
+Lots of failures here too.
 
-As a temporary storage, staged_config[] in rdt_domain should be cleared
-before and after it is used. The stale value in staged_config[] could
-cause an MSR access error.
+For:
+* ARC (allnoconfig)
+* Arm (tinyconfig, footbridge_defconfig, multi_v5_defconfig-aa80e505, omap1_defconfig, sama5_defconfig)
+* MIPS (tinyconfig, bcm63xx_defconfig, ath79_defconfig)
+* PA-RISC (tinyconfig)
+* PowerPC (allnoconfig, tinyconfig, tqm8xx_defconfig, mpc83xx_defconfig, ppc6xx_defconfig)
+* RISC-V (allnoconfig, tinyconfig)
+* SPARC (allnoconfig, tinyconfig)
+* SuperH (allnoconfig, tinyconfig, dreamcast_defconfig, microdev_defconfig)
+* x86 (allnoconfig, tinyconfig)
 
-Here is a reproducer on a system with 16 usable CLOSIDs for a 15-way L3
-Cache (MBA should be disabled if the number of CLOSIDs for MB is less than
-16.) :
-	mount -t resctrl resctrl -o cdp /sys/fs/resctrl
-	mkdir /sys/fs/resctrl/p{1..7}
-	umount /sys/fs/resctrl/
-	mount -t resctrl resctrl /sys/fs/resctrl
-	mkdir /sys/fs/resctrl/p{1..8}
+in combinations of GCC-8, GCC-9, GCC-11, GCC-12, Clang-16:
 
-An error occurs when creating resource group named p8:
-    unchecked MSR access error: WRMSR to 0xca0 (tried to write 0x00000000000007ff) at rIP: 0xffffffff82249142 (cat_wrmsr+0x32/0x60)
-    Call Trace:
-     <IRQ>
-     __flush_smp_call_function_queue+0x11d/0x170
-     __sysvec_call_function+0x24/0xd0
-     sysvec_call_function+0x89/0xc0
-     </IRQ>
-     <TASK>
-     asm_sysvec_call_function+0x16/0x20
+-----8<-----
+In file included from /builds/linux/kernel/sched/core.c:13:
+/builds/linux/kernel/sched/sched.h:2560:22: error: no member named 'cpu_capacity_inverted' in 'struct rq'
+         return cpu_rq(cpu)->cpu_capacity_inverted;
+                ~~~~~~~~~~~  ^
+----->8-----
 
-When creating a new resource control group, hardware will be configured
-by the following process:
-    rdtgroup_mkdir()
-      rdtgroup_mkdir_ctrl_mon()
-        rdtgroup_init_alloc()
-          resctrl_arch_update_domains()
 
-resctrl_arch_update_domains() iterates and updates all resctrl_conf_type
-whose have_new_ctrl is true. Since staged_config[] holds the same values as
-when CDP was enabled, it will continue to update the CDP_CODE and CDP_DATA
-configurations. When group p8 is created, get_config_index() called in
-resctrl_arch_update_domains() will return 16 and 17 as the CLOSIDs for
-CDP_CODE and CDP_DATA, which will be translated to an invalid register -
-0xca0 in this scenario.
+For PowerPC (cell_defconfig, mpc83xx_defconfig, ppc6xx_defconfig, tqm8xx_defconfig) with GCC-8, GCC-12, Clang-16:
 
-Fix it by clearing staged_config[] before and after it is used.
+-----8<-----
+/builds/linux/drivers/tty/serial/cpm_uart/cpm_uart_core.c:1208:25: error: use of undeclared identifier 'NO_IRQ'; did you mean 'do_IRQ'?
+         if (pinfo->port.irq == NO_IRQ) {
+                                ^~~~~~
+                                do_IRQ
+----->8-----
 
-[reinette: re-order commit tags]
 
-Fixes: 75408e43509e ("x86/resctrl: Allow different CODE/DATA configurations to be staged")
-Suggested-by: Xin Hao <xhao@linux.alibaba.com>
-Signed-off-by: Shawn Wang <shawnwang@linux.alibaba.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc:stable@vger.kernel.org
-Link: https://lore.kernel.org/all/2fad13f49fbe89687fc40e9a5a61f23a28d1507a.1673988935.git.reinette.chatre%40intel.com
----
- arch/x86/kernel/cpu/resctrl/ctrlmondata.c |  7 +-----
- arch/x86/kernel/cpu/resctrl/internal.h    |  1 +-
- arch/x86/kernel/cpu/resctrl/rdtgroup.c    | 25 ++++++++++++++++++----
- 3 files changed, 24 insertions(+), 9 deletions(-)
+Greetings!
 
-diff --git a/arch/x86/kernel/cpu/resctrl/ctrlmondata.c b/arch/x86/kernel/cpu/resctrl/ctrlmondata.c
-index eb07d44..b44c487 100644
---- a/arch/x86/kernel/cpu/resctrl/ctrlmondata.c
-+++ b/arch/x86/kernel/cpu/resctrl/ctrlmondata.c
-@@ -368,7 +368,6 @@ ssize_t rdtgroup_schemata_write(struct kernfs_open_file *of,
- {
- 	struct resctrl_schema *s;
- 	struct rdtgroup *rdtgrp;
--	struct rdt_domain *dom;
- 	struct rdt_resource *r;
- 	char *tok, *resname;
- 	int ret = 0;
-@@ -397,10 +396,7 @@ ssize_t rdtgroup_schemata_write(struct kernfs_open_file *of,
- 		goto out;
- 	}
- 
--	list_for_each_entry(s, &resctrl_schema_all, list) {
--		list_for_each_entry(dom, &s->res->domains, list)
--			memset(dom->staged_config, 0, sizeof(dom->staged_config));
--	}
-+	rdt_staged_configs_clear();
- 
- 	while ((tok = strsep(&buf, "\n")) != NULL) {
- 		resname = strim(strsep(&tok, ":"));
-@@ -445,6 +441,7 @@ ssize_t rdtgroup_schemata_write(struct kernfs_open_file *of,
- 	}
- 
- out:
-+	rdt_staged_configs_clear();
- 	rdtgroup_kn_unlock(of->kn);
- 	cpus_read_unlock();
- 	return ret ?: nbytes;
-diff --git a/arch/x86/kernel/cpu/resctrl/internal.h b/arch/x86/kernel/cpu/resctrl/internal.h
-index 8edecc5..85ceaf9 100644
---- a/arch/x86/kernel/cpu/resctrl/internal.h
-+++ b/arch/x86/kernel/cpu/resctrl/internal.h
-@@ -555,5 +555,6 @@ void __check_limbo(struct rdt_domain *d, bool force_free);
- void rdt_domain_reconfigure_cdp(struct rdt_resource *r);
- void __init thread_throttle_mode_init(void);
- void __init mbm_config_rftype_init(const char *config);
-+void rdt_staged_configs_clear(void);
- 
- #endif /* _ASM_X86_RESCTRL_INTERNAL_H */
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 884b6e9..6ad33f3 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -78,6 +78,19 @@ void rdt_last_cmd_printf(const char *fmt, ...)
- 	va_end(ap);
- }
- 
-+void rdt_staged_configs_clear(void)
-+{
-+	struct rdt_resource *r;
-+	struct rdt_domain *dom;
-+
-+	lockdep_assert_held(&rdtgroup_mutex);
-+
-+	for_each_alloc_capable_rdt_resource(r) {
-+		list_for_each_entry(dom, &r->domains, list)
-+			memset(dom->staged_config, 0, sizeof(dom->staged_config));
-+	}
-+}
-+
- /*
-  * Trivial allocator for CLOSIDs. Since h/w only supports a small number,
-  * we can keep a bitmap of free CLOSIDs in a single integer.
-@@ -3107,7 +3120,9 @@ static int rdtgroup_init_alloc(struct rdtgroup *rdtgrp)
- {
- 	struct resctrl_schema *s;
- 	struct rdt_resource *r;
--	int ret;
-+	int ret = 0;
-+
-+	rdt_staged_configs_clear();
- 
- 	list_for_each_entry(s, &resctrl_schema_all, list) {
- 		r = s->res;
-@@ -3119,20 +3134,22 @@ static int rdtgroup_init_alloc(struct rdtgroup *rdtgrp)
- 		} else {
- 			ret = rdtgroup_init_cat(s, rdtgrp->closid);
- 			if (ret < 0)
--				return ret;
-+				goto out;
- 		}
- 
- 		ret = resctrl_arch_update_domains(r, rdtgrp->closid);
- 		if (ret < 0) {
- 			rdt_last_cmd_puts("Failed to initialize allocations\n");
--			return ret;
-+			goto out;
- 		}
- 
- 	}
- 
- 	rdtgrp->mode = RDT_MODE_SHAREABLE;
- 
--	return 0;
-+out:
-+	rdt_staged_configs_clear();
-+	return ret;
- }
- 
- static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+Daniel Díaz
+daniel.diaz@linaro.org
+
