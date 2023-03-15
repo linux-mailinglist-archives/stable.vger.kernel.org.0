@@ -2,214 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8A1B6BB5B9
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 15:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 994AC6BB5D6
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 15:21:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231397AbjCOOQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 10:16:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
+        id S229941AbjCOOVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 10:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231766AbjCOOQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 10:16:29 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4053934C35
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 07:16:01 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id y4so46705814edo.2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 07:16:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pqrs.dk; s=google; t=1678889759;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=oFlsa6HtfdlDO+5W0pHOXKXz4uVBrG6uhwA+mTGh/F4=;
-        b=UGMpDSGL8X5RFbzk+SEfLtR+9GJKEnTWGNIdPmBJGWII5fmtVJp57KaAbMkCgDbJb+
-         +8GCmf9p0z3p6oHvimw007lQGVU/hqtHOT1SAewubK0Ucm6lG0u2Eg+J6aal9KzsMyXv
-         Lw6KTdWkHzGq95NRgsqVjI/+4RQWYPFFYUiWY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678889759;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=oFlsa6HtfdlDO+5W0pHOXKXz4uVBrG6uhwA+mTGh/F4=;
-        b=OvUSQkcap+j4+etT1ID7TElM4aK55WXuVi9jKK09LwXqmelxhXqNo+tmWb+V2EeFZl
-         K9/fl6QYUkFN4xdnn1aTy7zu04YPZ2Ci3mtVsCX/efxGTuto1VQIIXv2gevLeGdgAtIT
-         mmupgqrUlS0iVaKPd2E94LQoQP4XKl32KwaUxRlASwJ8Tzl7W8nfTZslk6/hFWhaEVyS
-         9ztwjKtjaAzX1f5LK6NqWmSReBF/SB6GqVO+IhkWkbqE+M83kUOGHXBt/RhsgZuNHDqR
-         PpdoDWVmaFUT0haD2hN9bTuStQwcso2catlv4SpXqaVfC8HU9Eus6KtF/R2IzZoMagA9
-         mVfQ==
-X-Gm-Message-State: AO0yUKVfW1A66YF592EnJWx0fCHEaXLfaxvITCwvCInwlYOVQHMsTuB4
-        /FZBJi192mlKw4TwFR3A0xJZ8g==
-X-Google-Smtp-Source: AK7set8oPIsIHljWEG7Btn7/oqvtoKP54iIoNGcUixTywJ0v44k5S6228+JMg1jI54PO01KBJ+54IA==
-X-Received: by 2002:a17:907:a804:b0:92a:edd4:638 with SMTP id vo4-20020a170907a80400b0092aedd40638mr2911718ejc.22.1678889758698;
-        Wed, 15 Mar 2023 07:15:58 -0700 (PDT)
-Received: from localhost.localdomain (80.71.142.18.ipv4.parknet.dk. [80.71.142.18])
-        by smtp.gmail.com with ESMTPSA id m20-20020a509994000000b004aef147add6sm2532280edb.47.2023.03.15.07.15.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Mar 2023 07:15:58 -0700 (PDT)
-From:   =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alvin@pqrs.dk>
-To:     MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Marek Vasut <marex@denx.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2] extcon: usbc-tusb320: unregister typec port on driver removal
-Date:   Wed, 15 Mar 2023 15:15:47 +0100
-Message-Id: <20230315141547.825057-1-alvin@pqrs.dk>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S232481AbjCOOVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 10:21:40 -0400
+Received: from JPN01-TYC-obe.outbound.protection.outlook.com (mail-tycjpn01on2137.outbound.protection.outlook.com [40.107.114.137])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7A16782E;
+        Wed, 15 Mar 2023 07:21:38 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LJRbzSV1YwxXWNOlNS7PqVcLbP4BRcbPqX4KT4gjPj2ALwsxcoRM/oS3kn35XAE5841hhgPsYmuo0kZeFe91SKCdWZdw1wGLahuNOJAqUEIjy4Gfe1J/CqiazGw29SvXE6Ch5QE/e0caGt0cCmKC8jXCEI33i9p/FNJOsLKHDOghzU+d7/i9eFWo/MBfXQon+bLSsfjprOLRG/YJdtlHLGdd6kqIBzflKjaqkOwF3yrOSMS0VJWIYQpznOKRPPw6Ny+8RnF3Ljhp5u89L86Cefuf5ZrchYhU4TOEEXaDsPQWzNpAgTCDuJvbB42tIHWVGuz2xaF66h2HkK5XkoZQIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fLdshZtLYvFRu72/3ATQ71drFa0tuY1irlUFuSfH/jM=;
+ b=VKX5Z84C5+rLQVoDLoALgMvsXVu4d0mwowIldceYqCwCHzUJZUaOyA2NAjBVG0ybDBBa45NCFRfhdrEOpImpv4aYUbMonb6J6frtl+0mtwIFgtN2duSs78VUGfAglN2aBfYQN9yw/0FxaaqFownY9kT/s7giYLxfZyI4r0W6pKSlInsFwnE7+Dz3Jeup+9EIWtAiz2HG5GGYtPHykllBlH2ermC+/k9MeRuLMKG5Sl4rujBI3DQBTDVpXULLTB5R5UjOkJhTcjAaxSlfb/T+woIcmHF9QernQqgKnwYIWLNdxC2XofBNU5jckc0gs+cKtTCewvlxQMnYzp9wUtj2sQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=renesas.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fLdshZtLYvFRu72/3ATQ71drFa0tuY1irlUFuSfH/jM=;
+ b=WrYaB+NVUmnn2089Ly6/CvzkH/GV+3ttXWcwam1yWt7Kg/lQGpt/OqQzuGxSXCxYS5KXwXLN+8fjh0VEsQJ22eXW6gA9CtRfA3JK9ihNla1So4xp9B+ZHM7o9o0rC1cnEE6pZOtuItD6yJ5zlg3TbJtPbVZorblD8Yq+dTAesig=
+Received: from TYCPR01MB10588.jpnprd01.prod.outlook.com (2603:1096:400:309::8)
+ by OS7PR01MB11650.jpnprd01.prod.outlook.com (2603:1096:604:244::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.29; Wed, 15 Mar
+ 2023 14:21:36 +0000
+Received: from TYCPR01MB10588.jpnprd01.prod.outlook.com
+ ([fe80::dc49:e307:b424:4a53]) by TYCPR01MB10588.jpnprd01.prod.outlook.com
+ ([fe80::dc49:e307:b424:4a53%5]) with mapi id 15.20.6178.026; Wed, 15 Mar 2023
+ 14:21:35 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "patches@lists.linux.dev" <patches@lists.linux.dev>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "pavel@denx.de" <pavel@denx.de>,
+        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+        "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
+        "sudipm.mukherjee@gmail.com" <sudipm.mukherjee@gmail.com>,
+        "srw@sladewatkins.net" <srw@sladewatkins.net>,
+        "rwarsow@gmx.de" <rwarsow@gmx.de>
+Subject: RE: [PATCH 5.10 000/104] 5.10.175-rc1 review
+Thread-Topic: [PATCH 5.10 000/104] 5.10.175-rc1 review
+Thread-Index: AQHZVziwuRlwuFQqoU28Bhc4ahbYfa774rWw
+Date:   Wed, 15 Mar 2023 14:21:35 +0000
+Message-ID: <TYCPR01MB10588706C488609CACB02192BB7BF9@TYCPR01MB10588.jpnprd01.prod.outlook.com>
+References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=renesas.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: TYCPR01MB10588:EE_|OS7PR01MB11650:EE_
+x-ms-office365-filtering-correlation-id: 20fb5e95-6533-4e5f-e129-08db25609592
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: cjs3dx0kB69MkIwN19IJZsXUrfS24MaM3Ez+ny2YBF5bt+LN19/Xq/c5gOJGi8Ndmn0Ge9ir5zLiHH1d+ViMaNIGlH4y3sDcdTk4QDidz4FUNncp/p36pxj8KC3O3VkPOYvKV83p3xeTgcQ/YDvSPb3yjx9TEqGcMG7/aTVrrCwI3QtPN6/BPAzk5ZahGxQQGfX+FSDWC4m9kJUr0fgbF91f3FAPEvjeuMvmqZ4uJr6h/1HeVzg4hVxw+jzbvLXzy1iE3EdYTTOufWaVGdWsA+RASH+4eqjk5DTqDjnHygCBRz69RH2fmjTcahYsiFoykp7w+nslcdIzi2/Dk578j9c6UN76Ir4YRn/413aD+fju/bSmBUMeQWU2TRjZ8PP81+bbf8GJWUgK4jk/YVDeMyGOaRUv2lsau/aps89J870U9zi8IafvZ2VGuSi2A+aF7Fz0P705Lt4PMApP8zbhKtVHB3wdfGNkNB0zZKQAS4v7I8BDOM+ox2vih9HukpoIMCzFys1AvLSmyzbApd211p6YUzpGL9+4jphWJXFpbInuJK2+UpnovhGZp3Xyl2lSOFLyW5CPJiNI6SNgdlBD1A+NCPI+r4SUo3+ZYldyhR4jin9HctJWR5ctX0tWYirZy3G8C1SPugzCDcEFngXZjDnTsQVWKcDawfxbhHwos7keExQ0geQTCa+m6yh5kWnGHCjAaurjIVtHzHMcWrGOSzmWNvmDs8GJ65PJHDGprcM=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYCPR01MB10588.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(346002)(376002)(136003)(366004)(396003)(451199018)(7416002)(5660300002)(83380400001)(8676002)(478600001)(7696005)(9686003)(966005)(6506007)(71200400001)(26005)(186003)(38070700005)(76116006)(66476007)(52536014)(66946007)(55016003)(66556008)(66446008)(33656002)(8936002)(41300700001)(4326008)(86362001)(54906003)(110136005)(316002)(38100700002)(122000001)(2906002)(64756008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-2?Q?YF02CgbcTC3faUGDs4yoNWZ/Kynl2Z0dd3mP5FHLCb6BvfeTsn9Yzltc1W?=
+ =?iso-8859-2?Q?5MEVM08mIW230T6lhGBEoNN2X0JyDiUuGdI4U/s0QjHWOzHpsSpIvwzU0M?=
+ =?iso-8859-2?Q?KmZ65YjiRna1PJ7tSfHLwVzs0YgRjHAg4rVRM1hCZUS3UDsVnT1R6xSHsk?=
+ =?iso-8859-2?Q?VBrajw3iQrlpfROs0PTl9CtEPyGNLCq4I+NgAApd4/O3JEkpfsM1yNzSoZ?=
+ =?iso-8859-2?Q?8mQLIdcdpaMx/T8vYz1xo0u4iHtzEd6LslZ7s4LuOUq7Uxly3Q8FRwPNq8?=
+ =?iso-8859-2?Q?05uhVJ5347KFzxkYzLt41HqxIQVFCu7unGW0sOtUHCHDBVexeZ53fteCNU?=
+ =?iso-8859-2?Q?VdB4mACgiGdY9WnMYFuLfXm/Ouoj4TwPSliHPmHFM+X9Ez1GlLPyU3wHzL?=
+ =?iso-8859-2?Q?UtwNvVGzukky3R5T5FL+OvPcJyrGUKoWzVAH6U2F9l63gWGUu5GKGSSWpu?=
+ =?iso-8859-2?Q?chnDdpds5kAAcmvFs2nJ1MqP06BgaxQfnYyTLFWhJ2+8KLZ+VjvBB3b+Y/?=
+ =?iso-8859-2?Q?LiVy6ilt7pDvi2BPCpPqwLTR3ZXwndUlj79e03T1LJAA+oGTFaNt3q+cTM?=
+ =?iso-8859-2?Q?5KpEuDUh+vtnACuqK6Z9hriX+1/HYTGF83254l0rK6xgpmpbD0pEYvEEkZ?=
+ =?iso-8859-2?Q?DMRmH7aWgshd2dJ4jiqnvZo3HDL7kUwjSd/MDeLIsCJ9XxGpiPNgITkuU/?=
+ =?iso-8859-2?Q?qP7ylJWQc/5s8SzkpOy2uDZrQN4++YlpM0E4k17bs3qofRRpJnVm7Euh2v?=
+ =?iso-8859-2?Q?EK/+sdmGpSzPAwyMEdgpp8Q4koKtTa3z+fWydcJawuSXXT5jhJlMYfuNFC?=
+ =?iso-8859-2?Q?fUEqdwqIK2LFkjb0CrZrtIpOBzCqsPpMD19QJsNKVraC+mN4qvSVQgIjUY?=
+ =?iso-8859-2?Q?z10sRzGr799jKMbWi95uEMs7Y/7/SkonajutXa6Ht1SPS53zeKs+jenwBY?=
+ =?iso-8859-2?Q?/FPTVI3NkLoAnOptWuhm6M72oS31S587VHQ3KnIGhFB1XC/wajbBNp7lFt?=
+ =?iso-8859-2?Q?Y3BqMO+FJIk3mKpZiF50emoB8CYEVkVfwqsNnndOlKhuRbjVFeaEx8J8NA?=
+ =?iso-8859-2?Q?5jw6Olt+RWirJNAsMlddBmicd7DGZw3Mz7wFLsIsKTwaUOGw465EtAKUeq?=
+ =?iso-8859-2?Q?33UGvDr7svSfYpoAIFJvgBIOK/GubXUCTgChSNiim9tuLD0VSAjBxdMC6t?=
+ =?iso-8859-2?Q?Ps62r3s0QnmPdTe0ms8ND5Z/LUPRgYhrC27bdrBqzCjwuHvPA6qKoC3uzV?=
+ =?iso-8859-2?Q?ZTInjgV4VHSZ0dJcr5RwXZXpuayEanUKyjbNmBSzv6kHTMa1ONlsyv6tio?=
+ =?iso-8859-2?Q?awbkknYXtbNk2p3aLYaB8nMsHZHbFAUnzgNq2/Q2D/c8X0S6PA3r+xzo+r?=
+ =?iso-8859-2?Q?vPxzwTMTl5LWKir+MjtLT4rYvTo4WVH1irMf2LYjHXCydNTmJgifbfX8Fz?=
+ =?iso-8859-2?Q?x5MstfibXRyxnRQ9HuB9K08Cmnj1UED3sToVll+7RPXZS7GieCexQ470vY?=
+ =?iso-8859-2?Q?i0dksuKZNCMSdmTpdrI5a/+ArZquhDxT9PYTgejPPRRXqxt5T2FoBGQzt/?=
+ =?iso-8859-2?Q?agOo+a8O7OcIhuuXgxE1ag2Qoq7CiyH14uYe3soTrVZBrCyOpiyNWL+42m?=
+ =?iso-8859-2?Q?WTkQewWdkF+80jzTGhTJ2UAWCrNmfw+2YxL7DOZsHa0Gy/253uDC3kCA?=
+ =?iso-8859-2?Q?=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=no autolearn_force=no version=3.4.6
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TYCPR01MB10588.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 20fb5e95-6533-4e5f-e129-08db25609592
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Mar 2023 14:21:35.9107
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: yI+7jah53YqDW2mM1Y5E7DuxT87iqrmlpBnT76fvlQs2Cj9xmFpEDWtn8a2cPs0goLYHR+2O6xLEQxPNB6YG2L6zblwqtmrrwdP9hn7Q4is=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS7PR01MB11650
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <alsi@bang-olufsen.dk>
+Hello Greg,
 
-The driver can register a typec port if suitable firmware properties are
-present. But if the driver is removed through sysfs unbind, rmmod or
-similar, then it does not clean up after itself and the typec port
-device remains registered. This can be seen in sysfs, where stale typec
-ports get left over in /sys/class/typec.
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Sent: 15 March 2023 12:12
+>=20
+> This is the start of the stable review cycle for the 5.10.175 release.
+> There are 104 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
+> Anything received after that time might be too late.
 
-In order to fix this we have to add an i2c_driver remove function and
-call typec_unregister_port(), which is a no-op in the case where no
-typec port is created and the pointer remains NULL.
+Tested-by: Chris Paterson (CIP) <chris.paterson2@renesas.com>
+CI Pipeline: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/=
+-/pipelines/807195733
 
-In the process we should also put the fwnode_handle when the typec port
-isn't registered anymore, including if an error occurs during probe. The
-typec subsystem does not increase or decrease the reference counter for
-us, so we track it in the driver's private data.
+We (CIP) are seeing some build issues with Linux 5.10.175-rc1 (420b6d10bae3=
+).
 
-Note that the conditional check on TYPEC_PWR_MODE_PD was removed in the
-probe path because a call to tusb320_set_adv_pwr_mode() will perform an
-even more robust validation immediately after, hence there is no
-functional change here.
 
-Fixes: bf7571c00dca ("extcon: usbc-tusb320: Add USB TYPE-C support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
----
-v2: properly assign priv->connector_fwnode = connector;
----
- drivers/extcon/extcon-usbc-tusb320.c | 42 ++++++++++++++++++++++------
- 1 file changed, 34 insertions(+), 8 deletions(-)
+1)
+For a couple of arm configs we see a variation of:
+In file included from kernel/sched/core.c:13:
+kernel/sched/sched.h: In function 'cpu_in_capacity_inversion':
+kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'cpu_c=
+apacity_inverted'
+ 2560 |  return cpu_rq(cpu)->cpu_capacity_inverted;
+      |                    ^~
+make[2]: *** [scripts/Makefile.build:286: kernel/sched/core.o] Error 1
+make[1]: *** [scripts/Makefile.build:503: kernel/sched] Error 2
 
-diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
-index b408ce989c22..10dff1c512c4 100644
---- a/drivers/extcon/extcon-usbc-tusb320.c
-+++ b/drivers/extcon/extcon-usbc-tusb320.c
-@@ -78,6 +78,7 @@ struct tusb320_priv {
- 	struct typec_capability	cap;
- 	enum typec_port_type port_type;
- 	enum typec_pwr_opmode pwr_opmode;
-+	struct fwnode_handle *connector_fwnode;
- };
- 
- static const char * const tusb_attached_states[] = {
-@@ -391,27 +392,25 @@ static int tusb320_typec_probe(struct i2c_client *client,
- 	/* Type-C connector found. */
- 	ret = typec_get_fw_cap(&priv->cap, connector);
- 	if (ret)
--		return ret;
-+		goto err_put;
- 
- 	priv->port_type = priv->cap.type;
- 
- 	/* This goes into register 0x8 field CURRENT_MODE_ADVERTISE */
- 	ret = fwnode_property_read_string(connector, "typec-power-opmode", &cap_str);
- 	if (ret)
--		return ret;
-+		goto err_put;
- 
- 	ret = typec_find_pwr_opmode(cap_str);
- 	if (ret < 0)
--		return ret;
--	if (ret == TYPEC_PWR_MODE_PD)
--		return -EINVAL;
-+		goto err_put;
- 
- 	priv->pwr_opmode = ret;
- 
- 	/* Initialize the hardware with the devicetree settings. */
- 	ret = tusb320_set_adv_pwr_mode(priv);
- 	if (ret)
--		return ret;
-+		goto err_put;
- 
- 	priv->cap.revision		= USB_TYPEC_REV_1_1;
- 	priv->cap.accessory[0]		= TYPEC_ACCESSORY_AUDIO;
-@@ -422,10 +421,25 @@ static int tusb320_typec_probe(struct i2c_client *client,
- 	priv->cap.fwnode		= connector;
- 
- 	priv->port = typec_register_port(&client->dev, &priv->cap);
--	if (IS_ERR(priv->port))
--		return PTR_ERR(priv->port);
-+	if (IS_ERR(priv->port)) {
-+		ret = PTR_ERR(priv->port);
-+		goto err_put;
-+	}
-+
-+	priv->connector_fwnode = connector;
- 
- 	return 0;
-+
-+err_put:
-+	fwnode_handle_put(connector);
-+
-+	return ret;
-+}
-+
-+static void tusb320_typec_remove(struct tusb320_priv *priv)
-+{
-+	typec_unregister_port(priv->port);
-+	fwnode_handle_put(priv->connector_fwnode);
- }
- 
- static int tusb320_probe(struct i2c_client *client)
-@@ -438,7 +452,9 @@ static int tusb320_probe(struct i2c_client *client)
- 	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
-+
- 	priv->dev = &client->dev;
-+	i2c_set_clientdata(client, priv);
- 
- 	priv->regmap = devm_regmap_init_i2c(client, &tusb320_regmap_config);
- 	if (IS_ERR(priv->regmap))
-@@ -489,10 +505,19 @@ static int tusb320_probe(struct i2c_client *client)
- 					tusb320_irq_handler,
- 					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 					client->name, priv);
-+	if (ret)
-+		tusb320_typec_remove(priv);
- 
- 	return ret;
- }
- 
-+static void tusb320_remove(struct i2c_client *client)
-+{
-+	struct tusb320_priv *priv = i2c_get_clientdata(client);
-+
-+	tusb320_typec_remove(priv);
-+}
-+
- static const struct of_device_id tusb320_extcon_dt_match[] = {
- 	{ .compatible = "ti,tusb320", .data = &tusb320_ops, },
- 	{ .compatible = "ti,tusb320l", .data = &tusb320l_ops, },
-@@ -502,6 +527,7 @@ MODULE_DEVICE_TABLE(of, tusb320_extcon_dt_match);
- 
- static struct i2c_driver tusb320_extcon_driver = {
- 	.probe_new	= tusb320_probe,
-+	.remove		= tusb320_remove,
- 	.driver		= {
- 		.name	= "extcon-tusb320",
- 		.of_match_table = tusb320_extcon_dt_match,
--- 
-2.39.2
+Full log: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/j=
+obs/3938632489#L1910
+
+This code was added in "sched/fair: Detect capacity inversion".
+
+
+Kind regards, Chris
 
