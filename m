@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA4D36BB347
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C0B6BB27E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232912AbjCOMnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
+        id S232689AbjCOMgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233048AbjCOMmt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:49 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50D360AB4
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:30 -0700 (PDT)
+        with ESMTP id S232617AbjCOMga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A00B9CFE4
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 19A8DCE19C6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163BDC433EF;
-        Wed, 15 Mar 2023 12:41:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC47CB81E00
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21388C433EF;
+        Wed, 15 Mar 2023 12:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884086;
-        bh=PR9rEFnZY/im5fn3akrgbD36diw2rkUJUjJnVcULFqA=;
+        s=korg; t=1678883674;
+        bh=4StMg3S0PTqV4b498C4qBcMyH2q0EHJpLyR63zJgfJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMnoVNGRijjq/OPpJdvq2QQhj3UKWqiyB7o/qEd79scv+CcFu2fIbEEnhAhvLk3lh
-         c8PNMUIumUkUY8bF5ZVIk/de03Z6JnRA0J7LH14Nc5vJOR5F4OJYYEVplnhStiu/4f
-         P+wtyS+XzJ4+DL//GA8m7RsvdGrZKaWQSVZsUL8U=
+        b=B9CGjS55O6AyRf7cIpi/GvcFDuBLTVqPKotD639/HTBEJAglTgi5LAYhgVVnNZkeY
+         ELYxb8T6c3nEx59QD6fRHSnYDN1WP5m05zr/CX4z6sSaPCicMKWvdVQU/+kvRp4OXR
+         nsfTj2ZCOwXB7Xum78v/v1RkkMXQcSO4Vvz2WWHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 072/141] drm/msm/dpu: fix sm6115 and qcm2290 mixer width limits
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?Major=20D=C3=A1vid?= <major.david@balasys.hu>
+Subject: [PATCH 6.1 089/143] netfilter: tproxy: fix deadlock due to missing BH disable
 Date:   Wed, 15 Mar 2023 13:12:55 +0100
-Message-Id: <20230315115742.159565260@linuxfoundation.org>
+Message-Id: <20230315115743.230277294@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,57 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit da06be8b4fdf3eccf5cf6cbc4a689a43b8ad705b ]
+[ Upstream commit 4a02426787bf024dafdb79b362285ee325de3f5e ]
 
-According to vendor DTS files both sm6115 and qcm2290 should have
-max_mixer_width set to 2048 (DEFAULT_DPU_LINE_WIDTH). Correct it.
+The xtables packet traverser performs an unconditional local_bh_disable(),
+but the nf_tables evaluation loop does not.
 
-Fixes: 3581b7062cec ("drm/msm/disp/dpu1: add support for display on SM6115")
-Fixes: 5334087ee743 ("drm/msm: add support for QCM2290 MDSS")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/522212/
-Link: https://lore.kernel.org/r/20230211231259.1308718-6-dmitry.baryshkov@linaro.org
-[quic_abhinavk@quicinc.com: fix minor typo in commit message]
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Functions that are called from either xtables or nftables must assume
+that they can be called in process context.
+
+inet_twsk_deschedule_put() assumes that no softirq interrupt can occur.
+If tproxy is used from nf_tables its possible that we'll deadlock
+trying to aquire a lock already held in process context.
+
+Add a small helper that takes care of this and use it.
+
+Link: https://lore.kernel.org/netfilter-devel/401bd6ed-314a-a196-1cdc-e13c720cc8f2@balasys.hu/
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
+Reported-and-tested-by: Major Dávid <major.david@balasys.hu>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/net/netfilter/nf_tproxy.h   | 7 +++++++
+ net/ipv4/netfilter/nf_tproxy_ipv4.c | 2 +-
+ net/ipv6/netfilter/nf_tproxy_ipv6.c | 2 +-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index 55d0218314794..1f84168e04fa0 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -287,7 +287,7 @@ static const struct dpu_caps msm8998_dpu_caps = {
- };
+diff --git a/include/net/netfilter/nf_tproxy.h b/include/net/netfilter/nf_tproxy.h
+index 82d0e41b76f22..faa108b1ba675 100644
+--- a/include/net/netfilter/nf_tproxy.h
++++ b/include/net/netfilter/nf_tproxy.h
+@@ -17,6 +17,13 @@ static inline bool nf_tproxy_sk_is_transparent(struct sock *sk)
+ 	return false;
+ }
  
- static const struct dpu_caps qcm2290_dpu_caps = {
--	.max_mixer_width = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
-+	.max_mixer_width = DEFAULT_DPU_LINE_WIDTH,
- 	.max_mixer_blendstages = 0x4,
- 	.smart_dma_rev = DPU_SSPP_SMART_DMA_V2,
- 	.has_dim_layer = true,
-@@ -325,7 +325,7 @@ static const struct dpu_caps sc7180_dpu_caps = {
- };
- 
- static const struct dpu_caps sm6115_dpu_caps = {
--	.max_mixer_width = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
-+	.max_mixer_width = DEFAULT_DPU_LINE_WIDTH,
- 	.max_mixer_blendstages = 0x4,
- 	.qseed_type = DPU_SSPP_SCALER_QSEED3LITE,
- 	.smart_dma_rev = DPU_SSPP_SMART_DMA_V2, /* TODO: v2.5 */
-@@ -1068,7 +1068,7 @@ static const struct dpu_lm_cfg sc7280_lm[] = {
- /* QCM2290 */
- 
- static const struct dpu_lm_sub_blks qcm2290_lm_sblk = {
--	.maxwidth = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
-+	.maxwidth = DEFAULT_DPU_LINE_WIDTH,
- 	.maxblendstages = 4, /* excluding base layer */
- 	.blendstage_base = { /* offsets relative to mixer base */
- 		0x20, 0x38, 0x50, 0x68
++static inline void nf_tproxy_twsk_deschedule_put(struct inet_timewait_sock *tw)
++{
++	local_bh_disable();
++	inet_twsk_deschedule_put(tw);
++	local_bh_enable();
++}
++
+ /* assign a socket to the skb -- consumes sk */
+ static inline void nf_tproxy_assign_sock(struct sk_buff *skb, struct sock *sk)
+ {
+diff --git a/net/ipv4/netfilter/nf_tproxy_ipv4.c b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+index b22b2c745c76c..69e3317996043 100644
+--- a/net/ipv4/netfilter/nf_tproxy_ipv4.c
++++ b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+@@ -38,7 +38,7 @@ nf_tproxy_handle_time_wait4(struct net *net, struct sk_buff *skb,
+ 					    hp->source, lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
+diff --git a/net/ipv6/netfilter/nf_tproxy_ipv6.c b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+index 929502e51203b..52f828bb5a83d 100644
+--- a/net/ipv6/netfilter/nf_tproxy_ipv6.c
++++ b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+@@ -63,7 +63,7 @@ nf_tproxy_handle_time_wait6(struct sk_buff *skb, int tproto, int thoff,
+ 					    lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
 -- 
 2.39.2
 
