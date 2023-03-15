@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF636BB20B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C20DA6BB0BE
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232603AbjCOMcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:32:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39612 "EHLO
+        id S232105AbjCOMVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:21:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232651AbjCOMcH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0763259E47
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:24 -0700 (PDT)
+        with ESMTP id S231892AbjCOMUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A93C95447
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:20:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FAA561D58
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4757DC433D2;
-        Wed, 15 Mar 2023 12:31:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D19261D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEBCEC433EF;
+        Wed, 15 Mar 2023 12:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883483;
-        bh=oXu2jLP+O8FUZrM4yzU6JR3gso3nudiX27D0xM0OCLE=;
+        s=korg; t=1678882809;
+        bh=upgRRdoeO01p2M73mEvo6AbTLa9oPzmi8pqsZLe6/ng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3mKCoCxCLJk3ZBBIf9+igfjfU3BeiLGR5A2Ku/P5fmNG7aHys4NToJeJqp4SupTu
-         4Eaz9QRDVdtzhYrkSoq7lki1jHDzL7rTNP81yAg/tsNAYjXAJB8blyAllqngXJwqNc
-         n1/+CUC4GtPZWnWoX7eK2txwk54kbnBpccMn6h88=
+        b=RnnQ1aIKruHs4ifNedSI+xIM0XdkmqjMjqIsB0Wa6ceCXPFbf8wjPonDUTscu/ghQ
+         tKUaB/2Dh76IGuHJN0OWWfkagPm52PXRIG8rrD1HngmQzqTeziJn/92r+X1eamOcfW
+         A0qhnxlt0B2cDhOZ+hedZLwTx7XU+iUjPqEi4SC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Andrey Vagin <avagin@openvz.org>,
         Christian Brauner <brauner@kernel.org>,
         Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH 6.1 007/143] fork: allow CLONE_NEWTIME in clone3 flags
+Subject: [PATCH 5.10 002/104] fork: allow CLONE_NEWTIME in clone3 flags
 Date:   Wed, 15 Mar 2023 13:11:33 +0100
-Message-Id: <20230315115740.680355103@linuxfoundation.org>
+Message-Id: <20230315115732.054171880@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -82,9 +82,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -2928,7 +2928,7 @@ static bool clone3_args_valid(struct ker
- 	 * - make the CLONE_DETACHED bit reusable for clone3
- 	 * - make the CSIGNAL bits reusable for clone3
+@@ -2726,7 +2726,7 @@ static bool clone3_args_valid(struct ker
+ 	 * - make the CLONE_DETACHED bit reuseable for clone3
+ 	 * - make the CSIGNAL bits reuseable for clone3
  	 */
 -	if (kargs->flags & (CLONE_DETACHED | CSIGNAL))
 +	if (kargs->flags & (CLONE_DETACHED | (CSIGNAL & (~CLONE_NEWTIME))))
