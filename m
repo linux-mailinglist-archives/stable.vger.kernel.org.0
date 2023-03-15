@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C11D6BB116
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED0FA6BB09E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232049AbjCOMYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46302 "EHLO
+        id S231987AbjCOMT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232405AbjCOMYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9444C84F7B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:16 -0700 (PDT)
+        with ESMTP id S232134AbjCOMTj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967E68F53F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EB60B81E0B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE73AC433D2;
-        Wed, 15 Mar 2023 12:22:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38360B81DFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9DCC4339C;
+        Wed, 15 Mar 2023 12:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882959;
-        bh=Dla1IsGrNz19OS51ODt78sdv7tOeDKYhkB0skY089ck=;
+        s=korg; t=1678882762;
+        bh=NkZdCgykXmW15w+PfR205bvLYTPXPKpu4UAp/ekyvJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YsG020IjgaPTLH18fwMZHJe5Ub8YsCAz2JXTpKH1XhMWXgAMskimf8Q1TBsG8RLf6
-         NvI+y0dDRHEb1iETtYn87KFDR/VsTWaB3xLq3w4hYECEDf/RCyDF6sXcMdv1y6/ygY
-         ZgRT2OaEYOsxbtKpCPa3fTrxcRqiBVPSWjwjbv/k=
+        b=S5DC3W1alcMyuF114Gw3W8G8sK15KDnrPZkDtxL8iroQxukI2YRNi6gDPR+Oi/6Mn
+         8lQHBmhNTZysHGcvLl1HdjmGCyCFveyhab2ns47sYAL4WSvB/BkXp1nnjUvHvrsXdv
+         VGm7Xp9e/YonNmY7mEkt/q/uAzqQ5G9YwNRRMXaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Damodharam Ammepalli <damodharam.ammepalli@broadcom.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/104] clk: qcom: mmcc-apq8084: remove spdm clocks
+Subject: [PATCH 5.4 43/68] bnxt_en: Avoid order-5 memory allocation for TPA data
 Date:   Wed, 15 Mar 2023 13:12:37 +0100
-Message-Id: <20230315115734.723347531@linuxfoundation.org>
+Message-Id: <20230315115727.808819207@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,313 +58,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 7b347f4b677b6d84687e67d82b6b17c6f55ea2b4 ]
+[ Upstream commit accd7e23693aaaa9aa0d3e9eca0ae77d1be80ab3 ]
 
-SPDM is used for debug/profiling and does not have any other
-functionality. These clocks can safely be removed.
+The driver needs to keep track of all the possible concurrent TPA (GRO/LRO)
+completions on the aggregation ring.  On P5 chips, the maximum number
+of concurrent TPA is 256 and the amount of memory we allocate is order-5
+on systems using 4K pages.  Memory allocation failure has been reported:
 
-Suggested-by: Stephen Boyd <sboyd@kernel.org>
-Suggested-by: Georgi Djakov <djakov@kernel.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230111060402.1168726-11-dmitry.baryshkov@linaro.org
+NetworkManager: page allocation failure: order:5, mode:0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO), nodemask=(null),cpuset=/,mems_allowed=0-1
+CPU: 15 PID: 2995 Comm: NetworkManager Kdump: loaded Not tainted 5.10.156 #1
+Hardware name: Dell Inc. PowerEdge R660/0M1CC5, BIOS 0.2.25 08/12/2022
+Call Trace:
+ dump_stack+0x57/0x6e
+ warn_alloc.cold.120+0x7b/0xdd
+ ? _cond_resched+0x15/0x30
+ ? __alloc_pages_direct_compact+0x15f/0x170
+ __alloc_pages_slowpath.constprop.108+0xc58/0xc70
+ __alloc_pages_nodemask+0x2d0/0x300
+ kmalloc_order+0x24/0xe0
+ kmalloc_order_trace+0x19/0x80
+ bnxt_alloc_mem+0x1150/0x15c0 [bnxt_en]
+ ? bnxt_get_func_stat_ctxs+0x13/0x60 [bnxt_en]
+ __bnxt_open_nic+0x12e/0x780 [bnxt_en]
+ bnxt_open+0x10b/0x240 [bnxt_en]
+ __dev_open+0xe9/0x180
+ __dev_change_flags+0x1af/0x220
+ dev_change_flags+0x21/0x60
+ do_setlink+0x35c/0x1100
+
+Instead of allocating this big chunk of memory and dividing it up for the
+concurrent TPA instances, allocate each small chunk separately for each
+TPA instance.  This will reduce it to order-0 allocations.
+
+Fixes: 79632e9ba386 ("bnxt_en: Expand bnxt_tpa_info struct to support 57500 chips.")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Damodharam Ammepalli <damodharam.ammepalli@broadcom.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/mmcc-apq8084.c | 271 --------------------------------
- 1 file changed, 271 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/qcom/mmcc-apq8084.c b/drivers/clk/qcom/mmcc-apq8084.c
-index fbfcf00067394..893e5536f64c7 100644
---- a/drivers/clk/qcom/mmcc-apq8084.c
-+++ b/drivers/clk/qcom/mmcc-apq8084.c
-@@ -2363,262 +2363,6 @@ static struct clk_branch mmss_rbcpr_clk = {
- 	},
- };
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index ef8225b7445d3..9fb1da36e9eb8 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -2747,7 +2747,7 @@ static int bnxt_alloc_ring(struct bnxt *bp, struct bnxt_ring_mem_info *rmem)
  
--static struct clk_branch mmss_spdm_ahb_clk = {
--	.halt_reg = 0x0230,
--	.clkr = {
--		.enable_reg = 0x0230,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_ahb_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_ahb_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_axi_clk = {
--	.halt_reg = 0x0210,
--	.clkr = {
--		.enable_reg = 0x0210,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_axi_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_csi0_clk = {
--	.halt_reg = 0x023c,
--	.clkr = {
--		.enable_reg = 0x023c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_csi0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_csi0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_gfx3d_clk = {
--	.halt_reg = 0x022c,
--	.clkr = {
--		.enable_reg = 0x022c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_gfx3d_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_gfx3d_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg0_clk = {
--	.halt_reg = 0x0204,
--	.clkr = {
--		.enable_reg = 0x0204,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg1_clk = {
--	.halt_reg = 0x0208,
--	.clkr = {
--		.enable_reg = 0x0208,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg2_clk = {
--	.halt_reg = 0x0224,
--	.clkr = {
--		.enable_reg = 0x0224,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg2_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg2_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_mdp_clk = {
--	.halt_reg = 0x020c,
--	.clkr = {
--		.enable_reg = 0x020c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_mdp_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_mdp_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk0_clk = {
--	.halt_reg = 0x0234,
--	.clkr = {
--		.enable_reg = 0x0234,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk1_clk = {
--	.halt_reg = 0x0228,
--	.clkr = {
--		.enable_reg = 0x0228,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vcodec0_clk = {
--	.halt_reg = 0x0214,
--	.clkr = {
--		.enable_reg = 0x0214,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vcodec0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vcodec0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe0_clk = {
--	.halt_reg = 0x0218,
--	.clkr = {
--		.enable_reg = 0x0218,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe1_clk = {
--	.halt_reg = 0x021c,
--	.clkr = {
--		.enable_reg = 0x021c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_axi_clk = {
--	.halt_reg = 0x0304,
--	.clkr = {
--		.enable_reg = 0x0304,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_axi_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_ocmemnoc_clk = {
--	.halt_reg = 0x0308,
--	.clkr = {
--		.enable_reg = 0x0308,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_ocmemnoc_clk",
--			.parent_names = (const char *[]){
--				"ocmemnoc_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--
- static struct clk_branch mmss_misc_ahb_clk = {
- 	.halt_reg = 0x502c,
- 	.clkr = {
-@@ -3251,21 +2995,6 @@ static struct clk_regmap *mmcc_apq8084_clocks[] = {
- 	[MDSS_VSYNC_CLK] = &mdss_vsync_clk.clkr,
- 	[MMSS_RBCPR_AHB_CLK] = &mmss_rbcpr_ahb_clk.clkr,
- 	[MMSS_RBCPR_CLK] = &mmss_rbcpr_clk.clkr,
--	[MMSS_SPDM_AHB_CLK] = &mmss_spdm_ahb_clk.clkr,
--	[MMSS_SPDM_AXI_CLK] = &mmss_spdm_axi_clk.clkr,
--	[MMSS_SPDM_CSI0_CLK] = &mmss_spdm_csi0_clk.clkr,
--	[MMSS_SPDM_GFX3D_CLK] = &mmss_spdm_gfx3d_clk.clkr,
--	[MMSS_SPDM_JPEG0_CLK] = &mmss_spdm_jpeg0_clk.clkr,
--	[MMSS_SPDM_JPEG1_CLK] = &mmss_spdm_jpeg1_clk.clkr,
--	[MMSS_SPDM_JPEG2_CLK] = &mmss_spdm_jpeg2_clk.clkr,
--	[MMSS_SPDM_MDP_CLK] = &mmss_spdm_mdp_clk.clkr,
--	[MMSS_SPDM_PCLK0_CLK] = &mmss_spdm_pclk0_clk.clkr,
--	[MMSS_SPDM_PCLK1_CLK] = &mmss_spdm_pclk1_clk.clkr,
--	[MMSS_SPDM_VCODEC0_CLK] = &mmss_spdm_vcodec0_clk.clkr,
--	[MMSS_SPDM_VFE0_CLK] = &mmss_spdm_vfe0_clk.clkr,
--	[MMSS_SPDM_VFE1_CLK] = &mmss_spdm_vfe1_clk.clkr,
--	[MMSS_SPDM_RM_AXI_CLK] = &mmss_spdm_rm_axi_clk.clkr,
--	[MMSS_SPDM_RM_OCMEMNOC_CLK] = &mmss_spdm_rm_ocmemnoc_clk.clkr,
- 	[MMSS_MISC_AHB_CLK] = &mmss_misc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_AHB_CLK] = &mmss_mmssnoc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_BTO_AHB_CLK] = &mmss_mmssnoc_bto_ahb_clk.clkr,
+ static void bnxt_free_tpa_info(struct bnxt *bp)
+ {
+-	int i;
++	int i, j;
+ 
+ 	for (i = 0; i < bp->rx_nr_rings; i++) {
+ 		struct bnxt_rx_ring_info *rxr = &bp->rx_ring[i];
+@@ -2755,8 +2755,10 @@ static void bnxt_free_tpa_info(struct bnxt *bp)
+ 		kfree(rxr->rx_tpa_idx_map);
+ 		rxr->rx_tpa_idx_map = NULL;
+ 		if (rxr->rx_tpa) {
+-			kfree(rxr->rx_tpa[0].agg_arr);
+-			rxr->rx_tpa[0].agg_arr = NULL;
++			for (j = 0; j < bp->max_tpa; j++) {
++				kfree(rxr->rx_tpa[j].agg_arr);
++				rxr->rx_tpa[j].agg_arr = NULL;
++			}
+ 		}
+ 		kfree(rxr->rx_tpa);
+ 		rxr->rx_tpa = NULL;
+@@ -2765,14 +2767,13 @@ static void bnxt_free_tpa_info(struct bnxt *bp)
+ 
+ static int bnxt_alloc_tpa_info(struct bnxt *bp)
+ {
+-	int i, j, total_aggs = 0;
++	int i, j;
+ 
+ 	bp->max_tpa = MAX_TPA;
+ 	if (bp->flags & BNXT_FLAG_CHIP_P5) {
+ 		if (!bp->max_tpa_v2)
+ 			return 0;
+ 		bp->max_tpa = max_t(u16, bp->max_tpa_v2, MAX_TPA_P5);
+-		total_aggs = bp->max_tpa * MAX_SKB_FRAGS;
+ 	}
+ 
+ 	for (i = 0; i < bp->rx_nr_rings; i++) {
+@@ -2786,12 +2787,12 @@ static int bnxt_alloc_tpa_info(struct bnxt *bp)
+ 
+ 		if (!(bp->flags & BNXT_FLAG_CHIP_P5))
+ 			continue;
+-		agg = kcalloc(total_aggs, sizeof(*agg), GFP_KERNEL);
+-		rxr->rx_tpa[0].agg_arr = agg;
+-		if (!agg)
+-			return -ENOMEM;
+-		for (j = 1; j < bp->max_tpa; j++)
+-			rxr->rx_tpa[j].agg_arr = agg + j * MAX_SKB_FRAGS;
++		for (j = 0; j < bp->max_tpa; j++) {
++			agg = kcalloc(MAX_SKB_FRAGS, sizeof(*agg), GFP_KERNEL);
++			if (!agg)
++				return -ENOMEM;
++			rxr->rx_tpa[j].agg_arr = agg;
++		}
+ 		rxr->rx_tpa_idx_map = kzalloc(sizeof(*rxr->rx_tpa_idx_map),
+ 					      GFP_KERNEL);
+ 		if (!rxr->rx_tpa_idx_map)
 -- 
 2.39.2
 
