@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 216666BB0F9
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E745C6BB31D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232365AbjCOMXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46028 "EHLO
+        id S233043AbjCOMlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232182AbjCOMXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:10 -0400
+        with ESMTP id S232975AbjCOMlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D5295BDA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C62125A5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D444CB81E05
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4456CC433D2;
-        Wed, 15 Mar 2023 12:21:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44561B81E14
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CCBC433D2;
+        Wed, 15 Mar 2023 12:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882919;
-        bh=ZSAeDi9jv4/dJ1fKpjMwPNiK+6ZKz8auX2dYLS72S5Y=;
+        s=korg; t=1678884004;
+        bh=1upzokxHUOD+hgn8pDWPpdT7VV84qZQSMUHrqZO/KBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WomttnMZhYwP1zoU82k3QzU7wMd44I7VdFsrhu/2Ki/EuR2K8jXZPuRYv9j7pktgw
-         aB1odyt9T9TFmxBCOSzlP1l5OR46kOvV9GVn+CDmIj4yQg+l969pdcvIT1N20bPRHT
-         oxkzo27QEbryRZgmyL8IG28q0Wio9I010/F4601k=
+        b=WypL3841FM7pE9yfylheG+9r5L+UE1TlelUO5dDr2Qr1FjLUHcP+GcStS3FYPUdqR
+         ZkgXcHVJvU/G9pOQpXFwo7br0560RrESBgl1U0N7DrVvXZhmeyTfa46/SmQ15LbEHi
+         XAf/j2VzsnnTvBGbLNnMUEUMSxnxqCE40NlFhq00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/104] net/smc: fix fallback failed while sendmsg with fastopen
+Subject: [PATCH 6.2 040/141] block: Revert "block: Do not reread partition table on exclusively open device"
 Date:   Wed, 15 Mar 2023 13:12:23 +0100
-Message-Id: <20230315115734.165474456@linuxfoundation.org>
+Message-Id: <20230315115741.181396194@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +54,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit ce7ca794712f186da99719e8b4e97bd5ddbb04c3 ]
+[ Upstream commit 0f77b29ad14e34a89961f32edc87b92db623bb37 ]
 
-Before determining whether the msg has unsupported options, it has been
-prematurely terminated by the wrong status check.
+This reverts commit 36369f46e91785688a5f39d7a5590e3f07981316.
 
-For the application, the general usages of MSG_FASTOPEN likes
+This patch can't fix the problem in a corner case that device can be
+opened exclusively after the checking and before blkdev_get_by_dev().
+We'll use a new solution to fix the problem in the next patch, and
+the new solution doesn't need to change apis.
 
-fd = socket(...)
-/* rather than connect */
-sendto(fd, data, len, MSG_FASTOPEN)
-
-Hence, We need to check the flag before state check, because the sock
-state here is always SMC_INIT when applications tries MSG_FASTOPEN.
-Once we found unsupported options, fallback it to TCP.
-
-Fixes: ee9dfbef02d1 ("net/smc: handle sockopts forcing fallback")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-
-v2 -> v1: Optimize code style
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230217022200.3092987-2-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ block/blk.h   |  2 +-
+ block/genhd.c |  7 ++-----
+ block/ioctl.c | 13 ++++++-------
+ 3 files changed, 9 insertions(+), 13 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 41cbc7c89c9d2..8ab84926816f6 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1988,16 +1988,14 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+diff --git a/block/blk.h b/block/blk.h
+index 4c3b3325219a5..e835f21d48af0 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -427,7 +427,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
+ 
+ struct request_queue *blk_alloc_queue(int node_id);
+ 
+-int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner);
++int disk_scan_partitions(struct gendisk *disk, fmode_t mode);
+ 
+ int disk_alloc_events(struct gendisk *disk);
+ void disk_add_events(struct gendisk *disk);
+diff --git a/block/genhd.c b/block/genhd.c
+index 23cf83b3331cd..fe47071f79e88 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -356,7 +356,7 @@ void disk_uevent(struct gendisk *disk, enum kobject_action action)
+ }
+ EXPORT_SYMBOL_GPL(disk_uevent);
+ 
+-int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner)
++int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
  {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = -EPIPE;
-+	int rc;
+ 	struct block_device *bdev;
  
- 	smc = smc_sk(sk);
- 	lock_sock(sk);
--	if ((sk->sk_state != SMC_ACTIVE) &&
--	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
--	    (sk->sk_state != SMC_INIT))
--		goto out;
+@@ -366,9 +366,6 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner)
+ 		return -EINVAL;
+ 	if (disk->open_partitions)
+ 		return -EBUSY;
+-	/* Someone else has bdev exclusively open? */
+-	if (disk->part0->bd_holder && disk->part0->bd_holder != owner)
+-		return -EBUSY;
  
-+	/* SMC does not support connect with fastopen */
- 	if (msg->msg_flags & MSG_FASTOPEN) {
-+		/* not connected yet, fallback */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
- 			smc_switch_to_fallback(smc);
- 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
-@@ -2005,6 +2003,11 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 			rc = -EINVAL;
- 			goto out;
- 		}
-+	} else if ((sk->sk_state != SMC_ACTIVE) &&
-+		   (sk->sk_state != SMC_APPCLOSEWAIT1) &&
-+		   (sk->sk_state != SMC_INIT)) {
-+		rc = -EPIPE;
-+		goto out;
+ 	set_bit(GD_NEED_PART_SCAN, &disk->state);
+ 	bdev = blkdev_get_by_dev(disk_devt(disk), mode, NULL);
+@@ -499,7 +496,7 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
+ 
+ 		bdev_add(disk->part0, ddev->devt);
+ 		if (get_capacity(disk))
+-			disk_scan_partitions(disk, FMODE_READ, NULL);
++			disk_scan_partitions(disk, FMODE_READ);
+ 
+ 		/*
+ 		 * Announce the disk and partitions after all partitions are
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 96617512982e5..6dd49d877584a 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -467,10 +467,10 @@ static int blkdev_bszset(struct block_device *bdev, fmode_t mode,
+  * user space. Note the separate arg/argp parameters that are needed
+  * to deal with the compat_ptr() conversion.
+  */
+-static int blkdev_common_ioctl(struct file *file, fmode_t mode, unsigned cmd,
+-			       unsigned long arg, void __user *argp)
++static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
++			       unsigned int cmd, unsigned long arg,
++			       void __user *argp)
+ {
+-	struct block_device *bdev = I_BDEV(file->f_mapping->host);
+ 	unsigned int max_sectors;
+ 
+ 	switch (cmd) {
+@@ -528,8 +528,7 @@ static int blkdev_common_ioctl(struct file *file, fmode_t mode, unsigned cmd,
+ 			return -EACCES;
+ 		if (bdev_is_partition(bdev))
+ 			return -EINVAL;
+-		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL,
+-					    file);
++		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL);
+ 	case BLKTRACESTART:
+ 	case BLKTRACESTOP:
+ 	case BLKTRACETEARDOWN:
+@@ -607,7 +606,7 @@ long blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 		break;
  	}
  
- 	if (smc->use_fallback)
+-	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
++	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
+ 	if (ret != -ENOIOCTLCMD)
+ 		return ret;
+ 
+@@ -676,7 +675,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 		break;
+ 	}
+ 
+-	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
++	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
+ 	if (ret == -ENOIOCTLCMD && disk->fops->compat_ioctl)
+ 		ret = disk->fops->compat_ioctl(bdev, mode, cmd, arg);
+ 
 -- 
 2.39.2
 
