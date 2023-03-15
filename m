@@ -2,210 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2EAE6BBD42
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 20:29:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1626BBD7E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 20:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbjCOT3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 15:29:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49672 "EHLO
+        id S232487AbjCOTpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 15:45:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231964AbjCOT33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 15:29:29 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD8D6F4AC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:24 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id cn6so7424409pjb.2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:24 -0700 (PDT)
+        with ESMTP id S232718AbjCOTor (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 15:44:47 -0400
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E78276A1C1
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:44:37 -0700 (PDT)
+Received: by mail-qt1-x836.google.com with SMTP id n2so1349813qtp.0
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:44:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678908563;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=QSqhGUnyzubE81KnqzAJtS6VPbJU0LWmFrU52Zxw7PU=;
-        b=WcdBUPnjxrJ/ywI6YTAKOGUsVcJhKPhRl7vZDM7DWHpo5p3Sv/uymsKFHeWyKxBWyz
-         Zb6zUXoJ3fFL2DdlAqOAuuJ0nB8MC94mT0IH2c64QRi6gm7nszEn3RJ3AE/uuN8K43DO
-         rs24N0vWqJR3FwkhTsBU2ypccxxOilKtKiZTYiO9NEUiVaI3OlAsy9kagg4jDktO8O7U
-         Zoud9x242reOo/6diaVhvcYUun9BRxgJHxctr/vGgPoTq+hG3/ZPy/Oqg0kCg02lB4nK
-         P0VcE9ZR8az4NEGkLTC057TtL5KKowzt/e38CeYGNgPg/ZZvOlUzig2EzWSkrjDyYQWL
-         tlwA==
+        d=joelfernandes.org; s=google; t=1678909477;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kmL3NaGdkJr0Bc+bh875hISga550hRk4RtUTBtwwn0w=;
+        b=bnBx2KLF4/8ayT1hsKRH/YELY31dEXlopSuwsSIBqqg+vaXM/EzMzHk3VEelU5122J
+         jwQb+81WA0fyC2BsjfFRu6dch564OgwoXcO8sX+yjQIZbugkKoJ2HG34dTE3ocYhrCar
+         8S/A3URcPENhyHM0kLeY152ccpK6HGiSkJAnw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678908563;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=QSqhGUnyzubE81KnqzAJtS6VPbJU0LWmFrU52Zxw7PU=;
-        b=hsyKR03/2L3DDxfUtIEmNr1s5/ZrfSY4mXANean4ExTYDUp9IQnbAeoea1p7HwL+pP
-         W0f6/I2NnlX+KPy3V8Ls9InmH8E4LsqtI+acX+YQ4xn25QSnUOZIvjIZQflxoCRyS76h
-         Q4BSwxIdpQt6azMEtM5MNN1nv5/ouyOQUy4rH3XHgEjQqDvbVaJs2/E3RombWpnE+hox
-         OTntrqZ0tZaIpDAuUn2rKMXRObW0cz9nL+bURqzlQIANuqTyygHaZPnbY3yov+z9lH1Q
-         nerhdWXIEyJePRMSdHH/WdCekb/TZJC8cxTf1hhu6xmQE2x4eygyg4gLwINUcbU3gLsg
-         vAqw==
-X-Gm-Message-State: AO0yUKWUiIl+kQ2Ew8M+rAWUDgbCdDoeNbJn63p2FQAW9SEier23t00c
-        Uz1kI96kJ0KkuYyTGQBWB696r/dJ32D9FcZEoMPkIy34
-X-Google-Smtp-Source: AK7set/9m5mBDqwYscK3gC/SvheuQy641Wrh8qGymusHSJPr83lI4EXhkbSPjDjqUH4Tu/m6BqhMYA==
-X-Received: by 2002:a17:902:d486:b0:19a:839d:b682 with SMTP id c6-20020a170902d48600b0019a839db682mr833404plg.17.1678908563387;
-        Wed, 15 Mar 2023 12:29:23 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v7-20020a170902b7c700b001991f3d85acsm3949092plz.299.2023.03.15.12.29.22
+        d=1e100.net; s=20210112; t=1678909477;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kmL3NaGdkJr0Bc+bh875hISga550hRk4RtUTBtwwn0w=;
+        b=dtDkcKc9qmo7yTqP9q8NjugpiVwHYU296hSS3MUjoXi74q1qgk4jqkpPRu6rJCy9XN
+         +ZagRFZGDWLcYinxaolWER5iVIXXlXOxurgo2znx83LJhrOq2dU5XItyPu3FtLb5Gs4h
+         k8FY9QzEBP3U4lyT0cwQG2eMJpGGh2z7Hd8q26bLWsXpYKimdYuemXXeuqHDUioAldHW
+         z1R9wQ6PwFDplEpLj1RdAnjjLzoVuPAntGqj4FmlVbRn8BldPOK6zwWaAjLKW9LaqMp2
+         tHUdTD1hqBOsM0FkpyECjd1OrbRS7gj61lpKba9dYfxAwwJyZq6cXrqkH14tPRdccyRT
+         HhMg==
+X-Gm-Message-State: AO0yUKUfHewL5r1NExodNa3zvtCxnAFVJuZ18Bjainheclsi6avLiV8I
+        1O60oGitmP++/dK9vAgzCaexBg==
+X-Google-Smtp-Source: AK7set/ClKfiibjlVpcqax3G+t0GuqIKsox+SDD/jjB1WY+e+c9YqxkMfF3ISk2g3yWXShpXuSq1zg==
+X-Received: by 2002:ac8:5989:0:b0:3bf:c5a7:595f with SMTP id e9-20020ac85989000000b003bfc5a7595fmr1903191qte.21.1678909476912;
+        Wed, 15 Mar 2023 12:44:36 -0700 (PDT)
+Received: from joelboxx.c.googlers.com.com (129.239.188.35.bc.googleusercontent.com. [35.188.239.129])
+        by smtp.gmail.com with ESMTPSA id c15-20020ac8660f000000b003b86b088755sm4346666qtp.15.2023.03.15.12.44.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Mar 2023 12:29:23 -0700 (PDT)
-Message-ID: <64121c93.170a0220.99fd4.936a@mx.google.com>
-Date:   Wed, 15 Mar 2023 12:29:23 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 15 Mar 2023 12:44:36 -0700 (PDT)
+From:   "Joel Fernandes (Google)" <joel@joelfernandes.org>
+To:     linux-kernel@vger.kernel.org,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Zheng Yejian <zhengyejian1@huawei.com>, stable@vger.kernel.org,
+        rcu@vger.kernel.org
+Subject: [PATCH 8/9] rcu: Avoid stack overflow due to __rcu_irq_enter_check_tick() being kprobe-ed
+Date:   Wed, 15 Mar 2023 19:43:48 +0000
+Message-Id: <20230315194349.10798-8-joel@joelfernandes.org>
+X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
+In-Reply-To: <20230315194349.10798-1-joel@joelfernandes.org>
+References: <20230315194349.10798-1-joel@joelfernandes.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.101-150-g158686d9d0fd1
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.15.y baseline: 180 runs,
- 2 regressions (v5.15.101-150-g158686d9d0fd1)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 180 runs, 2 regressions (v5.15.101-150-g15=
-8686d9d0fd1)
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-Regressions Summary
--------------------
+Registering a kprobe on __rcu_irq_enter_check_tick() can cause kernel
+stack overflow as shown below. This issue can be reproduced by enabling
+CONFIG_NO_HZ_FULL and booting the kernel with argument "nohz_full=",
+and then giving the following commands at the shell prompt:
 
-platform        | arch  | lab          | compiler | defconfig          | re=
-gressions
-----------------+-------+--------------+----------+--------------------+---=
----------
-cubietruck      | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+  # cd /sys/kernel/tracing/
+  # echo 'p:mp1 __rcu_irq_enter_check_tick' >> kprobe_events
+  # echo 1 > events/kprobes/enable
 
-fsl-lx2160a-rdb | arm64 | lab-nxp      | gcc-10   | defconfig          | 1 =
-         =
+This commit therefore adds __rcu_irq_enter_check_tick() to the kprobes
+blacklist using NOKPROBE_SYMBOL().
 
+Insufficient stack space to handle exception!
+ESR: 0x00000000f2000004 -- BRK (AArch64)
+FAR: 0x0000ffffccf3e510
+Task stack:     [0xffff80000ad30000..0xffff80000ad38000]
+IRQ stack:      [0xffff800008050000..0xffff800008058000]
+Overflow stack: [0xffff089c36f9f310..0xffff089c36fa0310]
+CPU: 5 PID: 190 Comm: bash Not tainted 6.2.0-rc2-00320-g1f5abbd77e2c #19
+Hardware name: linux,dummy-virt (DT)
+pstate: 400003c5 (nZcv DAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : __rcu_irq_enter_check_tick+0x0/0x1b8
+lr : ct_nmi_enter+0x11c/0x138
+sp : ffff80000ad30080
+x29: ffff80000ad30080 x28: ffff089c82e20000 x27: 0000000000000000
+x26: 0000000000000000 x25: ffff089c02a8d100 x24: 0000000000000000
+x23: 00000000400003c5 x22: 0000ffffccf3e510 x21: ffff089c36fae148
+x20: ffff80000ad30120 x19: ffffa8da8fcce148 x18: 0000000000000000
+x17: 0000000000000000 x16: 0000000000000000 x15: ffffa8da8e44ea6c
+x14: ffffa8da8e44e968 x13: ffffa8da8e03136c x12: 1fffe113804d6809
+x11: ffff6113804d6809 x10: 0000000000000a60 x9 : dfff800000000000
+x8 : ffff089c026b404f x7 : 00009eec7fb297f7 x6 : 0000000000000001
+x5 : ffff80000ad30120 x4 : dfff800000000000 x3 : ffffa8da8e3016f4
+x2 : 0000000000000003 x1 : 0000000000000000 x0 : 0000000000000000
+Kernel panic - not syncing: kernel stack overflow
+CPU: 5 PID: 190 Comm: bash Not tainted 6.2.0-rc2-00320-g1f5abbd77e2c #19
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace+0xf8/0x108
+ show_stack+0x20/0x30
+ dump_stack_lvl+0x68/0x84
+ dump_stack+0x1c/0x38
+ panic+0x214/0x404
+ add_taint+0x0/0xf8
+ panic_bad_stack+0x144/0x160
+ handle_bad_stack+0x38/0x58
+ __bad_stack+0x78/0x7c
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ arm64_enter_el1_dbg.isra.0+0x14/0x20
+ el1_dbg+0x2c/0x90
+ el1h_64_sync_handler+0xcc/0xe8
+ el1h_64_sync+0x64/0x68
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ arm64_enter_el1_dbg.isra.0+0x14/0x20
+ el1_dbg+0x2c/0x90
+ el1h_64_sync_handler+0xcc/0xe8
+ el1h_64_sync+0x64/0x68
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ arm64_enter_el1_dbg.isra.0+0x14/0x20
+ el1_dbg+0x2c/0x90
+ el1h_64_sync_handler+0xcc/0xe8
+ el1h_64_sync+0x64/0x68
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ [...]
+ el1_dbg+0x2c/0x90
+ el1h_64_sync_handler+0xcc/0xe8
+ el1h_64_sync+0x64/0x68
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ arm64_enter_el1_dbg.isra.0+0x14/0x20
+ el1_dbg+0x2c/0x90
+ el1h_64_sync_handler+0xcc/0xe8
+ el1h_64_sync+0x64/0x68
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ arm64_enter_el1_dbg.isra.0+0x14/0x20
+ el1_dbg+0x2c/0x90
+ el1h_64_sync_handler+0xcc/0xe8
+ el1h_64_sync+0x64/0x68
+ __rcu_irq_enter_check_tick+0x0/0x1b8
+ el1_interrupt+0x28/0x60
+ el1h_64_irq_handler+0x18/0x28
+ el1h_64_irq+0x64/0x68
+ __ftrace_set_clr_event_nolock+0x98/0x198
+ __ftrace_set_clr_event+0x58/0x80
+ system_enable_write+0x144/0x178
+ vfs_write+0x174/0x738
+ ksys_write+0xd0/0x188
+ __arm64_sys_write+0x4c/0x60
+ invoke_syscall+0x64/0x180
+ el0_svc_common.constprop.0+0x84/0x160
+ do_el0_svc+0x48/0xe8
+ el0_svc+0x34/0xd0
+ el0t_64_sync_handler+0xb8/0xc0
+ el0t_64_sync+0x190/0x194
+SMP: stopping secondary CPUs
+Kernel Offset: 0x28da86000000 from 0xffff800008000000
+PHYS_OFFSET: 0xfffff76600000000
+CPU features: 0x00000,01a00100,0000421b
+Memory Limit: none
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.101-150-g158686d9d0fd1/plan/baseline/
+Link: https://lore.kernel.org/all/20221119040049.795065-1-zhengyejian1@huawei.com/
+Fixes: aaf2bc50df1f ("rcu: Abstract out rcu_irq_enter_check_tick() from rcu_nmi_enter()")
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+---
+ kernel/rcu/tree.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.101-150-g158686d9d0fd1
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      158686d9d0fd1611f5fed8138b31ceea82254c07 =
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 90d54571126a..ee27a03d7576 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -640,6 +640,7 @@ void __rcu_irq_enter_check_tick(void)
+ 	}
+ 	raw_spin_unlock_rcu_node(rdp->mynode);
+ }
++NOKPROBE_SYMBOL(__rcu_irq_enter_check_tick);
+ #endif /* CONFIG_NO_HZ_FULL */
+ 
+ /*
+-- 
+2.40.0.rc1.284.g88254d51c5-goog
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig          | re=
-gressions
-----------------+-------+--------------+----------+--------------------+---=
----------
-cubietruck      | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/6411e7c2c1fcd312458c8659
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-01-150-g158686d9d0fd1/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-c=
-ubietruck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-01-150-g158686d9d0fd1/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-c=
-ubietruck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/6411e7c2c1fcd312458c8662
-        failing since 57 days (last pass: v5.15.82-124-gd731c63c25d1, first=
- fail: v5.15.87-101-g5bcc318cb4cd)
-
-    2023-03-15T15:43:46.691009  <8>[    9.986148] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3414530_1.5.2.4.1>
-    2023-03-15T15:43:46.801332  / # #
-    2023-03-15T15:43:46.904879  export SHELL=3D/bin/sh
-    2023-03-15T15:43:46.905892  #
-    2023-03-15T15:43:46.906329  / # <3>[   10.113461] Bluetooth: hci0: comm=
-and 0xfc18 tx timeout
-    2023-03-15T15:43:47.008268  export SHELL=3D/bin/sh. /lava-3414530/envir=
-onment
-    2023-03-15T15:43:47.009340  =
-
-    2023-03-15T15:43:47.111609  / # . /lava-3414530/environment/lava-341453=
-0/bin/lava-test-runner /lava-3414530/1
-    2023-03-15T15:43:47.113351  =
-
-    2023-03-15T15:43:47.118359  / # /lava-3414530/bin/lava-test-runner /lav=
-a-3414530/1 =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig          | re=
-gressions
-----------------+-------+--------------+----------+--------------------+---=
----------
-fsl-lx2160a-rdb | arm64 | lab-nxp      | gcc-10   | defconfig          | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/6411ec65653b3f64878c86e5
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-01-150-g158686d9d0fd1/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-r=
-db.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-01-150-g158686d9d0fd1/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-r=
-db.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/6411ec65653b3f64878c86ec
-        failing since 11 days (last pass: v5.15.79, first fail: v5.15.98)
-
-    2023-03-15T16:03:07.033883  [   10.386701] <LAVA_SIGNAL_ENDRUN 0_dmesg =
-1173943_1.5.2.4.1>
-    2023-03-15T16:03:07.139846  / # #
-    2023-03-15T16:03:07.241957  export SHELL=3D/bin/sh
-    2023-03-15T16:03:07.242436  #
-    2023-03-15T16:03:07.343948  / # export SHELL=3D/bin/sh. /lava-1173943/e=
-nvironment
-    2023-03-15T16:03:07.344411  =
-
-    2023-03-15T16:03:07.445896  / # . /lava-1173943/environment/lava-117394=
-3/bin/lava-test-runner /lava-1173943/1
-    2023-03-15T16:03:07.446692  =
-
-    2023-03-15T16:03:07.448340  / # /lava-1173943/bin/lava-test-runner /lav=
-a-1173943/1
-    2023-03-15T16:03:07.467981  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =20
