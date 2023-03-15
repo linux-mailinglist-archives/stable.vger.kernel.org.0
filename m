@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F106BB154
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FF4F6BB208
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232434AbjCOM0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56936 "EHLO
+        id S232521AbjCOMcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231806AbjCOM0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B44599C2C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:23 -0700 (PDT)
+        with ESMTP id S232566AbjCOMb6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 652EB2201A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C160B81DF6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98359C433EF;
-        Wed, 15 Mar 2023 12:25:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE7261D58
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84F9EC433EF;
+        Wed, 15 Mar 2023 12:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883122;
-        bh=IyhMf7AffPOfSQ3jx3jQk604PzoiGSL9QvWyJmhAZAw=;
+        s=korg; t=1678883475;
+        bh=5vgBSIJR9Vs+qAxCbN2bmTQwr2NAFxHisIh3cE0xgLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmtKuxxtLKJw5tbl/WazMplmo5FO8eA7Nrhkn4ANWXbEy0iTD9epcHAEshD1OJykv
-         RW7ZbmEAEFgtqPBpwNxS8q0iKaYyqaIGc1Lrbvigmzkck7IaqU9JlVgQszwtth5JyB
-         7fUNxGApOCA1mIlbKHeFu2ibANHbMi0jsxQJQPAY=
+        b=VFUfZQmH5AtimIypz7ywDPh3oP/YAteZalkZkweaC2s6rmqI7rJiDjKef5F8CM1YX
+         m80dYFyjJl4ZXD/5+mECTM+QBUBhnME863vnCnsGB4TBLzvG4XxhCMG56ZIVxLrBPS
+         Ln1LIdZGhLntVsSclUhGXIentCibp258mMUmT2Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 024/145] udf: Fix off-by-one error when discarding preallocation
+        patches@lists.linux.dev, Kanchan Joshi <joshi.k@samsung.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 004/143] io_uring/uring_cmd: ensure that device supports IOPOLL
 Date:   Wed, 15 Mar 2023 13:11:30 +0100
-Message-Id: <20230315115739.838873153@linuxfoundation.org>
+Message-Id: <20230315115740.583785917@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit f54aa97fb7e5329a373f9df4e5e213ced4fc8759 ]
+commit 03b3d6be73e81ddb7c2930d942cdd17f4cfd5ba5 upstream.
 
-The condition determining whether the preallocation can be used had
-an off-by-one error so we didn't discard preallocation when new
-allocation was just following it. This can then confuse code in
-inode_getblk().
+It's possible for a file type to support uring commands, but not
+pollable ones. Hence before issuing one of those, we should check
+that it is supported and error out upfront if it isn't.
 
-CC: stable@vger.kernel.org
-Fixes: 16d055656814 ("udf: Discard preallocation before extending file with a hole")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 5756a3a7e713 ("io_uring: add iopoll infrastructure for io_uring_cmd")
+Link: https://github.com/axboe/liburing/issues/816
+Reviewed-by: Kanchan Joshi <joshi.k@samsung.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ io_uring/uring_cmd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index a151e04856afe..594d224588819 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -442,7 +442,7 @@ static int udf_get_block(struct inode *inode, sector_t block,
- 	 * Block beyond EOF and prealloc extents? Just discard preallocation
- 	 * as it is not useful and complicates things.
- 	 */
--	if (((loff_t)block) << inode->i_blkbits > iinfo->i_lenExtents)
-+	if (((loff_t)block) << inode->i_blkbits >= iinfo->i_lenExtents)
- 		udf_discard_prealloc(inode);
- 	udf_clear_extent_cache(inode);
- 	phys = inode_getblk(inode, block, &err, &new);
+diff --git a/io_uring/uring_cmd.c b/io_uring/uring_cmd.c
+index 446a189b78b0..2e4c483075d3 100644
+--- a/io_uring/uring_cmd.c
++++ b/io_uring/uring_cmd.c
+@@ -108,7 +108,7 @@ int io_uring_cmd(struct io_kiocb *req, unsigned int issue_flags)
+ 	struct file *file = req->file;
+ 	int ret;
+ 
+-	if (!req->file->f_op->uring_cmd)
++	if (!file->f_op->uring_cmd)
+ 		return -EOPNOTSUPP;
+ 
+ 	ret = security_uring_cmd(ioucmd);
+@@ -120,6 +120,8 @@ int io_uring_cmd(struct io_kiocb *req, unsigned int issue_flags)
+ 	if (ctx->flags & IORING_SETUP_CQE32)
+ 		issue_flags |= IO_URING_F_CQE32;
+ 	if (ctx->flags & IORING_SETUP_IOPOLL) {
++		if (!file->f_op->uring_cmd_iopoll)
++			return -EOPNOTSUPP;
+ 		issue_flags |= IO_URING_F_IOPOLL;
+ 		req->iopoll_completed = 0;
+ 		WRITE_ONCE(ioucmd->cookie, NULL);
 -- 
 2.39.2
 
