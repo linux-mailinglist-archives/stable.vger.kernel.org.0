@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD69E6BB1CC
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E8B6BB26D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbjCOMat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:30:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40292 "EHLO
+        id S232767AbjCOMgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232605AbjCOMab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35287389B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:29 -0700 (PDT)
+        with ESMTP id S232770AbjCOMf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E283219C4D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91D75B81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EBB7C433D2;
-        Wed, 15 Mar 2023 12:29:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C191F61D66
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4CD3C433EF;
+        Wed, 15 Mar 2023 12:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883366;
-        bh=sOMoDg7RuL5ytTgjGyotfu2FHUmBygWzqcL6SmOR8dY=;
+        s=korg; t=1678883695;
+        bh=U5Tlb1a/y7w8xHUuuogriwz7GVfy7uNtzYBbfcWvtsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evAWD9ugAOe/hcZSOqSEM20rpgM3qUOJsL+gfAtyrcaY4bleSJr+O6ByOaMVj5tUy
-         HtR4vwsXd4isHnPr/rOUV3oB5/XuO0tlxyStRM47zQZBl3i5pa0tN2joTv6qI4Xbb9
-         NHbjPF+KQ8YlV57ZZwExsv1YDDPS6FoP/zM78KNw=
+        b=fmP012/V7t56y2trxaCTVDTqp7SWMrllVvBcV5Ks2AqHiZy0d3eahMoqZ95xST18C
+         +uW7PPrV5cVd84pxjHowRMfnPVSSTq8Qv0DbAZ4n9dj90K3KU47sNnso7a46zXOxNu
+         XurFZeQ0ZopbsHnOwy5TdFQ6T8RYXzUW1qCveyFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Seth Forshee (DigitalOcean)" <sforshee@kernel.org>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>
-Subject: [PATCH 5.15 117/145] filelocks: use mount idmapping for setlease permission check
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 097/143] scsi: megaraid_sas: Update max supported LD IDs to 240
 Date:   Wed, 15 Mar 2023 13:13:03 +0100
-Message-Id: <20230315115742.815173127@linuxfoundation.org>
+Message-Id: <20230315115743.459851020@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,39 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Forshee <sforshee@kernel.org>
+From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
 
-commit 42d0c4bdf753063b6eec55415003184d3ca24f6e upstream.
+[ Upstream commit bfa659177dcba48cf13f2bd88c1972f12a60bf1c ]
 
-A user should be allowed to take out a lease via an idmapped mount if
-the fsuid matches the mapped uid of the inode. generic_setlease() is
-checking the unmapped inode uid, causing these operations to be denied.
+The firmware only supports Logical Disk IDs up to 240 and LD ID 255 (0xFF)
+is reserved for deleted LDs. However, in some cases, firmware was assigning
+LD ID 254 (0xFE) to deleted LDs and this was causing the driver to mark the
+wrong disk as deleted. This in turn caused the wrong disk device to be
+taken offline by the SCSI midlayer.
 
-Fix this by comparing against the mapped inode uid instead of the
-unmapped uid.
+To address this issue, limit the LD ID range from 255 to 240. This ensures
+the deleted LD ID is properly identified and removed by the driver without
+accidently deleting any valid LDs.
 
-Fixes: 9caccd41541a ("fs: introduce MOUNT_ATTR_IDMAP")
-Cc: stable@vger.kernel.org
-Signed-off-by: Seth Forshee (DigitalOcean) <sforshee@kernel.org>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ae6874ba4b43 ("scsi: megaraid_sas: Early detection of VD deletion through RaidMap update")
+Reported-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Link: https://lore.kernel.org/r/20230302105342.34933-2-chandrakanth.patil@broadcom.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/locks.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/megaraid/megaraid_sas.h    | 2 ++
+ drivers/scsi/megaraid/megaraid_sas_fp.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -1901,9 +1901,10 @@ int generic_setlease(struct file *filp,
- 			void **priv)
- {
- 	struct inode *inode = locks_inode(filp);
-+	kuid_t uid = i_uid_into_mnt(file_mnt_user_ns(filp), inode);
- 	int error;
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 4919ea54b8277..2ef9d41fc6f42 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -1519,6 +1519,8 @@ struct megasas_ctrl_info {
+ #define MEGASAS_MAX_LD_IDS			(MEGASAS_MAX_LD_CHANNELS * \
+ 						MEGASAS_MAX_DEV_PER_CHANNEL)
  
--	if ((!uid_eq(current_fsuid(), inode->i_uid)) && !capable(CAP_LEASE))
-+	if ((!uid_eq(current_fsuid(), uid)) && !capable(CAP_LEASE))
- 		return -EACCES;
- 	if (!S_ISREG(inode->i_mode))
- 		return -EINVAL;
++#define MEGASAS_MAX_SUPPORTED_LD_IDS		240
++
+ #define MEGASAS_MAX_SECTORS                    (2*1024)
+ #define MEGASAS_MAX_SECTORS_IEEE		(2*128)
+ #define MEGASAS_DBG_LVL				1
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fp.c b/drivers/scsi/megaraid/megaraid_sas_fp.c
+index da1cad1ee1238..4463a538102ad 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fp.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fp.c
+@@ -358,7 +358,7 @@ u8 MR_ValidateMapInfo(struct megasas_instance *instance, u64 map_id)
+ 		ld = MR_TargetIdToLdGet(i, drv_map);
+ 
+ 		/* For non existing VDs, iterate to next VD*/
+-		if (ld >= (MAX_LOGICAL_DRIVES_EXT - 1))
++		if (ld >= MEGASAS_MAX_SUPPORTED_LD_IDS)
+ 			continue;
+ 
+ 		raid = MR_LdRaidGet(ld, drv_map);
+-- 
+2.39.2
+
 
 
