@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68CAC6BB257
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 417806BAFFF
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232613AbjCOMfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51622 "EHLO
+        id S231649AbjCOMOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:14:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232617AbjCOMfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F0E96F00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:44 -0700 (PDT)
+        with ESMTP id S231652AbjCOMOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ABF228D3A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C756B81DF4
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E377BC433D2;
-        Wed, 15 Mar 2023 12:33:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5592BB81DFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B02BC433EF;
+        Wed, 15 Mar 2023 12:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883622;
-        bh=lYy8t8edsXXLRCzwvQX4WEzXCJb7qB3UsET+7Qk+NJQ=;
+        s=korg; t=1678882467;
+        bh=UQvj+zewJtaxsACLtQr/sO7WODmPWNgs5vTKHcjY5F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krwddFbL2m5WFL0YFbT8/sgBH7d/+v8iTzrWZ6oW3I9WNtaI9aqdNL35ArpOWD1pB
-         NjMKG18oMj2uvdKuj8vNnlBIDq7EXAgswgaPmWEzdsuRRv0lcs0gOfKSFWDjIge3QB
-         zFMrGW5fBApLux/9LvlsfxdWbexADuWS5beOdRt8=
+        b=jQ4wWhYgE2zMOydxbNjFtbwSultXVXPkeRb08GlGtOiZegPhxXTC/e6B0HEbGOmUP
+         BwayQsIQtVHQl4WJlkCaFbrIhTvbEtPKDimDDy3SiVq9t7PF4BtcNxsEXhZYHM57Ez
+         VHH7Afc+tUG4FrUMAP0vBtBdSfoW2910wuEApZhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev,
+        "sjur.brandeland@stericsson.com" <sjur.brandeland@stericsson.com>,
+        syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 068/143] drm/msm/dpu: disable features unsupported by QCM2290
+Subject: [PATCH 4.14 11/21] net: caif: Fix use-after-free in cfusbl_device_notify()
 Date:   Wed, 15 Mar 2023 13:12:34 +0100
-Message-Id: <20230315115742.607555134@linuxfoundation.org>
+Message-Id: <20230315115719.238334281@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit a2a448b4d9bcb5bff0e0f687b7932a7be9ca898a ]
+[ Upstream commit 9781e98a97110f5e76999058368b4be76a788484 ]
 
-QCM2290 doesn't seem to support reg-dma, UBWC and CSC. Drop
-corresponding features being incorrectly enabled for qcm2290.
+syzbot reported use-after-free in cfusbl_device_notify() [1].  This
+causes a stack trace like below:
 
-Cc: Loic Poulain <loic.poulain@linaro.org>
-Fixes: 5334087ee743 ("drm/msm: add support for QCM2290 MDSS")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/522209/
-Link: https://lore.kernel.org/r/20230211231259.1308718-3-dmitry.baryshkov@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+BUG: KASAN: use-after-free in cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
+Read of size 8 at addr ffff88807ac4e6f0 by task kworker/u4:6/1214
+
+CPU: 0 PID: 1214 Comm: kworker/u4:6 Not tainted 5.19.0-rc3-syzkaller-00146-g92f20ff72066 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
+ print_report mm/kasan/report.c:429 [inline]
+ kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
+ cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
+ notifier_call_chain+0xb5/0x200 kernel/notifier.c:87
+ call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1945
+ call_netdevice_notifiers_extack net/core/dev.c:1983 [inline]
+ call_netdevice_notifiers net/core/dev.c:1997 [inline]
+ netdev_wait_allrefs_any net/core/dev.c:10227 [inline]
+ netdev_run_todo+0xbc0/0x10f0 net/core/dev.c:10341
+ default_device_exit_batch+0x44e/0x590 net/core/dev.c:11334
+ ops_exit_list+0x125/0x170 net/core/net_namespace.c:167
+ cleanup_net+0x4ea/0xb00 net/core/net_namespace.c:594
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+ </TASK>
+
+When unregistering a net device, unregister_netdevice_many_notify()
+sets the device's reg_state to NETREG_UNREGISTERING, calls notifiers
+with NETDEV_UNREGISTER, and adds the device to the todo list.
+
+Later on, devices in the todo list are processed by netdev_run_todo().
+netdev_run_todo() waits devices' reference count become 1 while
+rebdoadcasting NETDEV_UNREGISTER notification.
+
+When cfusbl_device_notify() is called with NETDEV_UNREGISTER multiple
+times, the parent device might be freed.  This could cause UAF.
+Processing NETDEV_UNREGISTER multiple times also causes inbalance of
+reference count for the module.
+
+This patch fixes the issue by accepting only first NETDEV_UNREGISTER
+notification.
+
+Fixes: 7ad65bf68d70 ("caif: Add support for CAIF over CDC NCM USB interface")
+CC: sjur.brandeland@stericsson.com <sjur.brandeland@stericsson.com>
+Reported-by: syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=c3bfd8e2450adab3bffe4d80821fbbced600407f [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Link: https://lore.kernel.org/r/20230301163913.391304-1-syoshida@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ net/caif/caif_usb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index 365738f40976a..e3f1661b84609 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -12,11 +12,15 @@
- #include "dpu_hw_catalog.h"
- #include "dpu_kms.h"
+diff --git a/net/caif/caif_usb.c b/net/caif/caif_usb.c
+index 485dde566c1a9..98c0548c6f947 100644
+--- a/net/caif/caif_usb.c
++++ b/net/caif/caif_usb.c
+@@ -135,6 +135,9 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
+ 	struct usb_device *usbdev;
+ 	int res;
  
--#define VIG_MASK \
-+#define VIG_BASE_MASK \
- 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) |\
--	BIT(DPU_SSPP_CSC_10BIT) | BIT(DPU_SSPP_CDP) |\
-+	BIT(DPU_SSPP_CDP) |\
- 	BIT(DPU_SSPP_TS_PREFILL) | BIT(DPU_SSPP_EXCL_RECT))
- 
-+#define VIG_MASK \
-+	(VIG_BASE_MASK | \
-+	BIT(DPU_SSPP_CSC_10BIT))
++	if (what == NETDEV_UNREGISTER && dev->reg_state >= NETREG_UNREGISTERED)
++		return 0;
 +
- #define VIG_MSM8998_MASK \
- 	(VIG_MASK | BIT(DPU_SSPP_SCALER_QSEED3))
- 
-@@ -29,7 +33,7 @@
- #define VIG_SM8250_MASK \
- 	(VIG_MASK | BIT(DPU_SSPP_QOS_8LVL) | BIT(DPU_SSPP_SCALER_QSEED3LITE))
- 
--#define VIG_QCM2290_MASK (VIG_MASK | BIT(DPU_SSPP_QOS_8LVL))
-+#define VIG_QCM2290_MASK (VIG_BASE_MASK | BIT(DPU_SSPP_QOS_8LVL))
- 
- #define DMA_MSM8998_MASK \
- 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) |\
-@@ -283,7 +287,6 @@ static const struct dpu_caps qcm2290_dpu_caps = {
- 	.max_mixer_width = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
- 	.max_mixer_blendstages = 0x4,
- 	.smart_dma_rev = DPU_SSPP_SMART_DMA_V2,
--	.ubwc_version = DPU_HW_UBWC_VER_20,
- 	.has_dim_layer = true,
- 	.has_idle_pc = true,
- 	.max_linewidth = 2160,
-@@ -1918,8 +1921,6 @@ static const struct dpu_mdss_cfg qcm2290_dpu_cfg = {
- 	.intf = qcm2290_intf,
- 	.vbif_count = ARRAY_SIZE(sdm845_vbif),
- 	.vbif = sdm845_vbif,
--	.reg_dma_count = 1,
--	.dma_cfg = &sdm845_regdma,
- 	.perf = &qcm2290_perf_data,
- 	.mdss_irqs = IRQ_SC7180_MASK,
- };
+ 	/* Check whether we have a NCM device, and find its VID/PID. */
+ 	if (!(dev->dev.parent && dev->dev.parent->driver &&
+ 	      strcmp(dev->dev.parent->driver->name, "cdc_ncm") == 0))
 -- 
 2.39.2
 
