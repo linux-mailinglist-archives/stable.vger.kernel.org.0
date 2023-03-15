@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B42A6BB3F6
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 14:10:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CDC46BB456
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 14:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbjCONKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 09:10:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54924 "EHLO
+        id S231823AbjCONSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 09:18:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231894AbjCONKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 09:10:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4F4A18AA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 06:10:09 -0700 (PDT)
+        with ESMTP id S231857AbjCONSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 09:18:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7D4769D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 06:18:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3065061CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 13:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD193C433D2;
-        Wed, 15 Mar 2023 13:10:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4DB3B81E0B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 13:18:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD856C433EF;
+        Wed, 15 Mar 2023 13:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678885808;
-        bh=G2q2dJAStdUCZECOzt7+ARgUFx9NwTP/y4Mr2wGEZh0=;
+        s=k20201202; t=1678886301;
+        bh=aqZVmk7t5WxMGPlPcRU9bGxPIcdBIhLbUYmgb//gCgw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sZjKKayI6Yuu6/BIULvxYBpXA2rIeUvl5UjXLDTf6SQR3qdlPwcdfaGTjnZZfZMI7
-         rAcAZaa5Q/48/qeK63wsEJIAX7Ah3r2PvVGIjUDvQtxjUYO9cahWdc1ziTiTGxGIuO
-         zVqJWGMvNE9HfqOn40T11WiRh9uvDKcdcOuKPn9zsdGxmgByghleZj/Furzf27y7+c
-         MIBrdjWO7a8Jdq58TnaGYeGCz4IVxnDM+4WK5XxvRwwA8/kg89F/Cu+9xtzkdrchGQ
-         Fn15JSqWybYnRmH2msVzInSadY37i+b8LRpckJMWm8IVvwQPrAU+TaV9YsuSRAEdEJ
-         SkAGOhyAlANPQ==
-Date:   Wed, 15 Mar 2023 13:10:04 +0000
+        b=fgfZWzCNqmUglOtvCMi0CeNNSq6mv7sWE4PjaocvodL7EhkLLIl4bafKxtzi+BWMQ
+         X3jZRaEhH4Aaw170LlS4tI2CsUESkVXsL5YmrowLwbFuCqHt44Xz1h3+pmApeJLCTC
+         YdPChklKBgTPzSMuivwwZrCX4v/eQS0tVf5QTffdiaZtlU8q4+hdmB13R0KzdyZ8bN
+         +GkNqw9r3PFtAsEZkx5gPHrK3xnwNOfIXoi4i+Ym7SGcsf8Tky5/bDn+pFkTSisOq0
+         h/KDskny5wG6C7Rb7ZVtqTMpXBZbcl9WWzIxJ56oo7uvPDN1FM3Oz6tosC+neH3mxq
+         sCmruBz4gpdDQ==
+Date:   Wed, 15 Mar 2023 13:18:17 +0000
 From:   Conor Dooley <conor@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Guenter Roeck <linux@roeck-us.net>,
+        Andrew Jones <ajones@ventanamicro.com>,
         Conor Dooley <conor.dooley@microchip.com>,
-        Samuel Holland <samuel@sholland.org>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 6.2 113/141] RISC-V: take text_mutex during alternative
- patching
-Message-ID: <43a91137-87bd-490a-bd53-196aedb497e8@spud>
+Subject: Re: [PATCH 6.2 112/141] RISC-V: clarify ISA string ordering rules in
+ cpu.c
+Message-ID: <4576eb25-2c86-49d3-a290-398d583f479a@spud>
 References: <20230315115739.932786806@linuxfoundation.org>
- <20230315115743.437505798@linuxfoundation.org>
+ <20230315115743.408666245@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="0+OR4pBqOv8IMJmq"
+        protocol="application/pgp-signature"; boundary="tXGpNp6fssXWhX88"
 Content-Disposition: inline
-In-Reply-To: <20230315115743.437505798@linuxfoundation.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+In-Reply-To: <20230315115743.408666245@linuxfoundation.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,174 +59,152 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---0+OR4pBqOv8IMJmq
+--tXGpNp6fssXWhX88
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hey Greg,
 
-Looks like the authorship for this commit has been lost as part of
-backporting.
-
-On Wed, Mar 15, 2023 at 01:13:36PM +0100, Greg Kroah-Hartman wrote:
-> [ Upstream commit 9493e6f3ce02f44c21aa19f3cbf3b9aa05479d06 ]
+On Wed, Mar 15, 2023 at 01:13:35PM +0100, Greg Kroah-Hartman wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
 >=20
-> Guenter reported a splat during boot, that Samuel pointed out was the
-> lockdep assertion failing in patch_insn_write():
+> [ Upstream commit 99e2266f2460e5778560f81982b6301dd2a16502 ]
 >=20
-> WARNING: CPU: 0 PID: 0 at arch/riscv/kernel/patch.c:63 patch_insn_write+0=
-x222/0x2f6
-> epc : patch_insn_write+0x222/0x2f6
->  ra : patch_insn_write+0x21e/0x2f6
-> epc : ffffffff800068c6 ra : ffffffff800068c2 sp : ffffffff81803df0
->  gp : ffffffff81a1ab78 tp : ffffffff81814f80 t0 : ffffffffffffe000
->  t1 : 0000000000000001 t2 : 4c45203a76637369 s0 : ffffffff81803e40
->  s1 : 0000000000000004 a0 : 0000000000000000 a1 : ffffffffffffffff
->  a2 : 0000000000000004 a3 : 0000000000000000 a4 : 0000000000000001
->  a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000052464e43
->  s2 : ffffffff80b4889c s3 : 000000000000082c s4 : ffffffff80b48828
->  s5 : 0000000000000828 s6 : ffffffff8131a0a0 s7 : 0000000000000fff
->  s8 : 0000000008000200 s9 : ffffffff8131a520 s10: 0000000000000018
->  s11: 000000000000000b t3 : 0000000000000001 t4 : 000000000000000d
->  t5 : ffffffffd8180000 t6 : ffffffff81803bc8
-> status: 0000000200000100 badaddr: 0000000000000000 cause: 0000000000000003
-> [<ffffffff800068c6>] patch_insn_write+0x222/0x2f6
-> [<ffffffff80006a36>] patch_text_nosync+0xc/0x2a
-> [<ffffffff80003b86>] riscv_cpufeature_patch_func+0x52/0x98
-> [<ffffffff80003348>] _apply_alternatives+0x46/0x86
-> [<ffffffff80c02d36>] apply_boot_alternatives+0x3c/0xfa
-> [<ffffffff80c03ad8>] setup_arch+0x584/0x5b8
-> [<ffffffff80c0075a>] start_kernel+0xa2/0x8f8
+> While the current list of rules may have been accurate when created
+> it now lacks some clarity in the face of isa-manual updates. Instead of
+> trying to continuously align this rule-set with the one in the
+> specifications, change the role of this comment.
 >=20
-> This issue was exposed by 702e64550b12 ("riscv: fpu: switch has_fpu() to
-> riscv_has_extension_likely()"), as it is the patching in has_fpu() that
-> triggers the splats in Guenter's report.
+> This particular comment is important, as the array it "decorates"
+> defines the order in which the ISA string appears to userspace in
+> /proc/cpuinfo.
 >=20
-> Take the text_mutex before doing any code patching to satisfy lockdep.
+> Re-jig and strengthen the wording to provide contributors with a set
+> order in which to add entries & note why this particular struct needs
+> more attention than others.
 >=20
-> Fixes: ff689fd21cb1 ("riscv: add RISC-V Svpbmt extension support")
-> Fixes: a35707c3d850 ("riscv: add memory-type errata for T-Head")
-> Fixes: 1a0e5dbd3723 ("riscv: sifive: Add SiFive alternative ports")
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Link: https://lore.kernel.org/all/20230212154333.GA3760469@roeck-us.net/
+> While in the area, add some whitespace and tweak some wording for
+> readability's sake.
+>=20
+> Suggested-by: Andrew Jones <ajones@ventanamicro.com>
+> Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
 > Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+> Link: https://lore.kernel.org/r/20221205144525.2148448-2-conor.dooley@mic=
+rochip.com
+> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+> Stable-dep-of: 1eac28201ac0 ("RISC-V: fix ordering of Zbb extension")
 
-The original author on the submitted patch matched this signoff here,
-not sure what went wrong along the way.
+I've been sick for the last week, and am not 100% sure what I did and
+did not reply to stable selection emails for, but I'm pretty sure that I
+did say that the ZBB stuff was a 6.3 feature and the order fix should
+not be backported.
+
+I'm not sure that I understand how this comment rework is a stable
+dependency of that backport either, but this should be dropped.
+Apologies if I missed a selection email for this one while I've been
+sick, but I was sick after all...
 
 Cheers,
 Conor.
 
-> Reviewed-by: Samuel Holland <samuel@sholland.org>
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
-> Link: https://lore.kernel.org/r/20230212194735.491785-1-conor@kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  arch/riscv/errata/sifive/errata.c | 3 +++
->  arch/riscv/errata/thead/errata.c  | 8 ++++++--
->  arch/riscv/kernel/cpufeature.c    | 6 +++++-
->  3 files changed, 14 insertions(+), 3 deletions(-)
+>  arch/riscv/kernel/cpu.c | 49 ++++++++++++++++++++++++++++++-----------
+>  1 file changed, 36 insertions(+), 13 deletions(-)
 >=20
-> diff --git a/arch/riscv/errata/sifive/errata.c b/arch/riscv/errata/sifive=
-/errata.c
-> index 1031038423e74..5b77d7310e391 100644
-> --- a/arch/riscv/errata/sifive/errata.c
-> +++ b/arch/riscv/errata/sifive/errata.c
-> @@ -4,6 +4,7 @@
+> diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
+> index 1b9a5a66e55ab..db8b16ad9342b 100644
+> --- a/arch/riscv/kernel/cpu.c
+> +++ b/arch/riscv/kernel/cpu.c
+> @@ -144,22 +144,45 @@ arch_initcall(riscv_cpuinfo_init);
+>  		.uprop =3D #UPROP,				\
+>  		.isa_ext_id =3D EXTID,				\
+>  	}
+> +
+>  /*
+> - * Here are the ordering rules of extension naming defined by RISC-V
+> - * specification :
+> - * 1. All extensions should be separated from other multi-letter extensi=
+ons
+> - *    by an underscore.
+> - * 2. The first letter following the 'Z' conventionally indicates the mo=
+st
+> + * The canonical order of ISA extension names in the ISA string is defin=
+ed in
+> + * chapter 27 of the unprivileged specification.
+> + *
+> + * Ordinarily, for in-kernel data structures, this order is unimportant =
+but
+> + * isa_ext_arr defines the order of the ISA string in /proc/cpuinfo.
+> + *
+> + * The specification uses vague wording, such as should, when it comes to
+> + * ordering, so for our purposes the following rules apply:
+> + *
+> + * 1. All multi-letter extensions must be separated from other extension=
+s by an
+> + *    underscore.
+> + *
+> + * 2. Additional standard extensions (starting with 'Z') must be sorted =
+after
+> + *    single-letter extensions and before any higher-privileged extensio=
+ns.
+> +
+> + * 3. The first letter following the 'Z' conventionally indicates the mo=
+st
+>   *    closely related alphabetical extension category, IMAFDQLCBKJTPVH.
+> - *    If multiple 'Z' extensions are named, they should be ordered first
+> - *    by category, then alphabetically within a category.
+> - * 3. Standard supervisor-level extensions (starts with 'S') should be
+> - *    listed after standard unprivileged extensions.  If multiple
+> - *    supervisor-level extensions are listed, they should be ordered
+> + *    If multiple 'Z' extensions are named, they must be ordered first by
+> + *    category, then alphabetically within a category.
+> + *
+> + * 3. Standard supervisor-level extensions (starting with 'S') must be l=
+isted
+> + *    after standard unprivileged extensions.  If multiple supervisor-le=
+vel
+> + *    extensions are listed, they must be ordered alphabetically.
+> + *
+> + * 4. Standard machine-level extensions (starting with 'Zxm') must be li=
+sted
+> + *    after any lower-privileged, standard extensions.  If multiple
+> + *    machine-level extensions are listed, they must be ordered
+>   *    alphabetically.
+> - * 4. Non-standard extensions (starts with 'X') must be listed after all
+> - *    standard extensions. They must be separated from other multi-letter
+> - *    extensions by an underscore.
+> + *
+> + * 5. Non-standard extensions (starting with 'X') must be listed after a=
+ll
+> + *    standard extensions. If multiple non-standard extensions are liste=
+d, they
+> + *    must be ordered alphabetically.
+> + *
+> + * An example string following the order is:
+> + *    rv64imadc_zifoo_zigoo_zafoo_sbar_scar_zxmbaz_xqux_xrux
+> + *
+> + * New entries to this struct should follow the ordering rules described=
+ above.
 >   */
-> =20
->  #include <linux/kernel.h>
-> +#include <linux/memory.h>
->  #include <linux/module.h>
->  #include <linux/string.h>
->  #include <linux/bug.h>
-> @@ -107,7 +108,9 @@ void __init_or_module sifive_errata_patch_func(struct=
- alt_entry *begin,
-> =20
->  		tmp =3D (1U << alt->errata_id);
->  		if (cpu_req_errata & tmp) {
-> +			mutex_lock(&text_mutex);
->  			patch_text_nosync(alt->old_ptr, alt->alt_ptr, alt->alt_len);
-> +			mutex_lock(&text_mutex);
->  			cpu_apply_errata |=3D tmp;
->  		}
->  	}
-> diff --git a/arch/riscv/errata/thead/errata.c b/arch/riscv/errata/thead/e=
-rrata.c
-> index fac5742d1c1e6..9d71fe3d35c77 100644
-> --- a/arch/riscv/errata/thead/errata.c
-> +++ b/arch/riscv/errata/thead/errata.c
-> @@ -5,6 +5,7 @@
-> =20
->  #include <linux/bug.h>
->  #include <linux/kernel.h>
-> +#include <linux/memory.h>
->  #include <linux/module.h>
->  #include <linux/string.h>
->  #include <linux/uaccess.h>
-> @@ -97,11 +98,14 @@ void __init_or_module thead_errata_patch_func(struct =
-alt_entry *begin, struct al
->  		tmp =3D (1U << alt->errata_id);
->  		if (cpu_req_errata & tmp) {
->  			/* On vm-alternatives, the mmu isn't running yet */
-> -			if (stage =3D=3D RISCV_ALTERNATIVES_EARLY_BOOT)
-> +			if (stage =3D=3D RISCV_ALTERNATIVES_EARLY_BOOT) {
->  				memcpy((void *)__pa_symbol(alt->old_ptr),
->  				       (void *)__pa_symbol(alt->alt_ptr), alt->alt_len);
-> -			else
-> +			} else {
-> +				mutex_lock(&text_mutex);
->  				patch_text_nosync(alt->old_ptr, alt->alt_ptr, alt->alt_len);
-> +				mutex_unlock(&text_mutex);
-> +			}
->  		}
->  	}
-> =20
-> diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeatur=
-e.c
-> index 93e45560af307..5a82d5520a1fd 100644
-> --- a/arch/riscv/kernel/cpufeature.c
-> +++ b/arch/riscv/kernel/cpufeature.c
-> @@ -10,6 +10,7 @@
->  #include <linux/ctype.h>
->  #include <linux/libfdt.h>
->  #include <linux/log2.h>
-> +#include <linux/memory.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
->  #include <asm/alternative.h>
-> @@ -339,8 +340,11 @@ void __init_or_module riscv_cpufeature_patch_func(st=
-ruct alt_entry *begin,
->  		}
-> =20
->  		tmp =3D (1U << alt->errata_id);
-> -		if (cpu_req_feature & tmp)
-> +		if (cpu_req_feature & tmp) {
-> +			mutex_lock(&text_mutex);
->  			patch_text_nosync(alt->old_ptr, alt->alt_ptr, alt->alt_len);
-> +			mutex_unlock(&text_mutex);
-> +		}
->  	}
->  }
->  #endif
+>  static struct riscv_isa_ext_data isa_ext_arr[] =3D {
+>  	__RISCV_ISA_EXT_DATA(sscofpmf, RISCV_ISA_EXT_SSCOFPMF),
 > --=20
 > 2.39.2
 >=20
 >=20
 >=20
 
---0+OR4pBqOv8IMJmq
+--tXGpNp6fssXWhX88
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZBHDrAAKCRB4tDGHoIJi
-0uCrAQCw1cgRjwCQD+Iy1QJpzWiy3WCXXLHs4YeqP93Uw+galwD+Jc7DxlRM7/92
-rSom+jkjLUcjC5QoajF64Sievbv9Gwc=
-=06ua
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZBHFmQAKCRB4tDGHoIJi
+0qpAAP4wgXwfuXGPQCEq+2geQM8YeG5ocMVON/7/uc77bvJ2IgD+IJ2qE6tGAlFa
+s/x8y7G/ijaoCPaluu+TIOH3qtauhw8=
+=0U1H
 -----END PGP SIGNATURE-----
 
---0+OR4pBqOv8IMJmq--
+--tXGpNp6fssXWhX88--
