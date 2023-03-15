@@ -2,105 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F886BBB99
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 19:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A716BBBDA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 19:19:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbjCOSAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 14:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56250 "EHLO
+        id S231244AbjCOSTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 14:19:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbjCOSAi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 14:00:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB6756795
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:00:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3680961E0A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 18:00:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74968C433D2;
-        Wed, 15 Mar 2023 18:00:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678903236;
-        bh=eeIgKjIrne1XGkPGwXznoaDAfu4V7cmqsmC58TcUsXI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mN/kPYqsleAOmHF5TGzbOAf4WdVgTy/wZzYMF/bf6CfqMOPcikufeb5udER6QdIrc
-         wGl6R0522tsaEyYkvPa2Ihsl6C+r1ba2mVOiwEY70OejVZKdN67MB5dqcloaaS4Fkr
-         AlcT0NzP341IXls421wFRlLDtY0W806dUDPv5tjE52OQoIhLDTxPXJpXQHNTEIJDNw
-         HOUyIWNNPCzh6i7T09keSwY2glJqDtt+tQwhKUQjfbIvsh1Nohd3nyuFukhFD0IZFH
-         7TRpBbyEelrIJ0FR42SIfg6NasdDjdLHe/woxO8lti7i951x21itpxtlcv6j7URWhK
-         zvxFj0I7ylOYQ==
-Date:   Wed, 15 Mar 2023 14:00:35 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Conor Dooley <conor@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, patches@lists.linux.dev,
-        Andrew Jones <ajones@ventanamicro.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: Re: [PATCH 6.2 112/141] RISC-V: clarify ISA string ordering rules in
- cpu.c
-Message-ID: <ZBIHwzn12WZeoNwu@sashalap>
-References: <20230315115739.932786806@linuxfoundation.org>
- <20230315115743.408666245@linuxfoundation.org>
- <4576eb25-2c86-49d3-a290-398d583f479a@spud>
+        with ESMTP id S231748AbjCOSTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 14:19:08 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD0F580E0
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:19:06 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id a2so21015121plm.4
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:19:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678904346;
+        h=content-transfer-encoding:author:mime-version:message-id:date
+         :subject:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wMT5a+0N50LjnqJ8DeT4FwWt5REi2t/S+xWI0ToHGwg=;
+        b=skqHJLcoG8K+I8S8KSD0VQCcE+P7rOiJrQ8WPyKC4zzaPIVrk26Ms17s2DFfsqKh8s
+         mcqBMRwil9W4hFNwb8lsn67P8fCYXmT6oLc5fVNBl8geDuFkF9ioHNzyj65bbCJeB4DM
+         +LNzw5Hq1NfeHOGl7vSImUoaGGelx8+WSI0T3bZ0TFU43/sOqjvGLf4ZarQr53Db1/rn
+         xDm9iHv8ymiee4XCBl1cVIq7xutCJ6ydNsXpCkpshfOCW4SgL/KaRWbbWBkAhvm6hqsG
+         WvWkcJl50R633VRvjyttcfus95jqFxx3H3x9nGOELt39Am+40A8Rqg1PCcHX3dQPWmb2
+         mTSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678904346;
+        h=content-transfer-encoding:author:mime-version:message-id:date
+         :subject:to:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wMT5a+0N50LjnqJ8DeT4FwWt5REi2t/S+xWI0ToHGwg=;
+        b=C1KwkJ1a25wBuTO2/9wON7YeI/YUQx4Oah+n1D3KBnIubmXFCiIxegXjWJYcJdZ9d3
+         abeFHX9koNvTIXF/Wkw5LrpxBorMNhnRRDAayr6f52AnhaY9Np63CgYEpkow+M8MVZ6c
+         PTWIOfKLpKU/bO/FDPn2Al/bIodevIdd4MA7BG8/ccjDMpKAtU05gVcnvglwUL8y/72X
+         5NKB7vjcVSO1lSWtpQ6Ro3dPUxzVaNSenk1qb0sZnv8ZYE4khxvnLMSj1YFOcxE3vMVD
+         k07en2//UY2p8iIcFO3MrL3IC0iDJgsHbD7xzfxA8ro1jNjxXvdbc6gGXj9oH2XjGEa/
+         Rw0A==
+X-Gm-Message-State: AO0yUKW7Iy71jEbdRMlhedvAB2l2JvjwK0rj5xx8bbYYYW3iCMys67GE
+        qJu+Br+H5IyF0P2tcyHLfItpgDEiRi8eH7Ixue8=
+X-Google-Smtp-Source: AK7set+CzjKnoyfvS/0CbrkyCxGCSi8yJ0a0AvmKdo9xjI4haYF2znwZRZwmKoXowkQww6uC5Fa9bA==
+X-Received: by 2002:a17:903:4111:b0:19a:b6bf:1df6 with SMTP id r17-20020a170903411100b0019ab6bf1df6mr408316pld.20.1678904346080;
+        Wed, 15 Mar 2023 11:19:06 -0700 (PDT)
+Received: from localhost.localdomain ([122.171.16.15])
+        by smtp.gmail.com with ESMTPSA id ky3-20020a170902f98300b001a065d3bb0esm3809948plb.211.2023.03.15.11.19.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Mar 2023 11:19:05 -0700 (PDT)
+From:   Amit Pundir <amit.pundir@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH for-6.1.y] Revert "ASoC: codecs: lpass: register mclk after runtime pm"
+Date:   Wed, 15 Mar 2023 23:49:00 +0530
+Message-Id: <20230315181900.2107200-1-amit.pundir@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <4576eb25-2c86-49d3-a290-398d583f479a@spud>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Author: Amit Pundir <amit.pundir@linaro.org>
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 15, 2023 at 01:18:17PM +0000, Conor Dooley wrote:
->Hey Greg,
->
->On Wed, Mar 15, 2023 at 01:13:35PM +0100, Greg Kroah-Hartman wrote:
->> From: Conor Dooley <conor.dooley@microchip.com>
->>
->> [ Upstream commit 99e2266f2460e5778560f81982b6301dd2a16502 ]
->>
->> While the current list of rules may have been accurate when created
->> it now lacks some clarity in the face of isa-manual updates. Instead of
->> trying to continuously align this rule-set with the one in the
->> specifications, change the role of this comment.
->>
->> This particular comment is important, as the array it "decorates"
->> defines the order in which the ISA string appears to userspace in
->> /proc/cpuinfo.
->>
->> Re-jig and strengthen the wording to provide contributors with a set
->> order in which to add entries & note why this particular struct needs
->> more attention than others.
->>
->> While in the area, add some whitespace and tweak some wording for
->> readability's sake.
->>
->> Suggested-by: Andrew Jones <ajones@ventanamicro.com>
->> Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
->> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
->> Link: https://lore.kernel.org/r/20221205144525.2148448-2-conor.dooley@microchip.com
->> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
->> Stable-dep-of: 1eac28201ac0 ("RISC-V: fix ordering of Zbb extension")
->
->I've been sick for the last week, and am not 100% sure what I did and
->did not reply to stable selection emails for, but I'm pretty sure that I
->did say that the ZBB stuff was a 6.3 feature and the order fix should
->not be backported.
->
->I'm not sure that I understand how this comment rework is a stable
->dependency of that backport either, but this should be dropped.
->Apologies if I missed a selection email for this one while I've been
->sick, but I was sick after all...
+This reverts commit 7b642273438cf500d36cffde145b9739fa525c1d which is
+commit 1dc3459009c33e335f0d62b84dd39a6bbd7fd5d2 upstream.
 
-My bad, this one shouldn't have been left here, now dropped. Thanks!
+This patch broke RB5 (Qualcomm SM8250) devboard. The device
+reboots into USB crash dump mode after following error:
 
+    qcom_q6v5_pas 17300000.remoteproc: fatal error received: \
+    ABT_dal.c:278:ABTimeout: AHB Bus hang is detected, \
+    Number of bus hang detected := 2 , addr0 = 0x3370000 , addr1 = 0x0!!!
+
+Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
+---
+ sound/soc/codecs/lpass-rx-macro.c  |  8 ++++----
+ sound/soc/codecs/lpass-tx-macro.c  |  8 ++++----
+ sound/soc/codecs/lpass-va-macro.c  | 20 ++++++++++----------
+ sound/soc/codecs/lpass-wsa-macro.c |  9 +++++----
+ 4 files changed, 23 insertions(+), 22 deletions(-)
+
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index 8621cfabcf5b..92e61f2206cb 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -3601,6 +3601,10 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_fsgen;
+ 
++	ret = rx_macro_register_mclk_output(rx);
++	if (ret)
++		goto err_clkout;
++
+ 	ret = devm_snd_soc_register_component(dev, &rx_macro_component_drv,
+ 					      rx_macro_dai,
+ 					      ARRAY_SIZE(rx_macro_dai));
+@@ -3614,10 +3618,6 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
+-	ret = rx_macro_register_mclk_output(rx);
+-	if (ret)
+-		goto err_clkout;
+-
+ 	return 0;
+ 
+ err_clkout:
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 5d1c58df081a..33760213f406 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -1889,6 +1889,10 @@ static int tx_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_fsgen;
+ 
++	ret = tx_macro_register_mclk_output(tx);
++	if (ret)
++		goto err_clkout;
++
+ 	ret = devm_snd_soc_register_component(dev, &tx_macro_component_drv,
+ 					      tx_macro_dai,
+ 					      ARRAY_SIZE(tx_macro_dai));
+@@ -1901,10 +1905,6 @@ static int tx_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
+-	ret = tx_macro_register_mclk_output(tx);
+-	if (ret)
+-		goto err_clkout;
+-
+ 	return 0;
+ 
+ err_clkout:
+diff --git a/sound/soc/codecs/lpass-va-macro.c b/sound/soc/codecs/lpass-va-macro.c
+index 1623ba78ddb3..b0b6cf29cba3 100644
+--- a/sound/soc/codecs/lpass-va-macro.c
++++ b/sound/soc/codecs/lpass-va-macro.c
+@@ -1524,6 +1524,16 @@ static int va_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_mclk;
+ 
++	ret = va_macro_register_fsgen_output(va);
++	if (ret)
++		goto err_clkout;
++
++	va->fsgen = clk_hw_get_clk(&va->hw, "fsgen");
++	if (IS_ERR(va->fsgen)) {
++		ret = PTR_ERR(va->fsgen);
++		goto err_clkout;
++	}
++
+ 	if (va->has_swr_master) {
+ 		/* Set default CLK div to 1 */
+ 		regmap_update_bits(va->regmap, CDC_VA_TOP_CSR_SWR_MIC_CTL0,
+@@ -1550,16 +1560,6 @@ static int va_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
+-	ret = va_macro_register_fsgen_output(va);
+-	if (ret)
+-		goto err_clkout;
+-
+-	va->fsgen = clk_hw_get_clk(&va->hw, "fsgen");
+-	if (IS_ERR(va->fsgen)) {
+-		ret = PTR_ERR(va->fsgen);
+-		goto err_clkout;
+-	}
+-
+ 	return 0;
+ 
+ err_clkout:
+diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+index c012033fb69e..5e0abefe7cce 100644
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -2449,6 +2449,11 @@ static int wsa_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_fsgen;
+ 
++	ret = wsa_macro_register_mclk_output(wsa);
++	if (ret)
++		goto err_clkout;
++
++
+ 	ret = devm_snd_soc_register_component(dev, &wsa_macro_component_drv,
+ 					      wsa_macro_dai,
+ 					      ARRAY_SIZE(wsa_macro_dai));
+@@ -2461,10 +2466,6 @@ static int wsa_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
+-	ret = wsa_macro_register_mclk_output(wsa);
+-	if (ret)
+-		goto err_clkout;
+-
+ 	return 0;
+ 
+ err_clkout:
 -- 
-Thanks,
-Sasha
+2.25.1
+
