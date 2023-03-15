@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A17E36BB2FC
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D726BB00F
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232741AbjCOMkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:40:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
+        id S231725AbjCOMO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232739AbjCOMkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:31 -0400
+        with ESMTP id S229847AbjCOMO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781AF12BC8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3AB6BDFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4101461D71
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59477C433A7;
-        Wed, 15 Mar 2023 12:39:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C0C561D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E1ABC433D2;
+        Wed, 15 Mar 2023 12:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883941;
-        bh=VwdZI8/Vy7+BoFJ7kt/D42QSaD+nspysXt+cM/Cuu9s=;
+        s=korg; t=1678882493;
+        bh=+m24V0hi8hSZXr/CwmaPi6c8kl1zCLjBDbQvKc8QOqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/icestHD/Y1hf8qbjsugWK9VQebXOvGjt9aV2xtXynu9Zu5wmirOTKnPLYyXXVqi
-         2SssJT519IMwdPR0BXIQSDm+m+kjmzmBhPVYhphG+MLHQJ3iQPXOh/7vk7Ztytvef9
-         Bu++0GQcvUNoCOkuwPGG8okO13/RM0Lk+TKjw6rg=
+        b=2ZAvb14ecwKIgKsuAINtRJ3CH+50OEyK/cp91sPdajOqB0ZsHn5dOFl331fAM/2Rv
+         FV7xfRK/wlqsdBP2NCk5akETzsb/hFImR6ziYGBuM8Cmsx1HW5LJ8mn3CWt5GJQuT+
+         KQ0ioFM9KN3/DWJ18vIxw8jkBgo6q52XzPBg65/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 047/141] drm/msm: Fix potential invalid ptr free
+        patches@lists.linux.dev, stable@kernel.org,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 07/21] ext4: zero i_disksize when initializing the bootloader inode
 Date:   Wed, 15 Mar 2023 13:12:30 +0100
-Message-Id: <20230315115741.401173773@linuxfoundation.org>
+Message-Id: <20230315115719.108382578@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 8a86f213f4426f19511a16d886871805b35c3acf ]
+commit f5361da1e60d54ec81346aee8e3d8baf1be0b762 upstream.
 
-The error path cleanup expects that chain and syncobj are either NULL or
-valid pointers.  But post_deps was not allocated with __GFP_ZERO.
+If the boot loader inode has never been used before, the
+EXT4_IOC_SWAP_BOOT inode will initialize it, including setting the
+i_size to 0.  However, if the "never before used" boot loader has a
+non-zero i_size, then i_disksize will be non-zero, and the
+inconsistency between i_size and i_disksize can trigger a kernel
+warning:
 
-Fixes: ab723b7a992a ("drm/msm: Add syncobj support.")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Patchwork: https://patchwork.freedesktop.org/patch/523051/
-Link: https://lore.kernel.org/r/20230215235048.1166484-1-robdclark@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ WARNING: CPU: 0 PID: 2580 at fs/ext4/file.c:319
+ CPU: 0 PID: 2580 Comm: bb Not tainted 6.3.0-rc1-00004-g703695902cfa
+ RIP: 0010:ext4_file_write_iter+0xbc7/0xd10
+ Call Trace:
+  vfs_write+0x3b1/0x5c0
+  ksys_write+0x77/0x160
+  __x64_sys_write+0x22/0x30
+  do_syscall_64+0x39/0x80
+
+Reproducer:
+ 1. create corrupted image and mount it:
+       mke2fs -t ext4 /tmp/foo.img 200
+       debugfs -wR "sif <5> size 25700" /tmp/foo.img
+       mount -t ext4 /tmp/foo.img /mnt
+       cd /mnt
+       echo 123 > file
+ 2. Run the reproducer program:
+       posix_memalign(&buf, 1024, 1024)
+       fd = open("file", O_RDWR | O_DIRECT);
+       ioctl(fd, EXT4_IOC_SWAP_BOOT);
+       write(fd, buf, 1024);
+
+Fix this by setting i_disksize as well as i_size to zero when
+initiaizing the boot loader inode.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217159
+Cc: stable@kernel.org
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20230308032643.641113-1-chengzhihao1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gem_submit.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ext4/ioctl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
-index 1c4be193fd23f..8ac1cd27746a0 100644
---- a/drivers/gpu/drm/msm/msm_gem_submit.c
-+++ b/drivers/gpu/drm/msm/msm_gem_submit.c
-@@ -626,8 +626,8 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
- 	int ret = 0;
- 	uint32_t i, j;
- 
--	post_deps = kmalloc_array(nr_syncobjs, sizeof(*post_deps),
--	                          GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
-+	post_deps = kcalloc(nr_syncobjs, sizeof(*post_deps),
-+			    GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
- 	if (!post_deps)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -642,7 +642,6 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
- 		}
- 
- 		post_deps[i].point = syncobj_desc.point;
--		post_deps[i].chain = NULL;
- 
- 		if (syncobj_desc.flags) {
- 			ret = -EINVAL;
--- 
-2.39.2
-
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -150,6 +150,7 @@ static long swap_inode_boot_loader(struc
+ 		ei_bl->i_flags = 0;
+ 		inode_bl->i_version = 1;
+ 		i_size_write(inode_bl, 0);
++		EXT4_I(inode_bl)->i_disksize = inode_bl->i_size;
+ 		inode_bl->i_mode = S_IFREG;
+ 		if (ext4_has_feature_extents(sb)) {
+ 			ext4_set_inode_flag(inode_bl, EXT4_INODE_EXTENTS);
 
 
