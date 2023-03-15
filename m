@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E920B6BB171
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:27:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0234B6BB172
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232532AbjCOM12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:27:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56810 "EHLO
+        id S232487AbjCOM1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232447AbjCOM1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E809BA6B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:15 -0700 (PDT)
+        with ESMTP id S232513AbjCOM1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA829BE28
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5675361D71
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D75C4339B;
-        Wed, 15 Mar 2023 12:26:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABD12B81E08
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C349C433D2;
+        Wed, 15 Mar 2023 12:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883174;
-        bh=Uw+9JVZw5lO8j2GEepYkJAIQsWqs3NjrW/8QpdmBDMU=;
+        s=korg; t=1678883177;
+        bh=e51pRCE2HzOZUde+GpaAnSm062LIQIWh4AIJTKgNtxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtlevWNejGYOZwfmfCAGW9swfvRe5RcMAMdRZBLHDpHQ7dIGMj/hh3l7BrY3e+NWR
-         sWOxqKyV7VgO7gIZBWcrLGxbX6nIRQ7IPhlOfC41ZeykqR42wZ60Z74BBmXn7HSVB5
-         vo0xISK7hLIsGCwvoEkJOXdoSv539eTpKx/ftwsQ=
+        b=bkzQ7Lb0mitF3lDgoP3wSFQaNP0plrXhiIZwwAY44oOFcoIJGmUdbknwGGHtv0zL8
+         eHKyCqwCcyXEH2OulrMq8wcXNMBw8v+Sjt6L4CHGug+qbnJXsQZlaROHoHmu78SJsM
+         Na/4cisoB7Z/JjumSPA2Y5icvCGLRbAYZEVjcSM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
-        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 013/145] ext4: fix WARNING in ext4_update_inline_data
-Date:   Wed, 15 Mar 2023 13:11:19 +0100
-Message-Id: <20230315115739.438781759@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 014/145] ext4: zero i_disksize when initializing the bootloader inode
+Date:   Wed, 15 Mar 2023 13:11:20 +0100
+Message-Id: <20230315115739.468746675@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
 References: <20230315115738.951067403@linuxfoundation.org>
@@ -55,108 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
+commit f5361da1e60d54ec81346aee8e3d8baf1be0b762 upstream.
 
-Syzbot found the following issue:
-EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
-fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
-fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-Modules linked in:
-CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
-RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
-RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
-RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
-R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
-R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
-FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __alloc_pages_node include/linux/gfp.h:237 [inline]
- alloc_pages_node include/linux/gfp.h:260 [inline]
- __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
- __do_kmalloc_node mm/slab_common.c:956 [inline]
- __kmalloc+0xfe/0x190 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- kzalloc include/linux/slab.h:720 [inline]
- ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
- ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
- ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
- ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
- ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
- ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
- lookup_open fs/namei.c:3413 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x12ac/0x2dd0 fs/namei.c:3711
- do_filp_open+0x264/0x4f0 fs/namei.c:3741
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_openat fs/open.c:1342 [inline]
- __se_sys_openat fs/open.c:1337 [inline]
- __x64_sys_openat+0x243/0x290 fs/open.c:1337
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+If the boot loader inode has never been used before, the
+EXT4_IOC_SWAP_BOOT inode will initialize it, including setting the
+i_size to 0.  However, if the "never before used" boot loader has a
+non-zero i_size, then i_disksize will be non-zero, and the
+inconsistency between i_size and i_disksize can trigger a kernel
+warning:
 
-Above issue happens as follows:
-ext4_iget
-   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
-ext4_try_add_inline_entry
-   __ext4_mark_inode_dirty
-      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
-         ext4_xattr_shift_entries
-	 ->after shift i_inline_off is incorrect, actually is change to 176
-ext4_try_add_inline_entry
-  ext4_update_inline_dir
-    get_max_inline_xattr_value_size
-      if (EXT4_I(inode)->i_inline_off)
-	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
-			EXT4_I(inode)->i_inline_off);
-        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
-	->As entry is incorrect, then 'free' may be negative
-   ext4_update_inline_data
-      value = kzalloc(len, GFP_NOFS);
-      -> len is unsigned int, maybe very large, then trigger warning when
-         'kzalloc()'
+ WARNING: CPU: 0 PID: 2580 at fs/ext4/file.c:319
+ CPU: 0 PID: 2580 Comm: bb Not tainted 6.3.0-rc1-00004-g703695902cfa
+ RIP: 0010:ext4_file_write_iter+0xbc7/0xd10
+ Call Trace:
+  vfs_write+0x3b1/0x5c0
+  ksys_write+0x77/0x160
+  __x64_sys_write+0x22/0x30
+  do_syscall_64+0x39/0x80
 
-To resolve the above issue we need to update 'i_inline_off' after
-'ext4_xattr_shift_entries()'.  We do not need to set
-EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
-already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
-when it is needed may trigger a BUG_ON in ext4_writepages().
+Reproducer:
+ 1. create corrupted image and mount it:
+       mke2fs -t ext4 /tmp/foo.img 200
+       debugfs -wR "sif <5> size 25700" /tmp/foo.img
+       mount -t ext4 /tmp/foo.img /mnt
+       cd /mnt
+       echo 123 > file
+ 2. Run the reproducer program:
+       posix_memalign(&buf, 1024, 1024)
+       fd = open("file", O_RDWR | O_DIRECT);
+       ioctl(fd, EXT4_IOC_SWAP_BOOT);
+       write(fd, buf, 1024);
 
-Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
+Fix this by setting i_disksize as well as i_size to zero when
+initiaizing the boot loader inode.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217159
 Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20230308032643.641113-1-chengzhihao1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/ioctl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2789,6 +2789,9 @@ shift:
- 			(void *)header, total_ino);
- 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
- 
-+	if (ext4_has_inline_data(inode))
-+		error = ext4_find_inline_data_nolock(inode);
-+
- cleanup:
- 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
- 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -184,6 +184,7 @@ static long swap_inode_boot_loader(struc
+ 		ei_bl->i_flags = 0;
+ 		inode_set_iversion(inode_bl, 1);
+ 		i_size_write(inode_bl, 0);
++		EXT4_I(inode_bl)->i_disksize = inode_bl->i_size;
+ 		inode_bl->i_mode = S_IFREG;
+ 		if (ext4_has_feature_extents(sb)) {
+ 			ext4_set_inode_flag(inode_bl, EXT4_INODE_EXTENTS);
 
 
