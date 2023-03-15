@@ -2,207 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A716BBBDA
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 19:19:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9533D6BBBF5
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 19:21:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231244AbjCOSTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 14:19:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
+        id S232588AbjCOSU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 14:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231748AbjCOSTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 14:19:08 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD0F580E0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:19:06 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id a2so21015121plm.4
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:19:06 -0700 (PDT)
+        with ESMTP id S232541AbjCOSUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 14:20:31 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D89594A67
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:19:54 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id nn12so19809398pjb.5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 11:19:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678904346;
-        h=content-transfer-encoding:author:mime-version:message-id:date
-         :subject:to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wMT5a+0N50LjnqJ8DeT4FwWt5REi2t/S+xWI0ToHGwg=;
-        b=skqHJLcoG8K+I8S8KSD0VQCcE+P7rOiJrQ8WPyKC4zzaPIVrk26Ms17s2DFfsqKh8s
-         mcqBMRwil9W4hFNwb8lsn67P8fCYXmT6oLc5fVNBl8geDuFkF9ioHNzyj65bbCJeB4DM
-         +LNzw5Hq1NfeHOGl7vSImUoaGGelx8+WSI0T3bZ0TFU43/sOqjvGLf4ZarQr53Db1/rn
-         xDm9iHv8ymiee4XCBl1cVIq7xutCJ6ydNsXpCkpshfOCW4SgL/KaRWbbWBkAhvm6hqsG
-         WvWkcJl50R633VRvjyttcfus95jqFxx3H3x9nGOELt39Am+40A8Rqg1PCcHX3dQPWmb2
-         mTSg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678904388;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=sY9pDLFCYs18WqRjBKLodS7ZpLmSexF8s9NnXRsdxTU=;
+        b=cvHFfUBsyziFLOb5+waNx/4Wt8WS1QnzTY349o1SonxUuM2P1NqFxIqwOnJCRxyzH5
+         u21WvhH4C3lPmVe4eXVOf4UbTQvH4Ec65EcEGVDB4ZEIxF1KpA/e20/RO+c4gdRiE5g4
+         sMSchtySg9a/yr3Wqskb0kGAAiW//53yXSK+dUGVBcgiIPB6z8vh59C9zYd0BIUiRQGT
+         qAtSKmRfeGAEfWftqkdZMPGJGP8eBmfy9gGCHoBpwsQEd7L73ua7ajbvFv85mPdvzX5m
+         UTu/N2bZ1LERdPD/9J7GPkdnIMo3rJx52ca3uH9OfosbkUOUZbdPfVH6TKxIDtCYCgRa
+         tJ9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678904346;
-        h=content-transfer-encoding:author:mime-version:message-id:date
-         :subject:to:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wMT5a+0N50LjnqJ8DeT4FwWt5REi2t/S+xWI0ToHGwg=;
-        b=C1KwkJ1a25wBuTO2/9wON7YeI/YUQx4Oah+n1D3KBnIubmXFCiIxegXjWJYcJdZ9d3
-         abeFHX9koNvTIXF/Wkw5LrpxBorMNhnRRDAayr6f52AnhaY9Np63CgYEpkow+M8MVZ6c
-         PTWIOfKLpKU/bO/FDPn2Al/bIodevIdd4MA7BG8/ccjDMpKAtU05gVcnvglwUL8y/72X
-         5NKB7vjcVSO1lSWtpQ6Ro3dPUxzVaNSenk1qb0sZnv8ZYE4khxvnLMSj1YFOcxE3vMVD
-         k07en2//UY2p8iIcFO3MrL3IC0iDJgsHbD7xzfxA8ro1jNjxXvdbc6gGXj9oH2XjGEa/
-         Rw0A==
-X-Gm-Message-State: AO0yUKW7Iy71jEbdRMlhedvAB2l2JvjwK0rj5xx8bbYYYW3iCMys67GE
-        qJu+Br+H5IyF0P2tcyHLfItpgDEiRi8eH7Ixue8=
-X-Google-Smtp-Source: AK7set+CzjKnoyfvS/0CbrkyCxGCSi8yJ0a0AvmKdo9xjI4haYF2znwZRZwmKoXowkQww6uC5Fa9bA==
-X-Received: by 2002:a17:903:4111:b0:19a:b6bf:1df6 with SMTP id r17-20020a170903411100b0019ab6bf1df6mr408316pld.20.1678904346080;
-        Wed, 15 Mar 2023 11:19:06 -0700 (PDT)
-Received: from localhost.localdomain ([122.171.16.15])
-        by smtp.gmail.com with ESMTPSA id ky3-20020a170902f98300b001a065d3bb0esm3809948plb.211.2023.03.15.11.19.04
+        d=1e100.net; s=20210112; t=1678904388;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=sY9pDLFCYs18WqRjBKLodS7ZpLmSexF8s9NnXRsdxTU=;
+        b=A46G9svV+L//mHxQZY7KOsSANRcX1UP3AFPrPs0roThkBQT7jT3F0DkS2vNf8mz6L1
+         KBKSGsA3nmNcb8O5QDcReDxFRMmCF+Rlnt2sfbQhSwmeEXqhIyh4RApDiyhBud3UrPN2
+         MWrFul/7D7CsPG62HCWHZBQt6heSewi/vNZJStovac0OSrigZh+lOEsXVarRj7IfFDQI
+         TmLCD+KOQggGo546dAfuDOl7+Z2o9117hBpwZtRFtNEoIgn16I7ARZ1t2x0zczloRr96
+         tMorAG/0IFM0TcPsWVQ2XSGUXhIRmoJtpwq7oV+2+3DYx4usxsCNYCf3erBz6cRbHpah
+         WjMw==
+X-Gm-Message-State: AO0yUKVEQ5CtsFUQgwNBZLJIU2MOl6Mlqj1rZg7N+OQSBbLKPtohmOgC
+        0x7vALxYJ7PRsYgTKs71iLrY0G1FFmgkja9y9DZiFwai
+X-Google-Smtp-Source: AK7set/ByKE2+ox/ZSl51cxiHYmPhvMdk1MkP4vyXLhHnNDtPA3dHqoc82YSH0Bt2YbnAYTInVTfVw==
+X-Received: by 2002:a17:902:f98b:b0:19c:da7f:a234 with SMTP id ky11-20020a170902f98b00b0019cda7fa234mr263300plb.67.1678904387871;
+        Wed, 15 Mar 2023 11:19:47 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e9-20020a170902cf4900b0019c92f56983sm3965675plg.120.2023.03.15.11.19.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Mar 2023 11:19:05 -0700 (PDT)
-From:   Amit Pundir <amit.pundir@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Stable <stable@vger.kernel.org>
-Subject: [PATCH for-6.1.y] Revert "ASoC: codecs: lpass: register mclk after runtime pm"
-Date:   Wed, 15 Mar 2023 23:49:00 +0530
-Message-Id: <20230315181900.2107200-1-amit.pundir@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        Wed, 15 Mar 2023 11:19:47 -0700 (PDT)
+Message-ID: <64120c43.170a0220.d3ed1.9a24@mx.google.com>
+Date:   Wed, 15 Mar 2023 11:19:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Author: Amit Pundir <amit.pundir@linaro.org>
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.276-44-g7cfb8ee7c98ea
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 61 runs,
+ 2 regressions (v4.19.276-44-g7cfb8ee7c98ea)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 7b642273438cf500d36cffde145b9739fa525c1d which is
-commit 1dc3459009c33e335f0d62b84dd39a6bbd7fd5d2 upstream.
+stable-rc/linux-4.19.y baseline: 61 runs, 2 regressions (v4.19.276-44-g7cfb=
+8ee7c98ea)
 
-This patch broke RB5 (Qualcomm SM8250) devboard. The device
-reboots into USB crash dump mode after following error:
+Regressions Summary
+-------------------
 
-    qcom_q6v5_pas 17300000.remoteproc: fatal error received: \
-    ABT_dal.c:278:ABTimeout: AHB Bus hang is detected, \
-    Number of bus hang detected := 2 , addr0 = 0x3370000 , addr1 = 0x0!!!
+platform          | arch | lab     | compiler | defconfig           | regre=
+ssions
+------------------+------+---------+----------+---------------------+------=
+------
+beaglebone-black  | arm  | lab-cip | gcc-10   | omap2plus_defconfig | 1    =
+      =
 
-Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
----
- sound/soc/codecs/lpass-rx-macro.c  |  8 ++++----
- sound/soc/codecs/lpass-tx-macro.c  |  8 ++++----
- sound/soc/codecs/lpass-va-macro.c  | 20 ++++++++++----------
- sound/soc/codecs/lpass-wsa-macro.c |  9 +++++----
- 4 files changed, 23 insertions(+), 22 deletions(-)
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig  | 1    =
+      =
 
-diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
-index 8621cfabcf5b..92e61f2206cb 100644
---- a/sound/soc/codecs/lpass-rx-macro.c
-+++ b/sound/soc/codecs/lpass-rx-macro.c
-@@ -3601,6 +3601,10 @@ static int rx_macro_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_fsgen;
- 
-+	ret = rx_macro_register_mclk_output(rx);
-+	if (ret)
-+		goto err_clkout;
-+
- 	ret = devm_snd_soc_register_component(dev, &rx_macro_component_drv,
- 					      rx_macro_dai,
- 					      ARRAY_SIZE(rx_macro_dai));
-@@ -3614,10 +3618,6 @@ static int rx_macro_probe(struct platform_device *pdev)
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 
--	ret = rx_macro_register_mclk_output(rx);
--	if (ret)
--		goto err_clkout;
--
- 	return 0;
- 
- err_clkout:
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index 5d1c58df081a..33760213f406 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -1889,6 +1889,10 @@ static int tx_macro_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_fsgen;
- 
-+	ret = tx_macro_register_mclk_output(tx);
-+	if (ret)
-+		goto err_clkout;
-+
- 	ret = devm_snd_soc_register_component(dev, &tx_macro_component_drv,
- 					      tx_macro_dai,
- 					      ARRAY_SIZE(tx_macro_dai));
-@@ -1901,10 +1905,6 @@ static int tx_macro_probe(struct platform_device *pdev)
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 
--	ret = tx_macro_register_mclk_output(tx);
--	if (ret)
--		goto err_clkout;
--
- 	return 0;
- 
- err_clkout:
-diff --git a/sound/soc/codecs/lpass-va-macro.c b/sound/soc/codecs/lpass-va-macro.c
-index 1623ba78ddb3..b0b6cf29cba3 100644
---- a/sound/soc/codecs/lpass-va-macro.c
-+++ b/sound/soc/codecs/lpass-va-macro.c
-@@ -1524,6 +1524,16 @@ static int va_macro_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_mclk;
- 
-+	ret = va_macro_register_fsgen_output(va);
-+	if (ret)
-+		goto err_clkout;
-+
-+	va->fsgen = clk_hw_get_clk(&va->hw, "fsgen");
-+	if (IS_ERR(va->fsgen)) {
-+		ret = PTR_ERR(va->fsgen);
-+		goto err_clkout;
-+	}
-+
- 	if (va->has_swr_master) {
- 		/* Set default CLK div to 1 */
- 		regmap_update_bits(va->regmap, CDC_VA_TOP_CSR_SWR_MIC_CTL0,
-@@ -1550,16 +1560,6 @@ static int va_macro_probe(struct platform_device *pdev)
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 
--	ret = va_macro_register_fsgen_output(va);
--	if (ret)
--		goto err_clkout;
--
--	va->fsgen = clk_hw_get_clk(&va->hw, "fsgen");
--	if (IS_ERR(va->fsgen)) {
--		ret = PTR_ERR(va->fsgen);
--		goto err_clkout;
--	}
--
- 	return 0;
- 
- err_clkout:
-diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
-index c012033fb69e..5e0abefe7cce 100644
---- a/sound/soc/codecs/lpass-wsa-macro.c
-+++ b/sound/soc/codecs/lpass-wsa-macro.c
-@@ -2449,6 +2449,11 @@ static int wsa_macro_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_fsgen;
- 
-+	ret = wsa_macro_register_mclk_output(wsa);
-+	if (ret)
-+		goto err_clkout;
-+
-+
- 	ret = devm_snd_soc_register_component(dev, &wsa_macro_component_drv,
- 					      wsa_macro_dai,
- 					      ARRAY_SIZE(wsa_macro_dai));
-@@ -2461,10 +2466,6 @@ static int wsa_macro_probe(struct platform_device *pdev)
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 
--	ret = wsa_macro_register_mclk_output(wsa);
--	if (ret)
--		goto err_clkout;
--
- 	return 0;
- 
- err_clkout:
--- 
-2.25.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.276-44-g7cfb8ee7c98ea/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.276-44-g7cfb8ee7c98ea
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7cfb8ee7c98ea035f7e87a68fde7f4c223c7c593 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab     | compiler | defconfig           | regre=
+ssions
+------------------+------+---------+----------+---------------------+------=
+------
+beaglebone-black  | arm  | lab-cip | gcc-10   | omap2plus_defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6411e29694f436682f8c8634
+
+  Results:     41 PASS, 10 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-44-g7cfb8ee7c98ea/arm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beagle=
+bone-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-44-g7cfb8ee7c98ea/arm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beagle=
+bone-black.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6411e29694f436682f8c863b
+        failing since 0 day (last pass: v4.19.276-4-g4f95ee925a2b, first fa=
+il: v4.19.276-47-gcb91edfa52f0)
+
+    2023-03-15T15:21:20.929282  + set +x<8>[   11.665784] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 876368_1.5.2.4.1>
+    2023-03-15T15:21:20.929597  =
+
+    2023-03-15T15:21:21.041146  / # #
+    2023-03-15T15:21:21.143035  export SHELL=3D/bin/sh
+    2023-03-15T15:21:21.143551  #
+    2023-03-15T15:21:21.244951  / # export SHELL=3D/bin/sh. /lava-876368/en=
+vironment
+    2023-03-15T15:21:21.245417  =
+
+    2023-03-15T15:21:21.346863  / # . /lava-876368/environment/lava-876368/=
+bin/lava-test-runner /lava-876368/1
+    2023-03-15T15:21:21.347677  =
+
+    2023-03-15T15:21:21.349840  / # /lava-876368/bin/lava-test-runner /lava=
+-876368/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform          | arch | lab     | compiler | defconfig           | regre=
+ssions
+------------------+------+---------+----------+---------------------+------=
+------
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig  | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6411d7628c63781bfd8c8651
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-44-g7cfb8ee7c98ea/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-44-g7cfb8ee7c98ea/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6411d7628c63781bfd8c8=
+652
+        failing since 0 day (last pass: v4.19.276-4-g4f95ee925a2b, first fa=
+il: v4.19.276-47-gcb91edfa52f0) =
+
+ =20
