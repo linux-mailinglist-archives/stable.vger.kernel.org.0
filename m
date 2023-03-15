@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C762B6BB1A4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484446BB256
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232590AbjCOM3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57602 "EHLO
+        id S232660AbjCOMfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:35:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbjCOM3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB0F523334
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:00 -0700 (PDT)
+        with ESMTP id S232212AbjCOMfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A309E52F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B01461D50
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F983C433EF;
-        Wed, 15 Mar 2023 12:27:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D898DCE1831
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A62EC433EF;
+        Wed, 15 Mar 2023 12:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883279;
-        bh=Lf7ISlneS8N4jfqBCpQNsnYrmzmgCjixd5SrJowqgxo=;
+        s=korg; t=1678883612;
+        bh=fH9geY99T4+v1UiodIWGzlwR35ZXTwQZMz4ie8NFuoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5is4As+YVohdoZ0szFJ2YJqPtv8m81Ced9PlXK30aOpwwRimaYjgr40gaifZvwsD
-         4Ki8amGUKaxLEvXufZvTzbZRw/oM1T0tiPCjsx5rbwee+3s4Tx3W1V7jEFEi/6cgUE
-         Zg3p3hu6xDMO87A/NviBFGbNB8zPxI2bqnWdtT4w=
+        b=RHTSCYmRPuT0J3oiRrZXm1evm6dFgaIQmd4chsxKiNKzKcJAG+0ZfJzsRGDxV+FQo
+         NeekOp+hyJXkQMPyBGQqqlL9F5oAarpYZ4rW2oYm04R7r/vsOo3k97iXowi+5tGgyG
+         I6l9iDhAt3+4rnsvc/e+vkP3JbXCCsFAZTY/Nxv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Jon Mason <jdmason@kudzu.us>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 084/145] nbd: use the correct block_device in nbd_bdev_reset
+Subject: [PATCH 6.1 064/143] bgmac: fix *initial* chip reset to support BCM5358
 Date:   Wed, 15 Mar 2023 13:12:30 +0100
-Message-Id: <20230315115741.753741936@linuxfoundation.org>
+Message-Id: <20230315115742.477613183@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,80 +57,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 2a852a693f8839bb877fc731ffbc9ece3a9c16d7 ]
+[ Upstream commit f99e6d7c4ed3be2531bd576425a5bd07fb133bd7 ]
 
-The bdev parameter to ->ioctl contains the block device that the ioctl
-is called on, which can be the partition.  But the openers check in
-nbd_bdev_reset really needs to check use the whole device, so switch to
-using that.
+While bringing hardware up we should perform a full reset including the
+switch bit (BGMAC_BCMA_IOCTL_SW_RESET aka SICF_SWRST). It's what
+specification says and what reference driver does.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220330052917.2566582-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
+This seems to be critical for the BCM5358. Without this hardware doesn't
+get initialized properly and doesn't seem to transmit or receive any
+packets.
+
+Originally bgmac was calling bgmac_chip_reset() before setting
+"has_robosw" property which resulted in expected behaviour. That has
+changed as a side effect of adding platform device support which
+regressed BCM5358 support.
+
+Fixes: f6a95a24957a ("net: ethernet: bgmac: Add platform device support")
+Cc: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20230227091156.19509-1-zajec5@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/broadcom/bgmac.c | 8 ++++++--
+ drivers/net/ethernet/broadcom/bgmac.h | 2 ++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index c1ef1df42eb66..ade8b839e4458 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1167,11 +1167,11 @@ static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
- 	return -ENOSPC;
- }
+diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
+index 3038386a5afd8..1761df8fb7f96 100644
+--- a/drivers/net/ethernet/broadcom/bgmac.c
++++ b/drivers/net/ethernet/broadcom/bgmac.c
+@@ -890,13 +890,13 @@ static void bgmac_chip_reset_idm_config(struct bgmac *bgmac)
  
--static void nbd_bdev_reset(struct block_device *bdev)
-+static void nbd_bdev_reset(struct nbd_device *nbd)
- {
--	if (bdev->bd_openers > 1)
-+	if (nbd->disk->part0->bd_openers > 1)
- 		return;
--	set_capacity(bdev->bd_disk, 0);
-+	set_capacity(nbd->disk, 0);
- }
+ 		if (iost & BGMAC_BCMA_IOST_ATTACHED) {
+ 			flags = BGMAC_BCMA_IOCTL_SW_CLKEN;
+-			if (!bgmac->has_robosw)
++			if (bgmac->in_init || !bgmac->has_robosw)
+ 				flags |= BGMAC_BCMA_IOCTL_SW_RESET;
+ 		}
+ 		bgmac_clk_enable(bgmac, flags);
+ 	}
  
- static void nbd_parse_flags(struct nbd_device *nbd)
-@@ -1337,7 +1337,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 	return nbd_set_size(nbd, config->bytesize, nbd_blksize(config));
- }
+-	if (iost & BGMAC_BCMA_IOST_ATTACHED && !bgmac->has_robosw)
++	if (iost & BGMAC_BCMA_IOST_ATTACHED && (bgmac->in_init || !bgmac->has_robosw))
+ 		bgmac_idm_write(bgmac, BCMA_IOCTL,
+ 				bgmac_idm_read(bgmac, BCMA_IOCTL) &
+ 				~BGMAC_BCMA_IOCTL_SW_RESET);
+@@ -1490,6 +1490,8 @@ int bgmac_enet_probe(struct bgmac *bgmac)
+ 	struct net_device *net_dev = bgmac->net_dev;
+ 	int err;
  
--static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *bdev)
-+static int nbd_start_device_ioctl(struct nbd_device *nbd)
- {
- 	struct nbd_config *config = nbd->config;
- 	int ret;
-@@ -1358,7 +1358,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
++	bgmac->in_init = true;
++
+ 	bgmac_chip_intrs_off(bgmac);
  
- 	flush_workqueue(nbd->recv_workq);
- 	mutex_lock(&nbd->config_lock);
--	nbd_bdev_reset(bdev);
-+	nbd_bdev_reset(nbd);
- 	/* user requested, ignore socket errors */
- 	if (test_bit(NBD_RT_DISCONNECT_REQUESTED, &config->runtime_flags))
- 		ret = 0;
-@@ -1372,7 +1372,7 @@ static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
- {
- 	nbd_clear_sock(nbd);
- 	__invalidate_device(bdev, true);
--	nbd_bdev_reset(bdev);
-+	nbd_bdev_reset(nbd);
- 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
- 		nbd_config_put(nbd);
-@@ -1418,7 +1418,7 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
- 		config->flags = arg;
- 		return 0;
- 	case NBD_DO_IT:
--		return nbd_start_device_ioctl(nbd, bdev);
-+		return nbd_start_device_ioctl(nbd);
- 	case NBD_CLEAR_QUE:
- 		/*
- 		 * This is for compatibility only.  The queue is always cleared
+ 	net_dev->irq = bgmac->irq;
+@@ -1542,6 +1544,8 @@ int bgmac_enet_probe(struct bgmac *bgmac)
+ 	/* Omit FCS from max MTU size */
+ 	net_dev->max_mtu = BGMAC_RX_MAX_FRAME_SIZE - ETH_FCS_LEN;
+ 
++	bgmac->in_init = false;
++
+ 	err = register_netdev(bgmac->net_dev);
+ 	if (err) {
+ 		dev_err(bgmac->dev, "Cannot register net device\n");
+diff --git a/drivers/net/ethernet/broadcom/bgmac.h b/drivers/net/ethernet/broadcom/bgmac.h
+index e05ac92c06504..d73ef262991d6 100644
+--- a/drivers/net/ethernet/broadcom/bgmac.h
++++ b/drivers/net/ethernet/broadcom/bgmac.h
+@@ -472,6 +472,8 @@ struct bgmac {
+ 	int irq;
+ 	u32 int_mask;
+ 
++	bool in_init;
++
+ 	/* Current MAC state */
+ 	int mac_speed;
+ 	int mac_duplex;
 -- 
 2.39.2
 
