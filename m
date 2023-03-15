@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50AE86BB056
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A466BB21D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:33:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbjCOMR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41872 "EHLO
+        id S232636AbjCOMdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:33:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231676AbjCOMR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:28 -0400
+        with ESMTP id S232649AbjCOMcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB87794763
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2F28EA32
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 171A261D13
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BFCDC433EF;
-        Wed, 15 Mar 2023 12:17:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D7AE613F9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54192C433D2;
+        Wed, 15 Mar 2023 12:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882625;
-        bh=HoyvKmOuWOYCibdmOz5YlV4ONSKtfeDW8qT+/DiIfXc=;
+        s=korg; t=1678883517;
+        bh=zMJcQZY4dDA3lZHLSJyw1spa8aO4z8+bLFmPEKMNJG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXXVMl/SdG2R7lSzaRDHYFTW4i4PN7I5tiiGmHPPPzBP2if37O4tRqQDdeXQW9fZr
-         m3A1fYFAUVi4XXgeMyzklGwrUdGe4MbSU6k9+lkEu+LV64dRT5qGGzGDscvubVNo5Q
-         0OKFSS4GHyHZiBM2viV1buAtgjR2UBOkSK7sblCs=
+        b=zVFIXAgR+1c4CXOpNbzHtIDiL76x0RE0FnUg9yqsBrSCLugdMfW1og2wEc2z92Jmk
+         JE66MXGJI7svKLWpu05Mb5uKsf5wgbkihdy78VFBJnEPM9uxqczyzIfMGve+PyMcAL
+         6t1SNbMUPVMR6bNYhnkyaKyl0MpkwN9jJIwQtUE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.4 01/68] fs: prevent out-of-bounds array speculation when closing a file descriptor
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 029/143] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to userspace
 Date:   Wed, 15 Mar 2023 13:11:55 +0100
-Message-Id: <20230315115726.151802925@linuxfoundation.org>
+Message-Id: <20230315115741.394876122@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,27 +54,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 609d54441493c99f21c1823dfd66fa7f4c512ff4 upstream.
+[ Upstream commit e32b120071ea114efc0b4ddd439547750b85f618 ]
 
-Google-Bug-Id: 114199369
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Call kvm_init() only after _all_ setup is complete, as kvm_init() exposes
+/dev/kvm to userspace and thus allows userspace to create VMs (and call
+other ioctls).  E.g. KVM will encounter a NULL pointer when attempting to
+add a vCPU to the per-CPU loaded_vmcss_on_cpu list if userspace is able to
+create a VM before vmx_init() configures said list.
+
+ BUG: kernel NULL pointer dereference, address: 0000000000000008
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 0 P4D 0
+ Oops: 0002 [#1] SMP
+ CPU: 6 PID: 1143 Comm: stable Not tainted 6.0.0-rc7+ #988
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+ RIP: 0010:vmx_vcpu_load_vmcs+0x68/0x230 [kvm_intel]
+  <TASK>
+  vmx_vcpu_load+0x16/0x60 [kvm_intel]
+  kvm_arch_vcpu_load+0x32/0x1f0 [kvm]
+  vcpu_load+0x2f/0x40 [kvm]
+  kvm_arch_vcpu_create+0x231/0x310 [kvm]
+  kvm_vm_ioctl+0x79f/0xe10 [kvm]
+  ? handle_mm_fault+0xb1/0x220
+  __x64_sys_ioctl+0x80/0xb0
+  do_syscall_64+0x2b/0x50
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ RIP: 0033:0x7f5a6b05743b
+  </TASK>
+ Modules linked in: vhost_net vhost vhost_iotlb tap kvm_intel(+) kvm irqbypass
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20221130230934.1014142-15-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/vmx/vmx.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -654,6 +654,7 @@ int __close_fd_get_file(unsigned int fd,
- 	fdt = files_fdtable(files);
- 	if (fd >= fdt->max_fds)
- 		goto out_unlock;
-+	fd = array_index_nospec(fd, fdt->max_fds);
- 	file = fdt->fd[fd];
- 	if (!file)
- 		goto out_unlock;
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 81a23ae4f872b..bc868958e91fe 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -8456,19 +8456,23 @@ static void vmx_cleanup_l1d_flush(void)
+ 	l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
+ }
+ 
+-static void vmx_exit(void)
++static void __vmx_exit(void)
+ {
++	allow_smaller_maxphyaddr = false;
++
+ #ifdef CONFIG_KEXEC_CORE
+ 	RCU_INIT_POINTER(crash_vmclear_loaded_vmcss, NULL);
+ 	synchronize_rcu();
+ #endif
++	vmx_cleanup_l1d_flush();
++}
+ 
++static void vmx_exit(void)
++{
+ 	kvm_exit();
+ 	kvm_x86_vendor_exit();
+ 
+-	vmx_cleanup_l1d_flush();
+-
+-	allow_smaller_maxphyaddr = false;
++	__vmx_exit();
+ }
+ module_exit(vmx_exit);
+ 
+@@ -8513,11 +8517,6 @@ static int __init vmx_init(void)
+ 	if (r)
+ 		return r;
+ 
+-	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
+-		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+-	if (r)
+-		goto err_kvm_init;
+-
+ 	/*
+ 	 * Must be called after common x86 init so enable_ept is properly set
+ 	 * up. Hand the parameter mitigation value in which was stored in
+@@ -8551,11 +8550,20 @@ static int __init vmx_init(void)
+ 	if (!enable_ept)
+ 		allow_smaller_maxphyaddr = true;
+ 
++	/*
++	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
++	 * exposed to userspace!
++	 */
++	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
++		     __alignof__(struct vcpu_vmx), THIS_MODULE);
++	if (r)
++		goto err_kvm_init;
++
+ 	return 0;
+ 
+-err_l1d_flush:
+-	vmx_exit();
+ err_kvm_init:
++	__vmx_exit();
++err_l1d_flush:
+ 	kvm_x86_vendor_exit();
+ 	return r;
+ }
+-- 
+2.39.2
+
 
 
