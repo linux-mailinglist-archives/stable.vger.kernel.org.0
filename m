@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 976BA6BB01D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 884B36BB064
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbjCOMP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38036 "EHLO
+        id S231731AbjCOMRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231881AbjCOMPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DFEB76057
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:23 -0700 (PDT)
+        with ESMTP id S231849AbjCOMRq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C56790B54
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 593E9CE19B7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EBD7C433D2;
-        Wed, 15 Mar 2023 12:15:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9D62B81DFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3368FC433EF;
+        Wed, 15 Mar 2023 12:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882519;
-        bh=z/iFusAiSLpPLwdVFESAgq2RXBmDbfYvFSycz6MVXJ8=;
+        s=korg; t=1678882659;
+        bh=W8BVLgEICDfHoY2CX1QBhe6Uk4YndKzjM8kULqyWtXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/6yj6FQMOEfHVVpAsSe0Ya4I6hDUwwk1ezC99DpC7AN1q/VK/B1U56/IYkt9Ghwo
-         aaQxhLt59T230tM5Ox8HTvvo4jOfYDPUAnNpHGstH7DP+DeMajRuo1QCH+u/3YxPlb
-         bGCpoMzai8fpPavDNFhhcZdXN5OyWjvG5WRHiMAM=
+        b=caMy1Ce3Eq66oBkPHsPfRq1JxtCegujT8xb2EMLsr0+bPW9laPTZqbd/pAXYU58/t
+         +LnOuW4egTcrkbt7ZcJkwzixYDl5E3CE80hfR8UKFqYK2exJGSCxcHhkbFfNsoXx5n
+         qwCBbcl/Ev31WiPuvQ/qoprMZ78OTTROkLRL1L6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.19 01/39] fs: prevent out-of-bounds array speculation when closing a file descriptor
-Date:   Wed, 15 Mar 2023 13:12:15 +0100
-Message-Id: <20230315115721.295721286@linuxfoundation.org>
+        patches@lists.linux.dev, Bixuan Cui <cuibixuan@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 22/68] irqdomain: Change the type of size in __irq_domain_add() to be consistent
+Date:   Wed, 15 Mar 2023 13:12:16 +0100
+Message-Id: <20230315115726.956429673@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,27 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-commit 609d54441493c99f21c1823dfd66fa7f4c512ff4 upstream.
+[ Upstream commit 20c36ce2164f1774b487d443ece99b754bc6ad43 ]
 
-Google-Bug-Id: 114199369
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The 'size' is used in struct_size(domain, revmap, size) and its input
+parameter type is 'size_t'(unsigned int).
+Changing the size to 'unsigned int' to make the type consistent.
+
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210916025203.44841-1-cuibixuan@huawei.com
+Stable-dep-of: 8932c32c3053 ("irqdomain: Fix domain registration race")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/irqdomain.h | 2 +-
+ kernel/irq/irqdomain.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -627,6 +627,7 @@ int __close_fd(struct files_struct *file
- 	fdt = files_fdtable(files);
- 	if (fd >= fdt->max_fds)
- 		goto out_unlock;
-+	fd = array_index_nospec(fd, fdt->max_fds);
- 	file = fdt->fd[fd];
- 	if (!file)
- 		goto out_unlock;
+diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
+index 824d7a19dd66e..2552f66a7a891 100644
+--- a/include/linux/irqdomain.h
++++ b/include/linux/irqdomain.h
+@@ -254,7 +254,7 @@ static inline struct fwnode_handle *irq_domain_alloc_fwnode(phys_addr_t *pa)
+ }
+ 
+ void irq_domain_free_fwnode(struct fwnode_handle *fwnode);
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, int size,
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+ 				    irq_hw_number_t hwirq_max, int direct_max,
+ 				    const struct irq_domain_ops *ops,
+ 				    void *host_data);
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index 3d1b570a1dadd..cfb5a96f023f7 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -127,7 +127,7 @@ EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
+  * Allocates and initializes an irq_domain structure.
+  * Returns pointer to IRQ domain, or NULL on failure.
+  */
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, int size,
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+ 				    irq_hw_number_t hwirq_max, int direct_max,
+ 				    const struct irq_domain_ops *ops,
+ 				    void *host_data)
+-- 
+2.39.2
+
 
 
