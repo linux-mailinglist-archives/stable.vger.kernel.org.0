@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 597DF6BB350
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF576BB1FD
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233095AbjCOMna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:43:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35584 "EHLO
+        id S232548AbjCOMcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233075AbjCOMnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:11 -0400
+        with ESMTP id S232635AbjCOMbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41EFF9F208
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FEBA8F723
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6467CB81E05
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB6AC4339B;
-        Wed, 15 Mar 2023 12:41:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0183BB81DFF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49907C433EF;
+        Wed, 15 Mar 2023 12:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884097;
-        bh=R63HPpZq8h7gdUMFQmD6fmDT7vOIDou4F1fXXxV7wgE=;
+        s=korg; t=1678883457;
+        bh=+gb94zirnLeRru+m2kcFuVshusE/nNfUYKVlObs1hSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AB6X/uoIDAjLljPJK+ZXkhtjXSwm8xARRXwBLxSKyA55bTBhW3PDu4dKpbS5AsNGe
-         mQJWGVkDtBXs5QSHToNPVOW6XT43nLNBpiHUKD5rFUcRifVksGN1pKz2kQ8vR2JFIu
-         08kSPUowSXmocLO+ewEQJJOKtWCU22SJd+kKao08=
+        b=p5yKS4r18s3jJRSFxNdt1V+UH702+Slx/lfGiF8+q6mekfmejaR0DOE7sXCQ1bCIk
+         ipuFjAK86Vb/4eszQ+NSN5OTuPruHdyUhs3i4lXV93UzPJDbJTcbXiJr/jwkrMv7Fq
+         cuCMlyeYMicouhIuDt2GoUkLbxL8d47syDMsG774=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+7699d9e5635c10253a27@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Rao Shoaib <rao.shoaib@oracle.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 106/141] af_unix: fix struct pid leaks in OOB support
-Date:   Wed, 15 Mar 2023 13:13:29 +0100
-Message-Id: <20230315115743.230043595@linuxfoundation.org>
+        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Alexandru Matei <alexandru.matei@uipath.com>
+Subject: [PATCH 5.15 144/145] KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
+Date:   Wed, 15 Mar 2023 13:13:30 +0100
+Message-Id: <20230315115743.651848299@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,88 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 2aab4b96900272885bc157f8b236abf1cdc02e08 ]
+commit b84155c38076b36d625043a06a2f1c90bde62903 upstream.
 
-syzbot reported struct pid leak [1].
+In preparation to enabling 'Enlightened MSR Bitmap' feature for Hyper-V
+guests move MSR bitmap update tracking to a dedicated helper.
 
-Issue is that queue_oob() calls maybe_add_creds() which potentially
-holds a reference on a pid.
+Note: vmx_msr_bitmap_l01_changed() is called when MSR bitmap might be
+updated. KVM doesn't check if the bit we're trying to set is already set
+(or the bit it's trying to clear is already cleared). Such situations
+should not be common and a few false positives should not be a problem.
 
-But skb->destructor is not set (either directly or by calling
-unix_scm_to_skb())
+No functional change intended.
 
-This means that subsequent kfree_skb() or consume_skb() would leak
-this reference.
-
-In this fix, I chose to fully support scm even for the OOB message.
-
-[1]
-BUG: memory leak
-unreferenced object 0xffff8881053e7f80 (size 128):
-comm "syz-executor242", pid 5066, jiffies 4294946079 (age 13.220s)
-hex dump (first 32 bytes):
-01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-backtrace:
-[<ffffffff812ae26a>] alloc_pid+0x6a/0x560 kernel/pid.c:180
-[<ffffffff812718df>] copy_process+0x169f/0x26c0 kernel/fork.c:2285
-[<ffffffff81272b37>] kernel_clone+0xf7/0x610 kernel/fork.c:2684
-[<ffffffff812730cc>] __do_sys_clone+0x7c/0xb0 kernel/fork.c:2825
-[<ffffffff849ad699>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-[<ffffffff849ad699>] do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
-[<ffffffff84a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 314001f0bf92 ("af_unix: Add OOB support")
-Reported-by: syzbot+7699d9e5635c10253a27@syzkaller.appspotmail.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Rao Shoaib <rao.shoaib@oracle.com>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230307164530.771896-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211129094704.326635-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/unix/af_unix.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index f0c2293f1d3b8..7d17601ceee79 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -2104,7 +2104,8 @@ static int unix_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
- #define UNIX_SKB_FRAGS_SZ (PAGE_SIZE << get_order(32768))
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3772,6 +3772,17 @@ void free_vpid(int vpid)
+ 	spin_unlock(&vmx_vpid_lock);
+ }
  
- #if IS_ENABLED(CONFIG_AF_UNIX_OOB)
--static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other)
-+static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other,
-+		     struct scm_cookie *scm, bool fds_sent)
++static void vmx_msr_bitmap_l01_changed(struct vcpu_vmx *vmx)
++{
++	/*
++	 * When KVM is a nested hypervisor on top of Hyper-V and uses
++	 * 'Enlightened MSR Bitmap' feature L0 needs to know that MSR
++	 * bitmap has changed.
++	 */
++	if (static_branch_unlikely(&enable_evmcs))
++		evmcs_touch_msr_bitmap();
++}
++
+ void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu, u32 msr, int type)
  {
- 	struct unix_sock *ousk = unix_sk(other);
- 	struct sk_buff *skb;
-@@ -2115,6 +2116,11 @@ static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other
- 	if (!skb)
- 		return err;
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+@@ -3780,8 +3791,7 @@ void vmx_disable_intercept_for_msr(struc
+ 	if (!cpu_has_vmx_msr_bitmap())
+ 		return;
  
-+	err = unix_scm_to_skb(scm, skb, !fds_sent);
-+	if (err < 0) {
-+		kfree_skb(skb);
-+		return err;
-+	}
- 	skb_put(skb, 1);
- 	err = skb_copy_datagram_from_iter(skb, 0, &msg->msg_iter, 1);
+-	if (static_branch_unlikely(&enable_evmcs))
+-		evmcs_touch_msr_bitmap();
++	vmx_msr_bitmap_l01_changed(vmx);
  
-@@ -2242,7 +2248,7 @@ static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	/*
+ 	 * Mark the desired intercept state in shadow bitmap, this is needed
+@@ -3825,8 +3835,7 @@ void vmx_enable_intercept_for_msr(struct
+ 	if (!cpu_has_vmx_msr_bitmap())
+ 		return;
  
- #if IS_ENABLED(CONFIG_AF_UNIX_OOB)
- 	if (msg->msg_flags & MSG_OOB) {
--		err = queue_oob(sock, msg, other);
-+		err = queue_oob(sock, msg, other, &scm, fds_sent);
- 		if (err)
- 			goto out_err;
- 		sent++;
--- 
-2.39.2
-
+-	if (static_branch_unlikely(&enable_evmcs))
+-		evmcs_touch_msr_bitmap();
++	vmx_msr_bitmap_l01_changed(vmx);
+ 
+ 	/*
+ 	 * Mark the desired intercept state in shadow bitmap, this is needed
 
 
