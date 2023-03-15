@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E745C6BB31D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3086BB253
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbjCOMlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
+        id S232807AbjCOMfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232975AbjCOMlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C62125A5
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:06 -0700 (PDT)
+        with ESMTP id S232508AbjCOMfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B47CF9E337
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44561B81E14
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CCBC433D2;
-        Wed, 15 Mar 2023 12:40:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B831B61CC2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9437FC433D2;
+        Wed, 15 Mar 2023 12:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884004;
-        bh=1upzokxHUOD+hgn8pDWPpdT7VV84qZQSMUHrqZO/KBA=;
+        s=korg; t=1678883591;
+        bh=yuXkJMgjyI+jyHzc45+GmXRrOzWQdH0uAAsTMM4IL0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WypL3841FM7pE9yfylheG+9r5L+UE1TlelUO5dDr2Qr1FjLUHcP+GcStS3FYPUdqR
-         ZkgXcHVJvU/G9pOQpXFwo7br0560RrESBgl1U0N7DrVvXZhmeyTfa46/SmQ15LbEHi
-         XAf/j2VzsnnTvBGbLNnMUEUMSxnxqCE40NlFhq00=
+        b=ciFAlwOmQ+hWlhnuX+YLLmAXTd67ZJ3gLM/J0NtxS7yUj3Jbn+UBcgCxWWPnost/t
+         EuiNdUp+rtkJ3egZSlpLPENx+L2HMNPUIziZEZ02Vd9n36MbhLh6RDhaZmhtiV+09F
+         h/4+yamp0NfXqjhlkGjT1xVUHyBlCY6bsBcg5pAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 040/141] block: Revert "block: Do not reread partition table on exclusively open device"
+Subject: [PATCH 6.1 057/143] cifs: improve checking of DFS links over STATUS_OBJECT_NAME_INVALID
 Date:   Wed, 15 Mar 2023 13:12:23 +0100
-Message-Id: <20230315115741.181396194@linuxfoundation.org>
+Message-Id: <20230315115742.254813494@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,120 +56,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-[ Upstream commit 0f77b29ad14e34a89961f32edc87b92db623bb37 ]
+[ Upstream commit b9ee2e307c6b06384b6f9e393a9b8e048e8fc277 ]
 
-This reverts commit 36369f46e91785688a5f39d7a5590e3f07981316.
+Do not map STATUS_OBJECT_NAME_INVALID to -EREMOTE under non-DFS
+shares, or 'nodfs' mounts or CONFIG_CIFS_DFS_UPCALL=n builds.
+Otherwise, in the slow path, get a referral to figure out whether it
+is an actual DFS link.
 
-This patch can't fix the problem in a corner case that device can be
-opened exclusively after the checking and before blkdev_get_by_dev().
-We'll use a new solution to fix the problem in the next patch, and
-the new solution doesn't need to change apis.
+This could be simply reproduced under a non-DFS share by running the
+following
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230217022200.3092987-2-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
+  $ mount.cifs //srv/share /mnt -o ...
+  $ cat /mnt/$(printf '\U110000')
+  cat: '/mnt/'$'\364\220\200\200': Object is remote
+
+Fixes: c877ce47e137 ("cifs: reduce roundtrips on create/qinfo requests")
+CC: stable@vger.kernel.org # 6.2
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk.h   |  2 +-
- block/genhd.c |  7 ++-----
- block/ioctl.c | 13 ++++++-------
- 3 files changed, 9 insertions(+), 13 deletions(-)
+ fs/cifs/cifsproto.h | 20 ++++++++++----
+ fs/cifs/misc.c      | 67 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/cifs/smb2inode.c | 21 +++++++-------
+ fs/cifs/smb2ops.c   | 23 +++++++++-------
+ 4 files changed, 106 insertions(+), 25 deletions(-)
 
-diff --git a/block/blk.h b/block/blk.h
-index 4c3b3325219a5..e835f21d48af0 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -427,7 +427,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
+diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
+index eb1a0de9dd553..bc4475f6c0827 100644
+--- a/fs/cifs/cifsproto.h
++++ b/fs/cifs/cifsproto.h
+@@ -664,11 +664,21 @@ static inline int get_dfs_path(const unsigned int xid, struct cifs_ses *ses,
+ int match_target_ip(struct TCP_Server_Info *server,
+ 		    const char *share, size_t share_len,
+ 		    bool *result);
+-
+-int cifs_dfs_query_info_nonascii_quirk(const unsigned int xid,
+-				       struct cifs_tcon *tcon,
+-				       struct cifs_sb_info *cifs_sb,
+-				       const char *dfs_link_path);
++int cifs_inval_name_dfs_link_error(const unsigned int xid,
++				   struct cifs_tcon *tcon,
++				   struct cifs_sb_info *cifs_sb,
++				   const char *full_path,
++				   bool *islink);
++#else
++static inline int cifs_inval_name_dfs_link_error(const unsigned int xid,
++				   struct cifs_tcon *tcon,
++				   struct cifs_sb_info *cifs_sb,
++				   const char *full_path,
++				   bool *islink)
++{
++	*islink = false;
++	return 0;
++}
+ #endif
  
- struct request_queue *blk_alloc_queue(int node_id);
- 
--int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner);
-+int disk_scan_partitions(struct gendisk *disk, fmode_t mode);
- 
- int disk_alloc_events(struct gendisk *disk);
- void disk_add_events(struct gendisk *disk);
-diff --git a/block/genhd.c b/block/genhd.c
-index 23cf83b3331cd..fe47071f79e88 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -356,7 +356,7 @@ void disk_uevent(struct gendisk *disk, enum kobject_action action)
+ static inline int cifs_create_options(struct cifs_sb_info *cifs_sb, int options)
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+index 062175994e879..4e54736a06996 100644
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -21,6 +21,7 @@
+ #include "cifsfs.h"
+ #ifdef CONFIG_CIFS_DFS_UPCALL
+ #include "dns_resolve.h"
++#include "dfs_cache.h"
+ #endif
+ #include "fs_context.h"
+ #include "cached_dir.h"
+@@ -1314,4 +1315,70 @@ int cifs_update_super_prepath(struct cifs_sb_info *cifs_sb, char *prefix)
+ 	cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_USE_PREFIX_PATH;
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(disk_uevent);
- 
--int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner)
-+int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
++
++/*
++ * Handle weird Windows SMB server behaviour. It responds with
++ * STATUS_OBJECT_NAME_INVALID code to SMB2 QUERY_INFO request for
++ * "\<server>\<dfsname>\<linkpath>" DFS reference, where <dfsname> contains
++ * non-ASCII unicode symbols.
++ */
++int cifs_inval_name_dfs_link_error(const unsigned int xid,
++				   struct cifs_tcon *tcon,
++				   struct cifs_sb_info *cifs_sb,
++				   const char *full_path,
++				   bool *islink)
++{
++	struct cifs_ses *ses = tcon->ses;
++	size_t len;
++	char *path;
++	char *ref_path;
++
++	*islink = false;
++
++	/*
++	 * Fast path - skip check when @full_path doesn't have a prefix path to
++	 * look up or tcon is not DFS.
++	 */
++	if (strlen(full_path) < 2 || !cifs_sb ||
++	    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_DFS) ||
++	    !is_tcon_dfs(tcon) || !ses->server->origin_fullpath)
++		return 0;
++
++	/*
++	 * Slow path - tcon is DFS and @full_path has prefix path, so attempt
++	 * to get a referral to figure out whether it is an DFS link.
++	 */
++	len = strnlen(tcon->tree_name, MAX_TREE_SIZE + 1) + strlen(full_path) + 1;
++	path = kmalloc(len, GFP_KERNEL);
++	if (!path)
++		return -ENOMEM;
++
++	scnprintf(path, len, "%s%s", tcon->tree_name, full_path);
++	ref_path = dfs_cache_canonical_path(path + 1, cifs_sb->local_nls,
++					    cifs_remap(cifs_sb));
++	kfree(path);
++
++	if (IS_ERR(ref_path)) {
++		if (PTR_ERR(ref_path) != -EINVAL)
++			return PTR_ERR(ref_path);
++	} else {
++		struct dfs_info3_param *refs = NULL;
++		int num_refs = 0;
++
++		/*
++		 * XXX: we are not using dfs_cache_find() here because we might
++		 * end filling all the DFS cache and thus potentially
++		 * removing cached DFS targets that the client would eventually
++		 * need during failover.
++		 */
++		if (ses->server->ops->get_dfs_refer &&
++		    !ses->server->ops->get_dfs_refer(xid, ses, ref_path, &refs,
++						     &num_refs, cifs_sb->local_nls,
++						     cifs_remap(cifs_sb)))
++			*islink = refs[0].server_type == DFS_TYPE_LINK;
++		free_dfs_info_array(refs, num_refs);
++		kfree(ref_path);
++	}
++	return 0;
++}
+ #endif
+diff --git a/fs/cifs/smb2inode.c b/fs/cifs/smb2inode.c
+index e1491440e8f1f..442718cf61b86 100644
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -511,12 +511,13 @@ int smb2_query_path_info(const unsigned int xid, struct cifs_tcon *tcon,
+ 			 struct cifs_sb_info *cifs_sb, const char *full_path,
+ 			 struct cifs_open_info_data *data, bool *adjust_tz, bool *reparse)
  {
- 	struct block_device *bdev;
+-	int rc;
+ 	__u32 create_options = 0;
+ 	struct cifsFileInfo *cfile;
+ 	struct cached_fid *cfid = NULL;
+ 	struct kvec err_iov[3] = {};
+ 	int err_buftype[3] = {};
++	bool islink;
++	int rc, rc2;
  
-@@ -366,9 +366,6 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner)
- 		return -EINVAL;
- 	if (disk->open_partitions)
- 		return -EBUSY;
--	/* Someone else has bdev exclusively open? */
--	if (disk->part0->bd_holder && disk->part0->bd_holder != owner)
--		return -EBUSY;
- 
- 	set_bit(GD_NEED_PART_SCAN, &disk->state);
- 	bdev = blkdev_get_by_dev(disk_devt(disk), mode, NULL);
-@@ -499,7 +496,7 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
- 
- 		bdev_add(disk->part0, ddev->devt);
- 		if (get_capacity(disk))
--			disk_scan_partitions(disk, FMODE_READ, NULL);
-+			disk_scan_partitions(disk, FMODE_READ);
- 
- 		/*
- 		 * Announce the disk and partitions after all partitions are
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 96617512982e5..6dd49d877584a 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -467,10 +467,10 @@ static int blkdev_bszset(struct block_device *bdev, fmode_t mode,
-  * user space. Note the separate arg/argp parameters that are needed
-  * to deal with the compat_ptr() conversion.
-  */
--static int blkdev_common_ioctl(struct file *file, fmode_t mode, unsigned cmd,
--			       unsigned long arg, void __user *argp)
-+static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
-+			       unsigned int cmd, unsigned long arg,
-+			       void __user *argp)
+ 	*adjust_tz = false;
+ 	*reparse = false;
+@@ -563,15 +564,15 @@ int smb2_query_path_info(const unsigned int xid, struct cifs_tcon *tcon,
+ 					      create_options, ACL_NO_MODE, data,
+ 					      SMB2_OP_QUERY_INFO, cfile, NULL, NULL);
+ 			goto out;
+-		} else if (rc != -EREMOTE && IS_ENABLED(CONFIG_CIFS_DFS_UPCALL) &&
+-			   hdr->Status == STATUS_OBJECT_NAME_INVALID) {
+-			/*
+-			 * Handle weird Windows SMB server behaviour. It responds with
+-			 * STATUS_OBJECT_NAME_INVALID code to SMB2 QUERY_INFO request
+-			 * for "\<server>\<dfsname>\<linkpath>" DFS reference,
+-			 * where <dfsname> contains non-ASCII unicode symbols.
+-			 */
+-			rc = -EREMOTE;
++		} else if (rc != -EREMOTE && hdr->Status == STATUS_OBJECT_NAME_INVALID) {
++			rc2 = cifs_inval_name_dfs_link_error(xid, tcon, cifs_sb,
++							     full_path, &islink);
++			if (rc2) {
++				rc = rc2;
++				goto out;
++			}
++			if (islink)
++				rc = -EREMOTE;
+ 		}
+ 		if (rc == -EREMOTE && IS_ENABLED(CONFIG_CIFS_DFS_UPCALL) && cifs_sb &&
+ 		    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_DFS))
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 6da495f593e17..0424876d22e5a 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -796,7 +796,6 @@ static int
+ smb2_is_path_accessible(const unsigned int xid, struct cifs_tcon *tcon,
+ 			struct cifs_sb_info *cifs_sb, const char *full_path)
  {
--	struct block_device *bdev = I_BDEV(file->f_mapping->host);
- 	unsigned int max_sectors;
+-	int rc;
+ 	__le16 *utf16_path;
+ 	__u8 oplock = SMB2_OPLOCK_LEVEL_NONE;
+ 	int err_buftype = CIFS_NO_BUFFER;
+@@ -804,6 +803,8 @@ smb2_is_path_accessible(const unsigned int xid, struct cifs_tcon *tcon,
+ 	struct kvec err_iov = {};
+ 	struct cifs_fid fid;
+ 	struct cached_fid *cfid;
++	bool islink;
++	int rc, rc2;
  
- 	switch (cmd) {
-@@ -528,8 +528,7 @@ static int blkdev_common_ioctl(struct file *file, fmode_t mode, unsigned cmd,
- 			return -EACCES;
- 		if (bdev_is_partition(bdev))
- 			return -EINVAL;
--		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL,
--					    file);
-+		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL);
- 	case BLKTRACESTART:
- 	case BLKTRACESTOP:
- 	case BLKTRACETEARDOWN:
-@@ -607,7 +606,7 @@ long blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 		break;
- 	}
+ 	rc = open_cached_dir(xid, tcon, full_path, cifs_sb, true, &cfid);
+ 	if (!rc) {
+@@ -833,15 +834,17 @@ smb2_is_path_accessible(const unsigned int xid, struct cifs_tcon *tcon,
  
--	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
-+	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
- 	if (ret != -ENOIOCTLCMD)
- 		return ret;
- 
-@@ -676,7 +675,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 		break;
- 	}
- 
--	ret = blkdev_common_ioctl(file, mode, cmd, arg, argp);
-+	ret = blkdev_common_ioctl(bdev, mode, cmd, arg, argp);
- 	if (ret == -ENOIOCTLCMD && disk->fops->compat_ioctl)
- 		ret = disk->fops->compat_ioctl(bdev, mode, cmd, arg);
- 
+ 		if (unlikely(!hdr || err_buftype == CIFS_NO_BUFFER))
+ 			goto out;
+-		/*
+-		 * Handle weird Windows SMB server behaviour. It responds with
+-		 * STATUS_OBJECT_NAME_INVALID code to SMB2 QUERY_INFO request
+-		 * for "\<server>\<dfsname>\<linkpath>" DFS reference,
+-		 * where <dfsname> contains non-ASCII unicode symbols.
+-		 */
+-		if (rc != -EREMOTE && IS_ENABLED(CONFIG_CIFS_DFS_UPCALL) &&
+-		    hdr->Status == STATUS_OBJECT_NAME_INVALID)
+-			rc = -EREMOTE;
++
++		if (rc != -EREMOTE && hdr->Status == STATUS_OBJECT_NAME_INVALID) {
++			rc2 = cifs_inval_name_dfs_link_error(xid, tcon, cifs_sb,
++							     full_path, &islink);
++			if (rc2) {
++				rc = rc2;
++				goto out;
++			}
++			if (islink)
++				rc = -EREMOTE;
++		}
+ 		if (rc == -EREMOTE && IS_ENABLED(CONFIG_CIFS_DFS_UPCALL) && cifs_sb &&
+ 		    (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NO_DFS))
+ 			rc = -EOPNOTSUPP;
 -- 
 2.39.2
 
