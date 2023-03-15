@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4CD6BB30E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A87B6BB03A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbjCOMlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35558 "EHLO
+        id S231871AbjCOMQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232999AbjCOMky (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8216231C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:47 -0700 (PDT)
+        with ESMTP id S231889AbjCOMQ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10897900A7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CC8CB81E17
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78DA3C433EF;
-        Wed, 15 Mar 2023 12:39:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9443B61D44
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3BDFC433D2;
+        Wed, 15 Mar 2023 12:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883978;
-        bh=N8GvDc8kXEwY0TJiZARrEWIq4/JtWXZVfuGvJkLHK+E=;
+        s=korg; t=1678882572;
+        bh=OzBV5aBqKSqmojYY0HRKAqEqSDU504pp8GTe0Af+pj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5kIaPABSJP/J/UDz72R4qDIYTMJghwqz5wTEm5/Uh3d1NQvH5IsEHIJCLBJNjlqO
-         niTGm+ll8Cj2n/Nj9Y27P0HjRLUvbiOo9dTIAlUxC+K5LpeL4fC65DXoZamZcu3Kif
-         dDhts0Y2XFWdz7FQMPhfV0Yz4gzHyK2H80q/8C7c=
+        b=lY7+oKvOyn+5NsMQKwmQ3Q1TkeoNO3eo0eKZcUb93ECsM2zKQC1i1kico3dR7dGoM
+         LJ4jG+/RR2Zs9pZaVdqCYv1ljV6a4/dRss45Duo0NsFPgGsnCD5ojf0HI8zgEfjcs+
+         CouJoR04mUetPdLkIHsU+UCWzD2IPvuKyktFIkyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, xurui <xurui@kylinos.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 060/141] netfilter: nft_last: copy content when cloning expression
+Subject: [PATCH 4.19 29/39] MIPS: Fix a compilation issue
 Date:   Wed, 15 Mar 2023 13:12:43 +0100
-Message-Id: <20230315115741.790202941@linuxfoundation.org>
+Message-Id: <20230315115722.309870465@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: xurui <xurui@kylinos.cn>
 
-[ Upstream commit 860e874290fb3be08e966c9c8ffc510c5b0f2bd8 ]
+[ Upstream commit 109d587a4b4d7ccca2200ab1f808f43ae23e2585 ]
 
-If the ruleset contains last timestamps, restore them accordingly.
-Otherwise, listing after restoration shows never used items.
+arch/mips/include/asm/mach-rc32434/pci.h:377:
+cc1: error: result of ‘-117440512 << 16’ requires 44 bits to represent, but ‘int’ only has 32 bits [-Werror=shift-overflow=]
 
-Fixes: 33a24de37e81 ("netfilter: nft_last: move stateful fields out of expression data")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+All bits in KORINA_STAT are already at the correct position, so there is
+no addtional shift needed.
+
+Signed-off-by: xurui <xurui@kylinos.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_last.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/mips/include/asm/mach-rc32434/pci.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_last.c b/net/netfilter/nft_last.c
-index 7f2bda6641bd8..8e6d7eaf9dc8b 100644
---- a/net/netfilter/nft_last.c
-+++ b/net/netfilter/nft_last.c
-@@ -105,11 +105,15 @@ static void nft_last_destroy(const struct nft_ctx *ctx,
- static int nft_last_clone(struct nft_expr *dst, const struct nft_expr *src)
- {
- 	struct nft_last_priv *priv_dst = nft_expr_priv(dst);
-+	struct nft_last_priv *priv_src = nft_expr_priv(src);
+diff --git a/arch/mips/include/asm/mach-rc32434/pci.h b/arch/mips/include/asm/mach-rc32434/pci.h
+index 6f40d1515580b..1ff8a987025c8 100644
+--- a/arch/mips/include/asm/mach-rc32434/pci.h
++++ b/arch/mips/include/asm/mach-rc32434/pci.h
+@@ -377,7 +377,7 @@ struct pci_msu {
+ 				 PCI_CFG04_STAT_SSE | \
+ 				 PCI_CFG04_STAT_PE)
  
- 	priv_dst->last = kzalloc(sizeof(*priv_dst->last), GFP_ATOMIC);
- 	if (!priv_dst->last)
- 		return -ENOMEM;
+-#define KORINA_CNFG1		((KORINA_STAT<<16)|KORINA_CMD)
++#define KORINA_CNFG1		(KORINA_STAT | KORINA_CMD)
  
-+	priv_dst->last->set = priv_src->last->set;
-+	priv_dst->last->jiffies = priv_src->last->jiffies;
-+
- 	return 0;
- }
- 
+ #define KORINA_REVID		0
+ #define KORINA_CLASS_CODE	0
 -- 
 2.39.2
 
