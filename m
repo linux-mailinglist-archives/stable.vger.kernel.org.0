@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED0FA6BB09E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E036BB25A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231987AbjCOMT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45158 "EHLO
+        id S232742AbjCOMfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:35:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232134AbjCOMTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967E68F53F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:24 -0700 (PDT)
+        with ESMTP id S232743AbjCOMfQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416D49B9A1
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38360B81DFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9DCC4339C;
-        Wed, 15 Mar 2023 12:19:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F7DFB81E00
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB852C433D2;
+        Wed, 15 Mar 2023 12:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882762;
-        bh=NkZdCgykXmW15w+PfR205bvLYTPXPKpu4UAp/ekyvJU=;
+        s=korg; t=1678883630;
+        bh=5fpAfLrEEXHcZU7KMHkBgmY48ywrvOIvcSiPj1Ma9JU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5DC3W1alcMyuF114Gw3W8G8sK15KDnrPZkDtxL8iroQxukI2YRNi6gDPR+Oi/6Mn
-         8lQHBmhNTZysHGcvLl1HdjmGCyCFveyhab2ns47sYAL4WSvB/BkXp1nnjUvHvrsXdv
-         VGm7Xp9e/YonNmY7mEkt/q/uAzqQ5G9YwNRRMXaE=
+        b=O8yJF3wHt8UCQ9GqkJpjcTC2Y4+Gj2U4RUZNl/9tw0aOU2WU+JnNp+3e0S5VeBHkx
+         aj2CJz8EzCWFkpyGcLpU2IIv1o/XYkEZx9v1zF0nsaEQt/dL9MJwJm6sup+f1olOrl
+         frHTHqJQMql35GxK+b/zFQN3LZe8FoZ9Lp6sjWgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Somnath Kotur <somnath.kotur@broadcom.com>,
-        Damodharam Ammepalli <damodharam.ammepalli@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 43/68] bnxt_en: Avoid order-5 memory allocation for TPA data
+Subject: [PATCH 6.1 071/143] selftests: nft_nat: ensuring the listening side is up before starting the client
 Date:   Wed, 15 Mar 2023 13:12:37 +0100
-Message-Id: <20230315115727.808819207@linuxfoundation.org>
+Message-Id: <20230315115742.708819112@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,112 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit accd7e23693aaaa9aa0d3e9eca0ae77d1be80ab3 ]
+[ Upstream commit 2067e7a00aa604b94de31d64f29b8893b1696f26 ]
 
-The driver needs to keep track of all the possible concurrent TPA (GRO/LRO)
-completions on the aggregation ring.  On P5 chips, the maximum number
-of concurrent TPA is 256 and the amount of memory we allocate is order-5
-on systems using 4K pages.  Memory allocation failure has been reported:
+The test_local_dnat_portonly() function initiates the client-side as
+soon as it sets the listening side to the background. This could lead to
+a race condition where the server may not be ready to listen. To ensure
+that the server-side is up and running before initiating the
+client-side, a delay is introduced to the test_local_dnat_portonly()
+function.
 
-NetworkManager: page allocation failure: order:5, mode:0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO), nodemask=(null),cpuset=/,mems_allowed=0-1
-CPU: 15 PID: 2995 Comm: NetworkManager Kdump: loaded Not tainted 5.10.156 #1
-Hardware name: Dell Inc. PowerEdge R660/0M1CC5, BIOS 0.2.25 08/12/2022
-Call Trace:
- dump_stack+0x57/0x6e
- warn_alloc.cold.120+0x7b/0xdd
- ? _cond_resched+0x15/0x30
- ? __alloc_pages_direct_compact+0x15f/0x170
- __alloc_pages_slowpath.constprop.108+0xc58/0xc70
- __alloc_pages_nodemask+0x2d0/0x300
- kmalloc_order+0x24/0xe0
- kmalloc_order_trace+0x19/0x80
- bnxt_alloc_mem+0x1150/0x15c0 [bnxt_en]
- ? bnxt_get_func_stat_ctxs+0x13/0x60 [bnxt_en]
- __bnxt_open_nic+0x12e/0x780 [bnxt_en]
- bnxt_open+0x10b/0x240 [bnxt_en]
- __dev_open+0xe9/0x180
- __dev_change_flags+0x1af/0x220
- dev_change_flags+0x21/0x60
- do_setlink+0x35c/0x1100
+Before the fix:
+  # ./nft_nat.sh
+  PASS: netns routing/connectivity: ns0-rthlYrBU can reach ns1-rthlYrBU and ns2-rthlYrBU
+  PASS: ping to ns1-rthlYrBU was ip NATted to ns2-rthlYrBU
+  PASS: ping to ns1-rthlYrBU OK after ip nat output chain flush
+  PASS: ipv6 ping to ns1-rthlYrBU was ip6 NATted to ns2-rthlYrBU
+  2023/02/27 04:11:03 socat[6055] E connect(5, AF=2 10.0.1.99:2000, 16): Connection refused
+  ERROR: inet port rewrite
 
-Instead of allocating this big chunk of memory and dividing it up for the
-concurrent TPA instances, allocate each small chunk separately for each
-TPA instance.  This will reduce it to order-0 allocations.
+After the fix:
+  # ./nft_nat.sh
+  PASS: netns routing/connectivity: ns0-9sPJV6JJ can reach ns1-9sPJV6JJ and ns2-9sPJV6JJ
+  PASS: ping to ns1-9sPJV6JJ was ip NATted to ns2-9sPJV6JJ
+  PASS: ping to ns1-9sPJV6JJ OK after ip nat output chain flush
+  PASS: ipv6 ping to ns1-9sPJV6JJ was ip6 NATted to ns2-9sPJV6JJ
+  PASS: inet port rewrite without l3 address
 
-Fixes: 79632e9ba386 ("bnxt_en: Expand bnxt_tpa_info struct to support 57500 chips.")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Reviewed-by: Damodharam Ammepalli <damodharam.ammepalli@broadcom.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 282e5f8fe907 ("netfilter: nat: really support inet nat without l3 address")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ tools/testing/selftests/netfilter/nft_nat.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index ef8225b7445d3..9fb1da36e9eb8 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -2747,7 +2747,7 @@ static int bnxt_alloc_ring(struct bnxt *bp, struct bnxt_ring_mem_info *rmem)
+diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
+index 924ecb3f1f737..dd40d9f6f2599 100755
+--- a/tools/testing/selftests/netfilter/nft_nat.sh
++++ b/tools/testing/selftests/netfilter/nft_nat.sh
+@@ -404,6 +404,8 @@ EOF
+ 	echo SERVER-$family | ip netns exec "$ns1" timeout 5 socat -u STDIN TCP-LISTEN:2000 &
+ 	sc_s=$!
  
- static void bnxt_free_tpa_info(struct bnxt *bp)
- {
--	int i;
-+	int i, j;
++	sleep 1
++
+ 	result=$(ip netns exec "$ns0" timeout 1 socat TCP:$daddr:2000 STDOUT)
  
- 	for (i = 0; i < bp->rx_nr_rings; i++) {
- 		struct bnxt_rx_ring_info *rxr = &bp->rx_ring[i];
-@@ -2755,8 +2755,10 @@ static void bnxt_free_tpa_info(struct bnxt *bp)
- 		kfree(rxr->rx_tpa_idx_map);
- 		rxr->rx_tpa_idx_map = NULL;
- 		if (rxr->rx_tpa) {
--			kfree(rxr->rx_tpa[0].agg_arr);
--			rxr->rx_tpa[0].agg_arr = NULL;
-+			for (j = 0; j < bp->max_tpa; j++) {
-+				kfree(rxr->rx_tpa[j].agg_arr);
-+				rxr->rx_tpa[j].agg_arr = NULL;
-+			}
- 		}
- 		kfree(rxr->rx_tpa);
- 		rxr->rx_tpa = NULL;
-@@ -2765,14 +2767,13 @@ static void bnxt_free_tpa_info(struct bnxt *bp)
- 
- static int bnxt_alloc_tpa_info(struct bnxt *bp)
- {
--	int i, j, total_aggs = 0;
-+	int i, j;
- 
- 	bp->max_tpa = MAX_TPA;
- 	if (bp->flags & BNXT_FLAG_CHIP_P5) {
- 		if (!bp->max_tpa_v2)
- 			return 0;
- 		bp->max_tpa = max_t(u16, bp->max_tpa_v2, MAX_TPA_P5);
--		total_aggs = bp->max_tpa * MAX_SKB_FRAGS;
- 	}
- 
- 	for (i = 0; i < bp->rx_nr_rings; i++) {
-@@ -2786,12 +2787,12 @@ static int bnxt_alloc_tpa_info(struct bnxt *bp)
- 
- 		if (!(bp->flags & BNXT_FLAG_CHIP_P5))
- 			continue;
--		agg = kcalloc(total_aggs, sizeof(*agg), GFP_KERNEL);
--		rxr->rx_tpa[0].agg_arr = agg;
--		if (!agg)
--			return -ENOMEM;
--		for (j = 1; j < bp->max_tpa; j++)
--			rxr->rx_tpa[j].agg_arr = agg + j * MAX_SKB_FRAGS;
-+		for (j = 0; j < bp->max_tpa; j++) {
-+			agg = kcalloc(MAX_SKB_FRAGS, sizeof(*agg), GFP_KERNEL);
-+			if (!agg)
-+				return -ENOMEM;
-+			rxr->rx_tpa[j].agg_arr = agg;
-+		}
- 		rxr->rx_tpa_idx_map = kzalloc(sizeof(*rxr->rx_tpa_idx_map),
- 					      GFP_KERNEL);
- 		if (!rxr->rx_tpa_idx_map)
+ 	if [ "$result" = "SERVER-inet" ];then
 -- 
 2.39.2
 
