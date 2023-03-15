@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDA36BB04B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1BD06BB09C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230176AbjCOMRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39920 "EHLO
+        id S232067AbjCOMT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231944AbjCOMQs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0448FBEE
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:43 -0700 (PDT)
+        with ESMTP id S232127AbjCOMT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7268674A5D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DC0DB81DF8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2EACC433D2;
-        Wed, 15 Mar 2023 12:16:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5B6C7CE19B7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684ACC433EF;
+        Wed, 15 Mar 2023 12:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882601;
-        bh=oh7bUmYU8BvxO0wWyyaYbmFA3o0shhnjHA/vDXs+hfY=;
+        s=korg; t=1678882756;
+        bh=Zb+qb2mnwGVTQt0Nyrh6RdVl0Ee/4pmjRMBFtg3Xb+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKfVHaoLOVQIlRodUgymqSrPzCho1h5idJpMOE95BCUmnU5YzpVDDqnlAeWIF5mme
-         RAdg52Ayh2bg6onvexomaJkO6hDpy3dbYJvAo3WTSCJcFO3MAGywDGzlX34+eERElN
-         8H4GU9zouYk9y2KQcrRv538th/TjYrfOCiSHAHBg=
+        b=RUSk0ZFvf46pWMWnG8VIBtAABXtLj4TEKfmqzj9bkfN3FZXAj76eUUKvBH/WJTS4r
+         nLJjV0Yq5BAMvwEm0ZupCW8HJoHZNauXoWvN55Kt4P2wThWuyNGU5uPN+/dgXG1qJ7
+         zR5tzyyQAsSmPL2f5ybrBr9lweejDyNoL+3/j4oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Tejun Heo <tj@kernel.org>, Cai Xinchen <caixinchen1@huawei.com>
-Subject: [PATCH 4.19 39/39] cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
+        patches@lists.linux.dev, Anton Lundin <glance@acc.umu.se>,
+        Corey Minyard <cminyard@mvista.com>, Stable@vger.kernel.org
+Subject: [PATCH 5.4 59/68] ipmi:watchdog: Set panic count to proper value on a panic
 Date:   Wed, 15 Mar 2023 13:12:53 +0100
-Message-Id: <20230315115722.693891532@linuxfoundation.org>
+Message-Id: <20230315115728.421508081@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Corey Minyard <cminyard@mvista.com>
 
-commit 43626dade36fa74d3329046f4ae2d7fdefe401c6 upstream.
+commit db05ddf7f321634c5659a0cf7ea56594e22365f7 upstream.
 
-syzbot is hitting percpu_rwsem_assert_held(&cpu_hotplug_lock) warning at
-cpuset_attach() [1], for commit 4f7e7236435ca0ab ("cgroup: Fix
-threadgroup_rwsem <-> cpus_read_lock() deadlock") missed that
-cpuset_attach() is also called from cgroup_attach_task_all().
-Add cpus_read_lock() like what cgroup_procs_write_start() does.
+You will get two decrements when the messages on a panic are sent, not
+one, since commit 2033f6858970 ("ipmi: Free receive messages when in an
+oops") was added, but the watchdog code had a bug where it didn't set
+the value properly.
 
-Link: https://syzkaller.appspot.com/bug?extid=29d3a3b4d86c8136ad9e [1]
-Reported-by: syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 4f7e7236435ca0ab ("cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+Reported-by: Anton Lundin <glance@acc.umu.se>
+Cc: <Stable@vger.kernel.org> # v5.4+
+Fixes: 2033f6858970 ("ipmi: Free receive messages when in an oops")
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-v1.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/ipmi/ipmi_watchdog.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -13,6 +13,7 @@
- #include <linux/delayacct.h>
- #include <linux/pid_namespace.h>
- #include <linux/cgroupstats.h>
-+#include <linux/cpu.h>
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -498,7 +498,7 @@ static void panic_halt_ipmi_heartbeat(vo
+ 	msg.cmd = IPMI_WDOG_RESET_TIMER;
+ 	msg.data = NULL;
+ 	msg.data_len = 0;
+-	atomic_inc(&panic_done_count);
++	atomic_add(2, &panic_done_count);
+ 	rv = ipmi_request_supply_msgs(watchdog_user,
+ 				      (struct ipmi_addr *) &addr,
+ 				      0,
+@@ -508,7 +508,7 @@ static void panic_halt_ipmi_heartbeat(vo
+ 				      &panic_halt_heartbeat_recv_msg,
+ 				      1);
+ 	if (rv)
+-		atomic_dec(&panic_done_count);
++		atomic_sub(2, &panic_done_count);
+ }
  
- #include <trace/events/cgroup.h>
- 
-@@ -55,6 +56,7 @@ int cgroup_attach_task_all(struct task_s
- 	int retval = 0;
- 
- 	mutex_lock(&cgroup_mutex);
-+	get_online_cpus();
- 	percpu_down_write(&cgroup_threadgroup_rwsem);
- 	for_each_root(root) {
- 		struct cgroup *from_cgrp;
-@@ -71,6 +73,7 @@ int cgroup_attach_task_all(struct task_s
- 			break;
- 	}
- 	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	put_online_cpus();
- 	mutex_unlock(&cgroup_mutex);
- 
- 	return retval;
+ static struct ipmi_smi_msg panic_halt_smi_msg = {
+@@ -532,12 +532,12 @@ static void panic_halt_ipmi_set_timeout(
+ 	/* Wait for the messages to be free. */
+ 	while (atomic_read(&panic_done_count) != 0)
+ 		ipmi_poll_interface(watchdog_user);
+-	atomic_inc(&panic_done_count);
++	atomic_add(2, &panic_done_count);
+ 	rv = __ipmi_set_timeout(&panic_halt_smi_msg,
+ 				&panic_halt_recv_msg,
+ 				&send_heartbeat_now);
+ 	if (rv) {
+-		atomic_dec(&panic_done_count);
++		atomic_sub(2, &panic_done_count);
+ 		pr_warn("Unable to extend the watchdog timeout\n");
+ 	} else {
+ 		if (send_heartbeat_now)
 
 
