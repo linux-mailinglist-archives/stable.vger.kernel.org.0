@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DBF46BB1E4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE3A6BB357
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232622AbjCOMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39610 "EHLO
+        id S232868AbjCOMno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:43:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232643AbjCOMbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F7C10429;
-        Wed, 15 Mar 2023 05:30:16 -0700 (PDT)
+        with ESMTP id S232905AbjCOMnY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20AC5A336F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9590C61D3E;
-        Wed, 15 Mar 2023 12:30:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8224AC433EF;
-        Wed, 15 Mar 2023 12:30:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACBE5B81E12
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09052C433EF;
+        Wed, 15 Mar 2023 12:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883416;
-        bh=Qg+PFJ0nwM/TuAdSfd5lfARRtcdUVf6B93PGm3/dEjY=;
+        s=korg; t=1678884123;
+        bh=RYRK5pU0obzR6PafdUd1j1wq+w9QAsWtn+eSgmN5Ur4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgozbtRdewhlt1/KazZzHyaqhKp8Ho1jyebQbd26ldUxZcy9QRkWgbrHlZdTQv5bR
-         oYY5FUVVP+Z1VgFqCJw5LP4Q1E9cWU2/5x26t9bg+nDOweTEA56q1PXcBJMjEic9zX
-         UMK109oAwYmEcwPpHoUV3XBZC1foG6mI1UYAsWsk=
+        b=Mh5wcNV145hbMWbSC9VSTnS0mVCSLP8grQLt9WVdwMom2RcYWzzXDj5hE/2Trt6ae
+         X/7poAL3O/KfcDs7SgC+vs+CpbZeDwjayKop3/IR4PW35f5pTAyNA+m9Ql6QJftUtC
+         9/i+VjjdPiz6qy7NHZJiQOoc9jEQdSxtkB/q9s4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andres Freund <andres@anarazel.de>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ben Hutchings <benh@debian.org>, Jiri Olsa <jolsa@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>, bpf@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 5.15 134/145] tools build: Add feature test for init_disassemble_info API changes
-Date:   Wed, 15 Mar 2023 13:13:20 +0100
-Message-Id: <20230315115743.352986008@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+2bcc0d79e548c4f62a59@syzkaller.appspotmail.com,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 098/141] block: fix wrong mode for blkdev_put() from disk_scan_partitions()
+Date:   Wed, 15 Mar 2023 13:13:21 +0100
+Message-Id: <20230315115742.988754010@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,99 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andres Freund <andres@anarazel.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit cfd59ca91467056bb2c36907b2fa67b8e1af9952 upstream.
+[ Upstream commit 428913bce1e67ccb4dae317fd0332545bf8c9233 ]
 
-binutils changed the signature of init_disassemble_info(), which now causes
-compilation failures for tools/{perf,bpf}, e.g. on debian unstable.
+If disk_scan_partitions() is called with 'FMODE_EXCL',
+blkdev_get_by_dev() will be called without 'FMODE_EXCL', however, follow
+blkdev_put() is still called with 'FMODE_EXCL', which will cause
+'bd_holders' counter to leak.
 
-Relevant binutils commit:
+Fix the problem by using the right mode for blkdev_put().
 
-  https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=60a3da00bd5407f07
-
-This commit adds a feature test to detect the new signature.  Subsequent
-commits will use it to fix the build failures.
-
-Signed-off-by: Andres Freund <andres@anarazel.de>
-Acked-by: Quentin Monnet <quentin@isovalent.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Ben Hutchings <benh@debian.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Sedat Dilek <sedat.dilek@gmail.com>
-Cc: bpf@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20220622181918.ykrs5rsnmx3og4sv@alap3.anarazel.de
-Link: https://lore.kernel.org/r/20220801013834.156015-2-andres@anarazel.de
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+2bcc0d79e548c4f62a59@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/lkml/f9649d501bc8c3444769418f6c26263555d9d3be.camel@linux.ibm.com/T/
+Tested-by: Julian Ruess <julianr@linux.ibm.com>
+Fixes: e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/Makefile.feature                        |    1 +
- tools/build/feature/Makefile                        |    4 ++++
- tools/build/feature/test-all.c                      |    4 ++++
- tools/build/feature/test-disassembler-init-styled.c |   13 +++++++++++++
- 4 files changed, 22 insertions(+)
- create mode 100644 tools/build/feature/test-disassembler-init-styled.c
+ block/genhd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -69,6 +69,7 @@ FEATURE_TESTS_BASIC :=
-         libaio				\
-         libzstd				\
-         disassembler-four-args		\
-+        disassembler-init-styled	\
-         file-handle
+diff --git a/block/genhd.c b/block/genhd.c
+index 6cdaeb7169004..9c4c9aa559ab8 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -385,7 +385,7 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
+ 	if (IS_ERR(bdev))
+ 		ret =  PTR_ERR(bdev);
+ 	else
+-		blkdev_put(bdev, mode);
++		blkdev_put(bdev, mode & ~FMODE_EXCL);
  
- # FEATURE_TESTS_BASIC + FEATURE_TESTS_EXTRA is the complete list
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -18,6 +18,7 @@ FILES=
-          test-libbfd.bin                        \
-          test-libbfd-buildid.bin		\
-          test-disassembler-four-args.bin        \
-+         test-disassembler-init-styled.bin	\
-          test-reallocarray.bin			\
-          test-libbfd-liberty.bin                \
-          test-libbfd-liberty-z.bin              \
-@@ -239,6 +240,9 @@ $(OUTPUT)test-libbfd-buildid.bin:
- $(OUTPUT)test-disassembler-four-args.bin:
- 	$(BUILD) -DPACKAGE='"perf"' -lbfd -lopcodes
- 
-+$(OUTPUT)test-disassembler-init-styled.bin:
-+	$(BUILD) -DPACKAGE='"perf"' -lbfd -lopcodes
-+
- $(OUTPUT)test-reallocarray.bin:
- 	$(BUILD)
- 
---- a/tools/build/feature/test-all.c
-+++ b/tools/build/feature/test-all.c
-@@ -166,6 +166,10 @@
- # include "test-disassembler-four-args.c"
- #undef main
- 
-+#define main main_test_disassembler_init_styled
-+# include "test-disassembler-init-styled.c"
-+#undef main
-+
- #define main main_test_libzstd
- # include "test-libzstd.c"
- #undef main
---- /dev/null
-+++ b/tools/build/feature/test-disassembler-init-styled.c
-@@ -0,0 +1,13 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <stdio.h>
-+#include <dis-asm.h>
-+
-+int main(void)
-+{
-+	struct disassemble_info info;
-+
-+	init_disassemble_info(&info, stdout,
-+			      NULL, NULL);
-+
-+	return 0;
-+}
+ 	if (!(mode & FMODE_EXCL))
+ 		bd_abort_claiming(disk->part0, disk_scan_partitions);
+-- 
+2.39.2
+
 
 
