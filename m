@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 855CD6BB269
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB046BB1EF
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232626AbjCOMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51694 "EHLO
+        id S232580AbjCOMbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232661AbjCOMfv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:51 -0400
+        with ESMTP id S232649AbjCOMbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 762D0195
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA56781CD2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54DD761D5C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0DEC433D2;
-        Wed, 15 Mar 2023 12:34:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CF9261D58
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7001DC4339B;
+        Wed, 15 Mar 2023 12:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883684;
-        bh=ErmkSfnRUXSuhQYFKWHMYzP3g964wNUbcT8Fi8gv+Hw=;
+        s=korg; t=1678883436;
+        bh=0a6Mru49C4dYj7E6FueBWaRRTwK2FtElnZrJkkHvDtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7EVCdLWCT8SOGNta0PuGn7gBnTfGpFGN6/Th8s0TmUp715L4d5TNUq/JozEQ8Pwm
-         Q7tEyxiodBVWPpV8klJrl4Itze0iz1HZXLaWs3DLG0m3etaKjk6VZpKwnxWwG7zSoD
-         pXBt9T1Uwqm8m4w/vNJgQnVHflBOs/Zq/D6IroFs=
+        b=z8JMJhXeJGaAw/2mzMqEnpTO9AX2RBhjq5EyjOkHJNZwVvqVg7OVouJYpgCgZdrnY
+         poPgfZ3ZtLtlowhNOscoWHcqAxsoLRSdd+cjY2VFSpZTr7ehFflncuiLWEIXeNNqhh
+         Ukmuyl5TcIpf30gpLfNaZ/+NKH643mOk9WIHcO/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Alvaro Karsz <alvaro.karsz@solid-run.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 093/143] btf: fix resolving BTF_KIND_VAR after ARRAY, STRUCT, UNION, PTR
+Subject: [PATCH 5.15 113/145] PCI: Avoid FLR for SolidRun SNET DPU rev 1
 Date:   Wed, 15 Mar 2023 13:12:59 +0100
-Message-Id: <20230315115743.345894021@linuxfoundation.org>
+Message-Id: <20230315115742.691597667@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lorenz.bauer@isovalent.com>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
 
-[ Upstream commit 9b459804ff9973e173fabafba2a1319f771e85fa ]
+[ Upstream commit d089d69cc1f824936eeaa4fa172f8fa1a0949eaa ]
 
-btf_datasec_resolve contains a bug that causes the following BTF
-to fail loading:
+This patch fixes a FLR bug on the SNET DPU rev 1 by setting the
+PCI_DEV_FLAGS_NO_FLR_RESET flag.
 
-    [1] DATASEC a size=2 vlen=2
-        type_id=4 offset=0 size=1
-        type_id=7 offset=1 size=1
-    [2] INT (anon) size=1 bits_offset=0 nr_bits=8 encoding=(none)
-    [3] PTR (anon) type_id=2
-    [4] VAR a type_id=3 linkage=0
-    [5] INT (anon) size=1 bits_offset=0 nr_bits=8 encoding=(none)
-    [6] TYPEDEF td type_id=5
-    [7] VAR b type_id=6 linkage=0
+As there is a quirk to avoid FLR (quirk_no_flr), I added a new quirk
+to check the rev ID before calling to quirk_no_flr.
 
-This error message is printed during btf_check_all_types:
+Without this patch, a SNET DPU rev 1 may hang when FLR is applied.
 
-    [1] DATASEC a size=2 vlen=2
-        type_id=7 offset=1 size=1 Invalid type
-
-By tracing btf_*_resolve we can pinpoint the problem:
-
-    btf_datasec_resolve(depth: 1, type_id: 1, mode: RESOLVE_TBD) = 0
-        btf_var_resolve(depth: 2, type_id: 4, mode: RESOLVE_TBD) = 0
-            btf_ptr_resolve(depth: 3, type_id: 3, mode: RESOLVE_PTR) = 0
-        btf_var_resolve(depth: 2, type_id: 4, mode: RESOLVE_PTR) = 0
-    btf_datasec_resolve(depth: 1, type_id: 1, mode: RESOLVE_PTR) = -22
-
-The last invocation of btf_datasec_resolve should invoke btf_var_resolve
-by means of env_stack_push, instead it returns EINVAL. The reason is that
-env_stack_push is never executed for the second VAR.
-
-    if (!env_type_is_resolve_sink(env, var_type) &&
-        !env_type_is_resolved(env, var_type_id)) {
-        env_stack_set_next_member(env, i + 1);
-        return env_stack_push(env, var_type, var_type_id);
-    }
-
-env_type_is_resolve_sink() changes its behaviour based on resolve_mode.
-For RESOLVE_PTR, we can simplify the if condition to the following:
-
-    (btf_type_is_modifier() || btf_type_is_ptr) && !env_type_is_resolved()
-
-Since we're dealing with a VAR the clause evaluates to false. This is
-not sufficient to trigger the bug however. The log output and EINVAL
-are only generated if btf_type_id_size() fails.
-
-    if (!btf_type_id_size(btf, &type_id, &type_size)) {
-        btf_verifier_log_vsi(env, v->t, vsi, "Invalid type");
-        return -EINVAL;
-    }
-
-Most types are sized, so for example a VAR referring to an INT is not a
-problem. The bug is only triggered if a VAR points at a modifier. Since
-we skipped btf_var_resolve that modifier was also never resolved, which
-means that btf_resolved_type_id returns 0 aka VOID for the modifier.
-This in turn causes btf_type_id_size to return NULL, triggering EINVAL.
-
-To summarise, the following conditions are necessary:
-
-- VAR pointing at PTR, STRUCT, UNION or ARRAY
-- Followed by a VAR pointing at TYPEDEF, VOLATILE, CONST, RESTRICT or
-  TYPE_TAG
-
-The fix is to reset resolve_mode to RESOLVE_TBD before attempting to
-resolve a VAR from a DATASEC.
-
-Fixes: 1dc92851849c ("bpf: kernel side support for BTF Var and DataSec")
-Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
-Link: https://lore.kernel.org/r/20230306112138.155352-2-lmb@isovalent.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Message-Id: <20230110165638.123745-3-alvaro.karsz@solid-run.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 7fcbe5d002070..b73169737a01e 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -4163,6 +4163,7 @@ static int btf_datasec_resolve(struct btf_verifier_env *env,
- 	struct btf *btf = env->btf;
- 	u16 i;
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 643a3b292f0b6..7213d910685c7 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5354,6 +5354,14 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x7901, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
  
-+	env->resolve_mode = RESOLVE_TBD;
- 	for_each_vsi_from(i, v->next_member, v->t, vsi) {
- 		u32 var_type_id = vsi->type, type_id, type_size = 0;
- 		const struct btf_type *var_type = btf_type_by_id(env->btf,
++/* FLR may cause the SolidRun SNET DPU (rev 0x1) to hang */
++static void quirk_no_flr_snet(struct pci_dev *dev)
++{
++	if (dev->revision == 0x1)
++		quirk_no_flr(dev);
++}
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLIDRUN, 0x1000, quirk_no_flr_snet);
++
+ static void quirk_no_ext_tags(struct pci_dev *pdev)
+ {
+ 	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
 -- 
 2.39.2
 
