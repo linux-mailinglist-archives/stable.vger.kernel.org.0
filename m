@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D726BB00F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD886BB07C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231725AbjCOMO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:14:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37520 "EHLO
+        id S231792AbjCOMSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbjCOMO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3AB6BDFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:54 -0700 (PDT)
+        with ESMTP id S232023AbjCOMS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:18:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA292170C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C0C561D13
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E1ABC433D2;
-        Wed, 15 Mar 2023 12:14:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34E83B81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB6CC433EF;
+        Wed, 15 Mar 2023 12:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882493;
-        bh=+m24V0hi8hSZXr/CwmaPi6c8kl1zCLjBDbQvKc8QOqc=;
+        s=korg; t=1678882698;
+        bh=VuJPSk0fSZ4Qb+ZdT12vmh2gF/ChbUZMjlUTVmlXB04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZAvb14ecwKIgKsuAINtRJ3CH+50OEyK/cp91sPdajOqB0ZsHn5dOFl331fAM/2Rv
-         FV7xfRK/wlqsdBP2NCk5akETzsb/hFImR6ziYGBuM8Cmsx1HW5LJ8mn3CWt5GJQuT+
-         KQ0ioFM9KN3/DWJ18vIxw8jkBgo6q52XzPBg65/Y=
+        b=rb9L5lTzTn2AzGpte2oTOxvf9fxtISZNRrefkOLURv4RlFETtvXpD8wyucYBIbS2r
+         U6IX6TFa2TeA1qZanjr6jUrLxet1PDOP1lG+ijVgoMuQdG60+IHsf7cL3g3U90FRUq
+         CWjuI2m4eRwCPL4u8a47OFxfCzXTmJnFbLURZDuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 07/21] ext4: zero i_disksize when initializing the bootloader inode
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 36/68] drm/msm/a5xx: fix setting of the CP_PREEMPT_ENABLE_LOCAL register
 Date:   Wed, 15 Mar 2023 13:12:30 +0100
-Message-Id: <20230315115719.108382578@linuxfoundation.org>
+Message-Id: <20230315115727.526431759@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,61 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit f5361da1e60d54ec81346aee8e3d8baf1be0b762 upstream.
+[ Upstream commit a7a4c19c36de1e4b99b06e4060ccc8ab837725bc ]
 
-If the boot loader inode has never been used before, the
-EXT4_IOC_SWAP_BOOT inode will initialize it, including setting the
-i_size to 0.  However, if the "never before used" boot loader has a
-non-zero i_size, then i_disksize will be non-zero, and the
-inconsistency between i_size and i_disksize can trigger a kernel
-warning:
+Rather than writing CP_PREEMPT_ENABLE_GLOBAL twice, follow the vendor
+kernel and set CP_PREEMPT_ENABLE_LOCAL register instead. a5xx_submit()
+will override it during submission, but let's get the sequence correct.
 
- WARNING: CPU: 0 PID: 2580 at fs/ext4/file.c:319
- CPU: 0 PID: 2580 Comm: bb Not tainted 6.3.0-rc1-00004-g703695902cfa
- RIP: 0010:ext4_file_write_iter+0xbc7/0xd10
- Call Trace:
-  vfs_write+0x3b1/0x5c0
-  ksys_write+0x77/0x160
-  __x64_sys_write+0x22/0x30
-  do_syscall_64+0x39/0x80
-
-Reproducer:
- 1. create corrupted image and mount it:
-       mke2fs -t ext4 /tmp/foo.img 200
-       debugfs -wR "sif <5> size 25700" /tmp/foo.img
-       mount -t ext4 /tmp/foo.img /mnt
-       cd /mnt
-       echo 123 > file
- 2. Run the reproducer program:
-       posix_memalign(&buf, 1024, 1024)
-       fd = open("file", O_RDWR | O_DIRECT);
-       ioctl(fd, EXT4_IOC_SWAP_BOOT);
-       write(fd, buf, 1024);
-
-Fix this by setting i_disksize as well as i_size to zero when
-initiaizing the boot loader inode.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217159
-Cc: stable@kernel.org
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20230308032643.641113-1-chengzhihao1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b1fc2839d2f9 ("drm/msm: Implement preemption for A5XX targets")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/522638/
+Link: https://lore.kernel.org/r/20230214020956.164473-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -150,6 +150,7 @@ static long swap_inode_boot_loader(struc
- 		ei_bl->i_flags = 0;
- 		inode_bl->i_version = 1;
- 		i_size_write(inode_bl, 0);
-+		EXT4_I(inode_bl)->i_disksize = inode_bl->i_size;
- 		inode_bl->i_mode = S_IFREG;
- 		if (ext4_has_feature_extents(sb)) {
- 			ext4_set_inode_flag(inode_bl, EXT4_INODE_EXTENTS);
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index e3579e5ffa146..593b8d83179c9 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -135,8 +135,8 @@ static void a5xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit,
+ 	OUT_RING(ring, 1);
+ 
+ 	/* Enable local preemption for finegrain preemption */
+-	OUT_PKT7(ring, CP_PREEMPT_ENABLE_GLOBAL, 1);
+-	OUT_RING(ring, 0x02);
++	OUT_PKT7(ring, CP_PREEMPT_ENABLE_LOCAL, 1);
++	OUT_RING(ring, 0x1);
+ 
+ 	/* Allow CP_CONTEXT_SWITCH_YIELD packets in the IB2 */
+ 	OUT_PKT7(ring, CP_YIELD_ENABLE, 1);
+-- 
+2.39.2
+
 
 
