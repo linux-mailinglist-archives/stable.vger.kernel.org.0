@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEA16BB1A2
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9746BB26C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232143AbjCOM3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:29:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
+        id S232698AbjCOMgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232441AbjCOM26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D8F26580
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:59 -0700 (PDT)
+        with ESMTP id S232699AbjCOMfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5123B3D8
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A71D61D58
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A20C433D2;
-        Wed, 15 Mar 2023 12:22:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D352BB81DF9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4620EC433D2;
+        Wed, 15 Mar 2023 12:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882977;
-        bh=IaUGkZVqxGnL0mqpjePcS7Sj8d/nkLTKelU5Kj1UfdU=;
+        s=korg; t=1678883653;
+        bh=jw+jXFWLCteO0ajxlewBx8owfsVx0ByGf2WRTKrDtgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpnWaOjA6guxpDwDjBCV9CS8GNf7BGJIlJDq86sVTSi33dqOv5if7BsaKaRLwoAOu
-         JxRShNxV265Dh9eu4bYtFj6NASf6gjoC/iRRZisXb47HA/lGdIsRU4nju9uT5Qr4GU
-         XRTp5Z/quRo/6kmV70p27scHdGSyU5N3ReDWB1Dk=
+        b=wmbX23u8CkMGt+jNwsCxr5TldRjmBOG6szaxIrTz5glvlPwXfvM19jBvubM7MnGlM
+         ua8cQ/pA+y8xWwoUfIOlCyejb44HN6bDSKIq0VnRYSGFTYcDn9ITH0MSu60EIvJxg0
+         yevsoROxXrmXdEUHZ4yUWykIl7Bs9pEYl18GJOOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rongguang Wei <weirongguang@kylinos.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/104] net: stmmac: add to set device wake up flag when stmmac init phy
-Date:   Wed, 15 Mar 2023 13:12:14 +0100
-Message-Id: <20230315115733.806711092@linuxfoundation.org>
+        patches@lists.linux.dev, Animesh Manna <animesh.manna@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 049/143] drm/i915: Introduce intel_panel_init_alloc()
+Date:   Wed, 15 Mar 2023 13:12:15 +0100
+Message-Id: <20230315115742.009958721@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rongguang Wei <weirongguang@kylinos.cn>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit a9334b702a03b693f54ebd3b98f67bf722b74870 ]
+[ Upstream commit f70f8153e3642337b444fbc0c64d546a46bbcd62 ]
 
-When MAC is not support PMT, driver will check PHY's WoL capability
-and set device wakeup capability in stmmac_init_phy(). We can enable
-the WoL through ethtool, the driver would enable the device wake up
-flag. Now the device_may_wakeup() return true.
+Introduce a place where we can initialize connector->panel
+after it's been allocated. We already have a intel_panel_init()
+so had to get creative with the name and came up with
+intel_panel_init_alloc().
 
-But if there is a way which enable the PHY's WoL capability derectly,
-like in BIOS. The driver would not know the enable thing and would not
-set the device wake up flag. The phy_suspend may failed like this:
-
-[   32.409063] PM: dpm_run_callback(): mdio_bus_phy_suspend+0x0/0x50 returns -16
-[   32.409065] PM: Device stmmac-1:00 failed to suspend: error -16
-[   32.409067] PM: Some devices failed to suspend, or early wake event detected
-
-Add to set the device wakeup enable flag according to the get_wol
-function result in PHY can fix the error in this scene.
-
-v2: add a Fixes tag.
-
-Fixes: 1d8e5b0f3f2c ("net: stmmac: Support WOL with phy")
-Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Animesh Manna <animesh.manna@intel.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221125173156.31689-2-ville.syrjala@linux.intel.com
+Stable-dep-of: 14e591a1930c ("drm/i915: Populate encoder->devdata for DSI on icl+")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/display/intel_connector.c | 2 +-
+ drivers/gpu/drm/i915/display/intel_panel.c     | 7 +++++++
+ drivers/gpu/drm/i915/display/intel_panel.h     | 1 +
+ 3 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 1ec000d4c7705..04c59102a2863 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1145,6 +1145,7 @@ static int stmmac_init_phy(struct net_device *dev)
+diff --git a/drivers/gpu/drm/i915/display/intel_connector.c b/drivers/gpu/drm/i915/display/intel_connector.c
+index 6d5cbeb8df4da..8bb296f3d6252 100644
+--- a/drivers/gpu/drm/i915/display/intel_connector.c
++++ b/drivers/gpu/drm/i915/display/intel_connector.c
+@@ -54,7 +54,7 @@ int intel_connector_init(struct intel_connector *connector)
+ 	__drm_atomic_helper_connector_reset(&connector->base,
+ 					    &conn_state->base);
  
- 		phylink_ethtool_get_wol(priv->phylink, &wol);
- 		device_set_wakeup_capable(priv->device, !!wol.supported);
-+		device_set_wakeup_enable(priv->device, !!wol.wolopts);
- 	}
+-	INIT_LIST_HEAD(&connector->panel.fixed_modes);
++	intel_panel_init_alloc(connector);
  
- 	return ret;
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
+index f72f4646c0d70..8bd7af99cd2b9 100644
+--- a/drivers/gpu/drm/i915/display/intel_panel.c
++++ b/drivers/gpu/drm/i915/display/intel_panel.c
+@@ -648,6 +648,13 @@ intel_panel_mode_valid(struct intel_connector *connector,
+ 	return MODE_OK;
+ }
+ 
++void intel_panel_init_alloc(struct intel_connector *connector)
++{
++	struct intel_panel *panel = &connector->panel;
++
++	INIT_LIST_HEAD(&panel->fixed_modes);
++}
++
+ int intel_panel_init(struct intel_connector *connector)
+ {
+ 	struct intel_panel *panel = &connector->panel;
+diff --git a/drivers/gpu/drm/i915/display/intel_panel.h b/drivers/gpu/drm/i915/display/intel_panel.h
+index 5c5b5b7f95b6c..4b51e1c51da62 100644
+--- a/drivers/gpu/drm/i915/display/intel_panel.h
++++ b/drivers/gpu/drm/i915/display/intel_panel.h
+@@ -18,6 +18,7 @@ struct intel_connector;
+ struct intel_crtc_state;
+ struct intel_encoder;
+ 
++void intel_panel_init_alloc(struct intel_connector *connector);
+ int intel_panel_init(struct intel_connector *connector);
+ void intel_panel_fini(struct intel_connector *connector);
+ enum drm_connector_status
 -- 
 2.39.2
 
