@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A87E6BB226
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B81C6BB0E6
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232720AbjCOMdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:33:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40224 "EHLO
+        id S232302AbjCOMWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:22:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232523AbjCOMdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:33:18 -0400
+        with ESMTP id S232202AbjCOMWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9402C5D766
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B6984F4C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FA99B81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85B3FC4339B;
-        Wed, 15 Mar 2023 12:32:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D743B81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB14AC433D2;
+        Wed, 15 Mar 2023 12:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883535;
-        bh=3XvV1VMvFXR92IBFTE+SfN7RhWqWBqs1hMaZMhqaCf0=;
+        s=korg; t=1678882867;
+        bh=8MRGkX5lpWvfupJ8vOXLTv2gBGDGvcIXBq4SbleweRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZ2Lp3Yx6xJP3Bb6kDSMljx6clGK3FlOxHV+82Kt5/+rS7oeu50MV9G+Os/fICqU8
-         2vTVVicpNQTqMcb+0nWUE0FzZP3s2c/Abvvqh94Het9ZgCNL6LnFGvg0vM6hPgvZCo
-         k3otRzN8dxhxs8tb92GtY8BIrbidprz+Jt9QPtNk=
+        b=szVtHR2zQ64lqfrUigh3T6K32CNHUg5zsDoVLBnVgEn1WJM0C5hjJWJ9wo1uPcgU6
+         sFnKnUqMUwY9+QVcHSSPDO+1US7jAWM5qL80v5/XKDAtWno8uyz3F06l/kNrP40zSg
+         moOyMFQYD7cMG3CepMC11Lsv28Tb+lKDJQhpaheg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 035/143] fd: dlm: trace send/recv of dlm message and rcom
-Date:   Wed, 15 Mar 2023 13:12:01 +0100
-Message-Id: <20230315115741.576412496@linuxfoundation.org>
+Subject: [PATCH 5.10 031/104] drm/msm/a5xx: fix setting of the CP_PREEMPT_ENABLE_LOCAL register
+Date:   Wed, 15 Mar 2023 13:12:02 +0100
+Message-Id: <20230315115733.324468192@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,582 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit e01c4b7bd41522ae0299c07e2ee8c721fee02595 ]
+[ Upstream commit a7a4c19c36de1e4b99b06e4060ccc8ab837725bc ]
 
-This patch adds tracepoints for send and recv cases of dlm messages and
-dlm rcom messages. In case of send and dlm message we add the dlm rsb
-resource name this dlm messages belongs to. This has the advantage to
-follow dlm messages on a per lock basis. In case of recv message the
-resource name can be extracted by follow the send message sequence
-number.
+Rather than writing CP_PREEMPT_ENABLE_GLOBAL twice, follow the vendor
+kernel and set CP_PREEMPT_ENABLE_LOCAL register instead. a5xx_submit()
+will override it during submission, but let's get the sequence correct.
 
-The dlm message DLM_MSG_PURGE doesn't belong to a lock request and will
-not set the resource name in a dlm_message trace. The same for all rcom
-messages.
-
-There is additional handling required for this debugging functionality
-which is tried to be small as possible. Also the midcomms layer gets
-aware of lock resource names, for now this is required to make a
-connection between sequence number and lock resource names. It is for
-debugging purpose only.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Stable-dep-of: 724b6bab0d75 ("fs: dlm: fix use after free in midcomms commit")
+Fixes: b1fc2839d2f9 ("drm/msm: Implement preemption for A5XX targets")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/522638/
+Link: https://lore.kernel.org/r/20230214020956.164473-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lock.c              |  21 +--
- fs/dlm/midcomms.c          |  45 +++++-
- fs/dlm/midcomms.h          |   3 +-
- fs/dlm/rcom.c              |   4 +-
- include/trace/events/dlm.h | 297 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 353 insertions(+), 17 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
-index b246d71b5e17a..0b1bc24536ceb 100644
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -3611,9 +3611,10 @@ static int create_message(struct dlm_rsb *r, struct dlm_lkb *lkb,
- /* further lowcomms enhancements or alternate implementations may make
-    the return value from this function useful at some point */
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index 0ca7e53db112a..64da65ae6d67e 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -144,8 +144,8 @@ static void a5xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
+ 	OUT_RING(ring, 1);
  
--static int send_message(struct dlm_mhandle *mh, struct dlm_message *ms)
-+static int send_message(struct dlm_mhandle *mh, struct dlm_message *ms,
-+			const void *name, int namelen)
- {
--	dlm_midcomms_commit_mhandle(mh);
-+	dlm_midcomms_commit_mhandle(mh, name, namelen);
- 	return 0;
- }
+ 	/* Enable local preemption for finegrain preemption */
+-	OUT_PKT7(ring, CP_PREEMPT_ENABLE_GLOBAL, 1);
+-	OUT_RING(ring, 0x02);
++	OUT_PKT7(ring, CP_PREEMPT_ENABLE_LOCAL, 1);
++	OUT_RING(ring, 0x1);
  
-@@ -3679,7 +3680,7 @@ static int send_common(struct dlm_rsb *r, struct dlm_lkb *lkb, int mstype)
- 
- 	send_args(r, lkb, ms);
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, r->res_name, r->res_length);
- 	if (error)
- 		goto fail;
- 	return 0;
-@@ -3742,7 +3743,7 @@ static int send_grant(struct dlm_rsb *r, struct dlm_lkb *lkb)
- 
- 	ms->m_result = 0;
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, r->res_name, r->res_length);
-  out:
- 	return error;
- }
-@@ -3763,7 +3764,7 @@ static int send_bast(struct dlm_rsb *r, struct dlm_lkb *lkb, int mode)
- 
- 	ms->m_bastmode = cpu_to_le32(mode);
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, r->res_name, r->res_length);
-  out:
- 	return error;
- }
-@@ -3786,7 +3787,7 @@ static int send_lookup(struct dlm_rsb *r, struct dlm_lkb *lkb)
- 
- 	send_args(r, lkb, ms);
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, r->res_name, r->res_length);
- 	if (error)
- 		goto fail;
- 	return 0;
-@@ -3811,7 +3812,7 @@ static int send_remove(struct dlm_rsb *r)
- 	memcpy(ms->m_extra, r->res_name, r->res_length);
- 	ms->m_hash = cpu_to_le32(r->res_hash);
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, r->res_name, r->res_length);
-  out:
- 	return error;
- }
-@@ -3833,7 +3834,7 @@ static int send_common_reply(struct dlm_rsb *r, struct dlm_lkb *lkb,
- 
- 	ms->m_result = cpu_to_le32(to_dlm_errno(rv));
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, r->res_name, r->res_length);
-  out:
- 	return error;
- }
-@@ -3874,7 +3875,7 @@ static int send_lookup_reply(struct dlm_ls *ls, struct dlm_message *ms_in,
- 	ms->m_result = cpu_to_le32(to_dlm_errno(rv));
- 	ms->m_nodeid = cpu_to_le32(ret_nodeid);
- 
--	error = send_message(mh, ms);
-+	error = send_message(mh, ms, ms_in->m_extra, receive_extralen(ms_in));
-  out:
- 	return error;
- }
-@@ -6300,7 +6301,7 @@ static int send_purge(struct dlm_ls *ls, int nodeid, int pid)
- 	ms->m_nodeid = cpu_to_le32(nodeid);
- 	ms->m_pid = cpu_to_le32(pid);
- 
--	return send_message(mh, ms);
-+	return send_message(mh, ms, NULL, 0);
- }
- 
- int dlm_user_purge(struct dlm_ls *ls, struct dlm_user_proc *proc,
-diff --git a/fs/dlm/midcomms.c b/fs/dlm/midcomms.c
-index 4a8721ab9f149..8d11f104a97eb 100644
---- a/fs/dlm/midcomms.c
-+++ b/fs/dlm/midcomms.c
-@@ -132,6 +132,7 @@
-  */
- #define DLM_DEBUG_FENCE_TERMINATION	0
- 
-+#include <trace/events/dlm.h>
- #include <net/tcp.h>
- 
- #include "dlm_internal.h"
-@@ -415,7 +416,7 @@ static int dlm_send_fin(struct midcomms_node *node,
- 	m_header->h_cmd = DLM_FIN;
- 
- 	pr_debug("sending fin msg to node %d\n", node->nodeid);
--	dlm_midcomms_commit_mhandle(mh);
-+	dlm_midcomms_commit_mhandle(mh, NULL, 0);
- 	set_bit(DLM_NODE_FLAG_STOP_TX, &node->flags);
- 
- 	return 0;
-@@ -474,6 +475,20 @@ static void dlm_pas_fin_ack_rcv(struct midcomms_node *node)
- 	spin_unlock(&node->state_lock);
- }
- 
-+static void dlm_receive_buffer_3_2_trace(uint32_t seq, union dlm_packet *p)
-+{
-+	switch (p->header.h_cmd) {
-+	case DLM_MSG:
-+		trace_dlm_recv_message(seq, &p->message);
-+		break;
-+	case DLM_RCOM:
-+		trace_dlm_recv_rcom(seq, &p->rcom);
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
- static void dlm_midcomms_receive_buffer(union dlm_packet *p,
- 					struct midcomms_node *node,
- 					uint32_t seq)
-@@ -534,6 +549,7 @@ static void dlm_midcomms_receive_buffer(union dlm_packet *p,
- 			break;
- 		default:
- 			WARN_ON(test_bit(DLM_NODE_FLAG_STOP_RX, &node->flags));
-+			dlm_receive_buffer_3_2_trace(seq, p);
- 			dlm_receive_buffer(p, node->nodeid);
- 			set_bit(DLM_NODE_ULP_DELIVERED, &node->flags);
- 			break;
-@@ -1124,11 +1140,30 @@ struct dlm_mhandle *dlm_midcomms_get_mhandle(int nodeid, int len,
- }
- #endif
- 
--static void dlm_midcomms_commit_msg_3_2(struct dlm_mhandle *mh)
-+static void dlm_midcomms_commit_msg_3_2_trace(const struct dlm_mhandle *mh,
-+					      const void *name, int namelen)
-+{
-+	switch (mh->inner_p->header.h_cmd) {
-+	case DLM_MSG:
-+		trace_dlm_send_message(mh->seq, &mh->inner_p->message,
-+				       name, namelen);
-+		break;
-+	case DLM_RCOM:
-+		trace_dlm_send_rcom(mh->seq, &mh->inner_p->rcom);
-+		break;
-+	default:
-+		/* nothing to trace */
-+		break;
-+	}
-+}
-+
-+static void dlm_midcomms_commit_msg_3_2(struct dlm_mhandle *mh,
-+					const void *name, int namelen)
- {
- 	/* nexthdr chain for fast lookup */
- 	mh->opts->o_nextcmd = mh->inner_p->header.h_cmd;
- 	mh->committed = true;
-+	dlm_midcomms_commit_msg_3_2_trace(mh, name, namelen);
- 	dlm_lowcomms_commit_msg(mh->msg);
- }
- 
-@@ -1136,8 +1171,10 @@ static void dlm_midcomms_commit_msg_3_2(struct dlm_mhandle *mh)
-  * dlm_midcomms_get_mhandle
-  */
- #ifndef __CHECKER__
--void dlm_midcomms_commit_mhandle(struct dlm_mhandle *mh)
-+void dlm_midcomms_commit_mhandle(struct dlm_mhandle *mh,
-+				 const void *name, int namelen)
- {
-+
- 	switch (mh->node->version) {
- 	case DLM_VERSION_3_1:
- 		srcu_read_unlock(&nodes_srcu, mh->idx);
-@@ -1148,7 +1185,7 @@ void dlm_midcomms_commit_mhandle(struct dlm_mhandle *mh)
- 		dlm_free_mhandle(mh);
- 		break;
- 	case DLM_VERSION_3_2:
--		dlm_midcomms_commit_msg_3_2(mh);
-+		dlm_midcomms_commit_msg_3_2(mh, name, namelen);
- 		srcu_read_unlock(&nodes_srcu, mh->idx);
- 		break;
- 	default:
-diff --git a/fs/dlm/midcomms.h b/fs/dlm/midcomms.h
-index f61fce622e93d..69296552d5add 100644
---- a/fs/dlm/midcomms.h
-+++ b/fs/dlm/midcomms.h
-@@ -17,7 +17,8 @@ struct midcomms_node;
- int dlm_process_incoming_buffer(int nodeid, unsigned char *buf, int buflen);
- struct dlm_mhandle *dlm_midcomms_get_mhandle(int nodeid, int len,
- 					     gfp_t allocation, char **ppc);
--void dlm_midcomms_commit_mhandle(struct dlm_mhandle *mh);
-+void dlm_midcomms_commit_mhandle(struct dlm_mhandle *mh, const void *name,
-+				 int namelen);
- int dlm_midcomms_close(int nodeid);
- int dlm_midcomms_start(void);
- void dlm_midcomms_stop(void);
-diff --git a/fs/dlm/rcom.c b/fs/dlm/rcom.c
-index f19860315043a..b76d52e2f6bdd 100644
---- a/fs/dlm/rcom.c
-+++ b/fs/dlm/rcom.c
-@@ -91,7 +91,7 @@ static int create_rcom_stateless(struct dlm_ls *ls, int to_nodeid, int type,
- 
- static void send_rcom(struct dlm_mhandle *mh, struct dlm_rcom *rc)
- {
--	dlm_midcomms_commit_mhandle(mh);
-+	dlm_midcomms_commit_mhandle(mh, NULL, 0);
- }
- 
- static void send_rcom_stateless(struct dlm_msg *msg, struct dlm_rcom *rc)
-@@ -516,7 +516,7 @@ int dlm_send_ls_not_ready(int nodeid, struct dlm_rcom *rc_in)
- 	rf = (struct rcom_config *) rc->rc_buf;
- 	rf->rf_lvblen = cpu_to_le32(~0U);
- 
--	dlm_midcomms_commit_mhandle(mh);
-+	dlm_midcomms_commit_mhandle(mh, NULL, 0);
- 
- 	return 0;
- }
-diff --git a/include/trace/events/dlm.h b/include/trace/events/dlm.h
-index da0eaae98fa34..4ec47828d55ed 100644
---- a/include/trace/events/dlm.h
-+++ b/include/trace/events/dlm.h
-@@ -46,6 +46,56 @@
- 	{ DLM_SBF_VALNOTVALID,	"VALNOTVALID" },		\
- 	{ DLM_SBF_ALTMODE,	"ALTMODE" })
- 
-+#define show_lkb_flags(flags) __print_flags(flags, "|",		\
-+	{ DLM_IFL_MSTCPY,	"MSTCPY" },			\
-+	{ DLM_IFL_RESEND,	"RESEND" },			\
-+	{ DLM_IFL_DEAD,		"DEAD" },			\
-+	{ DLM_IFL_OVERLAP_UNLOCK, "OVERLAP_UNLOCK" },		\
-+	{ DLM_IFL_OVERLAP_CANCEL, "OVERLAP_CANCEL" },		\
-+	{ DLM_IFL_ENDOFLIFE,	"ENDOFLIFE" },			\
-+	{ DLM_IFL_DEADLOCK_CANCEL, "DEADLOCK_CANCEL" },		\
-+	{ DLM_IFL_STUB_MS,	"STUB_MS" },			\
-+	{ DLM_IFL_USER,		"USER" },			\
-+	{ DLM_IFL_ORPHAN,	"ORPHAN" })
-+
-+#define show_header_cmd(cmd) __print_symbolic(cmd,		\
-+	{ DLM_MSG,		"MSG"},				\
-+	{ DLM_RCOM,		"RCOM"},			\
-+	{ DLM_OPTS,		"OPTS"},			\
-+	{ DLM_ACK,		"ACK"},				\
-+	{ DLM_FIN,		"FIN"})
-+
-+#define show_message_version(version) __print_symbolic(version,	\
-+	{ DLM_VERSION_3_1,	"3.1"},				\
-+	{ DLM_VERSION_3_2,	"3.2"})
-+
-+#define show_message_type(type) __print_symbolic(type,		\
-+	{ DLM_MSG_REQUEST,	"REQUEST"},			\
-+	{ DLM_MSG_CONVERT,	"CONVERT"},			\
-+	{ DLM_MSG_UNLOCK,	"UNLOCK"},			\
-+	{ DLM_MSG_CANCEL,	"CANCEL"},			\
-+	{ DLM_MSG_REQUEST_REPLY, "REQUEST_REPLY"},		\
-+	{ DLM_MSG_CONVERT_REPLY, "CONVERT_REPLY"},		\
-+	{ DLM_MSG_UNLOCK_REPLY,	"UNLOCK_REPLY"},		\
-+	{ DLM_MSG_CANCEL_REPLY,	"CANCEL_REPLY"},		\
-+	{ DLM_MSG_GRANT,	"GRANT"},			\
-+	{ DLM_MSG_BAST,		"BAST"},			\
-+	{ DLM_MSG_LOOKUP,	"LOOKUP"},			\
-+	{ DLM_MSG_REMOVE,	"REMOVE"},			\
-+	{ DLM_MSG_LOOKUP_REPLY,	"LOOKUP_REPLY"},		\
-+	{ DLM_MSG_PURGE,	"PURGE"})
-+
-+#define show_rcom_type(type) __print_symbolic(type,            \
-+	{ DLM_RCOM_STATUS,              "STATUS"},              \
-+	{ DLM_RCOM_NAMES,               "NAMES"},               \
-+	{ DLM_RCOM_LOOKUP,              "LOOKUP"},              \
-+	{ DLM_RCOM_LOCK,                "LOCK"},                \
-+	{ DLM_RCOM_STATUS_REPLY,        "STATUS_REPLY"},        \
-+	{ DLM_RCOM_NAMES_REPLY,         "NAMES_REPLY"},         \
-+	{ DLM_RCOM_LOOKUP_REPLY,        "LOOKUP_REPLY"},        \
-+	{ DLM_RCOM_LOCK_REPLY,          "LOCK_REPLY"})
-+
-+
- /* note: we begin tracing dlm_lock_start() only if ls and lkb are found */
- TRACE_EVENT(dlm_lock_start,
- 
-@@ -290,6 +340,253 @@ TRACE_EVENT(dlm_unlock_end,
- 
- );
- 
-+DECLARE_EVENT_CLASS(dlm_rcom_template,
-+
-+	TP_PROTO(uint32_t seq, const struct dlm_rcom *rc),
-+
-+	TP_ARGS(seq, rc),
-+
-+	TP_STRUCT__entry(
-+		__field(uint32_t, seq)
-+		__field(uint32_t, h_version)
-+		__field(uint32_t, h_lockspace)
-+		__field(uint32_t, h_nodeid)
-+		__field(uint16_t, h_length)
-+		__field(uint8_t, h_cmd)
-+		__field(uint32_t, rc_type)
-+		__field(int32_t, rc_result)
-+		__field(uint64_t, rc_id)
-+		__field(uint64_t, rc_seq)
-+		__field(uint64_t, rc_seq_reply)
-+		__dynamic_array(unsigned char, rc_buf,
-+				le16_to_cpu(rc->rc_header.h_length) - sizeof(*rc))
-+	),
-+
-+	TP_fast_assign(
-+		__entry->seq = seq;
-+		__entry->h_version = le32_to_cpu(rc->rc_header.h_version);
-+		__entry->h_lockspace = le32_to_cpu(rc->rc_header.u.h_lockspace);
-+		__entry->h_nodeid = le32_to_cpu(rc->rc_header.h_nodeid);
-+		__entry->h_length = le16_to_cpu(rc->rc_header.h_length);
-+		__entry->h_cmd = rc->rc_header.h_cmd;
-+		__entry->rc_type = le32_to_cpu(rc->rc_type);
-+		__entry->rc_result = le32_to_cpu(rc->rc_result);
-+		__entry->rc_id = le64_to_cpu(rc->rc_id);
-+		__entry->rc_seq = le64_to_cpu(rc->rc_seq);
-+		__entry->rc_seq_reply = le64_to_cpu(rc->rc_seq_reply);
-+		memcpy(__get_dynamic_array(rc_buf), rc->rc_buf,
-+		       __get_dynamic_array_len(rc_buf));
-+	),
-+
-+	TP_printk("seq=%u, h_version=%s h_lockspace=%u h_nodeid=%u "
-+		  "h_length=%u h_cmd=%s rc_type=%s rc_result=%d "
-+		  "rc_id=%llu rc_seq=%llu rc_seq_reply=%llu "
-+		  "rc_buf=0x%s", __entry->seq,
-+		  show_message_version(__entry->h_version),
-+		  __entry->h_lockspace, __entry->h_nodeid, __entry->h_length,
-+		  show_header_cmd(__entry->h_cmd),
-+		  show_rcom_type(__entry->rc_type),
-+		  __entry->rc_result, __entry->rc_id, __entry->rc_seq,
-+		  __entry->rc_seq_reply,
-+		  __print_hex_str(__get_dynamic_array(rc_buf),
-+				  __get_dynamic_array_len(rc_buf)))
-+
-+);
-+
-+DEFINE_EVENT(dlm_rcom_template, dlm_send_rcom,
-+	     TP_PROTO(uint32_t seq, const struct dlm_rcom *rc),
-+	     TP_ARGS(seq, rc));
-+
-+DEFINE_EVENT(dlm_rcom_template, dlm_recv_rcom,
-+	     TP_PROTO(uint32_t seq, const struct dlm_rcom *rc),
-+	     TP_ARGS(seq, rc));
-+
-+TRACE_EVENT(dlm_send_message,
-+
-+	TP_PROTO(uint32_t seq, const struct dlm_message *ms,
-+		 const void *name, int namelen),
-+
-+	TP_ARGS(seq, ms, name, namelen),
-+
-+	TP_STRUCT__entry(
-+		__field(uint32_t, seq)
-+		__field(uint32_t, h_version)
-+		__field(uint32_t, h_lockspace)
-+		__field(uint32_t, h_nodeid)
-+		__field(uint16_t, h_length)
-+		__field(uint8_t, h_cmd)
-+		__field(uint32_t, m_type)
-+		__field(uint32_t, m_nodeid)
-+		__field(uint32_t, m_pid)
-+		__field(uint32_t, m_lkid)
-+		__field(uint32_t, m_remid)
-+		__field(uint32_t, m_parent_lkid)
-+		__field(uint32_t, m_parent_remid)
-+		__field(uint32_t, m_exflags)
-+		__field(uint32_t, m_sbflags)
-+		__field(uint32_t, m_flags)
-+		__field(uint32_t, m_lvbseq)
-+		__field(uint32_t, m_hash)
-+		__field(int32_t, m_status)
-+		__field(int32_t, m_grmode)
-+		__field(int32_t, m_rqmode)
-+		__field(int32_t, m_bastmode)
-+		__field(int32_t, m_asts)
-+		__field(int32_t, m_result)
-+		__dynamic_array(unsigned char, m_extra,
-+				le16_to_cpu(ms->m_header.h_length) - sizeof(*ms))
-+		__dynamic_array(unsigned char, res_name, namelen)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->seq = seq;
-+		__entry->h_version = le32_to_cpu(ms->m_header.h_version);
-+		__entry->h_lockspace = le32_to_cpu(ms->m_header.u.h_lockspace);
-+		__entry->h_nodeid = le32_to_cpu(ms->m_header.h_nodeid);
-+		__entry->h_length = le16_to_cpu(ms->m_header.h_length);
-+		__entry->h_cmd = ms->m_header.h_cmd;
-+		__entry->m_type = le32_to_cpu(ms->m_type);
-+		__entry->m_nodeid = le32_to_cpu(ms->m_nodeid);
-+		__entry->m_pid = le32_to_cpu(ms->m_pid);
-+		__entry->m_lkid = le32_to_cpu(ms->m_lkid);
-+		__entry->m_remid = le32_to_cpu(ms->m_remid);
-+		__entry->m_parent_lkid = le32_to_cpu(ms->m_parent_lkid);
-+		__entry->m_parent_remid = le32_to_cpu(ms->m_parent_remid);
-+		__entry->m_exflags = le32_to_cpu(ms->m_exflags);
-+		__entry->m_sbflags = le32_to_cpu(ms->m_sbflags);
-+		__entry->m_flags = le32_to_cpu(ms->m_flags);
-+		__entry->m_lvbseq = le32_to_cpu(ms->m_lvbseq);
-+		__entry->m_hash = le32_to_cpu(ms->m_hash);
-+		__entry->m_status = le32_to_cpu(ms->m_status);
-+		__entry->m_grmode = le32_to_cpu(ms->m_grmode);
-+		__entry->m_rqmode = le32_to_cpu(ms->m_rqmode);
-+		__entry->m_bastmode = le32_to_cpu(ms->m_bastmode);
-+		__entry->m_asts = le32_to_cpu(ms->m_asts);
-+		__entry->m_result = le32_to_cpu(ms->m_result);
-+		memcpy(__get_dynamic_array(m_extra), ms->m_extra,
-+		       __get_dynamic_array_len(m_extra));
-+		memcpy(__get_dynamic_array(res_name), name,
-+		       __get_dynamic_array_len(res_name));
-+	),
-+
-+	TP_printk("seq=%u h_version=%s h_lockspace=%u h_nodeid=%u "
-+		  "h_length=%u h_cmd=%s m_type=%s m_nodeid=%u "
-+		  "m_pid=%u m_lkid=%u m_remid=%u m_parent_lkid=%u "
-+		  "m_parent_remid=%u m_exflags=%s m_sbflags=%s m_flags=%s "
-+		  "m_lvbseq=%u m_hash=%u m_status=%d m_grmode=%s "
-+		  "m_rqmode=%s m_bastmode=%s m_asts=%d m_result=%d "
-+		  "m_extra=0x%s res_name=0x%s",
-+		  __entry->seq, show_message_version(__entry->h_version),
-+		  __entry->h_lockspace, __entry->h_nodeid, __entry->h_length,
-+		  show_header_cmd(__entry->h_cmd),
-+		  show_message_type(__entry->m_type),
-+		  __entry->m_nodeid, __entry->m_pid, __entry->m_lkid,
-+		  __entry->m_remid, __entry->m_parent_lkid,
-+		  __entry->m_parent_remid, show_lock_flags(__entry->m_exflags),
-+		  show_dlm_sb_flags(__entry->m_sbflags),
-+		  show_lkb_flags(__entry->m_flags), __entry->m_lvbseq,
-+		  __entry->m_hash, __entry->m_status,
-+		  show_lock_mode(__entry->m_grmode),
-+		  show_lock_mode(__entry->m_rqmode),
-+		  show_lock_mode(__entry->m_bastmode),
-+		  __entry->m_asts, __entry->m_result,
-+		  __print_hex_str(__get_dynamic_array(m_extra),
-+				  __get_dynamic_array_len(m_extra)),
-+		  __print_hex_str(__get_dynamic_array(res_name),
-+				  __get_dynamic_array_len(res_name)))
-+
-+);
-+
-+TRACE_EVENT(dlm_recv_message,
-+
-+	TP_PROTO(uint32_t seq, const struct dlm_message *ms),
-+
-+	TP_ARGS(seq, ms),
-+
-+	TP_STRUCT__entry(
-+		__field(uint32_t, seq)
-+		__field(uint32_t, h_version)
-+		__field(uint32_t, h_lockspace)
-+		__field(uint32_t, h_nodeid)
-+		__field(uint16_t, h_length)
-+		__field(uint8_t, h_cmd)
-+		__field(uint32_t, m_type)
-+		__field(uint32_t, m_nodeid)
-+		__field(uint32_t, m_pid)
-+		__field(uint32_t, m_lkid)
-+		__field(uint32_t, m_remid)
-+		__field(uint32_t, m_parent_lkid)
-+		__field(uint32_t, m_parent_remid)
-+		__field(uint32_t, m_exflags)
-+		__field(uint32_t, m_sbflags)
-+		__field(uint32_t, m_flags)
-+		__field(uint32_t, m_lvbseq)
-+		__field(uint32_t, m_hash)
-+		__field(int32_t, m_status)
-+		__field(int32_t, m_grmode)
-+		__field(int32_t, m_rqmode)
-+		__field(int32_t, m_bastmode)
-+		__field(int32_t, m_asts)
-+		__field(int32_t, m_result)
-+		__dynamic_array(unsigned char, m_extra,
-+				le16_to_cpu(ms->m_header.h_length) - sizeof(*ms))
-+	),
-+
-+	TP_fast_assign(
-+		__entry->seq = seq;
-+		__entry->h_version = le32_to_cpu(ms->m_header.h_version);
-+		__entry->h_lockspace = le32_to_cpu(ms->m_header.u.h_lockspace);
-+		__entry->h_nodeid = le32_to_cpu(ms->m_header.h_nodeid);
-+		__entry->h_length = le16_to_cpu(ms->m_header.h_length);
-+		__entry->h_cmd = ms->m_header.h_cmd;
-+		__entry->m_type = le32_to_cpu(ms->m_type);
-+		__entry->m_nodeid = le32_to_cpu(ms->m_nodeid);
-+		__entry->m_pid = le32_to_cpu(ms->m_pid);
-+		__entry->m_lkid = le32_to_cpu(ms->m_lkid);
-+		__entry->m_remid = le32_to_cpu(ms->m_remid);
-+		__entry->m_parent_lkid = le32_to_cpu(ms->m_parent_lkid);
-+		__entry->m_parent_remid = le32_to_cpu(ms->m_parent_remid);
-+		__entry->m_exflags = le32_to_cpu(ms->m_exflags);
-+		__entry->m_sbflags = le32_to_cpu(ms->m_sbflags);
-+		__entry->m_flags = le32_to_cpu(ms->m_flags);
-+		__entry->m_lvbseq = le32_to_cpu(ms->m_lvbseq);
-+		__entry->m_hash = le32_to_cpu(ms->m_hash);
-+		__entry->m_status = le32_to_cpu(ms->m_status);
-+		__entry->m_grmode = le32_to_cpu(ms->m_grmode);
-+		__entry->m_rqmode = le32_to_cpu(ms->m_rqmode);
-+		__entry->m_bastmode = le32_to_cpu(ms->m_bastmode);
-+		__entry->m_asts = le32_to_cpu(ms->m_asts);
-+		__entry->m_result = le32_to_cpu(ms->m_result);
-+		memcpy(__get_dynamic_array(m_extra), ms->m_extra,
-+		       __get_dynamic_array_len(m_extra));
-+	),
-+
-+	TP_printk("seq=%u h_version=%s h_lockspace=%u h_nodeid=%u "
-+		  "h_length=%u h_cmd=%s m_type=%s m_nodeid=%u "
-+		  "m_pid=%u m_lkid=%u m_remid=%u m_parent_lkid=%u "
-+		  "m_parent_remid=%u m_exflags=%s m_sbflags=%s m_flags=%s "
-+		  "m_lvbseq=%u m_hash=%u m_status=%d m_grmode=%s "
-+		  "m_rqmode=%s m_bastmode=%s m_asts=%d m_result=%d "
-+		  "m_extra=0x%s",
-+		  __entry->seq, show_message_version(__entry->h_version),
-+		  __entry->h_lockspace, __entry->h_nodeid, __entry->h_length,
-+		  show_header_cmd(__entry->h_cmd),
-+		  show_message_type(__entry->m_type),
-+		  __entry->m_nodeid, __entry->m_pid, __entry->m_lkid,
-+		  __entry->m_remid, __entry->m_parent_lkid,
-+		  __entry->m_parent_remid, show_lock_flags(__entry->m_exflags),
-+		  show_dlm_sb_flags(__entry->m_sbflags),
-+		  show_lkb_flags(__entry->m_flags), __entry->m_lvbseq,
-+		  __entry->m_hash, __entry->m_status,
-+		  show_lock_mode(__entry->m_grmode),
-+		  show_lock_mode(__entry->m_rqmode),
-+		  show_lock_mode(__entry->m_bastmode),
-+		  __entry->m_asts, __entry->m_result,
-+		  __print_hex_str(__get_dynamic_array(m_extra),
-+				  __get_dynamic_array_len(m_extra)))
-+
-+);
-+
- TRACE_EVENT(dlm_send,
- 
- 	TP_PROTO(int nodeid, int ret),
+ 	/* Allow CP_CONTEXT_SWITCH_YIELD packets in the IB2 */
+ 	OUT_PKT7(ring, CP_YIELD_ENABLE, 1);
 -- 
 2.39.2
 
