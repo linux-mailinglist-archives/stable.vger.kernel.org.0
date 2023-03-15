@@ -2,51 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E13826BB151
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 719A86BB349
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbjCOM0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
+        id S232944AbjCOMnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232449AbjCOM0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B969984E2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:16 -0700 (PDT)
+        with ESMTP id S232903AbjCOMmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 015FBA590D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0926B81E0C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0965C433EF;
-        Wed, 15 Mar 2023 12:24:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B9DF61CC2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35FB6C433EF;
+        Wed, 15 Mar 2023 12:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883061;
-        bh=cMc+h0EdzLDs1AgWG9sov4h4C2Yo60GqELjLDqqHhHg=;
+        s=korg; t=1678884091;
+        bh=5J51evrFgc48Sen+dNOUlWUDE1CCj5Q6jT8nUP6OMKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKAvNRH7ASMkMakCzXCL9ypycNI8l0h08k732HcoieHaMzJTfgEoT3tixV1CyCywZ
-         fd+7kDQu75gv1Olg5qO2W9CW/FIHp8jo7v4/QGmyB5kMSTMSJgGIXNJ2NDfp5exsgs
-         22x7dTw/bJVzLGdyXB2FuXHFfMc0gCSPGmoC0nHI=
+        b=1lq3TXHQzGdSZTYG1RVpERqVqgZwh54SUiCkXHPE23+eSB4SFfzbnTgnDzdT/dDc+
+         hlLOE80Wtte+CzMZSxwZqr9GWNHG+2tGtqP1U7SoHpnQepbZGOKO2oiwopTHvhODnM
+         TV6XwFHYC/eDjJqVnpN/JH+LttCET858lf7f0YQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Jun <jun.li@nxp.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Changbin Du <changbin.du@huawei.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hui Wang <hw.huiwang@huawei.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/104] media: rc: gpio-ir-recv: add remove function
+Subject: [PATCH 6.2 064/141] perf stat: Fix counting when initial delay configured
 Date:   Wed, 15 Mar 2023 13:12:47 +0100
-Message-Id: <20230315115735.107365330@linuxfoundation.org>
+Message-Id: <20230315115741.904564938@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,140 +60,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Changbin Du <changbin.du@huawei.com>
 
-[ Upstream commit 30040818b338b8ebc956ce0ebd198f8d593586a6 ]
+[ Upstream commit 25f69c69bc3ca8c781a94473f28d443d745768e3 ]
 
-In case runtime PM is enabled, do runtime PM clean up to remove
-cpu latency qos request, otherwise driver removal may have below
-kernel dump:
+When creating counters with initial delay configured, the enable_on_exec
+field is not set. So we need to enable the counters later. The problem
+is, when a workload is specified the target__none() is true. So we also
+need to check stat_config.initial_delay.
 
-[   19.463299] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000048
-[   19.472161] Mem abort info:
-[   19.474985]   ESR = 0x0000000096000004
-[   19.478754]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   19.484081]   SET = 0, FnV = 0
-[   19.487149]   EA = 0, S1PTW = 0
-[   19.490361]   FSC = 0x04: level 0 translation fault
-[   19.495256] Data abort info:
-[   19.498149]   ISV = 0, ISS = 0x00000004
-[   19.501997]   CM = 0, WnR = 0
-[   19.504977] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000049f81000
-[   19.511432] [0000000000000048] pgd=0000000000000000,
-p4d=0000000000000000
-[   19.518245] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[   19.524520] Modules linked in: gpio_ir_recv(+) rc_core [last
-unloaded: rc_core]
-[   19.531845] CPU: 0 PID: 445 Comm: insmod Not tainted
-6.2.0-rc1-00028-g2c397a46d47c #72
-[   19.531854] Hardware name: FSL i.MX8MM EVK board (DT)
-[   19.531859] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS
-BTYPE=--)
-[   19.551777] pc : cpu_latency_qos_remove_request+0x20/0x110
-[   19.557277] lr : gpio_ir_recv_runtime_suspend+0x18/0x30
-[gpio_ir_recv]
-[   19.557294] sp : ffff800008ce3740
-[   19.557297] x29: ffff800008ce3740 x28: 0000000000000000 x27:
-ffff800008ce3d50
-[   19.574270] x26: ffffc7e3e9cea100 x25: 00000000000f4240 x24:
-ffffc7e3f9ef0e30
-[   19.574284] x23: 0000000000000000 x22: ffff0061803820f4 x21:
-0000000000000008
-[   19.574296] x20: ffffc7e3fa75df30 x19: 0000000000000020 x18:
-ffffffffffffffff
-[   19.588570] x17: 0000000000000000 x16: ffffc7e3f9efab70 x15:
-ffffffffffffffff
-[   19.595712] x14: ffff800008ce37b8 x13: ffff800008ce37aa x12:
-0000000000000001
-[   19.602853] x11: 0000000000000001 x10: ffffcbe3ec0dff87 x9 :
-0000000000000008
-[   19.609991] x8 : 0101010101010101 x7 : 0000000000000000 x6 :
-000000000f0bfe9f
-[   19.624261] x5 : 00ffffffffffffff x4 : 0025ab8e00000000 x3 :
-ffff006180382010
-[   19.631405] x2 : ffffc7e3e9ce8030 x1 : ffffc7e3fc3eb810 x0 :
-0000000000000020
-[   19.638548] Call trace:
-[   19.640995]  cpu_latency_qos_remove_request+0x20/0x110
-[   19.646142]  gpio_ir_recv_runtime_suspend+0x18/0x30 [gpio_ir_recv]
-[   19.652339]  pm_generic_runtime_suspend+0x2c/0x44
-[   19.657055]  __rpm_callback+0x48/0x1dc
-[   19.660807]  rpm_callback+0x6c/0x80
-[   19.664301]  rpm_suspend+0x10c/0x640
-[   19.667880]  rpm_idle+0x250/0x2d0
-[   19.671198]  update_autosuspend+0x38/0xe0
-[   19.675213]  pm_runtime_set_autosuspend_delay+0x40/0x60
-[   19.680442]  gpio_ir_recv_probe+0x1b4/0x21c [gpio_ir_recv]
-[   19.685941]  platform_probe+0x68/0xc0
-[   19.689610]  really_probe+0xc0/0x3dc
-[   19.693189]  __driver_probe_device+0x7c/0x190
-[   19.697550]  driver_probe_device+0x3c/0x110
-[   19.701739]  __driver_attach+0xf4/0x200
-[   19.705578]  bus_for_each_dev+0x70/0xd0
-[   19.709417]  driver_attach+0x24/0x30
-[   19.712998]  bus_add_driver+0x17c/0x240
-[   19.716834]  driver_register+0x78/0x130
-[   19.720676]  __platform_driver_register+0x28/0x34
-[   19.725386]  gpio_ir_recv_driver_init+0x20/0x1000 [gpio_ir_recv]
-[   19.731404]  do_one_initcall+0x44/0x2ac
-[   19.735243]  do_init_module+0x48/0x1d0
-[   19.739003]  load_module+0x19fc/0x2034
-[   19.742759]  __do_sys_finit_module+0xac/0x12c
-[   19.747124]  __arm64_sys_finit_module+0x20/0x30
-[   19.751664]  invoke_syscall+0x48/0x114
-[   19.755420]  el0_svc_common.constprop.0+0xcc/0xec
-[   19.760132]  do_el0_svc+0x38/0xb0
-[   19.763456]  el0_svc+0x2c/0x84
-[   19.766516]  el0t_64_sync_handler+0xf4/0x120
-[   19.770789]  el0t_64_sync+0x190/0x194
-[   19.774460] Code: 910003fd a90153f3 aa0003f3 91204021 (f9401400)
-[   19.780556] ---[ end trace 0000000000000000 ]---
+In this change, we add a new field 'initial_delay' for struct target
+which could be shared by other subcommands. And define
+target__enable_on_exec() which returns whether enable_on_exec should be
+set on normal cases.
 
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Before this fix the event is not counted:
+
+  $ ./perf stat -e instructions -D 100 sleep 2
+  Events disabled
+  Events enabled
+
+   Performance counter stats for 'sleep 2':
+
+       <not counted>      instructions
+
+         1.901661124 seconds time elapsed
+
+         0.001602000 seconds user
+         0.000000000 seconds sys
+
+After fix it works:
+
+  $ ./perf stat -e instructions -D 100 sleep 2
+  Events disabled
+  Events enabled
+
+   Performance counter stats for 'sleep 2':
+
+             404,214      instructions
+
+         1.901743475 seconds time elapsed
+
+         0.001617000 seconds user
+         0.000000000 seconds sys
+
+Fixes: c587e77e100fa40e ("perf stat: Do not delay the workload with --delay")
+Signed-off-by: Changbin Du <changbin.du@huawei.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hui Wang <hw.huiwang@huawei.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20230302031146.2801588-2-changbin.du@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/gpio-ir-recv.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ tools/perf/builtin-stat.c | 15 +++++----------
+ tools/perf/util/stat.c    |  6 +-----
+ tools/perf/util/stat.h    |  1 -
+ tools/perf/util/target.h  | 12 ++++++++++++
+ 4 files changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/media/rc/gpio-ir-recv.c b/drivers/media/rc/gpio-ir-recv.c
-index 22e524b69806a..a56c844d7f816 100644
---- a/drivers/media/rc/gpio-ir-recv.c
-+++ b/drivers/media/rc/gpio-ir-recv.c
-@@ -130,6 +130,23 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
- 				"gpio-ir-recv-irq", gpio_dev);
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 9f3e4b2575165..387dc9c9e7bee 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -539,12 +539,7 @@ static int enable_counters(void)
+ 			return err;
+ 	}
+ 
+-	/*
+-	 * We need to enable counters only if:
+-	 * - we don't have tracee (attaching to task or cpu)
+-	 * - we have initial delay configured
+-	 */
+-	if (!target__none(&target)) {
++	if (!target__enable_on_exec(&target)) {
+ 		if (!all_counters_use_bpf)
+ 			evlist__enable(evsel_list);
+ 	}
+@@ -914,7 +909,7 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
+ 			return err;
+ 	}
+ 
+-	if (stat_config.initial_delay) {
++	if (target.initial_delay) {
+ 		pr_info(EVLIST_DISABLED_MSG);
+ 	} else {
+ 		err = enable_counters();
+@@ -926,8 +921,8 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
+ 	if (forks)
+ 		evlist__start_workload(evsel_list);
+ 
+-	if (stat_config.initial_delay > 0) {
+-		usleep(stat_config.initial_delay * USEC_PER_MSEC);
++	if (target.initial_delay > 0) {
++		usleep(target.initial_delay * USEC_PER_MSEC);
+ 		err = enable_counters();
+ 		if (err)
+ 			return -1;
+@@ -1248,7 +1243,7 @@ static struct option stat_options[] = {
+ 		     "aggregate counts per thread", AGGR_THREAD),
+ 	OPT_SET_UINT(0, "per-node", &stat_config.aggr_mode,
+ 		     "aggregate counts per numa node", AGGR_NODE),
+-	OPT_INTEGER('D', "delay", &stat_config.initial_delay,
++	OPT_INTEGER('D', "delay", &target.initial_delay,
+ 		    "ms to wait before starting measurement after program start (-1: start with events disabled)"),
+ 	OPT_CALLBACK_NOOPT(0, "metric-only", &stat_config.metric_only, NULL,
+ 			"Only print computed metrics. No raw values", enable_metric_only),
+diff --git a/tools/perf/util/stat.c b/tools/perf/util/stat.c
+index 534d36d26fc38..a07473703c6dd 100644
+--- a/tools/perf/util/stat.c
++++ b/tools/perf/util/stat.c
+@@ -842,11 +842,7 @@ int create_perf_stat_counter(struct evsel *evsel,
+ 	if (evsel__is_group_leader(evsel)) {
+ 		attr->disabled = 1;
+ 
+-		/*
+-		 * In case of initial_delay we enable tracee
+-		 * events manually.
+-		 */
+-		if (target__none(target) && !config->initial_delay)
++		if (target__enable_on_exec(target))
+ 			attr->enable_on_exec = 1;
+ 	}
+ 
+diff --git a/tools/perf/util/stat.h b/tools/perf/util/stat.h
+index 499c3bf813336..eb8cf33c3ba55 100644
+--- a/tools/perf/util/stat.h
++++ b/tools/perf/util/stat.h
+@@ -166,7 +166,6 @@ struct perf_stat_config {
+ 	FILE			*output;
+ 	unsigned int		 interval;
+ 	unsigned int		 timeout;
+-	int			 initial_delay;
+ 	unsigned int		 unit_width;
+ 	unsigned int		 metric_only_len;
+ 	int			 times;
+diff --git a/tools/perf/util/target.h b/tools/perf/util/target.h
+index daec6cba500d4..880f1af7f6ad6 100644
+--- a/tools/perf/util/target.h
++++ b/tools/perf/util/target.h
+@@ -18,6 +18,7 @@ struct target {
+ 	bool	     per_thread;
+ 	bool	     use_bpf;
+ 	bool	     hybrid;
++	int	     initial_delay;
+ 	const char   *attr_map;
+ };
+ 
+@@ -72,6 +73,17 @@ static inline bool target__none(struct target *target)
+ 	return !target__has_task(target) && !target__has_cpu(target);
  }
  
-+static int gpio_ir_recv_remove(struct platform_device *pdev)
++static inline bool target__enable_on_exec(struct target *target)
 +{
-+	struct gpio_rc_dev *gpio_dev = platform_get_drvdata(pdev);
-+	struct device *pmdev = gpio_dev->pmdev;
-+
-+	if (pmdev) {
-+		pm_runtime_get_sync(pmdev);
-+		cpu_latency_qos_remove_request(&gpio_dev->qos);
-+
-+		pm_runtime_disable(pmdev);
-+		pm_runtime_put_noidle(pmdev);
-+		pm_runtime_set_suspended(pmdev);
-+	}
-+
-+	return 0;
++	/*
++	 * Normally enable_on_exec should be set if:
++	 *  1) The tracee process is forked (not attaching to existed task or cpu).
++	 *  2) And initial_delay is not configured.
++	 * Otherwise, we enable tracee events manually.
++	 */
++	return target__none(target) && !target->initial_delay;
 +}
 +
- #ifdef CONFIG_PM
- static int gpio_ir_recv_suspend(struct device *dev)
+ static inline bool target__has_per_thread(struct target *target)
  {
-@@ -189,6 +206,7 @@ MODULE_DEVICE_TABLE(of, gpio_ir_recv_of_match);
- 
- static struct platform_driver gpio_ir_recv_driver = {
- 	.probe  = gpio_ir_recv_probe,
-+	.remove = gpio_ir_recv_remove,
- 	.driver = {
- 		.name   = KBUILD_MODNAME,
- 		.of_match_table = of_match_ptr(gpio_ir_recv_of_match),
+ 	return target->system_wide && target->per_thread;
 -- 
 2.39.2
 
