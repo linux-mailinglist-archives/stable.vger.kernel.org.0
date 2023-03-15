@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B8B6BB091
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2078E6BB316
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbjCOMT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
+        id S233038AbjCOMl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:41:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232125AbjCOMTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5722694A42
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:59 -0700 (PDT)
+        with ESMTP id S233002AbjCOMlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11BB3B67E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAAB861ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6BCC433EF;
-        Wed, 15 Mar 2023 12:18:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2864B81E1B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D4B7C433EF;
+        Wed, 15 Mar 2023 12:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882738;
-        bh=7xD3X6MpnJbx2RsII0tEO8wHfCTuyt13z+tHDer6SfQ=;
+        s=korg; t=1678883989;
+        bh=kFgOJ7D371dxryx5DwiU2D9Yt091mq2CLyzln4RljJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1E3H1fcA0alpdQB4QHW3VC4EKLxBDEkwWtnHFPuLk1pOamBueOSq7YoF4Hs2gRB2
-         Y24Dn6bzEoYlk3eHIaQGduv/ORGvECWypz4tYIPAGPId0KQG4GzeGWqDSDV3HHAUzc
-         IcMcvtnDGTPQ9Iv0FINWMJhpsdq16n4CVaF36mjA=
+        b=zNKNVKuoVkvLFOW2Ej79ay/RYXSZ84jXTkBNgJIjWfasVh/Ec93aeVdfXIlWvyvQX
+         mzErYbAe7TLHk7A04yoc10ClC145Pk/tAoc1zxfqGcI74hu5ulJsUXrWYqzTo10L9k
+         Ybi8w/Lza0SI86BnxoQVWhWBjELqYtFT8LYrlKb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Brian Vazquez <brianvv@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 52/68] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+Subject: [PATCH 6.2 063/141] net: use indirect calls helpers for sk_exit_memory_pressure()
 Date:   Wed, 15 Mar 2023 13:12:46 +0100
-Message-Id: <20230315115728.140743203@linuxfoundation.org>
+Message-Id: <20230315115741.875759445@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Brian Vazquez <brianvv@google.com>
 
-[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
+[ Upstream commit 5c1ebbfabcd61142a4551bfc0e51840f9bdae7af ]
 
-NO_IRQ is a relic from the old days. It is not used anymore in core
-functions. By the way, function irq_of_parse_and_map() returns value 0
-on error.
+Florian reported a regression and sent a patch with the following
+changelog:
 
-In some drivers, NO_IRQ is erroneously used to check the return of
-irq_of_parse_and_map().
+<quote>
+ There is a noticeable tcp performance regression (loopback or cross-netns),
+ seen with iperf3 -Z (sendfile mode) when generic retpolines are needed.
 
-It is not a real bug today because the only architectures using the
-drivers being fixed by this patch define NO_IRQ as 0, but there are
-architectures which define NO_IRQ as -1. If one day those
-architectures start using the non fixed drivers, there will be a
-problem.
+ With SK_RECLAIM_THRESHOLD checks gone number of calls to enter/leave
+ memory pressure happen much more often. For TCP indirect calls are
+ used.
 
-Long time ago Linus advocated for not using NO_IRQ, see
-https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
+ We can't remove the if-set-return short-circuit check in
+ tcp_enter_memory_pressure because there are callers other than
+ sk_enter_memory_pressure.  Doing a check in the sk wrapper too
+ reduces the indirect calls enough to recover some performance.
 
-He re-iterated the same view recently in
-https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
+ Before,
+ 0.00-60.00  sec   322 GBytes  46.1 Gbits/sec                  receiver
 
-So test !irq instead of tesing irq == NO_IRQ.
+ After:
+ 0.00-60.04  sec   359 GBytes  51.4 Gbits/sec                  receiver
 
-All other usage of NO_IRQ for powerpc were removed in previous cycles so
-the time has come to remove NO_IRQ completely for powerpc.
+ "iperf3 -c $peer -t 60 -Z -f g", connected via veth in another netns.
+</quote>
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
+It seems we forgot to upstream this indirect call mitigation we
+had for years, lets do this instead.
+
+[edumazet] - It seems we forgot to upstream this indirect call
+             mitigation we had for years, let's do this instead.
+           - Changed to INDIRECT_CALL_INET_1() to avoid bots reports.
+
+Fixes: 4890b686f408 ("net: keep sk->sk_forward_alloc as small as possible")
+Reported-by: Florian Westphal <fw@strlen.de>
+Link: https://lore.kernel.org/netdev/20230227152741.4a53634b@kernel.org/T/
+Signed-off-by: Brian Vazquez <brianvv@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230301133247.2346111-1-edumazet@google.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/irq.h    | 3 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 +-
- 2 files changed, 1 insertion(+), 4 deletions(-)
+ net/core/sock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
-index 814dfab7e392e..f2f952ca87c37 100644
---- a/arch/powerpc/include/asm/irq.h
-+++ b/arch/powerpc/include/asm/irq.h
-@@ -17,9 +17,6 @@
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 63680f999bf6d..9796a5fa6ceaa 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2827,7 +2827,8 @@ static void sk_enter_memory_pressure(struct sock *sk)
+ static void sk_leave_memory_pressure(struct sock *sk)
+ {
+ 	if (sk->sk_prot->leave_memory_pressure) {
+-		sk->sk_prot->leave_memory_pressure(sk);
++		INDIRECT_CALL_INET_1(sk->sk_prot->leave_memory_pressure,
++				     tcp_leave_memory_pressure, sk);
+ 	} else {
+ 		unsigned long *memory_pressure = sk->sk_prot->memory_pressure;
  
- extern atomic_t ppc_n_lost_interrupts;
- 
--/* This number is used when no interrupt has been assigned */
--#define NO_IRQ			(0)
--
- /* Total number of virq in the platform */
- #define NR_IRQS		CONFIG_NR_IRQS
- 
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index 823397c802def..f8bbe05d9ef29 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -205,7 +205,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 
- 	for_each_compatible_node(np, NULL, compat) {
- 		irq = irq_of_parse_and_map(np, 0);
--		if (irq == NO_IRQ) {
-+		if (!irq) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
- 			of_node_put(np);
 -- 
 2.39.2
 
