@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C72B6BB01F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D08A6BB00B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231773AbjCOMPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:15:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38220 "EHLO
+        id S231536AbjCOMOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:14:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231766AbjCOMP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D51D898C6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:28 -0700 (PDT)
+        with ESMTP id S231724AbjCOMOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2999428D3A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3482961D49
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C39C4339B;
-        Wed, 15 Mar 2023 12:15:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5CD861D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA5A6C4339B;
+        Wed, 15 Mar 2023 12:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882527;
-        bh=OBOMO2qUl2W8+YoGzK/ZYn68/vWNFk3RtyyWAiEZwt0=;
+        s=korg; t=1678882483;
+        bh=D3w6n1oTaSe4BzgFAoJ9kH8EpOdd4Y4EGOE4ooM4BY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOMESQPn8QfWWGIuPmFcmKRAImM7P7T/+YgUj2ZkqYnmet5Yip/d+xb8mAR0Anbiz
-         6fqsCiBJvVMrOsn/h7Fp6AA5EexTzWIGyti9SDV1p2/yc1cQ2xOZRpeMd6qSnzGml+
-         ZZqo/m7PwD12jrvqgMqb45rjl37OaNCjivArgLr0=
+        b=QUMZQx6VhjCHxd1+2SGtiWymfH0K8kEHNjiVhcVNMDBWg5RxNRYgtZu8cjq3My69H
+         qro0RzIUEz7PaDHalmpkZGftPU2cMf/ETq3+Y+i0ZchyPZgQ4P93eT08EE9EtKRDAA
+         n/xnYlQ9XuvhIyWlsb1EuQxazYbKAfkBCOD0XJ04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/39] udf: Preserve link count of system files
+        patches@lists.linux.dev, stable@kernel.org,
+        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 03/21] ext4: fix RENAME_WHITEOUT handling for inline directories
 Date:   Wed, 15 Mar 2023 13:12:26 +0100
-Message-Id: <20230315115721.708335790@linuxfoundation.org>
+Message-Id: <20230315115718.949678470@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,78 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Eric Whitney <enwlinux@gmail.com>
 
-[ Upstream commit fc8033a34a3ca7d23353e645e6dde5d364ac5f12 ]
+commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
 
-System files in UDF filesystem have link count 0. To not confuse VFS we
-fudge the link count to be 1 when reading such inodes however we forget
-to restore the link count of 0 when writing such inodes. Fix that.
+A significant number of xfstests can cause ext4 to log one or more
+warning messages when they are run on a test file system where the
+inline_data feature has been enabled.  An example:
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
+ #16385: comm fsstress: No space for directory leaf checksum. Please
+run e2fsck -D."
+
+The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
+070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
+589, 626, 631, and 650.
+
+In this situation, the warning message indicates a bug in the code that
+performs the RENAME_WHITEOUT operation on a directory entry that has
+been stored inline.  It doesn't detect that the directory is stored
+inline, and incorrectly attempts to compute a dirent block checksum on
+the whiteout inode when creating it.  This attempt fails as a result
+of the integrity checking in get_dirent_tail (usually due to a failure
+to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
+is then emitted.
+
+Fix this by simply collecting the inlined data state at the time the
+search for the source directory entry is performed.  Existing code
+handles the rest, and this is sufficient to eliminate all spurious
+warning messages produced by the tests above.  Go one step further
+and do the same in the code that resets the source directory entry in
+the event of failure.  The inlined state should be present in the
+"old" struct, but given the possibility of a race there's no harm
+in taking a conservative approach and getting that information again
+since the directory entry is being reread anyway.
+
+Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
+Cc: stable@kernel.org
+Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c | 9 +++++++--
- fs/udf/super.c | 1 +
- fs/udf/udf_i.h | 3 ++-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ fs/ext4/namei.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 415f1186d250f..7436337914b19 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1375,6 +1375,7 @@ static int udf_read_inode(struct inode *inode, bool hidden_inode)
- 		ret = -EIO;
- 		goto out;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1425,11 +1425,10 @@ static struct buffer_head * ext4_find_en
+ 		int has_inline_data = 1;
+ 		ret = ext4_find_inline_entry(dir, &fname, res_dir,
+ 					     &has_inline_data);
+-		if (has_inline_data) {
+-			if (inlined)
+-				*inlined = 1;
++		if (inlined)
++			*inlined = has_inline_data;
++		if (has_inline_data)
+ 			goto cleanup_and_exit;
+-		}
  	}
-+	iinfo->i_hidden = hidden_inode;
- 	iinfo->i_unique = 0;
- 	iinfo->i_lenEAttr = 0;
- 	iinfo->i_lenExtents = 0;
-@@ -1694,8 +1695,12 @@ static int udf_update_inode(struct inode *inode, int do_sync)
  
- 	if (S_ISDIR(inode->i_mode) && inode->i_nlink > 0)
- 		fe->fileLinkCount = cpu_to_le16(inode->i_nlink - 1);
--	else
--		fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
-+	else {
-+		if (iinfo->i_hidden)
-+			fe->fileLinkCount = cpu_to_le16(0);
-+		else
-+			fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
-+	}
+ 	if ((namelen <= 2) && (name[0] == '.') &&
+@@ -3520,7 +3519,8 @@ static void ext4_resetent(handle_t *hand
+ 	 * so the old->de may no longer valid and need to find it again
+ 	 * before reset old inode info.
+ 	 */
+-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
++				 &old.inlined);
+ 	if (IS_ERR(old.bh))
+ 		retval = PTR_ERR(old.bh);
+ 	if (!old.bh)
+@@ -3688,7 +3688,8 @@ static int ext4_rename(struct inode *old
+ 			return retval;
+ 	}
  
- 	fe->informationLength = cpu_to_le64(inode->i_size);
- 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index cdaef406f3899..bce48a07790cb 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -151,6 +151,7 @@ static struct inode *udf_alloc_inode(struct super_block *sb)
- 	ei->i_next_alloc_goal = 0;
- 	ei->i_strat4096 = 0;
- 	ei->i_streamdir = 0;
-+	ei->i_hidden = 0;
- 	init_rwsem(&ei->i_data_sem);
- 	ei->cached_extent.lstart = -1;
- 	spin_lock_init(&ei->i_extent_cache_lock);
-diff --git a/fs/udf/udf_i.h b/fs/udf/udf_i.h
-index 2a4731314d51f..b77bf713a1b68 100644
---- a/fs/udf/udf_i.h
-+++ b/fs/udf/udf_i.h
-@@ -43,7 +43,8 @@ struct udf_inode_info {
- 	unsigned		i_use : 1;	/* unallocSpaceEntry */
- 	unsigned		i_strat4096 : 1;
- 	unsigned		i_streamdir : 1;
--	unsigned		reserved : 25;
-+	unsigned		i_hidden : 1;	/* hidden system inode */
-+	unsigned		reserved : 24;
- 	__u8			*i_data;
- 	struct kernel_lb_addr	i_locStreamdir;
- 	__u64			i_lenStreams;
--- 
-2.39.2
-
+-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
++				 &old.inlined);
+ 	if (IS_ERR(old.bh))
+ 		return PTR_ERR(old.bh);
+ 	/*
 
 
