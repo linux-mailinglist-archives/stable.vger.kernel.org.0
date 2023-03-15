@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C15A6BB135
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F18B6BB280
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbjCOMZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
+        id S232709AbjCOMgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbjCOMZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:19 -0400
+        with ESMTP id S232693AbjCOMgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1737196F2A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E8A19E308
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5594D61D5C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DEB5C4339B;
-        Wed, 15 Mar 2023 12:23:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C2A861D45
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CE12C433D2;
+        Wed, 15 Mar 2023 12:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883008;
-        bh=kB/D25bGYwKhW84w/X5zvV49/OvtdA3ljgXXzcbaUDM=;
+        s=korg; t=1678883679;
+        bh=5Az9MQT7h2KkgqAunpXfQvzj1OVRTEVwGFsJtPZTkz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsupTDYZLmrxs+zM3i+CLszCf3AvKlzSMeUHoZroBFfXyigkSreT8T/CR4Pv+3BMc
-         Qbo9CmEP6XYYOl/vmutDccrOo7Gxjp6DVVaJfZtofEkY8x0JIQfyPhhG3rbRFIQZXE
-         ScoETyb+vjRjKNLBC7jmOaf6hkGzCFrLFC4kgq50=
+        b=XnyOY3uLBsxydZPAeZLNTD7o+nOV9/ckhcn7E48PDs6D1jN6Hoc3Q1nf7Ohs3WtMm
+         QxIg7WU8mOFvNxR2GBU351uDjN0+LD+y0EXwFPE4Otwh6VJEaL1VdiKIfGwbXhuB08
+         tgNJlAsVxsXeIJnoJi6uDp/7tnTG8GjRBaIS8lm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.10 086/104] sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()s early exit condition
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 091/143] btrfs: fix extent map logging bit not cleared for split maps after dropping range
 Date:   Wed, 15 Mar 2023 13:12:57 +0100
-Message-Id: <20230315115735.527375167@linuxfoundation.org>
+Message-Id: <20230315115743.287504971@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit d81304bc6193554014d4372a01debdf65e1e9a4d upstream.
+[ Upstream commit e4cc1483f35940c9288c332dd275f6fad485f8d2 ]
 
-If the utilization of the woken up task is 0, we skip the energy
-calculation because it has no impact.
+At btrfs_drop_extent_map_range() we are clearing the EXTENT_FLAG_LOGGING
+bit on a 'flags' variable that was not initialized. This makes static
+checkers complain about it, so initialize the 'flags' variable before
+clearing the bit.
 
-But if the task is boosted (uclamp_min != 0) will have an impact on task
-placement and frequency selection. Only skip if the util is truly
-0 after applying uclamp values.
+In practice this has no consequences, because EXTENT_FLAG_LOGGING should
+not be set when btrfs_drop_extent_map_range() is called, as an fsync locks
+the inode in exclusive mode, locks the inode's mmap semaphore in exclusive
+mode too and it always flushes all delalloc.
 
-Change uclamp_task_cpu() signature to avoid unnecessary additional calls
-to uclamp_eff_get(). feec() is the only user now.
+Also add a comment about why we clear EXTENT_FLAG_LOGGING on a copy of the
+flags of the split extent map.
 
-Fixes: 732cd75b8c920 ("sched/fair: Select an energy-efficient CPU on task wake-up")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-8-qais.yousef@arm.com
-(cherry picked from commit d81304bc6193554014d4372a01debdf65e1e9a4d)
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/Y%2FyipSVozUDEZKow@kili/
+Fixes: db21370bffbc ("btrfs: drop extent map range more efficiently")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ fs/btrfs/extent_map.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3928,14 +3928,16 @@ static inline unsigned long task_util_es
- }
+diff --git a/fs/btrfs/extent_map.c b/fs/btrfs/extent_map.c
+index 6092a4eedc923..b8ae02aa632e3 100644
+--- a/fs/btrfs/extent_map.c
++++ b/fs/btrfs/extent_map.c
+@@ -760,7 +760,13 @@ void btrfs_drop_extent_map_range(struct btrfs_inode *inode, u64 start, u64 end,
+ 			goto next;
+ 		}
  
- #ifdef CONFIG_UCLAMP_TASK
--static inline unsigned long uclamp_task_util(struct task_struct *p)
-+static inline unsigned long uclamp_task_util(struct task_struct *p,
-+					     unsigned long uclamp_min,
-+					     unsigned long uclamp_max)
- {
--	return clamp(task_util_est(p),
--		     uclamp_eff_value(p, UCLAMP_MIN),
--		     uclamp_eff_value(p, UCLAMP_MAX));
-+	return clamp(task_util_est(p), uclamp_min, uclamp_max);
- }
- #else
--static inline unsigned long uclamp_task_util(struct task_struct *p)
-+static inline unsigned long uclamp_task_util(struct task_struct *p,
-+					     unsigned long uclamp_min,
-+					     unsigned long uclamp_max)
- {
- 	return task_util_est(p);
- }
-@@ -6789,7 +6791,7 @@ static int find_energy_efficient_cpu(str
- 		goto fail;
++		flags = em->flags;
+ 		clear_bit(EXTENT_FLAG_PINNED, &em->flags);
++		/*
++		 * In case we split the extent map, we want to preserve the
++		 * EXTENT_FLAG_LOGGING flag on our extent map, but we don't want
++		 * it on the new extent maps.
++		 */
+ 		clear_bit(EXTENT_FLAG_LOGGING, &flags);
+ 		modified = !list_empty(&em->list);
  
- 	sync_entity_load_avg(&p->se);
--	if (!task_util_est(p))
-+	if (!uclamp_task_util(p, p_util_min, p_util_max))
- 		goto unlock;
+@@ -771,7 +777,6 @@ void btrfs_drop_extent_map_range(struct btrfs_inode *inode, u64 start, u64 end,
+ 		if (em->start >= start && em_end <= end)
+ 			goto remove_em;
  
- 	for (; pd; pd = pd->next) {
+-		flags = em->flags;
+ 		gen = em->generation;
+ 		compressed = test_bit(EXTENT_FLAG_COMPRESSED, &em->flags);
+ 
+-- 
+2.39.2
+
 
 
