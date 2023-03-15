@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A8B6BB029
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 114636BB067
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbjCOMQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:16:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38326 "EHLO
+        id S231779AbjCOMRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231903AbjCOMPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C60888ED7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:41 -0700 (PDT)
+        with ESMTP id S231881AbjCOMRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C323692BEB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3662461D3F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49415C433EF;
-        Wed, 15 Mar 2023 12:15:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66EC6B81E03
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF723C433EF;
+        Wed, 15 Mar 2023 12:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882540;
-        bh=Yu185cZOyxNQWz7whzSmIM7buAISPTDpgoSlQOvHq1g=;
+        s=korg; t=1678882662;
+        bh=t+Fer+gp/7xRdpsGbObZHt8+dGZ4jl1LLVoM7K52w/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7l1oaAa1LLFnL2V4gH3yAvZe7F5REbPcENIABsy8U0xzg0n3FjyZ6VOxWOg56dAR
-         rpcEPyN7cDIkHdlgzGRqFcK1Z5vZkFB6sR4ZVmjW9MdQ4edvu7GfVkUp9p6FyGW/1l
-         Bg/6AxZAj5gZ+dyNi5o/cLKvydT3aDXMxeR5IOLI=
+        b=khuzf3s9qwhA01sugwQInrRHue8W37B3p9dOYYz+OhrircOtuTn6R7TW3YvBh94kU
+         upDNElCRIPLWKnIlWkKlZQrayZgB3voqDOH7PMTACZbO+EEgJXHR2KlzYjBjJ/wF9p
+         VwTM0j5CHiuN87cH3K8np02yFE5kzsei0bOD62II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 03/39] ext4: fix RENAME_WHITEOUT handling for inline directories
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 23/68] irqdomain: Fix domain registration race
 Date:   Wed, 15 Mar 2023 13:12:17 +0100
-Message-Id: <20230315115721.367887867@linuxfoundation.org>
+Message-Id: <20230315115727.003327727@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
+[ Upstream commit 8932c32c3053accd50702b36e944ac2016cd103c ]
 
-A significant number of xfstests can cause ext4 to log one or more
-warning messages when they are run on a test file system where the
-inline_data feature has been enabled.  An example:
+Hierarchical domains created using irq_domain_create_hierarchy() are
+currently added to the domain list before having been fully initialised.
 
-"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
- #16385: comm fsstress: No space for directory leaf checksum. Please
-run e2fsck -D."
+This specifically means that a racing allocation request might fail to
+allocate irq data for the inner domains of a hierarchy in case the
+parent domain pointer has not yet been set up.
 
-The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
-070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
-589, 626, 631, and 650.
+Note that this is not really any issue for irqchip drivers that are
+registered early (e.g. via IRQCHIP_DECLARE() or IRQCHIP_ACPI_DECLARE())
+but could potentially cause trouble with drivers that are registered
+later (e.g. modular drivers using IRQCHIP_PLATFORM_DRIVER_BEGIN(),
+gpiochip drivers, etc.).
 
-In this situation, the warning message indicates a bug in the code that
-performs the RENAME_WHITEOUT operation on a directory entry that has
-been stored inline.  It doesn't detect that the directory is stored
-inline, and incorrectly attempts to compute a dirent block checksum on
-the whiteout inode when creating it.  This attempt fails as a result
-of the integrity checking in get_dirent_tail (usually due to a failure
-to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
-is then emitted.
-
-Fix this by simply collecting the inlined data state at the time the
-search for the source directory entry is performed.  Existing code
-handles the rest, and this is sufficient to eliminate all spurious
-warning messages produced by the tests above.  Go one step further
-and do the same in the code that resets the source directory entry in
-the event of failure.  The inlined state should be present in the
-"old" struct, but given the possibility of a race there's no harm
-in taking a conservative approach and getting that information again
-since the directory entry is being reread anyway.
-
-Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
-Cc: stable@kernel.org
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: afb7da83b9f4 ("irqdomain: Introduce helper function irq_domain_add_hierarchy()")
+Cc: stable@vger.kernel.org      # 3.19
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+[ johan: add commit message ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-8-johan+linaro@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ kernel/irq/irqdomain.c | 62 +++++++++++++++++++++++++++++-------------
+ 1 file changed, 43 insertions(+), 19 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1419,11 +1419,10 @@ static struct buffer_head *__ext4_find_e
- 		int has_inline_data = 1;
- 		ret = ext4_find_inline_entry(dir, fname, res_dir,
- 					     &has_inline_data);
--		if (has_inline_data) {
--			if (inlined)
--				*inlined = 1;
-+		if (inlined)
-+			*inlined = has_inline_data;
-+		if (has_inline_data)
- 			goto cleanup_and_exit;
--		}
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index cfb5a96f023f7..d40ae18fe6617 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -114,23 +114,12 @@ void irq_domain_free_fwnode(struct fwnode_handle *fwnode)
+ }
+ EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
+ 
+-/**
+- * __irq_domain_add() - Allocate a new irq_domain data structure
+- * @fwnode: firmware node for the interrupt controller
+- * @size: Size of linear map; 0 for radix mapping only
+- * @hwirq_max: Maximum number of interrupts supported by controller
+- * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
+- *              direct mapping
+- * @ops: domain callbacks
+- * @host_data: Controller private data pointer
+- *
+- * Allocates and initializes an irq_domain structure.
+- * Returns pointer to IRQ domain, or NULL on failure.
+- */
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+-				    irq_hw_number_t hwirq_max, int direct_max,
+-				    const struct irq_domain_ops *ops,
+-				    void *host_data)
++static struct irq_domain *__irq_domain_create(struct fwnode_handle *fwnode,
++					      unsigned int size,
++					      irq_hw_number_t hwirq_max,
++					      int direct_max,
++					      const struct irq_domain_ops *ops,
++					      void *host_data)
+ {
+ 	struct device_node *of_node = to_of_node(fwnode);
+ 	struct irqchip_fwid *fwid;
+@@ -222,12 +211,44 @@ struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int s
+ 	domain->revmap_direct_max_irq = direct_max;
+ 	irq_domain_check_hierarchy(domain);
+ 
++	return domain;
++}
++
++static void __irq_domain_publish(struct irq_domain *domain)
++{
+ 	mutex_lock(&irq_domain_mutex);
+ 	debugfs_add_domain_dir(domain);
+ 	list_add(&domain->link, &irq_domain_list);
+ 	mutex_unlock(&irq_domain_mutex);
+ 
+ 	pr_debug("Added domain %s\n", domain->name);
++}
++
++/**
++ * __irq_domain_add() - Allocate a new irq_domain data structure
++ * @fwnode: firmware node for the interrupt controller
++ * @size: Size of linear map; 0 for radix mapping only
++ * @hwirq_max: Maximum number of interrupts supported by controller
++ * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
++ *              direct mapping
++ * @ops: domain callbacks
++ * @host_data: Controller private data pointer
++ *
++ * Allocates and initializes an irq_domain structure.
++ * Returns pointer to IRQ domain, or NULL on failure.
++ */
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
++				    irq_hw_number_t hwirq_max, int direct_max,
++				    const struct irq_domain_ops *ops,
++				    void *host_data)
++{
++	struct irq_domain *domain;
++
++	domain = __irq_domain_create(fwnode, size, hwirq_max, direct_max,
++				     ops, host_data);
++	if (domain)
++		__irq_domain_publish(domain);
++
+ 	return domain;
+ }
+ EXPORT_SYMBOL_GPL(__irq_domain_add);
+@@ -1068,12 +1089,15 @@ struct irq_domain *irq_domain_create_hierarchy(struct irq_domain *parent,
+ 	struct irq_domain *domain;
+ 
+ 	if (size)
+-		domain = irq_domain_create_linear(fwnode, size, ops, host_data);
++		domain = __irq_domain_create(fwnode, size, size, 0, ops, host_data);
+ 	else
+-		domain = irq_domain_create_tree(fwnode, ops, host_data);
++		domain = __irq_domain_create(fwnode, 0, ~0, 0, ops, host_data);
++
+ 	if (domain) {
+ 		domain->parent = parent;
+ 		domain->flags |= flags;
++
++		__irq_domain_publish(domain);
  	}
  
- 	if ((namelen <= 2) && (name[0] == '.') &&
-@@ -3515,7 +3514,8 @@ static void ext4_resetent(handle_t *hand
- 	 * so the old->de may no longer valid and need to find it again
- 	 * before reset old inode info.
- 	 */
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		retval = PTR_ERR(old.bh);
- 	if (!old.bh)
-@@ -3677,7 +3677,8 @@ static int ext4_rename(struct inode *old
- 			return retval;
- 	}
- 
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		return PTR_ERR(old.bh);
- 	/*
+ 	return domain;
+-- 
+2.39.2
+
 
 
