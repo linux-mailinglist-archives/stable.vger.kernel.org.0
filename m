@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF036BB121
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D33496BB055
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbjCOMYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57000 "EHLO
+        id S231431AbjCOMRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232279AbjCOMY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9204C94F6D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:20 -0700 (PDT)
+        with ESMTP id S231676AbjCOMRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180A08B072
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 548FAB81E06
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3C4C4339B;
-        Wed, 15 Mar 2023 12:22:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C7958CE1986
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C583BC433D2;
+        Wed, 15 Mar 2023 12:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882967;
-        bh=pb+Q+GYcGcQPsWmuIlyMyWhdCQgHurrZN8P/5LmXYD8=;
+        s=korg; t=1678882620;
+        bh=t1aGv5JxP2ItpIlh5KgUQGrNgnaS6ryTSf7d/btfC7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3c5Q4Bl17uF87kbagXqspGPbE1SSLFs88R44ZD/g5sbULkma0KErwHxKe4p815yy
-         0gAVvG4rpM4AKTfwcti1m2z4yrnWwEJgUW0gFOjaiAFisF2MfyrSG9SWKiy8SQsPMu
-         xGGZWbYDCIVvzJfsq+Z37AqsfACim3lrWMSq00bE=
+        b=QL6XMONdh/T6KUDbC5mFXtINXZRqClCnlQ9vyZHiH/uq8wAvmclexy7Fjc0ijLIVK
+         cxi3ZpT7yUjOMROMVD1kkJxCWU4FQBLbTefg6a+PtEhBebTNQCQ1T6cWI+KuOzWa+0
+         Px7SkSZKMAyH7CI15JzPVn8J9PYvvH8EkJjMf+eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/104] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+Subject: [PATCH 4.19 25/39] ARM: dts: exynos: correct TMU phandle in Odroid XU3 family
 Date:   Wed, 15 Mar 2023 13:12:39 +0100
-Message-Id: <20230315115734.795215221@linuxfoundation.org>
+Message-Id: <20230315115722.164581649@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,70 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
+[ Upstream commit a3583e92d188ec6c58c7f603ac5e72dd8a11c21a ]
 
-NO_IRQ is a relic from the old days. It is not used anymore in core
-functions. By the way, function irq_of_parse_and_map() returns value 0
-on error.
+TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
+it must not have an argument to phandle.  This was not critical before,
+but since rework of thermal Devicetree initialization in the
+commit 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree
+initialization"), this leads to errors registering thermal zones other
+than first one:
 
-In some drivers, NO_IRQ is erroneously used to check the return of
-irq_of_parse_and_map().
+  thermal_sys: cpu0-thermal: Failed to read thermal-sensors cells: -2
+  thermal_sys: Failed to find thermal zone for tmu id=0
+  exynos-tmu 10064000.tmu: Failed to register sensor: -2
+  exynos-tmu: probe of 10064000.tmu failed with error -2
 
-It is not a real bug today because the only architectures using the
-drivers being fixed by this patch define NO_IRQ as 0, but there are
-architectures which define NO_IRQ as -1. If one day those
-architectures start using the non fixed drivers, there will be a
-problem.
-
-Long time ago Linus advocated for not using NO_IRQ, see
-https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
-
-He re-iterated the same view recently in
-https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
-
-So test !irq instead of tesing irq == NO_IRQ.
-
-All other usage of NO_IRQ for powerpc were removed in previous cycles so
-the time has come to remove NO_IRQ completely for powerpc.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
+Fixes: f1722d7dd8b8 ("ARM: dts: Define default thermal-zones for exynos5422")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230209105841.779596-6-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/irq.h    | 3 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 +-
- 2 files changed, 1 insertion(+), 4 deletions(-)
+ arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
-index 4f983ca4030a4..4d5e68e6d3b6d 100644
---- a/arch/powerpc/include/asm/irq.h
-+++ b/arch/powerpc/include/asm/irq.h
-@@ -17,9 +17,6 @@
+diff --git a/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi b/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
+index 402d69877fd97..86f64db15a3dd 100644
+--- a/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
++++ b/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
+@@ -52,7 +52,7 @@
  
- extern atomic_t ppc_n_lost_interrupts;
- 
--/* This number is used when no interrupt has been assigned */
--#define NO_IRQ			(0)
--
- /* Total number of virq in the platform */
- #define NR_IRQS		CONFIG_NR_IRQS
- 
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index 823397c802def..f8bbe05d9ef29 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -205,7 +205,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 
- 	for_each_compatible_node(np, NULL, compat) {
- 		irq = irq_of_parse_and_map(np, 0);
--		if (irq == NO_IRQ) {
-+		if (!irq) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
- 			of_node_put(np);
+ 	thermal-zones {
+ 		cpu0_thermal: cpu0-thermal {
+-			thermal-sensors = <&tmu_cpu0 0>;
++			thermal-sensors = <&tmu_cpu0>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -141,7 +141,7 @@
+ 			};
+ 		};
+ 		cpu1_thermal: cpu1-thermal {
+-			thermal-sensors = <&tmu_cpu1 0>;
++			thermal-sensors = <&tmu_cpu1>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -214,7 +214,7 @@
+ 			};
+ 		};
+ 		cpu2_thermal: cpu2-thermal {
+-			thermal-sensors = <&tmu_cpu2 0>;
++			thermal-sensors = <&tmu_cpu2>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -287,7 +287,7 @@
+ 			};
+ 		};
+ 		cpu3_thermal: cpu3-thermal {
+-			thermal-sensors = <&tmu_cpu3 0>;
++			thermal-sensors = <&tmu_cpu3>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -360,7 +360,7 @@
+ 			};
+ 		};
+ 		gpu_thermal: gpu-thermal {
+-			thermal-sensors = <&tmu_gpu 0>;
++			thermal-sensors = <&tmu_gpu>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
 -- 
 2.39.2
 
