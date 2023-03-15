@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 469BA6BB085
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 161BA6BB2E4
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbjCOMTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45126 "EHLO
+        id S232776AbjCOMjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:39:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232053AbjCOMTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:00 -0400
+        with ESMTP id S232851AbjCOMjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:39:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88282200B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7255F21D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E194761ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A87C433D2;
-        Wed, 15 Mar 2023 12:18:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2961E61D5C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6F8C433EF;
+        Wed, 15 Mar 2023 12:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882717;
-        bh=xo4/8iwFxjaoFHVurbxZyRa9EWRHfS/CkAbZWLGjUwg=;
+        s=korg; t=1678883886;
+        bh=ERpzxbU+SOozA21adsbkNltdn7p8b1ULPUYkfYvRTjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=te6O7JcRhwVkrSU1C+eq69JlXTUbZd9kb0zbARwywaefGQikOGFn9abnkJo64TZzv
-         KDoF08lLQ71t8Q14rKhUu7to2KTZ2p9awEyFFMArnGsFmYs/I/Ub+uZbO+6lEcgrtP
-         +hm2h43W1nAYJyhs9ehif4wwwO9bqx8T8EEHEvPE=
+        b=lboEXl1bGJX/l14fi0eqdOUtItnFNQKubMhCxWGfegCfNehw/WE0ialdxVdSDwtqM
+         hS9IviKuFKsYutwGLiR5BW6YYV/CpK7KC2j12+UPHVfChJegdhX/xsJzApeehXCHGO
+         7jmgLsMvkE0re3iZFPUqnLXGOtBxZz40XL0eWcJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, William Tseng <william.tseng@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/68] drm/edid: fix AVI infoframe aspect ratio handling
-Date:   Wed, 15 Mar 2023 13:12:07 +0100
-Message-Id: <20230315115726.625101321@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.2 025/141] ext4: zero i_disksize when initializing the bootloader inode
+Date:   Wed, 15 Mar 2023 13:12:08 +0100
+Message-Id: <20230315115740.749598908@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,84 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 1cbc1f0d324ba6c4d1b10ac6362b5e0b029f63d5 ]
+commit f5361da1e60d54ec81346aee8e3d8baf1be0b762 upstream.
 
-We try to avoid sending VICs defined in the later specs in AVI
-infoframes to sinks that conform to the earlier specs, to not upset
-them, and use 0 for the VIC instead. However, we do this detection and
-conversion to 0 too early, as we'll need the actual VIC to figure out
-the aspect ratio.
+If the boot loader inode has never been used before, the
+EXT4_IOC_SWAP_BOOT inode will initialize it, including setting the
+i_size to 0.  However, if the "never before used" boot loader has a
+non-zero i_size, then i_disksize will be non-zero, and the
+inconsistency between i_size and i_disksize can trigger a kernel
+warning:
 
-In particular, for a mode with 64:27 aspect ratio, 0 for VIC fails the
-AVI infoframe generation altogether with -EINVAL.
+ WARNING: CPU: 0 PID: 2580 at fs/ext4/file.c:319
+ CPU: 0 PID: 2580 Comm: bb Not tainted 6.3.0-rc1-00004-g703695902cfa
+ RIP: 0010:ext4_file_write_iter+0xbc7/0xd10
+ Call Trace:
+  vfs_write+0x3b1/0x5c0
+  ksys_write+0x77/0x160
+  __x64_sys_write+0x22/0x30
+  do_syscall_64+0x39/0x80
 
-Separate the VIC lookup from the "filtering", and postpone the
-filtering, to use the proper VIC for aspect ratio handling, and the 0
-VIC for the infoframe video code as needed.
+Reproducer:
+ 1. create corrupted image and mount it:
+       mke2fs -t ext4 /tmp/foo.img 200
+       debugfs -wR "sif <5> size 25700" /tmp/foo.img
+       mount -t ext4 /tmp/foo.img /mnt
+       cd /mnt
+       echo 123 > file
+ 2. Run the reproducer program:
+       posix_memalign(&buf, 1024, 1024)
+       fd = open("file", O_RDWR | O_DIRECT);
+       ioctl(fd, EXT4_IOC_SWAP_BOOT);
+       write(fd, buf, 1024);
 
-Reported-by: William Tseng <william.tseng@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6153
-Cc: <stable@vger.kernel.org>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/c3e78cc6d01ed237f71ad0038826b08d83d75eef.1672826282.git.jani.nikula@intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by setting i_disksize as well as i_size to zero when
+initiaizing the boot loader inode.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217159
+Cc: stable@kernel.org
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20230308032643.641113-1-chengzhihao1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_edid.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ fs/ext4/ioctl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index f9735861741c1..2e73042e5d070 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5095,8 +5095,6 @@ static u8 drm_mode_hdmi_vic(struct drm_connector *connector,
- static u8 drm_mode_cea_vic(struct drm_connector *connector,
- 			   const struct drm_display_mode *mode)
- {
--	u8 vic;
--
- 	/*
- 	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
- 	 * we should send its VIC in vendor infoframes, else send the
-@@ -5106,13 +5104,18 @@ static u8 drm_mode_cea_vic(struct drm_connector *connector,
- 	if (drm_mode_hdmi_vic(connector, mode))
- 		return 0;
- 
--	vic = drm_match_cea_mode(mode);
-+	return drm_match_cea_mode(mode);
-+}
- 
--	/*
--	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
--	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
--	 * have to make sure we dont break HDMI 1.4 sinks.
--	 */
-+/*
-+ * Avoid sending VICs defined in HDMI 2.0 in AVI infoframes to sinks that
-+ * conform to HDMI 1.4.
-+ *
-+ * HDMI 1.4 (CTA-861-D) VIC range: [1..64]
-+ * HDMI 2.0 (CTA-861-F) VIC range: [1..107]
-+ */
-+static u8 vic_for_avi_infoframe(const struct drm_connector *connector, u8 vic)
-+{
- 	if (!is_hdmi2_sink(connector) && vic > 64)
- 		return 0;
- 
-@@ -5191,7 +5194,7 @@ drm_hdmi_avi_infoframe_from_display_mode(struct hdmi_avi_infoframe *frame,
- 		picture_aspect = HDMI_PICTURE_ASPECT_NONE;
- 	}
- 
--	frame->video_code = vic;
-+	frame->video_code = vic_for_avi_infoframe(connector, vic);
- 	frame->picture_aspect = picture_aspect;
- 	frame->active_aspect = HDMI_ACTIVE_ASPECT_PICTURE;
- 	frame->scan_mode = HDMI_SCAN_MODE_UNDERSCAN;
--- 
-2.39.2
-
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -434,6 +434,7 @@ static long swap_inode_boot_loader(struc
+ 		ei_bl->i_flags = 0;
+ 		inode_set_iversion(inode_bl, 1);
+ 		i_size_write(inode_bl, 0);
++		EXT4_I(inode_bl)->i_disksize = inode_bl->i_size;
+ 		inode_bl->i_mode = S_IFREG;
+ 		if (ext4_has_feature_extents(sb)) {
+ 			ext4_set_inode_flag(inode_bl, EXT4_INODE_EXTENTS);
 
 
