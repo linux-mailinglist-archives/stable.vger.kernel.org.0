@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 730626BB36E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E643A6BB2B4
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233057AbjCOMoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36836 "EHLO
+        id S232769AbjCOMiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232984AbjCOMoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:16 -0400
+        with ESMTP id S232739AbjCOMhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92A05F533
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A394292728
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B20C8B81E07
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C4C7C433EF;
-        Wed, 15 Mar 2023 12:42:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34BD5B81E0B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFF5C433EF;
+        Wed, 15 Mar 2023 12:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884173;
-        bh=L8rHj9HDBr9QxqAsSSX+CX9QzGUDzfzkn2GADeTmcZQ=;
+        s=korg; t=1678883761;
+        bh=GD7bRPnmKLbCghxsUKpSfGGru8Lwm80DFDBP/5YwPmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RDLOJCNx4SB2jfuQVOHuNxfQXUCL0SrhJmYlyFetWIHycuTR6ytiWQBFZgJCQb++d
-         pEe63107QpLRnETuQpYzsLbvZ4VqVELzf1UovBv1oaygpJax36JVrDAx3phbuE9qo5
-         TCQd1E81v1OivYaqAPaiPaLzn9LArgjyPMQNJWew=
+        b=y8n0pLp/VkOE6bgcTFLEge4pUIYxpc8EsDtWCRyISe1Q2VDSxQ4v0nPBpc/bAydip
+         fNW4M27EY8pHBfi4V/GJDhv4k8t+T0dnh+1hS1wPK68Ptk8m7/bvx3vqbKGKtA8bVZ
+         SfPXWQeO8Ys7VbHXBV6gux6rjZj9LV3yaNCiIfXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 105/141] net: dsa: mt7530: permit port 5 to work without port 6 on MT7621 SoC
+Subject: [PATCH 6.1 122/143] clk: qcom: mmcc-apq8084: remove spdm clocks
 Date:   Wed, 15 Mar 2023 13:13:28 +0100
-Message-Id: <20230315115743.191849980@linuxfoundation.org>
+Message-Id: <20230315115744.219127776@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,146 +57,313 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit c8b8a3c601f2cfad25ab5ce5b04df700048aef6e ]
+[ Upstream commit 7b347f4b677b6d84687e67d82b6b17c6f55ea2b4 ]
 
-The MT7530 switch from the MT7621 SoC has 2 ports which can be set up as
-internal: port 5 and 6. Arınç reports that the GMAC1 attached to port 5
-receives corrupted frames, unless port 6 (attached to GMAC0) has been
-brought up by the driver. This is true regardless of whether port 5 is
-used as a user port or as a CPU port (carrying DSA tags).
+SPDM is used for debug/profiling and does not have any other
+functionality. These clocks can safely be removed.
 
-Offline debugging (blind for me) which began in the linked thread showed
-experimentally that the configuration done by the driver for port 6
-contains a step which is needed by port 5 as well - the write to
-CORE_GSWPLL_GRP2 (note that I've no idea as to what it does, apart from
-the comment "Set core clock into 500Mhz"). Prints put by Arınç show that
-the reset value of CORE_GSWPLL_GRP2 is RG_GSWPLL_POSDIV_500M(1) |
-RG_GSWPLL_FBKDIV_500M(40) (0x128), both on the MCM MT7530 from the
-MT7621 SoC, as well as on the standalone MT7530 from MT7623NI Bananapi
-BPI-R2. Apparently, port 5 on the standalone MT7530 can work under both
-values of the register, while on the MT7621 SoC it cannot.
-
-The call path that triggers the register write is:
-
-mt753x_phylink_mac_config() for port 6
--> mt753x_pad_setup()
-   -> mt7530_pad_clk_setup()
-
-so this fully explains the behavior noticed by Arınç, that bringing port
-6 up is necessary.
-
-The simplest fix for the problem is to extract the register writes which
-are needed for both port 5 and 6 into a common mt7530_pll_setup()
-function, which is called at mt7530_setup() time, immediately after
-switch reset. We can argue that this mirrors the code layout introduced
-in mt7531_setup() by commit 42bc4fafe359 ("net: mt7531: only do PLL once
-after the reset"), in that the PLL setup has the exact same positioning,
-and further work to consolidate the separate setup() functions is not
-hindered.
-
-Testing confirms that:
-
-- the slight reordering of writes to MT7530_P6ECR and to
-  CORE_GSWPLL_GRP1 / CORE_GSWPLL_GRP2 introduced by this change does not
-  appear to cause problems for the operation of port 6 on MT7621 and on
-  MT7623 (where port 5 also always worked)
-
-- packets sent through port 5 are not corrupted anymore, regardless of
-  whether port 6 is enabled by phylink or not (or even present in the
-  device tree)
-
-My algorithm for determining the Fixes: tag is as follows. Testing shows
-that some logic from mt7530_pad_clk_setup() is needed even for port 5.
-Prior to commit ca366d6c889b ("net: dsa: mt7530: Convert to PHYLINK
-API"), a call did exist for all phy_is_pseudo_fixed_link() ports - so
-port 5 included. That commit replaced it with a temporary "Port 5 is not
-supported!" comment, and the following commit 38f790a80560 ("net: dsa:
-mt7530: Add support for port 5") replaced that comment with a
-configuration procedure in mt7530_setup_port5() which was insufficient
-for port 5 to work. I'm laying the blame on the patch that claimed
-support for port 5, although one would have also needed the change from
-commit c3b8e07909db ("net: dsa: mt7530: setup core clock even in TRGMII
-mode") for the write to be performed completely independently from port
-6's configuration.
-
-Thanks go to Arınç for describing the problem, for debugging and for
-testing.
-
-Reported-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/netdev/f297c2c4-6e7c-57ac-2394-f6025d309b9d@arinc9.com/
-Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230307155411.868573-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Suggested-by: Stephen Boyd <sboyd@kernel.org>
+Suggested-by: Georgi Djakov <djakov@kernel.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230111060402.1168726-11-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 35 ++++++++++++++++++++---------------
- 1 file changed, 20 insertions(+), 15 deletions(-)
+ drivers/clk/qcom/mmcc-apq8084.c | 271 --------------------------------
+ 1 file changed, 271 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 338f238f2043c..003672d71a3bf 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -393,6 +393,24 @@ mt7530_fdb_write(struct mt7530_priv *priv, u16 vid,
- 		mt7530_write(priv, MT7530_ATA1 + (i * 4), reg[i]);
- }
+diff --git a/drivers/clk/qcom/mmcc-apq8084.c b/drivers/clk/qcom/mmcc-apq8084.c
+index e9f9713591558..025e21793b3c4 100644
+--- a/drivers/clk/qcom/mmcc-apq8084.c
++++ b/drivers/clk/qcom/mmcc-apq8084.c
+@@ -2364,262 +2364,6 @@ static struct clk_branch mmss_rbcpr_clk = {
+ 	},
+ };
  
-+/* Set up switch core clock for MT7530 */
-+static void mt7530_pll_setup(struct mt7530_priv *priv)
-+{
-+	/* Disable PLL */
-+	core_write(priv, CORE_GSWPLL_GRP1, 0);
-+
-+	/* Set core clock into 500Mhz */
-+	core_write(priv, CORE_GSWPLL_GRP2,
-+		   RG_GSWPLL_POSDIV_500M(1) |
-+		   RG_GSWPLL_FBKDIV_500M(25));
-+
-+	/* Enable PLL */
-+	core_write(priv, CORE_GSWPLL_GRP1,
-+		   RG_GSWPLL_EN_PRE |
-+		   RG_GSWPLL_POSDIV_200M(2) |
-+		   RG_GSWPLL_FBKDIV_200M(32));
-+}
-+
- /* Setup TX circuit including relevant PAD and driving */
- static int
- mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
-@@ -453,21 +471,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 	core_clear(priv, CORE_TRGMII_GSW_CLK_CG,
- 		   REG_GSWCK_EN | REG_TRGMIICK_EN);
- 
--	/* Setup core clock for MT7530 */
--	/* Disable PLL */
--	core_write(priv, CORE_GSWPLL_GRP1, 0);
+-static struct clk_branch mmss_spdm_ahb_clk = {
+-	.halt_reg = 0x0230,
+-	.clkr = {
+-		.enable_reg = 0x0230,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_ahb_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_ahb_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
 -
--	/* Set core clock into 500Mhz */
--	core_write(priv, CORE_GSWPLL_GRP2,
--		   RG_GSWPLL_POSDIV_500M(1) |
--		   RG_GSWPLL_FBKDIV_500M(25));
+-static struct clk_branch mmss_spdm_axi_clk = {
+-	.halt_reg = 0x0210,
+-	.clkr = {
+-		.enable_reg = 0x0210,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_axi_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_axi_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
 -
--	/* Enable PLL */
--	core_write(priv, CORE_GSWPLL_GRP1,
--		   RG_GSWPLL_EN_PRE |
--		   RG_GSWPLL_POSDIV_200M(2) |
--		   RG_GSWPLL_FBKDIV_200M(32));
+-static struct clk_branch mmss_spdm_csi0_clk = {
+-	.halt_reg = 0x023c,
+-	.clkr = {
+-		.enable_reg = 0x023c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_csi0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_csi0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
 -
- 	/* Setup the MT7530 TRGMII Tx Clock */
- 	core_write(priv, CORE_PLL_GROUP5, RG_LCDDS_PCW_NCPO1(ncpo1));
- 	core_write(priv, CORE_PLL_GROUP6, RG_LCDDS_PCW_NCPO0(0));
-@@ -2201,6 +2204,8 @@ mt7530_setup(struct dsa_switch *ds)
- 		     SYS_CTRL_PHY_RST | SYS_CTRL_SW_RST |
- 		     SYS_CTRL_REG_RST);
- 
-+	mt7530_pll_setup(priv);
-+
- 	/* Enable Port 6 only; P5 as GMAC5 which currently is not supported */
- 	val = mt7530_read(priv, MT7530_MHWTRAP);
- 	val &= ~MHWTRAP_P6_DIS & ~MHWTRAP_PHY_ACCESS;
+-static struct clk_branch mmss_spdm_gfx3d_clk = {
+-	.halt_reg = 0x022c,
+-	.clkr = {
+-		.enable_reg = 0x022c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_gfx3d_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_gfx3d_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_jpeg0_clk = {
+-	.halt_reg = 0x0204,
+-	.clkr = {
+-		.enable_reg = 0x0204,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_jpeg0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_jpeg0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_jpeg1_clk = {
+-	.halt_reg = 0x0208,
+-	.clkr = {
+-		.enable_reg = 0x0208,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_jpeg1_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_jpeg1_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_jpeg2_clk = {
+-	.halt_reg = 0x0224,
+-	.clkr = {
+-		.enable_reg = 0x0224,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_jpeg2_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_jpeg2_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_mdp_clk = {
+-	.halt_reg = 0x020c,
+-	.clkr = {
+-		.enable_reg = 0x020c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_mdp_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_mdp_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_pclk0_clk = {
+-	.halt_reg = 0x0234,
+-	.clkr = {
+-		.enable_reg = 0x0234,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_pclk0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_pclk0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_pclk1_clk = {
+-	.halt_reg = 0x0228,
+-	.clkr = {
+-		.enable_reg = 0x0228,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_pclk1_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_pclk1_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_vcodec0_clk = {
+-	.halt_reg = 0x0214,
+-	.clkr = {
+-		.enable_reg = 0x0214,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_vcodec0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_vcodec0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_vfe0_clk = {
+-	.halt_reg = 0x0218,
+-	.clkr = {
+-		.enable_reg = 0x0218,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_vfe0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_vfe0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_vfe1_clk = {
+-	.halt_reg = 0x021c,
+-	.clkr = {
+-		.enable_reg = 0x021c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_vfe1_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_vfe1_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_rm_axi_clk = {
+-	.halt_reg = 0x0304,
+-	.clkr = {
+-		.enable_reg = 0x0304,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_rm_axi_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_axi_clk_src",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_rm_ocmemnoc_clk = {
+-	.halt_reg = 0x0308,
+-	.clkr = {
+-		.enable_reg = 0x0308,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_rm_ocmemnoc_clk",
+-			.parent_names = (const char *[]){
+-				"ocmemnoc_clk_src",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-
+ static struct clk_branch mmss_misc_ahb_clk = {
+ 	.halt_reg = 0x502c,
+ 	.clkr = {
+@@ -3252,21 +2996,6 @@ static struct clk_regmap *mmcc_apq8084_clocks[] = {
+ 	[MDSS_VSYNC_CLK] = &mdss_vsync_clk.clkr,
+ 	[MMSS_RBCPR_AHB_CLK] = &mmss_rbcpr_ahb_clk.clkr,
+ 	[MMSS_RBCPR_CLK] = &mmss_rbcpr_clk.clkr,
+-	[MMSS_SPDM_AHB_CLK] = &mmss_spdm_ahb_clk.clkr,
+-	[MMSS_SPDM_AXI_CLK] = &mmss_spdm_axi_clk.clkr,
+-	[MMSS_SPDM_CSI0_CLK] = &mmss_spdm_csi0_clk.clkr,
+-	[MMSS_SPDM_GFX3D_CLK] = &mmss_spdm_gfx3d_clk.clkr,
+-	[MMSS_SPDM_JPEG0_CLK] = &mmss_spdm_jpeg0_clk.clkr,
+-	[MMSS_SPDM_JPEG1_CLK] = &mmss_spdm_jpeg1_clk.clkr,
+-	[MMSS_SPDM_JPEG2_CLK] = &mmss_spdm_jpeg2_clk.clkr,
+-	[MMSS_SPDM_MDP_CLK] = &mmss_spdm_mdp_clk.clkr,
+-	[MMSS_SPDM_PCLK0_CLK] = &mmss_spdm_pclk0_clk.clkr,
+-	[MMSS_SPDM_PCLK1_CLK] = &mmss_spdm_pclk1_clk.clkr,
+-	[MMSS_SPDM_VCODEC0_CLK] = &mmss_spdm_vcodec0_clk.clkr,
+-	[MMSS_SPDM_VFE0_CLK] = &mmss_spdm_vfe0_clk.clkr,
+-	[MMSS_SPDM_VFE1_CLK] = &mmss_spdm_vfe1_clk.clkr,
+-	[MMSS_SPDM_RM_AXI_CLK] = &mmss_spdm_rm_axi_clk.clkr,
+-	[MMSS_SPDM_RM_OCMEMNOC_CLK] = &mmss_spdm_rm_ocmemnoc_clk.clkr,
+ 	[MMSS_MISC_AHB_CLK] = &mmss_misc_ahb_clk.clkr,
+ 	[MMSS_MMSSNOC_AHB_CLK] = &mmss_mmssnoc_ahb_clk.clkr,
+ 	[MMSS_MMSSNOC_BTO_AHB_CLK] = &mmss_mmssnoc_bto_ahb_clk.clkr,
 -- 
 2.39.2
 
