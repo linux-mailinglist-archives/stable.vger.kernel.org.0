@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B68E96BB304
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 516046BB25C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232880AbjCOMlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36772 "EHLO
+        id S232781AbjCOMfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:35:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233004AbjCOMkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE65A2C05
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:30 -0700 (PDT)
+        with ESMTP id S232777AbjCOMfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FBF49E679
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B628DB81E19
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14789C433D2;
-        Wed, 15 Mar 2023 12:39:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E28E761D5C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2491C4339B;
+        Wed, 15 Mar 2023 12:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883968;
-        bh=Aa4ZP2AHjIUZpZfLv26qdbkeUYnxlEZRhbBOHpzRNfI=;
+        s=korg; t=1678883635;
+        bh=DGYEc5X/QGc79/Mm7N81PbNywMsRC9SvTajrgrCd5v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LuFlAyZ5w6o1Qo6X7MO/37f6YZ4chos7pRCi+0PZcq3CwXZ5fdbG6HiKjq8V/HXmh
-         Wp4UELo+ycp+20OUdJUOTPpob8Jw00ouM8zh7A/jaVX88/KfGdhRfgqvSgy8Nfailr
-         ZSf38D93msp1gm9GdV6df2xREM+DlYrMfhbcrYhM=
+        b=V9vnEmXJYDAIAtyr1zbUigUXgrwTt4FSyVyfM458D6RsLcOMSGvZ7aZDsF0iMlo0R
+         PITHbB6UGc0KPFvga2WlQed7KJKE3aWGUw8To3kdBMTbcGMpiiEvN0n5Hn7azJ1Bc7
+         SwkwTMB7YAaSEnjcbZgM8jHofGbBiScgfyhoqXuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 056/141] drm/msm/dpu: disable features unsupported by QCM2290
+Subject: [PATCH 6.1 073/143] netfilter: nft_quota: copy content when cloning expression
 Date:   Wed, 15 Mar 2023 13:12:39 +0100
-Message-Id: <20230315115741.675819914@linuxfoundation.org>
+Message-Id: <20230315115742.766252159@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit a2a448b4d9bcb5bff0e0f687b7932a7be9ca898a ]
+[ Upstream commit aabef97a35160461e9c576848ded737558d89055 ]
 
-QCM2290 doesn't seem to support reg-dma, UBWC and CSC. Drop
-corresponding features being incorrectly enabled for qcm2290.
+If the ruleset contains consumed quota, restore them accordingly.
+Otherwise, listing after restoration shows never used items.
 
-Cc: Loic Poulain <loic.poulain@linaro.org>
-Fixes: 5334087ee743 ("drm/msm: add support for QCM2290 MDSS")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/522209/
-Link: https://lore.kernel.org/r/20230211231259.1308718-3-dmitry.baryshkov@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Restore the user-defined quota and flags too.
+
+Fixes: ed0a0c60f0e5 ("netfilter: nft_quota: move stateful fields out of expression data")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ net/netfilter/nft_quota.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index 83f1dd2c22bd7..ffcd90ba3e81e 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -12,11 +12,15 @@
- #include "dpu_hw_catalog.h"
- #include "dpu_kms.h"
- 
--#define VIG_MASK \
-+#define VIG_BASE_MASK \
- 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) |\
--	BIT(DPU_SSPP_CSC_10BIT) | BIT(DPU_SSPP_CDP) |\
-+	BIT(DPU_SSPP_CDP) |\
- 	BIT(DPU_SSPP_TS_PREFILL) | BIT(DPU_SSPP_EXCL_RECT))
- 
-+#define VIG_MASK \
-+	(VIG_BASE_MASK | \
-+	BIT(DPU_SSPP_CSC_10BIT))
+diff --git a/net/netfilter/nft_quota.c b/net/netfilter/nft_quota.c
+index e6b0df68feeaf..410a5fcf88309 100644
+--- a/net/netfilter/nft_quota.c
++++ b/net/netfilter/nft_quota.c
+@@ -235,12 +235,16 @@ static void nft_quota_destroy(const struct nft_ctx *ctx,
+ static int nft_quota_clone(struct nft_expr *dst, const struct nft_expr *src)
+ {
+ 	struct nft_quota *priv_dst = nft_expr_priv(dst);
++	struct nft_quota *priv_src = nft_expr_priv(src);
 +
- #define VIG_MSM8998_MASK \
- 	(VIG_MASK | BIT(DPU_SSPP_SCALER_QSEED3))
++	priv_dst->quota = priv_src->quota;
++	priv_dst->flags = priv_src->flags;
  
-@@ -29,7 +33,7 @@
- #define VIG_SM8250_MASK \
- 	(VIG_MASK | BIT(DPU_SSPP_QOS_8LVL) | BIT(DPU_SSPP_SCALER_QSEED3LITE))
+ 	priv_dst->consumed = kmalloc(sizeof(*priv_dst->consumed), GFP_ATOMIC);
+ 	if (!priv_dst->consumed)
+ 		return -ENOMEM;
  
--#define VIG_QCM2290_MASK (VIG_MASK | BIT(DPU_SSPP_QOS_8LVL))
-+#define VIG_QCM2290_MASK (VIG_BASE_MASK | BIT(DPU_SSPP_QOS_8LVL))
+-	atomic64_set(priv_dst->consumed, 0);
++	*priv_dst->consumed = *priv_src->consumed;
  
- #define DMA_MSM8998_MASK \
- 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) |\
-@@ -286,7 +290,6 @@ static const struct dpu_caps qcm2290_dpu_caps = {
- 	.max_mixer_width = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
- 	.max_mixer_blendstages = 0x4,
- 	.smart_dma_rev = DPU_SSPP_SMART_DMA_V2,
--	.ubwc_version = DPU_HW_UBWC_VER_20,
- 	.has_dim_layer = true,
- 	.has_idle_pc = true,
- 	.max_linewidth = 2160,
-@@ -2007,8 +2010,6 @@ static const struct dpu_mdss_cfg qcm2290_dpu_cfg = {
- 	.intf = qcm2290_intf,
- 	.vbif_count = ARRAY_SIZE(sdm845_vbif),
- 	.vbif = sdm845_vbif,
--	.reg_dma_count = 1,
--	.dma_cfg = &sdm845_regdma,
- 	.perf = &qcm2290_perf_data,
- 	.mdss_irqs = IRQ_SC7180_MASK,
- };
+ 	return 0;
+ }
 -- 
 2.39.2
 
