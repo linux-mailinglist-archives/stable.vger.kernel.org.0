@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E643A6BB2B4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A4C6BB1FA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232769AbjCOMiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        id S232462AbjCOMbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232739AbjCOMhw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A394292728
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:48 -0700 (PDT)
+        with ESMTP id S232369AbjCOMbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4C88C53C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34BD5B81E0B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFF5C433EF;
-        Wed, 15 Mar 2023 12:36:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87E2061D26
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E837C433EF;
+        Wed, 15 Mar 2023 12:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883761;
-        bh=GD7bRPnmKLbCghxsUKpSfGGru8Lwm80DFDBP/5YwPmo=;
+        s=korg; t=1678883455;
+        bh=8sqsLCMpq3uPdTsdnkCMLX3RmGe0OSwfT+WahweiIuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8n0pLp/VkOE6bgcTFLEge4pUIYxpc8EsDtWCRyISe1Q2VDSxQ4v0nPBpc/bAydip
-         fNW4M27EY8pHBfi4V/GJDhv4k8t+T0dnh+1hS1wPK68Ptk8m7/bvx3vqbKGKtA8bVZ
-         SfPXWQeO8Ys7VbHXBV6gux6rjZj9LV3yaNCiIfXc=
+        b=TDsQGBlpek4uX2AmCLEKRmIAsBeAKaSHsTB6CyyWgsiYz+q2ElmUl1QfT0RZlb5Z+
+         RONikEUEwCuCKz9OJDy731yu9k1GpcLBmqKbPvDtvzGrfj8FPaNJkM6q1uZwpRIPZq
+         w/TgeQLNaTlw0ZKSI4/+9ag+6zwc0vUTqTL8A2fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 122/143] clk: qcom: mmcc-apq8084: remove spdm clocks
-Date:   Wed, 15 Mar 2023 13:13:28 +0100
-Message-Id: <20230315115744.219127776@linuxfoundation.org>
+        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Alexandru Matei <alexandru.matei@uipath.com>
+Subject: [PATCH 5.15 143/145] KVM: nVMX: Dont use Enlightened MSR Bitmap for L3
+Date:   Wed, 15 Mar 2023 13:13:29 +0100
+Message-Id: <20230315115743.623834371@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,315 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 7b347f4b677b6d84687e67d82b6b17c6f55ea2b4 ]
+commit 250552b925ce400c17d166422fde9bb215958481 upstream.
 
-SPDM is used for debug/profiling and does not have any other
-functionality. These clocks can safely be removed.
+When KVM runs as a nested hypervisor on top of Hyper-V it uses Enlightened
+VMCS and enables Enlightened MSR Bitmap feature for its L1s and L2s (which
+are actually L2s and L3s from Hyper-V's perspective). When MSR bitmap is
+updated, KVM has to reset HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP from
+clean fields to make Hyper-V aware of the change. For KVM's L1s, this is
+done in vmx_disable_intercept_for_msr()/vmx_enable_intercept_for_msr().
+MSR bitmap for L2 is build in nested_vmx_prepare_msr_bitmap() by blending
+MSR bitmap for L1 and L1's idea of MSR bitmap for L2. KVM, however, doesn't
+check if the resulting bitmap is different and never cleans
+HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP in eVMCS02. This is incorrect and
+may result in Hyper-V missing the update.
 
-Suggested-by: Stephen Boyd <sboyd@kernel.org>
-Suggested-by: Georgi Djakov <djakov@kernel.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230111060402.1168726-11-dmitry.baryshkov@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The issue could've been solved by calling evmcs_touch_msr_bitmap() for
+eVMCS02 from nested_vmx_prepare_msr_bitmap() unconditionally but doing so
+would not give any performance benefits (compared to not using Enlightened
+MSR Bitmap at all). 3-level nesting is also not a very common setup
+nowadays.
+
+Don't enable 'Enlightened MSR Bitmap' feature for KVM's L2s (real L3s) for
+now.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20211129094704.326635-2-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/qcom/mmcc-apq8084.c | 271 --------------------------------
- 1 file changed, 271 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/clk/qcom/mmcc-apq8084.c b/drivers/clk/qcom/mmcc-apq8084.c
-index e9f9713591558..025e21793b3c4 100644
---- a/drivers/clk/qcom/mmcc-apq8084.c
-+++ b/drivers/clk/qcom/mmcc-apq8084.c
-@@ -2364,262 +2364,6 @@ static struct clk_branch mmss_rbcpr_clk = {
- 	},
- };
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -2739,15 +2739,6 @@ int alloc_loaded_vmcs(struct loaded_vmcs
+ 		if (!loaded_vmcs->msr_bitmap)
+ 			goto out_vmcs;
+ 		memset(loaded_vmcs->msr_bitmap, 0xff, PAGE_SIZE);
+-
+-		if (IS_ENABLED(CONFIG_HYPERV) &&
+-		    static_branch_unlikely(&enable_evmcs) &&
+-		    (ms_hyperv.nested_features & HV_X64_NESTED_MSR_BITMAP)) {
+-			struct hv_enlightened_vmcs *evmcs =
+-				(struct hv_enlightened_vmcs *)loaded_vmcs->vmcs;
+-
+-			evmcs->hv_enlightenments_control.msr_bitmap = 1;
+-		}
+ 	}
  
--static struct clk_branch mmss_spdm_ahb_clk = {
--	.halt_reg = 0x0230,
--	.clkr = {
--		.enable_reg = 0x0230,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_ahb_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_ahb_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_axi_clk = {
--	.halt_reg = 0x0210,
--	.clkr = {
--		.enable_reg = 0x0210,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_axi_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_csi0_clk = {
--	.halt_reg = 0x023c,
--	.clkr = {
--		.enable_reg = 0x023c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_csi0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_csi0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_gfx3d_clk = {
--	.halt_reg = 0x022c,
--	.clkr = {
--		.enable_reg = 0x022c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_gfx3d_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_gfx3d_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg0_clk = {
--	.halt_reg = 0x0204,
--	.clkr = {
--		.enable_reg = 0x0204,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg1_clk = {
--	.halt_reg = 0x0208,
--	.clkr = {
--		.enable_reg = 0x0208,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg2_clk = {
--	.halt_reg = 0x0224,
--	.clkr = {
--		.enable_reg = 0x0224,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg2_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg2_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_mdp_clk = {
--	.halt_reg = 0x020c,
--	.clkr = {
--		.enable_reg = 0x020c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_mdp_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_mdp_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk0_clk = {
--	.halt_reg = 0x0234,
--	.clkr = {
--		.enable_reg = 0x0234,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk1_clk = {
--	.halt_reg = 0x0228,
--	.clkr = {
--		.enable_reg = 0x0228,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vcodec0_clk = {
--	.halt_reg = 0x0214,
--	.clkr = {
--		.enable_reg = 0x0214,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vcodec0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vcodec0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe0_clk = {
--	.halt_reg = 0x0218,
--	.clkr = {
--		.enable_reg = 0x0218,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe1_clk = {
--	.halt_reg = 0x021c,
--	.clkr = {
--		.enable_reg = 0x021c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_axi_clk = {
--	.halt_reg = 0x0304,
--	.clkr = {
--		.enable_reg = 0x0304,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_axi_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_ocmemnoc_clk = {
--	.halt_reg = 0x0308,
--	.clkr = {
--		.enable_reg = 0x0308,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_ocmemnoc_clk",
--			.parent_names = (const char *[]){
--				"ocmemnoc_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--
- static struct clk_branch mmss_misc_ahb_clk = {
- 	.halt_reg = 0x502c,
- 	.clkr = {
-@@ -3252,21 +2996,6 @@ static struct clk_regmap *mmcc_apq8084_clocks[] = {
- 	[MDSS_VSYNC_CLK] = &mdss_vsync_clk.clkr,
- 	[MMSS_RBCPR_AHB_CLK] = &mmss_rbcpr_ahb_clk.clkr,
- 	[MMSS_RBCPR_CLK] = &mmss_rbcpr_clk.clkr,
--	[MMSS_SPDM_AHB_CLK] = &mmss_spdm_ahb_clk.clkr,
--	[MMSS_SPDM_AXI_CLK] = &mmss_spdm_axi_clk.clkr,
--	[MMSS_SPDM_CSI0_CLK] = &mmss_spdm_csi0_clk.clkr,
--	[MMSS_SPDM_GFX3D_CLK] = &mmss_spdm_gfx3d_clk.clkr,
--	[MMSS_SPDM_JPEG0_CLK] = &mmss_spdm_jpeg0_clk.clkr,
--	[MMSS_SPDM_JPEG1_CLK] = &mmss_spdm_jpeg1_clk.clkr,
--	[MMSS_SPDM_JPEG2_CLK] = &mmss_spdm_jpeg2_clk.clkr,
--	[MMSS_SPDM_MDP_CLK] = &mmss_spdm_mdp_clk.clkr,
--	[MMSS_SPDM_PCLK0_CLK] = &mmss_spdm_pclk0_clk.clkr,
--	[MMSS_SPDM_PCLK1_CLK] = &mmss_spdm_pclk1_clk.clkr,
--	[MMSS_SPDM_VCODEC0_CLK] = &mmss_spdm_vcodec0_clk.clkr,
--	[MMSS_SPDM_VFE0_CLK] = &mmss_spdm_vfe0_clk.clkr,
--	[MMSS_SPDM_VFE1_CLK] = &mmss_spdm_vfe1_clk.clkr,
--	[MMSS_SPDM_RM_AXI_CLK] = &mmss_spdm_rm_axi_clk.clkr,
--	[MMSS_SPDM_RM_OCMEMNOC_CLK] = &mmss_spdm_rm_ocmemnoc_clk.clkr,
- 	[MMSS_MISC_AHB_CLK] = &mmss_misc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_AHB_CLK] = &mmss_mmssnoc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_BTO_AHB_CLK] = &mmss_mmssnoc_bto_ahb_clk.clkr,
--- 
-2.39.2
-
+ 	memset(&loaded_vmcs->host_state, 0, sizeof(struct vmcs_host_state));
+@@ -6969,6 +6960,19 @@ static int vmx_create_vcpu(struct kvm_vc
+ 	if (err < 0)
+ 		goto free_pml;
+ 
++	/*
++	 * Use Hyper-V 'Enlightened MSR Bitmap' feature when KVM runs as a
++	 * nested (L1) hypervisor and Hyper-V in L0 supports it. Enable the
++	 * feature only for vmcs01, KVM currently isn't equipped to realize any
++	 * performance benefits from enabling it for vmcs02.
++	 */
++	if (IS_ENABLED(CONFIG_HYPERV) && static_branch_unlikely(&enable_evmcs) &&
++	    (ms_hyperv.nested_features & HV_X64_NESTED_MSR_BITMAP)) {
++		struct hv_enlightened_vmcs *evmcs = (void *)vmx->vmcs01.vmcs;
++
++		evmcs->hv_enlightenments_control.msr_bitmap = 1;
++	}
++
+ 	/* The MSR bitmap starts with all ones */
+ 	bitmap_fill(vmx->shadow_msr_intercept.read, MAX_POSSIBLE_PASSTHROUGH_MSRS);
+ 	bitmap_fill(vmx->shadow_msr_intercept.write, MAX_POSSIBLE_PASSTHROUGH_MSRS);
 
 
