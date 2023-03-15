@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D396BB099
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBFE36BB1C7
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232005AbjCOMTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45766 "EHLO
+        id S232509AbjCOMai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232116AbjCOMTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:24 -0400
+        with ESMTP id S232449AbjCOMaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4840F95E12
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CD299BEA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24C7561ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0B0C4339C;
-        Wed, 15 Mar 2023 12:19:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8156761D50
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C23C433D2;
+        Wed, 15 Mar 2023 12:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882751;
-        bh=lCKDASUtGE1lwVMwOB/R2i9NQDU7sIYKiTJYeBvFxsk=;
+        s=korg; t=1678883356;
+        bh=Dla1IsGrNz19OS51ODt78sdv7tOeDKYhkB0skY089ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eAAUx9MzA7EPj5KO5LCNFvkEOaC10ljF6wNNC3K8uGd6KP3adT7BBIQHJtLT/2c7+
-         +1PPYgOFxPQTqqaQr1dwvZ9BaJ5LqsObvgLlUr37dpcSCRxT39hSjqK4q2abZIqcqQ
-         i800J0oVhfC+9qlAYSk/9eXV56oDshScQI58HucI=
+        b=OCNTOyP8bYMWEFTggZ/xUB7O8PwSqjv1ngKLumZcG1oRazd5B1AtoU4onK7Du0/7+
+         bJ/kTl3gCiMQDZP1ycSmUg9JUglbDN0IVNEIeNe4MXQ0xO2FrMKsqAkuJOWs9+Ax+1
+         mEVI6b+OvCCvVY6EAyOp8Khrjc3MF2OeIxPXOEqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
-        Jai Luthra <j-luthra@ti.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 57/68] media: ov5640: Fix analogue gain control
+Subject: [PATCH 5.15 105/145] clk: qcom: mmcc-apq8084: remove spdm clocks
 Date:   Wed, 15 Mar 2023 13:12:51 +0100
-Message-Id: <20230315115728.329328003@linuxfoundation.org>
+Message-Id: <20230315115742.438912142@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,91 +57,313 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Elder <paul.elder@ideasonboard.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
+[ Upstream commit 7b347f4b677b6d84687e67d82b6b17c6f55ea2b4 ]
 
-Gain control is badly documented in publicly available (including
-leaked) documentation.
+SPDM is used for debug/profiling and does not have any other
+functionality. These clocks can safely be removed.
 
-There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
-(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
-one application note states is equal to x1.047. The documentation also
-states that 0x40 is equel to x1.000. The pre-gain thus seems to be
-expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
-What the pre-gain does is however unspecified.
-
-There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
-expressed as a 10-bit "real gain format" value. One application note
-sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
-expressed in 1/16 increments, up to x63.9375.
-
-The manual gain is stored in registers 0x350a and 0x350b, also as a
-10-bit "real gain format" value. It is documented in the application
-note as a Q6.4 values, up to x63.9375.
-
-One version of the datasheet indicates that the sensor supports a
-digital gain:
-
-  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
-  controlled automatically by the automatic gain control (AGC) block.
-
-It isn't clear how that would be controlled manually.
-
-There appears to be no indication regarding whether the gain controlled
-through registers 0x350a and 0x350b is an analogue gain only or also
-includes digital gain. The words "real gain" don't necessarily mean
-"combined analogue and digital gains". Some OmniVision sensors (such as
-the OV8858) are documented as supoprting different formats for the gain
-values, selectable through a register bit, and they are called "real
-gain format" and "sensor gain format". For that sensor, we have (one of)
-the gain registers documented as
-
-  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
-  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
-
-  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
-  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
-  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
-  0x70 is 4x gain
-
-(The second part of the text makes little sense)
-
-"Real gain" may thus refer to the combination of the coarse and fine
-analogue gains as a single value.
-
-The OV5640 0x350a and 0x350b registers thus appear to control analogue
-gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
-control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
-
-If registers 0x350a and 0x350b are later found to control digital gain
-as well, the driver could then restrict the range of the analogue gain
-control value to lower than x64 and add a separate digital gain control.
-
-Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
-Reviewed-by: Jai Luthra <j-luthra@ti.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Suggested-by: Stephen Boyd <sboyd@kernel.org>
+Suggested-by: Georgi Djakov <djakov@kernel.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230111060402.1168726-11-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/mmcc-apq8084.c | 271 --------------------------------
+ 1 file changed, 271 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index be6c882dd1d54..087fb464ffc12 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2704,7 +2704,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
- 	/* Auto/manual gain */
- 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
- 					     0, 1, 1, 1);
--	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
-+	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
- 					0, 1023, 1, 0);
+diff --git a/drivers/clk/qcom/mmcc-apq8084.c b/drivers/clk/qcom/mmcc-apq8084.c
+index fbfcf00067394..893e5536f64c7 100644
+--- a/drivers/clk/qcom/mmcc-apq8084.c
++++ b/drivers/clk/qcom/mmcc-apq8084.c
+@@ -2363,262 +2363,6 @@ static struct clk_branch mmss_rbcpr_clk = {
+ 	},
+ };
  
- 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
+-static struct clk_branch mmss_spdm_ahb_clk = {
+-	.halt_reg = 0x0230,
+-	.clkr = {
+-		.enable_reg = 0x0230,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_ahb_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_ahb_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_axi_clk = {
+-	.halt_reg = 0x0210,
+-	.clkr = {
+-		.enable_reg = 0x0210,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_axi_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_axi_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_csi0_clk = {
+-	.halt_reg = 0x023c,
+-	.clkr = {
+-		.enable_reg = 0x023c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_csi0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_csi0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_gfx3d_clk = {
+-	.halt_reg = 0x022c,
+-	.clkr = {
+-		.enable_reg = 0x022c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_gfx3d_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_gfx3d_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_jpeg0_clk = {
+-	.halt_reg = 0x0204,
+-	.clkr = {
+-		.enable_reg = 0x0204,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_jpeg0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_jpeg0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_jpeg1_clk = {
+-	.halt_reg = 0x0208,
+-	.clkr = {
+-		.enable_reg = 0x0208,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_jpeg1_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_jpeg1_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_jpeg2_clk = {
+-	.halt_reg = 0x0224,
+-	.clkr = {
+-		.enable_reg = 0x0224,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_jpeg2_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_jpeg2_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_mdp_clk = {
+-	.halt_reg = 0x020c,
+-	.clkr = {
+-		.enable_reg = 0x020c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_mdp_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_mdp_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_pclk0_clk = {
+-	.halt_reg = 0x0234,
+-	.clkr = {
+-		.enable_reg = 0x0234,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_pclk0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_pclk0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_pclk1_clk = {
+-	.halt_reg = 0x0228,
+-	.clkr = {
+-		.enable_reg = 0x0228,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_pclk1_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_pclk1_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_vcodec0_clk = {
+-	.halt_reg = 0x0214,
+-	.clkr = {
+-		.enable_reg = 0x0214,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_vcodec0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_vcodec0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_vfe0_clk = {
+-	.halt_reg = 0x0218,
+-	.clkr = {
+-		.enable_reg = 0x0218,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_vfe0_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_vfe0_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_vfe1_clk = {
+-	.halt_reg = 0x021c,
+-	.clkr = {
+-		.enable_reg = 0x021c,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_vfe1_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_spdm_vfe1_div_clk",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_rm_axi_clk = {
+-	.halt_reg = 0x0304,
+-	.clkr = {
+-		.enable_reg = 0x0304,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_rm_axi_clk",
+-			.parent_names = (const char *[]){
+-				"mmss_axi_clk_src",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-static struct clk_branch mmss_spdm_rm_ocmemnoc_clk = {
+-	.halt_reg = 0x0308,
+-	.clkr = {
+-		.enable_reg = 0x0308,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "mmss_spdm_rm_ocmemnoc_clk",
+-			.parent_names = (const char *[]){
+-				"ocmemnoc_clk_src",
+-			},
+-			.num_parents = 1,
+-			.flags = CLK_SET_RATE_PARENT,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+-
+ static struct clk_branch mmss_misc_ahb_clk = {
+ 	.halt_reg = 0x502c,
+ 	.clkr = {
+@@ -3251,21 +2995,6 @@ static struct clk_regmap *mmcc_apq8084_clocks[] = {
+ 	[MDSS_VSYNC_CLK] = &mdss_vsync_clk.clkr,
+ 	[MMSS_RBCPR_AHB_CLK] = &mmss_rbcpr_ahb_clk.clkr,
+ 	[MMSS_RBCPR_CLK] = &mmss_rbcpr_clk.clkr,
+-	[MMSS_SPDM_AHB_CLK] = &mmss_spdm_ahb_clk.clkr,
+-	[MMSS_SPDM_AXI_CLK] = &mmss_spdm_axi_clk.clkr,
+-	[MMSS_SPDM_CSI0_CLK] = &mmss_spdm_csi0_clk.clkr,
+-	[MMSS_SPDM_GFX3D_CLK] = &mmss_spdm_gfx3d_clk.clkr,
+-	[MMSS_SPDM_JPEG0_CLK] = &mmss_spdm_jpeg0_clk.clkr,
+-	[MMSS_SPDM_JPEG1_CLK] = &mmss_spdm_jpeg1_clk.clkr,
+-	[MMSS_SPDM_JPEG2_CLK] = &mmss_spdm_jpeg2_clk.clkr,
+-	[MMSS_SPDM_MDP_CLK] = &mmss_spdm_mdp_clk.clkr,
+-	[MMSS_SPDM_PCLK0_CLK] = &mmss_spdm_pclk0_clk.clkr,
+-	[MMSS_SPDM_PCLK1_CLK] = &mmss_spdm_pclk1_clk.clkr,
+-	[MMSS_SPDM_VCODEC0_CLK] = &mmss_spdm_vcodec0_clk.clkr,
+-	[MMSS_SPDM_VFE0_CLK] = &mmss_spdm_vfe0_clk.clkr,
+-	[MMSS_SPDM_VFE1_CLK] = &mmss_spdm_vfe1_clk.clkr,
+-	[MMSS_SPDM_RM_AXI_CLK] = &mmss_spdm_rm_axi_clk.clkr,
+-	[MMSS_SPDM_RM_OCMEMNOC_CLK] = &mmss_spdm_rm_ocmemnoc_clk.clkr,
+ 	[MMSS_MISC_AHB_CLK] = &mmss_misc_ahb_clk.clkr,
+ 	[MMSS_MMSSNOC_AHB_CLK] = &mmss_mmssnoc_ahb_clk.clkr,
+ 	[MMSS_MMSSNOC_BTO_AHB_CLK] = &mmss_mmssnoc_bto_ahb_clk.clkr,
 -- 
 2.39.2
 
