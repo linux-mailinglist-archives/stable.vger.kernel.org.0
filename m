@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 037A26BB361
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9B66BB2D5
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233008AbjCOMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:44:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36370 "EHLO
+        id S232963AbjCOMi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbjCOMnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6669760ABC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:31 -0700 (PDT)
+        with ESMTP id S232964AbjCOMii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99042A0B08
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 471E661D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E506C433D2;
-        Wed, 15 Mar 2023 12:42:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CD1E61ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC59C433EF;
+        Wed, 15 Mar 2023 12:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884149;
-        bh=W1QfcQHVZVFp9rQvEhfqJH+RvdNqkFLq8fN0NrQTBe0=;
+        s=korg; t=1678883839;
+        bh=rhxdufBm4e5kulz1JA4K+9qV2V4DEANXj5Xbx4cjepw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGThEjWXj/WNb0yeO5J3jz1Yj9xcZ4VaSSZkj9hlT59rOmK+HbGzErXbU3gxiX8lW
-         uGnxzIllTkAC/YlUZCWPtvvX2TOt/rQ7Mw1y7ly9/1ZcnheoTCGg0qF0Xbj63w83Q5
-         YilKQll2MofBbYdRyvUEacw4CJjg0c73OZy8T4Mw=
+        b=VjEvis635WMCCVWvVMefUKWOV1wxexLVmP716lMEjdz3cZAYypKyZt1rumdm/AJmH
+         YYUiJxy3k9gr8tY92x2XxO+orsEU+SPVokFgvHuS7slVuutVdAPRv0oVyYIg9zQEC/
+         P62vZYML7voItvDp6u6elmRkYnmI1thbbW7jbzqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 125/141] powerpc/bpf/32: Only set a stack frame when necessary
-Date:   Wed, 15 Mar 2023 13:13:48 +0100
-Message-Id: <20230315115743.797732280@linuxfoundation.org>
+        patches@lists.linux.dev, SeongJae Park <sj@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 6.1 143/143] UML: define RUNTIME_DISCARD_EXIT
+Date:   Wed, 15 Mar 2023 13:13:49 +0100
+Message-Id: <20230315115745.018889460@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,80 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit d084dcf256bc4565b4b1af9b00297ac7b51c7049 ]
+commit b99ddbe8336ee680257c8ab479f75051eaa49dcf upstream.
 
-Until now a stack frame was set at all time due to the need
-to keep tail call counter in the stack.
+With CONFIG_VIRTIO_UML=y, GNU ld < 2.36 fails to link UML vmlinux
+(w/wo CONFIG_LD_SCRIPT_STATIC).
 
-But since commit 89d21e259a94 ("powerpc/bpf/32: Fix Oops on tail call
-tests") the tail call counter is passed via register r4. It is therefore
-not necessary anymore to have a stack frame for that.
+  `.exit.text' referenced in section `.uml.exitcall.exit' of arch/um/drivers/virtio_uml.o: defined in discarded section `.exit.text' of arch/um/drivers/virtio_uml.o
+  collect2: error: ld returned 1 exit status
 
-Just like PPC64, implement bpf_has_stack_frame() and only sets the frame
-when needed.
+This fix is similar to the following commits:
 
-The difference with PPC64 is that PPC32 doesn't have a redzone, so
-the stack is required as soon as non volatile registers are used or
-when tail call count is set up.
+- 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT")
+- a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
+  with GNU ld < 2.36")
+- c1c551bebf92 ("sh: define RUNTIME_DISCARD_EXIT")
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Fix commit reference in change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/62d7b654a3cfe73d998697cb29bbc5ffd89bfdb1.1675245773.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Reported-by: SeongJae Park <sj@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: SeongJae Park <sj@kernel.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp32.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ arch/um/kernel/vmlinux.lds.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_comp32.c
-index a379b0ce19ffa..8643b2c8b76ef 100644
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -79,6 +79,20 @@ static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
- #define SEEN_NVREG_FULL_MASK	0x0003ffff /* Non volatile registers r14-r31 */
- #define SEEN_NVREG_TEMP_MASK	0x00001e01 /* BPF_REG_5, BPF_REG_AX, TMP_REG */
+--- a/arch/um/kernel/vmlinux.lds.S
++++ b/arch/um/kernel/vmlinux.lds.S
+@@ -1,4 +1,4 @@
+-
++#define RUNTIME_DISCARD_EXIT
+ KERNEL_STACK_SIZE = 4096 * (1 << CONFIG_KERNEL_STACK_ORDER);
  
-+static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
-+{
-+	/*
-+	 * We only need a stack frame if:
-+	 * - we call other functions (kernel helpers), or
-+	 * - we use non volatile registers, or
-+	 * - we use tail call counter
-+	 * - the bpf program uses its stack area
-+	 * The latter condition is deduced from the usage of BPF_REG_FP
-+	 */
-+	return ctx->seen & (SEEN_FUNC | SEEN_TAILCALL | SEEN_NVREG_FULL_MASK) ||
-+	       bpf_is_seen_register(ctx, bpf_to_ppc(BPF_REG_FP));
-+}
-+
- void bpf_jit_realloc_regs(struct codegen_context *ctx)
- {
- 	unsigned int nvreg_mask;
-@@ -118,7 +132,8 @@ void bpf_jit_build_prologue(u32 *image, struct codegen_context *ctx)
- 
- #define BPF_TAILCALL_PROLOGUE_SIZE	4
- 
--	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
-+	if (bpf_has_stack_frame(ctx))
-+		EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
- 
- 	if (ctx->seen & SEEN_TAILCALL)
- 		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
-@@ -171,7 +186,8 @@ static void bpf_jit_emit_common_epilogue(u32 *image, struct codegen_context *ctx
- 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
- 
- 	/* Tear down our stack frame */
--	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
-+	if (bpf_has_stack_frame(ctx))
-+		EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
- 
- 	if (ctx->seen & SEEN_FUNC)
- 		EMIT(PPC_RAW_MTLR(_R0));
--- 
-2.39.2
-
+ #ifdef CONFIG_LD_SCRIPT_STATIC
 
 
