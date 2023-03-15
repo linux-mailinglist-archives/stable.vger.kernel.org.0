@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E504F6BB160
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D466BB210
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbjCOM04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57916 "EHLO
+        id S232369AbjCOMc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232208AbjCOM0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D679B984
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:47 -0700 (PDT)
+        with ESMTP id S232506AbjCOMcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4DD6702E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5C06B81DFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C641C433EF;
-        Wed, 15 Mar 2023 12:25:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FB161ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5432C433EF;
+        Wed, 15 Mar 2023 12:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883145;
-        bh=YCaXQSHiK/uRjonLu3ZR09pYSWFIdjlAbzfrWJxkeY8=;
+        s=korg; t=1678883494;
+        bh=vsP5zue/IExoFhZ69eEvRir84B0LNiO1AYO1Gr4lC48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPphHsjkHpflKuEZ2XqWKL6yxzPvKvoo7f0dZyDnGmXeL/4om9otYuq/6yEr7rNqn
-         9QO18N1FsfbcE9Fsrndd6n8ypCu9Wm1aHNJ6nTbjRbX/MIojY41XCxyThnjQ6i7DMn
-         LEnqnxrRSanwPUlSqrcQmZky2IpEgzIhpCDambTM=
+        b=qaHLeKwc7+C5Wg+8eIHXGRMEj+jRQ0x94nTHn56a+Dsqvy4693zKH4xuzMmSUb6Or
+         dDOPzzcv6CjTd1IZ97yQgrN7vUFbdRYTxDrUIdH6u/h/hci8f5aUPf0wRAvuC7KKqT
+         LnFlXoWJFpXVBibNUr5KDdYa3kIeVSF04TqwyYBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luis Chamberlain <mcgrof@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/145] block/brd: add error handling support for add_disk()
+        patches@lists.linux.dev, Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 012/143] drm/amdgpu: fix error checking in amdgpu_read_mm_registers for nv
 Date:   Wed, 15 Mar 2023 13:11:38 +0100
-Message-Id: <20230315115740.106826747@linuxfoundation.org>
+Message-Id: <20230315115740.834117668@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit e1528830bd4ebf435d91c154e309e6e028336210 ]
+commit b42fee5e0b44344cfe4c38e61341ee250362c83f upstream.
 
-We never checked for errors on add_disk() as this function
-returned void. Now that this is fixed, use the shiny new
-error handling.
+Properly skip non-existent registers as well.
 
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20211015235219.2191207-2-mcgrof@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 67205f80be99 ("brd: mark as nowait compatible")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2442
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/brd.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/nv.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 2427b2261e516..63ac5cd523408 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -370,6 +370,7 @@ static int brd_alloc(int i)
- 	struct brd_device *brd;
- 	struct gendisk *disk;
- 	char buf[DISK_NAME_LEN];
-+	int err = -ENOMEM;
+--- a/drivers/gpu/drm/amd/amdgpu/nv.c
++++ b/drivers/gpu/drm/amd/amdgpu/nv.c
+@@ -393,9 +393,10 @@ static int nv_read_register(struct amdgp
+ 	*value = 0;
+ 	for (i = 0; i < ARRAY_SIZE(nv_allowed_read_registers); i++) {
+ 		en = &nv_allowed_read_registers[i];
+-		if (adev->reg_offset[en->hwip][en->inst] &&
+-		    reg_offset != (adev->reg_offset[en->hwip][en->inst][en->seg]
+-				   + en->reg_offset))
++		if (!adev->reg_offset[en->hwip][en->inst])
++			continue;
++		else if (reg_offset != (adev->reg_offset[en->hwip][en->inst][en->seg]
++					+ en->reg_offset))
+ 			continue;
  
- 	mutex_lock(&brd_devices_mutex);
- 	list_for_each_entry(brd, &brd_devices, brd_list) {
-@@ -420,16 +421,20 @@ static int brd_alloc(int i)
- 	/* Tell the block layer that this is not a rotational device */
- 	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
--	add_disk(disk);
-+	err = add_disk(disk);
-+	if (err)
-+		goto out_cleanup_disk;
- 
- 	return 0;
- 
-+out_cleanup_disk:
-+	blk_cleanup_disk(disk);
- out_free_dev:
- 	mutex_lock(&brd_devices_mutex);
- 	list_del(&brd->brd_list);
- 	mutex_unlock(&brd_devices_mutex);
- 	kfree(brd);
--	return -ENOMEM;
-+	return err;
- }
- 
- static void brd_probe(dev_t dev)
--- 
-2.39.2
-
+ 		*value = nv_get_register_value(adev,
 
 
