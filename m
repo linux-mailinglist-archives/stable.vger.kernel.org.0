@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 164036BB279
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2A76BB14C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232850AbjCOMgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52388 "EHLO
+        id S232444AbjCOM0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232731AbjCOMgP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2457694A76
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:17 -0700 (PDT)
+        with ESMTP id S232463AbjCOMZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B6C1F5C7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03DFF61D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 141F9C433EF;
-        Wed, 15 Mar 2023 12:35:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10D68B81E06
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59BB1C433EF;
+        Wed, 15 Mar 2023 12:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883716;
-        bh=N1acEc8nYY2UrtREbZRq5lFsoB3Zv5w9MTHCZvJ5Y28=;
+        s=korg; t=1678883050;
+        bh=rhxdufBm4e5kulz1JA4K+9qV2V4DEANXj5Xbx4cjepw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yryORfJMxUtQ9hgzlXdzXk/0+cn/Dk+Dd2xXlDEW8DNqii/qaTWBjxq/WiwPEnGB/
-         vnK2lO1fy+Y835y60TLHflJ9QzjiW6gPFidCF/AN+/chSx9AHEcWY6GUEiBYuswumo
-         N0xYDZlXzWGx9tdejZPl/62cEYceBJY5Wa68UgUw=
+        b=2TGiev0oyYHDXMu2fdRg8Pw7SVpfsijkV816PjHiB8oplVAanqBfMUuNAlx8qqrVG
+         Rd2TaTzQ4tyblHuA8Cn9VPUxs5kGD+X3+JzBxOT7xNXOqbar2wgZTk6bhz0dPj/wyr
+         GXhiz3HGref4WpwVX9S4PAyGvahNgRHHY+rbEbXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Ertman <david.m.ertman@intel.com>,
-        Karen Ostrowska <karen.ostrowska@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.1 104/143] ice: Fix DSCP PFC TLV creation
-Date:   Wed, 15 Mar 2023 13:13:10 +0100
-Message-Id: <20230315115743.664003094@linuxfoundation.org>
+        patches@lists.linux.dev, SeongJae Park <sj@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.10 100/104] UML: define RUNTIME_DISCARD_EXIT
+Date:   Wed, 15 Mar 2023 13:13:11 +0100
+Message-Id: <20230315115736.242436945@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit fef3f92e8a4214652d8f33f50330dc5a92efbf11 ]
+commit b99ddbe8336ee680257c8ab479f75051eaa49dcf upstream.
 
-When creating the TLV to send to the FW for configuring DSCP mode PFC,the
-PFCENABLE field was being masked with a 4 bit mask (0xF), but this is an 8
-bit bitmask for enabled classes for PFC.  This means that traffic classes
-4-7 could not be enabled for PFC.
+With CONFIG_VIRTIO_UML=y, GNU ld < 2.36 fails to link UML vmlinux
+(w/wo CONFIG_LD_SCRIPT_STATIC).
 
-Remove the mask completely, as it is not necessary, as we are assigning 8
-bits to an 8 bit field.
+  `.exit.text' referenced in section `.uml.exitcall.exit' of arch/um/drivers/virtio_uml.o: defined in discarded section `.exit.text' of arch/um/drivers/virtio_uml.o
+  collect2: error: ld returned 1 exit status
 
-Fixes: 2a87bd73e50d ("ice: Add DSCP support")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Signed-off-by: Karen Ostrowska <karen.ostrowska@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix is similar to the following commits:
+
+- 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT")
+- a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
+  with GNU ld < 2.36")
+- c1c551bebf92 ("sh: define RUNTIME_DISCARD_EXIT")
+
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Reported-by: SeongJae Park <sj@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: SeongJae Park <sj@kernel.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_dcb.c | 2 +-
+ arch/um/kernel/vmlinux.lds.S |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_dcb.c b/drivers/net/ethernet/intel/ice/ice_dcb.c
-index 0b146a0d42058..6375372f87294 100644
---- a/drivers/net/ethernet/intel/ice/ice_dcb.c
-+++ b/drivers/net/ethernet/intel/ice/ice_dcb.c
-@@ -1372,7 +1372,7 @@ ice_add_dscp_pfc_tlv(struct ice_lldp_org_tlv *tlv, struct ice_dcbx_cfg *dcbcfg)
- 	tlv->ouisubtype = htonl(ouisubtype);
+--- a/arch/um/kernel/vmlinux.lds.S
++++ b/arch/um/kernel/vmlinux.lds.S
+@@ -1,4 +1,4 @@
+-
++#define RUNTIME_DISCARD_EXIT
+ KERNEL_STACK_SIZE = 4096 * (1 << CONFIG_KERNEL_STACK_ORDER);
  
- 	buf[0] = dcbcfg->pfc.pfccap & 0xF;
--	buf[1] = dcbcfg->pfc.pfcena & 0xF;
-+	buf[1] = dcbcfg->pfc.pfcena;
- }
- 
- /**
--- 
-2.39.2
-
+ #ifdef CONFIG_LD_SCRIPT_STATIC
 
 
