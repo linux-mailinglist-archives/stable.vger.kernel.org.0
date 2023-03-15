@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4536BB2BD
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 037A26BB361
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232862AbjCOMiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51582 "EHLO
+        id S233008AbjCOMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbjCOMh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:57 -0400
+        with ESMTP id S233006AbjCOMnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB79A1FD8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6669760ABC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21CDC61CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 394D0C433EF;
-        Wed, 15 Mar 2023 12:36:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 471E661D26
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E506C433D2;
+        Wed, 15 Mar 2023 12:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883818;
-        bh=ONp2cR4MDoiAvgT71lLa+4PovnEWURkrUFh8PM9dmSI=;
+        s=korg; t=1678884149;
+        bh=W1QfcQHVZVFp9rQvEhfqJH+RvdNqkFLq8fN0NrQTBe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KpLo38pKvC4fFrDi1qoMbLVbtxLqKIDEyzkhea4Q32P0inyZw5zT4CNSQ7ObAGpa
-         9OAJSVQfmxQga1GX+vzE3t5l2zkT8/b89cCZ7+nS8LlPRzC/6SHhHd8tbI0KHwRvY5
-         uAhZ9vh36RLh7wcOYfk3kSi5P6wqovq42ZfEzvQQ=
+        b=sGThEjWXj/WNb0yeO5J3jz1Yj9xcZ4VaSSZkj9hlT59rOmK+HbGzErXbU3gxiX8lW
+         uGnxzIllTkAC/YlUZCWPtvvX2TOt/rQ7Mw1y7ly9/1ZcnheoTCGg0qF0Xbj63w83Q5
+         YilKQll2MofBbYdRyvUEacw4CJjg0c73OZy8T4Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin KaFai Lau <martin.lau@kernel.org>
-Subject: [PATCH 6.1 142/143] Revert "bpf, test_run: fix &xdp_frame misplacement for LIVE_FRAMES"
+        patches@lists.linux.dev,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 125/141] powerpc/bpf/32: Only set a stack frame when necessary
 Date:   Wed, 15 Mar 2023 13:13:48 +0100
-Message-Id: <20230315115744.966148285@linuxfoundation.org>
+Message-Id: <20230315115743.797732280@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,106 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <martin.lau@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 181127fb76e62d06ab17a75fd610129688612343 upstream.
+[ Upstream commit d084dcf256bc4565b4b1af9b00297ac7b51c7049 ]
 
-This reverts commit 6c20822fada1b8adb77fa450d03a0d449686a4a9.
+Until now a stack frame was set at all time due to the need
+to keep tail call counter in the stack.
 
-build bot failed on arch with different cache line size:
-https://lore.kernel.org/bpf/50c35055-afa9-d01e-9a05-ea5351280e4f@intel.com/
+But since commit 89d21e259a94 ("powerpc/bpf/32: Fix Oops on tail call
+tests") the tail call counter is passed via register r4. It is therefore
+not necessary anymore to have a stack frame for that.
 
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Just like PPC64, implement bpf_has_stack_frame() and only sets the frame
+when needed.
+
+The difference with PPC64 is that PPC32 doesn't have a redzone, so
+the stack is required as soon as non volatile registers are used or
+when tail call count is set up.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Fix commit reference in change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/62d7b654a3cfe73d998697cb29bbc5ffd89bfdb1.1675245773.git.christophe.leroy@csgroup.eu
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bpf/test_run.c                                       |   29 +++------------
- tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c |    7 +--
- 2 files changed, 9 insertions(+), 27 deletions(-)
+ arch/powerpc/net/bpf_jit_comp32.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
---- a/net/bpf/test_run.c
-+++ b/net/bpf/test_run.c
-@@ -97,11 +97,8 @@ reset:
- struct xdp_page_head {
- 	struct xdp_buff orig_ctx;
- 	struct xdp_buff ctx;
--	union {
--		/* ::data_hard_start starts here */
--		DECLARE_FLEX_ARRAY(struct xdp_frame, frame);
--		DECLARE_FLEX_ARRAY(u8, data);
--	};
-+	struct xdp_frame frm;
-+	u8 data[];
- };
+diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_comp32.c
+index a379b0ce19ffa..8643b2c8b76ef 100644
+--- a/arch/powerpc/net/bpf_jit_comp32.c
++++ b/arch/powerpc/net/bpf_jit_comp32.c
+@@ -79,6 +79,20 @@ static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
+ #define SEEN_NVREG_FULL_MASK	0x0003ffff /* Non volatile registers r14-r31 */
+ #define SEEN_NVREG_TEMP_MASK	0x00001e01 /* BPF_REG_5, BPF_REG_AX, TMP_REG */
  
- struct xdp_test_data {
-@@ -119,20 +116,6 @@ struct xdp_test_data {
- #define TEST_XDP_FRAME_SIZE (PAGE_SIZE - sizeof(struct xdp_page_head))
- #define TEST_XDP_MAX_BATCH 256
- 
--#if BITS_PER_LONG == 64 && PAGE_SIZE == SZ_4K
--/* tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c:%MAX_PKT_SIZE
-- * must be updated accordingly when any of these changes, otherwise BPF
-- * selftests will fail.
-- */
--#ifdef __s390x__
--#define TEST_MAX_PKT_SIZE 3216
--#else
--#define TEST_MAX_PKT_SIZE 3408
--#endif
--static_assert(SKB_WITH_OVERHEAD(TEST_XDP_FRAME_SIZE - XDP_PACKET_HEADROOM) ==
--	      TEST_MAX_PKT_SIZE);
--#endif
--
- static void xdp_test_run_init_page(struct page *page, void *arg)
++static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
++{
++	/*
++	 * We only need a stack frame if:
++	 * - we call other functions (kernel helpers), or
++	 * - we use non volatile registers, or
++	 * - we use tail call counter
++	 * - the bpf program uses its stack area
++	 * The latter condition is deduced from the usage of BPF_REG_FP
++	 */
++	return ctx->seen & (SEEN_FUNC | SEEN_TAILCALL | SEEN_NVREG_FULL_MASK) ||
++	       bpf_is_seen_register(ctx, bpf_to_ppc(BPF_REG_FP));
++}
++
+ void bpf_jit_realloc_regs(struct codegen_context *ctx)
  {
- 	struct xdp_page_head *head = phys_to_virt(page_to_phys(page));
-@@ -149,8 +132,8 @@ static void xdp_test_run_init_page(struc
- 	headroom -= meta_len;
+ 	unsigned int nvreg_mask;
+@@ -118,7 +132,8 @@ void bpf_jit_build_prologue(u32 *image, struct codegen_context *ctx)
  
- 	new_ctx = &head->ctx;
--	frm = head->frame;
--	data = head->data;
-+	frm = &head->frm;
-+	data = &head->data;
- 	memcpy(data + headroom, orig_ctx->data_meta, frm_len);
+ #define BPF_TAILCALL_PROLOGUE_SIZE	4
  
- 	xdp_init_buff(new_ctx, TEST_XDP_FRAME_SIZE, &xdp->rxq);
-@@ -240,7 +223,7 @@ static void reset_ctx(struct xdp_page_he
- 	head->ctx.data = head->orig_ctx.data;
- 	head->ctx.data_meta = head->orig_ctx.data_meta;
- 	head->ctx.data_end = head->orig_ctx.data_end;
--	xdp_update_frame_from_buff(&head->ctx, head->frame);
-+	xdp_update_frame_from_buff(&head->ctx, &head->frm);
- }
+-	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
++	if (bpf_has_stack_frame(ctx))
++		EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
  
- static int xdp_recv_frames(struct xdp_frame **frames, int nframes,
-@@ -302,7 +285,7 @@ static int xdp_test_run_batch(struct xdp
- 		head = phys_to_virt(page_to_phys(page));
- 		reset_ctx(head);
- 		ctx = &head->ctx;
--		frm = head->frame;
-+		frm = &head->frm;
- 		xdp->frame_cnt++;
+ 	if (ctx->seen & SEEN_TAILCALL)
+ 		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
+@@ -171,7 +186,8 @@ static void bpf_jit_emit_common_epilogue(u32 *image, struct codegen_context *ctx
+ 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
  
- 		act = bpf_prog_run_xdp(prog, ctx);
---- a/tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c
-+++ b/tools/testing/selftests/bpf/prog_tests/xdp_do_redirect.c
-@@ -63,13 +63,12 @@ static int attach_tc_prog(struct bpf_tc_
- }
+ 	/* Tear down our stack frame */
+-	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
++	if (bpf_has_stack_frame(ctx))
++		EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
  
- /* The maximum permissible size is: PAGE_SIZE - sizeof(struct xdp_page_head) -
-- * SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) - XDP_PACKET_HEADROOM =
-- * 3408 bytes for 64-byte cacheline and 3216 for 256-byte one.
-+ * sizeof(struct skb_shared_info) - XDP_PACKET_HEADROOM = 3368 bytes
-  */
- #if defined(__s390x__)
--#define MAX_PKT_SIZE 3216
-+#define MAX_PKT_SIZE 3176
- #else
--#define MAX_PKT_SIZE 3408
-+#define MAX_PKT_SIZE 3368
- #endif
- static void test_max_pkt_size(int fd)
- {
+ 	if (ctx->seen & SEEN_FUNC)
+ 		EMIT(PPC_RAW_MTLR(_R0));
+-- 
+2.39.2
+
 
 
