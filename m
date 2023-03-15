@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E75B6BB17E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1BE6BB2DA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbjCOM2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:28:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
+        id S232942AbjCOMjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:39:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232533AbjCOM1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890858615F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:47 -0700 (PDT)
+        with ESMTP id S232955AbjCOMiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D2DA3355
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54A4B61D59
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E10C433EF;
-        Wed, 15 Mar 2023 12:26:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2213DB81DF9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940A8C433D2;
+        Wed, 15 Mar 2023 12:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883187;
-        bh=QN8I2JvJ4gtzOVUQJ0cpI/91XsA4DHuXMq3Kv6D7jrM=;
+        s=korg; t=1678883849;
+        bh=u43F4xL5o6RvI8DWP3xUqSOGEUgFrGIGlZP+lYqUWag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHa8uS8OyqJ/JCYHhOwL2sEriuTIiGQMJs8qz/W3k+cvVXdvUU5kvVW/Yka+wMtxt
-         VL1td4+GYyDJdDd5x+Jw0gM2uPRAv/6u8wiZBzFDI4pmGnzDIAaUJU0C/eKD7Xugnk
-         OPGz+qAPaUn/AYlJxQSpraeEx+/sz2rTHiZzFU40=
+        b=Bd3VEQdAs90mIDgfhvRR1DJbzWiR6naq9sRgtOxWuQd9HdMuCkOw70idsClVRM37b
+         MwPjStecRxNrTnoYwYhDZdgHTYrSAxPazAMyay3ppT8hBwKVarOGOFpzlgEIFlg1m+
+         oNSnLatY1dlq1UKPzVnlbCt7D4X9NSVxkDaKfDDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/145] drm/msm/a5xx: fix context faults during ring switch
+        patches@lists.linux.dev, Hawking Zhang <Hawking.Zhang@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 012/141] drm/amdgpu: fix error checking in amdgpu_read_mm_registers for soc15
 Date:   Wed, 15 Mar 2023 13:11:55 +0100
-Message-Id: <20230315115740.677604560@linuxfoundation.org>
+Message-Id: <20230315115740.355542059@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 32e7083429d46f29080626fe387ff90c086b1fbe ]
+commit 0dcdf8498eae2727bb33cef3576991dc841d4343 upstream.
 
-The rptr_addr is set in the preempt_init_ring(), which is called from
-a5xx_gpu_init(). It uses shadowptr() to set the address, however the
-shadow_iova is not yet initialized at that time. Move the rptr_addr
-setting to the a5xx_preempt_hw_init() which is called after setting the
-shadow_iova, getting the correct value for the address.
+Properly skip non-existent registers as well.
 
-Fixes: 8907afb476ac ("drm/msm: Allow a5xx to mark the RPTR shadow as privileged")
-Suggested-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/522640/
-Link: https://lore.kernel.org/r/20230214020956.164473-5-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2442
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_preempt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/soc15.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-index 6e326d851ba53..e0eef47dae632 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-@@ -208,6 +208,7 @@ void a5xx_preempt_hw_init(struct msm_gpu *gpu)
- 		a5xx_gpu->preempt[i]->wptr = 0;
- 		a5xx_gpu->preempt[i]->rptr = 0;
- 		a5xx_gpu->preempt[i]->rbase = gpu->rb[i]->iova;
-+		a5xx_gpu->preempt[i]->rptr_addr = shadowptr(a5xx_gpu, gpu->rb[i]);
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -439,8 +439,9 @@ static int soc15_read_register(struct am
+ 	*value = 0;
+ 	for (i = 0; i < ARRAY_SIZE(soc15_allowed_read_registers); i++) {
+ 		en = &soc15_allowed_read_registers[i];
+-		if (adev->reg_offset[en->hwip][en->inst] &&
+-			reg_offset != (adev->reg_offset[en->hwip][en->inst][en->seg]
++		if (!adev->reg_offset[en->hwip][en->inst])
++			continue;
++		else if (reg_offset != (adev->reg_offset[en->hwip][en->inst][en->seg]
+ 					+ en->reg_offset))
+ 			continue;
  
- 	/* Write a 0 to signal that we aren't switching pagetables */
-@@ -259,7 +260,6 @@ static int preempt_init_ring(struct a5xx_gpu *a5xx_gpu,
- 	ptr->data = 0;
- 	ptr->cntl = MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE;
- 
--	ptr->rptr_addr = shadowptr(a5xx_gpu, ring);
- 	ptr->counter = counters_iova;
- 
- 	return 0;
--- 
-2.39.2
-
 
 
