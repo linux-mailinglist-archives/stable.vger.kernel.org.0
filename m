@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5D16BB1AD
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F4AE6BB02A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbjCOM3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:29:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39772 "EHLO
+        id S231127AbjCOMQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232461AbjCOM3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:21 -0400
+        with ESMTP id S231929AbjCOMPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 825309B9A9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF5880903
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E4C8B81DFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976D4C433EF;
-        Wed, 15 Mar 2023 12:28:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BD2FB81C6F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D89DC433D2;
+        Wed, 15 Mar 2023 12:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883297;
-        bh=KGxRvdYEHzfuFENxpfQiUlpiEV1ThXMfLkFokVmPB9Y=;
+        s=korg; t=1678882546;
+        bh=MhqWzRtzcLYVC88KXVZvzjwbQrUuZ5cXaWtJPIRjac4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGKoyAbyPD+IJpEZBslK/loJSsXHLFjmAnQQPpH50blQyM6jX0PCTe25dVnt6q3gX
-         0eJdQXbKs33+n2fSyLrw2g5I/Q83Rq57BzGPSe3wJSbxcavgcezIB0qn55wvt876QJ
-         2Fce3R3LG23RnlLr5xZGDkPkFOStzJmIhvURvXZ4=
+        b=VMExbYuv4NxmO65J7KaqGyZGMEEZO+3FyDCDt/8RAEhb/ZnzeNeGYsrSeC/GZuAZn
+         okBQc4NAg/lSR3rL/KkEEMjPu9Ef4m5MxHOULrsxKN5ZhZscl4kPzV+gLfRf6DDtDY
+         RLDM8V64IP7ja3KIsvfvZVDSMUzszOeVdnUEOnxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/145] net/smc: fix fallback failed while sendmsg with fastopen
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        stable@kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 05/39] ext4: move where set the MAY_INLINE_DATA flag is set
 Date:   Wed, 15 Mar 2023 13:12:19 +0100
-Message-Id: <20230315115741.420587533@linuxfoundation.org>
+Message-Id: <20230315115721.454345982@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit ce7ca794712f186da99719e8b4e97bd5ddbb04c3 ]
+commit 1dcdce5919115a471bf4921a57f20050c545a236 upstream.
 
-Before determining whether the msg has unsupported options, it has been
-prematurely terminated by the wrong status check.
+The only caller of ext4_find_inline_data_nolock() that needs setting of
+EXT4_STATE_MAY_INLINE_DATA flag is ext4_iget_extra_inode().  In
+ext4_write_inline_data_end() we just need to update inode->i_inline_off.
+Since we are going to add one more caller that does not need to set
+EXT4_STATE_MAY_INLINE_DATA, just move setting of EXT4_STATE_MAY_INLINE_DATA
+out to ext4_iget_extra_inode().
 
-For the application, the general usages of MSG_FASTOPEN likes
-
-fd = socket(...)
-/* rather than connect */
-sendto(fd, data, len, MSG_FASTOPEN)
-
-Hence, We need to check the flag before state check, because the sock
-state here is always SMC_INIT when applications tries MSG_FASTOPEN.
-Once we found unsupported options, fallback it to TCP.
-
-Fixes: ee9dfbef02d1 ("net/smc: handle sockopts forcing fallback")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-
-v2 -> v1: Optimize code style
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Cc: stable@kernel.org
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230307015253.2232062-2-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/ext4/inline.c |    1 -
+ fs/ext4/inode.c  |    7 ++++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index d5ddf283ed8e2..9cdb7df0801f3 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2172,16 +2172,14 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = -EPIPE;
-+	int rc;
- 
- 	smc = smc_sk(sk);
- 	lock_sock(sk);
--	if ((sk->sk_state != SMC_ACTIVE) &&
--	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
--	    (sk->sk_state != SMC_INIT))
--		goto out;
- 
-+	/* SMC does not support connect with fastopen */
- 	if (msg->msg_flags & MSG_FASTOPEN) {
-+		/* not connected yet, fallback */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
- 			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
- 			if (rc)
-@@ -2190,6 +2188,11 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 			rc = -EINVAL;
- 			goto out;
- 		}
-+	} else if ((sk->sk_state != SMC_ACTIVE) &&
-+		   (sk->sk_state != SMC_APPCLOSEWAIT1) &&
-+		   (sk->sk_state != SMC_INIT)) {
-+		rc = -EPIPE;
-+		goto out;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -157,7 +157,6 @@ int ext4_find_inline_data_nolock(struct
+ 					(void *)ext4_raw_inode(&is.iloc));
+ 		EXT4_I(inode)->i_inline_size = EXT4_MIN_INLINE_DATA_SIZE +
+ 				le32_to_cpu(is.s.here->e_value_size);
+-		ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
  	}
+ out:
+ 	brelse(is.iloc.bh);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4865,8 +4865,13 @@ static inline int ext4_iget_extra_inode(
  
- 	if (smc->use_fallback) {
--- 
-2.39.2
-
+ 	if (EXT4_INODE_HAS_XATTR_SPACE(inode)  &&
+ 	    *magic == cpu_to_le32(EXT4_XATTR_MAGIC)) {
++		int err;
++
+ 		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
+-		return ext4_find_inline_data_nolock(inode);
++		err = ext4_find_inline_data_nolock(inode);
++		if (!err && ext4_has_inline_data(inode))
++			ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
++		return err;
+ 	} else
+ 		EXT4_I(inode)->i_inline_off = 0;
+ 	return 0;
 
 
