@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40FC46BB068
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 563326BB0F4
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232062AbjCOMSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:18:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
+        id S232221AbjCOMXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231942AbjCOMRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:48 -0400
+        with ESMTP id S232190AbjCOMW5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D062893853
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D78597FE7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60D5A61ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74132C4339B;
-        Wed, 15 Mar 2023 12:17:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E14A61D55
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DE81C433D2;
+        Wed, 15 Mar 2023 12:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882664;
-        bh=LrHvDUEyQ4Y6Mmnru21kjjexq3B4FWirhy5VAWsbcAI=;
+        s=korg; t=1678882906;
+        bh=yX16k0Nh2KcYRzjmDNVj+RByDoVhwVbko8q98jgCSMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MN/g2evUk7VhBwUgeXybXIpQQw07Jo3bKmi7YvRsNk4fOVRjq5XzTZj79Spyp4Odt
-         EGfVnuABeGrHTyA5HKJ61CDxCUdL+kF9Op2JR67reTPXx8I9VEJRVzTa4wQcItDhZu
-         ySffi1smCfLEKNt80W0jmRsdUSg7Jgle23c2M1V8=
+        b=raiHiMkdXQqnxiwzVd1QZBylwrwMmZkxF+L7Kokgt/PsofOrCshRvPxRgW7QCUf8G
+         AQXK6KhpEsOWxvEzBQc3ed35pqDVLR18RnbtRHxhYmoAZNCaQtZpwnRF8mdG+5XUuB
+         iNUcdZoCUsaa2bPvN9qSgW0Cu3jKQCyni5W+amOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/68] iommu/vt-d: Fix PASID directory pointer coherency
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?Major=20D=C3=A1vid?= <major.david@balasys.hu>
+Subject: [PATCH 5.10 047/104] netfilter: tproxy: fix deadlock due to missing BH disable
 Date:   Wed, 15 Mar 2023 13:12:18 +0100
-Message-Id: <20230315115727.039525836@linuxfoundation.org>
+Message-Id: <20230315115733.961454055@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,80 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 194b3348bdbb7db65375c72f3f774aee4cc6614e ]
+[ Upstream commit 4a02426787bf024dafdb79b362285ee325de3f5e ]
 
-On platforms that do not support IOMMU Extended capability bit 0
-Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
-any translation structures. IOMMU access goes only directly to
-memory. Intel IOMMU code was missing a flush for the PASID table
-directory that resulted in the unrecoverable fault as shown below.
+The xtables packet traverser performs an unconditional local_bh_disable(),
+but the nf_tables evaluation loop does not.
 
-This patch adds clflush calls whenever allocating and updating
-a PASID table directory to ensure cache coherency.
+Functions that are called from either xtables or nftables must assume
+that they can be called in process context.
 
-On the reverse direction, there's no need to clflush the PASID directory
-pointer when we deactivate a context entry in that IOMMU hardware will
-not see the old PASID directory pointer after we clear the context entry.
-PASID directory entries are also never freed once allocated.
+inet_twsk_deschedule_put() assumes that no softirq interrupt can occur.
+If tproxy is used from nf_tables its possible that we'll deadlock
+trying to aquire a lock already held in process context.
 
- DMAR: DRHD: handling fault status reg 3
- DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault addr 0x1026a4000
-       [fault reason 0x51] SM: Present bit in Directory Entry is clear
- DMAR: Dump dmar1 table entries for IOVA 0x1026a4000
- DMAR: scalable mode root entry: hi 0x0000000102448001, low 0x0000000101b3e001
- DMAR: context entry: hi 0x0000000000000000, low 0x0000000101b4d401
- DMAR: pasid dir entry: 0x0000000101b4e001
- DMAR: pasid table entry[0]: 0x0000000000000109
- DMAR: pasid table entry[1]: 0x0000000000000001
- DMAR: pasid table entry[2]: 0x0000000000000000
- DMAR: pasid table entry[3]: 0x0000000000000000
- DMAR: pasid table entry[4]: 0x0000000000000000
- DMAR: pasid table entry[5]: 0x0000000000000000
- DMAR: pasid table entry[6]: 0x0000000000000000
- DMAR: pasid table entry[7]: 0x0000000000000000
- DMAR: PTE not present at level 4
+Add a small helper that takes care of this and use it.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 0bbeb01a4faf ("iommu/vt-d: Manage scalalble mode PASID tables")
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reported-by: Sukumar Ghorai <sukumar.ghorai@intel.com>
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Link: https://lore.kernel.org/r/20230209212843.1788125-1-jacob.jun.pan@linux.intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/netfilter-devel/401bd6ed-314a-a196-1cdc-e13c720cc8f2@balasys.hu/
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
+Reported-and-tested-by: Major Dávid <major.david@balasys.hu>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-pasid.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/net/netfilter/nf_tproxy.h   | 7 +++++++
+ net/ipv4/netfilter/nf_tproxy_ipv4.c | 2 +-
+ net/ipv6/netfilter/nf_tproxy_ipv6.c | 2 +-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/intel-pasid.c b/drivers/iommu/intel-pasid.c
-index e7cb0b8a73327..58f060006ba31 100644
---- a/drivers/iommu/intel-pasid.c
-+++ b/drivers/iommu/intel-pasid.c
-@@ -166,6 +166,9 @@ int intel_pasid_alloc_table(struct device *dev)
- attach_out:
- 	device_attach_pasid_table(info, pasid_table);
- 
-+	if (!ecap_coherent(info->iommu->ecap))
-+		clflush_cache_range(pasid_table->table, size);
-+
- 	return 0;
+diff --git a/include/net/netfilter/nf_tproxy.h b/include/net/netfilter/nf_tproxy.h
+index 82d0e41b76f22..faa108b1ba675 100644
+--- a/include/net/netfilter/nf_tproxy.h
++++ b/include/net/netfilter/nf_tproxy.h
+@@ -17,6 +17,13 @@ static inline bool nf_tproxy_sk_is_transparent(struct sock *sk)
+ 	return false;
  }
  
-@@ -250,6 +253,10 @@ struct pasid_entry *intel_pasid_get_entry(struct device *dev, int pasid)
- 
- 		WRITE_ONCE(dir[dir_index].val,
- 			   (u64)virt_to_phys(entries) | PASID_PTE_PRESENT);
-+		if (!ecap_coherent(info->iommu->ecap)) {
-+			clflush_cache_range(entries, VTD_PAGE_SIZE);
-+			clflush_cache_range(&dir[dir_index].val, sizeof(*dir));
-+		}
++static inline void nf_tproxy_twsk_deschedule_put(struct inet_timewait_sock *tw)
++{
++	local_bh_disable();
++	inet_twsk_deschedule_put(tw);
++	local_bh_enable();
++}
++
+ /* assign a socket to the skb -- consumes sk */
+ static inline void nf_tproxy_assign_sock(struct sk_buff *skb, struct sock *sk)
+ {
+diff --git a/net/ipv4/netfilter/nf_tproxy_ipv4.c b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+index b2bae0b0e42a1..61cb2341f50fe 100644
+--- a/net/ipv4/netfilter/nf_tproxy_ipv4.c
++++ b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+@@ -38,7 +38,7 @@ nf_tproxy_handle_time_wait4(struct net *net, struct sk_buff *skb,
+ 					    hp->source, lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
  	}
- 	spin_unlock(&pasid_lock);
- 
+diff --git a/net/ipv6/netfilter/nf_tproxy_ipv6.c b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+index 6bac68fb27a39..3fe4f15e01dc8 100644
+--- a/net/ipv6/netfilter/nf_tproxy_ipv6.c
++++ b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+@@ -63,7 +63,7 @@ nf_tproxy_handle_time_wait6(struct sk_buff *skb, int tproto, int thoff,
+ 					    lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
 -- 
 2.39.2
 
