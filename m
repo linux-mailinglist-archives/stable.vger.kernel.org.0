@@ -2,59 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C9556BB1E1
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81CBD6BB37B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232572AbjCOMb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
+        id S232999AbjCOMpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:45:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232570AbjCOMbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF85410A5
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:11 -0700 (PDT)
+        with ESMTP id S233155AbjCOMow (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554838EA09;
+        Wed, 15 Mar 2023 05:43:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C15B61D72
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553ACC433EF;
-        Wed, 15 Mar 2023 12:30:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB2861D73;
+        Wed, 15 Mar 2023 12:42:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F97C433EF;
+        Wed, 15 Mar 2023 12:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883410;
-        bh=17j1IuYxoghYGpS1B5DGIQJubZwkdi+SKKGet2h/y5k=;
+        s=korg; t=1678884176;
+        bh=if5yWvrLs7s3hjiF6DzbVuIrkn5oiXCRR1mNGRrXXRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/FGZA98ESxzLo9dKTR5E2KNxpdt6sEy2fzWVkKR8lB0LMjqCIjizOkcYzsCyORZv
-         Kswvs3HKfac63jgBLlyDmRKap7RuSzYwKZs94AnOBHGusS1cX+nAb0TAb4qrAeSyu0
-         hjlEl8bSfAWCSOdisZL5EQDey6AND0ufd8EdzVN4=
+        b=NJ+vQ16pXjgVXtdkSjzn/oDJbjx4Dc/EHfNpee+7fsTybApB/xTTlYhOsLv0UrXaf
+         2isiY/jAdd6I2HoxUxUDqbebQiHs9mesEycJIAkke9780rm8P8o7h8a7kVcFCaDfvV
+         8QxzOqiX1Qi4+mqei29hYIKmcYFUY5n+wF7iFq94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Saeger <tom.saeger@oracle.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-        Dennis Gilmore <dennis@ausil.us>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Rich Felker <dalias@libc.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 133/145] sh: define RUNTIME_DISCARD_EXIT
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Michael Shych <michaelsh@nvidia.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        platform-driver-x86@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 096/141] platform: mellanox: select REGMAP instead of depending on it
 Date:   Wed, 15 Mar 2023 13:13:19 +0100
-Message-Id: <20230315115743.321836050@linuxfoundation.org>
+Message-Id: <20230315115742.930964565@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,84 +59,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Saeger <tom.saeger@oracle.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit c1c551bebf928889e7a8fef7415b44f9a64975f4 upstream.
+[ Upstream commit 03f5eb300ad1241f854269a3e521b119189a4493 ]
 
-sh vmlinux fails to link with GNU ld < 2.40 (likely < 2.36) since
-commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv").
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-This is similar to fixes for powerpc and s390:
-commit 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT").
-commit a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
-with GNU ld < 2.36").
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
 
-  $ sh4-linux-gnu-ld --version | head -n1
-  GNU ld (GNU Binutils for Debian) 2.35.2
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
 
-  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu- microdev_defconfig
-  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu-
+For NVSW_SN2201, select REGMAP_I2C instead of depending on it.
 
-  `.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
-  defined in discarded section `.exit.text' of crypto/algboss.o
-  `.exit.text' referenced in section `__bug_table' of
-  drivers/char/hw_random/core.o: defined in discarded section
-  `.exit.text' of drivers/char/hw_random/core.o
-  make[2]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-  make[1]: *** [Makefile:1252: vmlinux] Error 2
-
-arch/sh/kernel/vmlinux.lds.S keeps EXIT_TEXT:
-
-	/*
-	 * .exit.text is discarded at runtime, not link time, to deal with
-	 * references from __bug_table
-	 */
-	.exit.text : AT(ADDR(.exit.text)) { EXIT_TEXT }
-
-However, EXIT_TEXT is thrown away by
-DISCARD(include/asm-generic/vmlinux.lds.h) because
-sh does not define RUNTIME_DISCARD_EXIT.
-
-GNU ld 2.40 does not have this issue and builds fine.
-This corresponds with Masahiro's comments in a494398bde27:
-"Nathan [Chancellor] also found that binutils
-commit 21401fc7bf67 ("Duplicate output sections in scripts") cured this
-issue, so we cannot reproduce it with binutils 2.36+, but it is better
-to not rely on it."
-
-Link: https://lkml.kernel.org/r/9166a8abdc0f979e50377e61780a4bba1dfa2f52.1674518464.git.tom.saeger@oracle.com
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-Link: https://lore.kernel.org/all/20230123194218.47ssfzhrpnv3xfez@oracle.com/
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Dennis Gilmore <dennis@ausil.us>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Palmer Dabbelt <palmer@rivosinc.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c6acad68eb2d ("platform/mellanox: mlxreg-hotplug: Modify to use a regmap interface")
+Fixes: 5ec4a8ace06c ("platform/mellanox: Introduce support for Mellanox register access driver")
+Fixes: 62f9529b8d5c ("platform/mellanox: mlxreg-lc: Add initial support for Nvidia line card devices")
+Fixes: 662f24826f95 ("platform/mellanox: Add support for new SN2201 system")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Michael Shych <michaelsh@nvidia.com>
+Cc: Mark Gross <markgross@kernel.org>
+Cc: Vadim Pasternak <vadimp@nvidia.com>
+Cc: platform-driver-x86@vger.kernel.org
+Link: https://lore.kernel.org/r/20230226053953.4681-6-rdunlap@infradead.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/vmlinux.lds.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/mellanox/Kconfig | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/arch/sh/kernel/vmlinux.lds.S
-+++ b/arch/sh/kernel/vmlinux.lds.S
-@@ -4,6 +4,7 @@
-  * Written by Niibe Yutaka and Paul Mundt
-  */
- OUTPUT_ARCH(sh)
-+#define RUNTIME_DISCARD_EXIT
- #include <asm/thread_info.h>
- #include <asm/cache.h>
- #include <asm/vmlinux.lds.h>
+diff --git a/drivers/platform/mellanox/Kconfig b/drivers/platform/mellanox/Kconfig
+index 09c7829e95c4b..382793e73a60a 100644
+--- a/drivers/platform/mellanox/Kconfig
++++ b/drivers/platform/mellanox/Kconfig
+@@ -16,17 +16,17 @@ if MELLANOX_PLATFORM
+ 
+ config MLXREG_HOTPLUG
+ 	tristate "Mellanox platform hotplug driver support"
+-	depends on REGMAP
+ 	depends on HWMON
+ 	depends on I2C
++	select REGMAP
+ 	help
+ 	  This driver handles hot-plug events for the power suppliers, power
+ 	  cables and fans on the wide range Mellanox IB and Ethernet systems.
+ 
+ config MLXREG_IO
+ 	tristate "Mellanox platform register access driver support"
+-	depends on REGMAP
+ 	depends on HWMON
++	select REGMAP
+ 	help
+ 	  This driver allows access to Mellanox programmable device register
+ 	  space through sysfs interface. The sets of registers for sysfs access
+@@ -36,9 +36,9 @@ config MLXREG_IO
+ 
+ config MLXREG_LC
+ 	tristate "Mellanox line card platform driver support"
+-	depends on REGMAP
+ 	depends on HWMON
+ 	depends on I2C
++	select REGMAP
+ 	help
+ 	  This driver provides support for the Mellanox MSN4800-XX line cards,
+ 	  which are the part of MSN4800 Ethernet modular switch systems
+@@ -80,10 +80,9 @@ config MLXBF_PMC
+ 
+ config NVSW_SN2201
+ 	tristate "Nvidia SN2201 platform driver support"
+-	depends on REGMAP
+ 	depends on HWMON
+ 	depends on I2C
+-	depends on REGMAP_I2C
++	select REGMAP_I2C
+ 	help
+ 	  This driver provides support for the Nvidia SN2201 platform.
+ 	  The SN2201 is a highly integrated for one rack unit system with
+-- 
+2.39.2
+
 
 
