@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F646BB266
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B45B6BB111
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232547AbjCOMgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
+        id S232238AbjCOMYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbjCOMfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:46 -0400
+        with ESMTP id S232140AbjCOMYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325779AFC8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6237E10413
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20A92B81E0B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 949A8C433D2;
-        Wed, 15 Mar 2023 12:33:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43CC1B81DFF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F02DC433EF;
+        Wed, 15 Mar 2023 12:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883637;
-        bh=0l4XOViNGuNm5IyC+fCjy0pP8FuioqRfD/k5ZmIux9o=;
+        s=korg; t=1678882974;
+        bh=/TDAOyJhZKj1uIenEYQhaN9JceBpcOEw2uaip9XC77s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLegL6PQcPAOl0Qm1tT+HZpN+TqaUt4kEBTqPNY9TTiZozeOwIowhoaNdiQ9g96xl
-         qc46hY2Qr/ZyEksFkM1qDrCEUX03LX+z63KImTKZhkJ6pgfzcDSv9r75NTCcXLYt4h
-         yXjiDateLSceyqzqUIpHaqdTNPc+fN7d0ezr1YvY=
+        b=ZiN2NZq1rd9F508Nz24Ta1qhTrGRSQ62I3MIhO+tDYNFTDdUXgY4C9elxXz2GMHKV
+         bgvL+Uuw9GvntANa4EAn8QrIMUd6euu3GMbNQorXFHU7tOgGn0L7gJIAGfWv297oGu
+         XNY5X8pnKmXB50n7Ze2tlqfQRjC5auMqYTnQDrjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>,
+        patches@lists.linux.dev,
+        "sjur.brandeland@stericsson.com" <sjur.brandeland@stericsson.com>,
+        syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 047/143] ipmi:ssif: Add a timer between request retries
+Subject: [PATCH 5.10 042/104] net: caif: Fix use-after-free in cfusbl_device_notify()
 Date:   Wed, 15 Mar 2023 13:12:13 +0100
-Message-Id: <20230315115741.953361529@linuxfoundation.org>
+Message-Id: <20230315115733.761542328@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,133 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 00bb7e763ec9f384cb382455cb6ba5588b5375cf ]
+[ Upstream commit 9781e98a97110f5e76999058368b4be76a788484 ]
 
-The IPMI spec has a time (T6) specified between request retries.  Add
-the handling for that.
+syzbot reported use-after-free in cfusbl_device_notify() [1].  This
+causes a stack trace like below:
 
-Reported by: Tony Camuso <tcamuso@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+BUG: KASAN: use-after-free in cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
+Read of size 8 at addr ffff88807ac4e6f0 by task kworker/u4:6/1214
+
+CPU: 0 PID: 1214 Comm: kworker/u4:6 Not tainted 5.19.0-rc3-syzkaller-00146-g92f20ff72066 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
+ print_report mm/kasan/report.c:429 [inline]
+ kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
+ cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
+ notifier_call_chain+0xb5/0x200 kernel/notifier.c:87
+ call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1945
+ call_netdevice_notifiers_extack net/core/dev.c:1983 [inline]
+ call_netdevice_notifiers net/core/dev.c:1997 [inline]
+ netdev_wait_allrefs_any net/core/dev.c:10227 [inline]
+ netdev_run_todo+0xbc0/0x10f0 net/core/dev.c:10341
+ default_device_exit_batch+0x44e/0x590 net/core/dev.c:11334
+ ops_exit_list+0x125/0x170 net/core/net_namespace.c:167
+ cleanup_net+0x4ea/0xb00 net/core/net_namespace.c:594
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+ </TASK>
+
+When unregistering a net device, unregister_netdevice_many_notify()
+sets the device's reg_state to NETREG_UNREGISTERING, calls notifiers
+with NETDEV_UNREGISTER, and adds the device to the todo list.
+
+Later on, devices in the todo list are processed by netdev_run_todo().
+netdev_run_todo() waits devices' reference count become 1 while
+rebdoadcasting NETDEV_UNREGISTER notification.
+
+When cfusbl_device_notify() is called with NETDEV_UNREGISTER multiple
+times, the parent device might be freed.  This could cause UAF.
+Processing NETDEV_UNREGISTER multiple times also causes inbalance of
+reference count for the module.
+
+This patch fixes the issue by accepting only first NETDEV_UNREGISTER
+notification.
+
+Fixes: 7ad65bf68d70 ("caif: Add support for CAIF over CDC NCM USB interface")
+CC: sjur.brandeland@stericsson.com <sjur.brandeland@stericsson.com>
+Reported-by: syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=c3bfd8e2450adab3bffe4d80821fbbced600407f [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Link: https://lore.kernel.org/r/20230301163913.391304-1-syoshida@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 34 +++++++++++++++++++++++++++-------
- 1 file changed, 27 insertions(+), 7 deletions(-)
+ net/caif/caif_usb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index c25c4b1a03ae0..a5ddebb1edea4 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -74,7 +74,8 @@
- /*
-  * Timer values
-  */
--#define SSIF_MSG_USEC		60000	/* 60ms between message tries. */
-+#define SSIF_MSG_USEC		60000	/* 60ms between message tries (T3). */
-+#define SSIF_REQ_RETRY_USEC	60000	/* 60ms between send retries (T6). */
- #define SSIF_MSG_PART_USEC	5000	/* 5ms for a message part */
+diff --git a/net/caif/caif_usb.c b/net/caif/caif_usb.c
+index b02e1292f7f19..24488a4e2d26e 100644
+--- a/net/caif/caif_usb.c
++++ b/net/caif/caif_usb.c
+@@ -134,6 +134,9 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
+ 	struct usb_device *usbdev;
+ 	int res;
  
- /* How many times to we retry sending/receiving the message. */
-@@ -82,7 +83,9 @@
- #define	SSIF_RECV_RETRIES	250
- 
- #define SSIF_MSG_MSEC		(SSIF_MSG_USEC / 1000)
-+#define SSIF_REQ_RETRY_MSEC	(SSIF_REQ_RETRY_USEC / 1000)
- #define SSIF_MSG_JIFFIES	((SSIF_MSG_USEC * 1000) / TICK_NSEC)
-+#define SSIF_REQ_RETRY_JIFFIES	((SSIF_REQ_RETRY_USEC * 1000) / TICK_NSEC)
- #define SSIF_MSG_PART_JIFFIES	((SSIF_MSG_PART_USEC * 1000) / TICK_NSEC)
- 
- /*
-@@ -229,6 +232,9 @@ struct ssif_info {
- 	bool		    got_alert;
- 	bool		    waiting_alert;
- 
-+	/* Used to inform the timeout that it should do a resend. */
-+	bool		    do_resend;
++	if (what == NETDEV_UNREGISTER && dev->reg_state >= NETREG_UNREGISTERED)
++		return 0;
 +
- 	/*
- 	 * If set to true, this will request events the next time the
- 	 * state machine is idle.
-@@ -531,22 +537,28 @@ static void start_get(struct ssif_info *ssif_info)
- 		  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
- }
- 
-+static void start_resend(struct ssif_info *ssif_info);
-+
- static void retry_timeout(struct timer_list *t)
- {
- 	struct ssif_info *ssif_info = from_timer(ssif_info, t, retry_timer);
- 	unsigned long oflags, *flags;
--	bool waiting;
-+	bool waiting, resend;
- 
- 	if (ssif_info->stopping)
- 		return;
- 
- 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
-+	resend = ssif_info->do_resend;
-+	ssif_info->do_resend = false;
- 	waiting = ssif_info->waiting_alert;
- 	ssif_info->waiting_alert = false;
- 	ipmi_ssif_unlock_cond(ssif_info, flags);
- 
- 	if (waiting)
- 		start_get(ssif_info);
-+	if (resend)
-+		start_resend(ssif_info);
- }
- 
- static void watch_timeout(struct timer_list *t)
-@@ -595,8 +607,6 @@ static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
- 		start_get(ssif_info);
- }
- 
--static void start_resend(struct ssif_info *ssif_info);
--
- static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 			     unsigned char *data, unsigned int len)
- {
-@@ -901,7 +911,13 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
- 	if (result < 0) {
- 		ssif_info->retries_left--;
- 		if (ssif_info->retries_left > 0) {
--			start_resend(ssif_info);
-+			/*
-+			 * Wait the retry timeout time per the spec,
-+			 * then redo the send.
-+			 */
-+			ssif_info->do_resend = true;
-+			mod_timer(&ssif_info->retry_timer,
-+				  jiffies + SSIF_REQ_RETRY_JIFFIES);
- 			return;
- 		}
- 
-@@ -1311,8 +1327,10 @@ static int do_cmd(struct i2c_client *client, int len, unsigned char *msg,
- 	ret = i2c_smbus_write_block_data(client, SSIF_IPMI_REQUEST, len, msg);
- 	if (ret) {
- 		retry_cnt--;
--		if (retry_cnt > 0)
-+		if (retry_cnt > 0) {
-+			msleep(SSIF_REQ_RETRY_MSEC);
- 			goto retry1;
-+		}
- 		return -ENODEV;
- 	}
- 
-@@ -1453,8 +1471,10 @@ static int start_multipart_test(struct i2c_client *client,
- 					 32, msg);
- 	if (ret) {
- 		retry_cnt--;
--		if (retry_cnt > 0)
-+		if (retry_cnt > 0) {
-+			msleep(SSIF_REQ_RETRY_MSEC);
- 			goto retry_write;
-+		}
- 		dev_err(&client->dev, "Could not write multi-part start, though the BMC said it could handle it.  Just limit sends to one part.\n");
- 		return ret;
- 	}
+ 	/* Check whether we have a NCM device, and find its VID/PID. */
+ 	if (!(dev->dev.parent && dev->dev.parent->driver &&
+ 	      strcmp(dev->dev.parent->driver->name, "cdc_ncm") == 0))
 -- 
 2.39.2
 
