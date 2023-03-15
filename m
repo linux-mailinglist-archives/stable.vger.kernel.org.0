@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0446BB184
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 456E56BB0E8
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232489AbjCOM2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:28:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57892 "EHLO
+        id S232292AbjCOMWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:22:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232441AbjCOM15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21AE79B984
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:56 -0700 (PDT)
+        with ESMTP id S232064AbjCOMWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E22F97486
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76CE161ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D8A3C433EF;
-        Wed, 15 Mar 2023 12:26:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E474D61D58
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049D1C43443;
+        Wed, 15 Mar 2023 12:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883213;
-        bh=6tUjH8bWN0jkW+H2oNmGniF5MDJP2jgc/3922VpjwpM=;
+        s=korg; t=1678882872;
+        bh=w+0UgV/xH/5e0p6nE0ONsssNMM0Yzh/JK9dM1d3d1vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDnb6maL7jEXA0cn+X9zk71nuGd9abGCYXnTl6Rq64ie2e1abOTNdP7XD8gWehAzO
-         vdMnA1NXRkvGVyE1Nol8LLN25ZT5bf1GfcTbwtFpRDJ/rd8fWpw9q8mzVHbEkU5Cvf
-         cZpQr5k9gC/vm/D4zhjixOBAxnWrYK6qdBURfZZ4=
+        b=U0cJNC+q50ojfBHGI7cdI8loMtA0g+Pr3ImC6G3rA2a2wP9xCyREiFcI+UllP+rFP
+         17TKtAhfxJZAzYzlWUvHmu3yAHKIdvuI2pFKOhvhklMxMIEt+swweoomHRWs/8tD5z
+         qKmPpjvHj/DMYqORvA3lM5uz043ANiP+wU5q1AFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Petr Oros <poros@redhat.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Yassine Oudjana <y.oudjana@protonmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 058/145] ice: copy last block omitted in ice_get_module_eeprom()
+Subject: [PATCH 5.10 033/104] drm/msm/a5xx: fix the emptyness check in the preempt code
 Date:   Wed, 15 Mar 2023 13:12:04 +0100
-Message-Id: <20230315115740.948873173@linuxfoundation.org>
+Message-Id: <20230315115733.395199739@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,113 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Oros <poros@redhat.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 84cba1840e68430325ac133a11be06bfb2f7acd8 ]
+[ Upstream commit b4fb748f0b734ce1d2e7834998cc599fcbd25d67 ]
 
-ice_get_module_eeprom() is broken since commit e9c9692c8a81 ("ice:
-Reimplement module reads used by ethtool") In this refactor,
-ice_get_module_eeprom() reads the eeprom in blocks of size 8.
-But the condition that should protect the buffer overflow
-ignores the last block. The last block always contains zeros.
+Quoting Yassine: ring->memptrs->rptr is never updated and stays 0, so
+the comparison always evaluates to false and get_next_ring always
+returns ring 0 thinking it isn't empty.
 
-Bug uncovered by ethtool upstream commit 9538f384b535
-("netlink: eeprom: Defer page requests to individual parsers")
-After this commit, ethtool reads a block with length = 1;
-to read the SFF-8024 identifier value.
+Fix this by calling get_rptr() instead of reading rptr directly.
 
-unpatched driver:
-$ ethtool -m enp65s0f0np0 offset 0x90 length 8
-Offset          Values
-------          ------
-0x0090:         00 00 00 00 00 00 00 00
-$ ethtool -m enp65s0f0np0 offset 0x90 length 12
-Offset          Values
-------          ------
-0x0090:         00 00 01 a0 4d 65 6c 6c 00 00 00 00
-$
-
-$ ethtool -m enp65s0f0np0
-Offset          Values
-------          ------
-0x0000:         11 06 06 00 00 00 00 00 00 00 00 00 00 00 00 00
-0x0010:         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-0x0020:         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-0x0030:         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-0x0040:         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-0x0050:         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-0x0060:         00 00 00 00 00 00 00 00 00 00 00 00 00 01 08 00
-0x0070:         00 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-patched driver:
-$ ethtool -m enp65s0f0np0 offset 0x90 length 8
-Offset          Values
-------          ------
-0x0090:         00 00 01 a0 4d 65 6c 6c
-$ ethtool -m enp65s0f0np0 offset 0x90 length 12
-Offset          Values
-------          ------
-0x0090:         00 00 01 a0 4d 65 6c 6c 61 6e 6f 78
-$ ethtool -m enp65s0f0np0
-    Identifier                                : 0x11 (QSFP28)
-    Extended identifier                       : 0x00
-    Extended identifier description           : 1.5W max. Power consumption
-    Extended identifier description           : No CDR in TX, No CDR in RX
-    Extended identifier description           : High Power Class (> 3.5 W) not enabled
-    Connector                                 : 0x23 (No separable connector)
-    Transceiver codes                         : 0x88 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-    Transceiver type                          : 40G Ethernet: 40G Base-CR4
-    Transceiver type                          : 25G Ethernet: 25G Base-CR CA-N
-    Encoding                                  : 0x05 (64B/66B)
-    BR, Nominal                               : 25500Mbps
-    Rate identifier                           : 0x00
-    Length (SMF,km)                           : 0km
-    Length (OM3 50um)                         : 0m
-    Length (OM2 50um)                         : 0m
-    Length (OM1 62.5um)                       : 0m
-    Length (Copper or Active cable)           : 1m
-    Transmitter technology                    : 0xa0 (Copper cable unequalized)
-    Attenuation at 2.5GHz                     : 4db
-    Attenuation at 5.0GHz                     : 5db
-    Attenuation at 7.0GHz                     : 7db
-    Attenuation at 12.9GHz                    : 10db
-    ........
-    ....
-
-Fixes: e9c9692c8a81 ("ice: Reimplement module reads used by ethtool")
-Signed-off-by: Petr Oros <poros@redhat.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Yassine Oudjana <y.oudjana@protonmail.com>
+Fixes: b1fc2839d2f9 ("drm/msm: Implement preemption for A5XX targets")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/522642/
+Link: https://lore.kernel.org/r/20230214020956.164473-4-dmitry.baryshkov@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_preempt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 24001035910e0..60f73e775beeb 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -3998,6 +3998,8 @@ ice_get_module_eeprom(struct net_device *netdev,
- 		 * SFP modules only ever use page 0.
- 		 */
- 		if (page == 0 || !(data[0x2] & 0x4)) {
-+			u32 copy_len;
-+
- 			/* If i2c bus is busy due to slow page change or
- 			 * link management access, call can fail. This is normal.
- 			 * So we retry this a few times.
-@@ -4021,8 +4023,8 @@ ice_get_module_eeprom(struct net_device *netdev,
- 			}
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+index 183de1139eeb6..9da0aff0072d7 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+@@ -63,7 +63,7 @@ static struct msm_ringbuffer *get_next_ring(struct msm_gpu *gpu)
+ 		struct msm_ringbuffer *ring = gpu->rb[i];
  
- 			/* Make sure we have enough room for the new block */
--			if ((i + SFF_READ_BLOCK_SIZE) < ee->len)
--				memcpy(data + i, value, SFF_READ_BLOCK_SIZE);
-+			copy_len = min_t(u32, SFF_READ_BLOCK_SIZE, ee->len - i);
-+			memcpy(data + i, value, copy_len);
- 		}
- 	}
- 	return 0;
+ 		spin_lock_irqsave(&ring->preempt_lock, flags);
+-		empty = (get_wptr(ring) == ring->memptrs->rptr);
++		empty = (get_wptr(ring) == gpu->funcs->get_rptr(gpu, ring));
+ 		spin_unlock_irqrestore(&ring->preempt_lock, flags);
+ 
+ 		if (!empty)
 -- 
 2.39.2
 
