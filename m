@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2ADF6BB314
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D47AE6BB26B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232864AbjCOMl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
+        id S232425AbjCOMgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233016AbjCOMlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8253326872
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:56 -0700 (PDT)
+        with ESMTP id S232698AbjCOMfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A6E919B6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 657D761D7F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74BCEC433EF;
-        Wed, 15 Mar 2023 12:39:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70DC261D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86721C433D2;
+        Wed, 15 Mar 2023 12:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883957;
-        bh=fH9geY99T4+v1UiodIWGzlwR35ZXTwQZMz4ie8NFuoU=;
+        s=korg; t=1678883624;
+        bh=tax5HNBs2jRqEFy9ozSMBd2IV1cguXW46DqrkOX6Ppo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sxym9bodqepMSXFIUY3vUArYZEIogiEGUWhGStFru1PkYrSPkZB0kkwvfsP/hAVSE
-         OZQoMgv0O7pM5IgC8ZmnQcqdvbRmGPch+Z8Mtsl4u11Jti1+GoOP5TZPfLmTwKWHAh
-         IJsVvAamy2ZNlWzQAp8gkCWO13wYD5v6i7IMgWKs=
+        b=ZPi5DvPURYHTniKA8+u6P/HOd29GtzQvSWhfabBuKdWS2MwFGMKAkNv5EGPpq/B53
+         3s2OBhObAMH4reQcse7VoM2SC6yW0e4ja9t8AxfBo8E1ySF3E+SvvufHd0kZD+y9+9
+         NywYvU8wgpy4e+/4QcvZ9m0lG8i4MSKVBoxOYiXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Mason <jdmason@kudzu.us>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 052/141] bgmac: fix *initial* chip reset to support BCM5358
+Subject: [PATCH 6.1 069/143] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
 Date:   Wed, 15 Mar 2023 13:12:35 +0100
-Message-Id: <20230315115741.551944916@linuxfoundation.org>
+Message-Id: <20230315115742.641889173@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,87 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit f99e6d7c4ed3be2531bd576425a5bd07fb133bd7 ]
+[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
 
-While bringing hardware up we should perform a full reset including the
-switch bit (BGMAC_BCMA_IOCTL_SW_RESET aka SICF_SWRST). It's what
-specification says and what reference driver does.
+ila_xlat_nl_cmd_get_mapping() generates an empty skb,
+triggerring a recent sanity check [1].
 
-This seems to be critical for the BCM5358. Without this hardware doesn't
-get initialized properly and doesn't seem to transmit or receive any
-packets.
+Instead, return an error code, so that user space
+can get it.
 
-Originally bgmac was calling bgmac_chip_reset() before setting
-"has_robosw" property which resulted in expected behaviour. That has
-changed as a side effect of adding platform device support which
-regressed BCM5358 support.
+[1]
+skb_assert_len
+WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
+WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+Modules linked in:
+CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
+pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
+lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+sp : ffff80001e0d6c40
+x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
+x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
+x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
+x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
+x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
+x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
+x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
+x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
+x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
+x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
+Call trace:
+skb_assert_len include/linux/skbuff.h:2527 [inline]
+__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+dev_queue_xmit include/linux/netdevice.h:3033 [inline]
+__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
+__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
+netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
+__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
+netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
+netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
+nlmsg_unicast include/net/netlink.h:1099 [inline]
+genlmsg_unicast include/net/genetlink.h:433 [inline]
+genlmsg_reply include/net/genetlink.h:443 [inline]
+ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
+genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
+genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
+genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
+netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
+genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
+netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
+netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
+netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg net/socket.c:734 [inline]
+____sys_sendmsg+0x558/0x844 net/socket.c:2479
+___sys_sendmsg net/socket.c:2533 [inline]
+__sys_sendmsg+0x26c/0x33c net/socket.c:2562
+__do_sys_sendmsg net/socket.c:2571 [inline]
+__se_sys_sendmsg net/socket.c:2569 [inline]
+__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
+__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
+invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
+el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
+do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
+el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
+el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
+el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
+irq event stamp: 136484
+hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
+hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
+softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
+softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
+softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
+---[ end trace 0000000000000000 ]---
+skb len=0 headroom=0 headlen=0 tailroom=192
+mac=(0,0) net=(0,-1) trans=-1
+shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
+csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
+hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
+dev name=nlmon0 feat=0x0000000000005861
 
-Fixes: f6a95a24957a ("net: ethernet: bgmac: Add platform device support")
-Cc: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20230227091156.19509-1-zajec5@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bgmac.c | 8 ++++++--
- drivers/net/ethernet/broadcom/bgmac.h | 2 ++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ net/ipv6/ila/ila_xlat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
-index 3038386a5afd8..1761df8fb7f96 100644
---- a/drivers/net/ethernet/broadcom/bgmac.c
-+++ b/drivers/net/ethernet/broadcom/bgmac.c
-@@ -890,13 +890,13 @@ static void bgmac_chip_reset_idm_config(struct bgmac *bgmac)
+diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
+index 47447f0241df6..bee45dfeb1874 100644
+--- a/net/ipv6/ila/ila_xlat.c
++++ b/net/ipv6/ila/ila_xlat.c
+@@ -477,6 +477,7 @@ int ila_xlat_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
  
- 		if (iost & BGMAC_BCMA_IOST_ATTACHED) {
- 			flags = BGMAC_BCMA_IOCTL_SW_CLKEN;
--			if (!bgmac->has_robosw)
-+			if (bgmac->in_init || !bgmac->has_robosw)
- 				flags |= BGMAC_BCMA_IOCTL_SW_RESET;
- 		}
- 		bgmac_clk_enable(bgmac, flags);
- 	}
+ 	rcu_read_lock();
  
--	if (iost & BGMAC_BCMA_IOST_ATTACHED && !bgmac->has_robosw)
-+	if (iost & BGMAC_BCMA_IOST_ATTACHED && (bgmac->in_init || !bgmac->has_robosw))
- 		bgmac_idm_write(bgmac, BCMA_IOCTL,
- 				bgmac_idm_read(bgmac, BCMA_IOCTL) &
- 				~BGMAC_BCMA_IOCTL_SW_RESET);
-@@ -1490,6 +1490,8 @@ int bgmac_enet_probe(struct bgmac *bgmac)
- 	struct net_device *net_dev = bgmac->net_dev;
- 	int err;
- 
-+	bgmac->in_init = true;
-+
- 	bgmac_chip_intrs_off(bgmac);
- 
- 	net_dev->irq = bgmac->irq;
-@@ -1542,6 +1544,8 @@ int bgmac_enet_probe(struct bgmac *bgmac)
- 	/* Omit FCS from max MTU size */
- 	net_dev->max_mtu = BGMAC_RX_MAX_FRAME_SIZE - ETH_FCS_LEN;
- 
-+	bgmac->in_init = false;
-+
- 	err = register_netdev(bgmac->net_dev);
- 	if (err) {
- 		dev_err(bgmac->dev, "Cannot register net device\n");
-diff --git a/drivers/net/ethernet/broadcom/bgmac.h b/drivers/net/ethernet/broadcom/bgmac.h
-index e05ac92c06504..d73ef262991d6 100644
---- a/drivers/net/ethernet/broadcom/bgmac.h
-+++ b/drivers/net/ethernet/broadcom/bgmac.h
-@@ -472,6 +472,8 @@ struct bgmac {
- 	int irq;
- 	u32 int_mask;
- 
-+	bool in_init;
-+
- 	/* Current MAC state */
- 	int mac_speed;
- 	int mac_duplex;
++	ret = -ESRCH;
+ 	ila = ila_lookup_by_params(&xp, ilan);
+ 	if (ila) {
+ 		ret = ila_dump_info(ila,
 -- 
 2.39.2
 
