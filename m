@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD956BB245
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA586BB18C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232399AbjCOMe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:34:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40224 "EHLO
+        id S232114AbjCOM2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:28:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232671AbjCOMeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B91637E0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:05 -0700 (PDT)
+        with ESMTP id S232416AbjCOM2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F1E90B7B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2208CCE19BE
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225E6C4339C;
-        Wed, 15 Mar 2023 12:32:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0B0D61D59
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3DBEC433EF;
+        Wed, 15 Mar 2023 12:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883580;
-        bh=SMSKeoY7EIQLFnWVZAvQCxTdxHh66/3Na1W7rW+5Prc=;
+        s=korg; t=1678883232;
+        bh=yX16k0Nh2KcYRzjmDNVj+RByDoVhwVbko8q98jgCSMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyHvF3vtXQPdSsveRDs0Kt7/QitVAPROhqN0H6liGK/62GuZeBHgpw6OSRx4X1Ogj
-         uBzwuJnzyvtZ6f8Wzy3DctMdgC2a4g9Vfd9j5sjC7YX12eBuhcwfDelxi1zH5bu349
-         7JBCdFEhS7QJClIBpF2UuyBubpPwTM8ffDA9NJgQ=
+        b=dBGq6BxLGz/DiAF8dG6gWLw6uNIsawVT+OU8dtN5TlAnqx4eNd3UV8K8QL+nntHQk
+         Ok9RUTUOFwLEJlz/2xrUiPKrN990cx5XrMtchnsLhMyp+D+rePa8KG6tF5vqUuTq4l
+         +P3PfqWfiCUsbdAwtae3i1Y+LMkNZcshF8zQgdKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 045/143] ipmi:ssif: Remove rtc_us_timer
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?Major=20D=C3=A1vid?= <major.david@balasys.hu>
+Subject: [PATCH 5.15 065/145] netfilter: tproxy: fix deadlock due to missing BH disable
 Date:   Wed, 15 Mar 2023 13:12:11 +0100
-Message-Id: <20230315115741.888198129@linuxfoundation.org>
+Message-Id: <20230315115741.182320068@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 9e8b89926fb87e5625bdde6fd5de2c31fb1d83bf ]
+[ Upstream commit 4a02426787bf024dafdb79b362285ee325de3f5e ]
 
-It was cruft left over from older handling of run to completion.
+The xtables packet traverser performs an unconditional local_bh_disable(),
+but the nf_tables evaluation loop does not.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Functions that are called from either xtables or nftables must assume
+that they can be called in process context.
+
+inet_twsk_deschedule_put() assumes that no softirq interrupt can occur.
+If tproxy is used from nf_tables its possible that we'll deadlock
+trying to aquire a lock already held in process context.
+
+Add a small helper that takes care of this and use it.
+
+Link: https://lore.kernel.org/netfilter-devel/401bd6ed-314a-a196-1cdc-e13c720cc8f2@balasys.hu/
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
+Reported-and-tested-by: Major Dávid <major.david@balasys.hu>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ include/net/netfilter/nf_tproxy.h   | 7 +++++++
+ net/ipv4/netfilter/nf_tproxy_ipv4.c | 2 +-
+ net/ipv6/netfilter/nf_tproxy_ipv6.c | 2 +-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index 7c606c49cd535..cbd56886f1d2a 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -241,12 +241,6 @@ struct ssif_info {
- 	 */
- 	bool                req_flags;
+diff --git a/include/net/netfilter/nf_tproxy.h b/include/net/netfilter/nf_tproxy.h
+index 82d0e41b76f22..faa108b1ba675 100644
+--- a/include/net/netfilter/nf_tproxy.h
++++ b/include/net/netfilter/nf_tproxy.h
+@@ -17,6 +17,13 @@ static inline bool nf_tproxy_sk_is_transparent(struct sock *sk)
+ 	return false;
+ }
  
--	/*
--	 * Used to perform timer operations when run-to-completion
--	 * mode is on.  This is a countdown timer.
--	 */
--	int                 rtc_us_timer;
--
- 	/* Used for sending/receiving data.  +1 for the length. */
- 	unsigned char data[IPMI_MAX_MSG_LENGTH + 1];
- 	unsigned int  data_len;
-@@ -530,7 +524,6 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 
- static void start_get(struct ssif_info *ssif_info)
++static inline void nf_tproxy_twsk_deschedule_put(struct inet_timewait_sock *tw)
++{
++	local_bh_disable();
++	inet_twsk_deschedule_put(tw);
++	local_bh_enable();
++}
++
+ /* assign a socket to the skb -- consumes sk */
+ static inline void nf_tproxy_assign_sock(struct sk_buff *skb, struct sock *sk)
  {
--	ssif_info->rtc_us_timer = 0;
- 	ssif_info->multi_pos = 0;
- 
- 	ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
-@@ -622,7 +615,6 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 
- 			flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
- 			ssif_info->waiting_alert = true;
--			ssif_info->rtc_us_timer = SSIF_MSG_USEC;
- 			if (!ssif_info->stopping)
- 				mod_timer(&ssif_info->retry_timer,
- 					  jiffies + SSIF_MSG_JIFFIES);
-@@ -973,7 +965,6 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
- 			/* Wait a jiffie then request the next message */
- 			ssif_info->waiting_alert = true;
- 			ssif_info->retries_left = SSIF_RECV_RETRIES;
--			ssif_info->rtc_us_timer = SSIF_MSG_PART_USEC;
- 			if (!ssif_info->stopping)
- 				mod_timer(&ssif_info->retry_timer,
- 					  jiffies + SSIF_MSG_PART_JIFFIES);
+diff --git a/net/ipv4/netfilter/nf_tproxy_ipv4.c b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+index b2bae0b0e42a1..61cb2341f50fe 100644
+--- a/net/ipv4/netfilter/nf_tproxy_ipv4.c
++++ b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+@@ -38,7 +38,7 @@ nf_tproxy_handle_time_wait4(struct net *net, struct sk_buff *skb,
+ 					    hp->source, lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
+diff --git a/net/ipv6/netfilter/nf_tproxy_ipv6.c b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+index 6bac68fb27a39..3fe4f15e01dc8 100644
+--- a/net/ipv6/netfilter/nf_tproxy_ipv6.c
++++ b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+@@ -63,7 +63,7 @@ nf_tproxy_handle_time_wait6(struct sk_buff *skb, int tproto, int thoff,
+ 					    lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
 -- 
 2.39.2
 
