@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 562BB6BB148
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 242B46BB2B1
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232458AbjCOM0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57566 "EHLO
+        id S232664AbjCOMiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232419AbjCOMZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:51 -0400
+        with ESMTP id S232855AbjCOMhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A26995E1E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F28D22797
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE4BB81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D19FC4339B;
-        Wed, 15 Mar 2023 12:24:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F04BEB81E07
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64383C433EF;
+        Wed, 15 Mar 2023 12:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883063;
-        bh=aVML3pMDl4ESDl+Gwg36VjcT1n2pphXNmuxRN3eqICA=;
+        s=korg; t=1678883734;
+        bh=P8WtG9BaS9rgZUlNZKwz4fK6E0nSJYsyB+nNphrUz84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3zD18YsN2M4SIOsaK4vP3wJuPD+REkT/NgvtF9n3Jl7M2DKlajoLVf+7o1jtX+A1
-         h270xE6TyuLj90Sszhm/pD1SN8oBXYagK/lr/kT6WR59UiZ7xPADe3Z/H6zQpKCJQQ
-         MKCr7H0JRsLlcaKTTXImoYZEO2kJrcQlAYOvxNak=
+        b=BpzTssHSQ/Mlg33NTBrVULHIgT9jsZEZYhN2SUnVKHEUEXIrp6Xw+3qbLPWzeza05
+         +XdGpI1+iEoyKYxT1wXWXfNPkSBqsdgP3KzIe9JZ1/d/JKkVFGYN5u6ItPagugdQmz
+         hXMv7UXoRiTYJfLrd6eUWQ1vozqcReBf/fWjG0MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yejune Deng <yejune.deng@gmail.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.10 077/104] ipmi/watchdog: replace atomic_add() and atomic_sub()
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 082/143] drm/msm/dpu: drop DPU_DIM_LAYER from MIXER_MSM8998_MASK
 Date:   Wed, 15 Mar 2023 13:12:48 +0100
-Message-Id: <20230315115735.142991661@linuxfoundation.org>
+Message-Id: <20230315115743.031391767@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yejune Deng <yejune.deng@gmail.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit a01a89b1db1066a6af23ae08b9a0c345b7966f0b upstream.
+[ Upstream commit a5045b00a68171de11603812f4304179ef608e60 ]
 
-atomic_inc() and atomic_dec() looks better
+The msm8998 doesn't seem to support DIM_LAYER, so drop it from
+the supported features mask.
 
-Signed-off-by: Yejune Deng <yejune.deng@gmail.com>
-Message-Id: <1605511807-7135-1-git-send-email-yejune.deng@gmail.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d8a4edb672d ("drm/msm/dpu: use feature bit for LM combined alpha check")
+Fixes: 94391a14fc27 ("drm/msm/dpu1: Add MSM8998 to hw catalog")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/522231/
+Link: https://lore.kernel.org/r/20230211231259.1308718-12-dmitry.baryshkov@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_watchdog.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -503,7 +503,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 	msg.cmd = IPMI_WDOG_RESET_TIMER;
- 	msg.data = NULL;
- 	msg.data_len = 0;
--	atomic_add(1, &panic_done_count);
-+	atomic_inc(&panic_done_count);
- 	rv = ipmi_request_supply_msgs(watchdog_user,
- 				      (struct ipmi_addr *) &addr,
- 				      0,
-@@ -513,7 +513,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 				      &panic_halt_heartbeat_recv_msg,
- 				      1);
- 	if (rv)
--		atomic_sub(1, &panic_done_count);
-+		atomic_dec(&panic_done_count);
- }
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index 48fedd3f182e6..4c8d1d18b5055 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -55,7 +55,7 @@
+ 	(DMA_MSM8998_MASK | BIT(DPU_SSPP_CURSOR))
  
- static struct ipmi_smi_msg panic_halt_smi_msg = {
-@@ -537,12 +537,12 @@ static void panic_halt_ipmi_set_timeout(
- 	/* Wait for the messages to be free. */
- 	while (atomic_read(&panic_done_count) != 0)
- 		ipmi_poll_interface(watchdog_user);
--	atomic_add(1, &panic_done_count);
-+	atomic_inc(&panic_done_count);
- 	rv = __ipmi_set_timeout(&panic_halt_smi_msg,
- 				&panic_halt_recv_msg,
- 				&send_heartbeat_now);
- 	if (rv) {
--		atomic_sub(1, &panic_done_count);
-+		atomic_dec(&panic_done_count);
- 		pr_warn("Unable to extend the watchdog timeout\n");
- 	} else {
- 		if (send_heartbeat_now)
+ #define MIXER_MSM8998_MASK \
+-	(BIT(DPU_MIXER_SOURCESPLIT) | BIT(DPU_DIM_LAYER))
++	(BIT(DPU_MIXER_SOURCESPLIT))
+ 
+ #define MIXER_SDM845_MASK \
+ 	(BIT(DPU_MIXER_SOURCESPLIT) | BIT(DPU_DIM_LAYER) | BIT(DPU_MIXER_COMBINED_ALPHA))
+-- 
+2.39.2
+
 
 
