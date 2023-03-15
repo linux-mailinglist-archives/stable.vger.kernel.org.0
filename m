@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A00116BB078
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DCD6BB2F7
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232031AbjCOMSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:18:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
+        id S232941AbjCOMko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:40:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbjCOMSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:18:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D6E6151F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:12 -0700 (PDT)
+        with ESMTP id S232938AbjCOMkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:22 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B949E66D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B065261D38
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C218CC433D2;
-        Wed, 15 Mar 2023 12:18:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8FBB8CE19C4
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F832C433EF;
+        Wed, 15 Mar 2023 12:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882691;
-        bh=17mih1bnqm6gwxwctscmcjfIG0xSNUDzm0j2fvCHPvw=;
+        s=korg; t=1678883933;
+        bh=O3Ll1vNAi2Rano9e48x/SRitoSsMqCGrnd5YEOvfnHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnrnBrF8ld0gV+dQbCBlknhOOYyy9BI5IJUFGduI7wIazD6NTqF8BGjl+krZ0Y6jo
-         ektVqCdjncks1HVnlAHH7Wk9sjZpffKnTAtxIiRBvF3mEsZcqhcGOvFQNL/YLaXqlm
-         XoKwvTh/xphmFZGift4Nh9WHBapBHk1bd1HVlNsc=
+        b=I3ttBpuPnadvjs6q/OkgxckIByvZez/NBEBgDZicE4H7/j5yj8v79DkrZc9F0NfPE
+         ++yhANmj2WNi9iJpp2pVGhvGpyOgociaEkLa6krftfMyQWqqy9D4Tl7sTnv8omYQZO
+         9VdleJ23oKOzfsJLe3s1Z258VK3sqX/VpwWJMPAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Volker Lendecke <vl@samba.org>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/68] cifs: Fix uninitialized memory read in smb3_qfs_tcon()
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 044/141] ext4: Fix possible corruption when moving a directory
 Date:   Wed, 15 Mar 2023 13:12:27 +0100
-Message-Id: <20230315115727.393174210@linuxfoundation.org>
+Message-Id: <20230315115741.310516660@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,45 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Volker Lendecke <vl@samba.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit d447e794a37288ec7a080aa1b044a8d9deebbab7 ]
+[ Upstream commit 0813299c586b175d7edb25f56412c54b812d0379 ]
 
-oparms was not fully initialized
+When we are renaming a directory to a different directory, we need to
+update '..' entry in the moved directory. However nothing prevents moved
+directory from being modified and even converted from the inline format
+to the normal format. When such race happens the rename code gets
+confused and we crash. Fix the problem by locking the moved directory.
 
-Signed-off-by: Volker Lendecke <vl@samba.org>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: stable@vger.kernel.org
+Fixes: 32f7f22c0b52 ("ext4: let ext4_rename handle inline dir")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230126112221.11866-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/ext4/namei.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index a3bb2c7468c75..4cb0ebe7330eb 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -823,12 +823,13 @@ smb3_qfs_tcon(const unsigned int xid, struct cifs_tcon *tcon,
- 	struct cifs_fid fid;
- 	bool no_cached_open = tcon->nohandlecache;
- 
--	oparms.tcon = tcon;
--	oparms.desired_access = FILE_READ_ATTRIBUTES;
--	oparms.disposition = FILE_OPEN;
--	oparms.create_options = cifs_create_options(cifs_sb, 0);
--	oparms.fid = &fid;
--	oparms.reconnect = false;
-+	oparms = (struct cifs_open_parms) {
-+		.tcon = tcon,
-+		.desired_access = FILE_READ_ATTRIBUTES,
-+		.disposition = FILE_OPEN,
-+		.create_options = cifs_create_options(cifs_sb, 0),
-+		.fid = &fid,
-+	};
- 
- 	if (no_cached_open)
- 		rc = SMB2_open(xid, &oparms, &srch_path, &oplock, NULL, NULL,
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 924e16b239e07..e8f429330f3c3 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3873,9 +3873,16 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
+ 				goto end_rename;
+ 		}
++		/*
++		 * We need to protect against old.inode directory getting
++		 * converted from inline directory format into a normal one.
++		 */
++		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
+ 		retval = ext4_rename_dir_prepare(handle, &old);
+-		if (retval)
++		if (retval) {
++			inode_unlock(old.inode);
+ 			goto end_rename;
++		}
+ 	}
+ 	/*
+ 	 * If we're renaming a file within an inline_data dir and adding or
+@@ -4007,6 +4014,8 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 	} else {
+ 		ext4_journal_stop(handle);
+ 	}
++	if (old.dir_bh)
++		inode_unlock(old.inode);
+ release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
 -- 
 2.39.2
 
