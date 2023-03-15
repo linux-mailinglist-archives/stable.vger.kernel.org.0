@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 902AB6BB300
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDAF76BB089
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232846AbjCOMk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
+        id S232119AbjCOMTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbjCOMkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6111F231D1
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:26 -0700 (PDT)
+        with ESMTP id S232042AbjCOMTC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC76E303C4
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0299261D5E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA743C433EF;
-        Wed, 15 Mar 2023 12:38:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44C0A61D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20172C433EF;
+        Wed, 15 Mar 2023 12:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883889;
-        bh=ce9CHtg3M/RaWr7G3yLDOOz/kBfNVARFASuA9T2J9ZQ=;
+        s=korg; t=1678882722;
+        bh=WOssZ52lBD3g0v6+lo2kG0aqwB6NpkEbI7Y4Q/TAwNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riyOXZuMYVu3j+xzMzPugcmExfUX2tCgqjsm4JtpBuIVAQ6hgY6BioUJeT+ppUFDz
-         qu8PyfBlpxGrNKvDGjk5gsufYxiHFSzuoflW/tVC3EJm1R6eKw9mrp6ZHY4Khuhfps
-         FGHgswEh1uwHamRpjJFVlGTtu3PSiK3LZpEJPNMA=
+        b=0LrlMZaee1abzOniJldlbSbAlM7QTchUN7EZBwEdZgJ2NlhoGSl8rsekRBlODNjZN
+         3MCNl9qIrp71zO4UCn5eM/ne2cukjQbaFYANqWp+bucviQGn/leprpKADeZFeIcX2g
+         s5MiOriVOQ9UtU2icHjTzo0jiGCznvwguED9m48s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 6.2 026/141] HID: core: Provide new max_buffer_size attribute to over-ride the default
+        patches@lists.linux.dev, Kim Phillips <kim.phillips@amd.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/68] iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options
 Date:   Wed, 15 Mar 2023 13:12:09 +0100
-Message-Id: <20230315115740.777814084@linuxfoundation.org>
+Message-Id: <20230315115726.684937976@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,133 +54,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee@kernel.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit b1a37ed00d7908a991c1d0f18a8cba3c2aa99bdc upstream.
+[ Upstream commit 1198d2316dc4265a97d0e8445a22c7a6d17580a4 ]
 
-Presently, when a report is processed, its proposed size, provided by
-the user of the API (as Report Size * Report Count) is compared against
-the subsystem default HID_MAX_BUFFER_SIZE (16k).  However, some
-low-level HID drivers allocate a reduced amount of memory to their
-buffers (e.g. UHID only allocates UHID_DATA_MAX (4k) buffers), rending
-this check inadequate in some cases.
+Currently, these options cause the following libkmod error:
 
-In these circumstances, if the received report ends up being smaller
-than the proposed report size, the remainder of the buffer is zeroed.
-That is, the space between sizeof(csize) (size of the current report)
-and the rsize (size proposed i.e. Report Size * Report Count), which can
-be handled up to HID_MAX_BUFFER_SIZE (16k).  Meaning that memset()
-shoots straight past the end of the buffer boundary and starts zeroing
-out in-use values, often resulting in calamity.
+libkmod: ERROR ../libkmod/libkmod-config.c:489 kcmdline_parse_result: \
+	Ignoring bad option on kernel command line while parsing module \
+	name: 'ivrs_xxxx[XX:XX'
 
-This patch introduces a new variable into 'struct hid_ll_driver' where
-individual low-level drivers can over-ride the default maximum value of
-HID_MAX_BUFFER_SIZE (16k) with something more sympathetic to the
-interface.
+Fix by introducing a new parameter format for these options and
+throw a warning for the deprecated format.
 
-Signed-off-by: Lee Jones <lee@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Users are still allowed to omit the PCI Segment if zero.
+
+Adding a Link: to the reason why we're modding the syntax parsing
+in the driver and not in libkmod.
+
+Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-modules/20200310082308.14318-2-lucas.demarchi@intel.com/
+Reported-by: Kim Phillips <kim.phillips@amd.com>
+Co-developed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lore.kernel.org/r/20220919155638.391481-2-kim.phillips@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Stable-dep-of: b6b26d86c61c ("iommu/amd: Add a length limitation for the ivrs_acpihid command-line parameter")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c |   32 +++++++++++++++++++++++++-------
- include/linux/hid.h    |    3 +++
- 2 files changed, 28 insertions(+), 7 deletions(-)
+ .../admin-guide/kernel-parameters.txt         | 27 +++++--
+ drivers/iommu/amd_iommu_init.c                | 79 +++++++++++++------
+ 2 files changed, 76 insertions(+), 30 deletions(-)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -261,6 +261,7 @@ static int hid_add_field(struct hid_pars
- {
- 	struct hid_report *report;
- 	struct hid_field *field;
-+	unsigned int max_buffer_size = HID_MAX_BUFFER_SIZE;
- 	unsigned int usages;
- 	unsigned int offset;
- 	unsigned int i;
-@@ -291,8 +292,11 @@ static int hid_add_field(struct hid_pars
- 	offset = report->size;
- 	report->size += parser->global.report_size * parser->global.report_count;
- 
-+	if (parser->device->ll_driver->max_buffer_size)
-+		max_buffer_size = parser->device->ll_driver->max_buffer_size;
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 9164263839216..5e5704faae24a 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -1946,7 +1946,13 @@
+ 			Provide an override to the IOAPIC-ID<->DEVICE-ID
+ 			mapping provided in the IVRS ACPI table.
+ 			By default, PCI segment is 0, and can be omitted.
+-			For example:
 +
- 	/* Total size check: Allow for possible report index byte */
--	if (report->size > (HID_MAX_BUFFER_SIZE - 1) << 3) {
-+	if (report->size > (max_buffer_size - 1) << 3) {
- 		hid_err(parser->device, "report is too long\n");
- 		return -1;
++			For example, to map IOAPIC-ID decimal 10 to
++			PCI segment 0x1 and PCI device 00:14.0,
++			write the parameter as:
++				ivrs_ioapic=10@0001:00:14.0
++
++			Deprecated formats:
+ 			* To map IOAPIC-ID decimal 10 to PCI device 00:14.0
+ 			  write the parameter as:
+ 				ivrs_ioapic[10]=00:14.0
+@@ -1958,7 +1964,13 @@
+ 			Provide an override to the HPET-ID<->DEVICE-ID
+ 			mapping provided in the IVRS ACPI table.
+ 			By default, PCI segment is 0, and can be omitted.
+-			For example:
++
++			For example, to map HPET-ID decimal 10 to
++			PCI segment 0x1 and PCI device 00:14.0,
++			write the parameter as:
++				ivrs_hpet=10@0001:00:14.0
++
++			Deprecated formats:
+ 			* To map HPET-ID decimal 0 to PCI device 00:14.0
+ 			  write the parameter as:
+ 				ivrs_hpet[0]=00:14.0
+@@ -1969,15 +1981,20 @@
+ 	ivrs_acpihid	[HW,X86_64]
+ 			Provide an override to the ACPI-HID:UID<->DEVICE-ID
+ 			mapping provided in the IVRS ACPI table.
++			By default, PCI segment is 0, and can be omitted.
+ 
+ 			For example, to map UART-HID:UID AMD0020:0 to
+ 			PCI segment 0x1 and PCI device ID 00:14.5,
+ 			write the parameter as:
+-				ivrs_acpihid[0001:00:14.5]=AMD0020:0
++				ivrs_acpihid=AMD0020:0@0001:00:14.5
+ 
+-			By default, PCI segment is 0, and can be omitted.
+-			For example, PCI device 00:14.5 write the parameter as:
++			Deprecated formats:
++			* To map UART-HID:UID AMD0020:0 to PCI segment is 0,
++			  PCI device ID 00:14.5, write the parameter as:
+ 				ivrs_acpihid[00:14.5]=AMD0020:0
++			* To map UART-HID:UID AMD0020:0 to PCI segment 0x1 and
++			  PCI device ID 00:14.5, write the parameter as:
++				ivrs_acpihid[0001:00:14.5]=AMD0020:0
+ 
+ 	js=		[HW,JOY] Analog joystick
+ 			See Documentation/input/joydev/joystick.rst.
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index f4e6173e749a4..71e4a8eac3c92 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -2976,18 +2976,24 @@ static int __init parse_amd_iommu_options(char *str)
+ static int __init parse_ivrs_ioapic(char *str)
+ {
+ 	u32 seg = 0, bus, dev, fn;
+-	int ret, id, i;
++	int id, i;
+ 	u32 devid;
+ 
+-	ret = sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn);
+-	if (ret != 4) {
+-		ret = sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn);
+-		if (ret != 5) {
+-			pr_err("Invalid command line: ivrs_ioapic%s\n", str);
+-			return 1;
+-		}
++	if (sscanf(str, "=%d@%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
++	    sscanf(str, "=%d@%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5)
++		goto found;
++
++	if (sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
++	    sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5) {
++		pr_warn("ivrs_ioapic%s option format deprecated; use ivrs_ioapic=%d@%04x:%02x:%02x.%d instead\n",
++			str, id, seg, bus, dev, fn);
++		goto found;
  	}
-@@ -1966,6 +1970,7 @@ int hid_report_raw_event(struct hid_devi
- 	struct hid_report_enum *report_enum = hid->report_enum + type;
- 	struct hid_report *report;
- 	struct hid_driver *hdrv;
-+	int max_buffer_size = HID_MAX_BUFFER_SIZE;
- 	u32 rsize, csize = size;
- 	u8 *cdata = data;
- 	int ret = 0;
-@@ -1981,10 +1986,13 @@ int hid_report_raw_event(struct hid_devi
  
- 	rsize = hid_compute_report_size(report);
- 
--	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
--		rsize = HID_MAX_BUFFER_SIZE - 1;
--	else if (rsize > HID_MAX_BUFFER_SIZE)
--		rsize = HID_MAX_BUFFER_SIZE;
-+	if (hid->ll_driver->max_buffer_size)
-+		max_buffer_size = hid->ll_driver->max_buffer_size;
++	pr_err("Invalid command line: ivrs_ioapic%s\n", str);
++	return 1;
 +
-+	if (report_enum->numbered && rsize >= max_buffer_size)
-+		rsize = max_buffer_size - 1;
-+	else if (rsize > max_buffer_size)
-+		rsize = max_buffer_size;
- 
- 	if (csize < rsize) {
- 		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
-@@ -2387,7 +2395,12 @@ int hid_hw_raw_request(struct hid_device
- 		       unsigned char reportnum, __u8 *buf,
- 		       size_t len, enum hid_report_type rtype, enum hid_class_request reqtype)
++found:
+ 	if (early_ioapic_map_size == EARLY_MAP_SIZE) {
+ 		pr_err("Early IOAPIC map overflow - ignoring ivrs_ioapic%s\n",
+ 			str);
+@@ -3008,18 +3014,24 @@ static int __init parse_ivrs_ioapic(char *str)
+ static int __init parse_ivrs_hpet(char *str)
  {
--	if (len < 1 || len > HID_MAX_BUFFER_SIZE || !buf)
-+	unsigned int max_buffer_size = HID_MAX_BUFFER_SIZE;
-+
-+	if (hdev->ll_driver->max_buffer_size)
-+		max_buffer_size = hdev->ll_driver->max_buffer_size;
-+
-+	if (len < 1 || len > max_buffer_size || !buf)
- 		return -EINVAL;
+ 	u32 seg = 0, bus, dev, fn;
+-	int ret, id, i;
++	int id, i;
+ 	u32 devid;
  
- 	return hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
-@@ -2406,7 +2419,12 @@ EXPORT_SYMBOL_GPL(hid_hw_raw_request);
-  */
- int hid_hw_output_report(struct hid_device *hdev, __u8 *buf, size_t len)
+-	ret = sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn);
+-	if (ret != 4) {
+-		ret = sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn);
+-		if (ret != 5) {
+-			pr_err("Invalid command line: ivrs_hpet%s\n", str);
+-			return 1;
+-		}
++	if (sscanf(str, "=%d@%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
++	    sscanf(str, "=%d@%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5)
++		goto found;
++
++	if (sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
++	    sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5) {
++		pr_warn("ivrs_hpet%s option format deprecated; use ivrs_hpet=%d@%04x:%02x:%02x.%d instead\n",
++			str, id, seg, bus, dev, fn);
++		goto found;
+ 	}
+ 
++	pr_err("Invalid command line: ivrs_hpet%s\n", str);
++	return 1;
++
++found:
+ 	if (early_hpet_map_size == EARLY_MAP_SIZE) {
+ 		pr_err("Early HPET map overflow - ignoring ivrs_hpet%s\n",
+ 			str);
+@@ -3040,19 +3052,36 @@ static int __init parse_ivrs_hpet(char *str)
+ static int __init parse_ivrs_acpihid(char *str)
  {
--	if (len < 1 || len > HID_MAX_BUFFER_SIZE || !buf)
-+	unsigned int max_buffer_size = HID_MAX_BUFFER_SIZE;
+ 	u32 seg = 0, bus, dev, fn;
+-	char *hid, *uid, *p;
++	char *hid, *uid, *p, *addr;
+ 	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] = {0};
+-	int ret, i;
+-
+-	ret = sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid);
+-	if (ret != 4) {
+-		ret = sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid);
+-		if (ret != 5) {
+-			pr_err("Invalid command line: ivrs_acpihid(%s)\n", str);
+-			return 1;
++	int i;
 +
-+	if (hdev->ll_driver->max_buffer_size)
-+		max_buffer_size = hdev->ll_driver->max_buffer_size;
++	addr = strchr(str, '@');
++	if (!addr) {
++		if (sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid) == 4 ||
++		    sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid) == 5) {
++			pr_warn("ivrs_acpihid%s option format deprecated; use ivrs_acpihid=%s@%04x:%02x:%02x.%d instead\n",
++				str, acpiid, seg, bus, dev, fn);
++			goto found;
+ 		}
++		goto not_found;
+ 	}
+ 
++	/* We have the '@', make it the terminator to get just the acpiid */
++	*addr++ = 0;
 +
-+	if (len < 1 || len > max_buffer_size || !buf)
- 		return -EINVAL;
- 
- 	if (hdev->ll_driver->output_report)
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -827,6 +827,7 @@ struct hid_driver {
-  * @output_report: send output report to device
-  * @idle: send idle request to device
-  * @may_wakeup: return if device may act as a wakeup source during system-suspend
-+ * @max_buffer_size: over-ride maximum data buffer size (default: HID_MAX_BUFFER_SIZE)
-  */
- struct hid_ll_driver {
- 	int (*start)(struct hid_device *hdev);
-@@ -852,6 +853,8 @@ struct hid_ll_driver {
- 
- 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
- 	bool (*may_wakeup)(struct hid_device *hdev);
++	if (sscanf(str, "=%s", acpiid) != 1)
++		goto not_found;
 +
-+	unsigned int max_buffer_size;
- };
- 
- extern struct hid_ll_driver i2c_hid_ll_driver;
++	if (sscanf(addr, "%x:%x.%x", &bus, &dev, &fn) == 3 ||
++	    sscanf(addr, "%x:%x:%x.%x", &seg, &bus, &dev, &fn) == 4)
++		goto found;
++
++not_found:
++	pr_err("Invalid command line: ivrs_acpihid%s\n", str);
++	return 1;
++
++found:
+ 	p = acpiid;
+ 	hid = strsep(&p, ":");
+ 	uid = p;
+-- 
+2.39.2
+
 
 
