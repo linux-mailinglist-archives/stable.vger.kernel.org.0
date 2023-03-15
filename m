@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AFDF6BB012
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 923986BB107
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229666AbjCOMPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37574 "EHLO
+        id S232186AbjCOMYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbjCOMO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:59 -0400
+        with ESMTP id S232122AbjCOMXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99306BDFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4080D984FF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E3BBB81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4577C4339B;
-        Wed, 15 Mar 2023 12:14:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C0D9B81E07
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC36FC433D2;
+        Wed, 15 Mar 2023 12:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882496;
-        bh=2+1XVPTwUsBuvgi3xyK63RMGcqbgFx5/B5npAGAu4vs=;
+        s=korg; t=1678882946;
+        bh=1CxkcA4KxtzKe0vsTX1h8sBkP+I70lWHDOeifbXu0xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHUdFV+Hqky43wbt/zi9+OQxXTVnEYM7Q0Xh/WCDWzJWcPX51dJBbFizKyrnG50Pq
-         1wumF+c6FnBtbvgE1+oktzNzT+dp04E4Li+Iy5wo5/+nx7yHy18cp38dz4ICBvjcg/
-         gxfMxvYNzCBUCmmy0r6DnLwDM4tGnbY5j5N81Lbg=
+        b=iO8HrI4sZTQZnvJi4fv33tWV5PVKKpPLZvvlUdAM45KQUSel+Q5YLW6YdykmUyaAH
+         Ezc1Nw2CKJ1uqhrZZy3DhHMep5I7PETGlq3L3k9VShYSNVV+ojUvgSAjScwx8Kxg5N
+         8ohS8Ciud3p1JpmVNBQF8h9i/yGfTdDPM+MO/DNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 08/21] nfc: change order inside nfc_se_io error path
-Date:   Wed, 15 Mar 2023 13:12:31 +0100
-Message-Id: <20230315115719.137693801@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>,
+        Khazhismel Kumykov <khazhy@google.com>
+Subject: [PATCH 5.10 061/104] block, bfq: fix possible uaf for bfqq->bic
+Date:   Wed, 15 Mar 2023 13:12:32 +0100
+Message-Id: <20230315115734.513436006@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 7d834b4d1ab66c48e8c0810fdeadaabb80fa2c81 upstream.
+[ Upstream commit 64dc8c732f5c2b406cc752e6aaa1bd5471159cab ]
 
-cb_context should be freed on the error path in nfc_se_io as stated by
-commit 25ff6f8a5a3b ("nfc: fix memory leak of se_io context in
-nfc_genl_se_io").
+Our test report a uaf for 'bfqq->bic' in 5.10:
 
-Make the error path in nfc_se_io unwind everything in reverse order, i.e.
-free the cb_context after unlocking the device.
+==================================================================
+BUG: KASAN: use-after-free in bfq_select_queue+0x378/0xa30
 
-Suggested-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230306212650.230322-1-pchelkin@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CPU: 6 PID: 2318352 Comm: fsstress Kdump: loaded Not tainted 5.10.0-60.18.0.50.h602.kasan.eulerosv2r11.x86_64 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-20220320_160524-szxrtosci10000 04/01/2014
+Call Trace:
+ bfq_select_queue+0x378/0xa30
+ bfq_dispatch_request+0xe8/0x130
+ blk_mq_do_dispatch_sched+0x62/0xb0
+ __blk_mq_sched_dispatch_requests+0x215/0x2a0
+ blk_mq_sched_dispatch_requests+0x8f/0xd0
+ __blk_mq_run_hw_queue+0x98/0x180
+ __blk_mq_delay_run_hw_queue+0x22b/0x240
+ blk_mq_run_hw_queue+0xe3/0x190
+ blk_mq_sched_insert_requests+0x107/0x200
+ blk_mq_flush_plug_list+0x26e/0x3c0
+ blk_finish_plug+0x63/0x90
+ __iomap_dio_rw+0x7b5/0x910
+ iomap_dio_rw+0x36/0x80
+ ext4_dio_read_iter+0x146/0x190 [ext4]
+ ext4_file_read_iter+0x1e2/0x230 [ext4]
+ new_sync_read+0x29f/0x400
+ vfs_read+0x24e/0x2d0
+ ksys_read+0xd5/0x1b0
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
+
+Commit 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
+changes that move process to a new cgroup will allocate a new bfqq to
+use, however, the old bfqq and new bfqq can point to the same bic:
+
+1) Initial state, two process with io in the same cgroup.
+
+Process 1       Process 2
+ (BIC1)          (BIC2)
+  |  Λ            |  Λ
+  |  |            |  |
+  V  |            V  |
+  bfqq1           bfqq2
+
+2) bfqq1 is merged to bfqq2.
+
+Process 1       Process 2
+ (BIC1)          (BIC2)
+  |               |
+   \-------------\|
+                  V
+  bfqq1           bfqq2(coop)
+
+3) Process 1 exit, then issue new io(denoce IOA) from Process 2.
+
+ (BIC2)
+  |  Λ
+  |  |
+  V  |
+  bfqq2(coop)
+
+4) Before IOA is completed, move Process 2 to another cgroup and issue io.
+
+Process 2
+ (BIC2)
+   Λ
+   |\--------------\
+   |                V
+  bfqq2           bfqq3
+
+Now that BIC2 points to bfqq3, while bfqq2 and bfqq3 both point to BIC2.
+If all the requests are completed, and Process 2 exit, BIC2 will be
+freed while there is no guarantee that bfqq2 will be freed before BIC2.
+
+Fix the problem by clearing bfqq->bic while bfqq is detached from bic.
+
+Fixes: 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221214030430.3304151-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/netlink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/bfq-iosched.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1454,8 +1454,8 @@ static int nfc_se_io(struct nfc_dev *dev
- 	return rc;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 7c4b8d0635ebd..afaededb3c49c 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -373,6 +373,12 @@ struct bfq_queue *bic_to_bfqq(struct bfq_io_cq *bic, bool is_sync)
  
- error:
--	kfree(cb_context);
- 	device_unlock(&dev->dev);
-+	kfree(cb_context);
- 	return rc;
+ void bic_set_bfqq(struct bfq_io_cq *bic, struct bfq_queue *bfqq, bool is_sync)
+ {
++	struct bfq_queue *old_bfqq = bic->bfqq[is_sync];
++
++	/* Clear bic pointer if bfqq is detached from this bic */
++	if (old_bfqq && old_bfqq->bic == bic)
++		old_bfqq->bic = NULL;
++
+ 	bic->bfqq[is_sync] = bfqq;
  }
  
+@@ -4977,7 +4983,6 @@ static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&bfqd->lock, flags);
+-		bfqq->bic = NULL;
+ 		bfq_exit_bfqq(bfqd, bfqq);
+ 		bic_set_bfqq(bic, NULL, is_sync);
+ 		spin_unlock_irqrestore(&bfqd->lock, flags);
+-- 
+2.39.2
+
 
 
