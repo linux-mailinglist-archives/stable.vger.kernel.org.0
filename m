@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 066FE6BB02D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE6C6BB06B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbjCOMQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:16:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38898 "EHLO
+        id S232012AbjCOMSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231977AbjCOMPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8E17F017
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:54 -0700 (PDT)
+        with ESMTP id S231881AbjCOMRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA7BE92F33
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AFA5FCE19A7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D07A3C433D2;
-        Wed, 15 Mar 2023 12:15:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65D0B6174E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77F82C4339B;
+        Wed, 15 Mar 2023 12:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882551;
-        bh=o0F14+dpCg2en5gxKEP8DC7m2MP0XNRNhG65N0WU4hM=;
+        s=korg; t=1678882672;
+        bh=kYRd3AsbLZ5yPoxtxPd0uC12BpURQAhBsivRbZkVaPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnlotwilTbPAQVtg1rdbPnoMdWJ3Zayghy9W3QntifH5PnBWRvRyYK7x1+V8YowLy
-         fZwOj1ppo8KNEoMYW1+48o6eLUtML0ACVpCfqGLRtg9jHWg0G+El7GZadeJ8ps6nVD
-         5gcTqoE82jvQkuFLq+JguZ/5IiZ2D9Nk1rk74AME=
+        b=jlWDBvCqua2Ze6kFmubQ+8hMu8XO+ZhRqq3XK7QcWTXkmHol0VmgW7QAW3EqShXex
+         FAlq6jX+tPvvLwbvOmQNRopjsmoeiIUpJ9Bzs2z+sOeTExVnseGQRbctfxutWYAyPd
+         OvGcmsSQfIUvRKibhCwt1S7bcr359rnsld4k3L5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 07/39] ext4: zero i_disksize when initializing the bootloader inode
+        patches@lists.linux.dev, Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/68] ARM: dts: exynos: Override thermal by label in Exynos5250
 Date:   Wed, 15 Mar 2023 13:12:21 +0100
-Message-Id: <20230315115721.525194392@linuxfoundation.org>
+Message-Id: <20230315115727.147904176@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,61 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit f5361da1e60d54ec81346aee8e3d8baf1be0b762 upstream.
+[ Upstream commit 7e86ef5cc89609cbad8b9dd2f476789c638dbb92 ]
 
-If the boot loader inode has never been used before, the
-EXT4_IOC_SWAP_BOOT inode will initialize it, including setting the
-i_size to 0.  However, if the "never before used" boot loader has a
-non-zero i_size, then i_disksize will be non-zero, and the
-inconsistency between i_size and i_disksize can trigger a kernel
-warning:
+Using full paths to extend or override a device tree node is error prone
+since if there was a typo error, a new node will be created instead of
+extending the node as it was desired.  This will lead to run-time errors
+that could be hard to detect.
 
- WARNING: CPU: 0 PID: 2580 at fs/ext4/file.c:319
- CPU: 0 PID: 2580 Comm: bb Not tainted 6.3.0-rc1-00004-g703695902cfa
- RIP: 0010:ext4_file_write_iter+0xbc7/0xd10
- Call Trace:
-  vfs_write+0x3b1/0x5c0
-  ksys_write+0x77/0x160
-  __x64_sys_write+0x22/0x30
-  do_syscall_64+0x39/0x80
+A mistyped label on the other hand, will cause a dtc compile error
+(during build time).
 
-Reproducer:
- 1. create corrupted image and mount it:
-       mke2fs -t ext4 /tmp/foo.img 200
-       debugfs -wR "sif <5> size 25700" /tmp/foo.img
-       mount -t ext4 /tmp/foo.img /mnt
-       cd /mnt
-       echo 123 > file
- 2. Run the reproducer program:
-       posix_memalign(&buf, 1024, 1024)
-       fd = open("file", O_RDWR | O_DIRECT);
-       ioctl(fd, EXT4_IOC_SWAP_BOOT);
-       write(fd, buf, 1024);
-
-Fix this by setting i_disksize as well as i_size to zero when
-initiaizing the boot loader inode.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217159
-Cc: stable@kernel.org
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20230308032643.641113-1-chengzhihao1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200901075417.22481-8-krzk@kernel.org
+Stable-dep-of: 33e2c595e2e4 ("ARM: dts: exynos: correct TMU phandle in Exynos5250")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5250.dtsi | 38 +++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -178,6 +178,7 @@ static long swap_inode_boot_loader(struc
- 		ei_bl->i_flags = 0;
- 		inode_set_iversion(inode_bl, 1);
- 		i_size_write(inode_bl, 0);
-+		EXT4_I(inode_bl)->i_disksize = inode_bl->i_size;
- 		inode_bl->i_mode = S_IFREG;
- 		if (ext4_has_feature_extents(sb)) {
- 			ext4_set_inode_flag(inode_bl, EXT4_INODE_EXTENTS);
+diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
+index fc966c10cf498..624fa234e7175 100644
+--- a/arch/arm/boot/dts/exynos5250.dtsi
++++ b/arch/arm/boot/dts/exynos5250.dtsi
+@@ -1104,26 +1104,6 @@
+ 		};
+ 	};
+ 
+-	thermal-zones {
+-		cpu_thermal: cpu-thermal {
+-			polling-delay-passive = <0>;
+-			polling-delay = <0>;
+-			thermal-sensors = <&tmu 0>;
+-
+-			cooling-maps {
+-				map0 {
+-				     /* Corresponds to 800MHz at freq_table */
+-				     cooling-device = <&cpu0 9 9>, <&cpu1 9 9>;
+-				};
+-				map1 {
+-				     /* Corresponds to 200MHz at freq_table */
+-				     cooling-device = <&cpu0 15 15>,
+-						      <&cpu1 15 15>;
+-			       };
+-		       };
+-		};
+-	};
+-
+ 	timer {
+ 		compatible = "arm,armv7-timer";
+ 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+@@ -1139,6 +1119,24 @@
+ 	};
+ };
+ 
++&cpu_thermal {
++	polling-delay-passive = <0>;
++	polling-delay = <0>;
++	thermal-sensors = <&tmu 0>;
++
++	cooling-maps {
++		map0 {
++			/* Corresponds to 800MHz at freq_table */
++			cooling-device = <&cpu0 9 9>, <&cpu1 9 9>;
++		};
++		map1 {
++			/* Corresponds to 200MHz at freq_table */
++			cooling-device = <&cpu0 15 15>,
++					 <&cpu1 15 15>;
++		};
++	};
++};
++
+ &dp {
+ 	power-domains = <&pd_disp1>;
+ 	clocks = <&clock CLK_DP>;
+-- 
+2.39.2
+
 
 
