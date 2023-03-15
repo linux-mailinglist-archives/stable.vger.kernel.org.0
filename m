@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5036BB07B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AFDF6BB012
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbjCOMSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:18:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
+        id S229666AbjCOMPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:15:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232081AbjCOMSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:18:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7AB85B34
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:22 -0700 (PDT)
+        with ESMTP id S231730AbjCOMO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99306BDFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1519D61D53
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27565C433D2;
-        Wed, 15 Mar 2023 12:18:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E3BBB81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4577C4339B;
+        Wed, 15 Mar 2023 12:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882701;
-        bh=JWhRr6nvOpStIxsRzw8J+7OUiEzgYHXpj6SEdW9AJBk=;
+        s=korg; t=1678882496;
+        bh=2+1XVPTwUsBuvgi3xyK63RMGcqbgFx5/B5npAGAu4vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxUziL75Ws7ypl/CmorE5cBn4/0agdE3zxRdJnx6u3k2PePtFn0rYQqZHwWoY5SYc
-         j/7+MQ/P/i8QjtNmLY4qgN2DEiXAasi91hDPEUDrmZp4uvHx2wNCAaECG4AVn5lZeR
-         JtF6DHUIQyJdELx6XKalLccsfQWOK2oJZmKT1RBI=
+        b=IHUdFV+Hqky43wbt/zi9+OQxXTVnEYM7Q0Xh/WCDWzJWcPX51dJBbFizKyrnG50Pq
+         1wumF+c6FnBtbvgE1+oktzNzT+dp04E4Li+Iy5wo5/+nx7yHy18cp38dz4ICBvjcg/
+         gxfMxvYNzCBUCmmy0r6DnLwDM4tGnbY5j5N81Lbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kang Chen <void0red@gmail.com>,
+        patches@lists.linux.dev,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Simon Horman <simon.horman@corigine.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/68] nfc: fdp: add null check of devm_kmalloc_array in fdp_nci_i2c_read_device_properties
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 08/21] nfc: change order inside nfc_se_io error path
 Date:   Wed, 15 Mar 2023 13:12:31 +0100
-Message-Id: <20230315115727.565817538@linuxfoundation.org>
+Message-Id: <20230315115719.137693801@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kang Chen <void0red@gmail.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit 11f180a5d62a51b484e9648f9b310e1bd50b1a57 ]
+commit 7d834b4d1ab66c48e8c0810fdeadaabb80fa2c81 upstream.
 
-devm_kmalloc_array may fails, *fw_vsc_cfg might be null and cause
-out-of-bounds write in device_property_read_u8_array later.
+cb_context should be freed on the error path in nfc_se_io as stated by
+commit 25ff6f8a5a3b ("nfc: fix memory leak of se_io context in
+nfc_genl_se_io").
 
-Fixes: a06347c04c13 ("NFC: Add Intel Fields Peak NFC solution driver")
-Signed-off-by: Kang Chen <void0red@gmail.com>
+Make the error path in nfc_se_io unwind everything in reverse order, i.e.
+free the cb_context after unlocking the device.
+
+Suggested-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230227093037.907654-1-void0red@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20230306212650.230322-1-pchelkin@ispras.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/fdp/i2c.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/nfc/netlink.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/fdp/i2c.c b/drivers/nfc/fdp/i2c.c
-index ad0abb1f0bae9..7305f1a06e97c 100644
---- a/drivers/nfc/fdp/i2c.c
-+++ b/drivers/nfc/fdp/i2c.c
-@@ -255,6 +255,9 @@ static void fdp_nci_i2c_read_device_properties(struct device *dev,
- 					   len, sizeof(**fw_vsc_cfg),
- 					   GFP_KERNEL);
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1454,8 +1454,8 @@ static int nfc_se_io(struct nfc_dev *dev
+ 	return rc;
  
-+		if (!*fw_vsc_cfg)
-+			goto alloc_err;
-+
- 		r = device_property_read_u8_array(dev, FDP_DP_FW_VSC_CFG_NAME,
- 						  *fw_vsc_cfg, len);
- 
-@@ -268,6 +271,7 @@ static void fdp_nci_i2c_read_device_properties(struct device *dev,
- 		*fw_vsc_cfg = NULL;
- 	}
- 
-+alloc_err:
- 	dev_dbg(dev, "Clock type: %d, clock frequency: %d, VSC: %s",
- 		*clock_type, *clock_freq, *fw_vsc_cfg != NULL ? "yes" : "no");
+ error:
+-	kfree(cb_context);
+ 	device_unlock(&dev->dev);
++	kfree(cb_context);
+ 	return rc;
  }
--- 
-2.39.2
-
+ 
 
 
