@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F4AE6BB02A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F8A56BB06A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231127AbjCOMQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:16:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38674 "EHLO
+        id S231917AbjCOMSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231929AbjCOMPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF5880903
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:48 -0700 (PDT)
+        with ESMTP id S231892AbjCOMRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9CE8F705
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BD2FB81C6F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D89DC433D2;
-        Wed, 15 Mar 2023 12:15:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBFA06174E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D283EC433D2;
+        Wed, 15 Mar 2023 12:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882546;
-        bh=MhqWzRtzcLYVC88KXVZvzjwbQrUuZ5cXaWtJPIRjac4=;
+        s=korg; t=1678882670;
+        bh=iKkfzPzXLqxtA+ZsPbtVi+paktrRi7MNyv+w8G1pz4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMExbYuv4NxmO65J7KaqGyZGMEEZO+3FyDCDt/8RAEhb/ZnzeNeGYsrSeC/GZuAZn
-         okBQc4NAg/lSR3rL/KkEEMjPu9Ef4m5MxHOULrsxKN5ZhZscl4kPzV+gLfRf6DDtDY
-         RLDM8V64IP7ja3KIsvfvZVDSMUzszOeVdnUEOnxA=
+        b=C6RBCaBFrHDBKReUiQEODe99XLKQ+ilKbZQ+Pu16YvODKXH7KfibBkJYQfUKmk/MZ
+         Mj5IF/CRsigPkI5bsEtVkFE3ZtzvrMcj/oHnBGzLn/rT1RuJTLJ7Sy8v/h4i2XBslH
+         qV1Bx78FVHs1LGTlY1l0yo6nLvQYHGoHJYtMeAIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        stable@kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 05/39] ext4: move where set the MAY_INLINE_DATA flag is set
-Date:   Wed, 15 Mar 2023 13:12:19 +0100
-Message-Id: <20230315115721.454345982@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 26/68] ARM: dts: exynos: correct TMU phandle in Exynos4210
+Date:   Wed, 15 Mar 2023 13:12:20 +0100
+Message-Id: <20230315115727.118399445@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 1dcdce5919115a471bf4921a57f20050c545a236 upstream.
+[ Upstream commit 408ab6786dbf6dd696488054c9559681112ef994 ]
 
-The only caller of ext4_find_inline_data_nolock() that needs setting of
-EXT4_STATE_MAY_INLINE_DATA flag is ext4_iget_extra_inode().  In
-ext4_write_inline_data_end() we just need to update inode->i_inline_off.
-Since we are going to add one more caller that does not need to set
-EXT4_STATE_MAY_INLINE_DATA, just move setting of EXT4_STATE_MAY_INLINE_DATA
-out to ext4_iget_extra_inode().
+TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
+it must not have an argument to phandle.  Since thermal-sensors property is
+already defined in included exynos4-cpu-thermal.dtsi, drop it from
+exynos4210.dtsi to fix the error and remoev redundancy.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Cc: stable@kernel.org
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-2-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9843a2236003 ("ARM: dts: Provide dt bindings identical for Exynos TMU")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230209105841.779596-2-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inline.c |    1 -
- fs/ext4/inode.c  |    7 ++++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos4210.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -157,7 +157,6 @@ int ext4_find_inline_data_nolock(struct
- 					(void *)ext4_raw_inode(&is.iloc));
- 		EXT4_I(inode)->i_inline_size = EXT4_MIN_INLINE_DATA_SIZE +
- 				le32_to_cpu(is.s.here->e_value_size);
--		ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
- 	}
- out:
- 	brelse(is.iloc.bh);
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4865,8 +4865,13 @@ static inline int ext4_iget_extra_inode(
+diff --git a/arch/arm/boot/dts/exynos4210.dtsi b/arch/arm/boot/dts/exynos4210.dtsi
+index d341dcad8da6d..505b49118d2cf 100644
+--- a/arch/arm/boot/dts/exynos4210.dtsi
++++ b/arch/arm/boot/dts/exynos4210.dtsi
+@@ -389,7 +389,6 @@
+ &cpu_thermal {
+ 	polling-delay-passive = <0>;
+ 	polling-delay = <0>;
+-	thermal-sensors = <&tmu 0>;
+ };
  
- 	if (EXT4_INODE_HAS_XATTR_SPACE(inode)  &&
- 	    *magic == cpu_to_le32(EXT4_XATTR_MAGIC)) {
-+		int err;
-+
- 		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
--		return ext4_find_inline_data_nolock(inode);
-+		err = ext4_find_inline_data_nolock(inode);
-+		if (!err && ext4_has_inline_data(inode))
-+			ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-+		return err;
- 	} else
- 		EXT4_I(inode)->i_inline_off = 0;
- 	return 0;
+ &gic {
+-- 
+2.39.2
+
 
 
