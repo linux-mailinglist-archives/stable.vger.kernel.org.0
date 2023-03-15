@@ -2,57 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD126BB24A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 630CB6BB076
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232714AbjCOMfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52858 "EHLO
+        id S232103AbjCOMSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232654AbjCOMes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376D395E29;
-        Wed, 15 Mar 2023 05:33:20 -0700 (PDT)
+        with ESMTP id S232011AbjCOMSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:18:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206C492F33
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4598CCE19C0;
-        Wed, 15 Mar 2023 12:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39AE9C433EF;
-        Wed, 15 Mar 2023 12:33:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 720F5B81DF8
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA632C433D2;
+        Wed, 15 Mar 2023 12:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883593;
-        bh=etYCdQjmQ3MfcfmwcIxY4173EwgJTDNwtqJOInfO2s4=;
+        s=korg; t=1678882683;
+        bh=0CW0/Pz/J8YG4UqIXPIpQsu442CpNiJxLiXmqB5hiTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5Sz8vMJwXKxnKGNkyvaVA67/SqBCKrlusF3mxzFwZFOKKZM9z7s9caaM7UTC2S6n
-         eA9Z43SS/xxgYR97ONgbEqSnu0Q/0a3MeGl+u0lEd80YPJpR8ZXZ/93poiUM8+cpNs
-         fZaj0bCJbgjZ/mkWoeYdq1n7mqRr3jlcc9rJs8ac=
+        b=jC7SpuwxTLUVF96X4t/jFa8YfzVQvgzzo7O0xLLM+vt+5Oc782sOosg45JUiAfpdi
+         8iEqgHBX/omzC9V+R12HW7uvaw5+TJUJmTclwSSOomDr6EzaL/RSRi6g3Dqr0yuOaw
+         LZOliFuEoQ8Ha9bMYhUOm2DDPYHyvJVXsMfkkaL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Liska <mliska@suse.cz>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 058/143] drm/nouveau/kms/nv50: fix nv50_wndw_new_ prototype
+Subject: [PATCH 5.4 30/68] ARM: dts: exynos: correct TMU phandle in Odroid HC1
 Date:   Wed, 15 Mar 2023 13:12:24 +0100
-Message-Id: <20230315115742.284910999@linuxfoundation.org>
+Message-Id: <20230315115727.264436515@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,62 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 3638a820c5c3b52f327cebb174fd4274bee08aa7 ]
+[ Upstream commit 2e3d0e20d8456f876607a8af61fdb83dfbf98cb6 ]
 
-gcc-13 warns about mismatching types for enums. That revealed switched
-arguments of nv50_wndw_new_():
-  drivers/gpu/drm/nouveau/dispnv50/wndw.c:696:1: error: conflicting types for 'nv50_wndw_new_' due to enum/integer mismatch; have 'int(const struct nv50_wndw_func *, struct drm_device *, enum drm_plane_type,  const char *, int,  const u32 *, u32,  enum nv50_disp_interlock_type,  u32,  struct nv50_wndw **)'
-  drivers/gpu/drm/nouveau/dispnv50/wndw.h:36:5: note: previous declaration of 'nv50_wndw_new_' with type 'int(const struct nv50_wndw_func *, struct drm_device *, enum drm_plane_type,  const char *, int,  const u32 *, enum nv50_disp_interlock_type,  u32,  u32,  struct nv50_wndw **)'
+TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
+it must not have an argument to phandle.  This was not critical before,
+but since rework of thermal Devicetree initialization in the
+commit 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree
+initialization"), this leads to errors registering thermal zones other
+than first one:
 
-It can be barely visible, but the declaration says about the parameters
-in the middle:
-  enum nv50_disp_interlock_type,
-  u32 interlock_data,
-  u32 heads,
+  thermal_sys: cpu0-thermal: Failed to read thermal-sensors cells: -2
+  thermal_sys: Failed to find thermal zone for tmu id=0
+  exynos-tmu 10064000.tmu: Failed to register sensor: -2
+  exynos-tmu: probe of 10064000.tmu failed with error -2
 
-While the definition states differently:
-  u32 heads,
-  enum nv50_disp_interlock_type interlock_type,
-  u32 interlock_data,
-
-Unify/fix the declaration to match the definition.
-
-Fixes: 53e0a3e70de6 ("drm/nouveau/kms/nv50-: simplify tracking of channel interlocks")
-Cc: Martin Liska <mliska@suse.cz>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: David Airlie <airlied@gmail.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: nouveau@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221031114229.10289-1-jirislaby@kernel.org
+Fixes: 1ac49427b566 ("ARM: dts: exynos: Add support for Hardkernel's Odroid HC1 board")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230209105841.779596-5-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/wndw.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos5422-odroidhc1.dts | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/wndw.h b/drivers/gpu/drm/nouveau/dispnv50/wndw.h
-index 591c852f326b9..76a6ae5d56526 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/wndw.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.h
-@@ -35,8 +35,9 @@ struct nv50_wndw {
+diff --git a/arch/arm/boot/dts/exynos5422-odroidhc1.dts b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
+index 3235d7a27e042..b423cea4c0e99 100644
+--- a/arch/arm/boot/dts/exynos5422-odroidhc1.dts
++++ b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
+@@ -29,7 +29,7 @@
  
- int nv50_wndw_new_(const struct nv50_wndw_func *, struct drm_device *,
- 		   enum drm_plane_type, const char *name, int index,
--		   const u32 *format, enum nv50_disp_interlock_type,
--		   u32 interlock_data, u32 heads, struct nv50_wndw **);
-+		   const u32 *format, u32 heads,
-+		   enum nv50_disp_interlock_type, u32 interlock_data,
-+		   struct nv50_wndw **);
- void nv50_wndw_flush_set(struct nv50_wndw *, u32 *interlock,
- 			 struct nv50_wndw_atom *);
- void nv50_wndw_flush_clr(struct nv50_wndw *, u32 *interlock, bool flush,
+ 	thermal-zones {
+ 		cpu0_thermal: cpu0-thermal {
+-			thermal-sensors = <&tmu_cpu0 0>;
++			thermal-sensors = <&tmu_cpu0>;
+ 			trips {
+ 				cpu0_alert0: cpu-alert-0 {
+ 					temperature = <70000>; /* millicelsius */
+@@ -84,7 +84,7 @@
+ 			};
+ 		};
+ 		cpu1_thermal: cpu1-thermal {
+-			thermal-sensors = <&tmu_cpu1 0>;
++			thermal-sensors = <&tmu_cpu1>;
+ 			trips {
+ 				cpu1_alert0: cpu-alert-0 {
+ 					temperature = <70000>;
+@@ -128,7 +128,7 @@
+ 			};
+ 		};
+ 		cpu2_thermal: cpu2-thermal {
+-			thermal-sensors = <&tmu_cpu2 0>;
++			thermal-sensors = <&tmu_cpu2>;
+ 			trips {
+ 				cpu2_alert0: cpu-alert-0 {
+ 					temperature = <70000>;
+@@ -172,7 +172,7 @@
+ 			};
+ 		};
+ 		cpu3_thermal: cpu3-thermal {
+-			thermal-sensors = <&tmu_cpu3 0>;
++			thermal-sensors = <&tmu_cpu3>;
+ 			trips {
+ 				cpu3_alert0: cpu-alert-0 {
+ 					temperature = <70000>;
+@@ -216,7 +216,7 @@
+ 			};
+ 		};
+ 		gpu_thermal: gpu-thermal {
+-			thermal-sensors = <&tmu_gpu 0>;
++			thermal-sensors = <&tmu_gpu>;
+ 			trips {
+ 				gpu_alert0: gpu-alert-0 {
+ 					temperature = <70000>;
 -- 
 2.39.2
 
