@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8F26BB008
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A7F6BB0AA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231695AbjCOMOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:14:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
+        id S231800AbjCOMU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229725AbjCOMOl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472052BEE8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:40 -0700 (PDT)
+        with ESMTP id S232097AbjCOMT5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C05285B34
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFD1AB81C6F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E355C4339B;
-        Wed, 15 Mar 2023 12:14:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 035856174E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15781C433EF;
+        Wed, 15 Mar 2023 12:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882477;
-        bh=k8j4Ag2hIvpd9IxO0K9Z0kAnKODQR72IX9Co3I4sKnw=;
+        s=korg; t=1678882785;
+        bh=7H2fDWFLq7oTkhdwFhaOFYHwYK7ANczf6ioIzfc3GrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpBwSa0JdzKyIVbWCRWsUxRTPCZ+PkwT8ZfSqf8HtGgWmAATj1oezxHRbbA8vaVTU
-         MG0y6oBJQXtdY7dCxILLB4aj3YhB1RScfzXbRzi0yYzIPhIQAIsUJBSfXESJAKCv+/
-         SK9pd0VNiqwsSzM7oqHkww4QswQLAAi+cyjNvgps=
+        b=BbNs7dalz3AWq0JoafD90CJlKoG74jp2+vF5fPw7w9GwoLRS6N/EUkbjZflChu4KM
+         PP1Tw73kIiRY9TFCqxJznXVfArKggGXQNdDpj0ALS/a1ZxBQTvU9OwuwWliWmkXXyV
+         e6v+bjJoeWTuVDr/iv1XMo1meUxGq//RLtCg9kr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/21] macintosh: windfarm: Use unsigned type for 1-bit bitfields
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?Major=20D=C3=A1vid?= <major.david@balasys.hu>
+Subject: [PATCH 5.4 44/68] netfilter: tproxy: fix deadlock due to missing BH disable
 Date:   Wed, 15 Mar 2023 13:12:38 +0100
-Message-Id: <20230315115719.390590317@linuxfoundation.org>
+Message-Id: <20230315115727.844456760@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 748ea32d2dbd813d3bd958117bde5191182f909a ]
+[ Upstream commit 4a02426787bf024dafdb79b362285ee325de3f5e ]
 
-Clang warns:
+The xtables packet traverser performs an unconditional local_bh_disable(),
+but the nf_tables evaluation loop does not.
 
-  drivers/macintosh/windfarm_lm75_sensor.c:63:14: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  lm->inited = 1;
-                             ^ ~
+Functions that are called from either xtables or nftables must assume
+that they can be called in process context.
 
-  drivers/macintosh/windfarm_smu_sensors.c:356:19: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->fake_volts = 1;
-                                  ^ ~
-  drivers/macintosh/windfarm_smu_sensors.c:368:18: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->quadratic = 1;
-                                 ^ ~
+inet_twsk_deschedule_put() assumes that no softirq interrupt can occur.
+If tproxy is used from nf_tables its possible that we'll deadlock
+trying to aquire a lock already held in process context.
 
-There is no bug here since no code checks the actual value of these
-fields, just whether or not they are zero (boolean context), but this
-can be easily fixed by switching to an unsigned type.
+Add a small helper that takes care of this and use it.
 
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230215-windfarm-wsingle-bit-bitfield-constant-conversion-v1-1-26415072e855@kernel.org
+Link: https://lore.kernel.org/netfilter-devel/401bd6ed-314a-a196-1cdc-e13c720cc8f2@balasys.hu/
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
+Reported-and-tested-by: Major Dávid <major.david@balasys.hu>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/windfarm_lm75_sensor.c | 4 ++--
- drivers/macintosh/windfarm_smu_sensors.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/netfilter/nf_tproxy.h   | 7 +++++++
+ net/ipv4/netfilter/nf_tproxy_ipv4.c | 2 +-
+ net/ipv6/netfilter/nf_tproxy_ipv6.c | 2 +-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/macintosh/windfarm_lm75_sensor.c b/drivers/macintosh/windfarm_lm75_sensor.c
-index 6cdfe714901d5..1332fc789056a 100644
---- a/drivers/macintosh/windfarm_lm75_sensor.c
-+++ b/drivers/macintosh/windfarm_lm75_sensor.c
-@@ -34,8 +34,8 @@
- #endif
+diff --git a/include/net/netfilter/nf_tproxy.h b/include/net/netfilter/nf_tproxy.h
+index 82d0e41b76f22..faa108b1ba675 100644
+--- a/include/net/netfilter/nf_tproxy.h
++++ b/include/net/netfilter/nf_tproxy.h
+@@ -17,6 +17,13 @@ static inline bool nf_tproxy_sk_is_transparent(struct sock *sk)
+ 	return false;
+ }
  
- struct wf_lm75_sensor {
--	int			ds1775 : 1;
--	int			inited : 1;
-+	unsigned int		ds1775 : 1;
-+	unsigned int		inited : 1;
- 	struct i2c_client	*i2c;
- 	struct wf_sensor	sens;
- };
-diff --git a/drivers/macintosh/windfarm_smu_sensors.c b/drivers/macintosh/windfarm_smu_sensors.c
-index 172fd267dcf60..0f4017a8189e5 100644
---- a/drivers/macintosh/windfarm_smu_sensors.c
-+++ b/drivers/macintosh/windfarm_smu_sensors.c
-@@ -275,8 +275,8 @@ struct smu_cpu_power_sensor {
- 	struct list_head	link;
- 	struct wf_sensor	*volts;
- 	struct wf_sensor	*amps;
--	int			fake_volts : 1;
--	int			quadratic : 1;
-+	unsigned int		fake_volts : 1;
-+	unsigned int		quadratic : 1;
- 	struct wf_sensor	sens;
- };
- #define to_smu_cpu_power(c) container_of(c, struct smu_cpu_power_sensor, sens)
++static inline void nf_tproxy_twsk_deschedule_put(struct inet_timewait_sock *tw)
++{
++	local_bh_disable();
++	inet_twsk_deschedule_put(tw);
++	local_bh_enable();
++}
++
+ /* assign a socket to the skb -- consumes sk */
+ static inline void nf_tproxy_assign_sock(struct sk_buff *skb, struct sock *sk)
+ {
+diff --git a/net/ipv4/netfilter/nf_tproxy_ipv4.c b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+index b2bae0b0e42a1..61cb2341f50fe 100644
+--- a/net/ipv4/netfilter/nf_tproxy_ipv4.c
++++ b/net/ipv4/netfilter/nf_tproxy_ipv4.c
+@@ -38,7 +38,7 @@ nf_tproxy_handle_time_wait4(struct net *net, struct sk_buff *skb,
+ 					    hp->source, lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
+diff --git a/net/ipv6/netfilter/nf_tproxy_ipv6.c b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+index 34d51cd426b0c..00761924f2766 100644
+--- a/net/ipv6/netfilter/nf_tproxy_ipv6.c
++++ b/net/ipv6/netfilter/nf_tproxy_ipv6.c
+@@ -63,7 +63,7 @@ nf_tproxy_handle_time_wait6(struct sk_buff *skb, int tproto, int thoff,
+ 					    lport ? lport : hp->dest,
+ 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
+ 		if (sk2) {
+-			inet_twsk_deschedule_put(inet_twsk(sk));
++			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
+ 			sk = sk2;
+ 		}
+ 	}
 -- 
 2.39.2
 
