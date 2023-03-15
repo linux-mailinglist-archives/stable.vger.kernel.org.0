@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A9F6BB150
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBBF6BB33B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232351AbjCOM0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57342 "EHLO
+        id S233080AbjCOMmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232339AbjCOM0C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7763C94A47
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:12 -0700 (PDT)
+        with ESMTP id S232832AbjCOMmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93006A54E9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 169F561D13
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2457EC433D2;
-        Wed, 15 Mar 2023 12:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C89D61D5C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A659C433D2;
+        Wed, 15 Mar 2023 12:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883074;
-        bh=PQgrzDtwrlbTgZVQHjfnFwIa0Ld+2xxHQYRV5MYeYVU=;
+        s=korg; t=1678884063;
+        bh=C9AH/fHWK7/UNmuHVA+yszmnfu3k264noT0wApTHBBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gv76xLhghWUllqEC+rtrXws7DhTWEu/K0ZwoOf3fnAtSvy3kLtANvfNWOSLHo03Zb
-         id2YycmC06WFGsbB+KlOL3wIGZp0pOFhWyJ2PQxAkkdGKE7Lxnksqlh/JSVQnnn1dV
-         C0DaKKQ0U/WWHr9KEB8iBz7ZOAp3CJ7VQN5ZVBBQ=
+        b=WdvHzY4bnlLYKufdHUs5q5IUZuqu+ATKu4kXYD5B/DSA5iOum/PBPnA8GKcimDDJP
+         Kx+3Ohw7WbSv7LtTCM9ZpmleGE8GpqiGBZxPVWs3it18TD8YGuT4cGkQf3XnYxWE/6
+         U1I02n3FMKiEglcb/DQYdA8npkUvyJa4OzDFxFck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Alexandru Matei <alexandru.matei@uipath.com>
-Subject: [PATCH 5.10 103/104] KVM: VMX: Fix crash due to uninitialized current_vmcs
-Date:   Wed, 15 Mar 2023 13:13:14 +0100
-Message-Id: <20230315115736.368731242@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 092/141] scsi: sd: Fix wrong zone_write_granularity value during revalidate
+Date:   Wed, 15 Mar 2023 13:13:15 +0100
+Message-Id: <20230315115742.786718172@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,102 +58,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Matei <alexandru.matei@uipath.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 93827a0a36396f2fd6368a54a020f420c8916e9b upstream.
+[ Upstream commit 288b3271d920c9ba949c3bab0f749f4cecc70e09 ]
 
-KVM enables 'Enlightened VMCS' and 'Enlightened MSR Bitmap' when running as
-a nested hypervisor on top of Hyper-V. When MSR bitmap is updated,
-evmcs_touch_msr_bitmap function uses current_vmcs per-cpu variable to mark
-that the msr bitmap was changed.
+When the sd driver revalidates host-managed SMR disks, it calls
+disk_set_zoned() which changes the zone_write_granularity attribute value
+to the logical block size regardless of the device type. After that, the sd
+driver overwrites the value in sd_zbc_read_zone() with the physical block
+size, since ZBC/ZAC requires this for host-managed disks. Between the calls
+to disk_set_zoned() and sd_zbc_read_zone(), there exists a window where the
+attribute shows the logical block size as the zone_write_granularity value,
+which is wrong for host-managed disks. The duration of the window is from
+20ms to 200ms, depending on report zone command execution time.
 
-vmx_vcpu_create() modifies the msr bitmap via vmx_disable_intercept_for_msr
--> vmx_msr_bitmap_l01_changed which in the end calls this function. The
-function checks for current_vmcs if it is null but the check is
-insufficient because current_vmcs is not initialized. Because of this, the
-code might incorrectly write to the structure pointed by current_vmcs value
-left by another task. Preemption is not disabled, the current task can be
-preempted and moved to another CPU while current_vmcs is accessed multiple
-times from evmcs_touch_msr_bitmap() which leads to crash.
+To avoid the wrong zone_write_granularity value between disk_set_zoned()
+and sd_zbc_read_zone(), modify the value not in sd_zbc_read_zone() but
+just after disk_set_zoned() call.
 
-The manipulation of MSR bitmaps by callers happens only for vmcs01 so the
-solution is to use vmx->vmcs01.vmcs instead of current_vmcs.
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000338
-  PGD 4e1775067 P4D 0
-  Oops: 0002 [#1] PREEMPT SMP NOPTI
-  ...
-  RIP: 0010:vmx_msr_bitmap_l01_changed+0x39/0x50 [kvm_intel]
-  ...
-  Call Trace:
-   vmx_disable_intercept_for_msr+0x36/0x260 [kvm_intel]
-   vmx_vcpu_create+0xe6/0x540 [kvm_intel]
-   kvm_arch_vcpu_create+0x1d1/0x2e0 [kvm]
-   kvm_vm_ioctl_create_vcpu+0x178/0x430 [kvm]
-   kvm_vm_ioctl+0x53f/0x790 [kvm]
-   __x64_sys_ioctl+0x8a/0xc0
-   do_syscall_64+0x5c/0x90
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: ceef7d10dfb6 ("KVM: x86: VMX: hyper-v: Enlightened MSR-Bitmap support")
-Cc: stable@vger.kernel.org
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
-Link: https://lore.kernel.org/r/20230123221208.4964-1-alexandru.matei@uipath.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-[manual backport: evmcs.h got renamed to hyperv.h in a later
-version, modified in evmcs.h instead]
-Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a805a4fa4fa3 ("block: introduce zone_write_granularity limit")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Link: https://lore.kernel.org/r/20230306063024.3376959-1-shinichiro.kawasaki@wdc.com
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.h |   11 -----------
- arch/x86/kvm/vmx/vmx.c   |    9 +++++++--
- 2 files changed, 7 insertions(+), 13 deletions(-)
+ drivers/scsi/sd.c     | 7 ++++++-
+ drivers/scsi/sd_zbc.c | 8 --------
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/vmx/evmcs.h
-+++ b/arch/x86/kvm/vmx/evmcs.h
-@@ -166,16 +166,6 @@ static inline u16 evmcs_read16(unsigned
- 	return *(u16 *)((char *)current_evmcs + offset);
- }
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 47dafe6b8a66d..797d02a6613a6 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -2974,8 +2974,13 @@ static void sd_read_block_characteristics(struct scsi_disk *sdkp)
+ 	}
  
--static inline void evmcs_touch_msr_bitmap(void)
--{
--	if (unlikely(!current_evmcs))
--		return;
+ 	if (sdkp->device->type == TYPE_ZBC) {
+-		/* Host-managed */
++		/*
++		 * Host-managed: Per ZBC and ZAC specifications, writes in
++		 * sequential write required zones of host-managed devices must
++		 * be aligned to the device physical block size.
++		 */
+ 		disk_set_zoned(sdkp->disk, BLK_ZONED_HM);
++		blk_queue_zone_write_granularity(q, sdkp->physical_block_size);
+ 	} else {
+ 		sdkp->zoned = zoned;
+ 		if (sdkp->zoned == 1) {
+diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
+index 62abebbaf2e7e..d33da6e1910f8 100644
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -963,14 +963,6 @@ int sd_zbc_read_zones(struct scsi_disk *sdkp, u8 buf[SD_BUF_SIZE])
+ 	disk_set_max_active_zones(disk, 0);
+ 	nr_zones = round_up(sdkp->capacity, zone_blocks) >> ilog2(zone_blocks);
+ 
+-	/*
+-	 * Per ZBC and ZAC specifications, writes in sequential write required
+-	 * zones of host-managed devices must be aligned to the device physical
+-	 * block size.
+-	 */
+-	if (blk_queue_zoned_model(q) == BLK_ZONED_HM)
+-		blk_queue_zone_write_granularity(q, sdkp->physical_block_size);
 -
--	if (current_evmcs->hv_enlightenments_control.msr_bitmap)
--		current_evmcs->hv_clean_fields &=
--			~HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP;
--}
--
- static inline void evmcs_load(u64 phys_addr)
- {
- 	struct hv_vp_assist_page *vp_ap =
-@@ -196,7 +186,6 @@ static inline u64 evmcs_read64(unsigned
- static inline u32 evmcs_read32(unsigned long field) { return 0; }
- static inline u16 evmcs_read16(unsigned long field) { return 0; }
- static inline void evmcs_load(u64 phys_addr) {}
--static inline void evmcs_touch_msr_bitmap(void) {}
- #endif /* IS_ENABLED(CONFIG_HYPERV) */
+ 	sdkp->early_zone_info.nr_zones = nr_zones;
+ 	sdkp->early_zone_info.zone_blocks = zone_blocks;
  
- enum nested_evmptrld_status {
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -3792,8 +3792,13 @@ static void vmx_msr_bitmap_l01_changed(s
- 	 * 'Enlightened MSR Bitmap' feature L0 needs to know that MSR
- 	 * bitmap has changed.
- 	 */
--	if (static_branch_unlikely(&enable_evmcs))
--		evmcs_touch_msr_bitmap();
-+	if (IS_ENABLED(CONFIG_HYPERV) && static_branch_unlikely(&enable_evmcs)) {
-+		struct hv_enlightened_vmcs *evmcs = (void *)vmx->vmcs01.vmcs;
-+
-+		if (evmcs->hv_enlightenments_control.msr_bitmap)
-+			evmcs->hv_clean_fields &=
-+				~HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP;
-+	}
- }
- 
- static __always_inline void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu,
+-- 
+2.39.2
+
 
 
