@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C886BB122
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3966BB0A0
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230283AbjCOMY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57938 "EHLO
+        id S232113AbjCOMUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232122AbjCOMYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA50166C6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:25 -0700 (PDT)
+        with ESMTP id S231892AbjCOMTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DC61BAF3
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4DA3B81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48823C433EF;
-        Wed, 15 Mar 2023 12:23:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B552D61D4C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D5FC433EF;
+        Wed, 15 Mar 2023 12:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883003;
-        bh=AE4BiSLpllbWOmBdUq1jz1NbQjc3r1UcLuY9gQlw0tg=;
+        s=korg; t=1678882767;
+        bh=aChLj06Q155iaDvCg5lxpo3hL0+sdboKA4LkhOimxLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qD3iCniN0TqORJUKc9Do1BjIG4XSb1G4yddH/I8+SeUrhiw5kyd5q84XBZ5fIPRTS
-         JKclhcMZ+aFzNmbb3lH/bAjgF8Qj9ogDCPOteYrC0LgkHtXqJIPincac5T539rgyxK
-         mfHhAZ7FSaxRopkNG7KtFuhyaBvN0pO6bzx0ZzyY=
+        b=yHy9jsuRA8SRh85x32V6VavdIHCeH1asT9kInKhB++mOaHPoE4PQ5SGIuGWmphbCQ
+         AAh0ZasDAfjhIp+1hWaitnPtmvMjIcfTizjq5HHkVkuxOmUaimhhsT0zmfw+VJ3Ap3
+         sSxCO99se8ix+84U1rvfWV3/QfR5sWLXtmr87kiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.10 084/104] sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()
-Date:   Wed, 15 Mar 2023 13:12:55 +0100
-Message-Id: <20230315115735.428928280@linuxfoundation.org>
+        patches@lists.linux.dev, Dennis Gilmore <dennis@ausil.us>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 5.4 62/68] arch: fix broken BuildID for arm64 and riscv
+Date:   Wed, 15 Mar 2023 13:12:56 +0100
+Message-Id: <20230315115728.544543930@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,100 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit a2e7f03ed28fce26c78b985f87913b6ce3accf9d upstream.
+commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
 
-Use the new util_fits_cpu() to ensure migration margin and capacity
-pressure are taken into account correctly when uclamp is being used
-otherwise we will fail to consider CPUs as fitting in scenarios where
-they should.
+Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
+since commit 994b7ac1697b ("arm64: remove special treatment for the
+link order of head.o").
 
-s/asym_fits_capacity/asym_fits_cpu/ to better reflect what it does now.
+The issue is that the type of .notes section, which contains the BuildID,
+changed from NOTES to PROGBITS.
 
-Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-6-qais.yousef@arm.com
-(cherry picked from commit a2e7f03ed28fce26c78b985f87913b6ce3accf9d)
-[Conflict in kernel/sched/fair.c due different name of static key
-wrapper function and slightly different if condition block in one of the
-asym_fits_cpu() call sites]
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Ard Biesheuvel figured out that whichever object gets linked first gets
+to decide the type of a section. The PROGBITS type is the result of the
+compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
+
+While Ard provided a fix for arm64, I want to fix this globally because
+the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
+remove special treatment for the link order of head.o"). This problem
+will happen in general for other architectures if they start to drop
+unneeded entries from scripts/head-object-list.txt.
+
+Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
+
+Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
+Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
+Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
+Reported-by: Dennis Gilmore <dennis@ausil.us>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+[Tom: stable backport 5.15.y, 5.10.y, 5.4.y]
+
+Though the above "Fixes:" commits are not in this kernel, the conditions
+which lead to a missing Build ID in arm64 vmlinux are similar.
+
+Evidence points to these conditions:
+1. ld version > 2.36 (exact binutils commit documented in a494398bde27)
+2. first object which gets linked (head.o) has a PROGBITS .note.GNU-stack segment
+
+These conditions can be observed when:
+- 5.15.60+ OR 5.10.136+ OR 5.4.210+
+- AND ld version > 2.36
+- AND arch=arm64
+- AND CONFIG_MODVERSIONS=y
+
+There are notable differences in the vmlinux elf files produced
+before(bad) and after(good) applying this series.
+
+Good: p_type:PT_NOTE segment exists.
+ Bad: p_type:PT_NOTE segment is missing.
+
+Good: sh_name_str:.notes section has sh_type:SHT_NOTE
+ Bad: sh_name_str:.notes section has sh_type:SHT_PROGBITS
+
+`readelf -n` (as of v2.40) searches for Build Id
+by processing only the very first note in sh_type:SHT_NOTE sections.
+
+This was previously bisected to the stable backport of 0d362be5b142.
+Follow-up experiments were discussed here: https://lore.kernel.org/all/20221221235413.xaisboqmr7dkqwn6@oracle.com/
+which strongly hints at condition 2.
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ include/asm-generic/vmlinux.lds.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6375,10 +6375,13 @@ select_idle_capacity(struct task_struct
- 	return best_cpu;
- }
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -825,7 +825,12 @@
+ #define TRACEDATA
+ #endif
  
--static inline bool asym_fits_capacity(unsigned long task_util, int cpu)
-+static inline bool asym_fits_cpu(unsigned long util,
-+				 unsigned long util_min,
-+				 unsigned long util_max,
-+				 int cpu)
- {
- 	if (static_branch_unlikely(&sched_asym_cpucapacity))
--		return fits_capacity(task_util, capacity_of(cpu));
-+		return util_fits_cpu(util, util_min, util_max, cpu);
- 
- 	return true;
- }
-@@ -6389,7 +6392,7 @@ static inline bool asym_fits_capacity(un
- static int select_idle_sibling(struct task_struct *p, int prev, int target)
- {
- 	struct sched_domain *sd;
--	unsigned long task_util;
-+	unsigned long task_util, util_min, util_max;
- 	int i, recent_used_cpu;
- 
- 	/*
-@@ -6398,11 +6401,13 @@ static int select_idle_sibling(struct ta
- 	 */
- 	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
- 		sync_entity_load_avg(&p->se);
--		task_util = uclamp_task_util(p);
-+		task_util = task_util_est(p);
-+		util_min = uclamp_eff_value(p, UCLAMP_MIN);
-+		util_max = uclamp_eff_value(p, UCLAMP_MAX);
- 	}
- 
- 	if ((available_idle_cpu(target) || sched_idle_cpu(target)) &&
--	    asym_fits_capacity(task_util, target))
-+	    asym_fits_cpu(task_util, util_min, util_max, target))
- 		return target;
- 
- 	/*
-@@ -6410,7 +6415,7 @@ static int select_idle_sibling(struct ta
- 	 */
- 	if (prev != target && cpus_share_cache(prev, target) &&
- 	    (available_idle_cpu(prev) || sched_idle_cpu(prev)) &&
--	    asym_fits_capacity(task_util, prev))
-+	    asym_fits_cpu(task_util, util_min, util_max, prev))
- 		return prev;
- 
- 	/*
-@@ -6425,7 +6430,7 @@ static int select_idle_sibling(struct ta
- 	    in_task() &&
- 	    prev == smp_processor_id() &&
- 	    this_rq()->nr_running <= 1 &&
--	    asym_fits_capacity(task_util, prev)) {
-+	    asym_fits_cpu(task_util, util_min, util_max, prev)) {
- 		return prev;
- 	}
- 
-@@ -6436,7 +6441,7 @@ static int select_idle_sibling(struct ta
- 	    cpus_share_cache(recent_used_cpu, target) &&
- 	    (available_idle_cpu(recent_used_cpu) || sched_idle_cpu(recent_used_cpu)) &&
- 	    cpumask_test_cpu(p->recent_used_cpu, p->cpus_ptr) &&
--	    asym_fits_capacity(task_util, recent_used_cpu)) {
-+	    asym_fits_cpu(task_util, util_min, util_max, recent_used_cpu)) {
- 		/*
- 		 * Replace recent_used_cpu with prev as it is a potential
- 		 * candidate for the next wake:
++/*
++ * Discard .note.GNU-stack, which is emitted as PROGBITS by the compiler.
++ * Otherwise, the type of .notes section would become PROGBITS instead of NOTES.
++ */
+ #define NOTES								\
++	/DISCARD/ : { *(.note.GNU-stack) }				\
+ 	.notes : AT(ADDR(.notes) - LOAD_OFFSET) {			\
+ 		__start_notes = .;					\
+ 		KEEP(*(.note.*))					\
 
 
