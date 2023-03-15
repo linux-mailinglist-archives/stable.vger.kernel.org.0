@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0956BB28D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 773B26BB1E0
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232467AbjCOMhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:37:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52670 "EHLO
+        id S232637AbjCOMbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232777AbjCOMhD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0065599D69
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:05 -0700 (PDT)
+        with ESMTP id S232556AbjCOMbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A17521D6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BD3661D79
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA10C433D2;
-        Wed, 15 Mar 2023 12:35:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 868D6B81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E296DC433D2;
+        Wed, 15 Mar 2023 12:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883753;
-        bh=vlJ3dYD+ivronfbeYM1l4A6a2Wd6KAtZExml1XQv+yk=;
+        s=korg; t=1678883408;
+        bh=7RMNFwT4dkdVhJKqpAiwsW6++ZyujWzrC/Oe/6Q7jl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJhijh+RHtjbtf03ySvHPJumkCHwwwrX4OcFMid4IqBiC3M5sUvNGvtbISneA+1es
-         HYL6ndC8WOWZxglV2WumXrYhXZFdKFcvQafydR0PS3ctYxW6IJIB2fGh25h7QWYDW2
-         b9DtO3PfxmL+jQmJV5qIP40tLGKOL7jszgCOJwVE=
+        b=EepQD663n2JUQnIFVOCKydrXkk8mmWeMcFQYWFKDZp+ggfW3ouhTxctbiwEQ1ZC6s
+         5hLWzrnw6vqtHOa/CmXdVyfjpBb5I77aHaxOKvvZ8JaCYv3ep3hnUZY9WyzdoHziCC
+         c1orcCbS3tdqAzZjKHfxWKRf08IBWq6jWDKJ7YXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 111/143] erofs: Revert "erofs: fix kvcalloc() misuse with __GFP_NOFAIL"
-Date:   Wed, 15 Mar 2023 13:13:17 +0100
-Message-Id: <20230315115743.866772115@linuxfoundation.org>
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 5.15 132/145] s390: define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36
+Date:   Wed, 15 Mar 2023 13:13:18 +0100
+Message-Id: <20230315115743.292592000@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,71 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 647dd2c3f0e16b71a1a77897d038164d48eea154 ]
+commit a494398bde273143c2352dd373cad8211f7d94b2 upstream.
 
-Let's revert commit 12724ba38992 ("erofs: fix kvcalloc() misuse with
-__GFP_NOFAIL") since kvmalloc() already supports __GFP_NOFAIL in commit
-a421ef303008 ("mm: allow !GFP_KERNEL allocations for kvmalloc").  So
-the original fix was wrong.
+Nathan Chancellor reports that the s390 vmlinux fails to link with
+GNU ld < 2.36 since commit 99cb0d917ffa ("arch: fix broken BuildID
+for arm64 and riscv").
 
-Actually there was some issue as [1] discussed, so before that mm fix
-is landed, the warn could still happen but applying this commit first
-will cause less.
+It happens for defconfig, or more specifically for CONFIG_EXPOLINE=y.
 
-[1] https://lore.kernel.org/r/20230305053035.1911-1-hsiangkao@linux.alibaba.com
+  $ s390x-linux-gnu-ld --version | head -n1
+  GNU ld (GNU Binutils for Debian) 2.35.2
+  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- allnoconfig
+  $ ./scripts/config -e CONFIG_EXPOLINE
+  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- olddefconfig
+  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu-
+  `.exit.text' referenced in section `.s390_return_reg' of drivers/base/dd.o: defined in discarded section `.exit.text' of drivers/base/dd.o
+  make[1]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
+  make: *** [Makefile:1252: vmlinux] Error 2
 
-Fixes: 12724ba38992 ("erofs: fix kvcalloc() misuse with __GFP_NOFAIL")
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/20230309053148.9223-1-hsiangkao@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+arch/s390/kernel/vmlinux.lds.S wants to keep EXIT_TEXT:
+
+        .exit.text : {
+                EXIT_TEXT
+        }
+
+But, at the same time, EXIT_TEXT is thrown away by DISCARD because
+s390 does not define RUNTIME_DISCARD_EXIT.
+
+I still do not understand why the latter wins after 99cb0d917ffa,
+but defining RUNTIME_DISCARD_EXIT seems correct because the comment
+line in arch/s390/kernel/vmlinux.lds.S says:
+
+        /*
+         * .exit.text is discarded at runtime, not link time,
+         * to deal with references from __bug_table
+         */
+
+Nathan also found that binutils commit 21401fc7bf67 ("Duplicate output
+sections in scripts") cured this issue, so we cannot reproduce it with
+binutils 2.36+, but it is better to not rely on it.
+
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20230105031306.1455409-1-masahiroy@kernel.org
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/zdata.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/s390/kernel/vmlinux.lds.S |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index ee7c88c9b5afa..cf4871834ebb2 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1047,12 +1047,12 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -17,6 +17,8 @@
+ /* Handle ro_after_init data on our own. */
+ #define RO_AFTER_INIT_DATA
  
- 	if (!be->decompressed_pages)
- 		be->decompressed_pages =
--			kcalloc(be->nr_pages, sizeof(struct page *),
--				GFP_KERNEL | __GFP_NOFAIL);
-+			kvcalloc(be->nr_pages, sizeof(struct page *),
-+				 GFP_KERNEL | __GFP_NOFAIL);
- 	if (!be->compressed_pages)
- 		be->compressed_pages =
--			kcalloc(pclusterpages, sizeof(struct page *),
--				GFP_KERNEL | __GFP_NOFAIL);
-+			kvcalloc(pclusterpages, sizeof(struct page *),
-+				 GFP_KERNEL | __GFP_NOFAIL);
++#define RUNTIME_DISCARD_EXIT
++
+ #define EMITS_PT_NOTE
  
- 	z_erofs_parse_out_bvecs(be);
- 	err2 = z_erofs_parse_in_bvecs(be, &overlapped);
-@@ -1100,7 +1100,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
- 	}
- 	if (be->compressed_pages < be->onstack_pages ||
- 	    be->compressed_pages >= be->onstack_pages + Z_EROFS_ONSTACK_PAGES)
--		kfree(be->compressed_pages);
-+		kvfree(be->compressed_pages);
- 	z_erofs_fill_other_copies(be, err);
- 
- 	for (i = 0; i < be->nr_pages; ++i) {
-@@ -1119,7 +1119,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
- 	}
- 
- 	if (be->decompressed_pages != be->onstack_pages)
--		kfree(be->decompressed_pages);
-+		kvfree(be->decompressed_pages);
- 
- 	pcl->length = 0;
- 	pcl->partial = true;
--- 
-2.39.2
-
+ #include <asm-generic/vmlinux.lds.h>
 
 
