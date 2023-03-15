@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF246BB096
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6175D6BB043
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232093AbjCOMTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
+        id S231481AbjCOMQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232142AbjCOMTS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:18 -0400
+        with ESMTP id S231955AbjCOMQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2049C94F42
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8EB1907BE
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFB02B81DFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348C0C433EF;
-        Wed, 15 Mar 2023 12:19:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42E39B81C6F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACCF6C433EF;
+        Wed, 15 Mar 2023 12:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882743;
-        bh=MnCXLDMbFPBJ+LFdICtYzTOFAIkvEJYeUNnVVW7X8Qg=;
+        s=korg; t=1678882588;
+        bh=MPHwU2twBsP7J9EhB4NyzULXgNQLfH9s5zPlHFIKQM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YglAb0p36KI/5JbvLbJXWBLdco6GwkSs6jcbBLWh1iOwD0SS54DB1Zxam8/OOjDCz
-         oQuvtekisWtL6maKFJhXwda38ZS436fI9S0magkbRuC2Vgne1VcnEzjiZgAFWYqiJY
-         MbuIxhFZYovh20nrzOuWnEMLcdzUjVUXtFPoV61I=
+        b=v45NwPjyWX5PUf/764NGv24CJ4sxQeozRPTh4edE6OSIFAjsVhc886itIn2u/xSWk
+         gkiF0m3A5keu7QMByEAbXG0HMNPhmV70aZ2VhaypTFcScOZzaWQ5tD4sdy+lbFmlJQ
+         Popn1Do2IrnpO+4LkDb9gwB8gs+BVso0vI4pdVdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 54/68] macintosh: windfarm: Use unsigned type for 1-bit bitfields
-Date:   Wed, 15 Mar 2023 13:12:48 +0100
-Message-Id: <20230315115728.217024988@linuxfoundation.org>
+        patches@lists.linux.dev, Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>, Lee Jones <lee@kernel.org>
+Subject: [PATCH 4.19 35/39] tipc: improve function tipc_wait_for_cond()
+Date:   Wed, 15 Mar 2023 13:12:49 +0100
+Message-Id: <20230315115722.532326964@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-[ Upstream commit 748ea32d2dbd813d3bd958117bde5191182f909a ]
+commit 223b7329ec6a0dae1b7f7db7b770e93f4a069ef9 upstream.
 
-Clang warns:
+Commit 844cf763fba6 ("tipc: make macro tipc_wait_for_cond() smp safe")
+replaced finish_wait() with remove_wait_queue() but still used
+prepare_to_wait(). This causes unnecessary conditional
+checking  before adding to wait queue in prepare_to_wait().
 
-  drivers/macintosh/windfarm_lm75_sensor.c:63:14: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  lm->inited = 1;
-                             ^ ~
+This commit replaces prepare_to_wait() with add_wait_queue()
+as the pair function with remove_wait_queue().
 
-  drivers/macintosh/windfarm_smu_sensors.c:356:19: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->fake_volts = 1;
-                                  ^ ~
-  drivers/macintosh/windfarm_smu_sensors.c:368:18: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->quadratic = 1;
-                                 ^ ~
-
-There is no bug here since no code checks the actual value of these
-fields, just whether or not they are zero (boolean context), but this
-can be easily fixed by switching to an unsigned type.
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230215-windfarm-wsingle-bit-bitfield-constant-conversion-v1-1-26415072e855@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Lee Jones <lee@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/macintosh/windfarm_lm75_sensor.c | 4 ++--
- drivers/macintosh/windfarm_smu_sensors.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ net/tipc/socket.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/macintosh/windfarm_lm75_sensor.c b/drivers/macintosh/windfarm_lm75_sensor.c
-index 1e5fa09845e77..8713e80201c07 100644
---- a/drivers/macintosh/windfarm_lm75_sensor.c
-+++ b/drivers/macintosh/windfarm_lm75_sensor.c
-@@ -34,8 +34,8 @@
- #endif
- 
- struct wf_lm75_sensor {
--	int			ds1775 : 1;
--	int			inited : 1;
-+	unsigned int		ds1775 : 1;
-+	unsigned int		inited : 1;
- 	struct i2c_client	*i2c;
- 	struct wf_sensor	sens;
- };
-diff --git a/drivers/macintosh/windfarm_smu_sensors.c b/drivers/macintosh/windfarm_smu_sensors.c
-index 3e6059eaa1380..90823b4280259 100644
---- a/drivers/macintosh/windfarm_smu_sensors.c
-+++ b/drivers/macintosh/windfarm_smu_sensors.c
-@@ -273,8 +273,8 @@ struct smu_cpu_power_sensor {
- 	struct list_head	link;
- 	struct wf_sensor	*volts;
- 	struct wf_sensor	*amps;
--	int			fake_volts : 1;
--	int			quadratic : 1;
-+	unsigned int		fake_volts : 1;
-+	unsigned int		quadratic : 1;
- 	struct wf_sensor	sens;
- };
- #define to_smu_cpu_power(c) container_of(c, struct smu_cpu_power_sensor, sens)
--- 
-2.39.2
-
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -388,7 +388,7 @@ static int tipc_sk_sock_err(struct socke
+ 		rc_ = tipc_sk_sock_err((sock_), timeo_);		       \
+ 		if (rc_)						       \
+ 			break;						       \
+-		prepare_to_wait(sk_sleep(sk_), &wait_, TASK_INTERRUPTIBLE);    \
++		add_wait_queue(sk_sleep(sk_), &wait_);                         \
+ 		release_sock(sk_);					       \
+ 		*(timeo_) = wait_woken(&wait_, TASK_INTERRUPTIBLE, *(timeo_)); \
+ 		sched_annotate_sleep();				               \
 
 
