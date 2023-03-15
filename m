@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 161BA6BB2E4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5CF6BB23D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232776AbjCOMjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:39:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52792 "EHLO
+        id S232686AbjCOMeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:34:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232851AbjCOMjI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:39:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7255F21D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:08 -0700 (PDT)
+        with ESMTP id S232699AbjCOMeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2499FE4B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2961E61D5C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6F8C433EF;
-        Wed, 15 Mar 2023 12:38:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14D4AB81DFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64DB7C433EF;
+        Wed, 15 Mar 2023 12:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883886;
-        bh=ERpzxbU+SOozA21adsbkNltdn7p8b1ULPUYkfYvRTjI=;
+        s=korg; t=1678883556;
+        bh=qN3fJUsoNzYjLflSLNLstEh1VbdCveVv5vBVl9NrLnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lboEXl1bGJX/l14fi0eqdOUtItnFNQKubMhCxWGfegCfNehw/WE0ialdxVdSDwtqM
-         hS9IviKuFKsYutwGLiR5BW6YYV/CpK7KC2j12+UPHVfChJegdhX/xsJzApeehXCHGO
-         7jmgLsMvkE0re3iZFPUqnLXGOtBxZz40XL0eWcJ4=
+        b=CvRQgQyRnKO2N3UsosEPI5sODJ+68GOLiyTifVSMbhxTWEyWrb2w5xd82gGpmM4KD
+         EPGJr5Wxc3KdmiGmJgxswpVbxeqU5mqldlugVPzbbSGrxEtRKdAoYck0nu+MdHIku5
+         lYcOzTka80h8Ri20JGvh2VXjW3X5y5+0vx5Ada2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.2 025/141] ext4: zero i_disksize when initializing the bootloader inode
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 042/143] bus: mhi: ep: Change state_lock to mutex
 Date:   Wed, 15 Mar 2023 13:12:08 +0100
-Message-Id: <20230315115740.749598908@linuxfoundation.org>
+Message-Id: <20230315115741.790954597@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,61 +55,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit f5361da1e60d54ec81346aee8e3d8baf1be0b762 upstream.
+[ Upstream commit 1ddc7618294084fff8d673217a9479550990ee84 ]
 
-If the boot loader inode has never been used before, the
-EXT4_IOC_SWAP_BOOT inode will initialize it, including setting the
-i_size to 0.  However, if the "never before used" boot loader has a
-non-zero i_size, then i_disksize will be non-zero, and the
-inconsistency between i_size and i_disksize can trigger a kernel
-warning:
+state_lock, the spinlock type is meant to protect race against concurrent
+MHI state transitions. In mhi_ep_set_m0_state(), while the state_lock is
+being held, the channels are resumed in mhi_ep_resume_channels() if the
+previous state was M3. This causes sleeping in atomic bug, since
+mhi_ep_resume_channels() use mutex internally.
 
- WARNING: CPU: 0 PID: 2580 at fs/ext4/file.c:319
- CPU: 0 PID: 2580 Comm: bb Not tainted 6.3.0-rc1-00004-g703695902cfa
- RIP: 0010:ext4_file_write_iter+0xbc7/0xd10
- Call Trace:
-  vfs_write+0x3b1/0x5c0
-  ksys_write+0x77/0x160
-  __x64_sys_write+0x22/0x30
-  do_syscall_64+0x39/0x80
+Since the state_lock is supposed to be held throughout the state change,
+it is not ideal to drop the lock before calling mhi_ep_resume_channels().
+So to fix this issue, let's change the type of state_lock to mutex. This
+would also allow holding the lock throughout all state transitions thereby
+avoiding any potential race.
 
-Reproducer:
- 1. create corrupted image and mount it:
-       mke2fs -t ext4 /tmp/foo.img 200
-       debugfs -wR "sif <5> size 25700" /tmp/foo.img
-       mount -t ext4 /tmp/foo.img /mnt
-       cd /mnt
-       echo 123 > file
- 2. Run the reproducer program:
-       posix_memalign(&buf, 1024, 1024)
-       fd = open("file", O_RDWR | O_DIRECT);
-       ioctl(fd, EXT4_IOC_SWAP_BOOT);
-       write(fd, buf, 1024);
-
-Fix this by setting i_disksize as well as i_size to zero when
-initiaizing the boot loader inode.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217159
-Cc: stable@kernel.org
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20230308032643.641113-1-chengzhihao1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org> # 5.19
+Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
+Reported-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/mhi/ep/main.c |  8 +++++---
+ drivers/bus/mhi/ep/sm.c   | 42 ++++++++++++++++++++++-----------------
+ include/linux/mhi_ep.h    |  4 ++--
+ 3 files changed, 31 insertions(+), 23 deletions(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -434,6 +434,7 @@ static long swap_inode_boot_loader(struc
- 		ei_bl->i_flags = 0;
- 		inode_set_iversion(inode_bl, 1);
- 		i_size_write(inode_bl, 0);
-+		EXT4_I(inode_bl)->i_disksize = inode_bl->i_size;
- 		inode_bl->i_mode = S_IFREG;
- 		if (ext4_has_feature_extents(sb)) {
- 			ext4_set_inode_flag(inode_bl, EXT4_INODE_EXTENTS);
+diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
+index b06548005985c..edd153dda40c0 100644
+--- a/drivers/bus/mhi/ep/main.c
++++ b/drivers/bus/mhi/ep/main.c
+@@ -994,11 +994,11 @@ static void mhi_ep_reset_worker(struct work_struct *work)
+ 
+ 	mhi_ep_power_down(mhi_cntrl);
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	/* Reset MMIO to signal host that the MHI_RESET is completed in endpoint */
+ 	mhi_ep_mmio_reset(mhi_cntrl);
+ 	cur_state = mhi_cntrl->mhi_state;
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+ 
+ 	/*
+ 	 * Only proceed further if the reset is due to SYS_ERR. The host will
+@@ -1007,6 +1007,8 @@ static void mhi_ep_reset_worker(struct work_struct *work)
+ 	 */
+ 	if (cur_state == MHI_STATE_SYS_ERR)
+ 		mhi_ep_power_up(mhi_cntrl);
++
++	mutex_unlock(&mhi_cntrl->state_lock);
+ }
+ 
+ /*
+@@ -1379,8 +1381,8 @@ int mhi_ep_register_controller(struct mhi_ep_cntrl *mhi_cntrl,
+ 
+ 	INIT_LIST_HEAD(&mhi_cntrl->st_transition_list);
+ 	INIT_LIST_HEAD(&mhi_cntrl->ch_db_list);
+-	spin_lock_init(&mhi_cntrl->state_lock);
+ 	spin_lock_init(&mhi_cntrl->list_lock);
++	mutex_init(&mhi_cntrl->state_lock);
+ 	mutex_init(&mhi_cntrl->event_lock);
+ 
+ 	/* Set MHI version and AMSS EE before enumeration */
+diff --git a/drivers/bus/mhi/ep/sm.c b/drivers/bus/mhi/ep/sm.c
+index 3655c19e23c7b..fd200b2ac0bb2 100644
+--- a/drivers/bus/mhi/ep/sm.c
++++ b/drivers/bus/mhi/ep/sm.c
+@@ -63,24 +63,23 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	int ret;
+ 
+ 	/* If MHI is in M3, resume suspended channels */
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	old_state = mhi_cntrl->mhi_state;
+ 	if (old_state == MHI_STATE_M3)
+ 		mhi_ep_resume_channels(mhi_cntrl);
+ 
+ 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M0);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+-
+ 	if (ret) {
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	/* Signal host that the device moved to M0 */
+ 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M0);
+ 	if (ret) {
+ 		dev_err(dev, "Failed sending M0 state change event\n");
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	if (old_state == MHI_STATE_READY) {
+@@ -88,11 +87,14 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 		ret = mhi_ep_send_ee_event(mhi_cntrl, MHI_EE_AMSS);
+ 		if (ret) {
+ 			dev_err(dev, "Failed sending AMSS EE event\n");
+-			return ret;
++			goto err_unlock;
+ 		}
+ 	}
+ 
+-	return 0;
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
++	return ret;
+ }
+ 
+ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -100,13 +102,12 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+ 	int ret;
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
+-	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
+ 
++	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
+ 	if (ret) {
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	mhi_ep_suspend_channels(mhi_cntrl);
+@@ -115,10 +116,13 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M3);
+ 	if (ret) {
+ 		dev_err(dev, "Failed sending M3 state change event\n");
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+-	return 0;
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
++	return ret;
+ }
+ 
+ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -127,22 +131,24 @@ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	enum mhi_state mhi_state;
+ 	int ret, is_ready;
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	/* Ensure that the MHISTATUS is set to RESET by host */
+ 	mhi_state = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_MHISTATE_MASK);
+ 	is_ready = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_READY_MASK);
+ 
+ 	if (mhi_state != MHI_STATE_RESET || is_ready) {
+ 		dev_err(dev, "READY state transition failed. MHI host not in RESET state\n");
+-		spin_unlock_bh(&mhi_cntrl->state_lock);
+-		return -EIO;
++		ret = -EIO;
++		goto err_unlock;
+ 	}
+ 
+ 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_READY);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+-
+ 	if (ret)
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+ 
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
+ 	return ret;
+ }
+diff --git a/include/linux/mhi_ep.h b/include/linux/mhi_ep.h
+index 478aece170462..f198a8ac7ee72 100644
+--- a/include/linux/mhi_ep.h
++++ b/include/linux/mhi_ep.h
+@@ -70,8 +70,8 @@ struct mhi_ep_db_info {
+  * @cmd_ctx_cache_phys: Physical address of the host command context cache
+  * @chdb: Array of channel doorbell interrupt info
+  * @event_lock: Lock for protecting event rings
+- * @list_lock: Lock for protecting state transition and channel doorbell lists
+  * @state_lock: Lock for protecting state transitions
++ * @list_lock: Lock for protecting state transition and channel doorbell lists
+  * @st_transition_list: List of state transitions
+  * @ch_db_list: List of queued channel doorbells
+  * @wq: Dedicated workqueue for handling rings and state changes
+@@ -117,8 +117,8 @@ struct mhi_ep_cntrl {
+ 
+ 	struct mhi_ep_db_info chdb[4];
+ 	struct mutex event_lock;
++	struct mutex state_lock;
+ 	spinlock_t list_lock;
+-	spinlock_t state_lock;
+ 
+ 	struct list_head st_transition_list;
+ 	struct list_head ch_db_list;
+-- 
+2.39.2
+
 
 
