@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F4C6BB13D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E4A6BB1DD
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbjCOMZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57660 "EHLO
+        id S232633AbjCOMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbjCOMZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:36 -0400
+        with ESMTP id S232369AbjCOMbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1464D44A6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8331A4AB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46B74B81E05
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67CCC433D2;
-        Wed, 15 Mar 2023 12:24:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C26CEB81DF6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0F2C433EF;
+        Wed, 15 Mar 2023 12:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883077;
-        bh=xho1xBUPoXiSkVhyC7WSjd0JDT7z+1HfEAI16HJFI/0=;
+        s=korg; t=1678883400;
+        bh=byJb1kmaW8u4Bt+XcxXZqHt7YxWyS7lV54NaqaO1ChE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upTrv+wrYVsnTwg82TSmetMtWdJrqRgwqLTeYpgvsdnUe2hteG2pdFm1RePknzHzV
-         ltBXC5KhU40kLg+k9oUFJDLebA/sEwHx3iwXVfLCSsOjCX+FvHN/ibfNZTzxrtmL1+
-         ZIX7KjcOX7WLXWjNO6XiD9xGg6KiV1EsaIQEDv7Q=
+        b=WJtD4ir0tlBujXpkqq2br2Kw14nMzRRjAh1kQdGBtV6MbmkE3eTTa6BkkUsF2/Gkx
+         LBC3/mevpG0zFBWq8rPX4MmW08irhrwpfuohnHq8AwRKBQHEnLs9RNa2lLws9aK+6/
+         tJKwKedh8DWAndS/PIDo8eog2WKX9iYaFnmawwUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 104/104] s390/dasd: add missing discipline function
+        patches@lists.linux.dev, Dennis Gilmore <dennis@ausil.us>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 5.15 129/145] arch: fix broken BuildID for arm64 and riscv
 Date:   Wed, 15 Mar 2023 13:13:15 +0100
-Message-Id: <20230315115736.398454190@linuxfoundation.org>
+Message-Id: <20230315115743.204873090@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit c0c8a8397fa8a74d04915f4d3d28cb4a5d401427 upstream.
+commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
 
-Fix crash with illegal operation exception in dasd_device_tasklet.
-Commit b72949328869 ("s390/dasd: Prepare for additional path event handling")
-renamed the verify_path function for ECKD but not for FBA and DIAG.
-This leads to a panic when the path verification function is called for a
-FBA or DIAG device.
+Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
+since commit 994b7ac1697b ("arm64: remove special treatment for the
+link order of head.o").
 
-Fix by defining a wrapper function for dasd_generic_verify_path().
+The issue is that the type of .notes section, which contains the BuildID,
+changed from NOTES to PROGBITS.
 
-Fixes: b72949328869 ("s390/dasd: Prepare for additional path event handling")
-Cc: <stable@vger.kernel.org> #5.11
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20210525125006.157531-2-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Ard Biesheuvel figured out that whichever object gets linked first gets
+to decide the type of a section. The PROGBITS type is the result of the
+compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
+
+While Ard provided a fix for arm64, I want to fix this globally because
+the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
+remove special treatment for the link order of head.o"). This problem
+will happen in general for other architectures if they start to drop
+unneeded entries from scripts/head-object-list.txt.
+
+Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
+
+Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
+Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
+Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
+Reported-by: Dennis Gilmore <dennis@ausil.us>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+[Tom: stable backport 5.15.y, 5.10.y, 5.4.y]
+
+Though the above "Fixes:" commits are not in this kernel, the conditions
+which lead to a missing Build ID in arm64 vmlinux are similar.
+
+Evidence points to these conditions:
+1. ld version > 2.36 (exact binutils commit documented in a494398bde27)
+2. first object which gets linked (head.o) has a PROGBITS .note.GNU-stack segment
+
+These conditions can be observed when:
+- 5.15.60+ OR 5.10.136+ OR 5.4.210+
+- AND ld version > 2.36
+- AND arch=arm64
+- AND CONFIG_MODVERSIONS=y
+
+There are notable differences in the vmlinux elf files produced
+before(bad) and after(good) applying this series.
+
+Good: p_type:PT_NOTE segment exists.
+ Bad: p_type:PT_NOTE segment is missing.
+
+Good: sh_name_str:.notes section has sh_type:SHT_NOTE
+ Bad: sh_name_str:.notes section has sh_type:SHT_PROGBITS
+
+`readelf -n` (as of v2.40) searches for Build Id
+by processing only the very first note in sh_type:SHT_NOTE sections.
+
+This was previously bisected to the stable backport of 0d362be5b142.
+Follow-up experiments were discussed here: https://lore.kernel.org/all/20221221235413.xaisboqmr7dkqwn6@oracle.com/
+which strongly hints at condition 2.
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_diag.c |    7 ++++++-
- drivers/s390/block/dasd_fba.c  |    7 ++++++-
- drivers/s390/block/dasd_int.h  |    1 -
- 3 files changed, 12 insertions(+), 3 deletions(-)
+ include/asm-generic/vmlinux.lds.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/s390/block/dasd_diag.c
-+++ b/drivers/s390/block/dasd_diag.c
-@@ -642,12 +642,17 @@ static void dasd_diag_setup_blk_queue(st
- 	blk_queue_segment_boundary(q, PAGE_SIZE - 1);
- }
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -903,7 +903,12 @@
+ #define PRINTK_INDEX
+ #endif
  
-+static int dasd_diag_pe_handler(struct dasd_device *device, __u8 tbvpm)
-+{
-+	return dasd_generic_verify_path(device, tbvpm);
-+}
-+
- static struct dasd_discipline dasd_diag_discipline = {
- 	.owner = THIS_MODULE,
- 	.name = "DIAG",
- 	.ebcname = "DIAG",
- 	.check_device = dasd_diag_check_device,
--	.verify_path = dasd_generic_verify_path,
-+	.pe_handler = dasd_diag_pe_handler,
- 	.fill_geometry = dasd_diag_fill_geometry,
- 	.setup_blk_queue = dasd_diag_setup_blk_queue,
- 	.start_IO = dasd_start_diag,
---- a/drivers/s390/block/dasd_fba.c
-+++ b/drivers/s390/block/dasd_fba.c
-@@ -803,13 +803,18 @@ static void dasd_fba_setup_blk_queue(str
- 	blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
- }
- 
-+static int dasd_fba_pe_handler(struct dasd_device *device, __u8 tbvpm)
-+{
-+	return dasd_generic_verify_path(device, tbvpm);
-+}
-+
- static struct dasd_discipline dasd_fba_discipline = {
- 	.owner = THIS_MODULE,
- 	.name = "FBA ",
- 	.ebcname = "FBA ",
- 	.check_device = dasd_fba_check_characteristics,
- 	.do_analysis = dasd_fba_do_analysis,
--	.verify_path = dasd_generic_verify_path,
-+	.pe_handler = dasd_fba_pe_handler,
- 	.setup_blk_queue = dasd_fba_setup_blk_queue,
- 	.fill_geometry = dasd_fba_fill_geometry,
- 	.start_IO = dasd_start_IO,
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -298,7 +298,6 @@ struct dasd_discipline {
- 	 * e.g. verify that new path is compatible with the current
- 	 * configuration.
- 	 */
--	int (*verify_path)(struct dasd_device *, __u8);
- 	int (*pe_handler)(struct dasd_device *, __u8);
- 
- 	/*
++/*
++ * Discard .note.GNU-stack, which is emitted as PROGBITS by the compiler.
++ * Otherwise, the type of .notes section would become PROGBITS instead of NOTES.
++ */
+ #define NOTES								\
++	/DISCARD/ : { *(.note.GNU-stack) }				\
+ 	.notes : AT(ADDR(.notes) - LOAD_OFFSET) {			\
+ 		__start_notes = .;					\
+ 		KEEP(*(.note.*))					\
 
 
