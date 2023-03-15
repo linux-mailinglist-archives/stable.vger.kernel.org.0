@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A575E6BB326
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C8A6BB035
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233053AbjCOMl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35730 "EHLO
+        id S231879AbjCOMQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232757AbjCOMlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1991FA3350
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:28 -0700 (PDT)
+        with ESMTP id S231481AbjCOMQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FD68FBDE
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D01ACB81E05
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4241CC433D2;
-        Wed, 15 Mar 2023 12:39:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DE3461D44
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F49C433D2;
+        Wed, 15 Mar 2023 12:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883973;
-        bh=MGjV63gqIyWrUmynAnkUNc4Qe3ruXoWMQEHnYSSezO8=;
+        s=korg; t=1678882566;
+        bh=9jBS7MIpL6+m9brClPSSCvHFrvezPWT/iN0VihTnzSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R96hWNYt1RDoLe9lh2BHLRSQc8CQ4vPmG+2ldzSRkF3FajnFsYNRAnj0SDdlhsXEB
-         vW1zFa9CeMzatbwOW06Dr4y1i2EHoASwfwqKXkX4oh7Z7RS4SbXpgpm/vhgOgF9KTG
-         BG4HPb1b/0xwTagYLaANvDmr6jBSNoGC1Rmpy1HQ=
+        b=QcF3HaD88PcoHDqKnMluRs1tLzUUmC3TNcL+vyHcNX/jawV0oqSbl+gFGQdXjgKhq
+         EahQNpNMqiarWqy7/EuJCbtHarfN9XDyPne6bkNHAS/6kxtm8Qhrfgoal1iWbaYPqs
+         N+9wjYv9k5tPXh0UrjGDvZR7LxU80FeYwVXLNPx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 058/141] net: lan966x: Fix port police support using tc-matchall
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.19 27/39] Revert "spi: mt7621: Fix an error message in mt7621_spi_probe()"
 Date:   Wed, 15 Mar 2023 13:12:41 +0100
-Message-Id: <20230315115741.733409510@linuxfoundation.org>
+Message-Id: <20230315115722.239035576@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-[ Upstream commit 81563d8548b0478075c720666be348d4199b8591 ]
+This reverts commit 269f650a0b26067092873308117e0bf0c6ec8289 which is
+commit 2b2bf6b7faa9010fae10dc7de76627a3fdb525b3 upstream.
 
-When the police was removed from the port, then it was trying to
-remove the police from the police id and not from the actual
-police index.
-The police id represents the id of the police and police index
-represents the position in HW where the police is situated.
-The port police id can be any number while the port police index
-is a number based on the port chip port.
-Fix this by deleting the police from HW that is situated at the
-police index and not police id.
+dev_err_probe() does not suppot in 4.19.y. So this driver will fail to
+build.
 
-Fixes: 5390334b59a3 ("net: lan966x: Add port police support using tc-matchall")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+```
+  CC      drivers/staging/mt7621-spi/spi-mt7621.o
+drivers/staging/mt7621-spi/spi-mt7621.c: In function 'mt7621_spi_probe':
+drivers/staging/mt7621-spi/spi-mt7621.c:446:24: error: implicit declaration of function 'dev_err_probe'; did you mean 'device_reprobe'? [-Werror=implicit-function-declaration]
+  446 |                 return dev_err_probe(&pdev->dev, PTR_ERR(clk),
+      |                        ^~~~~~~~~~~~~
+      |                        device_reprobe
+```
+
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_police.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/mt7621-spi/spi-mt7621.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_police.c b/drivers/net/ethernet/microchip/lan966x/lan966x_police.c
-index a9aec900d608d..7d66fe75cd3bf 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_police.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_police.c
-@@ -194,7 +194,7 @@ int lan966x_police_port_del(struct lan966x_port *port,
- 		return -EINVAL;
- 	}
+--- a/drivers/staging/mt7621-spi/spi-mt7621.c
++++ b/drivers/staging/mt7621-spi/spi-mt7621.c
+@@ -442,9 +442,11 @@ static int mt7621_spi_probe(struct platf
+ 		return PTR_ERR(base);
  
--	err = lan966x_police_del(port, port->tc.police_id);
-+	err = lan966x_police_del(port, POL_IDX_PORT + port->chip_port);
- 	if (err) {
- 		NL_SET_ERR_MSG_MOD(extack,
- 				   "Failed to add policer to port");
--- 
-2.39.2
-
+ 	clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(clk))
+-		return dev_err_probe(&pdev->dev, PTR_ERR(clk),
+-				     "unable to get SYS clock\n");
++	if (IS_ERR(clk)) {
++		dev_err(&pdev->dev, "unable to get SYS clock, err=%d\n",
++			status);
++		return PTR_ERR(clk);
++	}
+ 
+ 	status = clk_prepare_enable(clk);
+ 	if (status)
 
 
