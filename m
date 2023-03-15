@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F786BB26A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4879D6BB1A7
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232661AbjCOMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51722 "EHLO
+        id S232505AbjCOM31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232425AbjCOMfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:52 -0400
+        with ESMTP id S232373AbjCOM3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EFD24BF0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3054196F2A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3898861D13
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DE13C433EF;
-        Wed, 15 Mar 2023 12:33:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E477061CC2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02DA0C433EF;
+        Wed, 15 Mar 2023 12:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883619;
-        bh=M+jEZo/G0TdDBpQSFA7NpqpK31M80bqJFkKMAZKjnno=;
+        s=korg; t=1678883287;
+        bh=xKPRbhWdqixEMfpmsLKmROL9T+rzauDHwO2eh0xZVkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdnVvSyzSNK4QZdA7cTKnVg9EoEOX+ZeKo4GFHvK+l3qE6ervnwTuZ/GaD1zDLwkH
-         6wxE1tkJUBXiDLWHWh1iWrqEZDkEKRQWg/ym63dtE0MCJm3LO23SNdrppUB7Uj1W+x
-         EDHWcC3E7atINUSa0khBPYxi2BeoaRTID7ekGSwc=
+        b=xIX1C5VNb/cZpAtXHswiWF7MWDSO6d4f6T8UC+p+TstSGBTDQAKmNbwIf+z3QExgC
+         ztzQaeDqxuhJjiTGSjL1sHiha9hCljtpTW3X3cZv1ZJZYrcpBo21jpcJ2juczpA2ZP
+         MyikjMbSvD6rIfN9za+fXIYtChK0/W5yZO627I6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaurav Jain <gaurav.jain@nxp.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 067/143] tls: rx: fix return value for async crypto
+        patches@lists.linux.dev,
+        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 087/145] iommu/amd: Add a length limitation for the ivrs_acpihid command-line parameter
 Date:   Wed, 15 Mar 2023 13:12:33 +0100
-Message-Id: <20230315115742.569483149@linuxfoundation.org>
+Message-Id: <20230315115741.839304660@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
 
-[ Upstream commit 4d42cd6bc2ac1b9be50ade13771daec90c9d18b1 ]
+[ Upstream commit b6b26d86c61c441144c72f842f7469bb686e1211 ]
 
-Gaurav reports that TLS Rx is broken with async crypto
-accelerators. The commit under fixes missed updating
-the retval byte counting logic when updating how records
-are stored. Even tho both before and after the change
-'decrypted' was updated inside the main loop, it was
-completely overwritten when processing the async
-completions. Now that the rx_list only holds
-non-zero-copy records we need to add, not overwrite.
+The 'acpiid' buffer in the parse_ivrs_acpihid function may overflow,
+because the string specifier in the format string sscanf()
+has no width limitation.
 
-Reported-and-bisected-by: Gaurav Jain <gaurav.jain@nxp.com>
-Fixes: cbbdee9918a2 ("tls: rx: async: don't put async zc on the list")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217064
-Tested-by: Gaurav Jain <gaurav.jain@nxp.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230227181201.1793772-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Found by InfoTeCS on behalf of Linux Verification Center
+(linuxtesting.org) with SVACE.
+
+Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
+Reviewed-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lore.kernel.org/r/20230202082719.1513849-1-Ilia.Gavrilov@infotecs.ru
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd/init.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 38dcd9b401027..992092aeebad9 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -2114,7 +2114,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 		else
- 			err = process_rx_list(ctx, msg, &control, 0,
- 					      async_copy_bytes, is_peek);
--		decrypted = max(err, 0);
-+		decrypted += max(err, 0);
- 	}
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 6c11db3356f78..50ea582be5910 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -3224,15 +3224,26 @@ static int __init parse_ivrs_hpet(char *str)
+ 	return 1;
+ }
  
- 	copied += decrypted;
++#define ACPIID_LEN (ACPIHID_UID_LEN + ACPIHID_HID_LEN)
++
+ static int __init parse_ivrs_acpihid(char *str)
+ {
+ 	u32 seg = 0, bus, dev, fn;
+ 	char *hid, *uid, *p, *addr;
+-	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] = {0};
++	char acpiid[ACPIID_LEN] = {0};
+ 	int i;
+ 
+ 	addr = strchr(str, '@');
+ 	if (!addr) {
++		addr = strchr(str, '=');
++		if (!addr)
++			goto not_found;
++
++		++addr;
++
++		if (strlen(addr) > ACPIID_LEN)
++			goto not_found;
++
+ 		if (sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid) == 4 ||
+ 		    sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid) == 5) {
+ 			pr_warn("ivrs_acpihid%s option format deprecated; use ivrs_acpihid=%s@%04x:%02x:%02x.%d instead\n",
+@@ -3245,6 +3256,9 @@ static int __init parse_ivrs_acpihid(char *str)
+ 	/* We have the '@', make it the terminator to get just the acpiid */
+ 	*addr++ = 0;
+ 
++	if (strlen(str) > ACPIID_LEN + 1)
++		goto not_found;
++
+ 	if (sscanf(str, "=%s", acpiid) != 1)
+ 		goto not_found;
+ 
 -- 
 2.39.2
 
