@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 431D86BB1D0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8426BB1CD
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232459AbjCOMa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:30:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39806 "EHLO
+        id S232616AbjCOMav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232462AbjCOMah (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:37 -0400
+        with ESMTP id S232614AbjCOMac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43ED89CBDB
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2F999C00
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84DDC61D71
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A7BBC4339B;
-        Wed, 15 Mar 2023 12:29:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E7EB61D3E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B66C433D2;
+        Wed, 15 Mar 2023 12:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883369;
-        bh=FoqNlTjKyfDVbdDWkXnhfX3XrconDy5nai9JtBI3AkU=;
+        s=korg; t=1678883371;
+        bh=3rY9lxZwsXYQu1dBIcoAhT8IwjNobHE4/gqXo5+0Gpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cjd6CDu8TGaHnQLPz6mtuey5rbSNZLkylkeRzltoVstZpUswsVZU5GI9WJuQ2/rkK
-         sS7B4+G6Oy9xQRiBOEvXWl15qr8UhCDgRk+IrxHFtK/6NRMgyZ+b0yLjAPayzpb93f
-         XWOv9EFoFYM2rd3fcjY5Lkb+K4yJtAFJQMD9UN84=
+        b=GioUxXPwik3QjuQQ06dRf7mWit5dd07lq2pWG/SE4+lAvqzGIA5HMm2UKMQ0h4QNH
+         4KS5UdH+be++BzWHXpfqAASXMJ9Crffgecp0JXjLFTKjWoehiayqoaJKfNPc4il/zt
+         Zqn2DKqfUCFEpXMQeBugs82HNNjctLSQynwj/lHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yun Hsiang <hsiang023167@gmail.com>,
-        Qais Yousef <qais.yousef@arm.com>,
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         "Qais Yousef (Google)" <qyousef@layalina.io>
-Subject: [PATCH 5.15 118/145] sched/uclamp: Fix fits_capacity() check in feec()
-Date:   Wed, 15 Mar 2023 13:13:04 +0100
-Message-Id: <20230315115742.843793451@linuxfoundation.org>
+Subject: [PATCH 5.15 119/145] sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
+Date:   Wed, 15 Mar 2023 13:13:05 +0100
+Message-Id: <20230315115742.892558751@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
 References: <20230315115738.951067403@linuxfoundation.org>
@@ -57,197 +56,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-commit 244226035a1f9b2b6c326e55ae5188fab4f428cb upstream.
+commit c56ab1b3506ba0e7a872509964b100912bde165d upstream.
 
-As reported by Yun Hsiang [1], if a task has its uclamp_min >= 0.8 * 1024,
-it'll always pick the previous CPU because fits_capacity() will always
-return false in this case.
+So that it is now uclamp aware.
 
-The new util_fits_cpu() logic should handle this correctly for us beside
-more corner cases where similar failures could occur, like when using
-UCLAMP_MAX.
+This fixes a major problem of busy tasks capped with UCLAMP_MAX keeping
+the system in overutilized state which disables EAS and leads to wasting
+energy in the long run.
 
-We open code uclamp_rq_util_with() except for the clamp() part,
-util_fits_cpu() needs the 'raw' values to be passed to it.
+Without this patch running a busy background activity like JIT
+compilation on Pixel 6 causes the system to be in overutilized state
+74.5% of the time.
 
-Also introduce uclamp_rq_{set, get}() shorthand accessors to get uclamp
-value for the rq. Makes the code more readable and ensures the right
-rules (use READ_ONCE/WRITE_ONCE) are respected transparently.
+With this patch this goes down to  9.79%.
 
-[1] https://lists.linaro.org/pipermail/eas-dev/2020-July/001488.html
+It also fixes another problem when long running tasks that have their
+UCLAMP_MIN changed while running such that they need to upmigrate to
+honour the new UCLAMP_MIN value. The upmigration doesn't get triggered
+because overutilized state never gets set in this state, hence misfit
+migration never happens at tick in this case until the task wakes up
+again.
 
-Fixes: 1d42509e475c ("sched/fair: Make EAS wakeup placement consider uclamp restrictions")
-Reported-by: Yun Hsiang <hsiang023167@gmail.com>
+Fixes: af24bde8df202 ("sched/uclamp: Add uclamp support to energy_compute()")
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-4-qais.yousef@arm.com
-(cherry picked from commit 244226035a1f9b2b6c326e55ae5188fab4f428cb)
-[Conflict in kernel/sched/fair.c mainly due to new automatic variables
-being added on master vs 5.15]
+Link: https://lore.kernel.org/r/20220804143609.515789-7-qais.yousef@arm.com
+(cherry picked from commit c56ab1b3506ba0e7a872509964b100912bde165d)
+[Fixed trivial conflict in cpu_overutilized() - use cpu_util() instead
+of cpu_util_cfs()]
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c  |   10 +++++-----
- kernel/sched/fair.c  |   26 ++++++++++++++++++++++++--
- kernel/sched/sched.h |   42 +++++++++++++++++++++++++++++++++++++++---
- 3 files changed, 68 insertions(+), 10 deletions(-)
+ kernel/sched/fair.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1335,7 +1335,7 @@ static inline void uclamp_idle_reset(str
- 	if (!(rq->uclamp_flags & UCLAMP_FLAG_IDLE))
- 		return;
- 
--	WRITE_ONCE(rq->uclamp[clamp_id].value, clamp_value);
-+	uclamp_rq_set(rq, clamp_id, clamp_value);
- }
- 
- static inline
-@@ -1513,8 +1513,8 @@ static inline void uclamp_rq_inc_id(stru
- 	if (bucket->tasks == 1 || uc_se->value > bucket->value)
- 		bucket->value = uc_se->value;
- 
--	if (uc_se->value > READ_ONCE(uc_rq->value))
--		WRITE_ONCE(uc_rq->value, uc_se->value);
-+	if (uc_se->value > uclamp_rq_get(rq, clamp_id))
-+		uclamp_rq_set(rq, clamp_id, uc_se->value);
- }
- 
- /*
-@@ -1580,7 +1580,7 @@ static inline void uclamp_rq_dec_id(stru
- 	if (likely(bucket->tasks))
- 		return;
- 
--	rq_clamp = READ_ONCE(uc_rq->value);
-+	rq_clamp = uclamp_rq_get(rq, clamp_id);
- 	/*
- 	 * Defensive programming: this should never happen. If it happens,
- 	 * e.g. due to future modification, warn and fixup the expected value.
-@@ -1588,7 +1588,7 @@ static inline void uclamp_rq_dec_id(stru
- 	SCHED_WARN_ON(bucket->value > rq_clamp);
- 	if (bucket->value >= rq_clamp) {
- 		bkt_clamp = uclamp_rq_max_value(rq, clamp_id, uc_se->value);
--		WRITE_ONCE(uc_rq->value, bkt_clamp);
-+		uclamp_rq_set(rq, clamp_id, bkt_clamp);
- 	}
- }
- 
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -6938,6 +6938,8 @@ compute_energy(struct task_struct *p, in
- static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
+@@ -5692,7 +5692,10 @@ static inline unsigned long cpu_util(int
+ 
+ static inline bool cpu_overutilized(int cpu)
  {
- 	unsigned long prev_delta = ULONG_MAX, best_delta = ULONG_MAX;
-+	unsigned long p_util_min = uclamp_is_used() ? uclamp_eff_value(p, UCLAMP_MIN) : 0;
-+	unsigned long p_util_max = uclamp_is_used() ? uclamp_eff_value(p, UCLAMP_MAX) : 1024;
- 	struct root_domain *rd = cpu_rq(smp_processor_id())->rd;
- 	int cpu, best_energy_cpu = prev_cpu, target = -1;
- 	unsigned long cpu_cap, util, base_energy = 0;
-@@ -6967,6 +6969,8 @@ static int find_energy_efficient_cpu(str
- 
- 	for (; pd; pd = pd->next) {
- 		unsigned long cur_delta, spare_cap, max_spare_cap = 0;
-+		unsigned long rq_util_min, rq_util_max;
-+		unsigned long util_min, util_max;
- 		bool compute_prev_delta = false;
- 		unsigned long base_energy_pd;
- 		int max_spare_cap_cpu = -1;
-@@ -6987,8 +6991,26 @@ static int find_energy_efficient_cpu(str
- 			 * much capacity we can get out of the CPU; this is
- 			 * aligned with sched_cpu_util().
- 			 */
--			util = uclamp_rq_util_with(cpu_rq(cpu), util, p);
--			if (!fits_capacity(util, cpu_cap))
-+			if (uclamp_is_used()) {
-+				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
-+					util_min = p_util_min;
-+					util_max = p_util_max;
-+				} else {
-+					/*
-+					 * Open code uclamp_rq_util_with() except for
-+					 * the clamp() part. Ie: apply max aggregation
-+					 * only. util_fits_cpu() logic requires to
-+					 * operate on non clamped util but must use the
-+					 * max-aggregated uclamp_{min, max}.
-+					 */
-+					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
-+					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
+-	return !fits_capacity(cpu_util(cpu), capacity_of(cpu));
++	unsigned long rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
++	unsigned long rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
 +
-+					util_min = max(rq_util_min, p_util_min);
-+					util_max = max(rq_util_max, p_util_max);
-+				}
-+			}
-+			if (!util_fits_cpu(util, util_min, util_max, cpu))
- 				continue;
- 
- 			if (cpu == prev_cpu) {
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2855,6 +2855,23 @@ static inline void cpufreq_update_util(s
- #ifdef CONFIG_UCLAMP_TASK
- unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
- 
-+static inline unsigned long uclamp_rq_get(struct rq *rq,
-+					  enum uclamp_id clamp_id)
-+{
-+	return READ_ONCE(rq->uclamp[clamp_id].value);
-+}
-+
-+static inline void uclamp_rq_set(struct rq *rq, enum uclamp_id clamp_id,
-+				 unsigned int value)
-+{
-+	WRITE_ONCE(rq->uclamp[clamp_id].value, value);
-+}
-+
-+static inline bool uclamp_rq_is_idle(struct rq *rq)
-+{
-+	return rq->uclamp_flags & UCLAMP_FLAG_IDLE;
-+}
-+
- /**
-  * uclamp_rq_util_with - clamp @util with @rq and @p effective uclamp values.
-  * @rq:		The rq to clamp against. Must not be NULL.
-@@ -2890,12 +2907,12 @@ unsigned long uclamp_rq_util_with(struct
- 		 * Ignore last runnable task's max clamp, as this task will
- 		 * reset it. Similarly, no need to read the rq's min clamp.
- 		 */
--		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
-+		if (uclamp_rq_is_idle(rq))
- 			goto out;
- 	}
- 
--	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
--	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
-+	min_util = max_t(unsigned long, min_util, uclamp_rq_get(rq, UCLAMP_MIN));
-+	max_util = max_t(unsigned long, max_util, uclamp_rq_get(rq, UCLAMP_MAX));
- out:
- 	/*
- 	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
-@@ -2941,6 +2958,25 @@ static inline bool uclamp_is_used(void)
- {
- 	return false;
++	return !util_fits_cpu(cpu_util(cpu), rq_util_min, rq_util_max, cpu);
  }
-+
-+static inline unsigned long uclamp_rq_get(struct rq *rq,
-+					  enum uclamp_id clamp_id)
-+{
-+	if (clamp_id == UCLAMP_MIN)
-+		return 0;
-+
-+	return SCHED_CAPACITY_SCALE;
-+}
-+
-+static inline void uclamp_rq_set(struct rq *rq, enum uclamp_id clamp_id,
-+				 unsigned int value)
-+{
-+}
-+
-+static inline bool uclamp_rq_is_idle(struct rq *rq)
-+{
-+	return false;
-+}
- #endif /* CONFIG_UCLAMP_TASK */
  
- #ifdef arch_scale_freq_capacity
+ static inline void update_overutilized_status(struct rq *rq)
 
 
