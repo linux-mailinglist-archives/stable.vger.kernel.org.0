@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9CA6BB155
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5BA6BB153
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231806AbjCOM0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
+        id S232481AbjCOM0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232114AbjCOM0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B23829AFC8
+        with ESMTP id S232483AbjCOM0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 298C499D55
         for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2F04B81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DB2BC4339B;
-        Wed, 15 Mar 2023 12:24:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C559B61D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEAA3C433D2;
+        Wed, 15 Mar 2023 12:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883087;
-        bh=Os5ltuJMQ+b36lwUJSrlMjMAnSJh8XO1Jf6WgX2An64=;
+        s=korg; t=1678883090;
+        bh=fFxqEhm8dXNgEEsfJ8IsbnkMeIDNMJOncIRmJ4/BUHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLeLylxsuxhpyXpPTqtYbp6Ysvg54wDtaTJA1Oo70FhJZvy9/Xcx2GIbV9XaPH9Tm
-         DCdYvh3dRiEmVaMvfPvBgPPSAyPWSv0UD2D5na6FwmjMm1dgNMfSWTVF7+6N32//Uy
-         f+J45z+/za1kkG9b2ecAszYBAKhKw8oyucEwZ33k=
+        b=Qw0zvRhnT1Z7NmaBLpZFnHLOAD+0yw2YdShBxelbvLIXxOx1Tc0DKalet154uRy+9
+         +AP0lKM7CwuKM9O6htqqj5rmK12mzD+zD0tpmZIsyF3HKGJSvi1JL41Zdde6sHf6N7
+         ojWYec0F5DsDLqRAlcapLT6/kekrJT7m2CUZxaS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.15 003/145] perf inject: Fix --buildid-all not to eat up MMAP2
-Date:   Wed, 15 Mar 2023 13:11:09 +0100
-Message-Id: <20230315115739.083171532@linuxfoundation.org>
+        patches@lists.linux.dev, Andrey Vagin <avagin@openvz.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>
+Subject: [PATCH 5.15 004/145] fork: allow CLONE_NEWTIME in clone3 flags
+Date:   Wed, 15 Mar 2023 13:11:10 +0100
+Message-Id: <20230315115739.123920723@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
 References: <20230315115738.951067403@linuxfoundation.org>
@@ -57,88 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Tobias Klauser <tklauser@distanz.ch>
 
-commit ce9f1c05d2edfa6cdf2c1a510495d333e11810a8 upstream.
+commit a402f1e35313fc7ce2ca60f543c4402c2c7c3544 upstream.
 
-When MMAP2 has the PERF_RECORD_MISC_MMAP_BUILD_ID flag, it means the
-record already has the build-id info.  So it marks the DSO as hit, to
-skip if the same DSO is not processed if it happens to miss the build-id
-later.
+Currently, calling clone3() with CLONE_NEWTIME in clone_args->flags
+fails with -EINVAL. This is because CLONE_NEWTIME intersects with
+CSIGNAL. However, CSIGNAL was deprecated when clone3 was introduced in
+commit 7f192e3cd316 ("fork: add clone3"), allowing re-use of that part
+of clone flags.
 
-But it missed to copy the MMAP2 record itself so it'd fail to symbolize
-samples for those regions.
+Fix this by explicitly allowing CLONE_NEWTIME in clone3_args_valid. This
+is also in line with the respective check in check_unshare_flags which
+allow CLONE_NEWTIME for unshare().
 
-For example, the following generates 249 MMAP2 events.
-
-  $ perf record --buildid-mmap -o- true | perf report --stat -i- | grep MMAP2
-           MMAP2 events:        249  (86.8%)
-
-Adding perf inject should not change the number of events like this
-
-  $ perf record --buildid-mmap -o- true | perf inject -b | \
-  > perf report --stat -i- | grep MMAP2
-           MMAP2 events:        249  (86.5%)
-
-But when --buildid-all is used, it eats most of the MMAP2 events.
-
-  $ perf record --buildid-mmap -o- true | perf inject -b --buildid-all | \
-  > perf report --stat -i- | grep MMAP2
-           MMAP2 events:          1  ( 2.5%)
-
-With this patch, it shows the original number now.
-
-  $ perf record --buildid-mmap -o- true | perf inject -b --buildid-all | \
-  > perf report --stat -i- | grep MMAP2
-           MMAP2 events:        249  (86.5%)
-
-Committer testing:
-
-Before:
-
-  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b | perf report --stat -i- | grep MMAP2
-           MMAP2 events:         58  (36.2%)
-  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf report --stat -i- | grep MMAP2
-           MMAP2 events:         58  (36.2%)
-  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b --buildid-all | perf report --stat -i- | grep MMAP2
-           MMAP2 events:          2  ( 1.9%)
-  $
-
-After:
-
-  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b | perf report --stat -i- | grep MMAP2
-           MMAP2 events:         58  (29.3%)
-  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf report --stat -i- | grep MMAP2
-           MMAP2 events:         58  (34.3%)
-  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b --buildid-all | perf report --stat -i- | grep MMAP2
-           MMAP2 events:         58  (38.4%)
-  $
-
-Fixes: f7fc0d1c915a74ff ("perf inject: Do not inject BUILD_ID record if MMAP2 has it")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
+Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
+Cc: Andrey Vagin <avagin@openvz.org>
+Cc: Christian Brauner <brauner@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230223070155.54251-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+Reviewed-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-inject.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/fork.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/builtin-inject.c
-+++ b/tools/perf/builtin-inject.c
-@@ -463,6 +463,7 @@ static int perf_event__repipe_buildid_mm
- 			dso->hit = 1;
- 		}
- 		dso__put(dso);
-+		perf_event__repipe(tool, event, sample, machine);
- 		return 0;
- 	}
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2829,7 +2829,7 @@ static bool clone3_args_valid(struct ker
+ 	 * - make the CLONE_DETACHED bit reusable for clone3
+ 	 * - make the CSIGNAL bits reusable for clone3
+ 	 */
+-	if (kargs->flags & (CLONE_DETACHED | CSIGNAL))
++	if (kargs->flags & (CLONE_DETACHED | (CSIGNAL & (~CLONE_NEWTIME))))
+ 		return false;
  
+ 	if ((kargs->flags & (CLONE_SIGHAND | CLONE_CLEAR_SIGHAND)) ==
 
 
