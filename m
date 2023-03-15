@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8466BB1F0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35B086BB047
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232662AbjCOMbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40424 "EHLO
+        id S231303AbjCOMQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232641AbjCOMba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BAD988EF5
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:42 -0700 (PDT)
+        with ESMTP id S231855AbjCOMQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA07092711
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD6A5B81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0769DC433D2;
-        Wed, 15 Mar 2023 12:30:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3ED61D48
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAE5DC433EF;
+        Wed, 15 Mar 2023 12:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883439;
-        bh=uBL8rUJC0JIhKydsyI1Kb2yjMx3zAvoatGk1q0OiNmQ=;
+        s=korg; t=1678882593;
+        bh=oGfP/TGRqajg7DGuCoXIX3vu2u9JvvpSXZJMeoi7bm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EacawJgcDUa1t4dgXEvLNRPTDSTxYPTqN0P9SwSQSPwBZa3AgThVCa6sY8j/cYJnE
-         3ta3GwcFX2IoaKZdFwNCbIW3KSewYF0BNDjpHqRN2n5qyJS1WEBRLszb+IkHUh8Wn4
-         86kgSz7hkBiP789PIPUwDvGEut+nVOmARIkiYg94=
+        b=DmSExJFs89SII8DUBmRfnFP+ZGBSoWwkpDI5pNJ3b56K56PU786caVcZofk6ULY4V
+         TYK+03LjvHMNr2XwutWNNHhu6COPQ3JQNXkTelkuvp4grDaQIaS0L0mrwjmaTZ57mX
+         org3wxJ729N+kjQX3Umo2CJEWnxFMyM6otMU33oU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miklos Szeredi <miklos@szeredi.hu>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/145] fs: use consistent setgid checks in is_sxid()
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 4.19 36/39] drm/i915: Dont use BAR mappings for ring buffers with LLC
 Date:   Wed, 15 Mar 2023 13:12:50 +0100
-Message-Id: <20230315115742.405360658@linuxfoundation.org>
+Message-Id: <20230315115722.581384565@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,46 +61,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <brauner@kernel.org>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-commit 8d84e39d76bd83474b26cb44f4b338635676e7e8 upstream.
+commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
 
-Now that we made the VFS setgid checking consistent an inode can't be
-marked security irrelevant even if the setgid bit is still set. Make
-this function consistent with all other helpers.
+Direction from hardware is that ring buffers should never be mapped
+via the BAR on systems with LLC. There are too many caching pitfalls
+due to the way BAR accesses are routed. So it is safest to just not
+use it.
 
-Note that enforcing consistent setgid stripping checks for file
-modification and mode- and ownership changes will cause the setgid bit
-to be lost in more cases than useed to be the case. If an unprivileged
-user wrote to a non-executable setgid file that they don't have
-privilege over the setgid bit will be dropped. This will lead to
-temporary failures in some xfstests until they have been updated.
-
-Reported-by: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
+(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_ringbuffer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 9601c2d774c88..23ecfecdc4504 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -3571,7 +3571,7 @@ int __init list_bdev_fs_names(char *buf, size_t size);
+--- a/drivers/gpu/drm/i915/intel_ringbuffer.c
++++ b/drivers/gpu/drm/i915/intel_ringbuffer.c
+@@ -1083,7 +1083,7 @@ int intel_ring_pin(struct intel_ring *ri
+ 	if (unlikely(ret))
+ 		return ret;
  
- static inline bool is_sxid(umode_t mode)
- {
--	return (mode & S_ISUID) || ((mode & S_ISGID) && (mode & S_IXGRP));
-+	return mode & (S_ISUID | S_ISGID);
- }
+-	if (i915_vma_is_map_and_fenceable(vma))
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
+ 		addr = (void __force *)i915_vma_pin_iomap(vma);
+ 	else
+ 		addr = i915_gem_object_pin_map(vma->obj, map);
+@@ -1118,7 +1118,7 @@ void intel_ring_unpin(struct intel_ring
+ 	/* Discard any unused bytes beyond that submitted to hw. */
+ 	intel_ring_reset(ring, ring->tail);
  
- static inline int check_sticky(struct user_namespace *mnt_userns,
--- 
-2.39.2
-
+-	if (i915_vma_is_map_and_fenceable(ring->vma))
++	if (i915_vma_is_map_and_fenceable(ring->vma) && !HAS_LLC(ring->vma->vm->i915))
+ 		i915_vma_unpin_iomap(ring->vma);
+ 	else
+ 		i915_gem_object_unpin_map(ring->vma->obj);
 
 
