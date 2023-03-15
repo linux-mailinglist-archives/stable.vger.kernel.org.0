@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D13666BB0B7
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3FE6BB1B7
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232223AbjCOMUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46064 "EHLO
+        id S232153AbjCOMaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232226AbjCOMUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:22 -0400
+        with ESMTP id S232491AbjCOM3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1B094779
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:20:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04C33C7B9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A39561ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:20:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B07D8C433D2;
-        Wed, 15 Mar 2023 12:20:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB8E61D50
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C0B5C433EF;
+        Wed, 15 Mar 2023 12:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882801;
-        bh=Dla1IsGrNz19OS51ODt78sdv7tOeDKYhkB0skY089ck=;
+        s=korg; t=1678883318;
+        bh=Dh/qI2QJLDX/Q30gslNHpsglXEBVKKJrZ7k2TnGYmbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6zj1gAwuCRqH/ndDQJKJDRO3E+cKFglcSvA0J5kqK9AV4iU0VQGEEE4w3+XsZer/
-         Zzl8+9A4w9s1svcQ0SLzglU6FIAL8VJnUoIcqlDBWBlmCvK562yat3HzilUvgBWB5w
-         C3W20mFjfTd65PyX+Y3+K5w7YkJt1BA6kxTzct9U=
+        b=1cGNZyQgSlR2n3H19yrWU3CfZauiSS9xy1nVJaTPj2GL1SIUI+FzZRbJi5cQltQiw
+         fgr1/DK9OfGH0Jd866q8V5Jceh3mK6dvNKxVrfiAuRDvvV9LtJlVVaPm+eUsJOKg4K
+         ugFrJ7cbYPn/Bv0ZdP7czVREKkSaUYAZIM9cfmUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/68] clk: qcom: mmcc-apq8084: remove spdm clocks
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Yang Xu <xuyang2018.jy@fujitsu.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 5.15 098/145] fs: add mode_strip_sgid() helper
 Date:   Wed, 15 Mar 2023 13:12:44 +0100
-Message-Id: <20230315115728.071976673@linuxfoundation.org>
+Message-Id: <20230315115742.209240395@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,313 +58,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Yang Xu <xuyang2018.jy@fujitsu.com>
 
-[ Upstream commit 7b347f4b677b6d84687e67d82b6b17c6f55ea2b4 ]
+commit 2b3416ceff5e6bd4922f6d1c61fb68113dd82302 upsream.
 
-SPDM is used for debug/profiling and does not have any other
-functionality. These clocks can safely be removed.
+Add a dedicated helper to handle the setgid bit when creating a new file
+in a setgid directory. This is a preparatory patch for moving setgid
+stripping into the vfs. The patch contains no functional changes.
 
-Suggested-by: Stephen Boyd <sboyd@kernel.org>
-Suggested-by: Georgi Djakov <djakov@kernel.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230111060402.1168726-11-dmitry.baryshkov@linaro.org
+Currently the setgid stripping logic is open-coded directly in
+inode_init_owner() and the individual filesystems are responsible for
+handling setgid inheritance. Since this has proven to be brittle as
+evidenced by old issues we uncovered over the last months (see [1] to
+[3] below) we will try to move this logic into the vfs.
+
+Link: e014f37db1a2 ("xfs: use setattr_copy to set vfs inode attributes") [1]
+Link: 01ea173e103e ("xfs: fix up non-directory creation in SGID directories") [2]
+Link: fd84bfdddd16 ("ceph: fix up non-directory creation in SGID directories") [3]
+Link: https://lore.kernel.org/r/1657779088-2242-1-git-send-email-xuyang2018.jy@fujitsu.com
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reviewed-and-Tested-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/mmcc-apq8084.c | 271 --------------------------------
- 1 file changed, 271 deletions(-)
+ fs/inode.c         | 36 ++++++++++++++++++++++++++++++++----
+ include/linux/fs.h |  2 ++
+ 2 files changed, 34 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/qcom/mmcc-apq8084.c b/drivers/clk/qcom/mmcc-apq8084.c
-index fbfcf00067394..893e5536f64c7 100644
---- a/drivers/clk/qcom/mmcc-apq8084.c
-+++ b/drivers/clk/qcom/mmcc-apq8084.c
-@@ -2363,262 +2363,6 @@ static struct clk_branch mmss_rbcpr_clk = {
- 	},
- };
+diff --git a/fs/inode.c b/fs/inode.c
+index 8279c700a2b7f..3740102c9bd5e 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -2165,10 +2165,8 @@ void inode_init_owner(struct user_namespace *mnt_userns, struct inode *inode,
+ 		/* Directories are special, and always inherit S_ISGID */
+ 		if (S_ISDIR(mode))
+ 			mode |= S_ISGID;
+-		else if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP) &&
+-			 !in_group_p(i_gid_into_mnt(mnt_userns, dir)) &&
+-			 !capable_wrt_inode_uidgid(mnt_userns, dir, CAP_FSETID))
+-			mode &= ~S_ISGID;
++		else
++			mode = mode_strip_sgid(mnt_userns, dir, mode);
+ 	} else
+ 		inode_fsgid_set(inode, mnt_userns);
+ 	inode->i_mode = mode;
+@@ -2324,3 +2322,33 @@ struct timespec64 current_time(struct inode *inode)
+ 	return timestamp_truncate(now, inode);
+ }
+ EXPORT_SYMBOL(current_time);
++
++/**
++ * mode_strip_sgid - handle the sgid bit for non-directories
++ * @mnt_userns: User namespace of the mount the inode was created from
++ * @dir: parent directory inode
++ * @mode: mode of the file to be created in @dir
++ *
++ * If the @mode of the new file has both the S_ISGID and S_IXGRP bit
++ * raised and @dir has the S_ISGID bit raised ensure that the caller is
++ * either in the group of the parent directory or they have CAP_FSETID
++ * in their user namespace and are privileged over the parent directory.
++ * In all other cases, strip the S_ISGID bit from @mode.
++ *
++ * Return: the new mode to use for the file
++ */
++umode_t mode_strip_sgid(struct user_namespace *mnt_userns,
++			const struct inode *dir, umode_t mode)
++{
++	if ((mode & (S_ISGID | S_IXGRP)) != (S_ISGID | S_IXGRP))
++		return mode;
++	if (S_ISDIR(mode) || !dir || !(dir->i_mode & S_ISGID))
++		return mode;
++	if (in_group_p(i_gid_into_mnt(mnt_userns, dir)))
++		return mode;
++	if (capable_wrt_inode_uidgid(mnt_userns, dir, CAP_FSETID))
++		return mode;
++
++	return mode & ~S_ISGID;
++}
++EXPORT_SYMBOL(mode_strip_sgid);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 1e1ac116dd136..be9be4a7216c7 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1941,6 +1941,8 @@ extern long compat_ptr_ioctl(struct file *file, unsigned int cmd,
+ void inode_init_owner(struct user_namespace *mnt_userns, struct inode *inode,
+ 		      const struct inode *dir, umode_t mode);
+ extern bool may_open_dev(const struct path *path);
++umode_t mode_strip_sgid(struct user_namespace *mnt_userns,
++			const struct inode *dir, umode_t mode);
  
--static struct clk_branch mmss_spdm_ahb_clk = {
--	.halt_reg = 0x0230,
--	.clkr = {
--		.enable_reg = 0x0230,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_ahb_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_ahb_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_axi_clk = {
--	.halt_reg = 0x0210,
--	.clkr = {
--		.enable_reg = 0x0210,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_axi_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_csi0_clk = {
--	.halt_reg = 0x023c,
--	.clkr = {
--		.enable_reg = 0x023c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_csi0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_csi0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_gfx3d_clk = {
--	.halt_reg = 0x022c,
--	.clkr = {
--		.enable_reg = 0x022c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_gfx3d_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_gfx3d_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg0_clk = {
--	.halt_reg = 0x0204,
--	.clkr = {
--		.enable_reg = 0x0204,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg1_clk = {
--	.halt_reg = 0x0208,
--	.clkr = {
--		.enable_reg = 0x0208,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg2_clk = {
--	.halt_reg = 0x0224,
--	.clkr = {
--		.enable_reg = 0x0224,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg2_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg2_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_mdp_clk = {
--	.halt_reg = 0x020c,
--	.clkr = {
--		.enable_reg = 0x020c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_mdp_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_mdp_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk0_clk = {
--	.halt_reg = 0x0234,
--	.clkr = {
--		.enable_reg = 0x0234,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk1_clk = {
--	.halt_reg = 0x0228,
--	.clkr = {
--		.enable_reg = 0x0228,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vcodec0_clk = {
--	.halt_reg = 0x0214,
--	.clkr = {
--		.enable_reg = 0x0214,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vcodec0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vcodec0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe0_clk = {
--	.halt_reg = 0x0218,
--	.clkr = {
--		.enable_reg = 0x0218,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe1_clk = {
--	.halt_reg = 0x021c,
--	.clkr = {
--		.enable_reg = 0x021c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_axi_clk = {
--	.halt_reg = 0x0304,
--	.clkr = {
--		.enable_reg = 0x0304,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_axi_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_ocmemnoc_clk = {
--	.halt_reg = 0x0308,
--	.clkr = {
--		.enable_reg = 0x0308,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_ocmemnoc_clk",
--			.parent_names = (const char *[]){
--				"ocmemnoc_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--
- static struct clk_branch mmss_misc_ahb_clk = {
- 	.halt_reg = 0x502c,
- 	.clkr = {
-@@ -3251,21 +2995,6 @@ static struct clk_regmap *mmcc_apq8084_clocks[] = {
- 	[MDSS_VSYNC_CLK] = &mdss_vsync_clk.clkr,
- 	[MMSS_RBCPR_AHB_CLK] = &mmss_rbcpr_ahb_clk.clkr,
- 	[MMSS_RBCPR_CLK] = &mmss_rbcpr_clk.clkr,
--	[MMSS_SPDM_AHB_CLK] = &mmss_spdm_ahb_clk.clkr,
--	[MMSS_SPDM_AXI_CLK] = &mmss_spdm_axi_clk.clkr,
--	[MMSS_SPDM_CSI0_CLK] = &mmss_spdm_csi0_clk.clkr,
--	[MMSS_SPDM_GFX3D_CLK] = &mmss_spdm_gfx3d_clk.clkr,
--	[MMSS_SPDM_JPEG0_CLK] = &mmss_spdm_jpeg0_clk.clkr,
--	[MMSS_SPDM_JPEG1_CLK] = &mmss_spdm_jpeg1_clk.clkr,
--	[MMSS_SPDM_JPEG2_CLK] = &mmss_spdm_jpeg2_clk.clkr,
--	[MMSS_SPDM_MDP_CLK] = &mmss_spdm_mdp_clk.clkr,
--	[MMSS_SPDM_PCLK0_CLK] = &mmss_spdm_pclk0_clk.clkr,
--	[MMSS_SPDM_PCLK1_CLK] = &mmss_spdm_pclk1_clk.clkr,
--	[MMSS_SPDM_VCODEC0_CLK] = &mmss_spdm_vcodec0_clk.clkr,
--	[MMSS_SPDM_VFE0_CLK] = &mmss_spdm_vfe0_clk.clkr,
--	[MMSS_SPDM_VFE1_CLK] = &mmss_spdm_vfe1_clk.clkr,
--	[MMSS_SPDM_RM_AXI_CLK] = &mmss_spdm_rm_axi_clk.clkr,
--	[MMSS_SPDM_RM_OCMEMNOC_CLK] = &mmss_spdm_rm_ocmemnoc_clk.clkr,
- 	[MMSS_MISC_AHB_CLK] = &mmss_misc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_AHB_CLK] = &mmss_mmssnoc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_BTO_AHB_CLK] = &mmss_mmssnoc_bto_ahb_clk.clkr,
+ /*
+  * This is the "filldir" function type, used by readdir() to let
 -- 
 2.39.2
 
