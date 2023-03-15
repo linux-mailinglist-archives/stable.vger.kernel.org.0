@@ -2,59 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EB0E6BB12F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C87E26BB33A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232298AbjCOMZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57916 "EHLO
+        id S233055AbjCOMmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:42:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232329AbjCOMZI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C978E99D6D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:07 -0700 (PDT)
+        with ESMTP id S232792AbjCOMmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86AD9A4B3B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C956CB81DFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0816AC4339B;
-        Wed, 15 Mar 2023 12:24:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6368C613F9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792E5C4331E;
+        Wed, 15 Mar 2023 12:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883045;
-        bh=17j1IuYxoghYGpS1B5DGIQJubZwkdi+SKKGet2h/y5k=;
+        s=korg; t=1678884049;
+        bh=YWGWcVKQ/csnn6nJ7FBkwWiXX8SnQ0mJIWQoKVg6NTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1oquJIqNRM4U1thnWyuqe64JQ4hFpDJSav5sZEPT4UwFPpHZfTQV1dxlyr+7Qh2v
-         HhzY5wQJc4mdtxsSxAPWgpwReguVVmt3Y9MDB1Tsc+/XxTn3dXfnVxaxqsaH/ugaiS
-         NRO/KpGb5nO7V+WGScv96lmaudr3Sjn5vVyY35pQ=
+        b=XYAd7MtkCfiBKYG8Eh3I8T4fC5c5AjbT3ivDcNilXfg+AbcRHeP8S/dkjIn4MjRqs
+         Dr7lc6V3qPTieaBU6SYnmAc/JXxIKTF3Ffxj950DwYvOPs+6MF/mc3XLawmL0fHSS7
+         RltO4zRHd83HNL9Cp6pzMGM/HYOq6wzJ1w8Lfwd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Saeger <tom.saeger@oracle.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-        Dennis Gilmore <dennis@ausil.us>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Rich Felker <dalias@libc.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 099/104] sh: define RUNTIME_DISCARD_EXIT
+        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 087/141] btf: fix resolving BTF_KIND_VAR after ARRAY, STRUCT, UNION, PTR
 Date:   Wed, 15 Mar 2023 13:13:10 +0100
-Message-Id: <20230315115736.199278561@linuxfoundation.org>
+Message-Id: <20230315115742.630428024@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,84 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Saeger <tom.saeger@oracle.com>
+From: Lorenz Bauer <lorenz.bauer@isovalent.com>
 
-commit c1c551bebf928889e7a8fef7415b44f9a64975f4 upstream.
+[ Upstream commit 9b459804ff9973e173fabafba2a1319f771e85fa ]
 
-sh vmlinux fails to link with GNU ld < 2.40 (likely < 2.36) since
-commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv").
+btf_datasec_resolve contains a bug that causes the following BTF
+to fail loading:
 
-This is similar to fixes for powerpc and s390:
-commit 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT").
-commit a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
-with GNU ld < 2.36").
+    [1] DATASEC a size=2 vlen=2
+        type_id=4 offset=0 size=1
+        type_id=7 offset=1 size=1
+    [2] INT (anon) size=1 bits_offset=0 nr_bits=8 encoding=(none)
+    [3] PTR (anon) type_id=2
+    [4] VAR a type_id=3 linkage=0
+    [5] INT (anon) size=1 bits_offset=0 nr_bits=8 encoding=(none)
+    [6] TYPEDEF td type_id=5
+    [7] VAR b type_id=6 linkage=0
 
-  $ sh4-linux-gnu-ld --version | head -n1
-  GNU ld (GNU Binutils for Debian) 2.35.2
+This error message is printed during btf_check_all_types:
 
-  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu- microdev_defconfig
-  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu-
+    [1] DATASEC a size=2 vlen=2
+        type_id=7 offset=1 size=1 Invalid type
 
-  `.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
-  defined in discarded section `.exit.text' of crypto/algboss.o
-  `.exit.text' referenced in section `__bug_table' of
-  drivers/char/hw_random/core.o: defined in discarded section
-  `.exit.text' of drivers/char/hw_random/core.o
-  make[2]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-  make[1]: *** [Makefile:1252: vmlinux] Error 2
+By tracing btf_*_resolve we can pinpoint the problem:
 
-arch/sh/kernel/vmlinux.lds.S keeps EXIT_TEXT:
+    btf_datasec_resolve(depth: 1, type_id: 1, mode: RESOLVE_TBD) = 0
+        btf_var_resolve(depth: 2, type_id: 4, mode: RESOLVE_TBD) = 0
+            btf_ptr_resolve(depth: 3, type_id: 3, mode: RESOLVE_PTR) = 0
+        btf_var_resolve(depth: 2, type_id: 4, mode: RESOLVE_PTR) = 0
+    btf_datasec_resolve(depth: 1, type_id: 1, mode: RESOLVE_PTR) = -22
 
-	/*
-	 * .exit.text is discarded at runtime, not link time, to deal with
-	 * references from __bug_table
-	 */
-	.exit.text : AT(ADDR(.exit.text)) { EXIT_TEXT }
+The last invocation of btf_datasec_resolve should invoke btf_var_resolve
+by means of env_stack_push, instead it returns EINVAL. The reason is that
+env_stack_push is never executed for the second VAR.
 
-However, EXIT_TEXT is thrown away by
-DISCARD(include/asm-generic/vmlinux.lds.h) because
-sh does not define RUNTIME_DISCARD_EXIT.
+    if (!env_type_is_resolve_sink(env, var_type) &&
+        !env_type_is_resolved(env, var_type_id)) {
+        env_stack_set_next_member(env, i + 1);
+        return env_stack_push(env, var_type, var_type_id);
+    }
 
-GNU ld 2.40 does not have this issue and builds fine.
-This corresponds with Masahiro's comments in a494398bde27:
-"Nathan [Chancellor] also found that binutils
-commit 21401fc7bf67 ("Duplicate output sections in scripts") cured this
-issue, so we cannot reproduce it with binutils 2.36+, but it is better
-to not rely on it."
+env_type_is_resolve_sink() changes its behaviour based on resolve_mode.
+For RESOLVE_PTR, we can simplify the if condition to the following:
 
-Link: https://lkml.kernel.org/r/9166a8abdc0f979e50377e61780a4bba1dfa2f52.1674518464.git.tom.saeger@oracle.com
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-Link: https://lore.kernel.org/all/20230123194218.47ssfzhrpnv3xfez@oracle.com/
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Dennis Gilmore <dennis@ausil.us>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Palmer Dabbelt <palmer@rivosinc.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    (btf_type_is_modifier() || btf_type_is_ptr) && !env_type_is_resolved()
+
+Since we're dealing with a VAR the clause evaluates to false. This is
+not sufficient to trigger the bug however. The log output and EINVAL
+are only generated if btf_type_id_size() fails.
+
+    if (!btf_type_id_size(btf, &type_id, &type_size)) {
+        btf_verifier_log_vsi(env, v->t, vsi, "Invalid type");
+        return -EINVAL;
+    }
+
+Most types are sized, so for example a VAR referring to an INT is not a
+problem. The bug is only triggered if a VAR points at a modifier. Since
+we skipped btf_var_resolve that modifier was also never resolved, which
+means that btf_resolved_type_id returns 0 aka VOID for the modifier.
+This in turn causes btf_type_id_size to return NULL, triggering EINVAL.
+
+To summarise, the following conditions are necessary:
+
+- VAR pointing at PTR, STRUCT, UNION or ARRAY
+- Followed by a VAR pointing at TYPEDEF, VOLATILE, CONST, RESTRICT or
+  TYPE_TAG
+
+The fix is to reset resolve_mode to RESOLVE_TBD before attempting to
+resolve a VAR from a DATASEC.
+
+Fixes: 1dc92851849c ("bpf: kernel side support for BTF Var and DataSec")
+Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+Link: https://lore.kernel.org/r/20230306112138.155352-2-lmb@isovalent.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/vmlinux.lds.S |    1 +
+ kernel/bpf/btf.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/sh/kernel/vmlinux.lds.S
-+++ b/arch/sh/kernel/vmlinux.lds.S
-@@ -4,6 +4,7 @@
-  * Written by Niibe Yutaka and Paul Mundt
-  */
- OUTPUT_ARCH(sh)
-+#define RUNTIME_DISCARD_EXIT
- #include <asm/thread_info.h>
- #include <asm/cache.h>
- #include <asm/vmlinux.lds.h>
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 530e200fbc477..9880faa7e6760 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -4476,6 +4476,7 @@ static int btf_datasec_resolve(struct btf_verifier_env *env,
+ 	struct btf *btf = env->btf;
+ 	u16 i;
+ 
++	env->resolve_mode = RESOLVE_TBD;
+ 	for_each_vsi_from(i, v->next_member, v->t, vsi) {
+ 		u32 var_type_id = vsi->type, type_id, type_size = 0;
+ 		const struct btf_type *var_type = btf_type_by_id(env->btf,
+-- 
+2.39.2
+
 
 
