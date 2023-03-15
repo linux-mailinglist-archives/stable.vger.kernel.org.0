@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4BA6BB320
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0CF6BB285
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233002AbjCOMlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
+        id S232747AbjCOMg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232939AbjCOMlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F37F137B77
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:21 -0700 (PDT)
+        with ESMTP id S232812AbjCOMgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61ADF9E518
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BEF961D51
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA86BC433D2;
-        Wed, 15 Mar 2023 12:40:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF98D61D69
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1022AC433EF;
+        Wed, 15 Mar 2023 12:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884021;
-        bh=nqhR3mpv+AU20TvA87+nnSSgc1mh4H+MzIHnAgVfiAs=;
+        s=korg; t=1678883687;
+        bh=iTu6i0ivTDFW4n53srIoidGvDoKyRZbECsO5tKEL0AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0iLBboNoMXWxZIuJrVlRmmVpbNT6ztTzSuLE6g3ChT4R91Fsf5OYkIOgrke8UVl8
-         ZdE1bZVWegd/sIxkRwQwdWv9lY+494MkxfwFtzbE/xQMkuaA+ixVTQwYs83ya11nxe
-         9xZvqhIjRDsA672YHFVOPW+Qf8c8cgmgyyuTE0yU=
+        b=fDm16HZG8F7d1lfOP5Fz1yV3C0UHUXNUk7Me1gA24bceEECl3ibmgeHJcxuVTkipY
+         qMg/H7vx4Z99/VwFlmep1/raFJ7xd8YfRDDz+/SiVogU83M4z+FSxRIpZatHGLSZq6
+         4Z9Zm6tFdNCdbcx3/SC5x/K2zT094fKASFI1jfcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 077/141] drm/msm/disp/dpu: fix sc7280_pp base offset
+Subject: [PATCH 6.1 094/143] net: phy: smsc: fix link up detection in forced irq mode
 Date:   Wed, 15 Mar 2023 13:13:00 +0100
-Message-Id: <20230315115742.312168682@linuxfoundation.org>
+Message-Id: <20230315115743.374150728@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,44 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit ce68153edb5b36ddf87a19ed5a85131498690bbf ]
+[ Upstream commit 58aac3a2ef414fea6d7fdf823ea177744a087d13 ]
 
-At sc7280, pingpong block is used to management the dither effects
-to reduce distortion at panel. Currently pingpong-0 base offset is
-wrongly set at 0x59000. This mistake will not cause system to crash.
-However it will make dither not work. This patch correct sc7280 ping
-pong-0 block base offset.
+Currently link up can't be detected in forced mode if polling
+isn't used. Only link up interrupt source we have is aneg
+complete which isn't applicable in forced mode. Therefore we
+have to use energy-on as link up indicator.
 
-Changes in v2:
--- add more details info n regrading of pingpong block at commit text
-
-Fixes: 591e34a091d1 ("drm/msm/disp/dpu1: add support for display for SC7280 target")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/524332/
-Link: https://lore.kernel.org/r/1677533800-3125-1-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: 7365494550f6 ("net: phy: smsc: skip ENERGYON interrupt if disabled")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/smsc.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index a5268207ab1fe..e8a217d242ca7 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -1216,7 +1216,7 @@ static const struct dpu_pingpong_cfg sm8150_pp[] = {
+diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
+index ac7481ce2fc16..00d9eff91dcfa 100644
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -44,7 +44,6 @@ static struct smsc_hw_stat smsc_hw_stats[] = {
  };
  
- static const struct dpu_pingpong_cfg sc7280_pp[] = {
--	PP_BLK("pingpong_0", PINGPONG_0, 0x59000, 0, sc7280_pp_sblk, -1, -1),
-+	PP_BLK("pingpong_0", PINGPONG_0, 0x69000, 0, sc7280_pp_sblk, -1, -1),
- 	PP_BLK("pingpong_1", PINGPONG_1, 0x6a000, 0, sc7280_pp_sblk, -1, -1),
- 	PP_BLK("pingpong_2", PINGPONG_2, 0x6b000, 0, sc7280_pp_sblk, -1, -1),
- 	PP_BLK("pingpong_3", PINGPONG_3, 0x6c000, 0, sc7280_pp_sblk, -1, -1),
+ struct smsc_phy_priv {
+-	u16 intmask;
+ 	bool energy_enable;
+ };
+ 
+@@ -57,7 +56,6 @@ static int smsc_phy_ack_interrupt(struct phy_device *phydev)
+ 
+ static int smsc_phy_config_intr(struct phy_device *phydev)
+ {
+-	struct smsc_phy_priv *priv = phydev->priv;
+ 	int rc;
+ 
+ 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
+@@ -65,14 +63,9 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
+ 		if (rc)
+ 			return rc;
+ 
+-		priv->intmask = MII_LAN83C185_ISF_INT4 | MII_LAN83C185_ISF_INT6;
+-		if (priv->energy_enable)
+-			priv->intmask |= MII_LAN83C185_ISF_INT7;
+-
+-		rc = phy_write(phydev, MII_LAN83C185_IM, priv->intmask);
++		rc = phy_write(phydev, MII_LAN83C185_IM,
++			       MII_LAN83C185_ISF_INT_PHYLIB_EVENTS);
+ 	} else {
+-		priv->intmask = 0;
+-
+ 		rc = phy_write(phydev, MII_LAN83C185_IM, 0);
+ 		if (rc)
+ 			return rc;
+@@ -85,7 +78,6 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
+ 
+ static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
+ {
+-	struct smsc_phy_priv *priv = phydev->priv;
+ 	int irq_status;
+ 
+ 	irq_status = phy_read(phydev, MII_LAN83C185_ISF);
+@@ -96,7 +88,7 @@ static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
+ 		return IRQ_NONE;
+ 	}
+ 
+-	if (!(irq_status & priv->intmask))
++	if (!(irq_status & MII_LAN83C185_ISF_INT_PHYLIB_EVENTS))
+ 		return IRQ_NONE;
+ 
+ 	phy_trigger_machine(phydev);
 -- 
 2.39.2
 
