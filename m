@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44A946BB04A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FEBB6BB117
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231928AbjCOMRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39914 "EHLO
+        id S232420AbjCOMYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbjCOMQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:45 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95A193E25
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:42 -0700 (PDT)
+        with ESMTP id S232260AbjCOMYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6C290B69
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5C813CE19B9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3148FC433D2;
-        Wed, 15 Mar 2023 12:16:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BA5161D5F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9409DC4339B;
+        Wed, 15 Mar 2023 12:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882598;
-        bh=g8hFL0OgZIqd0O5DyB5K/9JIPChpqrAsXzWtVUfKOHA=;
+        s=korg; t=1678882995;
+        bh=iUQ6gudsmn4FFsxRpNm7b2K7QFuzCEIKsfGUW2Hs0Ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSGLAyc04sEkmFJpnH2uSNbp8KHiRDLiiHGUs1NsjsWTnZ6RbgQB2PVbxZ0Uw2dcN
-         +qHkJ8n4S7Keo+BsiCZtqpMBLk4VRLMH/A4gwiIs7aU9qmG7+nSIvQxrD3Onm2MPsJ
-         Sel/oB1hbLfl/0v8r2kSnaYGKTMb7bmBQuCX1P3g=
+        b=gsKbZr+Y0Z5ND7Rl1JIY2jjNveu+QSYu8pE/yY2w1ubJhy6vLkYaMWY/OnX3spilq
+         g158xnaYvbYWqkYaPtfEFG9VvvDenrgdubj1Pf90OhxSjF0DAo+fFQR5sCLqhn37Ay
+         SDlGkk8btbk77sh0akvcPCyr0Y/2OxY781r/VgMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        Cai Xinchen <caixinchen1@huawei.com>,
-        Imran Khan <imran.f.khan@oracle.com>,
-        Xuewen Yan <xuewen.yan@unisoc.com>
-Subject: [PATCH 4.19 38/39] cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Subject: [PATCH 5.10 081/104] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
 Date:   Wed, 15 Mar 2023 13:12:52 +0100
-Message-Id: <20230315115722.652817372@linuxfoundation.org>
+Message-Id: <20230315115735.304750811@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,148 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-commit 4f7e7236435ca0abe005c674ebd6892c6e83aeb3 upstream.
+commit b48e16a69792b5dc4a09d6807369d11b2970cc36 upstream.
 
-Bringing up a CPU may involve creating and destroying tasks which requires
-read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-cpus_read_lock(). However, cpuset's ->attach(), which may be called with
-thredagroup_rwsem write-locked, also wants to disable CPU hotplug and
-acquires cpus_read_lock(), leading to a deadlock.
+So that the new uclamp rules in regard to migration margin and capacity
+pressure are taken into account correctly.
 
-Fix it by guaranteeing that ->attach() is always called with CPU hotplug
-disabled and removing cpus_read_lock() call from cpuset_attach().
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reviewed-and-tested-by: Imran Khan <imran.f.khan@oracle.com>
-Reported-and-tested-by: Xuewen Yan <xuewen.yan@unisoc.com>
-Fixes: 05c7b7a92cc8 ("cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug")
-Cc: stable@vger.kernel.org # v5.17+
-Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
+Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
+(cherry picked from commit b48e16a69792b5dc4a09d6807369d11b2970cc36)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup.c |   49 ++++++++++++++++++++++++++++++++++++++++++++-----
- kernel/cgroup/cpuset.c |    7 +------
- 2 files changed, 45 insertions(+), 11 deletions(-)
+ kernel/sched/fair.c  |   26 ++++++++++++++++----------
+ kernel/sched/sched.h |    9 +++++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2210,6 +2210,45 @@ int task_cgroup_path(struct task_struct
- EXPORT_SYMBOL_GPL(task_cgroup_path);
- 
- /**
-+ * cgroup_attach_lock - Lock for ->attach()
-+ * @lock_threadgroup: whether to down_write cgroup_threadgroup_rwsem
-+ *
-+ * cgroup migration sometimes needs to stabilize threadgroups against forks and
-+ * exits by write-locking cgroup_threadgroup_rwsem. However, some ->attach()
-+ * implementations (e.g. cpuset), also need to disable CPU hotplug.
-+ * Unfortunately, letting ->attach() operations acquire cpus_read_lock() can
-+ * lead to deadlocks.
-+ *
-+ * Bringing up a CPU may involve creating and destroying tasks which requires
-+ * read-locking threadgroup_rwsem, so threadgroup_rwsem nests inside
-+ * cpus_read_lock(). If we call an ->attach() which acquires the cpus lock while
-+ * write-locking threadgroup_rwsem, the locking order is reversed and we end up
-+ * waiting for an on-going CPU hotplug operation which in turn is waiting for
-+ * the threadgroup_rwsem to be released to create new tasks. For more details:
-+ *
-+ *   http://lkml.kernel.org/r/20220711174629.uehfmqegcwn2lqzu@wubuntu
-+ *
-+ * Resolve the situation by always acquiring cpus_read_lock() before optionally
-+ * write-locking cgroup_threadgroup_rwsem. This allows ->attach() to assume that
-+ * CPU hotplug is disabled on entry.
-+ */
-+static void cgroup_attach_lock(void)
-+{
-+	get_online_cpus();
-+	percpu_down_write(&cgroup_threadgroup_rwsem);
-+}
-+
-+/**
-+ * cgroup_attach_unlock - Undo cgroup_attach_lock()
-+ * @lock_threadgroup: whether to up_write cgroup_threadgroup_rwsem
-+ */
-+static void cgroup_attach_unlock(void)
-+{
-+	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	put_online_cpus();
-+}
-+
-+/**
-  * cgroup_migrate_add_task - add a migration target task to a migration context
-  * @task: target task
-  * @mgctx: target migration context
-@@ -2694,7 +2733,7 @@ struct task_struct *cgroup_procs_write_s
- 	if (kstrtoint(strstrip(buf), 0, &pid) || pid < 0)
- 		return ERR_PTR(-EINVAL);
- 
--	percpu_down_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_lock();
- 
- 	rcu_read_lock();
- 	if (pid) {
-@@ -2725,7 +2764,7 @@ struct task_struct *cgroup_procs_write_s
- 	goto out_unlock_rcu;
- 
- out_unlock_threadgroup:
--	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock();
- out_unlock_rcu:
- 	rcu_read_unlock();
- 	return tsk;
-@@ -2740,7 +2779,7 @@ void cgroup_procs_write_finish(struct ta
- 	/* release reference from cgroup_procs_write_start() */
- 	put_task_struct(task);
- 
--	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock();
- 	for_each_subsys(ss, ssid)
- 		if (ss->post_attach)
- 			ss->post_attach();
-@@ -2799,7 +2838,7 @@ static int cgroup_update_dfl_csses(struc
- 
- 	lockdep_assert_held(&cgroup_mutex);
- 
--	percpu_down_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_lock();
- 
- 	/* look up all csses currently attached to @cgrp's subtree */
- 	spin_lock_irq(&css_set_lock);
-@@ -2830,7 +2869,7 @@ static int cgroup_update_dfl_csses(struc
- 	ret = cgroup_migrate_execute(&mgctx);
- out_finish:
- 	cgroup_migrate_finish(&mgctx);
--	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	cgroup_attach_unlock();
- 	return ret;
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4197,10 +4197,12 @@ static inline int util_fits_cpu(unsigned
+ 	return fits;
  }
  
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -1528,13 +1528,9 @@ static void cpuset_attach(struct cgroup_
- 	cgroup_taskset_first(tset, &css);
- 	cs = css_cs(css);
+-static inline int task_fits_capacity(struct task_struct *p,
+-				     unsigned long capacity)
++static inline int task_fits_cpu(struct task_struct *p, int cpu)
+ {
+-	return fits_capacity(uclamp_task_util(p), capacity);
++	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
++	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
++	unsigned long util = task_util_est(p);
++	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
+ }
  
-+	lockdep_assert_cpus_held();     /* see cgroup_attach_lock() */
- 	mutex_lock(&cpuset_mutex);
- 
--	/*
--	 * It should hold cpus lock because a cpu offline event can
--	 * cause set_cpus_allowed_ptr() failed.
--	 */
--	get_online_cpus();
- 	/* prepare for attach */
- 	if (cs == &top_cpuset)
- 		cpumask_copy(cpus_attach, cpu_possible_mask);
-@@ -1553,7 +1549,6 @@ static void cpuset_attach(struct cgroup_
- 		cpuset_change_task_nodemask(task, &cpuset_attach_nodemask_to);
- 		cpuset_update_task_spread_flag(cs, task);
+ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+@@ -4213,7 +4215,7 @@ static inline void update_misfit_status(
+ 		return;
  	}
--       put_online_cpus();
  
- 	/*
- 	 * Change mm for all threadgroup leaders. This is expensive and may
+-	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
++	if (task_fits_cpu(p, cpu_of(rq))) {
+ 		rq->misfit_task_load = 0;
+ 		return;
+ 	}
+@@ -7898,7 +7900,7 @@ static int detach_tasks(struct lb_env *e
+ 
+ 		case migrate_misfit:
+ 			/* This is not a misfit task */
+-			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
++			if (task_fits_cpu(p, env->src_cpu))
+ 				goto next;
+ 
+ 			env->imbalance = 0;
+@@ -8840,6 +8842,10 @@ static inline void update_sg_wakeup_stat
+ 
+ 	memset(sgs, 0, sizeof(*sgs));
+ 
++	/* Assume that task can't fit any CPU of the group */
++	if (sd->flags & SD_ASYM_CPUCAPACITY)
++		sgs->group_misfit_task_load = 1;
++
+ 	for_each_cpu(i, sched_group_span(group)) {
+ 		struct rq *rq = cpu_rq(i);
+ 		unsigned int local;
+@@ -8859,12 +8865,12 @@ static inline void update_sg_wakeup_stat
+ 		if (!nr_running && idle_cpu_without(i, p))
+ 			sgs->idle_cpus++;
+ 
+-	}
++		/* Check if task fits in the CPU */
++		if (sd->flags & SD_ASYM_CPUCAPACITY &&
++		    sgs->group_misfit_task_load &&
++		    task_fits_cpu(p, i))
++			sgs->group_misfit_task_load = 0;
+ 
+-	/* Check if task fits in the group */
+-	if (sd->flags & SD_ASYM_CPUCAPACITY &&
+-	    !task_fits_capacity(p, group->sgc->max_capacity)) {
+-		sgs->group_misfit_task_load = 1;
+ 	}
+ 
+ 	sgs->group_capacity = group->sgc->capacity;
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2468,6 +2468,15 @@ static inline bool uclamp_is_used(void)
+ 	return static_branch_likely(&sched_uclamp_used);
+ }
+ #else /* CONFIG_UCLAMP_TASK */
++static inline unsigned long uclamp_eff_value(struct task_struct *p,
++					     enum uclamp_id clamp_id)
++{
++	if (clamp_id == UCLAMP_MIN)
++		return 0;
++
++	return SCHED_CAPACITY_SCALE;
++}
++
+ static inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
 
 
