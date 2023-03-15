@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 312D46BB1F6
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BA46BB2C3
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231769AbjCOMbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
+        id S232855AbjCOMi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232283AbjCOMbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:34 -0400
+        with ESMTP id S232805AbjCOMiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833A2898D5
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E38B14EAA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD0FDB81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F53C4339B;
-        Wed, 15 Mar 2023 12:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2EC5B81E0B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A1FC433D2;
+        Wed, 15 Mar 2023 12:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883444;
-        bh=0TaenCG7Yd1K/L9+Ul+Gcy8+ltW7YHzECarslru7gB4=;
+        s=korg; t=1678883834;
+        bh=472eO7hMRZYeAIBmNoAbzfIu+41jxoIM6eyjzAmbC7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Afoa112YxMDc9RL4hkQVrikXdWuijAlP3tO/eWcMVWmOGuPmeIqNjuXPMfYwnQ9mq
-         SjRQx3F4Fc7/3s5lUpvGNN3U4nkqTrsTG2VmLagQy5zo3BRupsp5afiYCFC3L+UWr+
-         fstuJJ1kh6jIIeO+6lnHsTp9x3YqWnFKPwDefZvI=
+        b=rLh3hl2S9vxb6Ikev+HTZworgVpCHn7ezPPBMxUNo0gg4Nthp3e8i4X5GxR1Ih5/r
+         Nxjlh5kBVymFZ6ufYnBmHhEO3qTR+PZkUu0FONnSyLBVlYZhNHItfXFGETJ9gNNCj1
+         Slwvkx8sZouKPDRIxEvUKDS/gXsRb/fWFUOO6rak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaohe Lin <linmiaohe@huawei.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 139/145] KVM: fix memoryleak in kvm_init()
+        patches@lists.linux.dev,
+        Bjorn Andersson <quic_bjorande@quicinc.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 119/143] drm/msm/adreno: fix runtime PM imbalance at unbind
 Date:   Wed, 15 Mar 2023 13:13:25 +0100
-Message-Id: <20230315115743.505499630@linuxfoundation.org>
+Message-Id: <20230315115744.125890110@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 5a2a961be2ad6a16eb388a80442443b353c11d16 upstream.
+[ Upstream commit 6153c44392b04ff2da1e9aa82ba87da9ab9a0fc1 ]
 
-When alloc_cpumask_var_node() fails for a certain cpu, there might be some
-allocated cpumasks for percpu cpu_kick_mask. We should free these cpumasks
-or memoryleak will occur.
+A recent commit moved enabling of runtime PM from adreno_gpu_init() to
+adreno_load_gpu() (called on first open()), which means that unbind()
+may now be called with runtime PM disabled in case the device was never
+opened in between.
 
-Fixes: baff59ccdc65 ("KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Link: https://lore.kernel.org/r/20220823063414.59778-1-linmiaohe@huawei.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Make sure to only forcibly suspend and disable runtime PM at unbind() in
+case runtime PM has been enabled to prevent a disable count imbalance.
+
+This specifically avoids leaving runtime PM disabled when the device
+is later opened after a successful bind:
+
+	msm_dpu ae01000.display-controller: [drm:adreno_load_gpu [msm]] *ERROR* Couldn't power up the GPU: -13
+
+Fixes: 4b18299b3365 ("drm/msm/adreno: Defer enabling runpm until hw_init()")
+Reported-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+Link: https://lore.kernel.org/lkml/20230203181245.3523937-1-quic_bjorande@quicinc.com
+Cc: stable@vger.kernel.org	# 6.0
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Patchwork: https://patchwork.freedesktop.org/patch/523549/
+Link: https://lore.kernel.org/r/20230221101430.14546-2-johan+linaro@kernel.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/adreno/adreno_device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -5649,7 +5649,7 @@ int kvm_init(void *opaque, unsigned vcpu
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
+index 36f062c7582f9..c5c4c93b3689c 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_device.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
+@@ -558,7 +558,8 @@ static void adreno_unbind(struct device *dev, struct device *master,
+ 	struct msm_drm_private *priv = dev_get_drvdata(master);
+ 	struct msm_gpu *gpu = dev_to_gpu(dev);
  
- 	r = kvm_async_pf_init();
- 	if (r)
--		goto out_free_5;
-+		goto out_free_4;
+-	WARN_ON_ONCE(adreno_system_suspend(dev));
++	if (pm_runtime_enabled(dev))
++		WARN_ON_ONCE(adreno_system_suspend(dev));
+ 	gpu->funcs->destroy(gpu);
  
- 	kvm_chardev_ops.owner = module;
- 	kvm_vm_fops.owner = module;
-@@ -5682,10 +5682,9 @@ err_register:
- 	kvm_vfio_ops_exit();
- err_vfio:
- 	kvm_async_pf_deinit();
--out_free_5:
-+out_free_4:
- 	for_each_possible_cpu(cpu)
- 		free_cpumask_var(per_cpu(cpu_kick_mask, cpu));
--out_free_4:
- 	kmem_cache_destroy(kvm_vcpu_cache);
- out_free_3:
- 	unregister_reboot_notifier(&kvm_reboot_notifier);
+ 	priv->gpu_pdev = NULL;
+-- 
+2.39.2
+
 
 
