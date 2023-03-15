@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E58F36BB373
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 312D46BB1F6
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232430AbjCOMpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:45:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S231769AbjCOMbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233112AbjCOMo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A45E259D0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:43:09 -0700 (PDT)
+        with ESMTP id S232283AbjCOMbe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833A2898D5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E79461D43
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940E2C433EF;
-        Wed, 15 Mar 2023 12:42:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD0FDB81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F53C4339B;
+        Wed, 15 Mar 2023 12:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884162;
-        bh=i/GQqkaqJFY9+eL4BMK2VIgVtBHKVkixGUrfJS9Qycg=;
+        s=korg; t=1678883444;
+        bh=0TaenCG7Yd1K/L9+Ul+Gcy8+ltW7YHzECarslru7gB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJcNj+s01+BGXcVOC0rfb9ll+m8FqzwZLb4ArDnRcPrSDMxYrYsoUUosXanzB/B3Q
-         q2W2qM+X6/baYEPA1r//eA93mfrnhy63RXWcDxSreBqGjroQv9LfA52nf/RCshqSKJ
-         v8K1ZzootE9gO0M/vB1+FzS3XbLjairGqFS4xEE8=
+        b=Afoa112YxMDc9RL4hkQVrikXdWuijAlP3tO/eWcMVWmOGuPmeIqNjuXPMfYwnQ9mq
+         SjRQx3F4Fc7/3s5lUpvGNN3U4nkqTrsTG2VmLagQy5zo3BRupsp5afiYCFC3L+UWr+
+         fstuJJ1kh6jIIeO+6lnHsTp9x3YqWnFKPwDefZvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Sujai Buvaneswaran <sujai.buvaneswaran@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 101/141] ethernet: ice: avoid gcc-9 integer overflow warning
-Date:   Wed, 15 Mar 2023 13:13:24 +0100
-Message-Id: <20230315115743.074984339@linuxfoundation.org>
+        patches@lists.linux.dev, Miaohe Lin <linmiaohe@huawei.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 139/145] KVM: fix memoryleak in kvm_init()
+Date:   Wed, 15 Mar 2023 13:13:25 +0100
+Message-Id: <20230315115743.505499630@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,73 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 8f5c5a790e3025d6eca96bf7ee5e3873dc92373f ]
+commit 5a2a961be2ad6a16eb388a80442443b353c11d16 upstream.
 
-With older compilers like gcc-9, the calculation of the vlan
-priority field causes a false-positive warning from the byteswap:
+When alloc_cpumask_var_node() fails for a certain cpu, there might be some
+allocated cpumasks for percpu cpu_kick_mask. We should free these cpumasks
+or memoryleak will occur.
 
-In file included from drivers/net/ethernet/intel/ice/ice_tc_lib.c:4:
-drivers/net/ethernet/intel/ice/ice_tc_lib.c: In function 'ice_parse_cls_flower':
-include/uapi/linux/swab.h:15:15: error: integer overflow in expression '(int)(short unsigned int)((int)match.key-><U67c8>.<U6698>.vlan_priority << 13) & 57344 & 255' of type 'int' results in '0' [-Werror=overflow]
-   15 |  (((__u16)(x) & (__u16)0x00ffU) << 8) |   \
-      |   ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-include/uapi/linux/swab.h:106:2: note: in expansion of macro '___constant_swab16'
-  106 |  ___constant_swab16(x) :   \
-      |  ^~~~~~~~~~~~~~~~~~
-include/uapi/linux/byteorder/little_endian.h:42:43: note: in expansion of macro '__swab16'
-   42 | #define __cpu_to_be16(x) ((__force __be16)__swab16((x)))
-      |                                           ^~~~~~~~
-include/linux/byteorder/generic.h:96:21: note: in expansion of macro '__cpu_to_be16'
-   96 | #define cpu_to_be16 __cpu_to_be16
-      |                     ^~~~~~~~~~~~~
-drivers/net/ethernet/intel/ice/ice_tc_lib.c:1458:5: note: in expansion of macro 'cpu_to_be16'
- 1458 |     cpu_to_be16((match.key->vlan_priority <<
-      |     ^~~~~~~~~~~
-
-After a change to be16_encode_bits(), the code becomes more
-readable to both people and compilers, which avoids the warning.
-
-Fixes: 34800178b302 ("ice: Add support for VLAN priority filters in switchdev")
-Suggested-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Tested-by: Sujai Buvaneswaran <sujai.buvaneswaran@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: baff59ccdc65 ("KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Link: https://lore.kernel.org/r/20220823063414.59778-1-linmiaohe@huawei.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_tc_lib.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ virt/kvm/kvm_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_tc_lib.c b/drivers/net/ethernet/intel/ice/ice_tc_lib.c
-index 95f392ab96708..ce72d512eddf9 100644
---- a/drivers/net/ethernet/intel/ice/ice_tc_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_tc_lib.c
-@@ -1448,8 +1448,8 @@ ice_parse_cls_flower(struct net_device *filter_dev, struct ice_vsi *vsi,
- 		if (match.mask->vlan_priority) {
- 			fltr->flags |= ICE_TC_FLWR_FIELD_VLAN_PRIO;
- 			headers->vlan_hdr.vlan_prio =
--				cpu_to_be16((match.key->vlan_priority <<
--					     VLAN_PRIO_SHIFT) & VLAN_PRIO_MASK);
-+				be16_encode_bits(match.key->vlan_priority,
-+						 VLAN_PRIO_MASK);
- 		}
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -5649,7 +5649,7 @@ int kvm_init(void *opaque, unsigned vcpu
  
- 		if (match.mask->vlan_tpid)
-@@ -1482,8 +1482,8 @@ ice_parse_cls_flower(struct net_device *filter_dev, struct ice_vsi *vsi,
- 		if (match.mask->vlan_priority) {
- 			fltr->flags |= ICE_TC_FLWR_FIELD_CVLAN_PRIO;
- 			headers->cvlan_hdr.vlan_prio =
--				cpu_to_be16((match.key->vlan_priority <<
--					     VLAN_PRIO_SHIFT) & VLAN_PRIO_MASK);
-+				be16_encode_bits(match.key->vlan_priority,
-+						 VLAN_PRIO_MASK);
- 		}
- 	}
+ 	r = kvm_async_pf_init();
+ 	if (r)
+-		goto out_free_5;
++		goto out_free_4;
  
--- 
-2.39.2
-
+ 	kvm_chardev_ops.owner = module;
+ 	kvm_vm_fops.owner = module;
+@@ -5682,10 +5682,9 @@ err_register:
+ 	kvm_vfio_ops_exit();
+ err_vfio:
+ 	kvm_async_pf_deinit();
+-out_free_5:
++out_free_4:
+ 	for_each_possible_cpu(cpu)
+ 		free_cpumask_var(per_cpu(cpu_kick_mask, cpu));
+-out_free_4:
+ 	kmem_cache_destroy(kvm_vcpu_cache);
+ out_free_3:
+ 	unregister_reboot_notifier(&kvm_reboot_notifier);
 
 
