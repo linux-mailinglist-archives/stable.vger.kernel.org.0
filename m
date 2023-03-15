@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBFE36BB1C7
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C50B56BB048
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232509AbjCOMai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:30:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        id S231994AbjCOMQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232449AbjCOMaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:20 -0400
+        with ESMTP id S231896AbjCOMQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CD299BEA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80EC92265
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8156761D50
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C23C433D2;
-        Wed, 15 Mar 2023 12:29:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 751C561D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D95AC433EF;
+        Wed, 15 Mar 2023 12:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883356;
-        bh=Dla1IsGrNz19OS51ODt78sdv7tOeDKYhkB0skY089ck=;
+        s=korg; t=1678882595;
+        bh=+gsPRaUG5fLRSqH8kjXvr1Gx47yxxrc8GYNVfeqrJ54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCNTOyP8bYMWEFTggZ/xUB7O8PwSqjv1ngKLumZcG1oRazd5B1AtoU4onK7Du0/7+
-         bJ/kTl3gCiMQDZP1ycSmUg9JUglbDN0IVNEIeNe4MXQ0xO2FrMKsqAkuJOWs9+Ax+1
-         mEVI6b+OvCCvVY6EAyOp8Khrjc3MF2OeIxPXOEqU=
+        b=jGdE1ko3+xcHzfQueDPb4m5t6kHfMkovSTXynSX/mJo0+WHgUw3I6Mj10wb/Qo2aQ
+         nZD52hJLOWf0LnishxI0E097wEQN9g2MwgkivNfMGBvai6DDxAhPXfSfQ87MR3291/
+         vnDmf8lek4K1rtY20YnOFIjJXfLq0ygFfCCMns4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 105/145] clk: qcom: mmcc-apq8084: remove spdm clocks
+        patches@lists.linux.dev,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, bristot@redhat.com,
+        claudio@evidence.eu.com, lizefan@huawei.com, longman@redhat.com,
+        luca.abeni@santannapisa.it, mathieu.poirier@linaro.org,
+        rostedt@goodmis.org, tj@kernel.org,
+        tommaso.cucinotta@santannapisa.it, Ingo Molnar <mingo@kernel.org>,
+        Cai Xinchen <caixinchen1@huawei.com>
+Subject: [PATCH 4.19 37/39] cgroup/cpuset: Change cpuset_rwsem and hotplug lock order
 Date:   Wed, 15 Mar 2023 13:12:51 +0100
-Message-Id: <20230315115742.438912142@linuxfoundation.org>
+Message-Id: <20230315115722.612166269@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,315 +62,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 7b347f4b677b6d84687e67d82b6b17c6f55ea2b4 ]
+commit d74b27d63a8bebe2fe634944e4ebdc7b10db7a39 upstream.
 
-SPDM is used for debug/profiling and does not have any other
-functionality. These clocks can safely be removed.
+cpuset_rwsem is going to be acquired from sched_setscheduler() with a
+following patch. There are however paths (e.g., spawn_ksoftirqd) in
+which sched_scheduler() is eventually called while holding hotplug lock;
+this creates a dependecy between hotplug lock (to be always acquired
+first) and cpuset_rwsem (to be always acquired after hotplug lock).
 
-Suggested-by: Stephen Boyd <sboyd@kernel.org>
-Suggested-by: Georgi Djakov <djakov@kernel.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230111060402.1168726-11-dmitry.baryshkov@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix paths which currently take the two locks in the wrong order (after
+a following patch is applied).
+
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: bristot@redhat.com
+Cc: claudio@evidence.eu.com
+Cc: lizefan@huawei.com
+Cc: longman@redhat.com
+Cc: luca.abeni@santannapisa.it
+Cc: mathieu.poirier@linaro.org
+Cc: rostedt@goodmis.org
+Cc: tj@kernel.org
+Cc: tommaso.cucinotta@santannapisa.it
+Link: https://lkml.kernel.org/r/20190719140000.31694-7-juri.lelli@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/qcom/mmcc-apq8084.c | 271 --------------------------------
- 1 file changed, 271 deletions(-)
+ include/linux/cpuset.h |    8 ++++----
+ kernel/cgroup/cpuset.c |   18 ++++++++++++++----
+ 2 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/qcom/mmcc-apq8084.c b/drivers/clk/qcom/mmcc-apq8084.c
-index fbfcf00067394..893e5536f64c7 100644
---- a/drivers/clk/qcom/mmcc-apq8084.c
-+++ b/drivers/clk/qcom/mmcc-apq8084.c
-@@ -2363,262 +2363,6 @@ static struct clk_branch mmss_rbcpr_clk = {
- 	},
- };
+--- a/include/linux/cpuset.h
++++ b/include/linux/cpuset.h
+@@ -40,14 +40,14 @@ static inline bool cpusets_enabled(void)
  
--static struct clk_branch mmss_spdm_ahb_clk = {
--	.halt_reg = 0x0230,
--	.clkr = {
--		.enable_reg = 0x0230,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_ahb_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_ahb_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_axi_clk = {
--	.halt_reg = 0x0210,
--	.clkr = {
--		.enable_reg = 0x0210,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_axi_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_csi0_clk = {
--	.halt_reg = 0x023c,
--	.clkr = {
--		.enable_reg = 0x023c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_csi0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_csi0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_gfx3d_clk = {
--	.halt_reg = 0x022c,
--	.clkr = {
--		.enable_reg = 0x022c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_gfx3d_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_gfx3d_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg0_clk = {
--	.halt_reg = 0x0204,
--	.clkr = {
--		.enable_reg = 0x0204,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg1_clk = {
--	.halt_reg = 0x0208,
--	.clkr = {
--		.enable_reg = 0x0208,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_jpeg2_clk = {
--	.halt_reg = 0x0224,
--	.clkr = {
--		.enable_reg = 0x0224,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_jpeg2_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_jpeg2_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_mdp_clk = {
--	.halt_reg = 0x020c,
--	.clkr = {
--		.enable_reg = 0x020c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_mdp_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_mdp_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk0_clk = {
--	.halt_reg = 0x0234,
--	.clkr = {
--		.enable_reg = 0x0234,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_pclk1_clk = {
--	.halt_reg = 0x0228,
--	.clkr = {
--		.enable_reg = 0x0228,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_pclk1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_pclk1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vcodec0_clk = {
--	.halt_reg = 0x0214,
--	.clkr = {
--		.enable_reg = 0x0214,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vcodec0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vcodec0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe0_clk = {
--	.halt_reg = 0x0218,
--	.clkr = {
--		.enable_reg = 0x0218,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe0_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe0_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_vfe1_clk = {
--	.halt_reg = 0x021c,
--	.clkr = {
--		.enable_reg = 0x021c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_vfe1_clk",
--			.parent_names = (const char *[]){
--				"mmss_spdm_vfe1_div_clk",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_axi_clk = {
--	.halt_reg = 0x0304,
--	.clkr = {
--		.enable_reg = 0x0304,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_axi_clk",
--			.parent_names = (const char *[]){
--				"mmss_axi_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--static struct clk_branch mmss_spdm_rm_ocmemnoc_clk = {
--	.halt_reg = 0x0308,
--	.clkr = {
--		.enable_reg = 0x0308,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "mmss_spdm_rm_ocmemnoc_clk",
--			.parent_names = (const char *[]){
--				"ocmemnoc_clk_src",
--			},
--			.num_parents = 1,
--			.flags = CLK_SET_RATE_PARENT,
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
--
- static struct clk_branch mmss_misc_ahb_clk = {
- 	.halt_reg = 0x502c,
- 	.clkr = {
-@@ -3251,21 +2995,6 @@ static struct clk_regmap *mmcc_apq8084_clocks[] = {
- 	[MDSS_VSYNC_CLK] = &mdss_vsync_clk.clkr,
- 	[MMSS_RBCPR_AHB_CLK] = &mmss_rbcpr_ahb_clk.clkr,
- 	[MMSS_RBCPR_CLK] = &mmss_rbcpr_clk.clkr,
--	[MMSS_SPDM_AHB_CLK] = &mmss_spdm_ahb_clk.clkr,
--	[MMSS_SPDM_AXI_CLK] = &mmss_spdm_axi_clk.clkr,
--	[MMSS_SPDM_CSI0_CLK] = &mmss_spdm_csi0_clk.clkr,
--	[MMSS_SPDM_GFX3D_CLK] = &mmss_spdm_gfx3d_clk.clkr,
--	[MMSS_SPDM_JPEG0_CLK] = &mmss_spdm_jpeg0_clk.clkr,
--	[MMSS_SPDM_JPEG1_CLK] = &mmss_spdm_jpeg1_clk.clkr,
--	[MMSS_SPDM_JPEG2_CLK] = &mmss_spdm_jpeg2_clk.clkr,
--	[MMSS_SPDM_MDP_CLK] = &mmss_spdm_mdp_clk.clkr,
--	[MMSS_SPDM_PCLK0_CLK] = &mmss_spdm_pclk0_clk.clkr,
--	[MMSS_SPDM_PCLK1_CLK] = &mmss_spdm_pclk1_clk.clkr,
--	[MMSS_SPDM_VCODEC0_CLK] = &mmss_spdm_vcodec0_clk.clkr,
--	[MMSS_SPDM_VFE0_CLK] = &mmss_spdm_vfe0_clk.clkr,
--	[MMSS_SPDM_VFE1_CLK] = &mmss_spdm_vfe1_clk.clkr,
--	[MMSS_SPDM_RM_AXI_CLK] = &mmss_spdm_rm_axi_clk.clkr,
--	[MMSS_SPDM_RM_OCMEMNOC_CLK] = &mmss_spdm_rm_ocmemnoc_clk.clkr,
- 	[MMSS_MISC_AHB_CLK] = &mmss_misc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_AHB_CLK] = &mmss_mmssnoc_ahb_clk.clkr,
- 	[MMSS_MMSSNOC_BTO_AHB_CLK] = &mmss_mmssnoc_bto_ahb_clk.clkr,
--- 
-2.39.2
-
+ static inline void cpuset_inc(void)
+ {
+-	static_branch_inc(&cpusets_pre_enable_key);
+-	static_branch_inc(&cpusets_enabled_key);
++	static_branch_inc_cpuslocked(&cpusets_pre_enable_key);
++	static_branch_inc_cpuslocked(&cpusets_enabled_key);
+ }
+ 
+ static inline void cpuset_dec(void)
+ {
+-	static_branch_dec(&cpusets_enabled_key);
+-	static_branch_dec(&cpusets_pre_enable_key);
++	static_branch_dec_cpuslocked(&cpusets_enabled_key);
++	static_branch_dec_cpuslocked(&cpusets_pre_enable_key);
+ }
+ 
+ extern int cpuset_init(void);
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -830,8 +830,8 @@ static void rebuild_sched_domains_locked
+ 	cpumask_var_t *doms;
+ 	int ndoms;
+ 
++	lockdep_assert_cpus_held();
+ 	lockdep_assert_held(&cpuset_mutex);
+-	get_online_cpus();
+ 
+ 	/*
+ 	 * We have raced with CPU hotplug. Don't do anything to avoid
+@@ -839,15 +839,13 @@ static void rebuild_sched_domains_locked
+ 	 * Anyways, hotplug work item will rebuild sched domains.
+ 	 */
+ 	if (!cpumask_equal(top_cpuset.effective_cpus, cpu_active_mask))
+-		goto out;
++		return;
+ 
+ 	/* Generate domain masks and attrs */
+ 	ndoms = generate_sched_domains(&doms, &attr);
+ 
+ 	/* Have scheduler rebuild the domains */
+ 	partition_sched_domains(ndoms, doms, attr);
+-out:
+-	put_online_cpus();
+ }
+ #else /* !CONFIG_SMP */
+ static void rebuild_sched_domains_locked(void)
+@@ -857,9 +855,11 @@ static void rebuild_sched_domains_locked
+ 
+ void rebuild_sched_domains(void)
+ {
++	get_online_cpus();
+ 	mutex_lock(&cpuset_mutex);
+ 	rebuild_sched_domains_locked();
+ 	mutex_unlock(&cpuset_mutex);
++	put_online_cpus();
+ }
+ 
+ /**
+@@ -1617,6 +1617,7 @@ static int cpuset_write_u64(struct cgrou
+ 	cpuset_filetype_t type = cft->private;
+ 	int retval = 0;
+ 
++	get_online_cpus();
+ 	mutex_lock(&cpuset_mutex);
+ 	if (!is_cpuset_online(cs)) {
+ 		retval = -ENODEV;
+@@ -1654,6 +1655,7 @@ static int cpuset_write_u64(struct cgrou
+ 	}
+ out_unlock:
+ 	mutex_unlock(&cpuset_mutex);
++	put_online_cpus();
+ 	return retval;
+ }
+ 
+@@ -1664,6 +1666,7 @@ static int cpuset_write_s64(struct cgrou
+ 	cpuset_filetype_t type = cft->private;
+ 	int retval = -ENODEV;
+ 
++	get_online_cpus();
+ 	mutex_lock(&cpuset_mutex);
+ 	if (!is_cpuset_online(cs))
+ 		goto out_unlock;
+@@ -1678,6 +1681,7 @@ static int cpuset_write_s64(struct cgrou
+ 	}
+ out_unlock:
+ 	mutex_unlock(&cpuset_mutex);
++	put_online_cpus();
+ 	return retval;
+ }
+ 
+@@ -1716,6 +1720,7 @@ static ssize_t cpuset_write_resmask(stru
+ 	kernfs_break_active_protection(of->kn);
+ 	flush_work(&cpuset_hotplug_work);
+ 
++	get_online_cpus();
+ 	mutex_lock(&cpuset_mutex);
+ 	if (!is_cpuset_online(cs))
+ 		goto out_unlock;
+@@ -1741,6 +1746,7 @@ static ssize_t cpuset_write_resmask(stru
+ 	free_trial_cpuset(trialcs);
+ out_unlock:
+ 	mutex_unlock(&cpuset_mutex);
++	put_online_cpus();
+ 	kernfs_unbreak_active_protection(of->kn);
+ 	css_put(&cs->css);
+ 	flush_workqueue(cpuset_migrate_mm_wq);
+@@ -1985,6 +1991,7 @@ static int cpuset_css_online(struct cgro
+ 	if (!parent)
+ 		return 0;
+ 
++	get_online_cpus();
+ 	mutex_lock(&cpuset_mutex);
+ 
+ 	set_bit(CS_ONLINE, &cs->flags);
+@@ -2035,6 +2042,7 @@ static int cpuset_css_online(struct cgro
+ 	spin_unlock_irq(&callback_lock);
+ out_unlock:
+ 	mutex_unlock(&cpuset_mutex);
++	put_online_cpus();
+ 	return 0;
+ }
+ 
+@@ -2048,6 +2056,7 @@ static void cpuset_css_offline(struct cg
+ {
+ 	struct cpuset *cs = css_cs(css);
+ 
++	get_online_cpus();
+ 	mutex_lock(&cpuset_mutex);
+ 
+ 	if (is_sched_load_balance(cs))
+@@ -2057,6 +2066,7 @@ static void cpuset_css_offline(struct cg
+ 	clear_bit(CS_ONLINE, &cs->flags);
+ 
+ 	mutex_unlock(&cpuset_mutex);
++	put_online_cpus();
+ }
+ 
+ static void cpuset_css_free(struct cgroup_subsys_state *css)
 
 
