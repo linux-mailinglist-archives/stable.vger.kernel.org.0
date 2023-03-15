@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC466BB22A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDFA6BB2E0
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbjCOMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40732 "EHLO
+        id S232936AbjCOMj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:39:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232661AbjCOMd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:33:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC3510429
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:24 -0700 (PDT)
+        with ESMTP id S232939AbjCOMjC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:39:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B86A17FB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5282661D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C393C433D2;
-        Wed, 15 Mar 2023 12:32:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B456861D69
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8570C433D2;
+        Wed, 15 Mar 2023 12:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883543;
-        bh=TaF1KHDUjsWtGvQLL8vjzm97oh8qj2p4XYNNXrqoO50=;
+        s=korg; t=1678883876;
+        bh=cxfNO5jL8rwzFPT19kSnl/uSJTcgxDcdqu4VNqcNuaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yhePuWY/hJYK5XJ6AvnpoNLe5VBCvpWbfqW2nrj9YcL4dlhHqoH35nySz3x7jg3nC
-         TYbHeydSc8uiuzNVM6wz+AadpLG5LNLcuhhEfRoQw4amLyAXUbmOqREdjDldjVwRLD
-         A8CX5vdXMtcIJsecJ4qPYh+Zvt220eX5yNBtvffo=
+        b=ky6Z0iZMM6i7iP8lkhiK3p01RjOiw6ml74OR7mnGTPs2PDDcNas8qJuQ188jFtO6C
+         pPVbjo6cXkGjK53hjSuzU4LTi17TJLmQzP7wTpUzxqKQfNRGrqJ5WVC9uNSON6lTkM
+         2Ao8AcrPK7fBytl2na2NrUZpH5cl6axtVkHJ8qyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 038/143] fs: dlm: be sure to call dlm_send_queue_flush()
+        patches@lists.linux.dev, stable@kernel.org,
+        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.2 021/141] ext4: fix RENAME_WHITEOUT handling for inline directories
 Date:   Wed, 15 Mar 2023 13:12:04 +0100
-Message-Id: <20230315115741.670936435@linuxfoundation.org>
+Message-Id: <20230315115740.630544749@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,39 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Eric Whitney <enwlinux@gmail.com>
 
-[ Upstream commit 7354fa4ef697191effedc2ae9a8293427708bbf5 ]
+commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
 
-If we release a midcomms node structure, there should be nothing left
-inside the dlm midcomms send queue. However, sometimes this is not true
-because I believe some DLM_FIN message was not acked... if we run
-into a shutdown timeout, then we should be sure there is no pending send
-dlm message inside this queue when releasing midcomms node structure.
+A significant number of xfstests can cause ext4 to log one or more
+warning messages when they are run on a test file system where the
+inline_data feature has been enabled.  An example:
 
-Cc: stable@vger.kernel.org
-Fixes: 489d8e559c65 ("fs: dlm: add reliable connection if reconnect")
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
+ #16385: comm fsstress: No space for directory leaf checksum. Please
+run e2fsck -D."
+
+The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
+070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
+589, 626, 631, and 650.
+
+In this situation, the warning message indicates a bug in the code that
+performs the RENAME_WHITEOUT operation on a directory entry that has
+been stored inline.  It doesn't detect that the directory is stored
+inline, and incorrectly attempts to compute a dirent block checksum on
+the whiteout inode when creating it.  This attempt fails as a result
+of the integrity checking in get_dirent_tail (usually due to a failure
+to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
+is then emitted.
+
+Fix this by simply collecting the inlined data state at the time the
+search for the source directory entry is performed.  Existing code
+handles the rest, and this is sufficient to eliminate all spurious
+warning messages produced by the tests above.  Go one step further
+and do the same in the code that resets the source directory entry in
+the event of failure.  The inlined state should be present in the
+"old" struct, but given the possibility of a race there's no harm
+in taking a conservative approach and getting that information again
+since the directory entry is being reread anyway.
+
+Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
+Cc: stable@kernel.org
+Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/midcomms.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/namei.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/dlm/midcomms.c b/fs/dlm/midcomms.c
-index b53d7a281be93..d976c2009b185 100644
---- a/fs/dlm/midcomms.c
-+++ b/fs/dlm/midcomms.c
-@@ -1367,6 +1367,7 @@ static void midcomms_node_release(struct rcu_head *rcu)
- 	struct midcomms_node *node = container_of(rcu, struct midcomms_node, rcu);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1595,11 +1595,10 @@ static struct buffer_head *__ext4_find_e
+ 		int has_inline_data = 1;
+ 		ret = ext4_find_inline_entry(dir, fname, res_dir,
+ 					     &has_inline_data);
+-		if (has_inline_data) {
+-			if (inlined)
+-				*inlined = 1;
++		if (inlined)
++			*inlined = has_inline_data;
++		if (has_inline_data)
+ 			goto cleanup_and_exit;
+-		}
+ 	}
  
- 	WARN_ON_ONCE(atomic_read(&node->send_queue_cnt));
-+	dlm_send_queue_flush(node);
- 	kfree(node);
- }
+ 	if ((namelen <= 2) && (name[0] == '.') &&
+@@ -3646,7 +3645,8 @@ static void ext4_resetent(handle_t *hand
+ 	 * so the old->de may no longer valid and need to find it again
+ 	 * before reset old inode info.
+ 	 */
+-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
++				 &old.inlined);
+ 	if (IS_ERR(old.bh))
+ 		retval = PTR_ERR(old.bh);
+ 	if (!old.bh)
+@@ -3813,7 +3813,8 @@ static int ext4_rename(struct user_names
+ 			return retval;
+ 	}
  
--- 
-2.39.2
-
+-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
++				 &old.inlined);
+ 	if (IS_ERR(old.bh))
+ 		return PTR_ERR(old.bh);
+ 	/*
 
 
