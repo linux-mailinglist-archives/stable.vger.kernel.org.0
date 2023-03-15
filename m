@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 059426BB13F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9556BB290
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232464AbjCOMZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57822 "EHLO
+        id S232575AbjCOMhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbjCOMZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA1C84F6F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:45 -0700 (PDT)
+        with ESMTP id S232866AbjCOMhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A921910D1
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6E4D3CE19A7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B9BEC433D2;
-        Wed, 15 Mar 2023 12:24:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89ABFB81DF9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02129C433D2;
+        Wed, 15 Mar 2023 12:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883079;
-        bh=u2kdvF1e9c1Mw+957vlYf55NsPZMCE3oinJbjYRp8NY=;
+        s=korg; t=1678883724;
+        bh=LWkqWahnXnkpT4V3q6eD1BNw146mnyaGdJ8fRmAicmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPPMaWXv5XWXT2r+4aaj+rvgLVCwuZYj3wFW1FKGIteqB+8B/eRDP/Il+YjPp7Swb
-         2/eVPmTxClNR9j6g5ywH+qD2ZC891zXDAH+ch1KPp4VzVVVuAcPGdll8by9VGaWrfW
-         CfSqNt87vZ4EEccUEtWUUl0pq2yScYDDAVuyyxCA=
+        b=mFB472q+KFH19Au5CPHNUajbRYEHlT4Q3fELS8i5pVKIsDngOCmkuo4Q+SbZfk9ki
+         eyYaFWkwL9PVDtZIMCPnOxRavVDzhoRfWx1WuFyj0uMRyvu9MACnjhnADDuR7NfWVH
+         y0z5H4wWQnf1HnVMcxp0+RbD8gXI05G2rSorFESY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 102/104] KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
+        patches@lists.linux.dev, Suman Ghosh <sumang@marvell.com>,
+        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
+        Sai Krishna <saikrishnag@marvell.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 107/143] octeontx2-af: Unlock contexts in the queue context cache in case of fault detection
 Date:   Wed, 15 Mar 2023 13:13:13 +0100
-Message-Id: <20230315115736.327283746@linuxfoundation.org>
+Message-Id: <20230315115743.748719673@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +57,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Suman Ghosh <sumang@marvell.com>
 
-commit b84155c38076b36d625043a06a2f1c90bde62903 upstream.
+[ Upstream commit ea9dd2e5c6d12c8b65ce7514c8359a70eeaa0e70 ]
 
-In preparation to enabling 'Enlightened MSR Bitmap' feature for Hyper-V
-guests move MSR bitmap update tracking to a dedicated helper.
+NDC caches contexts of frequently used queue's (Rx and Tx queues)
+contexts. Due to a HW errata when NDC detects fault/poision while
+accessing contexts it could go into an illegal state where a cache
+line could get locked forever. To makesure all cache lines in NDC
+are available for optimum performance upon fault/lockerror/posion
+errors scan through all cache lines in NDC and clear the lock bit.
 
-Note: vmx_msr_bitmap_l01_changed() is called when MSR bitmap might be
-updated. KVM doesn't check if the bit we're trying to set is already set
-(or the bit it's trying to clear is already cleared). Such situations
-should not be common and a few false positives should not be a problem.
-
-No functional change intended.
-
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211129094704.326635-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4a3581cd5995 ("octeontx2-af: NPA AQ instruction enqueue support")
+Signed-off-by: Suman Ghosh <sumang@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
+Signed-off-by: Sai Krishna <saikrishnag@marvell.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ .../net/ethernet/marvell/octeontx2/af/rvu.h   |  5 ++
+ .../marvell/octeontx2/af/rvu_debugfs.c        |  7 +--
+ .../ethernet/marvell/octeontx2/af/rvu_nix.c   | 16 ++++-
+ .../ethernet/marvell/octeontx2/af/rvu_npa.c   | 58 ++++++++++++++++++-
+ .../ethernet/marvell/octeontx2/af/rvu_reg.h   |  3 +
+ 5 files changed, 82 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -3785,6 +3785,17 @@ static void vmx_set_msr_bitmap_write(ulo
- 		__set_bit(msr & 0x1fff, msr_bitmap + 0xc00 / f);
- }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
+index 76474385a6027..b07c6f51b461b 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
+@@ -859,6 +859,9 @@ int rvu_cpt_lf_teardown(struct rvu *rvu, u16 pcifunc, int blkaddr, int lf,
+ 			int slot);
+ int rvu_cpt_ctx_flush(struct rvu *rvu, u16 pcifunc);
  
-+static void vmx_msr_bitmap_l01_changed(struct vcpu_vmx *vmx)
-+{
-+	/*
-+	 * When KVM is a nested hypervisor on top of Hyper-V and uses
-+	 * 'Enlightened MSR Bitmap' feature L0 needs to know that MSR
-+	 * bitmap has changed.
-+	 */
-+	if (static_branch_unlikely(&enable_evmcs))
-+		evmcs_touch_msr_bitmap();
-+}
++#define NDC_AF_BANK_MASK       GENMASK_ULL(7, 0)
++#define NDC_AF_BANK_LINE_MASK  GENMASK_ULL(31, 16)
 +
- static __always_inline void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu,
- 							  u32 msr, int type)
- {
-@@ -3794,8 +3805,7 @@ static __always_inline void vmx_disable_
- 	if (!cpu_has_vmx_msr_bitmap())
- 		return;
+ /* CN10K RVU */
+ int rvu_set_channels_base(struct rvu *rvu);
+ void rvu_program_channels(struct rvu *rvu);
+@@ -874,6 +877,8 @@ static inline void rvu_dbg_init(struct rvu *rvu) {}
+ static inline void rvu_dbg_exit(struct rvu *rvu) {}
+ #endif
  
--	if (static_branch_unlikely(&enable_evmcs))
--		evmcs_touch_msr_bitmap();
-+	vmx_msr_bitmap_l01_changed(vmx);
++int rvu_ndc_fix_locked_cacheline(struct rvu *rvu, int blkaddr);
++
+ /* RVU Switch */
+ void rvu_switch_enable(struct rvu *rvu);
+ void rvu_switch_disable(struct rvu *rvu);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+index f66dde2b0f926..abef0fd4259a3 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -198,9 +198,6 @@ enum cpt_eng_type {
+ 	CPT_IE_TYPE = 3,
+ };
  
- 	/*
- 	 * Mark the desired intercept state in shadow bitmap, this is needed
-@@ -3840,8 +3850,7 @@ static __always_inline void vmx_enable_i
- 	if (!cpu_has_vmx_msr_bitmap())
- 		return;
+-#define NDC_MAX_BANK(rvu, blk_addr) (rvu_read64(rvu, \
+-						blk_addr, NDC_AF_CONST) & 0xFF)
+-
+ #define rvu_dbg_NULL NULL
+ #define rvu_dbg_open_NULL NULL
  
--	if (static_branch_unlikely(&enable_evmcs))
--		evmcs_touch_msr_bitmap();
-+	vmx_msr_bitmap_l01_changed(vmx);
+@@ -1448,6 +1445,7 @@ static int ndc_blk_hits_miss_stats(struct seq_file *s, int idx, int blk_addr)
+ 	struct nix_hw *nix_hw;
+ 	struct rvu *rvu;
+ 	int bank, max_bank;
++	u64 ndc_af_const;
  
- 	/*
- 	 * Mark the desired intercept state in shadow bitmap, this is needed
+ 	if (blk_addr == BLKADDR_NDC_NPA0) {
+ 		rvu = s->private;
+@@ -1456,7 +1454,8 @@ static int ndc_blk_hits_miss_stats(struct seq_file *s, int idx, int blk_addr)
+ 		rvu = nix_hw->rvu;
+ 	}
+ 
+-	max_bank = NDC_MAX_BANK(rvu, blk_addr);
++	ndc_af_const = rvu_read64(rvu, blk_addr, NDC_AF_CONST);
++	max_bank = FIELD_GET(NDC_AF_BANK_MASK, ndc_af_const);
+ 	for (bank = 0; bank < max_bank; bank++) {
+ 		seq_printf(s, "BANK:%d\n", bank);
+ 		seq_printf(s, "\tHits:\t%lld\n",
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+index a62c1b3220120..84f2ba53b8b68 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+@@ -790,6 +790,7 @@ static int nix_aq_enqueue_wait(struct rvu *rvu, struct rvu_block *block,
+ 	struct nix_aq_res_s *result;
+ 	int timeout = 1000;
+ 	u64 reg, head;
++	int ret;
+ 
+ 	result = (struct nix_aq_res_s *)aq->res->base;
+ 
+@@ -813,9 +814,22 @@ static int nix_aq_enqueue_wait(struct rvu *rvu, struct rvu_block *block,
+ 			return -EBUSY;
+ 	}
+ 
+-	if (result->compcode != NIX_AQ_COMP_GOOD)
++	if (result->compcode != NIX_AQ_COMP_GOOD) {
+ 		/* TODO: Replace this with some error code */
++		if (result->compcode == NIX_AQ_COMP_CTX_FAULT ||
++		    result->compcode == NIX_AQ_COMP_LOCKERR ||
++		    result->compcode == NIX_AQ_COMP_CTX_POISON) {
++			ret = rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX0_RX);
++			ret |= rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX0_TX);
++			ret |= rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX1_RX);
++			ret |= rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX1_TX);
++			if (ret)
++				dev_err(rvu->dev,
++					"%s: Not able to unlock cachelines\n", __func__);
++		}
++
+ 		return -EBUSY;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c
+index 70bd036ed76e4..4f5ca5ab13a40 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c
+@@ -4,7 +4,7 @@
+  * Copyright (C) 2018 Marvell.
+  *
+  */
+-
++#include <linux/bitfield.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ 
+@@ -42,9 +42,18 @@ static int npa_aq_enqueue_wait(struct rvu *rvu, struct rvu_block *block,
+ 			return -EBUSY;
+ 	}
+ 
+-	if (result->compcode != NPA_AQ_COMP_GOOD)
++	if (result->compcode != NPA_AQ_COMP_GOOD) {
+ 		/* TODO: Replace this with some error code */
++		if (result->compcode == NPA_AQ_COMP_CTX_FAULT ||
++		    result->compcode == NPA_AQ_COMP_LOCKERR ||
++		    result->compcode == NPA_AQ_COMP_CTX_POISON) {
++			if (rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NPA0))
++				dev_err(rvu->dev,
++					"%s: Not able to unlock cachelines\n", __func__);
++		}
++
+ 		return -EBUSY;
++	}
+ 
+ 	return 0;
+ }
+@@ -545,3 +554,48 @@ void rvu_npa_lf_teardown(struct rvu *rvu, u16 pcifunc, int npalf)
+ 
+ 	npa_ctx_free(rvu, pfvf);
+ }
++
++/* Due to an Hardware errata, in some corner cases, AQ context lock
++ * operations can result in a NDC way getting into an illegal state
++ * of not valid but locked.
++ *
++ * This API solves the problem by clearing the lock bit of the NDC block.
++ * The operation needs to be done for each line of all the NDC banks.
++ */
++int rvu_ndc_fix_locked_cacheline(struct rvu *rvu, int blkaddr)
++{
++	int bank, max_bank, line, max_line, err;
++	u64 reg, ndc_af_const;
++
++	/* Set the ENABLE bit(63) to '0' */
++	reg = rvu_read64(rvu, blkaddr, NDC_AF_CAMS_RD_INTERVAL);
++	rvu_write64(rvu, blkaddr, NDC_AF_CAMS_RD_INTERVAL, reg & GENMASK_ULL(62, 0));
++
++	/* Poll until the BUSY bits(47:32) are set to '0' */
++	err = rvu_poll_reg(rvu, blkaddr, NDC_AF_CAMS_RD_INTERVAL, GENMASK_ULL(47, 32), true);
++	if (err) {
++		dev_err(rvu->dev, "Timed out while polling for NDC CAM busy bits.\n");
++		return err;
++	}
++
++	ndc_af_const = rvu_read64(rvu, blkaddr, NDC_AF_CONST);
++	max_bank = FIELD_GET(NDC_AF_BANK_MASK, ndc_af_const);
++	max_line = FIELD_GET(NDC_AF_BANK_LINE_MASK, ndc_af_const);
++	for (bank = 0; bank < max_bank; bank++) {
++		for (line = 0; line < max_line; line++) {
++			/* Check if 'cache line valid bit(63)' is not set
++			 * but 'cache line lock bit(60)' is set and on
++			 * success, reset the lock bit(60).
++			 */
++			reg = rvu_read64(rvu, blkaddr,
++					 NDC_AF_BANKX_LINEX_METADATA(bank, line));
++			if (!(reg & BIT_ULL(63)) && (reg & BIT_ULL(60))) {
++				rvu_write64(rvu, blkaddr,
++					    NDC_AF_BANKX_LINEX_METADATA(bank, line),
++					    reg & ~BIT_ULL(60));
++			}
++		}
++	}
++
++	return 0;
++}
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
+index 0e0d536645ac7..39f7a7cb27558 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
+@@ -690,6 +690,7 @@
+ #define NDC_AF_INTR_ENA_W1S		(0x00068)
+ #define NDC_AF_INTR_ENA_W1C		(0x00070)
+ #define NDC_AF_ACTIVE_PC		(0x00078)
++#define NDC_AF_CAMS_RD_INTERVAL		(0x00080)
+ #define NDC_AF_BP_TEST_ENABLE		(0x001F8)
+ #define NDC_AF_BP_TEST(a)		(0x00200 | (a) << 3)
+ #define NDC_AF_BLK_RST			(0x002F0)
+@@ -705,6 +706,8 @@
+ 		(0x00F00 | (a) << 5 | (b) << 4)
+ #define NDC_AF_BANKX_HIT_PC(a)		(0x01000 | (a) << 3)
+ #define NDC_AF_BANKX_MISS_PC(a)		(0x01100 | (a) << 3)
++#define NDC_AF_BANKX_LINEX_METADATA(a, b) \
++		(0x10000 | (a) << 12 | (b) << 3)
+ 
+ /* LBK */
+ #define LBK_CONST			(0x10ull)
+-- 
+2.39.2
+
 
 
