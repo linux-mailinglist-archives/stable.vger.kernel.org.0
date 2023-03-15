@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8F86BB158
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 986CC6BB15B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232493AbjCOM0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
+        id S232450AbjCOM0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231748AbjCOM03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:29 -0400
+        with ESMTP id S232401AbjCOM0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E0299D53
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6B597B4D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4FD861CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC239C433D2;
-        Wed, 15 Mar 2023 12:25:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40CD861ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5590CC433D2;
+        Wed, 15 Mar 2023 12:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883135;
-        bh=EaOTyIVLzC/qsRMkAu1Rjc6VL6Ws/BbRAg4Twaajnrc=;
+        s=korg; t=1678883137;
+        bh=NJX8/sgQ0hT/K5I8wC0WccGkOUfXcYnc7UL9KtXgoGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QG4MHUmRvYMJHz6W/4bo8Xo+l68ITgjSUO6Nppxa8pmRXyx8lac3XfBlyQ7+xvGUZ
-         LXTpKiT+AKHwMqple3IYoNmBB4Nbc4NbiF2ImfuN691tv8DYq/gf1vf/g6xhBHnllR
-         pYHk6NZQ+QK+j5crJQbvD1D/Dzf2/i1fWcS3wkOw=
+        b=QhLj/cDPXkIiJ1lA1SPBNUxayfZrRZpQBzh73gLBG+kTjj3SnWkN3eFEWmCs5P5KG
+         gQsCO7WlPfWx1ZNKcKh3POGiuP93h/djRbQO4CywuwpY48QHVuMI0/7K/6Jhrk/ecv
+         ZMj47GgHDuSENJROlL4UKWJL0Rm1t7F+DpDnAqTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/145] ipmi:ssif: Increase the message retry time
-Date:   Wed, 15 Mar 2023 13:11:34 +0100
-Message-Id: <20230315115739.961712828@linuxfoundation.org>
+Subject: [PATCH 5.15 029/145] ipmi:ssif: Add a timer between request retries
+Date:   Wed, 15 Mar 2023 13:11:35 +0100
+Message-Id: <20230315115739.999668516@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
 References: <20230315115738.951067403@linuxfoundation.org>
@@ -55,32 +55,131 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 39721d62bbc16ebc9bb2bdc2c163658f33da3b0b ]
+[ Upstream commit 00bb7e763ec9f384cb382455cb6ba5588b5375cf ]
 
-The spec states that the minimum message retry time is 60ms, but it was
-set to 20ms.  Correct it.
+The IPMI spec has a time (T6) specified between request retries.  Add
+the handling for that.
 
 Reported by: Tony Camuso <tcamuso@redhat.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Stable-dep-of: 00bb7e763ec9 ("ipmi:ssif: Add a timer between request retries")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ipmi/ipmi_ssif.c | 34 +++++++++++++++++++++++++++-------
+ 1 file changed, 27 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index 427bf618c4470..cae21632cf079 100644
+index cae21632cf079..20dc2452815c7 100644
 --- a/drivers/char/ipmi/ipmi_ssif.c
 +++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -74,7 +74,7 @@
+@@ -74,7 +74,8 @@
  /*
   * Timer values
   */
--#define SSIF_MSG_USEC		20000	/* 20ms between message tries. */
-+#define SSIF_MSG_USEC		60000	/* 60ms between message tries. */
+-#define SSIF_MSG_USEC		60000	/* 60ms between message tries. */
++#define SSIF_MSG_USEC		60000	/* 60ms between message tries (T3). */
++#define SSIF_REQ_RETRY_USEC	60000	/* 60ms between send retries (T6). */
  #define SSIF_MSG_PART_USEC	5000	/* 5ms for a message part */
  
  /* How many times to we retry sending/receiving the message. */
+@@ -82,7 +83,9 @@
+ #define	SSIF_RECV_RETRIES	250
+ 
+ #define SSIF_MSG_MSEC		(SSIF_MSG_USEC / 1000)
++#define SSIF_REQ_RETRY_MSEC	(SSIF_REQ_RETRY_USEC / 1000)
+ #define SSIF_MSG_JIFFIES	((SSIF_MSG_USEC * 1000) / TICK_NSEC)
++#define SSIF_REQ_RETRY_JIFFIES	((SSIF_REQ_RETRY_USEC * 1000) / TICK_NSEC)
+ #define SSIF_MSG_PART_JIFFIES	((SSIF_MSG_PART_USEC * 1000) / TICK_NSEC)
+ 
+ /*
+@@ -229,6 +232,9 @@ struct ssif_info {
+ 	bool		    got_alert;
+ 	bool		    waiting_alert;
+ 
++	/* Used to inform the timeout that it should do a resend. */
++	bool		    do_resend;
++
+ 	/*
+ 	 * If set to true, this will request events the next time the
+ 	 * state machine is idle.
+@@ -538,22 +544,28 @@ static void start_get(struct ssif_info *ssif_info)
+ 		  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
+ }
+ 
++static void start_resend(struct ssif_info *ssif_info);
++
+ static void retry_timeout(struct timer_list *t)
+ {
+ 	struct ssif_info *ssif_info = from_timer(ssif_info, t, retry_timer);
+ 	unsigned long oflags, *flags;
+-	bool waiting;
++	bool waiting, resend;
+ 
+ 	if (ssif_info->stopping)
+ 		return;
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
++	resend = ssif_info->do_resend;
++	ssif_info->do_resend = false;
+ 	waiting = ssif_info->waiting_alert;
+ 	ssif_info->waiting_alert = false;
+ 	ipmi_ssif_unlock_cond(ssif_info, flags);
+ 
+ 	if (waiting)
+ 		start_get(ssif_info);
++	if (resend)
++		start_resend(ssif_info);
+ }
+ 
+ static void watch_timeout(struct timer_list *t)
+@@ -602,8 +614,6 @@ static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
+ 		start_get(ssif_info);
+ }
+ 
+-static void start_resend(struct ssif_info *ssif_info);
+-
+ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			     unsigned char *data, unsigned int len)
+ {
+@@ -909,7 +919,13 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
+ 	if (result < 0) {
+ 		ssif_info->retries_left--;
+ 		if (ssif_info->retries_left > 0) {
+-			start_resend(ssif_info);
++			/*
++			 * Wait the retry timeout time per the spec,
++			 * then redo the send.
++			 */
++			ssif_info->do_resend = true;
++			mod_timer(&ssif_info->retry_timer,
++				  jiffies + SSIF_REQ_RETRY_JIFFIES);
+ 			return;
+ 		}
+ 
+@@ -1322,8 +1338,10 @@ static int do_cmd(struct i2c_client *client, int len, unsigned char *msg,
+ 	ret = i2c_smbus_write_block_data(client, SSIF_IPMI_REQUEST, len, msg);
+ 	if (ret) {
+ 		retry_cnt--;
+-		if (retry_cnt > 0)
++		if (retry_cnt > 0) {
++			msleep(SSIF_REQ_RETRY_MSEC);
+ 			goto retry1;
++		}
+ 		return -ENODEV;
+ 	}
+ 
+@@ -1464,8 +1482,10 @@ static int start_multipart_test(struct i2c_client *client,
+ 					 32, msg);
+ 	if (ret) {
+ 		retry_cnt--;
+-		if (retry_cnt > 0)
++		if (retry_cnt > 0) {
++			msleep(SSIF_REQ_RETRY_MSEC);
+ 			goto retry_write;
++		}
+ 		dev_err(&client->dev, "Could not write multi-part start, though the BMC said it could handle it.  Just limit sends to one part.\n");
+ 		return ret;
+ 	}
 -- 
 2.39.2
 
