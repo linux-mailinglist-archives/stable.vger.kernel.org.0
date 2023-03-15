@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79E26BB248
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C8D96BB06F
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbjCOMfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52590 "EHLO
+        id S231946AbjCOMSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232576AbjCOMel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54BA364B17
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:11 -0700 (PDT)
+        with ESMTP id S232071AbjCOMSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:18:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A468E8A3BB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A29E6B81E0D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0827C433EF;
-        Wed, 15 Mar 2023 12:33:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 401A0B81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BFDC433EF;
+        Wed, 15 Mar 2023 12:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883588;
-        bh=j07vEKC202TbWxmUU3linCKGfpAvj62RAV4w8SATi0M=;
+        s=korg; t=1678882678;
+        bh=v3aus6T8DUiMx14NFNPeUTHL9yErBioF38Regk5Cdh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYWFY2CsuzTiFTT7HKxJur6wp/hb/vzljA/Ou9tGpu6nULwhJRbBdMl0Aff1FkNKq
-         vGZ5DzNSnjZKKDO0BoLcNFS5fjI8NVjzFPxxzYMEJf94chxRosqPCnIoFh97+ZXzjZ
-         US+qvhctg1w2rnJbOdsQaz+Kl/aN1YwgHxTF9PpM=
+        b=KJqfusDfnyc2aBjiVnoJZ10DJra8U4KH02cZUFTNdM7ghTDoY8rSfYMqq82YBCmzn
+         /up6yRszZKsyCwV6WoGw4DWLJJCqn+qXvvUDugDuVhILBh1bhMTgDnqbN5becHzWmr
+         dBSvoe9cYCHQWPKAsVv5U8Z6Qhm1aoVlwKU2jJvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 056/143] ext4: Fix possible corruption when moving a directory
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 28/68] ARM: dts: exynos: correct TMU phandle in Exynos5250
 Date:   Wed, 15 Mar 2023 13:12:22 +0100
-Message-Id: <20230315115742.225534914@linuxfoundation.org>
+Message-Id: <20230315115727.187773543@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,57 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 0813299c586b175d7edb25f56412c54b812d0379 ]
+[ Upstream commit 33e2c595e2e4016991ead44933a29d1ef93d5f26 ]
 
-When we are renaming a directory to a different directory, we need to
-update '..' entry in the moved directory. However nothing prevents moved
-directory from being modified and even converted from the inline format
-to the normal format. When such race happens the rename code gets
-confused and we crash. Fix the problem by locking the moved directory.
+TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
+it must not have an argument to phandle.
 
-CC: stable@vger.kernel.org
-Fixes: 32f7f22c0b52 ("ext4: let ext4_rename handle inline dir")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230126112221.11866-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: <stable@vger.kernel.org>
+Fixes: 9843a2236003 ("ARM: dts: Provide dt bindings identical for Exynos TMU")
+Link: https://lore.kernel.org/r/20230209105841.779596-3-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5250.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 9799ed2fdbc09..dc8f8a435a7ea 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3873,9 +3873,16 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
- 				goto end_rename;
- 		}
-+		/*
-+		 * We need to protect against old.inode directory getting
-+		 * converted from inline directory format into a normal one.
-+		 */
-+		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
- 		retval = ext4_rename_dir_prepare(handle, &old);
--		if (retval)
-+		if (retval) {
-+			inode_unlock(old.inode);
- 			goto end_rename;
-+		}
- 	}
- 	/*
- 	 * If we're renaming a file within an inline_data dir and adding or
-@@ -4007,6 +4014,8 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 	} else {
- 		ext4_journal_stop(handle);
- 	}
-+	if (old.dir_bh)
-+		inode_unlock(old.inode);
- release_bh:
- 	brelse(old.dir_bh);
- 	brelse(old.bh);
+diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
+index 624fa234e7175..d5eccc86f5f78 100644
+--- a/arch/arm/boot/dts/exynos5250.dtsi
++++ b/arch/arm/boot/dts/exynos5250.dtsi
+@@ -1122,7 +1122,7 @@
+ &cpu_thermal {
+ 	polling-delay-passive = <0>;
+ 	polling-delay = <0>;
+-	thermal-sensors = <&tmu 0>;
++	thermal-sensors = <&tmu>;
+ 
+ 	cooling-maps {
+ 		map0 {
 -- 
 2.39.2
 
