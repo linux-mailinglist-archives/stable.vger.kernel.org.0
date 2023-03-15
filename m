@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82EBD6BB28C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B16786BB03D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbjCOMhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52544 "EHLO
+        id S231847AbjCOMQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232752AbjCOMg7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16C31FF0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:59 -0700 (PDT)
+        with ESMTP id S231894AbjCOMQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C8C87DB0
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECC4C61D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ABE2C433EF;
-        Wed, 15 Mar 2023 12:35:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3389A61D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 453B2C433D2;
+        Wed, 15 Mar 2023 12:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883750;
-        bh=LecQzSkV+mGvdYHTfKv6o3/y4DCMz5YQtiOrm8tcrDQ=;
+        s=korg; t=1678882574;
+        bh=mnn5RPSXMS1FgIfdFe4OFtnjWbWjKO6WKfdlV5IqC2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oET5MoP6U6PGxhyaIkswCkfUEk6HqSdrVdYB39EdZ7sYsMeNHqTyifTRheeDg6RaI
-         FAfg1D5gYB/eM+yyu+nz6cL+TdSm62iNhTTbx/Ez1VKrhnRfVcFcUT3RvoXcRzAGU7
-         IZmc3mnYHzunY1Y3WPTAgt4eNY/PKH9qJdIoIsK4=
+        b=nHtN/yElP0D7xvz+rlswKJaPRZfuxO17dD5jSQQRJp5PM1HjTbeUO770GrrAnUqIq
+         wxpkB3t2zkaVt7/Ai/02/5pna+dMKfQtVjD31h0k/a05dei9GP08/S/UhE+jWpTS1D
+         7j0Eph5N6HQ171RIgWaWNWbingHMeTNo6GzPDXxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "sjur.brandeland@stericsson.com" <sjur.brandeland@stericsson.com>,
-        syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Edward Humes <aurxenon@lunos.org>,
+        Matt Turner <mattst88@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 078/143] net: caif: Fix use-after-free in cfusbl_device_notify()
+Subject: [PATCH 4.19 30/39] alpha: fix R_ALPHA_LITERAL reloc for large modules
 Date:   Wed, 15 Mar 2023 13:12:44 +0100
-Message-Id: <20230315115742.911415826@linuxfoundation.org>
+Message-Id: <20230315115722.348343142@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,84 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Edward Humes <aurxenon@lunos.org>
 
-[ Upstream commit 9781e98a97110f5e76999058368b4be76a788484 ]
+[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
 
-syzbot reported use-after-free in cfusbl_device_notify() [1].  This
-causes a stack trace like below:
+Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
+modules.
 
-BUG: KASAN: use-after-free in cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
-Read of size 8 at addr ffff88807ac4e6f0 by task kworker/u4:6/1214
+This was because the Alpha's apply_relocate_add was relying on the kernel's
+module loader to have sorted the GOT towards the very end of the module as it
+was mapped into memory in order to correctly assign the global pointer. While
+this behavior would mostly work fine for small kernel modules, this approach
+would overflow on kernel modules with large GOT's since the global pointer
+would be very far away from the GOT, and thus, certain entries would be out of
+range.
 
-CPU: 0 PID: 1214 Comm: kworker/u4:6 Not tainted 5.19.0-rc3-syzkaller-00146-g92f20ff72066 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
- print_report mm/kasan/report.c:429 [inline]
- kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
- cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
- notifier_call_chain+0xb5/0x200 kernel/notifier.c:87
- call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1945
- call_netdevice_notifiers_extack net/core/dev.c:1983 [inline]
- call_netdevice_notifiers net/core/dev.c:1997 [inline]
- netdev_wait_allrefs_any net/core/dev.c:10227 [inline]
- netdev_run_todo+0xbc0/0x10f0 net/core/dev.c:10341
- default_device_exit_batch+0x44e/0x590 net/core/dev.c:11334
- ops_exit_list+0x125/0x170 net/core/net_namespace.c:167
- cleanup_net+0x4ea/0xb00 net/core/net_namespace.c:594
- process_one_work+0x996/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e9/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
- </TASK>
+This patch fixes this by instead using the Tru64 behavior of assigning the
+global pointer to be 32KB away from the start of the GOT. The change made
+in this patch won't work for multi-GOT kernel modules as it makes the
+assumption the module only has one GOT located at the beginning of .got,
+although for the vast majority kernel modules, this should be fine. Of the
+kernel modules that would previously result in a relocation error, none of
+them, even modules like nouveau, have even come close to filling up a single
+GOT, and they've all worked fine under this patch.
 
-When unregistering a net device, unregister_netdevice_many_notify()
-sets the device's reg_state to NETREG_UNREGISTERING, calls notifiers
-with NETDEV_UNREGISTER, and adds the device to the todo list.
-
-Later on, devices in the todo list are processed by netdev_run_todo().
-netdev_run_todo() waits devices' reference count become 1 while
-rebdoadcasting NETDEV_UNREGISTER notification.
-
-When cfusbl_device_notify() is called with NETDEV_UNREGISTER multiple
-times, the parent device might be freed.  This could cause UAF.
-Processing NETDEV_UNREGISTER multiple times also causes inbalance of
-reference count for the module.
-
-This patch fixes the issue by accepting only first NETDEV_UNREGISTER
-notification.
-
-Fixes: 7ad65bf68d70 ("caif: Add support for CAIF over CDC NCM USB interface")
-CC: sjur.brandeland@stericsson.com <sjur.brandeland@stericsson.com>
-Reported-by: syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=c3bfd8e2450adab3bffe4d80821fbbced600407f [1]
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Link: https://lore.kernel.org/r/20230301163913.391304-1-syoshida@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Edward Humes <aurxenon@lunos.org>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/caif_usb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/alpha/kernel/module.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/caif/caif_usb.c b/net/caif/caif_usb.c
-index ebc202ffdd8d8..bf61ea4b8132d 100644
---- a/net/caif/caif_usb.c
-+++ b/net/caif/caif_usb.c
-@@ -134,6 +134,9 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
- 	struct usb_device *usbdev;
- 	int res;
+diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
+index 47632fa8c24e0..b169dc9a9ac17 100644
+--- a/arch/alpha/kernel/module.c
++++ b/arch/alpha/kernel/module.c
+@@ -158,10 +158,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
+ 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
+ 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
  
-+	if (what == NETDEV_UNREGISTER && dev->reg_state >= NETREG_UNREGISTERED)
-+		return 0;
-+
- 	/* Check whether we have a NCM device, and find its VID/PID. */
- 	if (!(dev->dev.parent && dev->dev.parent->driver &&
- 	      strcmp(dev->dev.parent->driver->name, "cdc_ncm") == 0))
+-	/* The small sections were sorted to the end of the segment.
+-	   The following should definitely cover them.  */
+-	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
+ 	got = sechdrs[me->arch.gotsecindex].sh_addr;
++	gp = got + 0x8000;
+ 
+ 	for (i = 0; i < n; i++) {
+ 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
 -- 
 2.39.2
 
