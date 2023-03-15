@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD6C26BB198
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D736BB2F1
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232549AbjCOM2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:28:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
+        id S232985AbjCOMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232408AbjCOM2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:30 -0400
+        with ESMTP id S233094AbjCOMkG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833EE9DE26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685A7A1FF6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0262561D43
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AF3AC433D2;
-        Wed, 15 Mar 2023 12:27:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2442661D5C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DBFC4339B;
+        Wed, 15 Mar 2023 12:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883258;
-        bh=aQRKw9r43lg8u/qbiiRKzFPOQlreOLY7JutcNueitGQ=;
+        s=korg; t=1678883915;
+        bh=Knfqm61g8WyM5794wDVLrz+z6TXvHv91vD9Au2PUBvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RN0m1pZd3akgDQwToDL5JaC5NSJzo8jqPj9BLIFEGR5R+V5brIMfBqgImnMQtIRcn
-         nnAYo80gxH8fKEmW1fF6Tfhtb/jJFmPvWaV7j+PtTDFo2vln0myuWxatUTnB1J2eYn
-         tOGQpE8Eiebfdmh0CWClvM0mQzqs3K2YzaDPZ7EM=
+        b=Fh3MazMCTRX9thSG2LvL8ROqMtuuwe+Kjr0fwZhW9OsZWSgpuepwF4KIMDjEIlavT
+         zHPZz25aR5DT07aGGRoEmGcOO9Xij8QZkGn9Aw1ZCK/XRahkZ7mYEi4UQDgoM/h2En
+         z2dG/ob8OK8oCfOeMqLu+lrA6A8+rG0uh4naogH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 045/145] drm/msm: Fix potential invalid ptr free
+        patches@lists.linux.dev, Andrey Vagin <avagin@openvz.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>
+Subject: [PATCH 6.2 008/141] fork: allow CLONE_NEWTIME in clone3 flags
 Date:   Wed, 15 Mar 2023 13:11:51 +0100
-Message-Id: <20230315115740.562594957@linuxfoundation.org>
+Message-Id: <20230315115740.218293382@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Tobias Klauser <tklauser@distanz.ch>
 
-[ Upstream commit 8a86f213f4426f19511a16d886871805b35c3acf ]
+commit a402f1e35313fc7ce2ca60f543c4402c2c7c3544 upstream.
 
-The error path cleanup expects that chain and syncobj are either NULL or
-valid pointers.  But post_deps was not allocated with __GFP_ZERO.
+Currently, calling clone3() with CLONE_NEWTIME in clone_args->flags
+fails with -EINVAL. This is because CLONE_NEWTIME intersects with
+CSIGNAL. However, CSIGNAL was deprecated when clone3 was introduced in
+commit 7f192e3cd316 ("fork: add clone3"), allowing re-use of that part
+of clone flags.
 
-Fixes: ab723b7a992a ("drm/msm: Add syncobj support.")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Patchwork: https://patchwork.freedesktop.org/patch/523051/
-Link: https://lore.kernel.org/r/20230215235048.1166484-1-robdclark@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by explicitly allowing CLONE_NEWTIME in clone3_args_valid. This
+is also in line with the respective check in check_unshare_flags which
+allow CLONE_NEWTIME for unshare().
+
+Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
+Cc: Andrey Vagin <avagin@openvz.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+Reviewed-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gem_submit.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/fork.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
-index 83e6ccad77286..fc2fb1019ea1c 100644
---- a/drivers/gpu/drm/msm/msm_gem_submit.c
-+++ b/drivers/gpu/drm/msm/msm_gem_submit.c
-@@ -640,8 +640,8 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
- 	int ret = 0;
- 	uint32_t i, j;
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2933,7 +2933,7 @@ static bool clone3_args_valid(struct ker
+ 	 * - make the CLONE_DETACHED bit reusable for clone3
+ 	 * - make the CSIGNAL bits reusable for clone3
+ 	 */
+-	if (kargs->flags & (CLONE_DETACHED | CSIGNAL))
++	if (kargs->flags & (CLONE_DETACHED | (CSIGNAL & (~CLONE_NEWTIME))))
+ 		return false;
  
--	post_deps = kmalloc_array(nr_syncobjs, sizeof(*post_deps),
--	                          GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
-+	post_deps = kcalloc(nr_syncobjs, sizeof(*post_deps),
-+			    GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
- 	if (!post_deps)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -656,7 +656,6 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
- 		}
- 
- 		post_deps[i].point = syncobj_desc.point;
--		post_deps[i].chain = NULL;
- 
- 		if (syncobj_desc.flags) {
- 			ret = -EINVAL;
--- 
-2.39.2
-
+ 	if ((kargs->flags & (CLONE_SIGHAND | CLONE_CLEAR_SIGHAND)) ==
 
 
