@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9746BB26C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 177FD6BB307
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232698AbjCOMgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51730 "EHLO
+        id S232938AbjCOMlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:41:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232699AbjCOMfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:52 -0400
+        with ESMTP id S232957AbjCOMkp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5123B3D8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEFAF9FBE7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D352BB81DF9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4620EC433D2;
-        Wed, 15 Mar 2023 12:34:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFECCB81E0B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 367D9C433EF;
+        Wed, 15 Mar 2023 12:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883653;
-        bh=jw+jXFWLCteO0ajxlewBx8owfsVx0ByGf2WRTKrDtgs=;
+        s=korg; t=1678883923;
+        bh=5Per/CmKfDbemKQ044Qji0QnCNT6Ypgj+BiiN1p9vZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmbX23u8CkMGt+jNwsCxr5TldRjmBOG6szaxIrTz5glvlPwXfvM19jBvubM7MnGlM
-         ua8cQ/pA+y8xWwoUfIOlCyejb44HN6bDSKIq0VnRYSGFTYcDn9ITH0MSu60EIvJxg0
-         yevsoROxXrmXdEUHZ4yUWykIl7Bs9pEYl18GJOOk=
+        b=XT2HjgMCcKUEgDbE9wW8uTzElLnT3mXqXrJ6J2NLAqu/0Oq67/KIY9YvR4LJqqtl0
+         HvQeCGUmPsb+QMy0Gu4HpoKOItm67YYgirfWzw41Shjjq5JRUzioZW9UvrRq2Ip442
+         yFaT40HDsZJ0surhdbbIJNXSFCmxFTmjStJ4NzVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Animesh Manna <animesh.manna@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 049/143] drm/i915: Introduce intel_panel_init_alloc()
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 032/141] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to userspace
 Date:   Wed, 15 Mar 2023 13:12:15 +0100
-Message-Id: <20230315115742.009958721@linuxfoundation.org>
+Message-Id: <20230315115740.949969487@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit f70f8153e3642337b444fbc0c64d546a46bbcd62 ]
+[ Upstream commit e32b120071ea114efc0b4ddd439547750b85f618 ]
 
-Introduce a place where we can initialize connector->panel
-after it's been allocated. We already have a intel_panel_init()
-so had to get creative with the name and came up with
-intel_panel_init_alloc().
+Call kvm_init() only after _all_ setup is complete, as kvm_init() exposes
+/dev/kvm to userspace and thus allows userspace to create VMs (and call
+other ioctls).  E.g. KVM will encounter a NULL pointer when attempting to
+add a vCPU to the per-CPU loaded_vmcss_on_cpu list if userspace is able to
+create a VM before vmx_init() configures said list.
 
-Cc: Animesh Manna <animesh.manna@intel.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221125173156.31689-2-ville.syrjala@linux.intel.com
-Stable-dep-of: 14e591a1930c ("drm/i915: Populate encoder->devdata for DSI on icl+")
+ BUG: kernel NULL pointer dereference, address: 0000000000000008
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 0 P4D 0
+ Oops: 0002 [#1] SMP
+ CPU: 6 PID: 1143 Comm: stable Not tainted 6.0.0-rc7+ #988
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+ RIP: 0010:vmx_vcpu_load_vmcs+0x68/0x230 [kvm_intel]
+  <TASK>
+  vmx_vcpu_load+0x16/0x60 [kvm_intel]
+  kvm_arch_vcpu_load+0x32/0x1f0 [kvm]
+  vcpu_load+0x2f/0x40 [kvm]
+  kvm_arch_vcpu_create+0x231/0x310 [kvm]
+  kvm_vm_ioctl+0x79f/0xe10 [kvm]
+  ? handle_mm_fault+0xb1/0x220
+  __x64_sys_ioctl+0x80/0xb0
+  do_syscall_64+0x2b/0x50
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ RIP: 0033:0x7f5a6b05743b
+  </TASK>
+ Modules linked in: vhost_net vhost vhost_iotlb tap kvm_intel(+) kvm irqbypass
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20221130230934.1014142-15-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_connector.c | 2 +-
- drivers/gpu/drm/i915/display/intel_panel.c     | 7 +++++++
- drivers/gpu/drm/i915/display/intel_panel.h     | 1 +
- 3 files changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx/vmx.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_connector.c b/drivers/gpu/drm/i915/display/intel_connector.c
-index 6d5cbeb8df4da..8bb296f3d6252 100644
---- a/drivers/gpu/drm/i915/display/intel_connector.c
-+++ b/drivers/gpu/drm/i915/display/intel_connector.c
-@@ -54,7 +54,7 @@ int intel_connector_init(struct intel_connector *connector)
- 	__drm_atomic_helper_connector_reset(&connector->base,
- 					    &conn_state->base);
- 
--	INIT_LIST_HEAD(&connector->panel.fixed_modes);
-+	intel_panel_init_alloc(connector);
- 
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
-index f72f4646c0d70..8bd7af99cd2b9 100644
---- a/drivers/gpu/drm/i915/display/intel_panel.c
-+++ b/drivers/gpu/drm/i915/display/intel_panel.c
-@@ -648,6 +648,13 @@ intel_panel_mode_valid(struct intel_connector *connector,
- 	return MODE_OK;
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 74be8b9030a3b..cb547a0833812 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -8521,19 +8521,23 @@ static void vmx_cleanup_l1d_flush(void)
+ 	l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
  }
  
-+void intel_panel_init_alloc(struct intel_connector *connector)
-+{
-+	struct intel_panel *panel = &connector->panel;
-+
-+	INIT_LIST_HEAD(&panel->fixed_modes);
-+}
-+
- int intel_panel_init(struct intel_connector *connector)
+-static void vmx_exit(void)
++static void __vmx_exit(void)
  {
- 	struct intel_panel *panel = &connector->panel;
-diff --git a/drivers/gpu/drm/i915/display/intel_panel.h b/drivers/gpu/drm/i915/display/intel_panel.h
-index 5c5b5b7f95b6c..4b51e1c51da62 100644
---- a/drivers/gpu/drm/i915/display/intel_panel.h
-+++ b/drivers/gpu/drm/i915/display/intel_panel.h
-@@ -18,6 +18,7 @@ struct intel_connector;
- struct intel_crtc_state;
- struct intel_encoder;
++	allow_smaller_maxphyaddr = false;
++
+ #ifdef CONFIG_KEXEC_CORE
+ 	RCU_INIT_POINTER(crash_vmclear_loaded_vmcss, NULL);
+ 	synchronize_rcu();
+ #endif
++	vmx_cleanup_l1d_flush();
++}
  
-+void intel_panel_init_alloc(struct intel_connector *connector);
- int intel_panel_init(struct intel_connector *connector);
- void intel_panel_fini(struct intel_connector *connector);
- enum drm_connector_status
++static void vmx_exit(void)
++{
+ 	kvm_exit();
+ 	kvm_x86_vendor_exit();
+ 
+-	vmx_cleanup_l1d_flush();
+-
+-	allow_smaller_maxphyaddr = false;
++	__vmx_exit();
+ }
+ module_exit(vmx_exit);
+ 
+@@ -8578,11 +8582,6 @@ static int __init vmx_init(void)
+ 	if (r)
+ 		return r;
+ 
+-	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
+-		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+-	if (r)
+-		goto err_kvm_init;
+-
+ 	/*
+ 	 * Must be called after common x86 init so enable_ept is properly set
+ 	 * up. Hand the parameter mitigation value in which was stored in
+@@ -8616,11 +8615,20 @@ static int __init vmx_init(void)
+ 	if (!enable_ept)
+ 		allow_smaller_maxphyaddr = true;
+ 
++	/*
++	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
++	 * exposed to userspace!
++	 */
++	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
++		     __alignof__(struct vcpu_vmx), THIS_MODULE);
++	if (r)
++		goto err_kvm_init;
++
+ 	return 0;
+ 
+-err_l1d_flush:
+-	vmx_exit();
+ err_kvm_init:
++	__vmx_exit();
++err_l1d_flush:
+ 	kvm_x86_vendor_exit();
+ 	return r;
+ }
 -- 
 2.39.2
 
