@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 040FF6BB37E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BC86BB370
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233036AbjCOMpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:45:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36840 "EHLO
+        id S233054AbjCOMoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:44:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbjCOMo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:56 -0400
+        with ESMTP id S233073AbjCOMoZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487FD95E02
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:43:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9A8646B6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:43:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D103B81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C740C433EF;
-        Wed, 15 Mar 2023 12:43:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E15F6B81E0A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4298DC4339B;
+        Wed, 15 Mar 2023 12:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884212;
-        bh=6DXEWvDLO0oazULhqYHOTTVDENA5Kb6QTRTb6/Zllwk=;
+        s=korg; t=1678884178;
+        bh=bxTptbUVa63UoQCRWI3jLiKQBHLWc7zNuIcPhaE4q9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzlGvqb3/6wBiLoy6NkSMAn+IBndgSpshx8XUyyiYg1MF7vvPGHHsFbdiDe1P/fNe
-         cofto/Lcxk2cmO26GHMakH7SxAK/+df+8J0L6D50ncgGYpft0Edus9A3TeMIf57Xdp
-         yUKAQpNG7FyWvaS08hDjiaZww8kO9B4Um0NlN07M=
+        b=1TZT/9pZ4cKVRx5og18QBKTCbklZ+jl45DesoryUbz9B7Jj5i3U3folamN6LNwRgB
+         C/m8l8FhOH68jDyGcHHYLjY3QcrgaXahwYwcH87IICaFggUGzNg/xRNVNm8wlbH2cB
+         ih0UFC0k1RiMRaMoVvUg1RaYDUVyQ6I5ot5gwZEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rohan McLure <rmclure@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Edward Humes <aurxenon@lunos.org>,
+        Matt Turner <mattst88@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 128/141] powerpc/kcsan: Exclude udelay to prevent recursive instrumentation
-Date:   Wed, 15 Mar 2023 13:13:51 +0100
-Message-Id: <20230315115743.882829406@linuxfoundation.org>
+Subject: [PATCH 6.2 129/141] alpha: fix R_ALPHA_LITERAL reloc for large modules
+Date:   Wed, 15 Mar 2023 13:13:52 +0100
+Message-Id: <20230315115743.910742995@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
 References: <20230315115739.932786806@linuxfoundation.org>
@@ -54,47 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohan McLure <rmclure@linux.ibm.com>
+From: Edward Humes <aurxenon@lunos.org>
 
-[ Upstream commit 2a7ce82dc46c591c9244057d89a6591c9639b9b9 ]
+[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
 
-In order for KCSAN to increase its likelihood of observing a data race,
-it sets a watchpoint on memory accesses and stalls, allowing for
-detection of conflicting accesses by other kernel threads or interrupts.
+Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
+modules.
 
-Stalls are implemented by injecting a call to udelay in instrumented code.
-To prevent recursive instrumentation, exclude udelay from being instrumented.
+This was because the Alpha's apply_relocate_add was relying on the kernel's
+module loader to have sorted the GOT towards the very end of the module as it
+was mapped into memory in order to correctly assign the global pointer. While
+this behavior would mostly work fine for small kernel modules, this approach
+would overflow on kernel modules with large GOT's since the global pointer
+would be very far away from the GOT, and thus, certain entries would be out of
+range.
 
-Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230206021801.105268-3-rmclure@linux.ibm.com
+This patch fixes this by instead using the Tru64 behavior of assigning the
+global pointer to be 32KB away from the start of the GOT. The change made
+in this patch won't work for multi-GOT kernel modules as it makes the
+assumption the module only has one GOT located at the beginning of .got,
+although for the vast majority kernel modules, this should be fine. Of the
+kernel modules that would previously result in a relocation error, none of
+them, even modules like nouveau, have even come close to filling up a single
+GOT, and they've all worked fine under this patch.
+
+Signed-off-by: Edward Humes <aurxenon@lunos.org>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/alpha/kernel/module.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index e26eb6618ae5d..9d8665910350c 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -356,7 +356,7 @@ void vtime_flush(struct task_struct *tsk)
- }
- #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
+diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
+index 5b60c248de9ea..cbefa5a773846 100644
+--- a/arch/alpha/kernel/module.c
++++ b/arch/alpha/kernel/module.c
+@@ -146,10 +146,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
+ 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
+ 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
  
--void __delay(unsigned long loops)
-+void __no_kcsan __delay(unsigned long loops)
- {
- 	unsigned long start;
+-	/* The small sections were sorted to the end of the segment.
+-	   The following should definitely cover them.  */
+-	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
+ 	got = sechdrs[me->arch.gotsecindex].sh_addr;
++	gp = got + 0x8000;
  
-@@ -377,7 +377,7 @@ void __delay(unsigned long loops)
- }
- EXPORT_SYMBOL(__delay);
- 
--void udelay(unsigned long usecs)
-+void __no_kcsan udelay(unsigned long usecs)
- {
- 	__delay(tb_ticks_per_usec * usecs);
- }
+ 	for (i = 0; i < n; i++) {
+ 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
 -- 
 2.39.2
 
