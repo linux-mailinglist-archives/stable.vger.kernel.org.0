@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDFA6BB2E0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 225086BB06E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232936AbjCOMj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52584 "EHLO
+        id S232034AbjCOMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232939AbjCOMjC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:39:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B86A17FB
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:01 -0700 (PDT)
+        with ESMTP id S232056AbjCOMR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFF28B321
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B456861D69
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8570C433D2;
-        Wed, 15 Mar 2023 12:37:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0763161ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A89FC4331D;
+        Wed, 15 Mar 2023 12:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883876;
-        bh=cxfNO5jL8rwzFPT19kSnl/uSJTcgxDcdqu4VNqcNuaM=;
+        s=korg; t=1678882675;
+        bh=4kTsIwueTSgRPB/AFJahT6yK3JEXtmH6kz+px2rXK5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ky6Z0iZMM6i7iP8lkhiK3p01RjOiw6ml74OR7mnGTPs2PDDcNas8qJuQ188jFtO6C
-         pPVbjo6cXkGjK53hjSuzU4LTi17TJLmQzP7wTpUzxqKQfNRGrqJ5WVC9uNSON6lTkM
-         2Ao8AcrPK7fBytl2na2NrUZpH5cl6axtVkHJ8qyg=
+        b=I3bjGIxtqFXPOmDnd+Wln3xuudGio201Pnoge4+cRYE1AGWY99q6G2uXADTH8FWJR
+         fjx+RndnZO30CLgWKdiLZKQb3iWuVRImuw1suu453D6rSTbDWq3GCh1OXHEW/ujHbN
+         4JHf2feqnmvJ8dkEtG/+W6UfTBYjn+NYkc1v7BkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.2 021/141] ext4: fix RENAME_WHITEOUT handling for inline directories
+        patches@lists.linux.dev, Wayne Lin <waynelin@amd.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/68] drm/edid: Extract drm_mode_cea_vic()
 Date:   Wed, 15 Mar 2023 13:12:04 +0100
-Message-Id: <20230315115740.630544749@linuxfoundation.org>
+Message-Id: <20230315115726.498119715@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,88 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
+[ Upstream commit cfd6f8c3a94a96c003a8929b66d6d54181b9420d ]
 
-A significant number of xfstests can cause ext4 to log one or more
-warning messages when they are run on a test file system where the
-inline_data feature has been enabled.  An example:
+Extract the logic to compute the final CEA VIC to a small helper.
+We'll reorder it a bit to make future modifications more
+straightforward. No function changes.
 
-"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
- #16385: comm fsstress: No space for directory leaf checksum. Please
-run e2fsck -D."
-
-The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
-070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
-589, 626, 631, and 650.
-
-In this situation, the warning message indicates a bug in the code that
-performs the RENAME_WHITEOUT operation on a directory entry that has
-been stored inline.  It doesn't detect that the directory is stored
-inline, and incorrectly attempts to compute a dirent block checksum on
-the whiteout inode when creating it.  This attempt fails as a result
-of the integrity checking in get_dirent_tail (usually due to a failure
-to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
-is then emitted.
-
-Fix this by simply collecting the inlined data state at the time the
-search for the source directory entry is performed.  Existing code
-handles the rest, and this is sufficient to eliminate all spurious
-warning messages produced by the tests above.  Go one step further
-and do the same in the code that resets the source directory entry in
-the event of failure.  The inlined state should be present in the
-"old" struct, but given the possibility of a race there's no harm
-in taking a conservative approach and getting that information again
-since the directory entry is being reread anyway.
-
-Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
-Cc: stable@kernel.org
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Wayne Lin <waynelin@amd.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191004141914.20600-2-ville.syrjala@linux.intel.com
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Stable-dep-of: 1cbc1f0d324b ("drm/edid: fix AVI infoframe aspect ratio handling")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 53 +++++++++++++++++++++-----------------
+ 1 file changed, 30 insertions(+), 23 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1595,11 +1595,10 @@ static struct buffer_head *__ext4_find_e
- 		int has_inline_data = 1;
- 		ret = ext4_find_inline_entry(dir, fname, res_dir,
- 					     &has_inline_data);
--		if (has_inline_data) {
--			if (inlined)
--				*inlined = 1;
-+		if (inlined)
-+			*inlined = has_inline_data;
-+		if (has_inline_data)
- 			goto cleanup_and_exit;
--		}
- 	}
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index 2dc6dd6230d76..10eb78b9347e1 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5065,6 +5065,35 @@ drm_hdmi_infoframe_set_hdr_metadata(struct hdmi_drm_infoframe *frame,
+ }
+ EXPORT_SYMBOL(drm_hdmi_infoframe_set_hdr_metadata);
  
- 	if ((namelen <= 2) && (name[0] == '.') &&
-@@ -3646,7 +3645,8 @@ static void ext4_resetent(handle_t *hand
- 	 * so the old->de may no longer valid and need to find it again
- 	 * before reset old inode info.
- 	 */
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		retval = PTR_ERR(old.bh);
- 	if (!old.bh)
-@@ -3813,7 +3813,8 @@ static int ext4_rename(struct user_names
- 			return retval;
- 	}
++static u8 drm_mode_cea_vic(struct drm_connector *connector,
++			   const struct drm_display_mode *mode)
++{
++	u8 vendor_if_vic = drm_match_hdmi_mode(mode);
++	bool is_s3d = mode->flags & DRM_MODE_FLAG_3D_MASK;
++	u8 vic;
++
++	/*
++	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
++	 * we should send its VIC in vendor infoframes, else send the
++	 * VIC in AVI infoframes. Lets check if this mode is present in
++	 * HDMI 1.4b 4K modes
++	 */
++	if (drm_valid_hdmi_vic(vendor_if_vic) && !is_s3d)
++		return 0;
++
++	vic = drm_match_cea_mode(mode);
++
++	/*
++	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
++	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
++	 * have to make sure we dont break HDMI 1.4 sinks.
++	 */
++	if (!is_hdmi2_sink(connector) && vic > 64)
++		return 0;
++
++	return vic;
++}
++
+ /**
+  * drm_hdmi_avi_infoframe_from_display_mode() - fill an HDMI AVI infoframe with
+  *                                              data from a DRM display mode
+@@ -5092,29 +5121,7 @@ drm_hdmi_avi_infoframe_from_display_mode(struct hdmi_avi_infoframe *frame,
+ 	if (mode->flags & DRM_MODE_FLAG_DBLCLK)
+ 		frame->pixel_repeat = 1;
  
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		return PTR_ERR(old.bh);
- 	/*
+-	frame->video_code = drm_match_cea_mode(mode);
+-
+-	/*
+-	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
+-	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
+-	 * have to make sure we dont break HDMI 1.4 sinks.
+-	 */
+-	if (!is_hdmi2_sink(connector) && frame->video_code > 64)
+-		frame->video_code = 0;
+-
+-	/*
+-	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
+-	 * we should send its VIC in vendor infoframes, else send the
+-	 * VIC in AVI infoframes. Lets check if this mode is present in
+-	 * HDMI 1.4b 4K modes
+-	 */
+-	if (frame->video_code) {
+-		u8 vendor_if_vic = drm_match_hdmi_mode(mode);
+-		bool is_s3d = mode->flags & DRM_MODE_FLAG_3D_MASK;
+-
+-		if (drm_valid_hdmi_vic(vendor_if_vic) && !is_s3d)
+-			frame->video_code = 0;
+-	}
++	frame->video_code = drm_mode_cea_vic(connector, mode);
+ 
+ 	frame->picture_aspect = HDMI_PICTURE_ASPECT_NONE;
+ 
+-- 
+2.39.2
+
 
 
