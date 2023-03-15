@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0499E6BB332
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2463D6BB1D3
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbjCOMmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
+        id S232531AbjCOMbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbjCOMl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB67DA0B29
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:47 -0700 (PDT)
+        with ESMTP id S232525AbjCOMaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D53E9E319
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E577EB81E17
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA25C433D2;
-        Wed, 15 Mar 2023 12:40:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE28261CC2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F9FC433D2;
+        Wed, 15 Mar 2023 12:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884044;
-        bh=wzG/d1uqZsRC5ni15sAttM6C+zyO0wtwPZoI2vQ6e4g=;
+        s=korg; t=1678883379;
+        bh=yBdfyn5nOnxEPBgiukEqv9eTSbVvU2JgPuc2MNVNOVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIDEA5YoXl13iL0lCRN6jrPdfVMq+Uv3+TI3N7W5IlP7RWsTImn3Ao4QjsvoCLX4S
-         Gf6A+sg7rNyqCzaZ+7UBAsD45pUBBjXP+DGHV5fOkMXf3T9VSFbTZ5Cu4PSbNHrbXu
-         jGUnOSsJwnZqJXBnsmG/jhUj2h1uPzhyr2B64HOM=
+        b=Au64awAcRl/cyfYC3QMeJoA9hr2ttPs7PagHzEKLhR6NET7U4Hatr/8j/GuQMCpan
+         TwiRXoTSSl850jngJ7C28ruPKrvDPXTn2rzGioh+qFaZImfNMpfLyjsM0FD30Vm/+z
+         BCv1AhaXgx3PxZXgx8xXBe5IFNeHL4ggzUGuFbx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 085/141] btrfs: fix extent map logging bit not cleared for split maps after dropping range
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.15 122/145] sched/fair: Consider capacity inversion in util_fits_cpu()
 Date:   Wed, 15 Mar 2023 13:13:08 +0100
-Message-Id: <20230315115742.566634206@linuxfoundation.org>
+Message-Id: <20230315115742.994493454@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit e4cc1483f35940c9288c332dd275f6fad485f8d2 ]
+commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8 upstream.
 
-At btrfs_drop_extent_map_range() we are clearing the EXTENT_FLAG_LOGGING
-bit on a 'flags' variable that was not initialized. This makes static
-checkers complain about it, so initialize the 'flags' variable before
-clearing the bit.
+We do consider thermal pressure in util_fits_cpu() for uclamp_min only.
+With the exception of the biggest cores which by definition are the max
+performance point of the system and all tasks by definition should fit.
 
-In practice this has no consequences, because EXTENT_FLAG_LOGGING should
-not be set when btrfs_drop_extent_map_range() is called, as an fsync locks
-the inode in exclusive mode, locks the inode's mmap semaphore in exclusive
-mode too and it always flushes all delalloc.
+Even under thermal pressure, the capacity of the biggest CPU is the
+highest in the system and should still fit every task. Except when it
+reaches capacity inversion point, then this is no longer true.
 
-Also add a comment about why we clear EXTENT_FLAG_LOGGING on a copy of the
-flags of the split extent map.
+We can handle this by using the inverted capacity as capacity_orig in
+util_fits_cpu(). Which not only addresses the problem above, but also
+ensure uclamp_max now considers the inverted capacity. Force fitting
+a task when a CPU is in this adverse state will contribute to making the
+thermal throttling last longer.
 
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/Y%2FyipSVozUDEZKow@kili/
-Fixes: db21370bffbc ("btrfs: drop extent map range more efficiently")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-10-qais.yousef@arm.com
+(cherry picked from commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_map.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/extent_map.c b/fs/btrfs/extent_map.c
-index be94030e1dfbf..138afa955370b 100644
---- a/fs/btrfs/extent_map.c
-+++ b/fs/btrfs/extent_map.c
-@@ -763,7 +763,13 @@ void btrfs_drop_extent_map_range(struct btrfs_inode *inode, u64 start, u64 end,
- 			goto next;
- 		}
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4159,12 +4159,16 @@ static inline int util_fits_cpu(unsigned
+ 	 * For uclamp_max, we can tolerate a drop in performance level as the
+ 	 * goal is to cap the task. So it's okay if it's getting less.
+ 	 *
+-	 * In case of capacity inversion, which is not handled yet, we should
+-	 * honour the inverted capacity for both uclamp_min and uclamp_max all
+-	 * the time.
++	 * In case of capacity inversion we should honour the inverted capacity
++	 * for both uclamp_min and uclamp_max all the time.
+ 	 */
+-	capacity_orig = capacity_orig_of(cpu);
+-	capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
++	capacity_orig = cpu_in_capacity_inversion(cpu);
++	if (capacity_orig) {
++		capacity_orig_thermal = capacity_orig;
++	} else {
++		capacity_orig = capacity_orig_of(cpu);
++		capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
++	}
  
-+		flags = em->flags;
- 		clear_bit(EXTENT_FLAG_PINNED, &em->flags);
-+		/*
-+		 * In case we split the extent map, we want to preserve the
-+		 * EXTENT_FLAG_LOGGING flag on our extent map, but we don't want
-+		 * it on the new extent maps.
-+		 */
- 		clear_bit(EXTENT_FLAG_LOGGING, &flags);
- 		modified = !list_empty(&em->list);
- 
-@@ -774,7 +780,6 @@ void btrfs_drop_extent_map_range(struct btrfs_inode *inode, u64 start, u64 end,
- 		if (em->start >= start && em_end <= end)
- 			goto remove_em;
- 
--		flags = em->flags;
- 		gen = em->generation;
- 		compressed = test_bit(EXTENT_FLAG_COMPRESSED, &em->flags);
- 
--- 
-2.39.2
-
+ 	/*
+ 	 * We want to force a task to fit a cpu as implied by uclamp_max.
 
 
