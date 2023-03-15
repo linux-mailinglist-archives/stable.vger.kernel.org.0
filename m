@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D19C46BB0A8
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E77EA6BB286
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232235AbjCOMU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:20:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
+        id S232853AbjCOMhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:37:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232023AbjCOMTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45008227A2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:43 -0700 (PDT)
+        with ESMTP id S232786AbjCOMgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97AB85F533
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 682D4B81DFE
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6231C433EF;
-        Wed, 15 Mar 2023 12:19:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63F39B81DF6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A699DC433D2;
+        Wed, 15 Mar 2023 12:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882780;
-        bh=rhxdufBm4e5kulz1JA4K+9qV2V4DEANXj5Xbx4cjepw=;
+        s=korg; t=1678883690;
+        bh=antuB6L9KrJcuWe21ZYhS/b3KfcIv5vb6TNMo7U+SHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UotgbFyTS5+tT1dYpTP0Q7vjC+O7v4Dxy94KXL7d0MtvU5A7KHjxsSx/s1CXvahB+
-         LlpO/Jx7SJt8CeFxJ1Lqytm3FIrpv+XY03wIMTL7Zy8bqtONgQ1kmJ89fYaTzYKFl2
-         jISBSp6wNgToNPEitESQsULdRIdd2VNY5ZvWvr/o=
+        b=m+h5cELocNmJF2zy7xCAyvfReFbzMIZqY9TV3QJ4xy0JONmR8MN/ezBnJVRliOzbL
+         j6ozJ5t3W7Dv+OP1u+hERVKNs6xts7KQIeL4Vhs0ozjroK5mIsLiNRKcXRDYw1P4wI
+         fooD4lXrFXn7sOTufjz6BFtP3fS8y0C40o6lRs0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, SeongJae Park <sj@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 67/68] UML: define RUNTIME_DISCARD_EXIT
+        patches@lists.linux.dev,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 095/143] net: ethernet: mtk_eth_soc: fix RX data corruption issue
 Date:   Wed, 15 Mar 2023 13:13:01 +0100
-Message-Id: <20230315115728.732890091@linuxfoundation.org>
+Message-Id: <20230315115743.402445063@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,40 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Daniel Golle <daniel@makrotopia.org>
 
-commit b99ddbe8336ee680257c8ab479f75051eaa49dcf upstream.
+[ Upstream commit 193250ace270fecd586dd2d0dfbd9cbd2ade977f ]
 
-With CONFIG_VIRTIO_UML=y, GNU ld < 2.36 fails to link UML vmlinux
-(w/wo CONFIG_LD_SCRIPT_STATIC).
+Fix data corruption issue with SerDes connected PHYs operating at 1.25
+Gbps speed where we could previously observe about 30% packet loss while
+the bad packet counter was increasing.
 
-  `.exit.text' referenced in section `.uml.exitcall.exit' of arch/um/drivers/virtio_uml.o: defined in discarded section `.exit.text' of arch/um/drivers/virtio_uml.o
-  collect2: error: ld returned 1 exit status
+As almost all boards with MediaTek MT7622 or MT7986 use either the MT7531
+switch IC operating at 3.125Gbps SerDes rate or single-port PHYs using
+rate-adaptation to 2500Base-X mode, this issue only got exposed now when
+we started trying to use SFP modules operating with 1.25 Gbps with the
+BananaPi R3 board.
 
-This fix is similar to the following commits:
+The fix is to set bit 12 which disables the RX FIFO clear function when
+setting up MAC MCR, MediaTek SDK did the same change stating:
+"If without this patch, kernel might receive invalid packets that are
+corrupted by GMAC."[1]
 
-- 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT")
-- a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
-  with GNU ld < 2.36")
-- c1c551bebf92 ("sh: define RUNTIME_DISCARD_EXIT")
+[1]: https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/d8a2975939a12686c4a95c40db21efdc3f821f63
 
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Reported-by: SeongJae Park <sj@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: SeongJae Park <sj@kernel.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 42c03844e93d ("net-next: mediatek: add support for MediaTek MT7622 SoC")
+Tested-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/138da2735f92c8b6f8578ec2e5a794ee515b665f.1677937317.git.daniel@makrotopia.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/vmlinux.lds.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 3 ++-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/um/kernel/vmlinux.lds.S
-+++ b/arch/um/kernel/vmlinux.lds.S
-@@ -1,4 +1,4 @@
--
-+#define RUNTIME_DISCARD_EXIT
- KERNEL_STACK_SIZE = 4096 * (1 << CONFIG_KERNEL_STACK_ORDER);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 53ee9dea66388..49975924e2426 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -561,7 +561,8 @@ static int mtk_mac_finish(struct phylink_config *config, unsigned int mode,
+ 	mcr_cur = mtk_r32(mac->hw, MTK_MAC_MCR(mac->id));
+ 	mcr_new = mcr_cur;
+ 	mcr_new |= MAC_MCR_IPG_CFG | MAC_MCR_FORCE_MODE |
+-		   MAC_MCR_BACKOFF_EN | MAC_MCR_BACKPR_EN | MAC_MCR_FORCE_LINK;
++		   MAC_MCR_BACKOFF_EN | MAC_MCR_BACKPR_EN | MAC_MCR_FORCE_LINK |
++		   MAC_MCR_RX_FIFO_CLR_DIS;
  
- #ifdef CONFIG_LD_SCRIPT_STATIC
+ 	/* Only update control register when needed! */
+ 	if (mcr_new != mcr_cur)
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 306fdc2c608a4..dafa9a0baa58c 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -357,6 +357,7 @@
+ #define MAC_MCR_FORCE_MODE	BIT(15)
+ #define MAC_MCR_TX_EN		BIT(14)
+ #define MAC_MCR_RX_EN		BIT(13)
++#define MAC_MCR_RX_FIFO_CLR_DIS	BIT(12)
+ #define MAC_MCR_BACKOFF_EN	BIT(9)
+ #define MAC_MCR_BACKPR_EN	BIT(8)
+ #define MAC_MCR_FORCE_RX_FC	BIT(5)
+-- 
+2.39.2
+
 
 
