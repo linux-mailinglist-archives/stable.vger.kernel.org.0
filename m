@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89CB16BB10B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D2F6BB08E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232404AbjCOMYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46270 "EHLO
+        id S232115AbjCOMTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbjCOMX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:58 -0400
+        with ESMTP id S232113AbjCOMTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DB57389B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DFE8FBD2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E47861ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30A09C433D2;
-        Wed, 15 Mar 2023 12:22:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0D1D61D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BCBC433D2;
+        Wed, 15 Mar 2023 12:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882956;
-        bh=VEJO0mu4Zr9obcBgVJ7JwhAuXNYrzStk8jsF/f6LWcc=;
+        s=korg; t=1678882733;
+        bh=bDDW9gsfaUdAJg4qrj3nyR2IPpvl6zV1sux66osBRkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbTDtawXj/sDhiPNjbdt7IXiSvZGTj3xkJESMD+o+U5Hvc8E6Y/VeGTL1T7wx+IEM
-         G3XAmL8GEajw3L3l+Y7WBLr+fanVp1wtO+ahR7RyV3/NXsaTQqpjYFlLcEb2iEWNK4
-         Vu279bplJk7f/GPywVP3lrHnqzleAquPLXMc+dZc=
+        b=jxiUvgir6Rkc4fuyuw9xMtaX8t6yGi8CaqZMq34eeJYbzfXyo/QWAzJVv3/Y0JCFE
+         P5m5gzJRS0JcoYJM83mxE/yfXIqODdx277aek9SBOIx5c55g5cV85l7+vJhUcMc+fJ
+         FgLgDrobBzfMw73ViRskJ0k0FKqM9kV4DxRYfB10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 5.10 065/104] block, bfq: fix uaf for bfqq in bic_set_bfqq()
+        patches@lists.linux.dev,
+        "sjur.brandeland@stericsson.com" <sjur.brandeland@stericsson.com>,
+        syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 42/68] net: caif: Fix use-after-free in cfusbl_device_notify()
 Date:   Wed, 15 Mar 2023 13:12:36 +0100
-Message-Id: <20230315115734.670453825@linuxfoundation.org>
+Message-Id: <20230315115727.764286638@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit b600de2d7d3a16f9007fad1bdae82a3951a26af2 ]
+[ Upstream commit 9781e98a97110f5e76999058368b4be76a788484 ]
 
-After commit 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'"),
-bic->bfqq will be accessed in bic_set_bfqq(), however, in some context
-bic->bfqq will be freed, and bic_set_bfqq() is called with the freed
-bic->bfqq.
+syzbot reported use-after-free in cfusbl_device_notify() [1].  This
+causes a stack trace like below:
 
-Fix the problem by always freeing bfqq after bic_set_bfqq().
+BUG: KASAN: use-after-free in cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
+Read of size 8 at addr ffff88807ac4e6f0 by task kworker/u4:6/1214
 
-Fixes: 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'")
-Reported-and-tested-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230130014136.591038-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+CPU: 0 PID: 1214 Comm: kworker/u4:6 Not tainted 5.19.0-rc3-syzkaller-00146-g92f20ff72066 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
+ print_report mm/kasan/report.c:429 [inline]
+ kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
+ cfusbl_device_notify+0x7c9/0x870 net/caif/caif_usb.c:138
+ notifier_call_chain+0xb5/0x200 kernel/notifier.c:87
+ call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1945
+ call_netdevice_notifiers_extack net/core/dev.c:1983 [inline]
+ call_netdevice_notifiers net/core/dev.c:1997 [inline]
+ netdev_wait_allrefs_any net/core/dev.c:10227 [inline]
+ netdev_run_todo+0xbc0/0x10f0 net/core/dev.c:10341
+ default_device_exit_batch+0x44e/0x590 net/core/dev.c:11334
+ ops_exit_list+0x125/0x170 net/core/net_namespace.c:167
+ cleanup_net+0x4ea/0xb00 net/core/net_namespace.c:594
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+ </TASK>
+
+When unregistering a net device, unregister_netdevice_many_notify()
+sets the device's reg_state to NETREG_UNREGISTERING, calls notifiers
+with NETDEV_UNREGISTER, and adds the device to the todo list.
+
+Later on, devices in the todo list are processed by netdev_run_todo().
+netdev_run_todo() waits devices' reference count become 1 while
+rebdoadcasting NETDEV_UNREGISTER notification.
+
+When cfusbl_device_notify() is called with NETDEV_UNREGISTER multiple
+times, the parent device might be freed.  This could cause UAF.
+Processing NETDEV_UNREGISTER multiple times also causes inbalance of
+reference count for the module.
+
+This patch fixes the issue by accepting only first NETDEV_UNREGISTER
+notification.
+
+Fixes: 7ad65bf68d70 ("caif: Add support for CAIF over CDC NCM USB interface")
+CC: sjur.brandeland@stericsson.com <sjur.brandeland@stericsson.com>
+Reported-by: syzbot+b563d33852b893653a9e@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=c3bfd8e2450adab3bffe4d80821fbbced600407f [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Link: https://lore.kernel.org/r/20230301163913.391304-1-syoshida@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-cgroup.c  | 2 +-
- block/bfq-iosched.c | 4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/caif/caif_usb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index 2f440b79183d3..1f9ccc661d574 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -748,8 +748,8 @@ static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
- 				 * request from the old cgroup.
- 				 */
- 				bfq_put_cooperator(sync_bfqq);
--				bfq_release_process_ref(bfqd, sync_bfqq);
- 				bic_set_bfqq(bic, NULL, true);
-+				bfq_release_process_ref(bfqd, sync_bfqq);
- 			}
- 		}
- 	}
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 016d7f32af9f1..6687b805bab3b 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5070,9 +5070,11 @@ static void bfq_check_ioprio_change(struct bfq_io_cq *bic, struct bio *bio)
+diff --git a/net/caif/caif_usb.c b/net/caif/caif_usb.c
+index 46c62dd1479b8..862226be22868 100644
+--- a/net/caif/caif_usb.c
++++ b/net/caif/caif_usb.c
+@@ -134,6 +134,9 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
+ 	struct usb_device *usbdev;
+ 	int res;
  
- 	bfqq = bic_to_bfqq(bic, false);
- 	if (bfqq) {
--		bfq_release_process_ref(bfqd, bfqq);
-+		struct bfq_queue *old_bfqq = bfqq;
++	if (what == NETDEV_UNREGISTER && dev->reg_state >= NETREG_UNREGISTERED)
++		return 0;
 +
- 		bfqq = bfq_get_queue(bfqd, bio, false, bic);
- 		bic_set_bfqq(bic, bfqq, false);
-+		bfq_release_process_ref(bfqd, old_bfqq);
- 	}
- 
- 	bfqq = bic_to_bfqq(bic, true);
+ 	/* Check whether we have a NCM device, and find its VID/PID. */
+ 	if (!(dev->dev.parent && dev->dev.parent->driver &&
+ 	      strcmp(dev->dev.parent->driver->name, "cdc_ncm") == 0))
 -- 
 2.39.2
 
