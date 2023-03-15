@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 158026BB02F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C3DF6BB1C3
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229974AbjCOMQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:16:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38928 "EHLO
+        id S232596AbjCOMa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231428AbjCOMP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B7E7F017
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:57 -0700 (PDT)
+        with ESMTP id S232735AbjCOMaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338729DE1F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0BC761D48
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1183DC433D2;
-        Wed, 15 Mar 2023 12:15:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EAF2B81E00
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC06C4339B;
+        Wed, 15 Mar 2023 12:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882556;
-        bh=othGfl9WeYZBaUSTdRDj1qsQ3+nTqmOWnOWtidNc+vM=;
+        s=korg; t=1678883342;
+        bh=vt3ByGGSCYlj0xr5Xz7hltlJxUUVLkLnmYrJGLFFpnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7UVl3rZlL4C4jfdCQ1w1+nw1Xpe+nFMo3WVFvcrkGznlVHuIROwqjfHb/9z2FknB
-         X1pbAgyLJ0EL9ZghXSRvSyJdsTn2hqQXS29lynDqFxa9VHiWx3dC4m15gMmC/QOkn3
-         IMVCYzPtZ4IxRLsZgq8+noxvulitq2YWHKICN2SM=
+        b=bNgT1Q3WuQZ7BQQZY252uHOo83nqdldXlwQOzh1zFwjyuKCkSG37x4t5IsYwhTMfl
+         CO0yCHhlTT815TikiZFjEP/AkbAAx7hbzbdMt+NK83HLgjwt5f2dkY37o4vICuuFL8
+         iSUW34Y0W3s1AkAmHxBGabHHm9wagcSvxJZ2SDgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/39] udf: Explain handling of load_nls() failure
+Subject: [PATCH 5.15 077/145] af_unix: Remove unnecessary brackets around CONFIG_AF_UNIX_OOB.
 Date:   Wed, 15 Mar 2023 13:12:23 +0100
-Message-Id: <20230315115721.595124167@linuxfoundation.org>
+Message-Id: <20230315115741.547777892@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit a768a9abc625d554f7b6428517089c193fcb5962 ]
+[ Upstream commit 4edf21aa94ee33c75f819f2b6eb6dd52ef8a1628 ]
 
-Add comment explaining that load_nls() failure gets handled back in
-udf_fill_super() to avoid false impression that it is unhandled.
+Let's remove unnecessary brackets around CONFIG_AF_UNIX_OOB.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Stable-dep-of: fc8033a34a3c ("udf: Preserve link count of system files")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Link: https://lore.kernel.org/r/20220317032308.65372-1-kuniyu@amazon.co.jp
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Stable-dep-of: 2aab4b969002 ("af_unix: fix struct pid leaks in OOB support")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/unix/af_unix.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index b7fb7cd35d89a..5d179616578cf 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -572,6 +572,11 @@ static int udf_parse_options(char *options, struct udf_options *uopt,
- 			if (!remount) {
- 				if (uopt->nls_map)
- 					unload_nls(uopt->nls_map);
-+				/*
-+				 * load_nls() failure is handled later in
-+				 * udf_fill_super() after all options are
-+				 * parsed.
-+				 */
- 				uopt->nls_map = load_nls(args[0].from);
- 				uopt->flags |= (1 << UDF_FLAG_NLS_MAP);
- 			}
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 0a59a00cb5815..32ddf8fe32c69 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -1969,7 +1969,7 @@ static int unix_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+  */
+ #define UNIX_SKB_FRAGS_SZ (PAGE_SIZE << get_order(32768))
+ 
+-#if (IS_ENABLED(CONFIG_AF_UNIX_OOB))
++#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+ static int queue_oob(struct socket *sock, struct msghdr *msg, struct sock *other)
+ {
+ 	struct unix_sock *ousk = unix_sk(other);
+@@ -2035,7 +2035,7 @@ static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
+ 
+ 	err = -EOPNOTSUPP;
+ 	if (msg->msg_flags & MSG_OOB) {
+-#if (IS_ENABLED(CONFIG_AF_UNIX_OOB))
++#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+ 		if (len)
+ 			len--;
+ 		else
+@@ -2106,7 +2106,7 @@ static int unix_stream_sendmsg(struct socket *sock, struct msghdr *msg,
+ 		sent += size;
+ 	}
+ 
+-#if (IS_ENABLED(CONFIG_AF_UNIX_OOB))
++#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
+ 	if (msg->msg_flags & MSG_OOB) {
+ 		err = queue_oob(sock, msg, other);
+ 		if (err)
 -- 
 2.39.2
 
