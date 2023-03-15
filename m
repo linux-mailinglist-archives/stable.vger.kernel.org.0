@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9CB36BB36F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3736A6BB2BB
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233129AbjCOMof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36812 "EHLO
+        id S232789AbjCOMiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233130AbjCOMoR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:17 -0400
+        with ESMTP id S232861AbjCOMh4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4969A5927
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B236A18B7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A461C61CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC92AC433EF;
-        Wed, 15 Mar 2023 12:42:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 885F66128D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959F5C433D2;
+        Wed, 15 Mar 2023 12:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884147;
-        bh=d7+kc+gWXq5ZyIrrqwOoh9kM+3TAzAMMcA49QzJ/0RI=;
+        s=korg; t=1678883815;
+        bh=jez07NPNbeloQ0W4CNLmkdHmbG+SEt7LRb7joAVLHUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huDYAUmocw2w0JxMHEaqWN/Z5LMFxlPufY2/cr6bAoEv8zaZTPWULPzgwVjZ9B1uW
-         Mv6//7/bz12/DDvKvW1Z5lL/r7ErHn7AcEV8PxXuvKxgiTSFP+H3mLTc+c22CexoZh
-         bSYLiko7UoeZw72aLQ5TeFqjWqgl+JoJi79MKCsw=
+        b=1Zzu+SarQuvSncAGc9Kztn1BCUm7qqd5YRpz20xzPQqiaIE6TgS9we7ksA6RRRgCs
+         pd00AtqZ757RvCbd9653ndKMJK+vDqwobbqQQuqEl/o43fOkjjMPE0zunFlYMS2YHv
+         MPRKuOLcBu7/n5CvVCkiyI2WjY4OQ+nBf48A+/WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 124/141] powerpc: Remove __kernel_text_address() in show_instructions()
+        "Seth Forshee (DigitalOcean)" <sforshee@kernel.org>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>
+Subject: [PATCH 6.1 141/143] filelocks: use mount idmapping for setlease permission check
 Date:   Wed, 15 Mar 2023 13:13:47 +0100
-Message-Id: <20230315115743.770086211@linuxfoundation.org>
+Message-Id: <20230315115744.919936821@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Seth Forshee <sforshee@kernel.org>
 
-[ Upstream commit d9ab6da64fd15608c9feb20d769d8df1a32fe212 ]
+commit 42d0c4bdf753063b6eec55415003184d3ca24f6e upstream.
 
-That test was introducted in 2006 by
-commit 00ae36de49cc ("[POWERPC] Better check in show_instructions").
-At that time, there was no BPF progs.
+A user should be allowed to take out a lease via an idmapped mount if
+the fsuid matches the mapped uid of the inode. generic_setlease() is
+checking the unmapped inode uid, causing these operations to be denied.
 
-As seen in message of commit 89d21e259a94 ("powerpc/bpf/32: Fix Oops
-on tail call tests"), when a page fault occurs in test_bpf.ko for
-instance, the code is dumped as XXXXXXXXs. Allthough
-__kernel_text_address() checks is_bpf_text_address(), it seems it is
-not enough.
+Fix this by comparing against the mapped inode uid instead of the
+unmapped uid.
 
-Today, show_instructions() uses get_kernel_nofault() to read the code,
-so there is no real need for additional verifications.
-
-ARM64 and x86 don't do any additional check before dumping
-instructions. Do the same and remove __kernel_text_address()
-in show_instructions().
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4fd69ef7945518c3e27f96b95046a5c1468d35bf.1675245773.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9caccd41541a ("fs: introduce MOUNT_ATTR_IDMAP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Seth Forshee (DigitalOcean) <sforshee@kernel.org>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/process.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/locks.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index c22cc234672f9..effe9697905dc 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -1405,8 +1405,7 @@ static void show_instructions(struct pt_regs *regs)
- 	for (i = 0; i < NR_INSN_TO_PRINT; i++) {
- 		int instr;
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -1862,9 +1862,10 @@ int generic_setlease(struct file *filp,
+ 			void **priv)
+ {
+ 	struct inode *inode = locks_inode(filp);
++	vfsuid_t vfsuid = i_uid_into_vfsuid(file_mnt_user_ns(filp), inode);
+ 	int error;
  
--		if (!__kernel_text_address(pc) ||
--		    get_kernel_nofault(instr, (const void *)pc)) {
-+		if (get_kernel_nofault(instr, (const void *)pc)) {
- 			pr_cont("XXXXXXXX ");
- 		} else {
- 			if (nip == pc)
--- 
-2.39.2
-
+-	if ((!uid_eq(current_fsuid(), inode->i_uid)) && !capable(CAP_LEASE))
++	if ((!vfsuid_eq_kuid(vfsuid, current_fsuid())) && !capable(CAP_LEASE))
+ 		return -EACCES;
+ 	if (!S_ISREG(inode->i_mode))
+ 		return -EINVAL;
 
 
