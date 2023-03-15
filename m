@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C8E6BB13A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 341C96BB278
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232406AbjCOMZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
+        id S232848AbjCOMga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232409AbjCOMZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3838B303
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:34 -0700 (PDT)
+        with ESMTP id S232664AbjCOMgI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1C9D8EA09
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6E94B81E04
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6DCC433D2;
-        Wed, 15 Mar 2023 12:23:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9CF561D78
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC592C433EF;
+        Wed, 15 Mar 2023 12:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883040;
-        bh=R4MN49f155TioWtNHt/MnyrxvGq4lKdgbq4h84Uv6B4=;
+        s=korg; t=1678883711;
+        bh=Hj+XlBTIjGwPR8kKUgh8MRzNjjR262C/o9btYzaCeT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUQvpdeAQmpmX0n6R1bvu1SDZOhxcBwHvkZZDsDls85OmH3eK/+SaMBsTh8u2kyZf
-         pAERDc+8DLfV0khqvfc3uvr5MobSnQ1vKfolvbexTzM1DackxdNkMFEE7ZlQuMiHRL
-         yFo7L0N9KwJhUIFpyIBMdeJP98c/lfRlZR44ijTQ=
+        b=LtGZ8vWKxYOXeBeVD9DUK/NE7CecX4T9AAcStGcGdP6Oe71PIaT1TFXW9PyeKNL8O
+         +tK/nEB7JA0uUmD9zkG2q9ScuFRzc3T9240ojeWHZZAY7CqyDye3mGTSkHSYef8Rmx
+         1lGajgEoLpcsNuK2bQ9OvmHd1i2UMGJaHsjYFQ2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.10 097/104] powerpc/vmlinux.lds: Dont discard .rela* for relocatable builds
+        patches@lists.linux.dev,
+        syzbot+2bcc0d79e548c4f62a59@syzkaller.appspotmail.com,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 102/143] block: fix wrong mode for blkdev_put() from disk_scan_partitions()
 Date:   Wed, 15 Mar 2023 13:13:08 +0100
-Message-Id: <20230315115736.115786272@linuxfoundation.org>
+Message-Id: <20230315115743.603682735@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 07b050f9290ee012a407a0f64151db902a1520f5 upstream.
+[ Upstream commit 428913bce1e67ccb4dae317fd0332545bf8c9233 ]
 
-Relocatable kernels must not discard relocations, they need to be
-processed at runtime. As such they are included for CONFIG_RELOCATABLE
-builds in the powerpc linker script (line 340).
+If disk_scan_partitions() is called with 'FMODE_EXCL',
+blkdev_get_by_dev() will be called without 'FMODE_EXCL', however, follow
+blkdev_put() is still called with 'FMODE_EXCL', which will cause
+'bd_holders' counter to leak.
 
-However they are also unconditionally discarded later in the
-script (line 414). Previously that worked because the earlier inclusion
-superseded the discard.
+Fix the problem by using the right mode for blkdev_put().
 
-However commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and
-riscv") introduced an earlier use of DISCARD as part of the RO_DATA
-macro (line 137). With binutils < 2.36 that causes the DISCARD
-directives later in the script to be applied earlier, causing .rela* to
-actually be discarded at link time, leading to build warnings and a
-kernel that doesn't boot:
-
-  ld: warning: discarding dynamic section .rela.init.rodata
-
-Fix it by conditionally discarding .rela* only when CONFIG_RELOCATABLE
-is disabled.
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-
-Link: https://lore.kernel.org/r/20230105132349.384666-2-mpe@ellerman.id.au
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+2bcc0d79e548c4f62a59@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/lkml/f9649d501bc8c3444769418f6c26263555d9d3be.camel@linux.ibm.com/T/
+Tested-by: Julian Ruess <julianr@linux.ibm.com>
+Fixes: e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/vmlinux.lds.S |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ block/genhd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -379,9 +379,12 @@ SECTIONS
- 	DISCARDS
- 	/DISCARD/ : {
- 		*(*.EMB.apuinfo)
--		*(.glink .iplt .plt .rela* .comment)
-+		*(.glink .iplt .plt .comment)
- 		*(.gnu.version*)
- 		*(.gnu.attributes)
- 		*(.eh_frame)
-+#ifndef CONFIG_RELOCATABLE
-+		*(.rela*)
-+#endif
- 	}
- }
+diff --git a/block/genhd.c b/block/genhd.c
+index 85ae755913e9e..0b6928e948f31 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -385,7 +385,7 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
+ 	if (IS_ERR(bdev))
+ 		ret =  PTR_ERR(bdev);
+ 	else
+-		blkdev_put(bdev, mode);
++		blkdev_put(bdev, mode & ~FMODE_EXCL);
+ 
+ 	if (!(mode & FMODE_EXCL))
+ 		bd_abort_claiming(disk->part0, disk_scan_partitions);
+-- 
+2.39.2
+
 
 
