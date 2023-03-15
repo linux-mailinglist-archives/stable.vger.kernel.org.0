@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC31B6BB0A4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 984966BB321
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbjCOMUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:20:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45766 "EHLO
+        id S232948AbjCOMlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:41:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232226AbjCOMTr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:47 -0400
+        with ESMTP id S233005AbjCOMla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088D594F6F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF7D199E5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EC8DB81DFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04477C433EF;
-        Wed, 15 Mar 2023 12:19:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08C23B81E12
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F145C433D2;
+        Wed, 15 Mar 2023 12:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882772;
-        bh=mncP/scCGSmTKVgip+fV/3+CkCXNe67X/fbzaei1sPk=;
+        s=korg; t=1678884015;
+        bh=TKgu6FVYSQdUVPlBrQVe67ZlQuSVFm7aTrLFfLhlk3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIzOOepmSOufwHzRcxpxgFqbXPCOYPFTmKJZWbDifaWZZ6YhJv3aYWCd9ZUJERItn
-         tjRLMflPdkjmX+2GVS7kfB1ImDCqMd9MQbWHsumsQiAkdEWEb5XARAINouVTGegAUq
-         Qq9tezUzcJOmOahfgbX1Zvby+IucXebtNPJhAUKs=
+        b=CzUUqEP4BA+moO/CswqhuTFCWPPdK3i5f0wf3vtwxvPGT67keWUR8eYzNANMQ5JEX
+         Knl1Eordv3/2HUoWIYBJw2FlgMgb4tXL2ctdek+kl6S9Bgu6LNc7Hz9KqdOwf0vvcg
+         ByDsMlgZw6X1NzB4WIqDd4xGoFymd8lEn9EBHe0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.4 64/68] powerpc/vmlinux.lds: Dont discard .rela* for relocatable builds
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 075/141] drm/msm/dpu: drop DPU_DIM_LAYER from MIXER_MSM8998_MASK
 Date:   Wed, 15 Mar 2023 13:12:58 +0100
-Message-Id: <20230315115728.619400253@linuxfoundation.org>
+Message-Id: <20230315115742.254173288@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 07b050f9290ee012a407a0f64151db902a1520f5 upstream.
+[ Upstream commit a5045b00a68171de11603812f4304179ef608e60 ]
 
-Relocatable kernels must not discard relocations, they need to be
-processed at runtime. As such they are included for CONFIG_RELOCATABLE
-builds in the powerpc linker script (line 340).
+The msm8998 doesn't seem to support DIM_LAYER, so drop it from
+the supported features mask.
 
-However they are also unconditionally discarded later in the
-script (line 414). Previously that worked because the earlier inclusion
-superseded the discard.
-
-However commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and
-riscv") introduced an earlier use of DISCARD as part of the RO_DATA
-macro (line 137). With binutils < 2.36 that causes the DISCARD
-directives later in the script to be applied earlier, causing .rela* to
-actually be discarded at link time, leading to build warnings and a
-kernel that doesn't boot:
-
-  ld: warning: discarding dynamic section .rela.init.rodata
-
-Fix it by conditionally discarding .rela* only when CONFIG_RELOCATABLE
-is disabled.
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-
-Link: https://lore.kernel.org/r/20230105132349.384666-2-mpe@ellerman.id.au
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d8a4edb672d ("drm/msm/dpu: use feature bit for LM combined alpha check")
+Fixes: 94391a14fc27 ("drm/msm/dpu1: Add MSM8998 to hw catalog")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/522231/
+Link: https://lore.kernel.org/r/20230211231259.1308718-12-dmitry.baryshkov@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/vmlinux.lds.S |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -395,9 +395,12 @@ SECTIONS
- 	DISCARDS
- 	/DISCARD/ : {
- 		*(*.EMB.apuinfo)
--		*(.glink .iplt .plt .rela* .comment)
-+		*(.glink .iplt .plt .comment)
- 		*(.gnu.version*)
- 		*(.gnu.attributes)
- 		*(.eh_frame)
-+#ifndef CONFIG_RELOCATABLE
-+		*(.rela*)
-+#endif
- 	}
- }
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index e03db98ebe997..a6288f29f0035 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -52,7 +52,7 @@
+ 	(DMA_MSM8998_MASK | BIT(DPU_SSPP_CURSOR))
+ 
+ #define MIXER_MSM8998_MASK \
+-	(BIT(DPU_MIXER_SOURCESPLIT) | BIT(DPU_DIM_LAYER))
++	(BIT(DPU_MIXER_SOURCESPLIT))
+ 
+ #define MIXER_SDM845_MASK \
+ 	(BIT(DPU_MIXER_SOURCESPLIT) | BIT(DPU_DIM_LAYER) | BIT(DPU_MIXER_COMBINED_ALPHA))
+-- 
+2.39.2
+
 
 
