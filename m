@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 908B16BB0CA
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:21:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E504F6BB160
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbjCOMVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45156 "EHLO
+        id S232169AbjCOM04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232282AbjCOMU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:57 -0400
+        with ESMTP id S232208AbjCOM0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74FF395E06
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:20:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D679B984
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4E91B81DFE
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D63C4339B;
-        Wed, 15 Mar 2023 12:20:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5C06B81DFF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C641C433EF;
+        Wed, 15 Mar 2023 12:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882819;
-        bh=dN1Ejiyh8Q4bmtoYx3dODQLYe/u93IdHdfmpScb9Oo0=;
+        s=korg; t=1678883145;
+        bh=YCaXQSHiK/uRjonLu3ZR09pYSWFIdjlAbzfrWJxkeY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QzQNSMHoPI0MvbtIHnGm8QhQ0sx6DwemhzIgxyXaxjgfC4ZlETgXhyZnJWgXhqfxj
-         sHTqAdn9q2J6xeDTon310peOSQACYihpcctN/ZM1Npyn8G4L4Pl2DsSddpIkurVqbE
-         zX2OsDXNdZ6d2wKM/RV2u9PMW034V6CAESO/cOHo=
+        b=sPphHsjkHpflKuEZ2XqWKL6yxzPvKvoo7f0dZyDnGmXeL/4om9otYuq/6yEr7rNqn
+         9QO18N1FsfbcE9Fsrndd6n8ypCu9Wm1aHNJ6nTbjRbX/MIojY41XCxyThnjQ6i7DMn
+         LEnqnxrRSanwPUlSqrcQmZky2IpEgzIhpCDambTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 006/104] ext4: fix cgroup writeback accounting with fs-layer encryption
-Date:   Wed, 15 Mar 2023 13:11:37 +0100
-Message-Id: <20230315115732.251239755@linuxfoundation.org>
+        patches@lists.linux.dev, Luis Chamberlain <mcgrof@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 032/145] block/brd: add error handling support for add_disk()
+Date:   Wed, 15 Mar 2023 13:11:38 +0100
+Message-Id: <20230315115740.106826747@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-commit ffec85d53d0f39ee4680a2cf0795255e000e1feb upstream.
+[ Upstream commit e1528830bd4ebf435d91c154e309e6e028336210 ]
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), ext4 encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+We never checked for errors on add_disk() as this function
+returned void. Now that this is fixed, use the shiny new
+error handling.
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
-
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
-
-Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20230203005503.141557-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20211015235219.2191207-2-mcgrof@kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 67205f80be99 ("brd: mark as nowait compatible")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/page-io.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/block/brd.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -416,7 +416,8 @@ static void io_submit_init_bio(struct ex
+diff --git a/drivers/block/brd.c b/drivers/block/brd.c
+index 2427b2261e516..63ac5cd523408 100644
+--- a/drivers/block/brd.c
++++ b/drivers/block/brd.c
+@@ -370,6 +370,7 @@ static int brd_alloc(int i)
+ 	struct brd_device *brd;
+ 	struct gendisk *disk;
+ 	char buf[DISK_NAME_LEN];
++	int err = -ENOMEM;
  
- static void io_submit_add_bh(struct ext4_io_submit *io,
- 			     struct inode *inode,
--			     struct page *page,
-+			     struct page *pagecache_page,
-+			     struct page *bounce_page,
- 			     struct buffer_head *bh)
- {
- 	int ret;
-@@ -430,10 +431,11 @@ submit_and_retry:
- 		io_submit_init_bio(io, bh);
- 		io->io_bio->bi_write_hint = inode->i_write_hint;
- 	}
--	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
-+	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
-+			   bh->b_size, bh_offset(bh));
- 	if (ret != bh->b_size)
- 		goto submit_and_retry;
--	wbc_account_cgroup_owner(io->io_wbc, page, bh->b_size);
-+	wbc_account_cgroup_owner(io->io_wbc, pagecache_page, bh->b_size);
- 	io->io_next_block++;
+ 	mutex_lock(&brd_devices_mutex);
+ 	list_for_each_entry(brd, &brd_devices, brd_list) {
+@@ -420,16 +421,20 @@ static int brd_alloc(int i)
+ 	/* Tell the block layer that this is not a rotational device */
+ 	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
+ 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
+-	add_disk(disk);
++	err = add_disk(disk);
++	if (err)
++		goto out_cleanup_disk;
+ 
+ 	return 0;
+ 
++out_cleanup_disk:
++	blk_cleanup_disk(disk);
+ out_free_dev:
+ 	mutex_lock(&brd_devices_mutex);
+ 	list_del(&brd->brd_list);
+ 	mutex_unlock(&brd_devices_mutex);
+ 	kfree(brd);
+-	return -ENOMEM;
++	return err;
  }
  
-@@ -551,8 +553,7 @@ int ext4_bio_write_page(struct ext4_io_s
- 	do {
- 		if (!buffer_async_write(bh))
- 			continue;
--		io_submit_add_bh(io, inode,
--				 bounce_page ? bounce_page : page, bh);
-+		io_submit_add_bh(io, inode, page, bounce_page, bh);
- 		nr_submitted++;
- 		clear_buffer_dirty(bh);
- 	} while ((bh = bh->b_this_page) != head);
+ static void brd_probe(dev_t dev)
+-- 
+2.39.2
+
 
 
