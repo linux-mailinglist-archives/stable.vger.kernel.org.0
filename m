@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8891D6BB30B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC4A6BB1AE
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbjCOMlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37996 "EHLO
+        id S232461AbjCOM3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232949AbjCOMkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5ADA3BD9A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:41 -0700 (PDT)
+        with ESMTP id S232553AbjCOM3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9D7166C6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEF1661D82
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1815C433D2;
-        Wed, 15 Mar 2023 12:39:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAB6BB81E00
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34717C433D2;
+        Wed, 15 Mar 2023 12:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883963;
-        bh=u66U3m65PJqVDS28/79g2IDAVlH3OBmhN84cHiMjyqk=;
+        s=korg; t=1678883300;
+        bh=92e9dHxn22zbUSK8ZG2qA8biG4qOOWsoLRusaWXZ5Io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKbLbNqPixhXbxV0aCcA2CRSWd1nUpXajnFIS0v87ZaUgBdbUNdUu7n+Vye6Q+uQU
-         IOl4YUSSyK9cX/La4MxmptKAE6ZoPdhkvYv1BTlUb5XZsneoCAAoPAwhpUy/Stc3Qb
-         7mlprR4wpL282MioXAj3tGGDWgLWFv+LFSV1TgzA=
+        b=PokB5zSf/s//L21EsQIiHsAywr6GN4GCUYB73d2zf36g+PvUPJxe2B4v4H6qpHgpV
+         U9gRbP9weYqZyqaD9GDcNxbRCHQaOpX2/4oSvhbawVXf0OAx/zkJENg6Jfl8EcTXA0
+         PIwXY1GbKr6AKuAwTjC2RF1BCclPcniRGd1ymytk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 054/141] powerpc: dts: t1040rdb: fix compatible string for Rev A boards
+Subject: [PATCH 5.15 091/145] staging: rtl8723bs: Fix key-store index handling
 Date:   Wed, 15 Mar 2023 13:12:37 +0100
-Message-Id: <20230315115741.609431823@linuxfoundation.org>
+Message-Id: <20230315115741.967207173@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +53,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit ae44f1c9d1fc54aeceb335fedb1e73b2c3ee4561 ]
+[ Upstream commit 05cbcc415c9b8c8bc4f9a09f8e03610a89042f03 ]
 
-It looks like U-Boot fails to start the kernel properly when the
-compatible string of the board isn't fsl,T1040RDB, so stop overriding it
-from the rev-a.dts.
+There are 2 issues with the key-store index handling
 
-Fixes: 5ebb74749202 ("powerpc: dts: t1040rdb: fix ports names for Seville Ethernet switch")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+1. The non WEP key stores can store keys with indexes 0 - BIP_MAX_KEYID,
+   this means that they should be an array with BIP_MAX_KEYID + 1
+   entries. But some of the arrays where just BIP_MAX_KEYID entries
+   big. While one other array was hardcoded to a size of 6 entries,
+   instead of using the BIP_MAX_KEYID define.
+
+2. The rtw_cfg80211_set_encryption() and wpa_set_encryption() functions
+   index check where checking that the passed in key-index would fit
+   inside both the WEP key store (which only has 4 entries) as well as
+   in the non WEP key stores. This breaks any attempts to set non WEP
+   keys with index 4 or 5.
+
+Issue 2. specifically breaks wifi connection with some access points
+which advertise PMF support. Without this fix connecting to these
+access points fails with the following wpa_supplicant messages:
+
+ nl80211: kernel reports: key addition failed
+ wlan0: WPA: Failed to configure IGTK to the driver
+ wlan0: RSN: Failed to configure IGTK
+ wlan0: CTRL-EVENT-DISCONNECTED bssid=... reason=1 locally_generated=1
+
+Fix 1. by using the right size for the key-stores. After this 2. can
+safely be fixed by checking the right max-index value depending on the
+used algorithm, fixing wifi not working with some PMF capable APs.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230306153512.162104-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts | 1 -
- 1 file changed, 1 deletion(-)
+ .../staging/rtl8723bs/include/rtw_security.h  |  8 ++---
+ .../staging/rtl8723bs/os_dep/ioctl_cfg80211.c | 26 ++++++++-------
+ .../staging/rtl8723bs/os_dep/ioctl_linux.c    | 33 ++++++++++---------
+ 3 files changed, 36 insertions(+), 31 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-index 73f8c998c64df..d4f5f159d6f23 100644
---- a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-+++ b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-@@ -10,7 +10,6 @@
+diff --git a/drivers/staging/rtl8723bs/include/rtw_security.h b/drivers/staging/rtl8723bs/include/rtw_security.h
+index a68b738584623..7587fa8885274 100644
+--- a/drivers/staging/rtl8723bs/include/rtw_security.h
++++ b/drivers/staging/rtl8723bs/include/rtw_security.h
+@@ -107,13 +107,13 @@ struct security_priv {
  
- / {
- 	model = "fsl,T1040RDB-REV-A";
--	compatible = "fsl,T1040RDB-REV-A";
- };
+ 	u32 dot118021XGrpPrivacy;	/*  This specify the privacy algthm. used for Grp key */
+ 	u32 dot118021XGrpKeyid;		/*  key id used for Grp Key (tx key index) */
+-	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID];	/*  802.1x Group Key, for inx0 and inx1 */
+-	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID];
+-	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID];
++	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID + 1];	/*  802.1x Group Key, for inx0 and inx1 */
++	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID + 1];
++	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID + 1];
+ 	union pn48		dot11Grptxpn;			/*  PN48 used for Grp Key xmit. */
+ 	union pn48		dot11Grprxpn;			/*  PN48 used for Grp Key recv. */
+ 	u32 dot11wBIPKeyid;						/*  key id used for BIP Key (tx key index) */
+-	union Keytype	dot11wBIPKey[6];		/*  BIP Key, for index4 and index5 */
++	union Keytype	dot11wBIPKey[BIP_MAX_KEYID + 1];	/*  BIP Key, for index4 and index5 */
+ 	union pn48		dot11wBIPtxpn;			/*  PN48 used for Grp Key xmit. */
+ 	union pn48		dot11wBIPrxpn;			/*  PN48 used for Grp Key recv. */
  
- &seville_port0 {
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+index b7a3f3df72723..b33424a9e83b7 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+@@ -711,6 +711,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
+ static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
+ {
+ 	int ret = 0;
++	u8 max_idx;
+ 	u32 wep_key_idx, wep_key_len;
+ 	struct adapter *padapter = rtw_netdev_priv(dev);
+ 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+@@ -724,26 +725,29 @@ static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param
+ 		goto exit;
+ 	}
+ 
+-	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
+-	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
+-	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
+-		if (param->u.crypt.idx >= WEP_KEYS
+-			|| param->u.crypt.idx >= BIP_MAX_KEYID) {
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+-	} else {
+-		{
++	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
++	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
++	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
+ 		ret = -EINVAL;
+ 		goto exit;
+ 	}
++
++	if (strcmp(param->u.crypt.alg, "WEP") == 0)
++		max_idx = WEP_KEYS - 1;
++	else
++		max_idx = BIP_MAX_KEYID;
++
++	if (param->u.crypt.idx > max_idx) {
++		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
++		ret = -EINVAL;
++		goto exit;
+ 	}
+ 
+ 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+ 		wep_key_idx = param->u.crypt.idx;
+ 		wep_key_len = param->u.crypt.key_len;
+ 
+-		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len <= 0)) {
++		if (wep_key_len <= 0) {
+ 			ret = -EINVAL;
+ 			goto exit;
+ 		}
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+index f23ab3e103455..0d2cb3e7ea4df 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -60,6 +60,7 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
+ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
+ {
+ 	int ret = 0;
++	u8 max_idx;
+ 	u32 wep_key_idx, wep_key_len, wep_total_len;
+ 	struct ndis_802_11_wep	 *pwep = NULL;
+ 	struct adapter *padapter = rtw_netdev_priv(dev);
+@@ -74,19 +75,22 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param,
+ 		goto exit;
+ 	}
+ 
+-	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
+-	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
+-	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
+-		if (param->u.crypt.idx >= WEP_KEYS ||
+-		    param->u.crypt.idx >= BIP_MAX_KEYID) {
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+-	} else {
+-		{
+-			ret = -EINVAL;
+-			goto exit;
+-		}
++	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
++	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
++	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
++		ret = -EINVAL;
++		goto exit;
++	}
++
++	if (strcmp(param->u.crypt.alg, "WEP") == 0)
++		max_idx = WEP_KEYS - 1;
++	else
++		max_idx = BIP_MAX_KEYID;
++
++	if (param->u.crypt.idx > max_idx) {
++		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
++		ret = -EINVAL;
++		goto exit;
+ 	}
+ 
+ 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+@@ -98,9 +102,6 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param,
+ 		wep_key_idx = param->u.crypt.idx;
+ 		wep_key_len = param->u.crypt.key_len;
+ 
+-		if (wep_key_idx > WEP_KEYS)
+-			return -EINVAL;
+-
+ 		if (wep_key_len > 0) {
+ 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
+ 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, key_material);
 -- 
 2.39.2
 
