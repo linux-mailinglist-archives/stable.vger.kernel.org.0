@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B86A6BB133
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E56376BB33D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232452AbjCOMZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57514 "EHLO
+        id S232861AbjCOMmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:42:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232419AbjCOMZP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:15 -0400
+        with ESMTP id S233070AbjCOMmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B89C99D45
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98289A54C7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0D6261CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E821EC4339C;
-        Wed, 15 Mar 2023 12:24:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 994A461D5E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB64EC433EF;
+        Wed, 15 Mar 2023 12:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883053;
-        bh=/FPtLfzfoRc/NvT4kuMLvLt47hT6DUMDV0R/4baSISE=;
+        s=korg; t=1678884055;
+        bh=ZVs9d8ueUDdw4dGcV/Uv3g9k05/GBljYERNgVpvUwTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZ/IPi7gTiU/hC12zxMFAvO2YXo5khqMpBsvu/WH8RaxXMmlYKTsvtZZxX0kNaVDN
-         0pJI6d8zR2lQ6riUoQsNFAggm14cFGNFlqbYz1SYwaD/1s9EW3hSf2Mpy9ws47ZngF
-         Dq6I3lNGr1Yf/w6/bCpG5rhtR1DP9rWDhB/RH8eM=
+        b=ZsXlhUYLFjiabsk3Q1O985tPyVWhPevUntuprTfFrYNNUTy/TiDqm4rQUlrDClXk8
+         +rZ9ho5TIsk7lAv+0D6ngRhTd6iXu02X8aRwjdvZTIoCfPvY39TbLa3iQt6+4Z3I4p
+         Pkww8m9TjUNTRjuxYYDYaF2WTFDggtJPTyjggksE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Alexandru Matei <alexandru.matei@uipath.com>
-Subject: [PATCH 5.10 101/104] KVM: nVMX: Dont use Enlightened MSR Bitmap for L3
+        patches@lists.linux.dev,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 089/141] net: ethernet: mtk_eth_soc: fix RX data corruption issue
 Date:   Wed, 15 Mar 2023 13:13:12 +0100
-Message-Id: <20230315115736.287969497@linuxfoundation.org>
+Message-Id: <20230315115742.696046680@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-commit 250552b925ce400c17d166422fde9bb215958481 upstream.
+[ Upstream commit 193250ace270fecd586dd2d0dfbd9cbd2ade977f ]
 
-When KVM runs as a nested hypervisor on top of Hyper-V it uses Enlightened
-VMCS and enables Enlightened MSR Bitmap feature for its L1s and L2s (which
-are actually L2s and L3s from Hyper-V's perspective). When MSR bitmap is
-updated, KVM has to reset HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP from
-clean fields to make Hyper-V aware of the change. For KVM's L1s, this is
-done in vmx_disable_intercept_for_msr()/vmx_enable_intercept_for_msr().
-MSR bitmap for L2 is build in nested_vmx_prepare_msr_bitmap() by blending
-MSR bitmap for L1 and L1's idea of MSR bitmap for L2. KVM, however, doesn't
-check if the resulting bitmap is different and never cleans
-HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP in eVMCS02. This is incorrect and
-may result in Hyper-V missing the update.
+Fix data corruption issue with SerDes connected PHYs operating at 1.25
+Gbps speed where we could previously observe about 30% packet loss while
+the bad packet counter was increasing.
 
-The issue could've been solved by calling evmcs_touch_msr_bitmap() for
-eVMCS02 from nested_vmx_prepare_msr_bitmap() unconditionally but doing so
-would not give any performance benefits (compared to not using Enlightened
-MSR Bitmap at all). 3-level nesting is also not a very common setup
-nowadays.
+As almost all boards with MediaTek MT7622 or MT7986 use either the MT7531
+switch IC operating at 3.125Gbps SerDes rate or single-port PHYs using
+rate-adaptation to 2500Base-X mode, this issue only got exposed now when
+we started trying to use SFP modules operating with 1.25 Gbps with the
+BananaPi R3 board.
 
-Don't enable 'Enlightened MSR Bitmap' feature for KVM's L2s (real L3s) for
-now.
+The fix is to set bit 12 which disables the RX FIFO clear function when
+setting up MAC MCR, MediaTek SDK did the same change stating:
+"If without this patch, kernel might receive invalid packets that are
+corrupted by GMAC."[1]
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20211129094704.326635-2-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1]: https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/d8a2975939a12686c4a95c40db21efdc3f821f63
+
+Fixes: 42c03844e93d ("net-next: mediatek: add support for MediaTek MT7622 SoC")
+Tested-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/138da2735f92c8b6f8578ec2e5a794ee515b665f.1677937317.git.daniel@makrotopia.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 3 ++-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2725,15 +2725,6 @@ int alloc_loaded_vmcs(struct loaded_vmcs
- 		if (!loaded_vmcs->msr_bitmap)
- 			goto out_vmcs;
- 		memset(loaded_vmcs->msr_bitmap, 0xff, PAGE_SIZE);
--
--		if (IS_ENABLED(CONFIG_HYPERV) &&
--		    static_branch_unlikely(&enable_evmcs) &&
--		    (ms_hyperv.nested_features & HV_X64_NESTED_MSR_BITMAP)) {
--			struct hv_enlightened_vmcs *evmcs =
--				(struct hv_enlightened_vmcs *)loaded_vmcs->vmcs;
--
--			evmcs->hv_enlightenments_control.msr_bitmap = 1;
--		}
- 	}
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index e3123723522e3..332329cb1ee00 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -566,7 +566,8 @@ static int mtk_mac_finish(struct phylink_config *config, unsigned int mode,
+ 	mcr_cur = mtk_r32(mac->hw, MTK_MAC_MCR(mac->id));
+ 	mcr_new = mcr_cur;
+ 	mcr_new |= MAC_MCR_IPG_CFG | MAC_MCR_FORCE_MODE |
+-		   MAC_MCR_BACKOFF_EN | MAC_MCR_BACKPR_EN | MAC_MCR_FORCE_LINK;
++		   MAC_MCR_BACKOFF_EN | MAC_MCR_BACKPR_EN | MAC_MCR_FORCE_LINK |
++		   MAC_MCR_RX_FIFO_CLR_DIS;
  
- 	memset(&loaded_vmcs->host_state, 0, sizeof(struct vmcs_host_state));
-@@ -7029,6 +7020,19 @@ static int vmx_create_vcpu(struct kvm_vc
- 	if (err < 0)
- 		goto free_pml;
- 
-+	/*
-+	 * Use Hyper-V 'Enlightened MSR Bitmap' feature when KVM runs as a
-+	 * nested (L1) hypervisor and Hyper-V in L0 supports it. Enable the
-+	 * feature only for vmcs01, KVM currently isn't equipped to realize any
-+	 * performance benefits from enabling it for vmcs02.
-+	 */
-+	if (IS_ENABLED(CONFIG_HYPERV) && static_branch_unlikely(&enable_evmcs) &&
-+	    (ms_hyperv.nested_features & HV_X64_NESTED_MSR_BITMAP)) {
-+		struct hv_enlightened_vmcs *evmcs = (void *)vmx->vmcs01.vmcs;
-+
-+		evmcs->hv_enlightenments_control.msr_bitmap = 1;
-+	}
-+
- 	/* The MSR bitmap starts with all ones */
- 	bitmap_fill(vmx->shadow_msr_intercept.read, MAX_POSSIBLE_PASSTHROUGH_MSRS);
- 	bitmap_fill(vmx->shadow_msr_intercept.write, MAX_POSSIBLE_PASSTHROUGH_MSRS);
+ 	/* Only update control register when needed! */
+ 	if (mcr_new != mcr_cur)
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 2d9186d32bc09..b481d0d46bb16 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -383,6 +383,7 @@
+ #define MAC_MCR_FORCE_MODE	BIT(15)
+ #define MAC_MCR_TX_EN		BIT(14)
+ #define MAC_MCR_RX_EN		BIT(13)
++#define MAC_MCR_RX_FIFO_CLR_DIS	BIT(12)
+ #define MAC_MCR_BACKOFF_EN	BIT(9)
+ #define MAC_MCR_BACKPR_EN	BIT(8)
+ #define MAC_MCR_FORCE_RX_FC	BIT(5)
+-- 
+2.39.2
+
 
 
