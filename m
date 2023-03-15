@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C85606BB0FC
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC646BB0FA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232058AbjCOMXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:23:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46190 "EHLO
+        id S232380AbjCOMXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232338AbjCOMXS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB6196092
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:20 -0700 (PDT)
+        with ESMTP id S232360AbjCOMXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9A78F533
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 871D5B81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03CDBC433EF;
-        Wed, 15 Mar 2023 12:22:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BFD361D58
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30701C433EF;
+        Wed, 15 Mar 2023 12:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882930;
-        bh=IjKDmlwL/9JvXm2JvnEC+xEDCkhuc99zzFIJpGcwaoc=;
+        s=korg; t=1678882935;
+        bh=inYC9qnisp8RpVaMzxsPTh24J+UVqxfBOvHYkfNYBY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCIAtC3aHsntR/b0yUOk+gMdnCF2/88wL4UxOpZRA8cTlBQiaWQbuw2eQHfN/b08v
-         677PT+BFjGvbn2w0qZOeTNwqOYO7Pf/Cd8CGRyhSGBaAJn919eYPjwAbqXDw3MKRh6
-         nTFFZmdnh0/u+0G1dJd6EInXNO1Ktdqsb2153eAU=
+        b=N1Zn4knP8itNvIu/8Uajvho4peorqisobcQMBeLN+oUYjiy3cwqNMQZsOJk5OFCyd
+         By6kAoRpQXUepZviM6ISPCYuoETKl0znqcIh5rW6qV+nZp74qhBH3TrQog0nabZj8n
+         aGKbG37zUNE9qxmATY2Y6USomVlXojr2s03+4Fms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+9d16c39efb5fade84574@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/104] ext4: Fix deadlock during directory rename
-Date:   Wed, 15 Mar 2023 13:12:27 +0100
-Message-Id: <20230315115734.324670722@linuxfoundation.org>
+        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 057/104] iommu/amd: Add a length limitation for the ivrs_acpihid command-line parameter
+Date:   Wed, 15 Mar 2023 13:12:28 +0100
+Message-Id: <20230315115734.372063991@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
 References: <20230315115731.942692602@linuxfoundation.org>
@@ -55,83 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
 
-[ Upstream commit 3c92792da8506a295afb6d032b4476e46f979725 ]
+[ Upstream commit b6b26d86c61c441144c72f842f7469bb686e1211 ]
 
-As lockdep properly warns, we should not be locking i_rwsem while having
-transactions started as the proper lock ordering used by all directory
-handling operations is i_rwsem -> transaction start. Fix the lock
-ordering by moving the locking of the directory earlier in
-ext4_rename().
+The 'acpiid' buffer in the parse_ivrs_acpihid function may overflow,
+because the string specifier in the format string sscanf()
+has no width limitation.
 
-Reported-by: syzbot+9d16c39efb5fade84574@syzkaller.appspotmail.com
-Fixes: 0813299c586b ("ext4: Fix possible corruption when moving a directory")
-Link: https://syzkaller.appspot.com/bug?extid=9d16c39efb5fade84574
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230301141004.15087-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Found by InfoTeCS on behalf of Linux Verification Center
+(linuxtesting.org) with SVACE.
+
+Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
+Reviewed-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lore.kernel.org/r/20230202082719.1513849-1-Ilia.Gavrilov@infotecs.ru
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ drivers/iommu/amd/init.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 17590bb769147..1f47aeca71422 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3863,10 +3863,20 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			return retval;
- 	}
- 
-+	/*
-+	 * We need to protect against old.inode directory getting converted
-+	 * from inline directory format into a normal one.
-+	 */
-+	if (S_ISDIR(old.inode->i_mode))
-+		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
-+
- 	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
- 				 &old.inlined);
--	if (IS_ERR(old.bh))
--		return PTR_ERR(old.bh);
-+	if (IS_ERR(old.bh)) {
-+		retval = PTR_ERR(old.bh);
-+		goto unlock_moved_dir;
-+	}
-+
- 	/*
- 	 *  Check for inode number is _not_ due to possible IO errors.
- 	 *  We might rmdir the source, keep it as pwd of some process
-@@ -3923,11 +3933,6 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
- 				goto end_rename;
- 		}
--		/*
--		 * We need to protect against old.inode directory getting
--		 * converted from inline directory format into a normal one.
--		 */
--		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
- 		retval = ext4_rename_dir_prepare(handle, &old);
- 		if (retval) {
- 			inode_unlock(old.inode);
-@@ -4057,12 +4062,15 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	} else {
- 		ext4_journal_stop(handle);
- 	}
--	if (old.dir_bh)
--		inode_unlock(old.inode);
- release_bh:
- 	brelse(old.dir_bh);
- 	brelse(old.bh);
- 	brelse(new.bh);
-+
-+unlock_moved_dir:
-+	if (S_ISDIR(old.inode->i_mode))
-+		inode_unlock(old.inode);
-+
- 	return retval;
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index ce822347f7470..603f625a74e54 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -3124,15 +3124,26 @@ static int __init parse_ivrs_hpet(char *str)
+ 	return 1;
  }
+ 
++#define ACPIID_LEN (ACPIHID_UID_LEN + ACPIHID_HID_LEN)
++
+ static int __init parse_ivrs_acpihid(char *str)
+ {
+ 	u32 seg = 0, bus, dev, fn;
+ 	char *hid, *uid, *p, *addr;
+-	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] = {0};
++	char acpiid[ACPIID_LEN] = {0};
+ 	int i;
+ 
+ 	addr = strchr(str, '@');
+ 	if (!addr) {
++		addr = strchr(str, '=');
++		if (!addr)
++			goto not_found;
++
++		++addr;
++
++		if (strlen(addr) > ACPIID_LEN)
++			goto not_found;
++
+ 		if (sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid) == 4 ||
+ 		    sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid) == 5) {
+ 			pr_warn("ivrs_acpihid%s option format deprecated; use ivrs_acpihid=%s@%04x:%02x:%02x.%d instead\n",
+@@ -3145,6 +3156,9 @@ static int __init parse_ivrs_acpihid(char *str)
+ 	/* We have the '@', make it the terminator to get just the acpiid */
+ 	*addr++ = 0;
+ 
++	if (strlen(str) > ACPIID_LEN + 1)
++		goto not_found;
++
+ 	if (sscanf(str, "=%s", acpiid) != 1)
+ 		goto not_found;
  
 -- 
 2.39.2
