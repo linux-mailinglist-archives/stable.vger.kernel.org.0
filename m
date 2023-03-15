@@ -2,52 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2EAB6BB1D9
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB0E6BB12F
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232625AbjCOMbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
+        id S232298AbjCOMZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbjCOMau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D03315CBD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:52 -0700 (PDT)
+        with ESMTP id S232329AbjCOMZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C978E99D6D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78E04B81DFA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0C3EC433D2;
-        Wed, 15 Mar 2023 12:29:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C956CB81DFF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0816AC4339B;
+        Wed, 15 Mar 2023 12:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883387;
-        bh=tYrpwRVSFQGB4hx/fIKwV3Yn6VpDvkmRrRwPxQiYFWI=;
+        s=korg; t=1678883045;
+        bh=17j1IuYxoghYGpS1B5DGIQJubZwkdi+SKKGet2h/y5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inYTtw5OYTU15WCZ2CeypPto1S9KCaH5m6knMHSkYSIuKy1vjnHdaasJVvt7SIzc2
-         x3x4YT3pffdqmQKkECH+O3s/7pZHCO+1Gj+5mAmbIpoA0fzawiYJ2PMFGX6iLWEeSp
-         J63ysUn9leZqCOl4iqDalmK4i4ySxa71rtXq1LM8=
+        b=f1oquJIqNRM4U1thnWyuqe64JQ4hFpDJSav5sZEPT4UwFPpHZfTQV1dxlyr+7Qh2v
+         HhzY5wQJc4mdtxsSxAPWgpwReguVVmt3Y9MDB1Tsc+/XxTn3dXfnVxaxqsaH/ugaiS
+         NRO/KpGb5nO7V+WGScv96lmaudr3Sjn5vVyY35pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Subject: [PATCH 5.15 124/145] sched/fair: Fixes for capacity inversion detection
+        patches@lists.linux.dev, Tom Saeger <tom.saeger@oracle.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Dennis Gilmore <dennis@ausil.us>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Rich Felker <dalias@libc.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 099/104] sh: define RUNTIME_DISCARD_EXIT
 Date:   Wed, 15 Mar 2023 13:13:10 +0100
-Message-Id: <20230315115743.053944198@linuxfoundation.org>
+Message-Id: <20230315115736.199278561@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,65 +63,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qyousef@layalina.io>
+From: Tom Saeger <tom.saeger@oracle.com>
 
-commit da07d2f9c153e457e845d4dcfdd13568d71d18a4 upstream.
+commit c1c551bebf928889e7a8fef7415b44f9a64975f4 upstream.
 
-Traversing the Perf Domains requires rcu_read_lock() to be held and is
-conditional on sched_energy_enabled(). Ensure right protections applied.
+sh vmlinux fails to link with GNU ld < 2.40 (likely < 2.36) since
+commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv").
 
-Also skip capacity inversion detection for our own pd; which was an
-error.
+This is similar to fixes for powerpc and s390:
+commit 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT").
+commit a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error
+with GNU ld < 2.36").
 
-Fixes: 44c7b80bffc3 ("sched/fair: Detect capacity inversion")
-Reported-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20230112122708.330667-3-qyousef@layalina.io
-(cherry picked from commit da07d2f9c153e457e845d4dcfdd13568d71d18a4)
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+  $ sh4-linux-gnu-ld --version | head -n1
+  GNU ld (GNU Binutils for Debian) 2.35.2
+
+  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu- microdev_defconfig
+  $ make ARCH=sh CROSS_COMPILE=sh4-linux-gnu-
+
+  `.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
+  defined in discarded section `.exit.text' of crypto/algboss.o
+  `.exit.text' referenced in section `__bug_table' of
+  drivers/char/hw_random/core.o: defined in discarded section
+  `.exit.text' of drivers/char/hw_random/core.o
+  make[2]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
+  make[1]: *** [Makefile:1252: vmlinux] Error 2
+
+arch/sh/kernel/vmlinux.lds.S keeps EXIT_TEXT:
+
+	/*
+	 * .exit.text is discarded at runtime, not link time, to deal with
+	 * references from __bug_table
+	 */
+	.exit.text : AT(ADDR(.exit.text)) { EXIT_TEXT }
+
+However, EXIT_TEXT is thrown away by
+DISCARD(include/asm-generic/vmlinux.lds.h) because
+sh does not define RUNTIME_DISCARD_EXIT.
+
+GNU ld 2.40 does not have this issue and builds fine.
+This corresponds with Masahiro's comments in a494398bde27:
+"Nathan [Chancellor] also found that binutils
+commit 21401fc7bf67 ("Duplicate output sections in scripts") cured this
+issue, so we cannot reproduce it with binutils 2.36+, but it is better
+to not rely on it."
+
+Link: https://lkml.kernel.org/r/9166a8abdc0f979e50377e61780a4bba1dfa2f52.1674518464.git.tom.saeger@oracle.com
+Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
+Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
+Link: https://lore.kernel.org/all/20230123194218.47ssfzhrpnv3xfez@oracle.com/
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Dennis Gilmore <dennis@ausil.us>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/sh/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -8605,16 +8605,23 @@ static void update_cpu_capacity(struct s
- 	 *   * Thermal pressure will impact all cpus in this perf domain
- 	 *     equally.
- 	 */
--	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
-+	if (sched_energy_enabled()) {
- 		unsigned long inv_cap = capacity_orig - thermal_load_avg(rq);
--		struct perf_domain *pd = rcu_dereference(rq->rd->pd);
-+		struct perf_domain *pd;
- 
-+		rcu_read_lock();
-+
-+		pd = rcu_dereference(rq->rd->pd);
- 		rq->cpu_capacity_inverted = 0;
- 
- 		for (; pd; pd = pd->next) {
- 			struct cpumask *pd_span = perf_domain_span(pd);
- 			unsigned long pd_cap_orig, pd_cap;
- 
-+			/* We can't be inverted against our own pd */
-+			if (cpumask_test_cpu(cpu_of(rq), pd_span))
-+				continue;
-+
- 			cpu = cpumask_any(pd_span);
- 			pd_cap_orig = arch_scale_cpu_capacity(cpu);
- 
-@@ -8639,6 +8646,8 @@ static void update_cpu_capacity(struct s
- 				break;
- 			}
- 		}
-+
-+		rcu_read_unlock();
- 	}
- 
- 	trace_sched_cpu_capacity_tp(rq);
+--- a/arch/sh/kernel/vmlinux.lds.S
++++ b/arch/sh/kernel/vmlinux.lds.S
+@@ -4,6 +4,7 @@
+  * Written by Niibe Yutaka and Paul Mundt
+  */
+ OUTPUT_ARCH(sh)
++#define RUNTIME_DISCARD_EXIT
+ #include <asm/thread_info.h>
+ #include <asm/cache.h>
+ #include <asm/vmlinux.lds.h>
 
 
