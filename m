@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 547EF6BB0B0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 017E06BB019
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232242AbjCOMUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
+        id S231397AbjCOMP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:15:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232155AbjCOMUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D00CD88DB5
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:56 -0700 (PDT)
+        with ESMTP id S231779AbjCOMPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C567FD51
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DBAFCCE19B7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D696BC433A1;
-        Wed, 15 Mar 2023 12:19:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC9B1B81DDA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F210C4339B;
+        Wed, 15 Mar 2023 12:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882793;
-        bh=MEWy9jYQtJUgVgdRBkx/fEha9fIERmdhTAgWins58QM=;
+        s=korg; t=1678882506;
+        bh=MU5EXANTWSsAxrH9VDoE9T6jLGfx/q/yU3e3ldMitrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbeg1zozJjio5toJhuoKkXKDtfTb0qIfNu4GkaJl1FiFvg8JtKfOAeFUvHWGXQBIP
-         DeEyF+cjD2OHKyOluoaat+D6sACr+soqYzqV619iyyY2AuZdlaYFdfiPm9L2izG65/
-         59mZXjvtQO8zM2YyOeuxo3ADyBU/5KDN4JN1ifKw=
+        b=EhEx5Jxm2oNOuz5QaeV0MTq6w9e6yapWdR0rfzmzv9oOeDkqCGv8kaS/FG4QIRep3
+         DcgQEM0ExtbA4muL72kV5QU32arbCHSjgZtkdNkLUkQijXWVdJVBAfc43jYl2OxGHt
+         N5w2sbvcVIOa+glkMOY2aBrdyBakcmXXlihR3GHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
+        Jai Luthra <j-luthra@ti.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 47/68] net/smc: fix fallback failed while sendmsg with fastopen
+Subject: [PATCH 4.14 18/21] media: ov5640: Fix analogue gain control
 Date:   Wed, 15 Mar 2023 13:12:41 +0100
-Message-Id: <20230315115727.968416414@linuxfoundation.org>
+Message-Id: <20230315115719.517137420@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +58,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Paul Elder <paul.elder@ideasonboard.com>
 
-[ Upstream commit ce7ca794712f186da99719e8b4e97bd5ddbb04c3 ]
+[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
 
-Before determining whether the msg has unsupported options, it has been
-prematurely terminated by the wrong status check.
+Gain control is badly documented in publicly available (including
+leaked) documentation.
 
-For the application, the general usages of MSG_FASTOPEN likes
+There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
+(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
+one application note states is equal to x1.047. The documentation also
+states that 0x40 is equel to x1.000. The pre-gain thus seems to be
+expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
+What the pre-gain does is however unspecified.
 
-fd = socket(...)
-/* rather than connect */
-sendto(fd, data, len, MSG_FASTOPEN)
+There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
+expressed as a 10-bit "real gain format" value. One application note
+sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
+expressed in 1/16 increments, up to x63.9375.
 
-Hence, We need to check the flag before state check, because the sock
-state here is always SMC_INIT when applications tries MSG_FASTOPEN.
-Once we found unsupported options, fallback it to TCP.
+The manual gain is stored in registers 0x350a and 0x350b, also as a
+10-bit "real gain format" value. It is documented in the application
+note as a Q6.4 values, up to x63.9375.
 
-Fixes: ee9dfbef02d1 ("net/smc: handle sockopts forcing fallback")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
+One version of the datasheet indicates that the sensor supports a
+digital gain:
 
-v2 -> v1: Optimize code style
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
+  controlled automatically by the automatic gain control (AGC) block.
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It isn't clear how that would be controlled manually.
+
+There appears to be no indication regarding whether the gain controlled
+through registers 0x350a and 0x350b is an analogue gain only or also
+includes digital gain. The words "real gain" don't necessarily mean
+"combined analogue and digital gains". Some OmniVision sensors (such as
+the OV8858) are documented as supoprting different formats for the gain
+values, selectable through a register bit, and they are called "real
+gain format" and "sensor gain format". For that sensor, we have (one of)
+the gain registers documented as
+
+  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
+  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
+
+  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
+  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
+  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
+  0x70 is 4x gain
+
+(The second part of the text makes little sense)
+
+"Real gain" may thus refer to the combination of the coarse and fine
+analogue gains as a single value.
+
+The OV5640 0x350a and 0x350b registers thus appear to control analogue
+gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
+control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
+
+If registers 0x350a and 0x350b are later found to control digital gain
+as well, the driver could then restrict the range of the analogue gain
+control value to lower than x64 and add a separate digital gain control.
+
+Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
+Reviewed-by: Jai Luthra <j-luthra@ti.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/media/i2c/ov5640.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 5d696b7fb47e1..b398d72a7bc39 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1542,16 +1542,14 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = -EPIPE;
-+	int rc;
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index eb0331b8a5833..b78e35425d14f 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2002,7 +2002,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
+ 	/* Auto/manual gain */
+ 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
+ 					     0, 1, 1, 1);
+-	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
++	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
+ 					0, 1023, 1, 0);
  
- 	smc = smc_sk(sk);
- 	lock_sock(sk);
--	if ((sk->sk_state != SMC_ACTIVE) &&
--	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
--	    (sk->sk_state != SMC_INIT))
--		goto out;
- 
-+	/* SMC does not support connect with fastopen */
- 	if (msg->msg_flags & MSG_FASTOPEN) {
-+		/* not connected yet, fallback */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
- 			smc_switch_to_fallback(smc);
- 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
-@@ -1559,6 +1557,11 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 			rc = -EINVAL;
- 			goto out;
- 		}
-+	} else if ((sk->sk_state != SMC_ACTIVE) &&
-+		   (sk->sk_state != SMC_APPCLOSEWAIT1) &&
-+		   (sk->sk_state != SMC_INIT)) {
-+		rc = -EPIPE;
-+		goto out;
- 	}
- 
- 	if (smc->use_fallback)
+ 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
 -- 
 2.39.2
 
