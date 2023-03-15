@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 217CB6BB16A
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C246BB20C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232129AbjCOM1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57822 "EHLO
+        id S232677AbjCOMcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbjCOM0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:53 -0400
+        with ESMTP id S232553AbjCOMcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE0097B59
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E0ED5CC38
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C274E61D73
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9515C4339B;
-        Wed, 15 Mar 2023 12:25:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FDDE61D51
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE01FC433D2;
+        Wed, 15 Mar 2023 12:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883127;
-        bh=Edrase2a+V9ntO5dtbFDUhndC+P8208cBlG9RBWJynE=;
+        s=korg; t=1678883481;
+        bh=MvlwO+kpLZ3PLjCXt/aB6elSh1+UHr037w3YIsIEYhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koQnfU+16NdbcX3S3O0InsEctgWua9xe5UMcLREfGJRtLTgSFbfnMsrRCOD/koOon
-         kPRQ58gQ6fijMxmPhc4Unaqa37rpGyV483Xmnh6WK9ET2bvFY+cqoAs8Cf6giEVFEp
-         WjEC5VqDdfWk/c+5AvASSIMRXhdojfmfRJ9st/i8=
+        b=RG0wYVWILizH8JibYKiX/PWPwibsbiIxGk8aCTOKIaJESn1sTR6DZwRU5+/ExG8VX
+         HFbyxtZOmCA9pofKewg1czJQb+1Q+lhUCjXF969htGeGb4y3ci0+AunisUjSgosMKu
+         /uhUU+MsSN2bT2haDaPjZN/1m597xu0/e0HO11K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 025/145] f2fs: avoid down_write on nat_tree_lock during checkpoint
-Date:   Wed, 15 Mar 2023 13:11:31 +0100
-Message-Id: <20230315115739.868011504@linuxfoundation.org>
+        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 6.1 006/143] perf inject: Fix --buildid-all not to eat up MMAP2
+Date:   Wed, 15 Mar 2023 13:11:32 +0100
+Message-Id: <20230315115740.650858204@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 0df035c7208c5e3e2ae7685548353ae536a19015 ]
+commit ce9f1c05d2edfa6cdf2c1a510495d333e11810a8 upstream.
 
-Let's cache nat entry if there's no lock contention only.
+When MMAP2 has the PERF_RECORD_MISC_MMAP_BUILD_ID flag, it means the
+record already has the build-id info.  So it marks the DSO as hit, to
+skip if the same DSO is not processed if it happens to miss the build-id
+later.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Stable-dep-of: 3aa51c61cb4a ("f2fs: retry to update the inode page given data corruption")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But it missed to copy the MMAP2 record itself so it'd fail to symbolize
+samples for those regions.
+
+For example, the following generates 249 MMAP2 events.
+
+  $ perf record --buildid-mmap -o- true | perf report --stat -i- | grep MMAP2
+           MMAP2 events:        249  (86.8%)
+
+Adding perf inject should not change the number of events like this
+
+  $ perf record --buildid-mmap -o- true | perf inject -b | \
+  > perf report --stat -i- | grep MMAP2
+           MMAP2 events:        249  (86.5%)
+
+But when --buildid-all is used, it eats most of the MMAP2 events.
+
+  $ perf record --buildid-mmap -o- true | perf inject -b --buildid-all | \
+  > perf report --stat -i- | grep MMAP2
+           MMAP2 events:          1  ( 2.5%)
+
+With this patch, it shows the original number now.
+
+  $ perf record --buildid-mmap -o- true | perf inject -b --buildid-all | \
+  > perf report --stat -i- | grep MMAP2
+           MMAP2 events:        249  (86.5%)
+
+Committer testing:
+
+Before:
+
+  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b | perf report --stat -i- | grep MMAP2
+           MMAP2 events:         58  (36.2%)
+  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf report --stat -i- | grep MMAP2
+           MMAP2 events:         58  (36.2%)
+  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b --buildid-all | perf report --stat -i- | grep MMAP2
+           MMAP2 events:          2  ( 1.9%)
+  $
+
+After:
+
+  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b | perf report --stat -i- | grep MMAP2
+           MMAP2 events:         58  (29.3%)
+  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf report --stat -i- | grep MMAP2
+           MMAP2 events:         58  (34.3%)
+  $ perf record --buildid-mmap -o- perf stat --null sleep 1 2> /dev/null | perf inject -b --buildid-all | perf report --stat -i- | grep MMAP2
+           MMAP2 events:         58  (38.4%)
+  $
+
+Fixes: f7fc0d1c915a74ff ("perf inject: Do not inject BUILD_ID record if MMAP2 has it")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230223070155.54251-1-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/node.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/builtin-inject.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index f810c6bbeff02..7f00f3004a665 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -430,6 +430,10 @@ static void cache_nat_entry(struct f2fs_sb_info *sbi, nid_t nid,
- 	struct f2fs_nm_info *nm_i = NM_I(sbi);
- 	struct nat_entry *new, *e;
+--- a/tools/perf/builtin-inject.c
++++ b/tools/perf/builtin-inject.c
+@@ -538,6 +538,7 @@ static int perf_event__repipe_buildid_mm
+ 			dso->hit = 1;
+ 		}
+ 		dso__put(dso);
++		perf_event__repipe(tool, event, sample, machine);
+ 		return 0;
+ 	}
  
-+	/* Let's mitigate lock contention of nat_tree_lock during checkpoint */
-+	if (rwsem_is_locked(&sbi->cp_global_sem))
-+		return;
-+
- 	new = __alloc_nat_entry(sbi, nid, false);
- 	if (!new)
- 		return;
--- 
-2.39.2
-
 
 
