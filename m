@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D736BB2F1
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C5766BB218
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232985AbjCOMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:40:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
+        id S232683AbjCOMc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbjCOMkG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685A7A1FF6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:54 -0700 (PDT)
+        with ESMTP id S232644AbjCOMc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC558C81F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2442661D5C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DBFC4339B;
-        Wed, 15 Mar 2023 12:38:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75EA5B81DF6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E36E7C433D2;
+        Wed, 15 Mar 2023 12:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883915;
-        bh=Knfqm61g8WyM5794wDVLrz+z6TXvHv91vD9Au2PUBvg=;
+        s=korg; t=1678883507;
+        bh=pY5oKRL/60m1hFyGM31zA6AIXDpuAGgqf/QG1Ny+1ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fh3MazMCTRX9thSG2LvL8ROqMtuuwe+Kjr0fwZhW9OsZWSgpuepwF4KIMDjEIlavT
-         zHPZz25aR5DT07aGGRoEmGcOO9Xij8QZkGn9Aw1ZCK/XRahkZ7mYEi4UQDgoM/h2En
-         z2dG/ob8OK8oCfOeMqLu+lrA6A8+rG0uh4naogH4=
+        b=Rqe4azQsMtNbfkz5kxYShO0XRnsD6aU5HTXfBC5hkRU92VGrZXUeurtvyPcR/nkP5
+         M4DY1VJLnYAhT5SmFy/Stm6SeygBsb5OK4dgr2R8V172uNb0fFbFta57n2f9MVX/n/
+         2T6OXNrjzIJ5JGpYN1qxKsZND7s54tIsdndKcRoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrey Vagin <avagin@openvz.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH 6.2 008/141] fork: allow CLONE_NEWTIME in clone3 flags
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 025/143] nfc: change order inside nfc_se_io error path
 Date:   Wed, 15 Mar 2023 13:11:51 +0100
-Message-Id: <20230315115740.218293382@linuxfoundation.org>
+Message-Id: <20230315115741.268204990@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Klauser <tklauser@distanz.ch>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit a402f1e35313fc7ce2ca60f543c4402c2c7c3544 upstream.
+commit 7d834b4d1ab66c48e8c0810fdeadaabb80fa2c81 upstream.
 
-Currently, calling clone3() with CLONE_NEWTIME in clone_args->flags
-fails with -EINVAL. This is because CLONE_NEWTIME intersects with
-CSIGNAL. However, CSIGNAL was deprecated when clone3 was introduced in
-commit 7f192e3cd316 ("fork: add clone3"), allowing re-use of that part
-of clone flags.
+cb_context should be freed on the error path in nfc_se_io as stated by
+commit 25ff6f8a5a3b ("nfc: fix memory leak of se_io context in
+nfc_genl_se_io").
 
-Fix this by explicitly allowing CLONE_NEWTIME in clone3_args_valid. This
-is also in line with the respective check in check_unshare_flags which
-allow CLONE_NEWTIME for unshare().
+Make the error path in nfc_se_io unwind everything in reverse order, i.e.
+free the cb_context after unlocking the device.
 
-Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
-Cc: Andrey Vagin <avagin@openvz.org>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-Reviewed-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Suggested-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230306212650.230322-1-pchelkin@ispras.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/fork.c |    2 +-
+ net/nfc/netlink.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2933,7 +2933,7 @@ static bool clone3_args_valid(struct ker
- 	 * - make the CLONE_DETACHED bit reusable for clone3
- 	 * - make the CSIGNAL bits reusable for clone3
- 	 */
--	if (kargs->flags & (CLONE_DETACHED | CSIGNAL))
-+	if (kargs->flags & (CLONE_DETACHED | (CSIGNAL & (~CLONE_NEWTIME))))
- 		return false;
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1446,8 +1446,8 @@ static int nfc_se_io(struct nfc_dev *dev
+ 	return rc;
  
- 	if ((kargs->flags & (CLONE_SIGHAND | CLONE_CLEAR_SIGHAND)) ==
+ error:
+-	kfree(cb_context);
+ 	device_unlock(&dev->dev);
++	kfree(cb_context);
+ 	return rc;
+ }
+ 
 
 
