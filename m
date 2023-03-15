@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B73536BB273
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC98F6BB0B5
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232671AbjCOMg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52806 "EHLO
+        id S232220AbjCOMUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:20:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232659AbjCOMgF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0724B19119
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:09 -0700 (PDT)
+        with ESMTP id S232218AbjCOMUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C359545B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF2F8B81E12
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA25C433EF;
-        Wed, 15 Mar 2023 12:34:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 76D9ACE19BC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77483C433D2;
+        Wed, 15 Mar 2023 12:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883645;
-        bh=h6F3AO+gw8CEDw0Tz81sVuLvs2pUX9S03eJ7rnoNDWw=;
+        s=korg; t=1678882795;
+        bh=Rmn24IeoEUUG0BAMTmV4N8SxZIDPet96uodV+FIL+kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AP7JchqMAu/fBzKxRKUoz/f4jVCmKez/mlI1aaDCeEpf2qrMOUm3FFHRy0zInKjI1
-         lFOCXvndhz9Psqd2mAkvgdAfKE34L8Jm83GfgC8D3O+CovuSgSQU6im/MMAU/cJIHx
-         fKh3VSmFupR9NV9zSNZX30Zd7VzeSFC28kfAybPE=
+        b=D5urp6mhZfg76XM2AYRIDVHzUK9Ei4jdMjaYqjDyDq0eXnD5YTlrUl5eq0agUCtV5
+         5R8d1LOM3HonSq581rIVXehBKDtM3HRZQ/Jgt0Qw/5SpWvDVdvzb0sAQf+1n1N4Smr
+         vyohIyVcIoiYaqjok5c0gb0NdAvovpQSbh62OwhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Changbin Du <changbin.du@huawei.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hui Wang <hw.huiwang@huawei.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev,
+        Chathura Rajapaksha <chathura.abeyrathne.lk@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 076/143] perf stat: Fix counting when initial delay configured
+Subject: [PATCH 5.4 48/68] riscv: Use READ_ONCE_NOCHECK in imprecise unwinding stack mode
 Date:   Wed, 15 Mar 2023 13:12:42 +0100
-Message-Id: <20230315115742.854128278@linuxfoundation.org>
+Message-Id: <20230315115728.003298392@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,176 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@huawei.com>
+From: Alexandre Ghiti <alexghiti@rivosinc.com>
 
-[ Upstream commit 25f69c69bc3ca8c781a94473f28d443d745768e3 ]
+[ Upstream commit 76950340cf03b149412fe0d5f0810e52ac1df8cb ]
 
-When creating counters with initial delay configured, the enable_on_exec
-field is not set. So we need to enable the counters later. The problem
-is, when a workload is specified the target__none() is true. So we also
-need to check stat_config.initial_delay.
+When CONFIG_FRAME_POINTER is unset, the stack unwinding function
+walk_stackframe randomly reads the stack and then, when KASAN is enabled,
+it can lead to the following backtrace:
 
-In this change, we add a new field 'initial_delay' for struct target
-which could be shared by other subcommands. And define
-target__enable_on_exec() which returns whether enable_on_exec should be
-set on normal cases.
+[    0.000000] ==================================================================
+[    0.000000] BUG: KASAN: stack-out-of-bounds in walk_stackframe+0xa6/0x11a
+[    0.000000] Read of size 8 at addr ffffffff81807c40 by task swapper/0
+[    0.000000]
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 6.2.0-12919-g24203e6db61f #43
+[    0.000000] Hardware name: riscv-virtio,qemu (DT)
+[    0.000000] Call Trace:
+[    0.000000] [<ffffffff80007ba8>] walk_stackframe+0x0/0x11a
+[    0.000000] [<ffffffff80099ecc>] init_param_lock+0x26/0x2a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff80c49c80>] dump_stack_lvl+0x22/0x36
+[    0.000000] [<ffffffff80c3783e>] print_report+0x198/0x4a8
+[    0.000000] [<ffffffff80099ecc>] init_param_lock+0x26/0x2a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff8015f68a>] kasan_report+0x9a/0xc8
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff8006e99c>] desc_make_final+0x80/0x84
+[    0.000000] [<ffffffff8009a04e>] stack_trace_save+0x88/0xa6
+[    0.000000] [<ffffffff80099fc2>] filter_irq_stacks+0x72/0x76
+[    0.000000] [<ffffffff8006b95e>] devkmsg_read+0x32a/0x32e
+[    0.000000] [<ffffffff8015ec16>] kasan_save_stack+0x28/0x52
+[    0.000000] [<ffffffff8006e998>] desc_make_final+0x7c/0x84
+[    0.000000] [<ffffffff8009a04a>] stack_trace_save+0x84/0xa6
+[    0.000000] [<ffffffff8015ec52>] kasan_set_track+0x12/0x20
+[    0.000000] [<ffffffff8015f22e>] __kasan_slab_alloc+0x58/0x5e
+[    0.000000] [<ffffffff8015e7ea>] __kmem_cache_create+0x21e/0x39a
+[    0.000000] [<ffffffff80e133ac>] create_boot_cache+0x70/0x9c
+[    0.000000] [<ffffffff80e17ab2>] kmem_cache_init+0x6c/0x11e
+[    0.000000] [<ffffffff80e00fd6>] mm_init+0xd8/0xfe
+[    0.000000] [<ffffffff80e011d8>] start_kernel+0x190/0x3ca
+[    0.000000]
+[    0.000000] The buggy address belongs to stack of task swapper/0
+[    0.000000]  and is located at offset 0 in frame:
+[    0.000000]  stack_trace_save+0x0/0xa6
+[    0.000000]
+[    0.000000] This frame has 1 object:
+[    0.000000]  [32, 56) 'c'
+[    0.000000]
+[    0.000000] The buggy address belongs to the physical page:
+[    0.000000] page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x81a07
+[    0.000000] flags: 0x1000(reserved|zone=0)
+[    0.000000] raw: 0000000000001000 ff600003f1e3d150 ff600003f1e3d150 0000000000000000
+[    0.000000] raw: 0000000000000000 0000000000000000 00000001ffffffff
+[    0.000000] page dumped because: kasan: bad access detected
+[    0.000000]
+[    0.000000] Memory state around the buggy address:
+[    0.000000]  ffffffff81807b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000]  ffffffff81807b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000] >ffffffff81807c00: 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00 00 f3
+[    0.000000]                                            ^
+[    0.000000]  ffffffff81807c80: f3 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000]  ffffffff81807d00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000] ==================================================================
 
-Before this fix the event is not counted:
+Fix that by using READ_ONCE_NOCHECK when reading the stack in imprecise
+mode.
 
-  $ ./perf stat -e instructions -D 100 sleep 2
-  Events disabled
-  Events enabled
-
-   Performance counter stats for 'sleep 2':
-
-       <not counted>      instructions
-
-         1.901661124 seconds time elapsed
-
-         0.001602000 seconds user
-         0.000000000 seconds sys
-
-After fix it works:
-
-  $ ./perf stat -e instructions -D 100 sleep 2
-  Events disabled
-  Events enabled
-
-   Performance counter stats for 'sleep 2':
-
-             404,214      instructions
-
-         1.901743475 seconds time elapsed
-
-         0.001617000 seconds user
-         0.000000000 seconds sys
-
-Fixes: c587e77e100fa40e ("perf stat: Do not delay the workload with --delay")
-Signed-off-by: Changbin Du <changbin.du@huawei.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hui Wang <hw.huiwang@huawei.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20230302031146.2801588-2-changbin.du@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
+Reported-by: Chathura Rajapaksha <chathura.abeyrathne.lk@gmail.com>
+Link: https://lore.kernel.org/all/CAD7mqryDQCYyJ1gAmtMm8SASMWAQ4i103ptTb0f6Oda=tPY2=A@mail.gmail.com/
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Link: https://lore.kernel.org/r/20230308091639.602024-1-alexghiti@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 15 +++++----------
- tools/perf/util/stat.c    |  6 +-----
- tools/perf/util/stat.h    |  1 -
- tools/perf/util/target.h  | 12 ++++++++++++
- 4 files changed, 18 insertions(+), 16 deletions(-)
+ arch/riscv/kernel/stacktrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 978fdc60b4e84..f6427e3a47421 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -528,12 +528,7 @@ static int enable_counters(void)
- 			return err;
+diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
+index 19e46f4160cc3..5ba4d23971fdb 100644
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -89,7 +89,7 @@ void notrace walk_stackframe(struct task_struct *task,
+ 	while (!kstack_end(ksp)) {
+ 		if (__kernel_text_address(pc) && unlikely(fn(pc, arg)))
+ 			break;
+-		pc = (*ksp++) - 0x4;
++		pc = READ_ONCE_NOCHECK(*ksp++) - 0x4;
  	}
- 
--	/*
--	 * We need to enable counters only if:
--	 * - we don't have tracee (attaching to task or cpu)
--	 * - we have initial delay configured
--	 */
--	if (!target__none(&target)) {
-+	if (!target__enable_on_exec(&target)) {
- 		if (!all_counters_use_bpf)
- 			evlist__enable(evsel_list);
- 	}
-@@ -906,7 +901,7 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 			return err;
- 	}
- 
--	if (stat_config.initial_delay) {
-+	if (target.initial_delay) {
- 		pr_info(EVLIST_DISABLED_MSG);
- 	} else {
- 		err = enable_counters();
-@@ -918,8 +913,8 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 	if (forks)
- 		evlist__start_workload(evsel_list);
- 
--	if (stat_config.initial_delay > 0) {
--		usleep(stat_config.initial_delay * USEC_PER_MSEC);
-+	if (target.initial_delay > 0) {
-+		usleep(target.initial_delay * USEC_PER_MSEC);
- 		err = enable_counters();
- 		if (err)
- 			return -1;
-@@ -1243,7 +1238,7 @@ static struct option stat_options[] = {
- 		     "aggregate counts per thread", AGGR_THREAD),
- 	OPT_SET_UINT(0, "per-node", &stat_config.aggr_mode,
- 		     "aggregate counts per numa node", AGGR_NODE),
--	OPT_INTEGER('D', "delay", &stat_config.initial_delay,
-+	OPT_INTEGER('D', "delay", &target.initial_delay,
- 		    "ms to wait before starting measurement after program start (-1: start with events disabled)"),
- 	OPT_CALLBACK_NOOPT(0, "metric-only", &stat_config.metric_only, NULL,
- 			"Only print computed metrics. No raw values", enable_metric_only),
-diff --git a/tools/perf/util/stat.c b/tools/perf/util/stat.c
-index 8ec8bb4a99129..b63b3a3129919 100644
---- a/tools/perf/util/stat.c
-+++ b/tools/perf/util/stat.c
-@@ -583,11 +583,7 @@ int create_perf_stat_counter(struct evsel *evsel,
- 	if (evsel__is_group_leader(evsel)) {
- 		attr->disabled = 1;
- 
--		/*
--		 * In case of initial_delay we enable tracee
--		 * events manually.
--		 */
--		if (target__none(target) && !config->initial_delay)
-+		if (target__enable_on_exec(target))
- 			attr->enable_on_exec = 1;
- 	}
- 
-diff --git a/tools/perf/util/stat.h b/tools/perf/util/stat.h
-index 35c940d7f29cd..05c5125d7f419 100644
---- a/tools/perf/util/stat.h
-+++ b/tools/perf/util/stat.h
-@@ -145,7 +145,6 @@ struct perf_stat_config {
- 	FILE			*output;
- 	unsigned int		 interval;
- 	unsigned int		 timeout;
--	int			 initial_delay;
- 	unsigned int		 unit_width;
- 	unsigned int		 metric_only_len;
- 	int			 times;
-diff --git a/tools/perf/util/target.h b/tools/perf/util/target.h
-index daec6cba500d4..880f1af7f6ad6 100644
---- a/tools/perf/util/target.h
-+++ b/tools/perf/util/target.h
-@@ -18,6 +18,7 @@ struct target {
- 	bool	     per_thread;
- 	bool	     use_bpf;
- 	bool	     hybrid;
-+	int	     initial_delay;
- 	const char   *attr_map;
- };
- 
-@@ -72,6 +73,17 @@ static inline bool target__none(struct target *target)
- 	return !target__has_task(target) && !target__has_cpu(target);
  }
  
-+static inline bool target__enable_on_exec(struct target *target)
-+{
-+	/*
-+	 * Normally enable_on_exec should be set if:
-+	 *  1) The tracee process is forked (not attaching to existed task or cpu).
-+	 *  2) And initial_delay is not configured.
-+	 * Otherwise, we enable tracee events manually.
-+	 */
-+	return target__none(target) && !target->initial_delay;
-+}
-+
- static inline bool target__has_per_thread(struct target *target)
- {
- 	return target->system_wide && target->per_thread;
 -- 
 2.39.2
 
