@@ -2,177 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BEB96BB783
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 16:22:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C756BB7A9
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 16:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbjCOPV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 11:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54752 "EHLO
+        id S231716AbjCOP0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 11:26:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231374AbjCOPV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 11:21:58 -0400
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73A87587B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 08:21:55 -0700 (PDT)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-176eae36feaso21403417fac.6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 08:21:55 -0700 (PDT)
+        with ESMTP id S231466AbjCOP0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 11:26:03 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E2315C96
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 08:26:01 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id j3-20020a17090adc8300b0023d09aea4a6so2194132pjv.5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 08:26:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678893715;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=gzYV/7XeWGA5a2Jcg195Nwebw3aHdye3PaYXj1dHESE=;
-        b=umPdG7TKKpYKVTy71PPX37zak1MBhfpa8hlhiMWKXvz8vnQAz9fPkLjtMGMnpIfFSZ
-         v0jhdlcA0JU6dywjKfBWh7dpTorCUGlYip8w2GOX2Dvo8BDsknGAe09BgxOF7JmHCGHg
-         Qv5UArHReujDJrrCCj/dNNBvRegDExV375e8kkrWziGOsCBvW5aO0hV/J0b9hFcGnlO6
-         b/FboecwWyBzdcz520hiHX4JVRy73S9vIJTRUcSD+7WOSFmYzdeWtgdCwzsT7kk06LBY
-         +4nGQmeCmWTrLEOmCpDfbl1vkQ1//ur99CgcpEi93QrFJ/TqxAzqLTFtvUSRR5HgtyRf
-         ygwA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678893960;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=bqLbQG63fWszZgD6hrTlvR6r840hbh4wc3xlInsNUa8=;
+        b=EiLLyth6C3hBSWFMCiSl6pMmQMMH5IwN6x9tXpMxwMTfn9AM2mEGhtKDqVFdYRtc69
+         wM8eI+8ZP3JkRgwn4vR8aty3YQ96cpmafqVUaZvmRKJmlQn5RRmoqw2ZCxsbWIqfoeA0
+         SwUplR9jnHQZ7gayfbeq2VZK6qFLQs4hJVexzBIOxFLtdaBOEY2pd8MmeiI5HYL/fzLt
+         JcNjjgc6NF7GsZlRRm1S+ySd3aPDuCCZsghU4INAG0d1DMeBZkXCgBOb8iR3ZbnaH+Uy
+         u2uWrSUKTC+TUgKyVkJHvn73vqgsFkYKLdfJL5rSEGfYOHcFWLeVP/cbBBFFUSZ1uq8e
+         8TEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678893715;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gzYV/7XeWGA5a2Jcg195Nwebw3aHdye3PaYXj1dHESE=;
-        b=utS0ILB3xUsruBKuzG3kny/CCPCnfFljP+RqNlArNKuYrXLDlDh0dn9MIZAHmFoi8y
-         rfPkYKKaKf4R98px6cJTShzeDbcfCQ6sOWPQEIycH2tF4IhpI+oRuKM1ZwbNMQoW1Mup
-         4WLKP1r7vItIaLQ7aONxQkbSf56q9vgu1bLPN8VYnKDwcl/1czj29hO1uzAOJhYGPd/5
-         15OtudSp442HEmBXFdX54RJn2lv/CjQb41ipat5p1YHdCI7wUIjmTBJjG2bKfLlUys5t
-         a3jTA1qqCnDgoBC5oX6nqZHQveCT+E1rKnrtKy7oQBR8yksMI1Agcr8uk7MX8HcO2pl4
-         PXXQ==
-X-Gm-Message-State: AO0yUKWbsgVe1Vh2+DgDoPJqrPCT3lh06vYf0cw0b5hK4MyHlNojeYPF
-        gCAkz5K5mTHzqz5P7s9GIZUmjQ==
-X-Google-Smtp-Source: AK7set/khWLrD0uM5c2BK68glSdWzCW7UfCoaN1mGRH+UB4Zb9Opn6kqLfmrRWmWoCWHMxLh5q9hRA==
-X-Received: by 2002:a05:6870:2404:b0:177:90dc:1529 with SMTP id n4-20020a056870240400b0017790dc1529mr8684347oap.40.1678893715056;
-        Wed, 15 Mar 2023 08:21:55 -0700 (PDT)
-Received: from [192.168.17.16] ([189.219.75.19])
-        by smtp.gmail.com with ESMTPSA id an36-20020a056871b1a400b00177c314a358sm2335207oac.22.2023.03.15.08.21.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Mar 2023 08:21:54 -0700 (PDT)
-Message-ID: <b97c4328-54fd-0461-5fa9-323a0d2ba1f4@linaro.org>
-Date:   Wed, 15 Mar 2023 09:21:53 -0600
+        d=1e100.net; s=20210112; t=1678893960;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bqLbQG63fWszZgD6hrTlvR6r840hbh4wc3xlInsNUa8=;
+        b=aB+M4qeKAx1PljGraa91CVVtmUNqaNYA+VteMgy1o8gnT5QyfqtPgU8qZolkK9tpAL
+         1J0r+4jl3hWHnIq5ofiDKLzhyhSv12SfuCDZFeFFjIz5/WXX9+kJaSK03Wmb+13swDxn
+         ejQtUoDb3oN3/bi9x6sSIpr5aAFQsBGMQaitafjfSaRg5N890Y/seYQALff6dLQ7IMdE
+         v5dIeeco2vCdMZ2bnCU5y8yARD8spfEOjFaIq67prXc24mcK51Th/pU3R7Uf8iJSrNS/
+         Ea2rDcjpSBDUUSbd01EoAKdaIcbvjkziFUJjJj1qya4Yv2+kymZyi5keUQxTHtBGt6ul
+         0xOw==
+X-Gm-Message-State: AO0yUKVVuEuz0d3AvUAPyR9yRTRlFtu0V4tu9DezP0XicopdtjBo4K5n
+        6hw7BfvCoEc7ZCLt3mr+fX0cqZEvCXnnbGZEcRv1EdWO
+X-Google-Smtp-Source: AK7set/qq1BMjqf/+4eP7iWsJd4c13h8RX9SL4XiTyzbDZfoBVk3vsXce/g8oUrVJQTIXQlfehhD8g==
+X-Received: by 2002:a17:90b:38c3:b0:233:ebf8:424f with SMTP id nn3-20020a17090b38c300b00233ebf8424fmr311669pjb.0.1678893960075;
+        Wed, 15 Mar 2023 08:26:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id iy18-20020a170903131200b001a045f45d49sm3746508plb.281.2023.03.15.08.25.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Mar 2023 08:25:59 -0700 (PDT)
+Message-ID: <6411e387.170a0220.47fbb.892d@mx.google.com>
+Date:   Wed, 15 Mar 2023 08:25:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH 6.1 000/143] 6.1.20-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230315115740.429574234@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.276-47-gcb91edfa52f0
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 63 runs,
+ 3 regressions (v4.19.276-47-gcb91edfa52f0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+stable-rc/linux-4.19.y baseline: 63 runs, 3 regressions (v4.19.276-47-gcb91=
+edfa52f0)
 
-On 15/03/23 06:11, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.20 release.
-> There are 143 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.20-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> -------------
+Regressions Summary
+-------------------
 
-Build failures on PowerPC (GCC-8, GCC-12, Clang-16, Clang-nightly) on:
-* cell_defconfig
-* mpc83xx_defconfig
+platform          | arch | lab         | compiler | defconfig           | r=
+egressions
+------------------+------+-------------+----------+---------------------+--=
+----------
+beaglebone-black  | arm  | lab-broonie | gcc-10   | omap2plus_defconfig | 1=
+          =
 
------8<-----
-In file included from /builds/linux/drivers/usb/host/ohci-hcd.c:1253:
-/builds/linux/drivers/usb/host/ohci-ppc-of.c: In function 'ohci_hcd_ppc_of_probe':
-/builds/linux/drivers/usb/host/ohci-ppc-of.c:123:13: error: 'NO_IRQ' undeclared (first use in this function); did you mean 'NR_IRQS'?
-   if (irq == NO_IRQ) {
-              ^~~~~~
-              NR_IRQS
------>8-----
+beaglebone-black  | arm  | lab-cip     | gcc-10   | omap2plus_defconfig | 1=
+          =
+
+r8a7743-iwg20d-q7 | arm  | lab-cip     | gcc-10   | shmobile_defconfig  | 1=
+          =
 
 
-PowerPC with GCC-8 and GCC-12, for ppc6xx_defconfig:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.276-47-gcb91edfa52f0/plan/baseline/
 
------8<-----
-/builds/linux/drivers/ata/pata_mpc52xx.c: In function 'mpc52xx_ata_probe':
-/builds/linux/drivers/ata/pata_mpc52xx.c:734:17: error: 'NO_IRQ' undeclared (first use in this function); did you mean 'NR_IRQS'?
-   if (ata_irq == NO_IRQ) {
-                  ^~~~~~
-                  NR_IRQS
-/builds/linux/drivers/ata/pata_mpc52xx.c:734:17: note: each undeclared identifier is reported only once for each function it appears in
-make[4]: *** [/builds/linux/scripts/Makefile.build:250: drivers/ata/pata_mpc52xx.o] Error 1
-make[4]: Target 'drivers/ata/' not remade because of errors.
-make[3]: *** [/builds/linux/scripts/Makefile.build:500: drivers/ata] Error 2
-In file included from /builds/linux/drivers/usb/host/ehci-hcd.c:1321:
-/builds/linux/drivers/usb/host/ehci-ppc-of.c: In function 'ehci_hcd_ppc_of_probe':
-/builds/linux/drivers/usb/host/ehci-ppc-of.c:122:13: error: 'NO_IRQ' undeclared (first use in this function); did you mean 'NR_IRQS'?
-   if (irq == NO_IRQ) {
-              ^~~~~~
-              NR_IRQS
-/builds/linux/drivers/usb/host/ehci-ppc-of.c:122:13: note: each undeclared identifier is reported only once for each function it appears in
-make[5]: *** [/builds/linux/scripts/Makefile.build:250: drivers/usb/host/ehci-hcd.o] Error 1
-In file included from /builds/linux/drivers/usb/host/ohci-hcd.c:1253:
-/builds/linux/drivers/usb/host/ohci-ppc-of.c: In function 'ohci_hcd_ppc_of_probe':
-/builds/linux/drivers/usb/host/ohci-ppc-of.c:123:13: error: 'NO_IRQ' undeclared (first use in this function); did you mean 'NR_IRQS'?
-   if (irq == NO_IRQ) {
-              ^~~~~~
-              NR_IRQS
-/builds/linux/drivers/usb/host/ohci-ppc-of.c:123:13: note: each undeclared identifier is reported only once for each function it appears in
------>8-----
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.276-47-gcb91edfa52f0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cb91edfa52f0b1a9fca6342d158744cd1d673a57 =
 
 
-PowerPC with GCC-8 and GCC-12, for ppc64e_defconfig:
 
------8<-----
-powerpc64le-linux-gnu-gcc: error: missing argument to '-mcpu='
-powerpc64le-linux-gnu-gcc: error: missing argument to '-mcpu='
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:237: arch/powerpc/boot/crt0.o] Error 1
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:237: arch/powerpc/boot/crtsavres.o] Error 1
-powerpc64le-linux-gnu-gcc: error: missing argument to '-mcpu='
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:235: arch/powerpc/boot/cuboot.o] Error 1
-powerpc64le-linux-gnu-gcc: error: missing argument to '-mcpu='
-powerpc64le-linux-gnu-gcc: error: missing argument to '-mcpu='
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:238: arch/powerpc/boot/div64.o] Error 1
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:234: arch/powerpc/boot/devtree.o] Error 1
-[...]
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:235: arch/powerpc/boot/fdt_sw.o] Error 1
-powerpc64le-linux-gnu-gcc: error: missing argument to '-mcpu='
-make[2]: *** [/builds/linux/arch/powerpc/boot/Makefile:235: arch/powerpc/boot/fdt_wip.o] Error 1
-make[2]: Target 'arch/powerpc/boot/zImage' not remade because of errors.
-make[1]: *** [/builds/linux/arch/powerpc/Makefile:247: zImage] Error 2
-make[1]: Target '__all' not remade because of errors.
-make: *** [Makefile:238: __sub-make] Error 2
-make: Target '__all' not remade because of errors.
------>8-----
+Test Regressions
+---------------- =
 
 
-Greetings!
 
-Daniel Díaz
-daniel.diaz@linaro.org
+platform          | arch | lab         | compiler | defconfig           | r=
+egressions
+------------------+------+-------------+----------+---------------------+--=
+----------
+beaglebone-black  | arm  | lab-broonie | gcc-10   | omap2plus_defconfig | 1=
+          =
 
+
+  Details:     https://kernelci.org/test/plan/id/6411afa1ad94da13458c8630
+
+  Results:     41 PASS, 10 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-47-gcb91edfa52f0/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-bea=
+glebone-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-47-gcb91edfa52f0/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-bea=
+glebone-black.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6411afa1ad94da13458c8660
+        new failure (last pass: v4.19.276-4-g4f95ee925a2b)
+
+    2023-03-15T11:44:00.908628  + set +x<8>[   18.462874] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 166854_1.5.2.4.1>
+    2023-03-15T11:44:00.909150  =
+
+    2023-03-15T11:44:01.020805  / # #
+    2023-03-15T11:44:01.123280  export SHELL=3D/bin/sh
+    2023-03-15T11:44:01.124002  #
+    2023-03-15T11:44:01.226292  / # export SHELL=3D/bin/sh. /lava-166854/en=
+vironment
+    2023-03-15T11:44:01.227011  =
+
+    2023-03-15T11:44:01.328932  / # . /lava-166854/environment/lava-166854/=
+bin/lava-test-runner /lava-166854/1
+    2023-03-15T11:44:01.330118  =
+
+    2023-03-15T11:44:01.334103  / # /lava-166854/bin/lava-test-runner /lava=
+-166854/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform          | arch | lab         | compiler | defconfig           | r=
+egressions
+------------------+------+-------------+----------+---------------------+--=
+----------
+beaglebone-black  | arm  | lab-cip     | gcc-10   | omap2plus_defconfig | 1=
+          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6411af5581dd2f43dd8c86a7
+
+  Results:     41 PASS, 10 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-47-gcb91edfa52f0/arm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beagleb=
+one-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-47-gcb91edfa52f0/arm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beagleb=
+one-black.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6411af5581dd2f43dd8c86ae
+        new failure (last pass: v4.19.276-4-g4f95ee925a2b)
+
+    2023-03-15T11:42:40.284598  + set +x<8>[   11.683461] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 876176_1.5.2.4.1>
+    2023-03-15T11:42:40.284904  =
+
+    2023-03-15T11:42:40.395805  / # #
+    2023-03-15T11:42:40.497702  export SHELL=3D/bin/sh
+    2023-03-15T11:42:40.498179  #
+    2023-03-15T11:42:40.599564  / # export SHELL=3D/bin/sh. /lava-876176/en=
+vironment
+    2023-03-15T11:42:40.600042  =
+
+    2023-03-15T11:42:40.701447  / # . /lava-876176/environment/lava-876176/=
+bin/lava-test-runner /lava-876176/1
+    2023-03-15T11:42:40.702260  =
+
+    2023-03-15T11:42:40.704477  / # /lava-876176/bin/lava-test-runner /lava=
+-876176/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform          | arch | lab         | compiler | defconfig           | r=
+egressions
+------------------+------+-------------+----------+---------------------+--=
+----------
+r8a7743-iwg20d-q7 | arm  | lab-cip     | gcc-10   | shmobile_defconfig  | 1=
+          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6411b2a017bd3351bf8c8641
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-47-gcb91edfa52f0/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-=
+iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+76-47-gcb91edfa52f0/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-=
+iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6411b2a017bd3351bf8c8=
+642
+        new failure (last pass: v4.19.276-4-g4f95ee925a2b) =
+
+ =20
