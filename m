@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBDE6BB052
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE646BB002
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbjCOMRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
+        id S229542AbjCOMOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:14:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231779AbjCOMRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:09 -0400
+        with ESMTP id S231708AbjCOMOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 948B59384E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7D014235
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A2C3B81DF8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90CC1C433D2;
-        Wed, 15 Mar 2023 12:16:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 268D1B81DDA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B19C433D2;
+        Wed, 15 Mar 2023 12:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882614;
-        bh=M1wl3aRnFRk/EPNbsHRZB3+pVkTDAL+RDXaxki4wQts=;
+        s=korg; t=1678882474;
+        bh=mnn5RPSXMS1FgIfdFe4OFtnjWbWjKO6WKfdlV5IqC2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSeJ2SzIp9Rqzsk/qTF69FkWg/cKarij/jMS7m8EF7dSFpdzK9O63Is2BbulqoMId
-         f95aNch+fsIOqCwhWYq2BAnc3SmhoFolqAC9s9zEwzb0kj70FGyCHL8tYmHUInGK99
-         U40pkZqLkQ+FH53+uDEarzdWKkME+LDHZ5BpPnTM=
+        b=SbLKE8fpLRzKCDONro5b0n0Yga+8jxTKugnNqgTF6gKLjeKI0njza7lz1dC1QIH+i
+         +2YUSLmf7Qggi5Q8N8MkGMEE1FNW0USGDcHQ+hiRjWwreORIb1o3LPH3lIEbxMN5pO
+         vZq055llBRHx+sahYKJbKcvfSr4hglxNxrjA5vaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        patches@lists.linux.dev, Edward Humes <aurxenon@lunos.org>,
+        Matt Turner <mattst88@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/39] ARM: dts: exynos: Add GPU thermal zone cooling maps for Odroid XU3/XU4/HC1
+Subject: [PATCH 4.14 14/21] alpha: fix R_ALPHA_LITERAL reloc for large modules
 Date:   Wed, 15 Mar 2023 13:12:37 +0100
-Message-Id: <20230315115722.088138374@linuxfoundation.org>
+Message-Id: <20230315115719.342047431@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,134 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Edward Humes <aurxenon@lunos.org>
 
-[ Upstream commit 1c651356f482ff08f6acef197a362f2e71d55a98 ]
+[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
 
-Add trip points and cooling maps for GPU thermal zone for Odroid
-XU3/XU4/HC1 boards. Trip points are based on the CPU thermal zone for the
-those boards.
+Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
+modules.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Stable-dep-of: 2e3d0e20d845 ("ARM: dts: exynos: correct TMU phandle in Odroid HC1")
+This was because the Alpha's apply_relocate_add was relying on the kernel's
+module loader to have sorted the GOT towards the very end of the module as it
+was mapped into memory in order to correctly assign the global pointer. While
+this behavior would mostly work fine for small kernel modules, this approach
+would overflow on kernel modules with large GOT's since the global pointer
+would be very far away from the GOT, and thus, certain entries would be out of
+range.
+
+This patch fixes this by instead using the Tru64 behavior of assigning the
+global pointer to be 32KB away from the start of the GOT. The change made
+in this patch won't work for multi-GOT kernel modules as it makes the
+assumption the module only has one GOT located at the beginning of .got,
+although for the vast majority kernel modules, this should be fine. Of the
+kernel modules that would previously result in a relocation error, none of
+them, even modules like nouveau, have even come close to filling up a single
+GOT, and they've all worked fine under this patch.
+
+Signed-off-by: Edward Humes <aurxenon@lunos.org>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5422-odroidhc1.dts    | 30 ++++++++++
- .../boot/dts/exynos5422-odroidxu3-common.dtsi | 59 +++++++++++++++++++
- 2 files changed, 89 insertions(+)
+ arch/alpha/kernel/module.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5422-odroidhc1.dts b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-index fce5a4579693e..3235d7a27e042 100644
---- a/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-+++ b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-@@ -215,6 +215,36 @@
- 				};
- 			};
- 		};
-+		gpu_thermal: gpu-thermal {
-+			thermal-sensors = <&tmu_gpu 0>;
-+			trips {
-+				gpu_alert0: gpu-alert-0 {
-+					temperature = <70000>;
-+					hysteresis = <10000>;
-+					type = "active";
-+				};
-+				gpu_alert1: gpu-alert-1 {
-+					temperature = <85000>;
-+					hysteresis = <10000>;
-+					type = "active";
-+				};
-+				gpu_crit0: gpu-crit-0 {
-+					temperature = <120000>;
-+					hysteresis = <0>;
-+					type = "critical";
-+				};
-+			};
-+			cooling-maps {
-+				map0 {
-+					trip = <&gpu_alert0>;
-+					cooling-device = <&gpu 0 2>;
-+				};
-+				map1 {
-+					trip = <&gpu_alert1>;
-+					cooling-device = <&gpu 3 6>;
-+				};
-+			};
-+		};
- 	};
+diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
+index 47632fa8c24e0..b169dc9a9ac17 100644
+--- a/arch/alpha/kernel/module.c
++++ b/arch/alpha/kernel/module.c
+@@ -158,10 +158,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
+ 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
+ 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
  
- };
-diff --git a/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi b/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
-index 264651141d688..402d69877fd97 100644
---- a/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
-+++ b/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
-@@ -359,6 +359,65 @@
- 				};
- 			};
- 		};
-+		gpu_thermal: gpu-thermal {
-+			thermal-sensors = <&tmu_gpu 0>;
-+			polling-delay-passive = <250>;
-+			polling-delay = <0>;
-+			trips {
-+				gpu_alert0: gpu-alert-0 {
-+					temperature = <50000>;
-+					hysteresis = <5000>;
-+					type = "active";
-+				};
-+				gpu_alert1: gpu-alert-1 {
-+					temperature = <60000>;
-+					hysteresis = <5000>;
-+					type = "active";
-+				};
-+				gpu_alert2: gpu-alert-2 {
-+					temperature = <70000>;
-+					hysteresis = <5000>;
-+					type = "active";
-+				};
-+				gpu_crit0: gpu-crit-0 {
-+					temperature = <120000>;
-+					hysteresis = <0>;
-+					type = "critical";
-+				};
-+				gpu_alert3: gpu-alert-3 {
-+					temperature = <70000>;
-+					hysteresis = <10000>;
-+					type = "passive";
-+				};
-+				gpu_alert4: gpu-alert-4 {
-+					temperature = <85000>;
-+					hysteresis = <10000>;
-+					type = "passive";
-+				};
-+			};
-+			cooling-maps {
-+				map0 {
-+					trip = <&gpu_alert0>;
-+					cooling-device = <&fan0 0 1>;
-+				};
-+				map1 {
-+					trip = <&gpu_alert1>;
-+					cooling-device = <&fan0 1 2>;
-+				};
-+				map2 {
-+					trip = <&gpu_alert2>;
-+					cooling-device = <&fan0 2 3>;
-+				};
-+				map3 {
-+					trip = <&gpu_alert3>;
-+					cooling-device = <&gpu 0 2>;
-+				};
-+				map4 {
-+					trip = <&gpu_alert4>;
-+					cooling-device = <&gpu 3 6>;
-+				};
-+			};
-+		};
- 	};
- };
+-	/* The small sections were sorted to the end of the segment.
+-	   The following should definitely cover them.  */
+-	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
+ 	got = sechdrs[me->arch.gotsecindex].sh_addr;
++	gp = got + 0x8000;
  
+ 	for (i = 0; i < n; i++) {
+ 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
 -- 
 2.39.2
 
