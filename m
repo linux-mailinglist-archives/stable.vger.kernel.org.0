@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB436BB2C7
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E23E6BB360
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbjCOMic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52738 "EHLO
+        id S233033AbjCOMoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:44:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232772AbjCOMiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB9A9F065
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:18 -0700 (PDT)
+        with ESMTP id S232832AbjCOMnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B92A42D5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3504B81E12
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3905FC433D2;
-        Wed, 15 Mar 2023 12:36:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AC4161D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D410C433EF;
+        Wed, 15 Mar 2023 12:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883792;
-        bh=BpYzRbUO6+QDTYmGgfCuetgduaiwpCv1hdivX+XNe7M=;
+        s=korg; t=1678884126;
+        bh=OwmAelD3Bzx9E6LLl2bJBRLrC9hCFn1O4DDqAOBXG9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XenQDPV7p3iaC95QeWRmFNiUmkWOxyd8wpEJPhi/C61YarhYYPsjYRKuDXzwcrciA
-         q0li35Ggh+6j2OdrZINviH1MO/kKU+6WzHogikt0q3rI9UlPhat3Ya/dYVcXEZxFpf
-         CglddnXH6X+VC04+w/SHNaKVfzZ3Chbgk5SGDQJA=
+        b=vtXUj0XUp1THov7pI1z8SbSpAKtkKhL7GXvwohaKPVZFo8kTfrPG0ClJqEKBIKHbe
+         8WIFhyXjvdIbh/VdoPMyvX8SlCVti+7fX7FBAmi623CWbeVHityn8f/bHp2M/PQb+a
+         FSs26OREX5EiYt5Fpip9IQpX+rB5G9J7zKx0U3AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 133/143] macintosh: windfarm: Use unsigned type for 1-bit bitfields
+Subject: [PATCH 6.2 116/141] watch_queue: fix IOC_WATCH_QUEUE_SET_SIZE alloc error paths
 Date:   Wed, 15 Mar 2023 13:13:39 +0100
-Message-Id: <20230315115744.623267997@linuxfoundation.org>
+Message-Id: <20230315115743.529229293@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 748ea32d2dbd813d3bd958117bde5191182f909a ]
+[ Upstream commit 03e1d60e177eedbd302b77af4ea5e21b5a7ade31 ]
 
-Clang warns:
+The watch_queue_set_size() allocation error paths return the ret value
+set via the prior pipe_resize_ring() call, which will always be zero.
 
-  drivers/macintosh/windfarm_lm75_sensor.c:63:14: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  lm->inited = 1;
-                             ^ ~
+As a result, IOC_WATCH_QUEUE_SET_SIZE callers such as "keyctl watch"
+fail to detect kernel wqueue->notes allocation failures and proceed to
+KEYCTL_WATCH_KEY, with any notifications subsequently lost.
 
-  drivers/macintosh/windfarm_smu_sensors.c:356:19: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->fake_volts = 1;
-                                  ^ ~
-  drivers/macintosh/windfarm_smu_sensors.c:368:18: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->quadratic = 1;
-                                 ^ ~
-
-There is no bug here since no code checks the actual value of these
-fields, just whether or not they are zero (boolean context), but this
-can be easily fixed by switching to an unsigned type.
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230215-windfarm-wsingle-bit-bitfield-constant-conversion-v1-1-26415072e855@kernel.org
+Fixes: c73be61cede58 ("pipe: Add general notification queue support")
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/windfarm_lm75_sensor.c | 4 ++--
- drivers/macintosh/windfarm_smu_sensors.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ kernel/watch_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/macintosh/windfarm_lm75_sensor.c b/drivers/macintosh/windfarm_lm75_sensor.c
-index 204661c8e918f..9dd80837a759a 100644
---- a/drivers/macintosh/windfarm_lm75_sensor.c
-+++ b/drivers/macintosh/windfarm_lm75_sensor.c
-@@ -33,8 +33,8 @@
- #endif
+diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
+index a6f9bdd956c39..f10f403104e7d 100644
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -273,6 +273,7 @@ long watch_queue_set_size(struct pipe_inode_info *pipe, unsigned int nr_notes)
+ 	if (ret < 0)
+ 		goto error;
  
- struct wf_lm75_sensor {
--	int			ds1775 : 1;
--	int			inited : 1;
-+	unsigned int		ds1775 : 1;
-+	unsigned int		inited : 1;
- 	struct i2c_client	*i2c;
- 	struct wf_sensor	sens;
- };
-diff --git a/drivers/macintosh/windfarm_smu_sensors.c b/drivers/macintosh/windfarm_smu_sensors.c
-index 00c6fe25fcba0..2bdb73b34d291 100644
---- a/drivers/macintosh/windfarm_smu_sensors.c
-+++ b/drivers/macintosh/windfarm_smu_sensors.c
-@@ -274,8 +274,8 @@ struct smu_cpu_power_sensor {
- 	struct list_head	link;
- 	struct wf_sensor	*volts;
- 	struct wf_sensor	*amps;
--	int			fake_volts : 1;
--	int			quadratic : 1;
-+	unsigned int		fake_volts : 1;
-+	unsigned int		quadratic : 1;
- 	struct wf_sensor	sens;
- };
- #define to_smu_cpu_power(c) container_of(c, struct smu_cpu_power_sensor, sens)
++	ret = -ENOMEM;
+ 	pages = kcalloc(sizeof(struct page *), nr_pages, GFP_KERNEL);
+ 	if (!pages)
+ 		goto error;
 -- 
 2.39.2
 
