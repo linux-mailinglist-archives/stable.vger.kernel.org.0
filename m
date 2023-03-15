@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 225086BB06E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D005C6BB2DF
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbjCOMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:18:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
+        id S231705AbjCOMjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:39:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232056AbjCOMR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:59 -0400
+        with ESMTP id S232970AbjCOMi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFF28B321
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711BE1ABE2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0763161ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A89FC4331D;
-        Wed, 15 Mar 2023 12:17:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51F5D61ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64786C433D2;
+        Wed, 15 Mar 2023 12:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882675;
-        bh=4kTsIwueTSgRPB/AFJahT6yK3JEXtmH6kz+px2rXK5Q=;
+        s=korg; t=1678883878;
+        bh=44xnEcKZxJO1pIukPrACJUgtC7Y5W7FfpqYKoj7tT1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3bjGIxtqFXPOmDnd+Wln3xuudGio201Pnoge4+cRYE1AGWY99q6G2uXADTH8FWJR
-         fjx+RndnZO30CLgWKdiLZKQb3iWuVRImuw1suu453D6rSTbDWq3GCh1OXHEW/ujHbN
-         4JHf2feqnmvJ8dkEtG/+W6UfTBYjn+NYkc1v7BkM=
+        b=fuqHFVvES5mcFMc/WRBupaXTPQBRlhgY001GyFxn0bwmqT7nBymQxbiEOSxW5mHPT
+         nEW3OwubNg+b+gSlcc+E3Js1TmQ3EfO6IiLlCggEbnt+kB8GBNC9BZPyMIn68QiftF
+         9pAGH96pFWawF0ETGT4iljR8YSzXPddMOyDpu/z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Lin <waynelin@amd.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Uma Shankar <uma.shankar@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/68] drm/edid: Extract drm_mode_cea_vic()
-Date:   Wed, 15 Mar 2023 13:12:04 +0100
-Message-Id: <20230315115726.498119715@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+6be2b977c89f79b6b153@syzkaller.appspotmail.com,
+        "Darrick J. Wong" <djwong@kernel.org>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.2 022/141] ext4: fix another off-by-one fsmap error on 1k block filesystems
+Date:   Wed, 15 Mar 2023 13:12:05 +0100
+Message-Id: <20230315115740.660022568@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,97 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit cfd6f8c3a94a96c003a8929b66d6d54181b9420d ]
+commit c993799baf9c5861f8df91beb80e1611b12efcbd upstream.
 
-Extract the logic to compute the final CEA VIC to a small helper.
-We'll reorder it a bit to make future modifications more
-straightforward. No function changes.
+Apparently syzbot figured out that issuing this FSMAP call:
 
-Cc: Wayne Lin <waynelin@amd.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191004141914.20600-2-ville.syrjala@linux.intel.com
-Reviewed-by: Uma Shankar <uma.shankar@intel.com>
-Stable-dep-of: 1cbc1f0d324b ("drm/edid: fix AVI infoframe aspect ratio handling")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+struct fsmap_head cmd = {
+	.fmh_count	= ...;
+	.fmh_keys	= {
+		{ .fmr_device = /* ext4 dev */, .fmr_physical = 0, },
+		{ .fmr_device = /* ext4 dev */, .fmr_physical = 0, },
+	},
+...
+};
+ret = ioctl(fd, FS_IOC_GETFSMAP, &cmd);
+
+Produces this crash if the underlying filesystem is a 1k-block ext4
+filesystem:
+
+kernel BUG at fs/ext4/ext4.h:3331!
+invalid opcode: 0000 [#1] PREEMPT SMP
+CPU: 3 PID: 3227965 Comm: xfs_io Tainted: G        W  O       6.2.0-rc8-achx
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:ext4_mb_load_buddy_gfp+0x47c/0x570 [ext4]
+RSP: 0018:ffffc90007c03998 EFLAGS: 00010246
+RAX: ffff888004978000 RBX: ffffc90007c03a20 RCX: ffff888041618000
+RDX: 0000000000000000 RSI: 00000000000005a4 RDI: ffffffffa0c99b11
+RBP: ffff888012330000 R08: ffffffffa0c2b7d0 R09: 0000000000000400
+R10: ffffc90007c03950 R11: 0000000000000000 R12: 0000000000000001
+R13: 00000000ffffffff R14: 0000000000000c40 R15: ffff88802678c398
+FS:  00007fdf2020c880(0000) GS:ffff88807e100000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd318a5fe8 CR3: 000000007f80f001 CR4: 00000000001706e0
+Call Trace:
+ <TASK>
+ ext4_mballoc_query_range+0x4b/0x210 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ ext4_getfsmap_datadev+0x713/0x890 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ ext4_getfsmap+0x2b7/0x330 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ ext4_ioc_getfsmap+0x153/0x2b0 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ __ext4_ioctl+0x2a7/0x17e0 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ __x64_sys_ioctl+0x82/0xa0
+ do_syscall_64+0x2b/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7fdf20558aff
+RSP: 002b:00007ffd318a9e30 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00000000000200c0 RCX: 00007fdf20558aff
+RDX: 00007fdf1feb2010 RSI: 00000000c0c0583b RDI: 0000000000000003
+RBP: 00005625c0634be0 R08: 00005625c0634c40 R09: 0000000000000001
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007fdf1feb2010
+R13: 00005625be70d994 R14: 0000000000000800 R15: 0000000000000000
+
+For GETFSMAP calls, the caller selects a physical block device by
+writing its block number into fsmap_head.fmh_keys[01].fmr_device.
+To query mappings for a subrange of the device, the starting byte of the
+range is written to fsmap_head.fmh_keys[0].fmr_physical and the last
+byte of the range goes in fsmap_head.fmh_keys[1].fmr_physical.
+
+IOWs, to query what mappings overlap with bytes 3-14 of /dev/sda, you'd
+set the inputs as follows:
+
+	fmh_keys[0] = { .fmr_device = major(8, 0), .fmr_physical = 3},
+	fmh_keys[1] = { .fmr_device = major(8, 0), .fmr_physical = 14},
+
+Which would return you whatever is mapped in the 12 bytes starting at
+physical offset 3.
+
+The crash is due to insufficient range validation of keys[1] in
+ext4_getfsmap_datadev.  On 1k-block filesystems, block 0 is not part of
+the filesystem, which means that s_first_data_block is nonzero.
+ext4_get_group_no_and_offset subtracts this quantity from the blocknr
+argument before cracking it into a group number and a block number
+within a group.  IOWs, block group 0 spans blocks 1-8192 (1-based)
+instead of 0-8191 (0-based) like what happens with larger blocksizes.
+
+The net result of this encoding is that blocknr < s_first_data_block is
+not a valid input to this function.  The end_fsb variable is set from
+the keys that are copied from userspace, which means that in the above
+example, its value is zero.  That leads to an underflow here:
+
+	blocknr = blocknr - le32_to_cpu(es->s_first_data_block);
+
+The division then operates on -1:
+
+	offset = do_div(blocknr, EXT4_BLOCKS_PER_GROUP(sb)) >>
+		EXT4_SB(sb)->s_cluster_bits;
+
+Leaving an impossibly large group number (2^32-1) in blocknr.
+ext4_getfsmap_check_keys checked that keys[0].fmr_physical and
+keys[1].fmr_physical are in increasing order, but
+ext4_getfsmap_datadev adjusts keys[0].fmr_physical to be at least
+s_first_data_block.  This implies that we have to check it again after
+the adjustment, which is the piece that I forgot.
+
+Reported-by: syzbot+6be2b977c89f79b6b153@syzkaller.appspotmail.com
+Fixes: 4a4956249dac ("ext4: fix off-by-one fsmap error on 1k block filesystems")
+Link: https://syzkaller.appspot.com/bug?id=79d5768e9bfe362911ac1a5057a36fc6b5c30002
+Cc: stable@vger.kernel.org
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Link: https://lore.kernel.org/r/Y+58NPTH7VNGgzdd@magnolia
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_edid.c | 53 +++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 23 deletions(-)
+ fs/ext4/fsmap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 2dc6dd6230d76..10eb78b9347e1 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5065,6 +5065,35 @@ drm_hdmi_infoframe_set_hdr_metadata(struct hdmi_drm_infoframe *frame,
- }
- EXPORT_SYMBOL(drm_hdmi_infoframe_set_hdr_metadata);
- 
-+static u8 drm_mode_cea_vic(struct drm_connector *connector,
-+			   const struct drm_display_mode *mode)
-+{
-+	u8 vendor_if_vic = drm_match_hdmi_mode(mode);
-+	bool is_s3d = mode->flags & DRM_MODE_FLAG_3D_MASK;
-+	u8 vic;
-+
-+	/*
-+	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
-+	 * we should send its VIC in vendor infoframes, else send the
-+	 * VIC in AVI infoframes. Lets check if this mode is present in
-+	 * HDMI 1.4b 4K modes
-+	 */
-+	if (drm_valid_hdmi_vic(vendor_if_vic) && !is_s3d)
+--- a/fs/ext4/fsmap.c
++++ b/fs/ext4/fsmap.c
+@@ -486,6 +486,8 @@ static int ext4_getfsmap_datadev(struct
+ 		keys[0].fmr_physical = bofs;
+ 	if (keys[1].fmr_physical >= eofs)
+ 		keys[1].fmr_physical = eofs - 1;
++	if (keys[1].fmr_physical < keys[0].fmr_physical)
 +		return 0;
-+
-+	vic = drm_match_cea_mode(mode);
-+
-+	/*
-+	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
-+	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
-+	 * have to make sure we dont break HDMI 1.4 sinks.
-+	 */
-+	if (!is_hdmi2_sink(connector) && vic > 64)
-+		return 0;
-+
-+	return vic;
-+}
-+
- /**
-  * drm_hdmi_avi_infoframe_from_display_mode() - fill an HDMI AVI infoframe with
-  *                                              data from a DRM display mode
-@@ -5092,29 +5121,7 @@ drm_hdmi_avi_infoframe_from_display_mode(struct hdmi_avi_infoframe *frame,
- 	if (mode->flags & DRM_MODE_FLAG_DBLCLK)
- 		frame->pixel_repeat = 1;
+ 	start_fsb = keys[0].fmr_physical;
+ 	end_fsb = keys[1].fmr_physical;
  
--	frame->video_code = drm_match_cea_mode(mode);
--
--	/*
--	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
--	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
--	 * have to make sure we dont break HDMI 1.4 sinks.
--	 */
--	if (!is_hdmi2_sink(connector) && frame->video_code > 64)
--		frame->video_code = 0;
--
--	/*
--	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
--	 * we should send its VIC in vendor infoframes, else send the
--	 * VIC in AVI infoframes. Lets check if this mode is present in
--	 * HDMI 1.4b 4K modes
--	 */
--	if (frame->video_code) {
--		u8 vendor_if_vic = drm_match_hdmi_mode(mode);
--		bool is_s3d = mode->flags & DRM_MODE_FLAG_3D_MASK;
--
--		if (drm_valid_hdmi_vic(vendor_if_vic) && !is_s3d)
--			frame->video_code = 0;
--	}
-+	frame->video_code = drm_mode_cea_vic(connector, mode);
- 
- 	frame->picture_aspect = HDMI_PICTURE_ASPECT_NONE;
- 
--- 
-2.39.2
-
 
 
