@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2925D6BB379
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8476BB382
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232937AbjCOMpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:45:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37020 "EHLO
+        id S232792AbjCOMpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:45:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233067AbjCOMoi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9503DA2242
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:43:18 -0700 (PDT)
+        with ESMTP id S232570AbjCOMpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:45:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DF9A2F36
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:43:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B315B81DF6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:43:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D930C433EF;
-        Wed, 15 Mar 2023 12:43:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA53761D7D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:43:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BEB8C4339B;
+        Wed, 15 Mar 2023 12:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884196;
-        bh=jpZNZKqoI0Rd2ooyWb/Knpi/2NVojsRtuQgU3PqNPYQ=;
+        s=korg; t=1678884199;
+        bh=Z76MC6rTA6+vNVOx0L7tDrR2akkWAhfZ/via+yE/+ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIkVDmFEKsB277hCHcd9JKWJVaIyaJe4p4HJrq87iMCD6/TpmP4aBpT9qp6EICmBH
-         d9lr61PiMNVd8FcnSFQXYmcyKapIJEwbCkf81EbxO3MEDaA93/FIBcLGSX6mW8t9CY
-         /KKOdtfHEEobzA8RmHnYZmVTQkTUBxqHJEp+GQtE=
+        b=zfbOtYav0POtdFtz8nBpIzS5Nz2wjPs5t4OlECWiHCFQgYwQP+g91bHzw7QIwI11O
+         7otfezuxOY1MvteVvod9Qn0NV0ruvz0nt0CM6M1+4N4uYMzCKLX08dYDmmbbbFvrIH
+         lrdr1pf8Hkh5+gMKdqZqOa1uR5zvVdPnGLf2sYSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alvaro Karsz <alvaro.karsz@solid-run.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nicolas Schier <nicolas@fjasle.eu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 132/141] PCI: Avoid FLR for SolidRun SNET DPU rev 1
-Date:   Wed, 15 Mar 2023 13:13:55 +0100
-Message-Id: <20230315115743.996651796@linuxfoundation.org>
+Subject: [PATCH 6.2 133/141] scripts: handle BrokenPipeError for python scripts
+Date:   Wed, 15 Mar 2023 13:13:56 +0100
+Message-Id: <20230315115744.030501108@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
 References: <20230315115739.932786806@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,46 +55,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit d089d69cc1f824936eeaa4fa172f8fa1a0949eaa ]
+[ Upstream commit 87c7ee67deb7fce9951a5f9d80641138694aad17 ]
 
-This patch fixes a FLR bug on the SNET DPU rev 1 by setting the
-PCI_DEV_FLAGS_NO_FLR_RESET flag.
+In the follow-up of commit fb3041d61f68 ("kbuild: fix SIGPIPE error
+message for AR=gcc-ar and AR=llvm-ar"), Kees Cook pointed out that
+tools should _not_ catch their own SIGPIPEs [1] [2].
 
-As there is a quirk to avoid FLR (quirk_no_flr), I added a new quirk
-to check the rev ID before calling to quirk_no_flr.
+Based on his feedback, LLVM was fixed [3].
 
-Without this patch, a SNET DPU rev 1 may hang when FLR is applied.
+However, Python's default behavior is to show noisy bracktrace when
+SIGPIPE is sent. So, scripts written in Python are basically in the
+same situation as the buggy llvm tools.
 
-Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Message-Id: <20230110165638.123745-3-alvaro.karsz@solid-run.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Example:
+
+  $ make -s allnoconfig
+  $ make -s allmodconfig
+  $ scripts/diffconfig .config.old .config | head -n1
+  -ALIX n
+  Traceback (most recent call last):
+    File "/home/masahiro/linux/scripts/diffconfig", line 132, in <module>
+      main()
+    File "/home/masahiro/linux/scripts/diffconfig", line 130, in main
+      print_config("+", config, None, b[config])
+    File "/home/masahiro/linux/scripts/diffconfig", line 64, in print_config
+      print("+%s %s" % (config, new_value))
+  BrokenPipeError: [Errno 32] Broken pipe
+
+Python documentation [4] notes how to make scripts die immediately and
+silently:
+
+  """
+  Piping output of your program to tools like head(1) will cause a
+  SIGPIPE signal to be sent to your process when the receiver of its
+  standard output closes early. This results in an exception like
+  BrokenPipeError: [Errno 32] Broken pipe. To handle this case,
+  wrap your entry point to catch this exception as follows:
+
+    import os
+    import sys
+
+    def main():
+        try:
+            # simulate large output (your code replaces this loop)
+            for x in range(10000):
+                print("y")
+            # flush output here to force SIGPIPE to be triggered
+            # while inside this try block.
+            sys.stdout.flush()
+        except BrokenPipeError:
+            # Python flushes standard streams on exit; redirect remaining output
+            # to devnull to avoid another BrokenPipeError at shutdown
+            devnull = os.open(os.devnull, os.O_WRONLY)
+            os.dup2(devnull, sys.stdout.fileno())
+            sys.exit(1)  # Python exits with error code 1 on EPIPE
+
+    if __name__ == '__main__':
+        main()
+
+  Do not set SIGPIPE’s disposition to SIG_DFL in order to avoid
+  BrokenPipeError. Doing that would cause your program to exit
+  unexpectedly whenever any socket connection is interrupted while
+  your program is still writing to it.
+  """
+
+Currently, tools/perf/scripts/python/intel-pt-events.py seems to be the
+only script that fixes the issue that way.
+
+tools/perf/scripts/python/compaction-times.py uses another approach
+signal.signal(signal.SIGPIPE, signal.SIG_DFL) but the Python
+documentation clearly says "Don't do it".
+
+I cannot fix all Python scripts since there are so many.
+I fixed some in the scripts/ directory.
+
+[1]: https://lore.kernel.org/all/202211161056.1B9611A@keescook/
+[2]: https://github.com/llvm/llvm-project/issues/59037
+[3]: https://github.com/llvm/llvm-project/commit/4787efa38066adb51e2c049499d25b3610c0877b
+[4]: https://docs.python.org/3/library/signal.html#note-on-sigpipe
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ scripts/checkkconfigsymbols.py         | 13 ++++++++++++-
+ scripts/clang-tools/run-clang-tools.py | 21 ++++++++++++++-------
+ scripts/diffconfig                     | 16 ++++++++++++++--
+ 3 files changed, 40 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 494fa46f57671..44cab813bf951 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5366,6 +5366,14 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x7901, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
+diff --git a/scripts/checkkconfigsymbols.py b/scripts/checkkconfigsymbols.py
+index 217d21abc86e8..36c920e713137 100755
+--- a/scripts/checkkconfigsymbols.py
++++ b/scripts/checkkconfigsymbols.py
+@@ -115,7 +115,7 @@ def parse_options():
+     return args
  
-+/* FLR may cause the SolidRun SNET DPU (rev 0x1) to hang */
-+static void quirk_no_flr_snet(struct pci_dev *dev)
-+{
-+	if (dev->revision == 0x1)
-+		quirk_no_flr(dev);
-+}
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLIDRUN, 0x1000, quirk_no_flr_snet);
+ 
+-def main():
++def print_undefined_symbols():
+     """Main function of this module."""
+     args = parse_options()
+ 
+@@ -467,5 +467,16 @@ def parse_kconfig_file(kfile):
+     return defined, references
+ 
+ 
++def main():
++    try:
++        print_undefined_symbols()
++    except BrokenPipeError:
++        # Python flushes standard streams on exit; redirect remaining output
++        # to devnull to avoid another BrokenPipeError at shutdown
++        devnull = os.open(os.devnull, os.O_WRONLY)
++        os.dup2(devnull, sys.stdout.fileno())
++        sys.exit(1)  # Python exits with error code 1 on EPIPE
 +
- static void quirk_no_ext_tags(struct pci_dev *pdev)
- {
- 	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
++
+ if __name__ == "__main__":
+     main()
+diff --git a/scripts/clang-tools/run-clang-tools.py b/scripts/clang-tools/run-clang-tools.py
+index 56f2ec8f0f40a..3266708a86586 100755
+--- a/scripts/clang-tools/run-clang-tools.py
++++ b/scripts/clang-tools/run-clang-tools.py
+@@ -61,14 +61,21 @@ def run_analysis(entry):
+ 
+ 
+ def main():
+-    args = parse_arguments()
++    try:
++        args = parse_arguments()
+ 
+-    lock = multiprocessing.Lock()
+-    pool = multiprocessing.Pool(initializer=init, initargs=(lock, args))
+-    # Read JSON data into the datastore variable
+-    with open(args.path, "r") as f:
+-        datastore = json.load(f)
+-        pool.map(run_analysis, datastore)
++        lock = multiprocessing.Lock()
++        pool = multiprocessing.Pool(initializer=init, initargs=(lock, args))
++        # Read JSON data into the datastore variable
++        with open(args.path, "r") as f:
++            datastore = json.load(f)
++            pool.map(run_analysis, datastore)
++    except BrokenPipeError:
++        # Python flushes standard streams on exit; redirect remaining output
++        # to devnull to avoid another BrokenPipeError at shutdown
++        devnull = os.open(os.devnull, os.O_WRONLY)
++        os.dup2(devnull, sys.stdout.fileno())
++        sys.exit(1)  # Python exits with error code 1 on EPIPE
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/scripts/diffconfig b/scripts/diffconfig
+index d5da5fa05d1d3..43f0f3d273ae7 100755
+--- a/scripts/diffconfig
++++ b/scripts/diffconfig
+@@ -65,7 +65,7 @@ def print_config(op, config, value, new_value):
+         else:
+             print(" %s %s -> %s" % (config, value, new_value))
+ 
+-def main():
++def show_diff():
+     global merge_style
+ 
+     # parse command line args
+@@ -129,4 +129,16 @@ def main():
+     for config in new:
+         print_config("+", config, None, b[config])
+ 
+-main()
++def main():
++    try:
++        show_diff()
++    except BrokenPipeError:
++        # Python flushes standard streams on exit; redirect remaining output
++        # to devnull to avoid another BrokenPipeError at shutdown
++        devnull = os.open(os.devnull, os.O_WRONLY)
++        os.dup2(devnull, sys.stdout.fileno())
++        sys.exit(1)  # Python exits with error code 1 on EPIPE
++
++
++if __name__ == '__main__':
++    main()
 -- 
 2.39.2
 
