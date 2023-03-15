@@ -2,112 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8B36BB614
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 15:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A1A6BB620
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 15:35:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231889AbjCOOc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 10:32:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59262 "EHLO
+        id S231154AbjCOOfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 10:35:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbjCOOc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 10:32:27 -0400
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 277F21F5EB;
-        Wed, 15 Mar 2023 07:32:20 -0700 (PDT)
-Received: by mail-il1-x135.google.com with SMTP id h5so6411990ile.13;
-        Wed, 15 Mar 2023 07:32:20 -0700 (PDT)
+        with ESMTP id S231126AbjCOOfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 10:35:09 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F267D520
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 07:35:05 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id v21so10120142ple.9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 07:35:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678890739;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=+sa882HWJ4UleFPTHPmttlCN7M6tCbr8bt+aCQ/0MVE=;
-        b=Xy+ZeuOcdxzn1KvLO5FU8ZXKFUpQ2kieKEO5CQiZqguVWdo6eju6697yhHtMB14xjN
-         iIGuqm0oRUvag+ZqaF07MbjJh8SEFIwAp8DSfStWJ6KNcUzDt7NDLBmVIlTM47Y6zHnv
-         sW1fPZrv6Qub9xQPVgx2qtlF5Lkpu0AIeIherdwRfHBLOplxj6Rfcl8tq32aDx4IUtNE
-         6n/JY+4zPlamkh7hGo+pcarPOWrnqw1/gHH4+5NNSe2QvkA2kA/KEEzqaDp0qDe7rNGd
-         PK90PM0sb1U7YTtQ8zkYaYiRubY7fEg+Q8dUzoFiyWVOD00GUev7NmDcZvWZRCpbogFC
-         amFw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678890904;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=Mk5UWnU4LCOvz7cBTLS7He8dWX8s233ww9rtuXB79uo=;
+        b=Nmr9RhTplOBlV35hE1Vv2kmdYZRFu50hsgz5W0AGDUdjH/9HYfR4JfT1G3Y+jGtX3c
+         A5RyzjXTc0VrWYaX8IsvlFzdCKVO572wJFCz2O6aqvdov4KddELaUA5MhxhSTvlfKUh8
+         JtppbAgIZtSJsMvsvAURnvF0sOZeUD/xYgnNkpXvGW44hM+zLF4M3HP81d1kV387Ctn6
+         sFkZ/qv1uWxqEtJxOag/ZU58W31l1Tl7CQdkd4eBmrJP2fXVz7T98tcMGqFRR1HTot0s
+         Zmg8OlvTJkmmEEjgLvnHmgd95Tfwxw8O2Cw/9YpnWOMgcbHVRB8bDWo13xCRqPV51nQ+
+         029g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678890739;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20210112; t=1678890904;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+sa882HWJ4UleFPTHPmttlCN7M6tCbr8bt+aCQ/0MVE=;
-        b=j/sPIFXywbyXOp2TzGOa9FbXC1Jc4hiSr+N8s82WjKhL7IcEeavKQO88gZ5wgxw3SN
-         2mIwa229r43/O3LA8vbf1ah9yELLX19o7d+YPEAjsTstop7FGEZDdQ7a+S1UNvWTm4UV
-         4hAxhJqbkr3QzU57jHiCsgIw8wDKNXMlaOzE5YEuxEfyy+o1i1Sti481/ct0bHxwmPvN
-         mOlIntPR9KgMbBBCIGGNnmMcd9eDwjl5B9dFabKkPqZnT7An3jJFf0vae8oWI2uktgEV
-         ae9RooBkezar4tbHnIjh2JW/HNxCU8AMpWNitDFoEA9W1UuTuRt+W302TFzervDRifJR
-         Z3EA==
-X-Gm-Message-State: AO0yUKUQC/6wLqtDz3gYZVxN6ZmHAizsArn8sY7DOIiUK8RFFSuxpnSq
-        pYctZpEm1lzOWUHzMuqvHFQ=
-X-Google-Smtp-Source: AK7set9/WSLL7bvG5rGW/c3DlwOa0kidp25js0YUNkQWc0Xt2Uxfp4+N4cxtgiYyWk4g15BlI8/08Q==
-X-Received: by 2002:a05:6e02:1c47:b0:315:4a48:aaf with SMTP id d7-20020a056e021c4700b003154a480aafmr5058655ilg.14.1678890739490;
-        Wed, 15 Mar 2023 07:32:19 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id o16-20020a02b810000000b003eb3be5601csm1682421jam.174.2023.03.15.07.32.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Mar 2023 07:32:19 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <9dad73af-ce00-9c83-24ed-ffecaf9cae28@roeck-us.net>
-Date:   Wed, 15 Mar 2023 07:32:16 -0700
+        bh=Mk5UWnU4LCOvz7cBTLS7He8dWX8s233ww9rtuXB79uo=;
+        b=CepCvPcTfEg2k6GKMyvDw03eYgc+QqXTIfWS6VvGDC7DH2/Jy32omf02DnUq1+dlzf
+         0bX79Mi14rGzEyCbbStEQJI4vsWYXGk7a4wa7GSRS0ziEVM8ltvx+3b1PAvIRsPBNMdO
+         QJzmvIbUC1/ACQBwYhH9WiA2xZb8tH95bvwc1n8DNrak7MgLZD6HrGztATm2x5Dv34E/
+         mTAlWAiSngN9275eVpjYwfZiDm7oZ5pj3OWYtHlsuAS8RIUye+ZJ8FovKdqAKcV7ayiN
+         u7H6g/iRoKhUoviWMWYxP22pyc2omt4kPBvqdtj5SOMo2YTITgYBfagaMS36tWlDSfhr
+         qIwQ==
+X-Gm-Message-State: AO0yUKVP4cpn0FuJDzLoLEXKLUHgq1nBlWllfuN27NJ6xw1UTOzqLaay
+        oPvaEM0AbMYrtA/nb9L2lU2tAWKKhKib2UYT9MoqAthe
+X-Google-Smtp-Source: AK7set8iwFZJCDU/KdlsbUhk1yQew3CrMQK5NKKPTs8NvotD2lNR51+08fnqZ499swZKF54CApZb9A==
+X-Received: by 2002:a17:902:f0ca:b0:1a1:7c2b:4aea with SMTP id v10-20020a170902f0ca00b001a17c2b4aeamr1260764pla.0.1678890904445;
+        Wed, 15 Mar 2023 07:35:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id kt16-20020a170903089000b0019a8b057359sm3739305plb.130.2023.03.15.07.35.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Mar 2023 07:35:04 -0700 (PDT)
+Message-ID: <6411d798.170a0220.2e5d1.86d6@mx.google.com>
+Date:   Wed, 15 Mar 2023 07:35:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH 4.19 00/39] 4.19.278-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230315115721.234756306@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.101-146-g4faa8112f175
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.15.y baseline: 171 runs,
+ 2 regressions (v5.15.101-146-g4faa8112f175)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/15/23 05:12, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.278 release.
-> There are 39 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
-> Anything received after that time might be too late.
-> 
+stable-rc/linux-5.15.y baseline: 171 runs, 2 regressions (v5.15.101-146-g4f=
+aa8112f175)
 
-Building arm64:defconfig ... failed
---------------
-Error log:
-kernel/cgroup/cgroup.c: In function 'cgroup_attach_lock':
-kernel/cgroup/cgroup.c:2237:9: error: implicit declaration of function 'get_online_cpus'; did you mean 'get_online_mems'? [-Werror=implicit-function-declaration]
-  2237 |         get_online_cpus();
-       |         ^~~~~~~~~~~~~~~
-       |         get_online_mems
-kernel/cgroup/cgroup.c: In function 'cgroup_attach_unlock':
-kernel/cgroup/cgroup.c:2248:9: error: implicit declaration of function 'put_online_cpus'; did you mean 'num_online_cpus'? [-Werror=implicit-function-declaration]
-  2248 |         put_online_cpus();
-       |         ^~~~~~~~~~~~~~~
-       |         num_online_cpus
+Regressions Summary
+-------------------
 
-This affects other architectures as well. Builds are not complete
-so I don't see the full impact yet.
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+cubietruck      | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-Guenter
+fsl-lx2160a-rdb | arm64 | lab-nxp      | gcc-10   | defconfig          | 1 =
+         =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.101-146-g4faa8112f175/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.101-146-g4faa8112f175
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4faa8112f175ba2eb173966c20c5fdc4f26bd1c4 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+cubietruck      | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/6411a25e799806eaa58c866b
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+01-146-g4faa8112f175/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+01-146-g4faa8112f175/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6411a25e799806eaa58c8674
+        failing since 57 days (last pass: v5.15.82-124-gd731c63c25d1, first=
+ fail: v5.15.87-101-g5bcc318cb4cd)
+
+    2023-03-15T10:47:38.642255  <8>[   10.005944] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3413336_1.5.2.4.1>
+    2023-03-15T10:47:38.752451  / # #
+    2023-03-15T10:47:38.856362  export SHELL=3D/bin/sh
+    2023-03-15T10:47:38.857246  #
+    2023-03-15T10:47:38.959291  / # export SHELL=3D/bin/sh. /lava-3413336/e=
+nvironment
+    2023-03-15T10:47:38.960175  =
+
+    2023-03-15T10:47:39.061738  / # . /lava-3413336/environment/lava-341333=
+6/bin/lava-test-runner /lava-3413336/1
+    2023-03-15T10:47:39.062420  =
+
+    2023-03-15T10:47:39.067302  / # /lava-3413336/bin/lava-test-runner /lav=
+a-3413336/1
+    2023-03-15T10:47:39.153885  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =
+
+
+
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+fsl-lx2160a-rdb | arm64 | lab-nxp      | gcc-10   | defconfig          | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/6411a3b05be3d220448c8631
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+01-146-g4faa8112f175/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-rd=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+01-146-g4faa8112f175/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-rd=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6411a3b05be3d220448c8638
+        failing since 11 days (last pass: v5.15.79, first fail: v5.15.98)
+
+    2023-03-15T10:53:17.315647  [   15.830981] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+1173661_1.5.2.4.1>
+    2023-03-15T10:53:17.421350  / # #
+    2023-03-15T10:53:17.522978  export SHELL=3D/bin/sh
+    2023-03-15T10:53:17.523376  #
+    2023-03-15T10:53:17.624660  / # export SHELL=3D/bin/sh. /lava-1173661/e=
+nvironment
+    2023-03-15T10:53:17.625211  =
+
+    2023-03-15T10:53:17.726767  / # . /lava-1173661/environment/lava-117366=
+1/bin/lava-test-runner /lava-1173661/1
+    2023-03-15T10:53:17.727591  =
+
+    2023-03-15T10:53:17.730072  / # /lava-1173661/bin/lava-test-runner /lav=
+a-1173661/1
+    2023-03-15T10:53:17.746737  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =20
