@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEBB6BB117
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE9B6BB341
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232420AbjCOMYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
+        id S233030AbjCOMm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232260AbjCOMYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:23 -0400
+        with ESMTP id S233045AbjCOMmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6C290B69
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44E82BEF3
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BA5161D5F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9409DC4339B;
-        Wed, 15 Mar 2023 12:23:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D91361D69
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43022C433EF;
+        Wed, 15 Mar 2023 12:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882995;
-        bh=iUQ6gudsmn4FFsxRpNm7b2K7QFuzCEIKsfGUW2Hs0Ms=;
+        s=korg; t=1678884078;
+        bh=feaYzCQmnolwAAkCECIkZtYjMX1x4GiBId7TUk3zZN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsKbZr+Y0Z5ND7Rl1JIY2jjNveu+QSYu8pE/yY2w1ubJhy6vLkYaMWY/OnX3spilq
-         g158xnaYvbYWqkYaPtfEFG9VvvDenrgdubj1Pf90OhxSjF0DAo+fFQR5sCLqhn37Ay
-         SDlGkk8btbk77sh0akvcPCyr0Y/2OxY781r/VgMc=
+        b=Tj2is6Ocsy6N6Rh43BsFBfPixJCfmkvyNn7pdVtw0Mc8RmBZfRRNIjpmUdUNtmMbm
+         /+ijtwVul0rBIuwIseVcneMktIeM8Med0NxWvAPj7gvVCLB83xwujzOESBPaf+0/J1
+         ZmmqNMM1Qh9Z/t61O4b42nUXhtmzLwm8uZi5TJyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Subject: [PATCH 5.10 081/104] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
+        patches@lists.linux.dev,
+        Huanhuan Wang <huanhuan.wang@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 069/141] nfp: fix esp-tx-csum-offload doesnt take effect
 Date:   Wed, 15 Mar 2023 13:12:52 +0100
-Message-Id: <20230315115735.304750811@linuxfoundation.org>
+Message-Id: <20230315115742.060828108@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Huanhuan Wang <huanhuan.wang@corigine.com>
 
-commit b48e16a69792b5dc4a09d6807369d11b2970cc36 upstream.
+[ Upstream commit 1cf78d4c4144ffdbc2c9d505db482cb204bb480b ]
 
-So that the new uclamp rules in regard to migration margin and capacity
-pressure are taken into account correctly.
+When esp-tx-csum-offload is set to on, the protocol stack shouldn't
+calculate the IPsec offload packet's csum, but it does. Because the
+callback `.ndo_features_check` incorrectly masked NETIF_F_CSUM_MASK bit.
 
-Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
-Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
-(cherry picked from commit b48e16a69792b5dc4a09d6807369d11b2970cc36)
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 57f273adbcd4 ("nfp: add framework to support ipsec offloading")
+Signed-off-by: Huanhuan Wang <huanhuan.wang@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c  |   26 ++++++++++++++++----------
- kernel/sched/sched.h |    9 +++++++++
- 2 files changed, 25 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_common.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4197,10 +4197,12 @@ static inline int util_fits_cpu(unsigned
- 	return fits;
- }
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
+index 70d7484c82af4..1182fa48a3b54 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
+@@ -38,6 +38,7 @@
+ #include <net/tls.h>
+ #include <net/vxlan.h>
+ #include <net/xdp_sock_drv.h>
++#include <net/xfrm.h>
  
--static inline int task_fits_capacity(struct task_struct *p,
--				     unsigned long capacity)
-+static inline int task_fits_cpu(struct task_struct *p, int cpu)
- {
--	return fits_capacity(uclamp_task_util(p), capacity);
-+	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
-+	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
-+	unsigned long util = task_util_est(p);
-+	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
- }
- 
- static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
-@@ -4213,7 +4215,7 @@ static inline void update_misfit_status(
- 		return;
+ #include "nfpcore/nfp_dev.h"
+ #include "nfpcore/nfp_nsp.h"
+@@ -1897,6 +1898,9 @@ nfp_net_features_check(struct sk_buff *skb, struct net_device *dev,
+ 			features &= ~NETIF_F_GSO_MASK;
  	}
  
--	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
-+	if (task_fits_cpu(p, cpu_of(rq))) {
- 		rq->misfit_task_load = 0;
- 		return;
- 	}
-@@ -7898,7 +7900,7 @@ static int detach_tasks(struct lb_env *e
- 
- 		case migrate_misfit:
- 			/* This is not a misfit task */
--			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
-+			if (task_fits_cpu(p, env->src_cpu))
- 				goto next;
- 
- 			env->imbalance = 0;
-@@ -8840,6 +8842,10 @@ static inline void update_sg_wakeup_stat
- 
- 	memset(sgs, 0, sizeof(*sgs));
- 
-+	/* Assume that task can't fit any CPU of the group */
-+	if (sd->flags & SD_ASYM_CPUCAPACITY)
-+		sgs->group_misfit_task_load = 1;
++	if (xfrm_offload(skb))
++		return features;
 +
- 	for_each_cpu(i, sched_group_span(group)) {
- 		struct rq *rq = cpu_rq(i);
- 		unsigned int local;
-@@ -8859,12 +8865,12 @@ static inline void update_sg_wakeup_stat
- 		if (!nr_running && idle_cpu_without(i, p))
- 			sgs->idle_cpus++;
- 
--	}
-+		/* Check if task fits in the CPU */
-+		if (sd->flags & SD_ASYM_CPUCAPACITY &&
-+		    sgs->group_misfit_task_load &&
-+		    task_fits_cpu(p, i))
-+			sgs->group_misfit_task_load = 0;
- 
--	/* Check if task fits in the group */
--	if (sd->flags & SD_ASYM_CPUCAPACITY &&
--	    !task_fits_capacity(p, group->sgc->max_capacity)) {
--		sgs->group_misfit_task_load = 1;
- 	}
- 
- 	sgs->group_capacity = group->sgc->capacity;
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2468,6 +2468,15 @@ static inline bool uclamp_is_used(void)
- 	return static_branch_likely(&sched_uclamp_used);
- }
- #else /* CONFIG_UCLAMP_TASK */
-+static inline unsigned long uclamp_eff_value(struct task_struct *p,
-+					     enum uclamp_id clamp_id)
-+{
-+	if (clamp_id == UCLAMP_MIN)
-+		return 0;
-+
-+	return SCHED_CAPACITY_SCALE;
-+}
-+
- static inline
- unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
- 				  struct task_struct *p)
+ 	/* VXLAN/GRE check */
+ 	switch (vlan_get_protocol(skb)) {
+ 	case htons(ETH_P_IP):
+-- 
+2.39.2
+
 
 
