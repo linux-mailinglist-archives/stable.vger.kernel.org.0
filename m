@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A6B6BB0A5
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5666BB136
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232181AbjCOMUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:20:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45916 "EHLO
+        id S232224AbjCOMZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232260AbjCOMTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CAB8ABFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:38 -0700 (PDT)
+        with ESMTP id S232064AbjCOMZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E359867D5
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8BF1ECE19A7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA17FC433EF;
-        Wed, 15 Mar 2023 12:19:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2E5DB81E09
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 440D5C433D2;
+        Wed, 15 Mar 2023 12:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882775;
-        bh=Xlcr37DktsEuEfQTdurJCw1fugrzxQNGu5WIN7obv5o=;
+        s=korg; t=1678883016;
+        bh=gs2EdYSFyUq5kIMG7E5WZr43xWdWWAFHC/b9kH+L1vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4/R53TKBCJchHy1aLrN4WxsWIUW3cPX5I1wS4/VmWz6l6XDDkc9esSq8Ns777EdZ
-         Zkq6z6B8lUWsLjbyEpF9Nxuj+Aci42uJvZtaV7QingzqDDJlKzASw8grVZBSTCZmom
-         k1Iv+D30B+6W/qWutZZExRSe5R+LTmH0tBpRGD0E=
+        b=A6Q6hm7FYhjvbrgqZYO6TNAs9ySmAaVpBAk+LDQOo+3JJtwTyQmEDmWzUQnL1Uy5T
+         80QPRc/v1+rW1Pb44b4YimZXI3qZDPvBhIAMrL22tzdj24uu/ev5pYfoEhOwTWXlWu
+         wOMMCjs/WV9amyX/sYubajEp9ly89xs5qtxlWhH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.4 65/68] s390: define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36
-Date:   Wed, 15 Mar 2023 13:12:59 +0100
-Message-Id: <20230315115728.649446330@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+Subject: [PATCH 5.10 089/104] sched/uclamp: Fix a uninitialized variable warnings
+Date:   Wed, 15 Mar 2023 13:13:00 +0100
+Message-Id: <20230315115735.654254040@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Qais Yousef <qyousef@layalina.io>
 
-commit a494398bde273143c2352dd373cad8211f7d94b2 upstream.
+commit e26fd28db82899be71b4b949527373d0a6be1e65 upstream.
 
-Nathan Chancellor reports that the s390 vmlinux fails to link with
-GNU ld < 2.36 since commit 99cb0d917ffa ("arch: fix broken BuildID
-for arm64 and riscv").
+Addresses the following warnings:
 
-It happens for defconfig, or more specifically for CONFIG_EXPOLINE=y.
+> config: riscv-randconfig-m031-20221111
+> compiler: riscv64-linux-gcc (GCC) 12.1.0
+>
+> smatch warnings:
+> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_min'.
+> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_max'.
 
-  $ s390x-linux-gnu-ld --version | head -n1
-  GNU ld (GNU Binutils for Debian) 2.35.2
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- allnoconfig
-  $ ./scripts/config -e CONFIG_EXPOLINE
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- olddefconfig
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu-
-  `.exit.text' referenced in section `.s390_return_reg' of drivers/base/dd.o: defined in discarded section `.exit.text' of drivers/base/dd.o
-  make[1]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-  make: *** [Makefile:1252: vmlinux] Error 2
-
-arch/s390/kernel/vmlinux.lds.S wants to keep EXIT_TEXT:
-
-        .exit.text : {
-                EXIT_TEXT
-        }
-
-But, at the same time, EXIT_TEXT is thrown away by DISCARD because
-s390 does not define RUNTIME_DISCARD_EXIT.
-
-I still do not understand why the latter wins after 99cb0d917ffa,
-but defining RUNTIME_DISCARD_EXIT seems correct because the comment
-line in arch/s390/kernel/vmlinux.lds.S says:
-
-        /*
-         * .exit.text is discarded at runtime, not link time,
-         * to deal with references from __bug_table
-         */
-
-Nathan also found that binutils commit 21401fc7bf67 ("Duplicate output
-sections in scripts") cured this issue, so we cannot reproduce it with
-binutils 2.36+, but it is better to not rely on it.
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20230105031306.1455409-1-masahiroy@kernel.org
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Fixes: 244226035a1f ("sched/uclamp: Fix fits_capacity() check in feec()")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20230112122708.330667-2-qyousef@layalina.io
+(cherry picked from commit e26fd28db82899be71b4b949527373d0a6be1e65)
+[Conflict in kernel/sched/fair.c due to new automatic variable in
+master vs 5.10 and new code around for loop]
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/vmlinux.lds.S |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/fair.c |   35 ++++++++++++++++-------------------
+ 1 file changed, 16 insertions(+), 19 deletions(-)
 
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -15,6 +15,8 @@
- /* Handle ro_after_init data on our own. */
- #define RO_AFTER_INIT_DATA
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6799,9 +6799,9 @@ static int find_energy_efficient_cpu(str
+ 		goto unlock;
  
-+#define RUNTIME_DISCARD_EXIT
+ 	for (; pd; pd = pd->next) {
++		unsigned long util_min = p_util_min, util_max = p_util_max;
+ 		unsigned long cur_delta, spare_cap, max_spare_cap = 0;
+ 		unsigned long rq_util_min, rq_util_max;
+-		unsigned long util_min, util_max;
+ 		unsigned long base_energy_pd;
+ 		int max_spare_cap_cpu = -1;
+ 
+@@ -6810,6 +6810,8 @@ static int find_energy_efficient_cpu(str
+ 		base_energy += base_energy_pd;
+ 
+ 		for_each_cpu_and(cpu, perf_domain_span(pd), sched_domain_span(sd)) {
++			struct rq *rq = cpu_rq(cpu);
 +
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/vmlinux.lds.h>
+ 			if (!cpumask_test_cpu(cpu, p->cpus_ptr))
+ 				continue;
  
+@@ -6825,24 +6827,19 @@ static int find_energy_efficient_cpu(str
+ 			 * much capacity we can get out of the CPU; this is
+ 			 * aligned with schedutil_cpu_util().
+ 			 */
+-			if (uclamp_is_used()) {
+-				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
+-					util_min = p_util_min;
+-					util_max = p_util_max;
+-				} else {
+-					/*
+-					 * Open code uclamp_rq_util_with() except for
+-					 * the clamp() part. Ie: apply max aggregation
+-					 * only. util_fits_cpu() logic requires to
+-					 * operate on non clamped util but must use the
+-					 * max-aggregated uclamp_{min, max}.
+-					 */
+-					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
+-					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
+-
+-					util_min = max(rq_util_min, p_util_min);
+-					util_max = max(rq_util_max, p_util_max);
+-				}
++			if (uclamp_is_used() && !uclamp_rq_is_idle(rq)) {
++				/*
++				 * Open code uclamp_rq_util_with() except for
++				 * the clamp() part. Ie: apply max aggregation
++				 * only. util_fits_cpu() logic requires to
++				 * operate on non clamped util but must use the
++				 * max-aggregated uclamp_{min, max}.
++				 */
++				rq_util_min = uclamp_rq_get(rq, UCLAMP_MIN);
++				rq_util_max = uclamp_rq_get(rq, UCLAMP_MAX);
++
++				util_min = max(rq_util_min, p_util_min);
++				util_max = max(rq_util_max, p_util_max);
+ 			}
+ 			if (!util_fits_cpu(util, util_min, util_max, cpu))
+ 				continue;
 
 
