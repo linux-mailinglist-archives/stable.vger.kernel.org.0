@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 519B76BB2F6
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9706BB08C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232916AbjCOMkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:40:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
+        id S232154AbjCOMTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232901AbjCOMkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26F37A21B2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:10 -0700 (PDT)
+        with ESMTP id S231290AbjCOMTG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A7A7360B2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EB6E61D49
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CCDFC433EF;
-        Wed, 15 Mar 2023 12:38:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A9897CE19BB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E5AC4339B;
+        Wed, 15 Mar 2023 12:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883894;
-        bh=pY5oKRL/60m1hFyGM31zA6AIXDpuAGgqf/QG1Ny+1ZM=;
+        s=korg; t=1678882727;
+        bh=UTsB+p0ZAP2mjs3MojGbUFfO7QkpKVd8tXdhuiqADbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0P0/mqB5IH9AMYkcD1U5IAl3v9sC/Oays0H8A7Bi3w1KHcbZmIR8lrvQnBmuzmFz
-         b80tmjbO5pa5hTWC9X2OyClpMOt8YzvqOD6+wwt/n0vqTk/1t7gKbDS88IKwwhpxCl
-         zxB7EPQ+LQuWIByI5dVLkUKFC6HWhyeC2fnPxy2Q=
+        b=iGiNmAj8pybDSbYBKpcU0rnbNNFThOivPhu1OcQOpGw+KYBL7BnQHx9tfFA3Z/Xyg
+         saGPvYbQfHt78Ug7Wtth8ep5RqweQEORmj/pV+kKuteOWYseI933FfNhnghA0oJLgt
+         wDW+cYeNfvHm10PBb6P48ECAI7Kqq7MfO4Nhabo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.2 028/141] nfc: change order inside nfc_se_io error path
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Corey Minyard <cminyard@mvista.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/68] ipmi:ssif: make ssif_i2c_send() void
 Date:   Wed, 15 Mar 2023 13:12:11 +0100
-Message-Id: <20230315115740.835606010@linuxfoundation.org>
+Message-Id: <20230315115726.763764566@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-commit 7d834b4d1ab66c48e8c0810fdeadaabb80fa2c81 upstream.
+[ Upstream commit dcd10526ac5a0d6cc94ce60b9acfca458163277b ]
 
-cb_context should be freed on the error path in nfc_se_io as stated by
-commit 25ff6f8a5a3b ("nfc: fix memory leak of se_io context in
-nfc_genl_se_io").
+This function actually needs no return value. So remove the unneeded
+check and make it void.
 
-Make the error path in nfc_se_io unwind everything in reverse order, i.e.
-free the cb_context after unlocking the device.
-
-Suggested-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230306212650.230322-1-pchelkin@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Message-Id: <20210301140515.18951-1-zhangliguang@linux.alibaba.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Stable-dep-of: 95767ed78a18 ("ipmi:ssif: resend_msg() cannot fail")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/netlink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ipmi/ipmi_ssif.c | 81 +++++++++--------------------------
+ 1 file changed, 20 insertions(+), 61 deletions(-)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1446,8 +1446,8 @@ static int nfc_se_io(struct nfc_dev *dev
- 	return rc;
- 
- error:
--	kfree(cb_context);
- 	device_unlock(&dev->dev);
-+	kfree(cb_context);
- 	return rc;
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index d6b69e19f78a7..5ead5e7f0ce16 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -515,7 +515,7 @@ static int ipmi_ssif_thread(void *data)
+ 	return 0;
  }
  
+-static int ssif_i2c_send(struct ssif_info *ssif_info,
++static void ssif_i2c_send(struct ssif_info *ssif_info,
+ 			ssif_i2c_done handler,
+ 			int read_write, int command,
+ 			unsigned char *data, unsigned int size)
+@@ -527,7 +527,6 @@ static int ssif_i2c_send(struct ssif_info *ssif_info,
+ 	ssif_info->i2c_data = data;
+ 	ssif_info->i2c_size = size;
+ 	complete(&ssif_info->wake_thread);
+-	return 0;
+ }
+ 
+ 
+@@ -536,22 +535,12 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 
+ static void start_get(struct ssif_info *ssif_info)
+ {
+-	int rv;
+-
+ 	ssif_info->rtc_us_timer = 0;
+ 	ssif_info->multi_pos = 0;
+ 
+-	rv = ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
+-			  SSIF_IPMI_RESPONSE,
+-			  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
+-	if (rv < 0) {
+-		/* request failed, just return the error. */
+-		if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+-			dev_dbg(&ssif_info->client->dev,
+-				"Error from i2c_non_blocking_op(5)\n");
+-
+-		msg_done_handler(ssif_info, -EIO, NULL, 0);
+-	}
++	ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
++		  SSIF_IPMI_RESPONSE,
++		  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
+ }
+ 
+ static void retry_timeout(struct timer_list *t)
+@@ -625,7 +614,6 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ {
+ 	struct ipmi_smi_msg *msg;
+ 	unsigned long oflags, *flags;
+-	int rv;
+ 
+ 	/*
+ 	 * We are single-threaded here, so no need for a lock until we
+@@ -671,17 +659,10 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 		ssif_info->multi_len = len;
+ 		ssif_info->multi_pos = 1;
+ 
+-		rv = ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
+-				  SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
+-				  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
+-		if (rv < 0) {
+-			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+-				dev_dbg(&ssif_info->client->dev,
+-					"Error from i2c_non_blocking_op(1)\n");
+-
+-			result = -EIO;
+-		} else
+-			return;
++		ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
++			 SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
++			 ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
++		return;
+ 	} else if (ssif_info->multi_pos) {
+ 		/* Middle of multi-part read.  Start the next transaction. */
+ 		int i;
+@@ -743,19 +724,12 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 
+ 			ssif_info->multi_pos++;
+ 
+-			rv = ssif_i2c_send(ssif_info, msg_done_handler,
+-					   I2C_SMBUS_READ,
+-					   SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
+-					   ssif_info->recv,
+-					   I2C_SMBUS_BLOCK_DATA);
+-			if (rv < 0) {
+-				if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+-					dev_dbg(&ssif_info->client->dev,
+-						"Error from ssif_i2c_send\n");
+-
+-				result = -EIO;
+-			} else
+-				return;
++			ssif_i2c_send(ssif_info, msg_done_handler,
++				  I2C_SMBUS_READ,
++				  SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
++				  ssif_info->recv,
++				  I2C_SMBUS_BLOCK_DATA);
++			return;
+ 		}
+ 	}
+ 
+@@ -936,8 +910,6 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ static void msg_written_handler(struct ssif_info *ssif_info, int result,
+ 				unsigned char *data, unsigned int len)
+ {
+-	int rv;
+-
+ 	/* We are single-threaded here, so no need for a lock. */
+ 	if (result < 0) {
+ 		ssif_info->retries_left--;
+@@ -1000,18 +972,9 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
+ 			ssif_info->multi_data = NULL;
+ 		}
+ 
+-		rv = ssif_i2c_send(ssif_info, msg_written_handler,
+-				   I2C_SMBUS_WRITE, cmd,
+-				   data_to_send, I2C_SMBUS_BLOCK_DATA);
+-		if (rv < 0) {
+-			/* request failed, just return the error. */
+-			ssif_inc_stat(ssif_info, send_errors);
+-
+-			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+-				dev_dbg(&ssif_info->client->dev,
+-					"Error from i2c_non_blocking_op(3)\n");
+-			msg_done_handler(ssif_info, -EIO, NULL, 0);
+-		}
++		ssif_i2c_send(ssif_info, msg_written_handler,
++			  I2C_SMBUS_WRITE, cmd,
++			  data_to_send, I2C_SMBUS_BLOCK_DATA);
+ 	} else {
+ 		/* Ready to request the result. */
+ 		unsigned long oflags, *flags;
+@@ -1040,7 +1003,6 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
+ 
+ static int start_resend(struct ssif_info *ssif_info)
+ {
+-	int rv;
+ 	int command;
+ 
+ 	ssif_info->got_alert = false;
+@@ -1062,12 +1024,9 @@ static int start_resend(struct ssif_info *ssif_info)
+ 		ssif_info->data[0] = ssif_info->data_len;
+ 	}
+ 
+-	rv = ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
+-			  command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
+-	if (rv && (ssif_info->ssif_debug & SSIF_DEBUG_MSG))
+-		dev_dbg(&ssif_info->client->dev,
+-			"Error from i2c_non_blocking_op(4)\n");
+-	return rv;
++	ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
++		   command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
++	return 0;
+ }
+ 
+ static int start_send(struct ssif_info *ssif_info,
+-- 
+2.39.2
+
 
 
