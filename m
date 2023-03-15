@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE606BB02C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B776BB1BB
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231271AbjCOMQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
+        id S232437AbjCOMaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231934AbjCOMPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907A687DBD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:49 -0700 (PDT)
+        with ESMTP id S232604AbjCOM3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 118741A4AB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B60761D3F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C7DFC433EF;
-        Wed, 15 Mar 2023 12:15:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A793561D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C6FC433EF;
+        Wed, 15 Mar 2023 12:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882548;
-        bh=Cq1alsNJUhlPmlWbTKWO4rS3CO8rjyhPZbnesJSB2R0=;
+        s=korg; t=1678883327;
+        bh=TCB33OmkDXmPv0kAcEd+bXF/paL+IC0Os4j9kqQ42Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUTa5O2oHgYGeQc7GOqmCxmDIXm8BDJJMQwu1jQSGR2Y6Avp/vcOqWzNdJiLNf3UW
-         NLeSamJ/Sc9dePlSkE9I9+DVvJq53rRw3yYnH9/EL7u7XoZkrJkaxzGQkrJjYQwHJ6
-         7iXpdsh9eoiPc3v3Zcg3TkkPE0hZr9JeYQvmSDrw=
+        b=HPjYEiUB/XI/0yrzT7TDEVwDGHf5BRRvv7TAwAxO6gVCIS5LAZnYc6js488+Z5FBU
+         YhP5O1bFt/YGsORfyp3cosZtpX6nrSw/It6wSuDvIqkkkFH2G+ZGSCoVkBPMqw20YA
+         Z2fWu2eOLIAkCgMBdVAqbix5W4gSastLvI6j+sX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
-        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 06/39] ext4: fix WARNING in ext4_update_inline_data
+        patches@lists.linux.dev, Suman Ghosh <sumang@marvell.com>,
+        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
+        Sai Krishna <saikrishnag@marvell.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 074/145] octeontx2-af: Unlock contexts in the queue context cache in case of fault detection
 Date:   Wed, 15 Mar 2023 13:12:20 +0100
-Message-Id: <20230315115721.493406895@linuxfoundation.org>
+Message-Id: <20230315115741.454004249@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,108 +57,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Suman Ghosh <sumang@marvell.com>
 
-commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
+[ Upstream commit ea9dd2e5c6d12c8b65ce7514c8359a70eeaa0e70 ]
 
-Syzbot found the following issue:
-EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
-fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
-fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-Modules linked in:
-CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
-RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
-RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
-RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
-R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
-R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
-FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __alloc_pages_node include/linux/gfp.h:237 [inline]
- alloc_pages_node include/linux/gfp.h:260 [inline]
- __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
- __do_kmalloc_node mm/slab_common.c:956 [inline]
- __kmalloc+0xfe/0x190 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- kzalloc include/linux/slab.h:720 [inline]
- ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
- ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
- ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
- ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
- ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
- ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
- lookup_open fs/namei.c:3413 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x12ac/0x2dd0 fs/namei.c:3711
- do_filp_open+0x264/0x4f0 fs/namei.c:3741
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_openat fs/open.c:1342 [inline]
- __se_sys_openat fs/open.c:1337 [inline]
- __x64_sys_openat+0x243/0x290 fs/open.c:1337
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+NDC caches contexts of frequently used queue's (Rx and Tx queues)
+contexts. Due to a HW errata when NDC detects fault/poision while
+accessing contexts it could go into an illegal state where a cache
+line could get locked forever. To makesure all cache lines in NDC
+are available for optimum performance upon fault/lockerror/posion
+errors scan through all cache lines in NDC and clear the lock bit.
 
-Above issue happens as follows:
-ext4_iget
-   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
-ext4_try_add_inline_entry
-   __ext4_mark_inode_dirty
-      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
-         ext4_xattr_shift_entries
-	 ->after shift i_inline_off is incorrect, actually is change to 176
-ext4_try_add_inline_entry
-  ext4_update_inline_dir
-    get_max_inline_xattr_value_size
-      if (EXT4_I(inode)->i_inline_off)
-	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
-			EXT4_I(inode)->i_inline_off);
-        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
-	->As entry is incorrect, then 'free' may be negative
-   ext4_update_inline_data
-      value = kzalloc(len, GFP_NOFS);
-      -> len is unsigned int, maybe very large, then trigger warning when
-         'kzalloc()'
-
-To resolve the above issue we need to update 'i_inline_off' after
-'ext4_xattr_shift_entries()'.  We do not need to set
-EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
-already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
-when it is needed may trigger a BUG_ON in ext4_writepages().
-
-Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4a3581cd5995 ("octeontx2-af: NPA AQ instruction enqueue support")
+Signed-off-by: Suman Ghosh <sumang@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
+Signed-off-by: Sai Krishna <saikrishnag@marvell.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ .../net/ethernet/marvell/octeontx2/af/rvu.h   |  5 ++
+ .../marvell/octeontx2/af/rvu_debugfs.c        |  7 +--
+ .../ethernet/marvell/octeontx2/af/rvu_nix.c   | 16 ++++-
+ .../ethernet/marvell/octeontx2/af/rvu_npa.c   | 58 ++++++++++++++++++-
+ .../ethernet/marvell/octeontx2/af/rvu_reg.h   |  3 +
+ 5 files changed, 82 insertions(+), 7 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2823,6 +2823,9 @@ shift:
- 			(void *)header, total_ino);
- 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
+index a7213db38804b..fed49d6a178d0 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
+@@ -811,6 +811,9 @@ bool is_mcam_entry_enabled(struct rvu *rvu, struct npc_mcam *mcam, int blkaddr,
+ /* CPT APIs */
+ int rvu_cpt_lf_teardown(struct rvu *rvu, u16 pcifunc, int lf, int slot);
  
-+	if (ext4_has_inline_data(inode))
-+		error = ext4_find_inline_data_nolock(inode);
++#define NDC_AF_BANK_MASK       GENMASK_ULL(7, 0)
++#define NDC_AF_BANK_LINE_MASK  GENMASK_ULL(31, 16)
 +
- cleanup:
- 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
- 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
+ /* CN10K RVU */
+ int rvu_set_channels_base(struct rvu *rvu);
+ void rvu_program_channels(struct rvu *rvu);
+@@ -826,6 +829,8 @@ static inline void rvu_dbg_init(struct rvu *rvu) {}
+ static inline void rvu_dbg_exit(struct rvu *rvu) {}
+ #endif
+ 
++int rvu_ndc_fix_locked_cacheline(struct rvu *rvu, int blkaddr);
++
+ /* RVU Switch */
+ void rvu_switch_enable(struct rvu *rvu);
+ void rvu_switch_disable(struct rvu *rvu);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+index 66d34699f160c..4dddf6ec3be87 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -196,9 +196,6 @@ enum cpt_eng_type {
+ 	CPT_IE_TYPE = 3,
+ };
+ 
+-#define NDC_MAX_BANK(rvu, blk_addr) (rvu_read64(rvu, \
+-						blk_addr, NDC_AF_CONST) & 0xFF)
+-
+ #define rvu_dbg_NULL NULL
+ #define rvu_dbg_open_NULL NULL
+ 
+@@ -1009,6 +1006,7 @@ static int ndc_blk_hits_miss_stats(struct seq_file *s, int idx, int blk_addr)
+ 	struct nix_hw *nix_hw;
+ 	struct rvu *rvu;
+ 	int bank, max_bank;
++	u64 ndc_af_const;
+ 
+ 	if (blk_addr == BLKADDR_NDC_NPA0) {
+ 		rvu = s->private;
+@@ -1017,7 +1015,8 @@ static int ndc_blk_hits_miss_stats(struct seq_file *s, int idx, int blk_addr)
+ 		rvu = nix_hw->rvu;
+ 	}
+ 
+-	max_bank = NDC_MAX_BANK(rvu, blk_addr);
++	ndc_af_const = rvu_read64(rvu, blk_addr, NDC_AF_CONST);
++	max_bank = FIELD_GET(NDC_AF_BANK_MASK, ndc_af_const);
+ 	for (bank = 0; bank < max_bank; bank++) {
+ 		seq_printf(s, "BANK:%d\n", bank);
+ 		seq_printf(s, "\tHits:\t%lld\n",
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+index 09892703cfd46..d274d552924a3 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+@@ -797,6 +797,7 @@ static int nix_aq_enqueue_wait(struct rvu *rvu, struct rvu_block *block,
+ 	struct nix_aq_res_s *result;
+ 	int timeout = 1000;
+ 	u64 reg, head;
++	int ret;
+ 
+ 	result = (struct nix_aq_res_s *)aq->res->base;
+ 
+@@ -820,9 +821,22 @@ static int nix_aq_enqueue_wait(struct rvu *rvu, struct rvu_block *block,
+ 			return -EBUSY;
+ 	}
+ 
+-	if (result->compcode != NIX_AQ_COMP_GOOD)
++	if (result->compcode != NIX_AQ_COMP_GOOD) {
+ 		/* TODO: Replace this with some error code */
++		if (result->compcode == NIX_AQ_COMP_CTX_FAULT ||
++		    result->compcode == NIX_AQ_COMP_LOCKERR ||
++		    result->compcode == NIX_AQ_COMP_CTX_POISON) {
++			ret = rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX0_RX);
++			ret |= rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX0_TX);
++			ret |= rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX1_RX);
++			ret |= rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NIX1_TX);
++			if (ret)
++				dev_err(rvu->dev,
++					"%s: Not able to unlock cachelines\n", __func__);
++		}
++
+ 		return -EBUSY;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c
+index 70bd036ed76e4..4f5ca5ab13a40 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npa.c
+@@ -4,7 +4,7 @@
+  * Copyright (C) 2018 Marvell.
+  *
+  */
+-
++#include <linux/bitfield.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ 
+@@ -42,9 +42,18 @@ static int npa_aq_enqueue_wait(struct rvu *rvu, struct rvu_block *block,
+ 			return -EBUSY;
+ 	}
+ 
+-	if (result->compcode != NPA_AQ_COMP_GOOD)
++	if (result->compcode != NPA_AQ_COMP_GOOD) {
+ 		/* TODO: Replace this with some error code */
++		if (result->compcode == NPA_AQ_COMP_CTX_FAULT ||
++		    result->compcode == NPA_AQ_COMP_LOCKERR ||
++		    result->compcode == NPA_AQ_COMP_CTX_POISON) {
++			if (rvu_ndc_fix_locked_cacheline(rvu, BLKADDR_NDC_NPA0))
++				dev_err(rvu->dev,
++					"%s: Not able to unlock cachelines\n", __func__);
++		}
++
+ 		return -EBUSY;
++	}
+ 
+ 	return 0;
+ }
+@@ -545,3 +554,48 @@ void rvu_npa_lf_teardown(struct rvu *rvu, u16 pcifunc, int npalf)
+ 
+ 	npa_ctx_free(rvu, pfvf);
+ }
++
++/* Due to an Hardware errata, in some corner cases, AQ context lock
++ * operations can result in a NDC way getting into an illegal state
++ * of not valid but locked.
++ *
++ * This API solves the problem by clearing the lock bit of the NDC block.
++ * The operation needs to be done for each line of all the NDC banks.
++ */
++int rvu_ndc_fix_locked_cacheline(struct rvu *rvu, int blkaddr)
++{
++	int bank, max_bank, line, max_line, err;
++	u64 reg, ndc_af_const;
++
++	/* Set the ENABLE bit(63) to '0' */
++	reg = rvu_read64(rvu, blkaddr, NDC_AF_CAMS_RD_INTERVAL);
++	rvu_write64(rvu, blkaddr, NDC_AF_CAMS_RD_INTERVAL, reg & GENMASK_ULL(62, 0));
++
++	/* Poll until the BUSY bits(47:32) are set to '0' */
++	err = rvu_poll_reg(rvu, blkaddr, NDC_AF_CAMS_RD_INTERVAL, GENMASK_ULL(47, 32), true);
++	if (err) {
++		dev_err(rvu->dev, "Timed out while polling for NDC CAM busy bits.\n");
++		return err;
++	}
++
++	ndc_af_const = rvu_read64(rvu, blkaddr, NDC_AF_CONST);
++	max_bank = FIELD_GET(NDC_AF_BANK_MASK, ndc_af_const);
++	max_line = FIELD_GET(NDC_AF_BANK_LINE_MASK, ndc_af_const);
++	for (bank = 0; bank < max_bank; bank++) {
++		for (line = 0; line < max_line; line++) {
++			/* Check if 'cache line valid bit(63)' is not set
++			 * but 'cache line lock bit(60)' is set and on
++			 * success, reset the lock bit(60).
++			 */
++			reg = rvu_read64(rvu, blkaddr,
++					 NDC_AF_BANKX_LINEX_METADATA(bank, line));
++			if (!(reg & BIT_ULL(63)) && (reg & BIT_ULL(60))) {
++				rvu_write64(rvu, blkaddr,
++					    NDC_AF_BANKX_LINEX_METADATA(bank, line),
++					    reg & ~BIT_ULL(60));
++			}
++		}
++	}
++
++	return 0;
++}
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
+index 21f1ed4e222f7..d81b63a0d430f 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
+@@ -670,6 +670,7 @@
+ #define NDC_AF_INTR_ENA_W1S		(0x00068)
+ #define NDC_AF_INTR_ENA_W1C		(0x00070)
+ #define NDC_AF_ACTIVE_PC		(0x00078)
++#define NDC_AF_CAMS_RD_INTERVAL		(0x00080)
+ #define NDC_AF_BP_TEST_ENABLE		(0x001F8)
+ #define NDC_AF_BP_TEST(a)		(0x00200 | (a) << 3)
+ #define NDC_AF_BLK_RST			(0x002F0)
+@@ -685,6 +686,8 @@
+ 		(0x00F00 | (a) << 5 | (b) << 4)
+ #define NDC_AF_BANKX_HIT_PC(a)		(0x01000 | (a) << 3)
+ #define NDC_AF_BANKX_MISS_PC(a)		(0x01100 | (a) << 3)
++#define NDC_AF_BANKX_LINEX_METADATA(a, b) \
++		(0x10000 | (a) << 12 | (b) << 3)
+ 
+ /* LBK */
+ #define LBK_CONST			(0x10ull)
+-- 
+2.39.2
+
 
 
