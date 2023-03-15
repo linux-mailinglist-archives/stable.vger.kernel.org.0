@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 261096BB34E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C14ED6BB353
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232815AbjCOMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:43:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
+        id S232761AbjCOMni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233073AbjCOMnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3512C62FEC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:43 -0700 (PDT)
+        with ESMTP id S232754AbjCOMnS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA864A1FE3
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37FEE61D66
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D6BDC433EF;
-        Wed, 15 Mar 2023 12:41:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C71B861D26
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA187C433D2;
+        Wed, 15 Mar 2023 12:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884099;
-        bh=YCiaxZq2SVJH5A/l+iyK6Xqo5Ui+qe+X9yrP4Y/FeXM=;
+        s=korg; t=1678884102;
+        bh=FeuJK8InBHwKs+v3CiVkcEZR5rry/W/i7TtzoWoKLWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOW06CypuCNblW+A4TuvnUHIDyi3apQo8rFvdilOwmdhGDLXToP3YQnL5x5pR/thP
-         kvH0tgdl4xDXAVBFS3CcNnKDGJomOnSmDCUu+HxSX/9v5QmdMDiIgY+Y5+Xgsq5+++
-         Bi6IsP2WBwbAWYa1cbeF3UTttj/i46XQDvb70F8Y=
+        b=Wlo2ZqB7Pwto6/RMXOUiS+gLHNOUkgD+/SXlcTtULNnaC34zMIYh7itNEFxyjYw4l
+         PuMRzHXZmzpvIx5aBwwmh+ejdjU7Am8GJJh6A90pI/6syPwWSE/JNtoAWyTjpz6puL
+         Ivk1f4UCJicQkFjswg9O77Jw/J17oQWQ/kkxggts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        patches@lists.linux.dev,
+        Chathura Rajapaksha <chathura.abeyrathne.lk@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 107/141] erofs: Revert "erofs: fix kvcalloc() misuse with __GFP_NOFAIL"
-Date:   Wed, 15 Mar 2023 13:13:30 +0100
-Message-Id: <20230315115743.259078846@linuxfoundation.org>
+Subject: [PATCH 6.2 108/141] riscv: Use READ_ONCE_NOCHECK in imprecise unwinding stack mode
+Date:   Wed, 15 Mar 2023 13:13:31 +0100
+Message-Id: <20230315115743.287659950@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
 References: <20230315115739.932786806@linuxfoundation.org>
@@ -44,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,69 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Alexandre Ghiti <alexghiti@rivosinc.com>
 
-[ Upstream commit 647dd2c3f0e16b71a1a77897d038164d48eea154 ]
+[ Upstream commit 76950340cf03b149412fe0d5f0810e52ac1df8cb ]
 
-Let's revert commit 12724ba38992 ("erofs: fix kvcalloc() misuse with
-__GFP_NOFAIL") since kvmalloc() already supports __GFP_NOFAIL in commit
-a421ef303008 ("mm: allow !GFP_KERNEL allocations for kvmalloc").  So
-the original fix was wrong.
+When CONFIG_FRAME_POINTER is unset, the stack unwinding function
+walk_stackframe randomly reads the stack and then, when KASAN is enabled,
+it can lead to the following backtrace:
 
-Actually there was some issue as [1] discussed, so before that mm fix
-is landed, the warn could still happen but applying this commit first
-will cause less.
+[    0.000000] ==================================================================
+[    0.000000] BUG: KASAN: stack-out-of-bounds in walk_stackframe+0xa6/0x11a
+[    0.000000] Read of size 8 at addr ffffffff81807c40 by task swapper/0
+[    0.000000]
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 6.2.0-12919-g24203e6db61f #43
+[    0.000000] Hardware name: riscv-virtio,qemu (DT)
+[    0.000000] Call Trace:
+[    0.000000] [<ffffffff80007ba8>] walk_stackframe+0x0/0x11a
+[    0.000000] [<ffffffff80099ecc>] init_param_lock+0x26/0x2a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff80c49c80>] dump_stack_lvl+0x22/0x36
+[    0.000000] [<ffffffff80c3783e>] print_report+0x198/0x4a8
+[    0.000000] [<ffffffff80099ecc>] init_param_lock+0x26/0x2a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff8015f68a>] kasan_report+0x9a/0xc8
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff8006e99c>] desc_make_final+0x80/0x84
+[    0.000000] [<ffffffff8009a04e>] stack_trace_save+0x88/0xa6
+[    0.000000] [<ffffffff80099fc2>] filter_irq_stacks+0x72/0x76
+[    0.000000] [<ffffffff8006b95e>] devkmsg_read+0x32a/0x32e
+[    0.000000] [<ffffffff8015ec16>] kasan_save_stack+0x28/0x52
+[    0.000000] [<ffffffff8006e998>] desc_make_final+0x7c/0x84
+[    0.000000] [<ffffffff8009a04a>] stack_trace_save+0x84/0xa6
+[    0.000000] [<ffffffff8015ec52>] kasan_set_track+0x12/0x20
+[    0.000000] [<ffffffff8015f22e>] __kasan_slab_alloc+0x58/0x5e
+[    0.000000] [<ffffffff8015e7ea>] __kmem_cache_create+0x21e/0x39a
+[    0.000000] [<ffffffff80e133ac>] create_boot_cache+0x70/0x9c
+[    0.000000] [<ffffffff80e17ab2>] kmem_cache_init+0x6c/0x11e
+[    0.000000] [<ffffffff80e00fd6>] mm_init+0xd8/0xfe
+[    0.000000] [<ffffffff80e011d8>] start_kernel+0x190/0x3ca
+[    0.000000]
+[    0.000000] The buggy address belongs to stack of task swapper/0
+[    0.000000]  and is located at offset 0 in frame:
+[    0.000000]  stack_trace_save+0x0/0xa6
+[    0.000000]
+[    0.000000] This frame has 1 object:
+[    0.000000]  [32, 56) 'c'
+[    0.000000]
+[    0.000000] The buggy address belongs to the physical page:
+[    0.000000] page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x81a07
+[    0.000000] flags: 0x1000(reserved|zone=0)
+[    0.000000] raw: 0000000000001000 ff600003f1e3d150 ff600003f1e3d150 0000000000000000
+[    0.000000] raw: 0000000000000000 0000000000000000 00000001ffffffff
+[    0.000000] page dumped because: kasan: bad access detected
+[    0.000000]
+[    0.000000] Memory state around the buggy address:
+[    0.000000]  ffffffff81807b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000]  ffffffff81807b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000] >ffffffff81807c00: 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00 00 f3
+[    0.000000]                                            ^
+[    0.000000]  ffffffff81807c80: f3 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000]  ffffffff81807d00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000] ==================================================================
 
-[1] https://lore.kernel.org/r/20230305053035.1911-1-hsiangkao@linux.alibaba.com
+Fix that by using READ_ONCE_NOCHECK when reading the stack in imprecise
+mode.
 
-Fixes: 12724ba38992 ("erofs: fix kvcalloc() misuse with __GFP_NOFAIL")
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/20230309053148.9223-1-hsiangkao@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Fixes: 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
+Reported-by: Chathura Rajapaksha <chathura.abeyrathne.lk@gmail.com>
+Link: https://lore.kernel.org/all/CAD7mqryDQCYyJ1gAmtMm8SASMWAQ4i103ptTb0f6Oda=tPY2=A@mail.gmail.com/
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Link: https://lore.kernel.org/r/20230308091639.602024-1-alexghiti@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/zdata.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/riscv/kernel/stacktrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 5200bb86e2643..ccf7c55d477fe 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -1032,12 +1032,12 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
- 
- 	if (!be->decompressed_pages)
- 		be->decompressed_pages =
--			kcalloc(be->nr_pages, sizeof(struct page *),
--				GFP_KERNEL | __GFP_NOFAIL);
-+			kvcalloc(be->nr_pages, sizeof(struct page *),
-+				 GFP_KERNEL | __GFP_NOFAIL);
- 	if (!be->compressed_pages)
- 		be->compressed_pages =
--			kcalloc(pclusterpages, sizeof(struct page *),
--				GFP_KERNEL | __GFP_NOFAIL);
-+			kvcalloc(pclusterpages, sizeof(struct page *),
-+				 GFP_KERNEL | __GFP_NOFAIL);
- 
- 	z_erofs_parse_out_bvecs(be);
- 	err2 = z_erofs_parse_in_bvecs(be, &overlapped);
-@@ -1085,7 +1085,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
+diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
+index f9a5a7c90ff09..64a9c093aef93 100644
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -101,7 +101,7 @@ void notrace walk_stackframe(struct task_struct *task,
+ 	while (!kstack_end(ksp)) {
+ 		if (__kernel_text_address(pc) && unlikely(!fn(arg, pc)))
+ 			break;
+-		pc = (*ksp++) - 0x4;
++		pc = READ_ONCE_NOCHECK(*ksp++) - 0x4;
  	}
- 	if (be->compressed_pages < be->onstack_pages ||
- 	    be->compressed_pages >= be->onstack_pages + Z_EROFS_ONSTACK_PAGES)
--		kfree(be->compressed_pages);
-+		kvfree(be->compressed_pages);
- 	z_erofs_fill_other_copies(be, err);
+ }
  
- 	for (i = 0; i < be->nr_pages; ++i) {
-@@ -1104,7 +1104,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
- 	}
- 
- 	if (be->decompressed_pages != be->onstack_pages)
--		kfree(be->decompressed_pages);
-+		kvfree(be->decompressed_pages);
- 
- 	pcl->length = 0;
- 	pcl->partial = true;
 -- 
 2.39.2
 
