@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A62056BB261
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB316BB07A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232651AbjCOMfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52738 "EHLO
+        id S231952AbjCOMSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:18:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232659AbjCOMfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3999F05D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:11 -0700 (PDT)
+        with ESMTP id S232067AbjCOMSZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:18:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B266C943AF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C786B81DFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA784C433D2;
-        Wed, 15 Mar 2023 12:33:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A13D61D3F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E3DC433D2;
+        Wed, 15 Mar 2023 12:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883604;
-        bh=87VjF5XzdH+/LkAgNY8ZsKPIgWtTFEPd3GPJfUM5CSQ=;
+        s=korg; t=1678882693;
+        bh=irAkPwdZ+wq5Auj5ZJ9EEyhbHWkKRh/xwMdA0WUGho0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=igD11LMTEjpM4qW1AcBlphjjxX8o+SWVBZEY9DSfUMpkwcsnIGFWNdjdatKt2Dj/y
-         7fzzS3ArplloupiritkIZWPnl2nOhF90ph4SMTvwfSnhmdeiGSgvy0p2MGJVs8te+W
-         5BCTAuiXiIsUjKcOyyYdsVaY8i71vj7k6QC5xz+g=
+        b=jQT9+HoH+UA9C48Z7Xvqei0KNOoOOVoLOdkFLm07qLlxd74wWYmbIX53C3YG6y0SY
+         OsvWY/1OJUVjlNrgKH67VoINOW5QLZQZQR6YqLYK0DAWcg1h4UYACdx/9brHgaRgbs
+         7/wasNuzw3Agcfd8fOC/aWXT+z+Mq9Daa9/vr9YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Yassine Oudjana <y.oudjana@protonmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 062/143] drm/msm/a5xx: fix the emptyness check in the preempt code
+Subject: [PATCH 5.4 34/68] scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
 Date:   Wed, 15 Mar 2023 13:12:28 +0100
-Message-Id: <20230315115742.409549592@linuxfoundation.org>
+Message-Id: <20230315115727.433045168@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit b4fb748f0b734ce1d2e7834998cc599fcbd25d67 ]
+[ Upstream commit fc663711b94468f4e1427ebe289c9f05669699c9 ]
 
-Quoting Yassine: ring->memptrs->rptr is never updated and stays 0, so
-the comparison always evaluates to false and get_next_ring always
-returns ring 0 thinking it isn't empty.
+Remove the /proc/scsi/${proc_name} directory earlier to fix a race
+condition between unloading and reloading kernel modules. This fixes a bug
+introduced in 2009 by commit 77c019768f06 ("[SCSI] fix /proc memory leak in
+the SCSI core").
 
-Fix this by calling get_rptr() instead of reading rptr directly.
+Fix the following kernel warning:
 
-Reported-by: Yassine Oudjana <y.oudjana@protonmail.com>
-Fixes: b1fc2839d2f9 ("drm/msm: Implement preemption for A5XX targets")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/522642/
-Link: https://lore.kernel.org/r/20230214020956.164473-4-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+proc_dir_entry 'scsi/scsi_debug' already registered
+WARNING: CPU: 19 PID: 27986 at fs/proc/generic.c:376 proc_register+0x27d/0x2e0
+Call Trace:
+ proc_mkdir+0xb5/0xe0
+ scsi_proc_hostdir_add+0xb5/0x170
+ scsi_host_alloc+0x683/0x6c0
+ sdebug_driver_probe+0x6b/0x2d0 [scsi_debug]
+ really_probe+0x159/0x540
+ __driver_probe_device+0xdc/0x230
+ driver_probe_device+0x4f/0x120
+ __device_attach_driver+0xef/0x180
+ bus_for_each_drv+0xe5/0x130
+ __device_attach+0x127/0x290
+ device_initial_probe+0x17/0x20
+ bus_probe_device+0x110/0x130
+ device_add+0x673/0xc80
+ device_register+0x1e/0x30
+ sdebug_add_host_helper+0x1a7/0x3b0 [scsi_debug]
+ scsi_debug_init+0x64f/0x1000 [scsi_debug]
+ do_one_initcall+0xd7/0x470
+ do_init_module+0xe7/0x330
+ load_module+0x122a/0x12c0
+ __do_sys_finit_module+0x124/0x1a0
+ __x64_sys_finit_module+0x46/0x50
+ do_syscall_64+0x38/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Link: https://lore.kernel.org/r/20230210205200.36973-3-bvanassche@acm.org
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Yi Zhang <yi.zhang@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 77c019768f06 ("[SCSI] fix /proc memory leak in the SCSI core")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_preempt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hosts.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-index 8abc9a2b114a2..6e326d851ba53 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-@@ -63,7 +63,7 @@ static struct msm_ringbuffer *get_next_ring(struct msm_gpu *gpu)
- 		struct msm_ringbuffer *ring = gpu->rb[i];
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index 45885e80992fb..b08d963013db6 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -179,6 +179,7 @@ void scsi_remove_host(struct Scsi_Host *shost)
+ 	scsi_forget_host(shost);
+ 	mutex_unlock(&shost->scan_mutex);
+ 	scsi_proc_host_rm(shost);
++	scsi_proc_hostdir_rm(shost->hostt);
  
- 		spin_lock_irqsave(&ring->preempt_lock, flags);
--		empty = (get_wptr(ring) == ring->memptrs->rptr);
-+		empty = (get_wptr(ring) == gpu->funcs->get_rptr(gpu, ring));
- 		spin_unlock_irqrestore(&ring->preempt_lock, flags);
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	if (scsi_host_set_state(shost, SHOST_DEL))
+@@ -318,6 +319,7 @@ static void scsi_host_dev_release(struct device *dev)
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
- 		if (!empty)
++	/* In case scsi_remove_host() has not been called. */
+ 	scsi_proc_hostdir_rm(shost->hostt);
+ 
+ 	/* Wait for functions invoked through call_rcu(&shost->rcu, ...) */
 -- 
 2.39.2
 
