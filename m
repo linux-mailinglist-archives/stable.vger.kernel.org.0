@@ -2,54 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF57C6BBB7C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 18:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9886C6BBB85
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 18:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230266AbjCORzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 13:55:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
+        id S230124AbjCOR5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 13:57:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231564AbjCORzX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 13:55:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB8D2706;
-        Wed, 15 Mar 2023 10:55:19 -0700 (PDT)
+        with ESMTP id S231770AbjCOR5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 13:57:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBCB30B03
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 10:57:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E353B81E9C;
-        Wed, 15 Mar 2023 17:55:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C824BC433D2;
-        Wed, 15 Mar 2023 17:55:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B37D4B81EBF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 17:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3002DC433EF;
+        Wed, 15 Mar 2023 17:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678902917;
-        bh=nvkbBnA1mkxbeGAtvPj2WMk3ljn/r3AnYo78Vjywe5E=;
+        s=k20201202; t=1678903056;
+        bh=DfarB1MGAlmk4YITXdAFNDiQiS87D+qvCwPA5G95N/g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cZAlb6PbCRHDBke0C6XYDVA0gq5qHbConBcajLSA+s9zjDcCW72UJkDLSJ930P7iV
-         11N1VZL1NJoYX6zrPK4fnybw7PkLpS9WbnxflnXka5o/LNkJ8wddI5AeSbBkrnJBpu
-         yKuZnoPa17o0vk6Xv8b0U6LfdLJISZVfsVQ41e7IYPtJ4lKSONJUKKCksyuG5A9uC3
-         ERR8Cn8tzDqbuCTKvtav25od47kR92jw20aRTbKpgVjbAI0ONrnmx0FWRiN3g2shZ7
-         GaUUqp8DTGSKP12w9LW/uIq2ZDcEKPRuSistpXD7AlSTehBd1NiMq35vcfejRYAnhB
-         wc2MO7aIhcuTg==
-Date:   Wed, 15 Mar 2023 17:55:11 +0000
-From:   Conor Dooley <conor@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/143] 6.1.20-rc1 review
-Message-ID: <b3619d01-fa8c-4a6b-b253-0a25ceb9a5b9@spud>
-References: <20230315115740.429574234@linuxfoundation.org>
+        b=NeNe+w3zOB4J/Son99vlIikbx69ynB6h3z3fSRASSFAatctW/INh3mwxWBBCRO38x
+         r3FzHSzFIUE9Awuy4GdziMUaZbfrkftkcXzo7r5RdREOGbMlAbyIr9riz5cKRo0X/J
+         jXzzzO/cGB+CGFcxJVN2MrlcNfEFWajLl9FnvAUTUCf837+kFoiC94d1NMDEArAhhH
+         fhEhtL1+CnNHsnDkSv79xbrS6rl84eIGRST2H2iMMmD1BVkxue5gpNlXWIAjVxZPVk
+         2WZSr9rwgWQDGr2fkLGGb6Acecmcs1MdrzVidz0LR/4Vso2mNQoCSgSlv7sy6pxoMh
+         mSAIQMX76/FxQ==
+Date:   Wed, 15 Mar 2023 13:57:35 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "patches@lists.linux.dev" <patches@lists.linux.dev>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH 5.15 107/145] powerpc: Check !irq instead of irq ==
+ NO_IRQ and remove NO_IRQ
+Message-ID: <ZBIHDxoEEVoRZqUq@sashalap>
+References: <20230315115738.951067403@linuxfoundation.org>
+ <20230315115742.506375747@linuxfoundation.org>
+ <9ad39d8b-64e8-466f-b93b-494905cd1bf0@csgroup.eu>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tkXsLAyeyUPziKqZ"
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9ad39d8b-64e8-466f-b93b-494905cd1bf0@csgroup.eu>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,33 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Mar 15, 2023 at 12:32:27PM +0000, Christophe Leroy wrote:
+>
+>
+>Le 15/03/2023 à 13:12, Greg Kroah-Hartman a écrit :
+>> From: Christophe Leroy <christophe.leroy@csgroup.eu>
+>>
+>> [ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
+>>
+>> NO_IRQ is a relic from the old days. It is not used anymore in core
+>> functions. By the way, function irq_of_parse_and_map() returns value 0
+>> on error.
+>>
+>> In some drivers, NO_IRQ is erroneously used to check the return of
+>> irq_of_parse_and_map().
+>>
+>> It is not a real bug today because the only architectures using the
+>> drivers being fixed by this patch define NO_IRQ as 0, but there are
+>> architectures which define NO_IRQ as -1. If one day those
+>> architectures start using the non fixed drivers, there will be a
+>> problem.
+>>
+>> Long time ago Linus advocated for not using NO_IRQ, see
+>> https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
+>>
+>> He re-iterated the same view recently in
+>> https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
+>>
+>> So test !irq instead of tesing irq == NO_IRQ.
+>>
+>> All other usage of NO_IRQ for powerpc were removed in previous cycles so
+>> the time has come to remove NO_IRQ completely for powerpc.
+>>
+>> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+>> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+>> Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+>Same, you can't remove NO_IRQ macro without first all preparation
+>patches merged during the 6.2 cycle.
 
---tkXsLAyeyUPziKqZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ack, I'll drop this one.
 
-On Wed, Mar 15, 2023 at 01:11:26PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.20 release.
-> There are 143 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-
-Looks grand on RISC-V..
-
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-
+-- 
 Thanks,
-Conor.
-
---tkXsLAyeyUPziKqZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZBIGfwAKCRB4tDGHoIJi
-0lN0AP9BG2ptLIz3K8IkW10PLUW77gmV/Y1aDfrjFFztTWc1nQEAlo9jReR/GhVm
-dLNOY4aiRECr0TEiCdDguXSfVClbWAc=
-=Jr7k
------END PGP SIGNATURE-----
-
---tkXsLAyeyUPziKqZ--
+Sasha
