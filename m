@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9856D6BB31F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B9966BB132
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232871AbjCOMlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35890 "EHLO
+        id S232366AbjCOMZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232814AbjCOMl0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B679D22135
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:15 -0700 (PDT)
+        with ESMTP id S232406AbjCOMZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF103984DC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC26261D72
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE262C433D2;
-        Wed, 15 Mar 2023 12:39:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5221DB81E07
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C089EC433D2;
+        Wed, 15 Mar 2023 12:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883984;
-        bh=V2KqiZ8S4llN8SpcxEofoWWm3mOxyYTJoqhTbgaLRBM=;
+        s=korg; t=1678883048;
+        bh=6ajQAG6zOe5PSMh7Bd7i1bSIkkFq6iBtPXRZmq97eq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcbrvMTkyQ8J8RVBWaqNQZmlRe9//2ufD0SAy9vO5ABOgGRnTj6csk4g+oRMB/h5S
-         f/mUaqSvDzoyw6jPoAfmwZLMu41CZ8asXghYVbB8pY7ZzSExrkuuoS/O0Wv0fKeil9
-         AU2DNI0P/Kd5+iuoa5fKo27D9KXFTsDBUqLtDbGI=
+        b=n9VQeO5Mi34Of7o3hjrCvBhvRJPTNvg8w5dmfIZRvlbtmqcToRuAC4SYAZWjKB6FT
+         cZJJD1nQbdVvGkuJOY3D9Snjofm3eh9+PcqILfwgBN2iIdJRd4ctQaIsS2r0uDjU/w
+         x5YNqL9A5JNf5z/PG4lN737MlTzCzLPo7IMbBagQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Alvaro Karsz <alvaro.karsz@solid-run.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 061/141] netfilter: nft_quota: copy content when cloning expression
+Subject: [PATCH 5.10 073/104] PCI: Avoid FLR for SolidRun SNET DPU rev 1
 Date:   Wed, 15 Mar 2023 13:12:44 +0100
-Message-Id: <20230315115741.818492198@linuxfoundation.org>
+Message-Id: <20230315115734.991071632@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,44 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
 
-[ Upstream commit aabef97a35160461e9c576848ded737558d89055 ]
+[ Upstream commit d089d69cc1f824936eeaa4fa172f8fa1a0949eaa ]
 
-If the ruleset contains consumed quota, restore them accordingly.
-Otherwise, listing after restoration shows never used items.
+This patch fixes a FLR bug on the SNET DPU rev 1 by setting the
+PCI_DEV_FLAGS_NO_FLR_RESET flag.
 
-Restore the user-defined quota and flags too.
+As there is a quirk to avoid FLR (quirk_no_flr), I added a new quirk
+to check the rev ID before calling to quirk_no_flr.
 
-Fixes: ed0a0c60f0e5 ("netfilter: nft_quota: move stateful fields out of expression data")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Without this patch, a SNET DPU rev 1 may hang when FLR is applied.
+
+Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Message-Id: <20230110165638.123745-3-alvaro.karsz@solid-run.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_quota.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pci/quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/netfilter/nft_quota.c b/net/netfilter/nft_quota.c
-index 123578e289179..3ba12a7471b0f 100644
---- a/net/netfilter/nft_quota.c
-+++ b/net/netfilter/nft_quota.c
-@@ -236,12 +236,16 @@ static void nft_quota_destroy(const struct nft_ctx *ctx,
- static int nft_quota_clone(struct nft_expr *dst, const struct nft_expr *src)
- {
- 	struct nft_quota *priv_dst = nft_expr_priv(dst);
-+	struct nft_quota *priv_src = nft_expr_priv(src);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index c1ebd5e12b06e..3c7d7f094718f 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5328,6 +5328,14 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x7901, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
+ 
++/* FLR may cause the SolidRun SNET DPU (rev 0x1) to hang */
++static void quirk_no_flr_snet(struct pci_dev *dev)
++{
++	if (dev->revision == 0x1)
++		quirk_no_flr(dev);
++}
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLIDRUN, 0x1000, quirk_no_flr_snet);
 +
-+	priv_dst->quota = priv_src->quota;
-+	priv_dst->flags = priv_src->flags;
- 
- 	priv_dst->consumed = kmalloc(sizeof(*priv_dst->consumed), GFP_ATOMIC);
- 	if (!priv_dst->consumed)
- 		return -ENOMEM;
- 
--	atomic64_set(priv_dst->consumed, 0);
-+	*priv_dst->consumed = *priv_src->consumed;
- 
- 	return 0;
- }
+ static void quirk_no_ext_tags(struct pci_dev *pdev)
+ {
+ 	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
 -- 
 2.39.2
 
