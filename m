@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A706BB053
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F8F26BB008
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:14:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231513AbjCOMRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39786 "EHLO
+        id S231695AbjCOMOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231849AbjCOMRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:14 -0400
+        with ESMTP id S229725AbjCOMOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:14:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B96394755
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472052BEE8
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:14:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C336AB81DFD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 383F1C433D2;
-        Wed, 15 Mar 2023 12:16:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFD1AB81C6F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E355C4339B;
+        Wed, 15 Mar 2023 12:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882617;
-        bh=0CW0/Pz/J8YG4UqIXPIpQsu442CpNiJxLiXmqB5hiTk=;
+        s=korg; t=1678882477;
+        bh=k8j4Ag2hIvpd9IxO0K9Z0kAnKODQR72IX9Co3I4sKnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hr133aFVBr8fz1BYN1nqkp1BUGFqp2JxFyweu10XuNux9xkEt2k3VGSgWWJv9IqDb
-         K2TXwsXA6ILR6LhrKIym3ZRUqQjGqROQZ/tZeLNv1FjOpYMw2kMsYa4xO4hUkSt1BS
-         +z0eNIlUNwSCqE+AO0fa3Bkc0Eqob51cYb+s7jrg=
+        b=qpBwSa0JdzKyIVbWCRWsUxRTPCZ+PkwT8ZfSqf8HtGgWmAATj1oezxHRbbA8vaVTU
+         MG0y6oBJQXtdY7dCxILLB4aj3YhB1RScfzXbRzi0yYzIPhIQAIsUJBSfXESJAKCv+/
+         SK9pd0VNiqwsSzM7oqHkww4QswQLAAi+cyjNvgps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/39] ARM: dts: exynos: correct TMU phandle in Odroid HC1
+Subject: [PATCH 4.14 15/21] macintosh: windfarm: Use unsigned type for 1-bit bitfields
 Date:   Wed, 15 Mar 2023 13:12:38 +0100
-Message-Id: <20230315115722.127550164@linuxfoundation.org>
+Message-Id: <20230315115719.390590317@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
-References: <20230315115721.234756306@linuxfoundation.org>
+In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
+References: <20230315115718.796692048@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 2e3d0e20d8456f876607a8af61fdb83dfbf98cb6 ]
+[ Upstream commit 748ea32d2dbd813d3bd958117bde5191182f909a ]
 
-TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
-it must not have an argument to phandle.  This was not critical before,
-but since rework of thermal Devicetree initialization in the
-commit 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree
-initialization"), this leads to errors registering thermal zones other
-than first one:
+Clang warns:
 
-  thermal_sys: cpu0-thermal: Failed to read thermal-sensors cells: -2
-  thermal_sys: Failed to find thermal zone for tmu id=0
-  exynos-tmu 10064000.tmu: Failed to register sensor: -2
-  exynos-tmu: probe of 10064000.tmu failed with error -2
+  drivers/macintosh/windfarm_lm75_sensor.c:63:14: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
+                  lm->inited = 1;
+                             ^ ~
 
-Fixes: 1ac49427b566 ("ARM: dts: exynos: Add support for Hardkernel's Odroid HC1 board")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230209105841.779596-5-krzysztof.kozlowski@linaro.org
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  drivers/macintosh/windfarm_smu_sensors.c:356:19: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
+                  pow->fake_volts = 1;
+                                  ^ ~
+  drivers/macintosh/windfarm_smu_sensors.c:368:18: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
+                  pow->quadratic = 1;
+                                 ^ ~
+
+There is no bug here since no code checks the actual value of these
+fields, just whether or not they are zero (boolean context), but this
+can be easily fixed by switching to an unsigned type.
+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230215-windfarm-wsingle-bit-bitfield-constant-conversion-v1-1-26415072e855@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5422-odroidhc1.dts | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/macintosh/windfarm_lm75_sensor.c | 4 ++--
+ drivers/macintosh/windfarm_smu_sensors.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5422-odroidhc1.dts b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-index 3235d7a27e042..b423cea4c0e99 100644
---- a/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-+++ b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-@@ -29,7 +29,7 @@
+diff --git a/drivers/macintosh/windfarm_lm75_sensor.c b/drivers/macintosh/windfarm_lm75_sensor.c
+index 6cdfe714901d5..1332fc789056a 100644
+--- a/drivers/macintosh/windfarm_lm75_sensor.c
++++ b/drivers/macintosh/windfarm_lm75_sensor.c
+@@ -34,8 +34,8 @@
+ #endif
  
- 	thermal-zones {
- 		cpu0_thermal: cpu0-thermal {
--			thermal-sensors = <&tmu_cpu0 0>;
-+			thermal-sensors = <&tmu_cpu0>;
- 			trips {
- 				cpu0_alert0: cpu-alert-0 {
- 					temperature = <70000>; /* millicelsius */
-@@ -84,7 +84,7 @@
- 			};
- 		};
- 		cpu1_thermal: cpu1-thermal {
--			thermal-sensors = <&tmu_cpu1 0>;
-+			thermal-sensors = <&tmu_cpu1>;
- 			trips {
- 				cpu1_alert0: cpu-alert-0 {
- 					temperature = <70000>;
-@@ -128,7 +128,7 @@
- 			};
- 		};
- 		cpu2_thermal: cpu2-thermal {
--			thermal-sensors = <&tmu_cpu2 0>;
-+			thermal-sensors = <&tmu_cpu2>;
- 			trips {
- 				cpu2_alert0: cpu-alert-0 {
- 					temperature = <70000>;
-@@ -172,7 +172,7 @@
- 			};
- 		};
- 		cpu3_thermal: cpu3-thermal {
--			thermal-sensors = <&tmu_cpu3 0>;
-+			thermal-sensors = <&tmu_cpu3>;
- 			trips {
- 				cpu3_alert0: cpu-alert-0 {
- 					temperature = <70000>;
-@@ -216,7 +216,7 @@
- 			};
- 		};
- 		gpu_thermal: gpu-thermal {
--			thermal-sensors = <&tmu_gpu 0>;
-+			thermal-sensors = <&tmu_gpu>;
- 			trips {
- 				gpu_alert0: gpu-alert-0 {
- 					temperature = <70000>;
+ struct wf_lm75_sensor {
+-	int			ds1775 : 1;
+-	int			inited : 1;
++	unsigned int		ds1775 : 1;
++	unsigned int		inited : 1;
+ 	struct i2c_client	*i2c;
+ 	struct wf_sensor	sens;
+ };
+diff --git a/drivers/macintosh/windfarm_smu_sensors.c b/drivers/macintosh/windfarm_smu_sensors.c
+index 172fd267dcf60..0f4017a8189e5 100644
+--- a/drivers/macintosh/windfarm_smu_sensors.c
++++ b/drivers/macintosh/windfarm_smu_sensors.c
+@@ -275,8 +275,8 @@ struct smu_cpu_power_sensor {
+ 	struct list_head	link;
+ 	struct wf_sensor	*volts;
+ 	struct wf_sensor	*amps;
+-	int			fake_volts : 1;
+-	int			quadratic : 1;
++	unsigned int		fake_volts : 1;
++	unsigned int		quadratic : 1;
+ 	struct wf_sensor	sens;
+ };
+ #define to_smu_cpu_power(c) container_of(c, struct smu_cpu_power_sensor, sens)
 -- 
 2.39.2
 
