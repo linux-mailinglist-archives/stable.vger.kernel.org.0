@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4D366BB058
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BEB6BB059
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbjCOMRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42024 "EHLO
+        id S231863AbjCOMRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbjCOMRe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDDC94A4B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:13 -0700 (PDT)
+        with ESMTP id S231896AbjCOMRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F025692BEB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA026B81DF8
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AE58C433D2;
-        Wed, 15 Mar 2023 12:17:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 06C07CE19B9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A6CC433D2;
+        Wed, 15 Mar 2023 12:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882630;
-        bh=gg7CyZ2D7X39u6zpFvL2Ah8BqXunxCFsIzNbg692VnA=;
+        s=korg; t=1678882633;
+        bh=rJPeWwbnRYnWl4o4ffFUz6NgOq7JeUbcKtJvaCtR4j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOQskjxo/8RJVkH7tdpsHCeHk5qygV9WbPD4FtsyTm6igHiy9/GsyLnUWVJdRPgp9
-         di36mVktzwAfS5CpeYzpoMwdmSzO2oXuEFgYDZ87/YUQCfWLyO9ErTEiXASj7aCxH5
-         m6T9gVxCQtYCyBOl3G4IdGo+dndp9uBfSf++TeBQ=
+        b=yRVVEt3UE8PbvNwR6CbdEM90PwxXxhzynecL4fCNUcC9HVFCZXocKwz+qhb6GQ3Ki
+         fZ8DQrMmrMLuxPyzFhPZvUGyj/8cJ1YqNiTBOoRQIREtMFvj8OPKTRWpuwYh7fenUY
+         +2UPuIiS1P/IYqSGEkwO+qx4q9X+jB7/lQuyNB8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
-        Pekka Paalanen <ppaalanen@gmail.com>,
-        Sebastian Wick <sebastian.wick@redhat.com>,
-        Vitaly.Prosyak@amd.com, Uma Shankar <uma.shankar@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Joshua Ashton <joshua@froggi.es>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 03/68] drm/connector: print max_requested_bpc in state debugfs
-Date:   Wed, 15 Mar 2023 13:11:57 +0100
-Message-Id: <20230315115726.237855960@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 04/68] ext4: fix RENAME_WHITEOUT handling for inline directories
+Date:   Wed, 15 Mar 2023 13:11:58 +0100
+Message-Id: <20230315115726.278471473@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
 References: <20230315115726.103942885@linuxfoundation.org>
@@ -60,41 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Eric Whitney <enwlinux@gmail.com>
 
-commit 7d386975f6a495902e679a3a250a7456d7e54765 upstream.
+commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
 
-This is useful to understand the bpc defaults and
-support of a driver.
+A significant number of xfstests can cause ext4 to log one or more
+warning messages when they are run on a test file system where the
+inline_data feature has been enabled.  An example:
 
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Cc: Pekka Paalanen <ppaalanen@gmail.com>
-Cc: Sebastian Wick <sebastian.wick@redhat.com>
-Cc: Vitaly.Prosyak@amd.com
-Cc: Uma Shankar <uma.shankar@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Joshua Ashton <joshua@froggi.es>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: amd-gfx@lists.freedesktop.org
-Reviewed-By: Joshua Ashton <joshua@froggi.es>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230113162428.33874-3-harry.wentland@amd.com
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
+ #16385: comm fsstress: No space for directory leaf checksum. Please
+run e2fsck -D."
+
+The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
+070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
+589, 626, 631, and 650.
+
+In this situation, the warning message indicates a bug in the code that
+performs the RENAME_WHITEOUT operation on a directory entry that has
+been stored inline.  It doesn't detect that the directory is stored
+inline, and incorrectly attempts to compute a dirent block checksum on
+the whiteout inode when creating it.  This attempt fails as a result
+of the integrity checking in get_dirent_tail (usually due to a failure
+to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
+is then emitted.
+
+Fix this by simply collecting the inlined data state at the time the
+search for the source directory entry is performed.  Existing code
+handles the rest, and this is sufficient to eliminate all spurious
+warning messages produced by the tests above.  Go one step further
+and do the same in the code that resets the source directory entry in
+the event of failure.  The inlined state should be present in the
+"old" struct, but given the possibility of a race there's no harm
+in taking a conservative approach and getting that information again
+since the directory entry is being reread anyway.
+
+Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
+Cc: stable@kernel.org
+Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_atomic.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/namei.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/drm_atomic.c
-+++ b/drivers/gpu/drm/drm_atomic.c
-@@ -1006,6 +1006,7 @@ static void drm_atomic_connector_print_s
- 	drm_printf(p, "connector[%u]: %s\n", connector->base.id, connector->name);
- 	drm_printf(p, "\tcrtc=%s\n", state->crtc ? state->crtc->name : "(null)");
- 	drm_printf(p, "\tself_refresh_aware=%d\n", state->self_refresh_aware);
-+	drm_printf(p, "\tmax_requested_bpc=%d\n", state->max_requested_bpc);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -1502,11 +1502,10 @@ static struct buffer_head *__ext4_find_e
+ 		int has_inline_data = 1;
+ 		ret = ext4_find_inline_entry(dir, fname, res_dir,
+ 					     &has_inline_data);
+-		if (has_inline_data) {
+-			if (inlined)
+-				*inlined = 1;
++		if (inlined)
++			*inlined = has_inline_data;
++		if (has_inline_data)
+ 			goto cleanup_and_exit;
+-		}
+ 	}
  
- 	if (connector->connector_type == DRM_MODE_CONNECTOR_WRITEBACK)
- 		if (state->writeback_job && state->writeback_job->fb)
+ 	if ((namelen <= 2) && (name[0] == '.') &&
+@@ -3630,7 +3629,8 @@ static void ext4_resetent(handle_t *hand
+ 	 * so the old->de may no longer valid and need to find it again
+ 	 * before reset old inode info.
+ 	 */
+-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
++				 &old.inlined);
+ 	if (IS_ERR(old.bh))
+ 		retval = PTR_ERR(old.bh);
+ 	if (!old.bh)
+@@ -3795,7 +3795,8 @@ static int ext4_rename(struct inode *old
+ 			return retval;
+ 	}
+ 
+-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
++	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
++				 &old.inlined);
+ 	if (IS_ERR(old.bh))
+ 		return PTR_ERR(old.bh);
+ 	/*
 
 
