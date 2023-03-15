@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1E56BB204
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A526BB206
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231955AbjCOMcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
+        id S232672AbjCOMcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232609AbjCOMbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203A096622
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:09 -0700 (PDT)
+        with ESMTP id S232645AbjCOMbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EBA3CC28
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 30CC1CE19BD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BB8EC433EF;
-        Wed, 15 Mar 2023 12:31:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDFA6B81E03
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4208EC433EF;
+        Wed, 15 Mar 2023 12:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883465;
-        bh=nrg8pWrR1jyw/2cG4nAiN4f762OvN7Mxbh9oWcnMej0=;
+        s=korg; t=1678883470;
+        bh=S+HWvcBHvuViWIPRtZcMvd5xYpaf8PssR3zgXbNJBOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXpC8Shik/VeHf8u4rnfFJxc60xMkR1j/23KLJUntovyOvQHFO8h+Kzabn8uLgu1H
-         +G3eJhCR+7dt13DYC/0r7yFTripo9iFYJtLAP9p4l+1pdXR62F+I3Go2yaUM84CDze
-         BOwtp+mQR9NpAWCT63QM7JLjDO2hhXUkYKci2Rro=
+        b=n+6nIaU/WSmKRmvgFv941zJoigg9I5UYj6KudYfG0niDygB5OR2bvZdQDU2HGWoGW
+         N0YIiYRsS5WnKFlBOzHz7ZaQzpPPaoY29ZxI/JWdTPVFpraFNrXu1HAqWCKL9/vN9N
+         1R6ka8CEfcJZAYlzUJeVdgWOUsapyIcEcncTCriU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 6.1 001/143] fs: prevent out-of-bounds array speculation when closing a file descriptor
-Date:   Wed, 15 Mar 2023 13:11:27 +0100
-Message-Id: <20230315115740.482493679@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 002/143] btrfs: fix unnecessary increment of read error stat on write error
+Date:   Wed, 15 Mar 2023 13:11:28 +0100
+Message-Id: <20230315115740.515545016@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
 References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,27 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 609d54441493c99f21c1823dfd66fa7f4c512ff4 upstream.
+commit 98e8d36a26c2ed22f78316df7d4bf33e554b9f9f upstream.
 
-Google-Bug-Id: 114199369
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Current btrfs_log_dev_io_error() increases the read error count even if the
+erroneous IO is a WRITE request. This is because it forget to use "else
+if", and all the error WRITE requests counts as READ error as there is (of
+course) no REQ_RAHEAD bit set.
+
+Fixes: c3a62baf21ad ("btrfs: use chained bios when cloning")
+CC: stable@vger.kernel.org # 6.1+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/volumes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -642,6 +642,7 @@ static struct file *pick_file(struct fil
- 	if (fd >= fdt->max_fds)
- 		return NULL;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -6739,7 +6739,7 @@ static void btrfs_log_dev_io_error(struc
  
-+	fd = array_index_nospec(fd, fdt->max_fds);
- 	file = fdt->fd[fd];
- 	if (file) {
- 		rcu_assign_pointer(fdt->fd[fd], NULL);
+ 	if (btrfs_op(bio) == BTRFS_MAP_WRITE)
+ 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_WRITE_ERRS);
+-	if (!(bio->bi_opf & REQ_RAHEAD))
++	else if (!(bio->bi_opf & REQ_RAHEAD))
+ 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_READ_ERRS);
+ 	if (bio->bi_opf & REQ_PREFLUSH)
+ 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_FLUSH_ERRS);
 
 
