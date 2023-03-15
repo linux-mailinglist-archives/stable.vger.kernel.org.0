@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C9706BB08C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6788A6BB060
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232154AbjCOMTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45156 "EHLO
+        id S232000AbjCOMRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231290AbjCOMTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A7A7360B2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:51 -0700 (PDT)
+        with ESMTP id S231971AbjCOMRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B8688890
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A9897CE19BB
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E5AC4339B;
-        Wed, 15 Mar 2023 12:18:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64AA4B81DFF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC058C433D2;
+        Wed, 15 Mar 2023 12:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882727;
-        bh=UTsB+p0ZAP2mjs3MojGbUFfO7QkpKVd8tXdhuiqADbI=;
+        s=korg; t=1678882649;
+        bh=yyofiCsIBWvTe6TugVvwGF+8HcVhwLr8N1pWzQxrB9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGiNmAj8pybDSbYBKpcU0rnbNNFThOivPhu1OcQOpGw+KYBL7BnQHx9tfFA3Z/Xyg
-         saGPvYbQfHt78Ug7Wtth8ep5RqweQEORmj/pV+kKuteOWYseI933FfNhnghA0oJLgt
-         wDW+cYeNfvHm10PBb6P48ECAI7Kqq7MfO4Nhabo8=
+        b=cK5eqet7hjqN/4GXYmbblE4NDWpnm+Pu/wMB/77GHwevL+4VAB4mW3wLDJnbNC8K2
+         ycXdKuN9KilGH/ZC6MM74CzusjbeCA6FphO4dytwZ0NOYRqSO5z9aneDUA/zD4xEGs
+         rdH0xnTp8JoA/rDSXzQO+fogGCmnvss3kSe8CHLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Liguang Zhang <zhangliguang@linux.alibaba.com>,
-        Corey Minyard <cminyard@mvista.com>,
+        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/68] ipmi:ssif: make ssif_i2c_send() void
-Date:   Wed, 15 Mar 2023 13:12:11 +0100
-Message-Id: <20230315115726.763764566@linuxfoundation.org>
+Subject: [PATCH 5.4 18/68] ipmi:ssif: resend_msg() cannot fail
+Date:   Wed, 15 Mar 2023 13:12:12 +0100
+Message-Id: <20230315115726.811691254@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
 References: <20230315115726.103942885@linuxfoundation.org>
@@ -55,180 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liguang Zhang <zhangliguang@linux.alibaba.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit dcd10526ac5a0d6cc94ce60b9acfca458163277b ]
+[ Upstream commit 95767ed78a181d5404202627499f9cde56053b96 ]
 
-This function actually needs no return value. So remove the unneeded
-check and make it void.
+The resend_msg() function cannot fail, but there was error handling
+around using it.  Rework the handling of the error, and fix the out of
+retries debug reporting that was wrong around this, too.
 
-Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
-Message-Id: <20210301140515.18951-1-zhangliguang@linux.alibaba.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Stable-dep-of: 95767ed78a18 ("ipmi:ssif: resend_msg() cannot fail")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 81 +++++++++--------------------------
- 1 file changed, 20 insertions(+), 61 deletions(-)
+ drivers/char/ipmi/ipmi_ssif.c | 28 +++++++---------------------
+ 1 file changed, 7 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index d6b69e19f78a7..5ead5e7f0ce16 100644
+index 5ead5e7f0ce16..ff93009583ab1 100644
 --- a/drivers/char/ipmi/ipmi_ssif.c
 +++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -515,7 +515,7 @@ static int ipmi_ssif_thread(void *data)
- 	return 0;
+@@ -607,7 +607,7 @@ static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
+ 		start_get(ssif_info);
  }
  
--static int ssif_i2c_send(struct ssif_info *ssif_info,
-+static void ssif_i2c_send(struct ssif_info *ssif_info,
- 			ssif_i2c_done handler,
- 			int read_write, int command,
- 			unsigned char *data, unsigned int size)
-@@ -527,7 +527,6 @@ static int ssif_i2c_send(struct ssif_info *ssif_info,
- 	ssif_info->i2c_data = data;
- 	ssif_info->i2c_size = size;
- 	complete(&ssif_info->wake_thread);
--	return 0;
- }
+-static int start_resend(struct ssif_info *ssif_info);
++static void start_resend(struct ssif_info *ssif_info);
  
- 
-@@ -536,22 +535,12 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 
- static void start_get(struct ssif_info *ssif_info)
- {
--	int rv;
--
- 	ssif_info->rtc_us_timer = 0;
- 	ssif_info->multi_pos = 0;
- 
--	rv = ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
--			  SSIF_IPMI_RESPONSE,
--			  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
--	if (rv < 0) {
--		/* request failed, just return the error. */
--		if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
--			dev_dbg(&ssif_info->client->dev,
--				"Error from i2c_non_blocking_op(5)\n");
--
--		msg_done_handler(ssif_info, -EIO, NULL, 0);
--	}
-+	ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
-+		  SSIF_IPMI_RESPONSE,
-+		  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
- }
- 
- static void retry_timeout(struct timer_list *t)
-@@ -625,7 +614,6 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- {
- 	struct ipmi_smi_msg *msg;
- 	unsigned long oflags, *flags;
--	int rv;
- 
- 	/*
- 	 * We are single-threaded here, so no need for a lock until we
-@@ -671,17 +659,10 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 		ssif_info->multi_len = len;
- 		ssif_info->multi_pos = 1;
- 
--		rv = ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
--				  SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
--				  ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
--		if (rv < 0) {
--			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
--				dev_dbg(&ssif_info->client->dev,
--					"Error from i2c_non_blocking_op(1)\n");
--
--			result = -EIO;
--		} else
--			return;
-+		ssif_i2c_send(ssif_info, msg_done_handler, I2C_SMBUS_READ,
-+			 SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
-+			 ssif_info->recv, I2C_SMBUS_BLOCK_DATA);
-+		return;
- 	} else if (ssif_info->multi_pos) {
- 		/* Middle of multi-part read.  Start the next transaction. */
- 		int i;
-@@ -743,19 +724,12 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 
- 			ssif_info->multi_pos++;
- 
--			rv = ssif_i2c_send(ssif_info, msg_done_handler,
--					   I2C_SMBUS_READ,
--					   SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
--					   ssif_info->recv,
--					   I2C_SMBUS_BLOCK_DATA);
--			if (rv < 0) {
--				if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
--					dev_dbg(&ssif_info->client->dev,
--						"Error from ssif_i2c_send\n");
--
--				result = -EIO;
--			} else
--				return;
-+			ssif_i2c_send(ssif_info, msg_done_handler,
-+				  I2C_SMBUS_READ,
-+				  SSIF_IPMI_MULTI_PART_RESPONSE_MIDDLE,
-+				  ssif_info->recv,
-+				  I2C_SMBUS_BLOCK_DATA);
-+			return;
- 		}
- 	}
- 
-@@ -936,8 +910,6 @@ static void msg_done_handler(struct ssif_info *ssif_info, int result,
- static void msg_written_handler(struct ssif_info *ssif_info, int result,
- 				unsigned char *data, unsigned int len)
- {
--	int rv;
--
- 	/* We are single-threaded here, so no need for a lock. */
+ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			     unsigned char *data, unsigned int len)
+@@ -914,31 +914,17 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
  	if (result < 0) {
  		ssif_info->retries_left--;
-@@ -1000,18 +972,9 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
- 			ssif_info->multi_data = NULL;
- 		}
- 
--		rv = ssif_i2c_send(ssif_info, msg_written_handler,
--				   I2C_SMBUS_WRITE, cmd,
--				   data_to_send, I2C_SMBUS_BLOCK_DATA);
--		if (rv < 0) {
+ 		if (ssif_info->retries_left > 0) {
+-			if (!start_resend(ssif_info)) {
+-				ssif_inc_stat(ssif_info, send_retries);
+-				return;
+-			}
 -			/* request failed, just return the error. */
 -			ssif_inc_stat(ssif_info, send_errors);
 -
 -			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
 -				dev_dbg(&ssif_info->client->dev,
--					"Error from i2c_non_blocking_op(3)\n");
+-					"%s: Out of retries\n", __func__);
 -			msg_done_handler(ssif_info, -EIO, NULL, 0);
--		}
-+		ssif_i2c_send(ssif_info, msg_written_handler,
-+			  I2C_SMBUS_WRITE, cmd,
-+			  data_to_send, I2C_SMBUS_BLOCK_DATA);
- 	} else {
- 		/* Ready to request the result. */
- 		unsigned long oflags, *flags;
-@@ -1040,7 +1003,6 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
++			start_resend(ssif_info);
+ 			return;
+ 		}
  
- static int start_resend(struct ssif_info *ssif_info)
- {
--	int rv;
- 	int command;
+ 		ssif_inc_stat(ssif_info, send_errors);
  
- 	ssif_info->got_alert = false;
-@@ -1062,12 +1024,9 @@ static int start_resend(struct ssif_info *ssif_info)
- 		ssif_info->data[0] = ssif_info->data_len;
+-		/*
+-		 * Got an error on transmit, let the done routine
+-		 * handle it.
+-		 */
+ 		if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+ 			dev_dbg(&ssif_info->client->dev,
+-				"%s: Error  %d\n", __func__, result);
++				"%s: Out of retries\n", __func__);
+ 
+-		msg_done_handler(ssif_info, result, NULL, 0);
++		msg_done_handler(ssif_info, -EIO, NULL, 0);
+ 		return;
  	}
  
--	rv = ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
--			  command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
--	if (rv && (ssif_info->ssif_debug & SSIF_DEBUG_MSG))
--		dev_dbg(&ssif_info->client->dev,
--			"Error from i2c_non_blocking_op(4)\n");
--	return rv;
-+	ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
-+		   command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
-+	return 0;
+@@ -1001,7 +987,7 @@ static void msg_written_handler(struct ssif_info *ssif_info, int result,
+ 	}
+ }
+ 
+-static int start_resend(struct ssif_info *ssif_info)
++static void start_resend(struct ssif_info *ssif_info)
+ {
+ 	int command;
+ 
+@@ -1026,7 +1012,6 @@ static int start_resend(struct ssif_info *ssif_info)
+ 
+ 	ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
+ 		   command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
+-	return 0;
  }
  
  static int start_send(struct ssif_info *ssif_info,
+@@ -1041,7 +1026,8 @@ static int start_send(struct ssif_info *ssif_info,
+ 	ssif_info->retries_left = SSIF_SEND_RETRIES;
+ 	memcpy(ssif_info->data + 1, data, len);
+ 	ssif_info->data_len = len;
+-	return start_resend(ssif_info);
++	start_resend(ssif_info);
++	return 0;
+ }
+ 
+ /* Must be called with the message lock held. */
 -- 
 2.39.2
 
