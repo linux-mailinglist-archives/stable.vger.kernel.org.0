@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 923986BB107
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5CCC6BB046
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232186AbjCOMYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45130 "EHLO
+        id S231877AbjCOMQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232122AbjCOMXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4080D984FF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:35 -0700 (PDT)
+        with ESMTP id S231303AbjCOMQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD75D7F017
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C0D9B81E07
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC36FC433D2;
-        Wed, 15 Mar 2023 12:22:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58527CE19B9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F82C433D2;
+        Wed, 15 Mar 2023 12:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882946;
-        bh=1CxkcA4KxtzKe0vsTX1h8sBkP+I70lWHDOeifbXu0xQ=;
+        s=korg; t=1678882590;
+        bh=iJxHAqJ91hOpuX9il+/7B1nqGcOMDfkEOWMwyWywolk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iO8HrI4sZTQZnvJi4fv33tWV5PVKKpPLZvvlUdAM45KQUSel+Q5YLW6YdykmUyaAH
-         Ezc1Nw2CKJ1uqhrZZy3DhHMep5I7PETGlq3L3k9VShYSNVV+ojUvgSAjScwx8Kxg5N
-         8ohS8Ciud3p1JpmVNBQF8h9i/yGfTdDPM+MO/DNI=
+        b=stQCujucbgwJt8CxoReFSMZiG/V0n3bhNuOKc4LmupDiRYJi4W8xduP8JwsOWaGHu
+         0ipeK6+QTSPiiNQefL7qdpPQ0CN/ONFrti8MqUI/RH5OCek8/QJMEK4Fp3yo3zMCDb
+         2zFhRPix5L8lgOV8NfinaeMEMtd+skoFtqXEd3Ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>,
-        Khazhismel Kumykov <khazhy@google.com>
-Subject: [PATCH 5.10 061/104] block, bfq: fix possible uaf for bfqq->bic
+        patches@lists.linux.dev, Krzysztof Kozlowski <krzk@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 18/39] ARM: dts: exynos: Move pmu and timer nodes out of soc
 Date:   Wed, 15 Mar 2023 13:12:32 +0100
-Message-Id: <20230315115734.513436006@linuxfoundation.org>
+Message-Id: <20230315115721.903393165@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,122 +54,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 64dc8c732f5c2b406cc752e6aaa1bd5471159cab ]
+[ Upstream commit be00300147ae3c0b2fa4dbc5f00d4332a8d00fac ]
 
-Our test report a uaf for 'bfqq->bic' in 5.10:
+The ARM PMU and ARM architected timer nodes are part of ARM CPU design
+therefore they should not be inside the soc node.  This also fixes DTC
+W=1 warnings like:
 
-==================================================================
-BUG: KASAN: use-after-free in bfq_select_queue+0x378/0xa30
+    arch/arm/boot/dts/exynos3250.dtsi:106.21-135.5:
+        Warning (simple_bus_reg): /soc/fixed-rate-clocks: missing or empty reg/ranges property
+    arch/arm/boot/dts/exynos3250.dtsi:676.7-680.5:
+        Warning (simple_bus_reg): /soc/pmu: missing or empty reg/ranges property
 
-CPU: 6 PID: 2318352 Comm: fsstress Kdump: loaded Not tainted 5.10.0-60.18.0.50.h602.kasan.eulerosv2r11.x86_64 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58-20220320_160524-szxrtosci10000 04/01/2014
-Call Trace:
- bfq_select_queue+0x378/0xa30
- bfq_dispatch_request+0xe8/0x130
- blk_mq_do_dispatch_sched+0x62/0xb0
- __blk_mq_sched_dispatch_requests+0x215/0x2a0
- blk_mq_sched_dispatch_requests+0x8f/0xd0
- __blk_mq_run_hw_queue+0x98/0x180
- __blk_mq_delay_run_hw_queue+0x22b/0x240
- blk_mq_run_hw_queue+0xe3/0x190
- blk_mq_sched_insert_requests+0x107/0x200
- blk_mq_flush_plug_list+0x26e/0x3c0
- blk_finish_plug+0x63/0x90
- __iomap_dio_rw+0x7b5/0x910
- iomap_dio_rw+0x36/0x80
- ext4_dio_read_iter+0x146/0x190 [ext4]
- ext4_file_read_iter+0x1e2/0x230 [ext4]
- new_sync_read+0x29f/0x400
- vfs_read+0x24e/0x2d0
- ksys_read+0xd5/0x1b0
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x61/0xc6
-
-Commit 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
-changes that move process to a new cgroup will allocate a new bfqq to
-use, however, the old bfqq and new bfqq can point to the same bic:
-
-1) Initial state, two process with io in the same cgroup.
-
-Process 1       Process 2
- (BIC1)          (BIC2)
-  |  Λ            |  Λ
-  |  |            |  |
-  V  |            V  |
-  bfqq1           bfqq2
-
-2) bfqq1 is merged to bfqq2.
-
-Process 1       Process 2
- (BIC1)          (BIC2)
-  |               |
-   \-------------\|
-                  V
-  bfqq1           bfqq2(coop)
-
-3) Process 1 exit, then issue new io(denoce IOA) from Process 2.
-
- (BIC2)
-  |  Λ
-  |  |
-  V  |
-  bfqq2(coop)
-
-4) Before IOA is completed, move Process 2 to another cgroup and issue io.
-
-Process 2
- (BIC2)
-   Λ
-   |\--------------\
-   |                V
-  bfqq2           bfqq3
-
-Now that BIC2 points to bfqq3, while bfqq2 and bfqq3 both point to BIC2.
-If all the requests are completed, and Process 2 exit, BIC2 will be
-freed while there is no guarantee that bfqq2 will be freed before BIC2.
-
-Fix the problem by clearing bfqq->bic while bfqq is detached from bic.
-
-Fixes: 3bc5e683c67d ("bfq: Split shared queues on move between cgroups")
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221214030430.3304151-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Stable-dep-of: 33e2c595e2e4 ("ARM: dts: exynos: correct TMU phandle in Exynos5250")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos3250.dtsi | 12 +++++-----
+ arch/arm/boot/dts/exynos4.dtsi    | 12 +++++-----
+ arch/arm/boot/dts/exynos5250.dtsi | 40 +++++++++++++++----------------
+ arch/arm/boot/dts/exynos54xx.dtsi | 38 ++++++++++++++---------------
+ 4 files changed, 51 insertions(+), 51 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7c4b8d0635ebd..afaededb3c49c 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -373,6 +373,12 @@ struct bfq_queue *bic_to_bfqq(struct bfq_io_cq *bic, bool is_sync)
+diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
+index 5892a9f7622fa..af54b306204b8 100644
+--- a/arch/arm/boot/dts/exynos3250.dtsi
++++ b/arch/arm/boot/dts/exynos3250.dtsi
+@@ -97,6 +97,12 @@
+ 		};
+ 	};
  
- void bic_set_bfqq(struct bfq_io_cq *bic, struct bfq_queue *bfqq, bool is_sync)
- {
-+	struct bfq_queue *old_bfqq = bic->bfqq[is_sync];
++	pmu {
++		compatible = "arm,cortex-a7-pmu";
++		interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
++	};
 +
-+	/* Clear bic pointer if bfqq is detached from this bic */
-+	if (old_bfqq && old_bfqq->bic == bic)
-+		old_bfqq->bic = NULL;
+ 	soc: soc {
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+@@ -673,12 +679,6 @@
+ 			status = "disabled";
+ 		};
+ 
+-		pmu {
+-			compatible = "arm,cortex-a7-pmu";
+-			interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+-		};
+-
+ 		ppmu_dmc0: ppmu_dmc0@106a0000 {
+ 			compatible = "samsung,exynos-ppmu";
+ 			reg = <0x106a0000 0x2000>;
+diff --git a/arch/arm/boot/dts/exynos4.dtsi b/arch/arm/boot/dts/exynos4.dtsi
+index 3f7488833745d..33eb2810cdaa2 100644
+--- a/arch/arm/boot/dts/exynos4.dtsi
++++ b/arch/arm/boot/dts/exynos4.dtsi
+@@ -51,6 +51,12 @@
+ 		serial3 = &serial_3;
+ 	};
+ 
++	pmu: pmu {
++		compatible = "arm,cortex-a9-pmu";
++		interrupt-parent = <&combiner>;
++		interrupts = <2 2>, <3 2>;
++	};
 +
- 	bic->bfqq[is_sync] = bfqq;
- }
+ 	soc: soc {
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+@@ -169,12 +175,6 @@
+ 			reg = <0x10440000 0x1000>;
+ 		};
  
-@@ -4977,7 +4983,6 @@ static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
- 		unsigned long flags;
+-		pmu: pmu {
+-			compatible = "arm,cortex-a9-pmu";
+-			interrupt-parent = <&combiner>;
+-			interrupts = <2 2>, <3 2>;
+-		};
+-
+ 		sys_reg: syscon@10010000 {
+ 			compatible = "samsung,exynos4-sysreg", "syscon";
+ 			reg = <0x10010000 0x400>;
+diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
+index e6b1a8a9b832c..59e5f0016b862 100644
+--- a/arch/arm/boot/dts/exynos5250.dtsi
++++ b/arch/arm/boot/dts/exynos5250.dtsi
+@@ -157,6 +157,12 @@
+ 		};
+ 	};
  
- 		spin_lock_irqsave(&bfqd->lock, flags);
--		bfqq->bic = NULL;
- 		bfq_exit_bfqq(bfqd, bfqq);
- 		bic_set_bfqq(bic, NULL, is_sync);
- 		spin_unlock_irqrestore(&bfqd->lock, flags);
++	pmu {
++		compatible = "arm,cortex-a15-pmu";
++		interrupt-parent = <&combiner>;
++		interrupts = <1 2>, <22 4>;
++	};
++
+ 	soc: soc {
+ 		sysram@2020000 {
+ 			compatible = "mmio-sram";
+@@ -227,20 +233,6 @@
+ 			power-domains = <&pd_mau>;
+ 		};
+ 
+-		timer {
+-			compatible = "arm,armv7-timer";
+-			interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+-				     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+-				     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+-				     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+-			/*
+-			 * Unfortunately we need this since some versions
+-			 * of U-Boot on Exynos don't set the CNTFRQ register,
+-			 * so we need the value from DT.
+-			 */
+-			clock-frequency = <24000000>;
+-		};
+-
+ 		mct@101c0000 {
+ 			compatible = "samsung,exynos4210-mct";
+ 			reg = <0x101C0000 0x800>;
+@@ -265,12 +257,6 @@
+ 			};
+ 		};
+ 
+-		pmu {
+-			compatible = "arm,cortex-a15-pmu";
+-			interrupt-parent = <&combiner>;
+-			interrupts = <1 2>, <22 4>;
+-		};
+-
+ 		pinctrl_0: pinctrl@11400000 {
+ 			compatible = "samsung,exynos5250-pinctrl";
+ 			reg = <0x11400000 0x1000>;
+@@ -1076,6 +1062,20 @@
+ 		       };
+ 		};
+ 	};
++
++	timer {
++		compatible = "arm,armv7-timer";
++		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
++		/*
++		 * Unfortunately we need this since some versions
++		 * of U-Boot on Exynos don't set the CNTFRQ register,
++		 * so we need the value from DT.
++		 */
++		clock-frequency = <24000000>;
++	};
+ };
+ 
+ &dp {
+diff --git a/arch/arm/boot/dts/exynos54xx.dtsi b/arch/arm/boot/dts/exynos54xx.dtsi
+index de26e5ee0d2de..ae866bcc30c4e 100644
+--- a/arch/arm/boot/dts/exynos54xx.dtsi
++++ b/arch/arm/boot/dts/exynos54xx.dtsi
+@@ -25,27 +25,27 @@
+ 		usbdrdphy1 = &usbdrd_phy1;
+ 	};
+ 
+-	soc: soc {
+-		arm_a7_pmu: arm-a7-pmu {
+-			compatible = "arm,cortex-a7-pmu";
+-			interrupt-parent = <&gic>;
+-			interrupts = <GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>;
+-			status = "disabled";
+-		};
++	arm_a7_pmu: arm-a7-pmu {
++		compatible = "arm,cortex-a7-pmu";
++		interrupt-parent = <&gic>;
++		interrupts = <GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>;
++		status = "disabled";
++	};
+ 
+-		arm_a15_pmu: arm-a15-pmu {
+-			compatible = "arm,cortex-a15-pmu";
+-			interrupt-parent = <&combiner>;
+-			interrupts = <1 2>,
+-				     <7 0>,
+-				     <16 6>,
+-				     <19 2>;
+-			status = "disabled";
+-		};
++	arm_a15_pmu: arm-a15-pmu {
++		compatible = "arm,cortex-a15-pmu";
++		interrupt-parent = <&combiner>;
++		interrupts = <1 2>,
++			     <7 0>,
++			     <16 6>,
++			     <19 2>;
++		status = "disabled";
++	};
+ 
++	soc: soc {
+ 		sysram@2020000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x02020000 0x54000>;
 -- 
 2.39.2
 
