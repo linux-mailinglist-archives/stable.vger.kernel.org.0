@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4CF6BB315
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0266C6BB313
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233037AbjCOMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35818 "EHLO
+        id S233034AbjCOMlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:41:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233022AbjCOMlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4A5367C2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:57 -0700 (PDT)
+        with ESMTP id S232864AbjCOMk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 430915FA67
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F48FB81E1A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC17C433D2;
-        Wed, 15 Mar 2023 12:39:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2375E6128D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36637C433D2;
+        Wed, 15 Mar 2023 12:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883992;
-        bh=qN3fJUsoNzYjLflSLNLstEh1VbdCveVv5vBVl9NrLnc=;
+        s=korg; t=1678883994;
+        bh=CoJGKh0FOnk5vX8Pwg3Lc1XM2guT1Iwm90uOmQLz6BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTA/VnnVqcCo4kbjnXDHpd5ger/+/D8vJqUSO+Qo+Y1GRUHxDZNA3iWgHw7wAY1DS
-         43WD10IeMBLJG3Dxwh/aXyXEGcC5Ts+jW4PEYgWjlaVrNXR9fnKpyj/s0nztlMtOvt
-         RXnxItwdMWtg3SFn3XV2qZ3KMVz8e4cIOyKPRnLw=
+        b=ZZyliDExkGagZ4y/NQmXW7kjh+5DVrHLdg7Q2DKPem3cDUiMTkR9Pw6YIhp7wEm23
+         am8CrwnuncEloRoslj6RRlLiFJ8sLnQXudA7HE2YtHHgwn44M8qC5FYZknpGND9Znc
+         CIHLsZ9nkgD8mvtPpcOZWq2WePMJ5Am9xrurnWgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 035/141] bus: mhi: ep: Change state_lock to mutex
-Date:   Wed, 15 Mar 2023 13:12:18 +0100
-Message-Id: <20230315115741.034795765@linuxfoundation.org>
+Subject: [PATCH 6.2 036/141] powerpc/boot: Dont always pass -mcpu=powerpc when building 32-bit uImage
+Date:   Wed, 15 Mar 2023 13:12:19 +0100
+Message-Id: <20230315115741.064257884@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
 References: <20230315115739.932786806@linuxfoundation.org>
@@ -55,208 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 1ddc7618294084fff8d673217a9479550990ee84 ]
+[ Upstream commit ff7c76f66d8bad4e694c264c789249e1d3a8205d ]
 
-state_lock, the spinlock type is meant to protect race against concurrent
-MHI state transitions. In mhi_ep_set_m0_state(), while the state_lock is
-being held, the channels are resumed in mhi_ep_resume_channels() if the
-previous state was M3. This causes sleeping in atomic bug, since
-mhi_ep_resume_channels() use mutex internally.
+When CONFIG_TARGET_CPU is specified then pass its value to the compiler
+-mcpu option. This fixes following build error when building kernel with
+powerpc e500 SPE capable cross compilers:
 
-Since the state_lock is supposed to be held throughout the state change,
-it is not ideal to drop the lock before calling mhi_ep_resume_channels().
-So to fix this issue, let's change the type of state_lock to mutex. This
-would also allow holding the lock throughout all state transitions thereby
-avoiding any potential race.
+    BOOTAS  arch/powerpc/boot/crt0.o
+  powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
+  powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
+  make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
 
-Cc: <stable@vger.kernel.org> # 5.19
-Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
-Reported-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Similar change was already introduced for the main powerpc Makefile in
+commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
+compiler").
+
+Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
+Cc: stable@vger.kernel.org # v5.19+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/ep/main.c |  8 +++++---
- drivers/bus/mhi/ep/sm.c   | 42 ++++++++++++++++++++++-----------------
- include/linux/mhi_ep.h    |  4 ++--
- 3 files changed, 31 insertions(+), 23 deletions(-)
+ arch/powerpc/boot/Makefile | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
-index b06548005985c..edd153dda40c0 100644
---- a/drivers/bus/mhi/ep/main.c
-+++ b/drivers/bus/mhi/ep/main.c
-@@ -994,11 +994,11 @@ static void mhi_ep_reset_worker(struct work_struct *work)
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index d32d95aea5d6f..295f76df13b55 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+ 		 $(LINUXINCLUDE)
  
- 	mhi_ep_power_down(mhi_cntrl);
- 
--	spin_lock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
+ ifdef CONFIG_PPC64_BOOT_WRAPPER
+-ifdef CONFIG_CPU_LITTLE_ENDIAN
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
++BOOTCFLAGS	+= -m64
+ else
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64
++BOOTCFLAGS	+= -m32
+ endif
 +
- 	/* Reset MMIO to signal host that the MHI_RESET is completed in endpoint */
- 	mhi_ep_mmio_reset(mhi_cntrl);
- 	cur_state = mhi_cntrl->mhi_state;
--	spin_unlock_bh(&mhi_cntrl->state_lock);
++ifdef CONFIG_TARGET_CPU_BOOL
++BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
++else ifdef CONFIG_PPC64_BOOT_WRAPPER
++ifdef CONFIG_CPU_LITTLE_ENDIAN
++BOOTCFLAGS	+= -mcpu=powerpc64le
+ else
+-BOOTCFLAGS	+= -m32 -mcpu=powerpc
++BOOTCFLAGS	+= -mcpu=powerpc64
++endif
+ endif
  
- 	/*
- 	 * Only proceed further if the reset is due to SYS_ERR. The host will
-@@ -1007,6 +1007,8 @@ static void mhi_ep_reset_worker(struct work_struct *work)
- 	 */
- 	if (cur_state == MHI_STATE_SYS_ERR)
- 		mhi_ep_power_up(mhi_cntrl);
-+
-+	mutex_unlock(&mhi_cntrl->state_lock);
- }
- 
- /*
-@@ -1379,8 +1381,8 @@ int mhi_ep_register_controller(struct mhi_ep_cntrl *mhi_cntrl,
- 
- 	INIT_LIST_HEAD(&mhi_cntrl->st_transition_list);
- 	INIT_LIST_HEAD(&mhi_cntrl->ch_db_list);
--	spin_lock_init(&mhi_cntrl->state_lock);
- 	spin_lock_init(&mhi_cntrl->list_lock);
-+	mutex_init(&mhi_cntrl->state_lock);
- 	mutex_init(&mhi_cntrl->event_lock);
- 
- 	/* Set MHI version and AMSS EE before enumeration */
-diff --git a/drivers/bus/mhi/ep/sm.c b/drivers/bus/mhi/ep/sm.c
-index 3655c19e23c7b..fd200b2ac0bb2 100644
---- a/drivers/bus/mhi/ep/sm.c
-+++ b/drivers/bus/mhi/ep/sm.c
-@@ -63,24 +63,23 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	int ret;
- 
- 	/* If MHI is in M3, resume suspended channels */
--	spin_lock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
-+
- 	old_state = mhi_cntrl->mhi_state;
- 	if (old_state == MHI_STATE_M3)
- 		mhi_ep_resume_channels(mhi_cntrl);
- 
- 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M0);
--	spin_unlock_bh(&mhi_cntrl->state_lock);
--
- 	if (ret) {
- 		mhi_ep_handle_syserr(mhi_cntrl);
--		return ret;
-+		goto err_unlock;
- 	}
- 
- 	/* Signal host that the device moved to M0 */
- 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M0);
- 	if (ret) {
- 		dev_err(dev, "Failed sending M0 state change event\n");
--		return ret;
-+		goto err_unlock;
- 	}
- 
- 	if (old_state == MHI_STATE_READY) {
-@@ -88,11 +87,14 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
- 		ret = mhi_ep_send_ee_event(mhi_cntrl, MHI_EE_AMSS);
- 		if (ret) {
- 			dev_err(dev, "Failed sending AMSS EE event\n");
--			return ret;
-+			goto err_unlock;
- 		}
- 	}
- 
--	return 0;
-+err_unlock:
-+	mutex_unlock(&mhi_cntrl->state_lock);
-+
-+	return ret;
- }
- 
- int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
-@@ -100,13 +102,12 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
- 	int ret;
- 
--	spin_lock_bh(&mhi_cntrl->state_lock);
--	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
--	spin_unlock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
- 
-+	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
- 	if (ret) {
- 		mhi_ep_handle_syserr(mhi_cntrl);
--		return ret;
-+		goto err_unlock;
- 	}
- 
- 	mhi_ep_suspend_channels(mhi_cntrl);
-@@ -115,10 +116,13 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M3);
- 	if (ret) {
- 		dev_err(dev, "Failed sending M3 state change event\n");
--		return ret;
-+		goto err_unlock;
- 	}
- 
--	return 0;
-+err_unlock:
-+	mutex_unlock(&mhi_cntrl->state_lock);
-+
-+	return ret;
- }
- 
- int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
-@@ -127,22 +131,24 @@ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	enum mhi_state mhi_state;
- 	int ret, is_ready;
- 
--	spin_lock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
-+
- 	/* Ensure that the MHISTATUS is set to RESET by host */
- 	mhi_state = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_MHISTATE_MASK);
- 	is_ready = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_READY_MASK);
- 
- 	if (mhi_state != MHI_STATE_RESET || is_ready) {
- 		dev_err(dev, "READY state transition failed. MHI host not in RESET state\n");
--		spin_unlock_bh(&mhi_cntrl->state_lock);
--		return -EIO;
-+		ret = -EIO;
-+		goto err_unlock;
- 	}
- 
- 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_READY);
--	spin_unlock_bh(&mhi_cntrl->state_lock);
--
- 	if (ret)
- 		mhi_ep_handle_syserr(mhi_cntrl);
- 
-+err_unlock:
-+	mutex_unlock(&mhi_cntrl->state_lock);
-+
- 	return ret;
- }
-diff --git a/include/linux/mhi_ep.h b/include/linux/mhi_ep.h
-index 478aece170462..f198a8ac7ee72 100644
---- a/include/linux/mhi_ep.h
-+++ b/include/linux/mhi_ep.h
-@@ -70,8 +70,8 @@ struct mhi_ep_db_info {
-  * @cmd_ctx_cache_phys: Physical address of the host command context cache
-  * @chdb: Array of channel doorbell interrupt info
-  * @event_lock: Lock for protecting event rings
-- * @list_lock: Lock for protecting state transition and channel doorbell lists
-  * @state_lock: Lock for protecting state transitions
-+ * @list_lock: Lock for protecting state transition and channel doorbell lists
-  * @st_transition_list: List of state transitions
-  * @ch_db_list: List of queued channel doorbells
-  * @wq: Dedicated workqueue for handling rings and state changes
-@@ -117,8 +117,8 @@ struct mhi_ep_cntrl {
- 
- 	struct mhi_ep_db_info chdb[4];
- 	struct mutex event_lock;
-+	struct mutex state_lock;
- 	spinlock_t list_lock;
--	spinlock_t state_lock;
- 
- 	struct list_head st_transition_list;
- 	struct list_head ch_db_list;
+ BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
 -- 
 2.39.2
 
