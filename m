@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 789246BB14F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E51196BB15D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232329AbjCOM0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
+        id S232431AbjCOM0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbjCOM0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:01 -0400
+        with ESMTP id S232480AbjCOM0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DA92B294
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35489AFCF
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5433761CC2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66B93C433EF;
-        Wed, 15 Mar 2023 12:25:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F223761D5E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103E5C433EF;
+        Wed, 15 Mar 2023 12:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883108;
-        bh=jhSr8Ico+e2s/ufKO8FrT4eYW1o8tfob03bl2PEQbog=;
+        s=korg; t=1678883111;
+        bh=yTxiNov8sWPXiITIDNDghNxtyAYpdY8JaU09Qe3OZxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lAR0+W/c0EXpaNeaiu7eKb5Z2w1I2iQ7BYrVOfUG1R9e6N+boO0t/DvL6S/Ch9yII
-         a93zhyOGyplfg8Q12Nmuu83Mztxgd72q3hNFOLOG7KysLrCSY3Az5GHRSkr+Vz7bg6
-         SF2SVkm1ItVJIwi0s1s5tA4lCcij5+6afHGOGfE0=
+        b=lqZ+EsmBmqAtICIBoGRw2rVfXBMb74XvbIh8gnbzlTtli2bZgceJoU3tC4YaB9PuM
+         59ljAC4c7SR8sSilCujLzctpiyWzuAdtm9o+EKOJuUgp6PxwjRrjB+ffQVpD9ELnB2
+         XpzBgeBNvcGlmr9G5RNs1bCyNHAj8xyKYqXzFFPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Paolo Bonzini <pbonzini@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/145] KVM: SVM: Dont rewrite guest ICR on AVIC IPI virtualization failure
-Date:   Wed, 15 Mar 2023 13:11:25 +0100
-Message-Id: <20230315115739.641357455@linuxfoundation.org>
+Subject: [PATCH 5.15 020/145] KVM: SVM: Process ICR on AVIC IPI delivery failure due to invalid target
+Date:   Wed, 15 Mar 2023 13:11:26 +0100
+Message-Id: <20230315115739.679401541@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
 References: <20230315115738.951067403@linuxfoundation.org>
@@ -56,71 +57,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit b51818afdc1d3c7cc269e295953685558d3af71c ]
+[ Upstream commit 5aede752a839904059c2b5d68be0dc4501c6c15f ]
 
-Don't bother rewriting the ICR value into the vAPIC page on an AVIC IPI
-virtualization failure, the access is a trap, i.e. the value has already
-been written to the vAPIC page.  The one caveat is if hardware left the
-BUSY flag set (which appears to happen somewhat arbitrarily), in which
-case go through the "nodecode" APIC-write path in order to clear the BUSY
-flag.
+Emulate ICR writes on AVIC IPI failures due to invalid targets using the
+same logic as failures due to invalid types.  AVIC acceleration fails if
+_any_ of the targets are invalid, and crucially VM-Exits before sending
+IPIs to targets that _are_ valid.  In logical mode, the destination is a
+bitmap, i.e. a single IPI can target multiple logical IDs.  Doing nothing
+causes KVM to drop IPIs if at least one target is valid and at least one
+target is invalid.
 
+Fixes: 18f40c53e10f ("svm: Add VMEXIT handlers for AVIC")
+Cc: stable@vger.kernel.org
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220204214205.3306634-6-seanjc@google.com>
+Message-Id: <20230106011306.85230-5-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Stable-dep-of: 5aede752a839 ("KVM: SVM: Process ICR on AVIC IPI delivery failure due to invalid target")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c    |  1 +
- arch/x86/kvm/svm/avic.c | 22 +++++++++++-----------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ arch/x86/kvm/svm/avic.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 25530a908b4cd..8c9e41ff2a24e 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1295,6 +1295,7 @@ void kvm_apic_send_ipi(struct kvm_lapic *apic, u32 icr_low, u32 icr_high)
- 
- 	kvm_irq_delivery_to_apic(apic->vcpu->kvm, apic, &irq, NULL);
- }
-+EXPORT_SYMBOL_GPL(kvm_apic_send_ipi);
- 
- static u32 apic_get_tmcct(struct kvm_lapic *apic)
- {
 diff --git a/arch/x86/kvm/svm/avic.c b/arch/x86/kvm/svm/avic.c
-index 3d3f8dfb80457..52778be77713f 100644
+index 52778be77713f..b595a33860d70 100644
 --- a/arch/x86/kvm/svm/avic.c
 +++ b/arch/x86/kvm/svm/avic.c
-@@ -320,18 +320,18 @@ int avic_incomplete_ipi_interception(struct kvm_vcpu *vcpu)
+@@ -318,14 +318,18 @@ int avic_incomplete_ipi_interception(struct kvm_vcpu *vcpu)
+ 	trace_kvm_avic_incomplete_ipi(vcpu->vcpu_id, icrh, icrl, id, index);
+ 
  	switch (id) {
++	case AVIC_IPI_FAILURE_INVALID_TARGET:
  	case AVIC_IPI_FAILURE_INVALID_INT_TYPE:
  		/*
--		 * AVIC hardware handles the generation of
--		 * IPIs when the specified Message Type is Fixed
--		 * (also known as fixed delivery mode) and
--		 * the Trigger Mode is edge-triggered. The hardware
--		 * also supports self and broadcast delivery modes
--		 * specified via the Destination Shorthand(DSH)
--		 * field of the ICRL. Logical and physical APIC ID
--		 * formats are supported. All other IPI types cause
--		 * a #VMEXIT, which needs to emulated.
-+		 * Emulate IPIs that are not handled by AVIC hardware, which
-+		 * only virtualizes Fixed, Edge-Triggered INTRs.  The exit is
-+		 * a trap, e.g. ICR holds the correct value and RIP has been
-+		 * advanced, KVM is responsible only for emulating the IPI.
-+		 * Sadly, hardware may sometimes leave the BUSY flag set, in
-+		 * which case KVM needs to emulate the ICR write as well in
-+		 * order to clear the BUSY flag.
+ 		 * Emulate IPIs that are not handled by AVIC hardware, which
+-		 * only virtualizes Fixed, Edge-Triggered INTRs.  The exit is
+-		 * a trap, e.g. ICR holds the correct value and RIP has been
+-		 * advanced, KVM is responsible only for emulating the IPI.
+-		 * Sadly, hardware may sometimes leave the BUSY flag set, in
+-		 * which case KVM needs to emulate the ICR write as well in
++		 * only virtualizes Fixed, Edge-Triggered INTRs, and falls over
++		 * if _any_ targets are invalid, e.g. if the logical mode mask
++		 * is a superset of running vCPUs.
++		 *
++		 * The exit is a trap, e.g. ICR holds the correct value and RIP
++		 * has been advanced, KVM is responsible only for emulating the
++		 * IPI.  Sadly, hardware may sometimes leave the BUSY flag set,
++		 * in which case KVM needs to emulate the ICR write as well in
+ 		 * order to clear the BUSY flag.
  		 */
--		kvm_lapic_reg_write(apic, APIC_ICR2, icrh);
--		kvm_lapic_reg_write(apic, APIC_ICR, icrl);
-+		if (icrl & APIC_ICR_BUSY)
-+			kvm_apic_write_nodecode(vcpu, APIC_ICR);
-+		else
-+			kvm_apic_send_ipi(apic, icrl, icrh);
+ 		if (icrl & APIC_ICR_BUSY)
+@@ -341,8 +345,6 @@ int avic_incomplete_ipi_interception(struct kvm_vcpu *vcpu)
+ 		 */
+ 		avic_kick_target_vcpus(vcpu->kvm, apic, icrl, icrh);
  		break;
- 	case AVIC_IPI_FAILURE_TARGET_NOT_RUNNING:
- 		/*
+-	case AVIC_IPI_FAILURE_INVALID_TARGET:
+-		break;
+ 	case AVIC_IPI_FAILURE_INVALID_BACKING_PAGE:
+ 		WARN_ONCE(1, "Invalid backing page\n");
+ 		break;
 -- 
 2.39.2
 
