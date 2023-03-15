@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DF5F6BB1EA
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6D86BB120
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbjCOMbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
+        id S229900AbjCOMYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232449AbjCOMbV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B87125A2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:24 -0700 (PDT)
+        with ESMTP id S231416AbjCOMY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C293E95E16
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F5A761D69
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72235C433EF;
-        Wed, 15 Mar 2023 12:30:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C3BD61D59
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C9CC433EF;
+        Wed, 15 Mar 2023 12:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883423;
-        bh=RUtrwhkGxrU/WjppTacDxsQStzEre83Pl93QLDKDXBo=;
+        s=korg; t=1678883001;
+        bh=U1I4vED8B3R6bAK/iZN/WkRd4FH3pkC82r3lZvzWtaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qeW2df+dutV2sNIcxebTRzGBirBVcyFAR0Auc/Etg1ifo9Ls8013fsO736qbnlCUR
-         Fc+O7czdtST3cpM9FEADSROYmB08eixOnjY9o/S7oPoLtOaliPgHO6FiqW0NBk40Ph
-         zxU0LB3pK1aU8lp+vSKloYDmfz7RVAZ6CiYPuBdM=
+        b=q2d0tFz3U7+eyffETAmR2WprsrfwccKuHQsZ4qKtCAFP/jpcfarAkopJareFx9dW/
+         NZA/3ctwnsUkjdlS1i5GvjDgKHcy9+TtsJhElCJ5uArXmHO+yp6X38R4sntHyNzm7w
+         NLMuAb+hLO8u0C4BdZ8AWSZWFEYHTHBkr0/yhY5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/145] powerpc/iommu: fix memory leak with using debugfs_lookup()
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.10 083/104] sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
 Date:   Wed, 15 Mar 2023 13:12:54 +0100
-Message-Id: <20230315115742.539337464@linuxfoundation.org>
+Message-Id: <20230315115735.387220615@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,42 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit b505063910c134778202dfad9332dfcecb76bab3 ]
+commit b759caa1d9f667b94727b2ad12589cbc4ce13a82 upstream.
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+Use the new util_fits_cpu() to ensure migration margin and capacity
+pressure are taken into account correctly when uclamp is being used
+otherwise we will fail to consider CPUs as fitting in scenarios where
+they should.
 
+Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-5-qais.yousef@arm.com
+(cherry picked from commit b759caa1d9f667b94727b2ad12589cbc4ce13a82)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230202141919.2298821-1-gregkh@linuxfoundation.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/iommu.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ kernel/sched/fair.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
-index a67fd54ccc573..8bea336fa5b70 100644
---- a/arch/powerpc/kernel/iommu.c
-+++ b/arch/powerpc/kernel/iommu.c
-@@ -68,11 +68,9 @@ static void iommu_debugfs_add(struct iommu_table *tbl)
- static void iommu_debugfs_del(struct iommu_table *tbl)
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6347,21 +6347,23 @@ static int select_idle_cpu(struct task_s
+ static int
+ select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
  {
- 	char name[10];
--	struct dentry *liobn_entry;
+-	unsigned long task_util, best_cap = 0;
++	unsigned long task_util, util_min, util_max, best_cap = 0;
+ 	int cpu, best_cpu = -1;
+ 	struct cpumask *cpus;
  
- 	sprintf(name, "%08lx", tbl->it_index);
--	liobn_entry = debugfs_lookup(name, iommu_debugfs_dir);
--	debugfs_remove(liobn_entry);
-+	debugfs_lookup_and_remove(name, iommu_debugfs_dir);
- }
- #else
- static void iommu_debugfs_add(struct iommu_table *tbl){}
--- 
-2.39.2
-
+ 	cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
+ 	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
+ 
+-	task_util = uclamp_task_util(p);
++	task_util = task_util_est(p);
++	util_min = uclamp_eff_value(p, UCLAMP_MIN);
++	util_max = uclamp_eff_value(p, UCLAMP_MAX);
+ 
+ 	for_each_cpu_wrap(cpu, cpus, target) {
+ 		unsigned long cpu_cap = capacity_of(cpu);
+ 
+ 		if (!available_idle_cpu(cpu) && !sched_idle_cpu(cpu))
+ 			continue;
+-		if (fits_capacity(task_util, cpu_cap))
++		if (util_fits_cpu(task_util, util_min, util_max, cpu))
+ 			return cpu;
+ 
+ 		if (cpu_cap > best_cap) {
 
 
