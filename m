@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 456E56BB0E8
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:22:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC466BB22A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232292AbjCOMWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
+        id S232691AbjCOMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjCOMWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:18 -0400
+        with ESMTP id S232661AbjCOMd0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:33:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E22F97486
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC3510429
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E474D61D58
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049D1C43443;
-        Wed, 15 Mar 2023 12:21:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5282661D26
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C393C433D2;
+        Wed, 15 Mar 2023 12:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882872;
-        bh=w+0UgV/xH/5e0p6nE0ONsssNMM0Yzh/JK9dM1d3d1vs=;
+        s=korg; t=1678883543;
+        bh=TaF1KHDUjsWtGvQLL8vjzm97oh8qj2p4XYNNXrqoO50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0cJNC+q50ojfBHGI7cdI8loMtA0g+Pr3ImC6G3rA2a2wP9xCyREiFcI+UllP+rFP
-         17TKtAhfxJZAzYzlWUvHmu3yAHKIdvuI2pFKOhvhklMxMIEt+swweoomHRWs/8tD5z
-         qKmPpjvHj/DMYqORvA3lM5uz043ANiP+wU5q1AFs=
+        b=yhePuWY/hJYK5XJ6AvnpoNLe5VBCvpWbfqW2nrj9YcL4dlhHqoH35nySz3x7jg3nC
+         TYbHeydSc8uiuzNVM6wz+AadpLG5LNLcuhhEfRoQw4amLyAXUbmOqREdjDldjVwRLD
+         A8CX5vdXMtcIJsecJ4qPYh+Zvt220eX5yNBtvffo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Yassine Oudjana <y.oudjana@protonmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/104] drm/msm/a5xx: fix the emptyness check in the preempt code
+Subject: [PATCH 6.1 038/143] fs: dlm: be sure to call dlm_send_queue_flush()
 Date:   Wed, 15 Mar 2023 13:12:04 +0100
-Message-Id: <20230315115733.395199739@linuxfoundation.org>
+Message-Id: <20230315115741.670936435@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit b4fb748f0b734ce1d2e7834998cc599fcbd25d67 ]
+[ Upstream commit 7354fa4ef697191effedc2ae9a8293427708bbf5 ]
 
-Quoting Yassine: ring->memptrs->rptr is never updated and stays 0, so
-the comparison always evaluates to false and get_next_ring always
-returns ring 0 thinking it isn't empty.
+If we release a midcomms node structure, there should be nothing left
+inside the dlm midcomms send queue. However, sometimes this is not true
+because I believe some DLM_FIN message was not acked... if we run
+into a shutdown timeout, then we should be sure there is no pending send
+dlm message inside this queue when releasing midcomms node structure.
 
-Fix this by calling get_rptr() instead of reading rptr directly.
-
-Reported-by: Yassine Oudjana <y.oudjana@protonmail.com>
-Fixes: b1fc2839d2f9 ("drm/msm: Implement preemption for A5XX targets")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/522642/
-Link: https://lore.kernel.org/r/20230214020956.164473-4-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Cc: stable@vger.kernel.org
+Fixes: 489d8e559c65 ("fs: dlm: add reliable connection if reconnect")
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_preempt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/midcomms.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-index 183de1139eeb6..9da0aff0072d7 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-@@ -63,7 +63,7 @@ static struct msm_ringbuffer *get_next_ring(struct msm_gpu *gpu)
- 		struct msm_ringbuffer *ring = gpu->rb[i];
+diff --git a/fs/dlm/midcomms.c b/fs/dlm/midcomms.c
+index b53d7a281be93..d976c2009b185 100644
+--- a/fs/dlm/midcomms.c
++++ b/fs/dlm/midcomms.c
+@@ -1367,6 +1367,7 @@ static void midcomms_node_release(struct rcu_head *rcu)
+ 	struct midcomms_node *node = container_of(rcu, struct midcomms_node, rcu);
  
- 		spin_lock_irqsave(&ring->preempt_lock, flags);
--		empty = (get_wptr(ring) == ring->memptrs->rptr);
-+		empty = (get_wptr(ring) == gpu->funcs->get_rptr(gpu, ring));
- 		spin_unlock_irqrestore(&ring->preempt_lock, flags);
+ 	WARN_ON_ONCE(atomic_read(&node->send_queue_cnt));
++	dlm_send_queue_flush(node);
+ 	kfree(node);
+ }
  
- 		if (!empty)
 -- 
 2.39.2
 
