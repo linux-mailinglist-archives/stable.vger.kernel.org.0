@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDE5C6BB2E3
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 469BA6BB085
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232981AbjCOMjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52784 "EHLO
+        id S232056AbjCOMTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232975AbjCOMjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:39:07 -0400
+        with ESMTP id S232053AbjCOMTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B158515896
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D88282200B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9153861D72
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0D70C433D2;
-        Wed, 15 Mar 2023 12:38:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E194761ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A87C433D2;
+        Wed, 15 Mar 2023 12:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883884;
-        bh=AO8GYdwnvDTIoeY8Hvktv61/A706z6PMo+7LCbaehBY=;
+        s=korg; t=1678882717;
+        bh=xo4/8iwFxjaoFHVurbxZyRa9EWRHfS/CkAbZWLGjUwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MqDlw6O5//LdB0SVgo/7oJCjB8PKuYuytjHj0ejMI7Q+Twp1IrdlCwg8mOtPTrD+K
-         ms+CzTqc2pOq4FDr6Deek6h6D5xnx6bTjhbSborNN+yRWunK20DIjSgr4zqYYbUaEX
-         DD15RUVvVnoJ3NoI6yKF1XQHtLPtbl+X4mUa8CHw=
+        b=te6O7JcRhwVkrSU1C+eq69JlXTUbZd9kb0zbARwywaefGQikOGFn9abnkJo64TZzv
+         KDoF08lLQ71t8Q14rKhUu7to2KTZ2p9awEyFFMArnGsFmYs/I/Ub+uZbO+6lEcgrtP
+         +hm2h43W1nAYJyhs9ehif4wwwO9bqx8T8EEHEvPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
-        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.2 024/141] ext4: fix WARNING in ext4_update_inline_data
+        patches@lists.linux.dev, William Tseng <william.tseng@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/68] drm/edid: fix AVI infoframe aspect ratio handling
 Date:   Wed, 15 Mar 2023 13:12:07 +0100
-Message-Id: <20230315115740.721384221@linuxfoundation.org>
+Message-Id: <20230315115726.625101321@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
+[ Upstream commit 1cbc1f0d324ba6c4d1b10ac6362b5e0b029f63d5 ]
 
-Syzbot found the following issue:
-EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
-fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
-fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-Modules linked in:
-CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
-RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
-RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
-RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
-RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
-R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
-R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
-FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __alloc_pages_node include/linux/gfp.h:237 [inline]
- alloc_pages_node include/linux/gfp.h:260 [inline]
- __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
- __do_kmalloc_node mm/slab_common.c:956 [inline]
- __kmalloc+0xfe/0x190 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- kzalloc include/linux/slab.h:720 [inline]
- ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
- ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
- ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
- ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
- ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
- ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
- lookup_open fs/namei.c:3413 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x12ac/0x2dd0 fs/namei.c:3711
- do_filp_open+0x264/0x4f0 fs/namei.c:3741
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_openat fs/open.c:1342 [inline]
- __se_sys_openat fs/open.c:1337 [inline]
- __x64_sys_openat+0x243/0x290 fs/open.c:1337
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+We try to avoid sending VICs defined in the later specs in AVI
+infoframes to sinks that conform to the earlier specs, to not upset
+them, and use 0 for the VIC instead. However, we do this detection and
+conversion to 0 too early, as we'll need the actual VIC to figure out
+the aspect ratio.
 
-Above issue happens as follows:
-ext4_iget
-   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
-ext4_try_add_inline_entry
-   __ext4_mark_inode_dirty
-      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
-         ext4_xattr_shift_entries
-	 ->after shift i_inline_off is incorrect, actually is change to 176
-ext4_try_add_inline_entry
-  ext4_update_inline_dir
-    get_max_inline_xattr_value_size
-      if (EXT4_I(inode)->i_inline_off)
-	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
-			EXT4_I(inode)->i_inline_off);
-        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
-	->As entry is incorrect, then 'free' may be negative
-   ext4_update_inline_data
-      value = kzalloc(len, GFP_NOFS);
-      -> len is unsigned int, maybe very large, then trigger warning when
-         'kzalloc()'
+In particular, for a mode with 64:27 aspect ratio, 0 for VIC fails the
+AVI infoframe generation altogether with -EINVAL.
 
-To resolve the above issue we need to update 'i_inline_off' after
-'ext4_xattr_shift_entries()'.  We do not need to set
-EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
-already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
-when it is needed may trigger a BUG_ON in ext4_writepages().
+Separate the VIC lookup from the "filtering", and postpone the
+filtering, to use the proper VIC for aspect ratio handling, and the 0
+VIC for the infoframe video code as needed.
 
-Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: William Tseng <william.tseng@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6153
+Cc: <stable@vger.kernel.org>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/c3e78cc6d01ed237f71ad0038826b08d83d75eef.1672826282.git.jani.nikula@intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/drm_edid.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2807,6 +2807,9 @@ shift:
- 			(void *)header, total_ino);
- 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index f9735861741c1..2e73042e5d070 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5095,8 +5095,6 @@ static u8 drm_mode_hdmi_vic(struct drm_connector *connector,
+ static u8 drm_mode_cea_vic(struct drm_connector *connector,
+ 			   const struct drm_display_mode *mode)
+ {
+-	u8 vic;
+-
+ 	/*
+ 	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
+ 	 * we should send its VIC in vendor infoframes, else send the
+@@ -5106,13 +5104,18 @@ static u8 drm_mode_cea_vic(struct drm_connector *connector,
+ 	if (drm_mode_hdmi_vic(connector, mode))
+ 		return 0;
  
-+	if (ext4_has_inline_data(inode))
-+		error = ext4_find_inline_data_nolock(inode);
-+
- cleanup:
- 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
- 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
+-	vic = drm_match_cea_mode(mode);
++	return drm_match_cea_mode(mode);
++}
+ 
+-	/*
+-	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
+-	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
+-	 * have to make sure we dont break HDMI 1.4 sinks.
+-	 */
++/*
++ * Avoid sending VICs defined in HDMI 2.0 in AVI infoframes to sinks that
++ * conform to HDMI 1.4.
++ *
++ * HDMI 1.4 (CTA-861-D) VIC range: [1..64]
++ * HDMI 2.0 (CTA-861-F) VIC range: [1..107]
++ */
++static u8 vic_for_avi_infoframe(const struct drm_connector *connector, u8 vic)
++{
+ 	if (!is_hdmi2_sink(connector) && vic > 64)
+ 		return 0;
+ 
+@@ -5191,7 +5194,7 @@ drm_hdmi_avi_infoframe_from_display_mode(struct hdmi_avi_infoframe *frame,
+ 		picture_aspect = HDMI_PICTURE_ASPECT_NONE;
+ 	}
+ 
+-	frame->video_code = vic;
++	frame->video_code = vic_for_avi_infoframe(connector, vic);
+ 	frame->picture_aspect = picture_aspect;
+ 	frame->active_aspect = HDMI_ACTIVE_ASPECT_PICTURE;
+ 	frame->scan_mode = HDMI_SCAN_MODE_UNDERSCAN;
+-- 
+2.39.2
+
 
 
