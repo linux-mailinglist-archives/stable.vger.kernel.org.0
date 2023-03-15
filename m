@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E56376BB33D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2039F6BB1DA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232861AbjCOMmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:42:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
+        id S232619AbjCOMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233070AbjCOMmU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98289A54C7
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:05 -0700 (PDT)
+        with ESMTP id S232260AbjCOMay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1583C7EDD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 994A461D5E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB64EC433EF;
-        Wed, 15 Mar 2023 12:40:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBFEFB81E03
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1892DC433D2;
+        Wed, 15 Mar 2023 12:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884055;
-        bh=ZVs9d8ueUDdw4dGcV/Uv3g9k05/GBljYERNgVpvUwTQ=;
+        s=korg; t=1678883392;
+        bh=N/VqB/jKxt7lBgYUko+eRX+iBLm0vs/vLCuB54CejBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZsXlhUYLFjiabsk3Q1O985tPyVWhPevUntuprTfFrYNNUTy/TiDqm4rQUlrDClXk8
-         +rZ9ho5TIsk7lAv+0D6ngRhTd6iXu02X8aRwjdvZTIoCfPvY39TbLa3iQt6+4Z3I4p
-         Pkww8m9TjUNTRjuxYYDYaF2WTFDggtJPTyjggksE=
+        b=Do62QmcY+xs6u9p/9agN1sYSdZeB5pJ0rBT4WMHtzQ+0StDSoTSUTzSCIlCkg1UBm
+         sQCP6VepNpCREuckaC3FBccwkTouOVxDxGRUZwqWqcZoF/wdfkUYeU+s4nkIW0Bx36
+         ytXDk+vXJvffP/e9IcRB+N1JwJgNgibx40gcd2F4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 089/141] net: ethernet: mtk_eth_soc: fix RX data corruption issue
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 5.15 126/145] ext4: add ext4_sb_block_valid() refactored out of ext4_inode_block_valid()
 Date:   Wed, 15 Mar 2023 13:13:12 +0100
-Message-Id: <20230315115742.696046680@linuxfoundation.org>
+Message-Id: <20230315115743.120184950@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,68 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-[ Upstream commit 193250ace270fecd586dd2d0dfbd9cbd2ade977f ]
+commit 6bc6c2bdf1baca6522b8d9ba976257d722423085 upstream.
 
-Fix data corruption issue with SerDes connected PHYs operating at 1.25
-Gbps speed where we could previously observe about 30% packet loss while
-the bad packet counter was increasing.
+This API will be needed at places where we don't have an inode
+for e.g. while freeing blocks in ext4_group_add_blocks()
 
-As almost all boards with MediaTek MT7622 or MT7986 use either the MT7531
-switch IC operating at 3.125Gbps SerDes rate or single-port PHYs using
-rate-adaptation to 2500Base-X mode, this issue only got exposed now when
-we started trying to use SFP modules operating with 1.25 Gbps with the
-BananaPi R3 board.
-
-The fix is to set bit 12 which disables the RX FIFO clear function when
-setting up MAC MCR, MediaTek SDK did the same change stating:
-"If without this patch, kernel might receive invalid packets that are
-corrupted by GMAC."[1]
-
-[1]: https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/d8a2975939a12686c4a95c40db21efdc3f821f63
-
-Fixes: 42c03844e93d ("net-next: mediatek: add support for MediaTek MT7622 SoC")
-Tested-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/138da2735f92c8b6f8578ec2e5a794ee515b665f.1677937317.git.daniel@makrotopia.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/dd34a236543ad5ae7123eeebe0cb69e6bdd44f34.1644992610.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 3 ++-
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/block_validity.c |   26 +++++++++++++++++---------
+ fs/ext4/ext4.h           |    3 +++
+ 2 files changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index e3123723522e3..332329cb1ee00 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -566,7 +566,8 @@ static int mtk_mac_finish(struct phylink_config *config, unsigned int mode,
- 	mcr_cur = mtk_r32(mac->hw, MTK_MAC_MCR(mac->id));
- 	mcr_new = mcr_cur;
- 	mcr_new |= MAC_MCR_IPG_CFG | MAC_MCR_FORCE_MODE |
--		   MAC_MCR_BACKOFF_EN | MAC_MCR_BACKPR_EN | MAC_MCR_FORCE_LINK;
-+		   MAC_MCR_BACKOFF_EN | MAC_MCR_BACKPR_EN | MAC_MCR_FORCE_LINK |
-+		   MAC_MCR_RX_FIFO_CLR_DIS;
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -292,15 +292,10 @@ void ext4_release_system_zone(struct sup
+ 		call_rcu(&system_blks->rcu, ext4_destroy_system_zone);
+ }
  
- 	/* Only update control register when needed! */
- 	if (mcr_new != mcr_cur)
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 2d9186d32bc09..b481d0d46bb16 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -383,6 +383,7 @@
- #define MAC_MCR_FORCE_MODE	BIT(15)
- #define MAC_MCR_TX_EN		BIT(14)
- #define MAC_MCR_RX_EN		BIT(13)
-+#define MAC_MCR_RX_FIFO_CLR_DIS	BIT(12)
- #define MAC_MCR_BACKOFF_EN	BIT(9)
- #define MAC_MCR_BACKPR_EN	BIT(8)
- #define MAC_MCR_FORCE_RX_FC	BIT(5)
--- 
-2.39.2
-
+-/*
+- * Returns 1 if the passed-in block region (start_blk,
+- * start_blk+count) is valid; 0 if some part of the block region
+- * overlaps with some other filesystem metadata blocks.
+- */
+-int ext4_inode_block_valid(struct inode *inode, ext4_fsblk_t start_blk,
+-			  unsigned int count)
++int ext4_sb_block_valid(struct super_block *sb, struct inode *inode,
++				ext4_fsblk_t start_blk, unsigned int count)
+ {
+-	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_system_blocks *system_blks;
+ 	struct ext4_system_zone *entry;
+ 	struct rb_node *n;
+@@ -329,7 +324,9 @@ int ext4_inode_block_valid(struct inode
+ 		else if (start_blk >= (entry->start_blk + entry->count))
+ 			n = n->rb_right;
+ 		else {
+-			ret = (entry->ino == inode->i_ino);
++			ret = 0;
++			if (inode)
++				ret = (entry->ino == inode->i_ino);
+ 			break;
+ 		}
+ 	}
+@@ -338,6 +335,17 @@ out_rcu:
+ 	return ret;
+ }
+ 
++/*
++ * Returns 1 if the passed-in block region (start_blk,
++ * start_blk+count) is valid; 0 if some part of the block region
++ * overlaps with some other filesystem metadata blocks.
++ */
++int ext4_inode_block_valid(struct inode *inode, ext4_fsblk_t start_blk,
++			  unsigned int count)
++{
++	return ext4_sb_block_valid(inode->i_sb, inode, start_blk, count);
++}
++
+ int ext4_check_blockref(const char *function, unsigned int line,
+ 			struct inode *inode, __le32 *p, unsigned int max)
+ {
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -3698,6 +3698,9 @@ extern int ext4_inode_block_valid(struct
+ 				  unsigned int count);
+ extern int ext4_check_blockref(const char *, unsigned int,
+ 			       struct inode *, __le32 *, unsigned int);
++extern int ext4_sb_block_valid(struct super_block *sb, struct inode *inode,
++				ext4_fsblk_t start_blk, unsigned int count);
++
+ 
+ /* extents.c */
+ struct ext4_ext_path;
 
 
