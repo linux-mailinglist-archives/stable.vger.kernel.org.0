@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C4A6BB1F5
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DBF6BB36D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbjCOMbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39724 "EHLO
+        id S233048AbjCOMoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:44:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232212AbjCOMbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:34 -0400
+        with ESMTP id S233092AbjCOMoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29D248A3A4
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB6CA1FCB
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD65861D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4146C433D2;
-        Wed, 15 Mar 2023 12:30:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60A1061D66
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F373C433D2;
+        Wed, 15 Mar 2023 12:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883447;
-        bh=rPtILoKWWoEcQJdETmkVJ7BPNe8f0QkGJY0nTXYW2Uo=;
+        s=korg; t=1678884170;
+        bh=h+TTDdXicdLQPLFUfeqHsebXp13Ht6AUyEGzwYGY0T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPbF7w0vopxvSmtVsSxhWzJG1YdAhQe85OsQw/7mLLGoEmhY0Vzeexbxgj3f9fr68
-         XIKC0hg2BNbl6OdzeFNCBDkBiyigUo1oZEwUSW5Ujaga8Qolthix3nOrOJ4fzv7J4y
-         wVCs3nicB6CgFM2dCH+kxJYEFmBMVTMOwKuOMnm4=
+        b=JA7BsKkyEjwMK86lmgwYCcYvCCI7C5W3CyGzOWe5/Zlzub2XfSHNRrkSjoFxMI2At
+         2BWsXlw2jB3XmWnZziMRqDHQWmmhReydKdxDg4LjN06VHWEndU+QfDB0wKHLWN9vMS
+         o8ZHNnCW8cW2NqqQt18kHFT3MoOuyzD2P2GfV2xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Dave Chinner <david@fromorbit.com>
-Subject: [PATCH 5.15 140/145] xfs: remove xfs_setattr_time() declaration
-Date:   Wed, 15 Mar 2023 13:13:26 +0100
-Message-Id: <20230315115743.538740594@linuxfoundation.org>
+        patches@lists.linux.dev, Benjamin Coddington <bcodding@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 104/141] SUNRPC: Fix a server shutdown leak
+Date:   Wed, 15 Mar 2023 13:13:27 +0100
+Message-Id: <20230315115743.160432913@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit b0463b9dd7030a766133ad2f1571f97f204d7bdf upstream.
+[ Upstream commit 9ca6705d9d609441d34f8b853e1e4a6369b3b171 ]
 
-xfs_setattr_time() has been removed since
-commit e014f37db1a2 ("xfs: use setattr_copy to set vfs inode
-attributes"), so remove it.
+Fix a race where kthread_stop() may prevent the threadfn from ever getting
+called.  If that happens the svc_rqst will not be cleaned up.
 
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Carlos Maiolino <cmaiolino@redhat.com>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ed6473ddc704 ("NFSv4: Fix callback server shutdown")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_iops.h |    1 -
- 1 file changed, 1 deletion(-)
+ net/sunrpc/svc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_iops.h
-+++ b/fs/xfs/xfs_iops.h
-@@ -13,7 +13,6 @@ extern const struct file_operations xfs_
+diff --git a/net/sunrpc/svc.c b/net/sunrpc/svc.c
+index f06622814a958..7f9807374b0fb 100644
+--- a/net/sunrpc/svc.c
++++ b/net/sunrpc/svc.c
+@@ -786,6 +786,7 @@ svc_start_kthreads(struct svc_serv *serv, struct svc_pool *pool, int nrservs)
+ static int
+ svc_stop_kthreads(struct svc_serv *serv, struct svc_pool *pool, int nrservs)
+ {
++	struct svc_rqst	*rqstp;
+ 	struct task_struct *task;
+ 	unsigned int state = serv->sv_nrthreads-1;
  
- extern ssize_t xfs_vn_listxattr(struct dentry *, char *data, size_t size);
- 
--extern void xfs_setattr_time(struct xfs_inode *ip, struct iattr *iattr);
- int xfs_vn_setattr_size(struct user_namespace *mnt_userns,
- 		struct dentry *dentry, struct iattr *vap);
- 
+@@ -794,7 +795,10 @@ svc_stop_kthreads(struct svc_serv *serv, struct svc_pool *pool, int nrservs)
+ 		task = choose_victim(serv, pool, &state);
+ 		if (task == NULL)
+ 			break;
+-		kthread_stop(task);
++		rqstp = kthread_data(task);
++		/* Did we lose a race to svo_function threadfn? */
++		if (kthread_stop(task) == -EINTR)
++			svc_exit_thread(rqstp);
+ 		nrservs++;
+ 	} while (nrservs < 0);
+ 	return 0;
+-- 
+2.39.2
+
 
 
