@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 732AB6BB319
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA926BB195
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232891AbjCOMlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35966 "EHLO
+        id S232356AbjCOM2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232896AbjCOMlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:04 -0400
+        with ESMTP id S232023AbjCOM2Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8786419F03
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D5679DE0D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7330CB81DFC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3233C433D2;
-        Wed, 15 Mar 2023 12:38:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A60D7B81DF6
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 250E6C433EF;
+        Wed, 15 Mar 2023 12:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883897;
-        bh=V9ODrRUejshX6uGEWQW2vCOojRHOCAkqpeBSOiPvOZU=;
+        s=korg; t=1678883237;
+        bh=Xf5Cg1gXPVY1iv+BGNb5LoOnu9hrfA8faKaGqG94wUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z16UZpsC+t2aca97l4lmfgqDuw8tlS61s7ui/6yJJ+MyYWROms0rjecsR/KIwq2pF
-         2SienU+rWiowc03pBqd7q5RLSZNY5OenKRWBcLtCT+FZgYGZ3wiaxXVV+LXv/oNKPC
-         Gx37/LjACNUXKl93vuj6Md3Np/5YECUi2tij5GqU=
+        b=gkSbvbWVMOBC4he+09IFSsdDMwWtb+v+dP6ja7UbBfrVRqVqKKe4eI8u3zNkGBzAI
+         3WSazLk8rwLutCxBRCXoQs3RJAMNVhx29ftiS/Drf6kVO8n+2G1fUx/M2FOHwy4TgW
+         pdrLvHHal20fdJHonlwAUnCv1rW1cM9ydGQUtWPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 029/141] KVM: VMX: Reset eVMCS controls in VP assist page during hardware disabling
-Date:   Wed, 15 Mar 2023 13:12:12 +0100
-Message-Id: <20230315115740.864220963@linuxfoundation.org>
+        patches@lists.linux.dev, Lukas Wunner <lukas@wunner.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Ferry Toth <fntoth@gmail.com>
+Subject: [PATCH 5.15 067/145] net: phy: smsc: Cache interrupt mask
+Date:   Wed, 15 Mar 2023 13:12:13 +0100
+Message-Id: <20230315115741.248020394@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 2916b70fc342719f570640de07251b7f91feebdb ]
+[ Upstream commit 7e8b617eb93f9fcaedac02cd19edcad31c767386 ]
 
-Reset the eVMCS controls in the per-CPU VP assist page during hardware
-disabling instead of waiting until kvm-intel's module exit.  The controls
-are activated if and only if KVM creates a VM, i.e. don't need to be
-reset if hardware is never enabled.
+Cache the interrupt mask to avoid re-reading it from the PHY upon every
+interrupt.
 
-Doing the reset during hardware disabling will naturally fix a potential
-NULL pointer deref bug once KVM disables CPU hotplug while enabling and
-disabling hardware (which is necessary to fix a variety of bugs).  If the
-kernel is running as the root partition, the VP assist page is unmapped
-during CPU hot unplug, and so KVM's clearing of the eVMCS controls needs
-to occur with CPU hot(un)plug disabled, otherwise KVM could attempt to
-write to a CPU's VP assist page after it's unmapped.
+This will simplify a subsequent commit which detects hot-removal in the
+interrupt handler and bails out.
 
-Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20221130230934.1014142-11-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Stable-dep-of: e32b120071ea ("KVM: VMX: Do _all_ initialization before exposing /dev/kvm to userspace")
+Analyzing and debugging PHY transactions also becomes simpler if such
+redundant reads are avoided.
+
+Last not least, interrupt overhead and latency is slightly improved.
+
+Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
+Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 58aac3a2ef41 ("net: phy: smsc: fix link up detection in forced irq mode")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 50 +++++++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 20 deletions(-)
+ drivers/net/phy/smsc.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 939e395cda3ff..4e2a321097d78 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -551,6 +551,33 @@ static int hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu)
- 	return 0;
- }
+diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
+index 636b0907a5987..63dca3bb56110 100644
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -44,6 +44,7 @@ static struct smsc_hw_stat smsc_hw_stats[] = {
+ };
  
-+static void hv_reset_evmcs(void)
-+{
-+	struct hv_vp_assist_page *vp_ap;
-+
-+	if (!static_branch_unlikely(&enable_evmcs))
-+		return;
-+
-+	/*
-+	 * KVM should enable eVMCS if and only if all CPUs have a VP assist
-+	 * page, and should reject CPU onlining if eVMCS is enabled the CPU
-+	 * doesn't have a VP assist page allocated.
-+	 */
-+	vp_ap = hv_get_vp_assist_page(smp_processor_id());
-+	if (WARN_ON_ONCE(!vp_ap))
-+		return;
-+
-+	/*
-+	 * Reset everything to support using non-enlightened VMCS access later
-+	 * (e.g. when we reload the module with enlightened_vmcs=0)
-+	 */
-+	vp_ap->nested_control.features.directhypercall = 0;
-+	vp_ap->current_nested_vmcs = 0;
-+	vp_ap->enlighten_vmentry = 0;
-+}
-+
-+#else /* IS_ENABLED(CONFIG_HYPERV) */
-+static void hv_reset_evmcs(void) {}
- #endif /* IS_ENABLED(CONFIG_HYPERV) */
+ struct smsc_phy_priv {
++	u16 intmask;
+ 	bool energy_enable;
+ 	struct clk *refclk;
+ };
+@@ -58,7 +59,6 @@ static int smsc_phy_ack_interrupt(struct phy_device *phydev)
+ static int smsc_phy_config_intr(struct phy_device *phydev)
+ {
+ 	struct smsc_phy_priv *priv = phydev->priv;
+-	u16 intmask = 0;
+ 	int rc;
  
- /*
-@@ -2527,6 +2554,8 @@ static void vmx_hardware_disable(void)
- 	if (cpu_vmxoff())
- 		kvm_spurious_fault();
+ 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
+@@ -66,12 +66,15 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
+ 		if (rc)
+ 			return rc;
  
-+	hv_reset_evmcs();
+-		intmask = MII_LAN83C185_ISF_INT4 | MII_LAN83C185_ISF_INT6;
++		priv->intmask = MII_LAN83C185_ISF_INT4 | MII_LAN83C185_ISF_INT6;
+ 		if (priv->energy_enable)
+-			intmask |= MII_LAN83C185_ISF_INT7;
+-		rc = phy_write(phydev, MII_LAN83C185_IM, intmask);
++			priv->intmask |= MII_LAN83C185_ISF_INT7;
 +
- 	intel_pt_handle_vmx(0);
- }
++		rc = phy_write(phydev, MII_LAN83C185_IM, priv->intmask);
+ 	} else {
+-		rc = phy_write(phydev, MII_LAN83C185_IM, intmask);
++		priv->intmask = 0;
++
++		rc = phy_write(phydev, MII_LAN83C185_IM, 0);
+ 		if (rc)
+ 			return rc;
  
-@@ -8502,27 +8531,8 @@ static void vmx_exit(void)
- 	kvm_exit();
+@@ -83,13 +86,8 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
  
- #if IS_ENABLED(CONFIG_HYPERV)
--	if (static_branch_unlikely(&enable_evmcs)) {
--		int cpu;
--		struct hv_vp_assist_page *vp_ap;
--		/*
--		 * Reset everything to support using non-enlightened VMCS
--		 * access later (e.g. when we reload the module with
--		 * enlightened_vmcs=0)
--		 */
--		for_each_online_cpu(cpu) {
--			vp_ap =	hv_get_vp_assist_page(cpu);
+ static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
+ {
+-	int irq_status, irq_enabled;
 -
--			if (!vp_ap)
--				continue;
--
--			vp_ap->nested_control.features.directhypercall = 0;
--			vp_ap->current_nested_vmcs = 0;
--			vp_ap->enlighten_vmentry = 0;
--		}
--
-+	if (static_branch_unlikely(&enable_evmcs))
- 		static_branch_disable(&enable_evmcs);
+-	irq_enabled = phy_read(phydev, MII_LAN83C185_IM);
+-	if (irq_enabled < 0) {
+-		phy_error(phydev);
+-		return IRQ_NONE;
 -	}
- #endif
- 	vmx_cleanup_l1d_flush();
++	struct smsc_phy_priv *priv = phydev->priv;
++	int irq_status;
  
+ 	irq_status = phy_read(phydev, MII_LAN83C185_ISF);
+ 	if (irq_status < 0) {
+@@ -97,7 +95,7 @@ static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
+ 		return IRQ_NONE;
+ 	}
+ 
+-	if (!(irq_status & irq_enabled))
++	if (!(irq_status & priv->intmask))
+ 		return IRQ_NONE;
+ 
+ 	phy_trigger_machine(phydev);
 -- 
 2.39.2
 
