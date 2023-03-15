@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9F176BB324
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0794C6BB26E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232987AbjCOMly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
+        id S232836AbjCOMgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232993AbjCOMli (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 332B1A0F21
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:27 -0700 (PDT)
+        with ESMTP id S232774AbjCOMf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6852A0B32
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D83B261D57
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECADAC433D2;
-        Wed, 15 Mar 2023 12:40:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3A5DB81E0A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DABDC433EF;
+        Wed, 15 Mar 2023 12:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884026;
-        bh=SLkU9kJ3cl74dbiJwTx8eXstKbQMChXe7Liq8iWEk5g=;
+        s=korg; t=1678883692;
+        bh=LfnVXaZHJarVpu2QSBKIG9RKXVGF8e3mBnm3yQ86NWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9nBNLoUpTDgcd7uWMHh4O1NoAwQ5oj9eKnBRE2YjV5gAk4gegY+T3lwyn60sIEbi
-         pzCgxlkTe9fDtJFQIuCLCt1JZUKbBtkiTfcTrx62nkE8oqN8QRnp2E1H+HcjRD2+vk
-         0iV6bTPh2Ss/EC/cNXwE3TBpEfBIrbprhG570daM=
+        b=UflZlxQsHhdKGRVG1Qd/QJ44dSSY7qzaIsSIxcZgFoFazQSWq19brlbIQpiHLjeuK
+         5gxqMBstFubjdfGXGPT0nOJbJnhzPVcLKePr8HoYtFPrl4VyLi5H9z8juB1zsznnuS
+         F7nC9pURujHa79nv+zQQKBWWMVBYKTeYcJvLdgXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rongguang Wei <weirongguang@kylinos.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Adrien Moulin <amoulin@corp.free.fr>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 079/141] net: stmmac: add to set device wake up flag when stmmac init phy
+Subject: [PATCH 6.1 096/143] net: tls: fix device-offloaded sendpage straddling records
 Date:   Wed, 15 Mar 2023 13:13:02 +0100
-Message-Id: <20230315115742.374362449@linuxfoundation.org>
+Message-Id: <20230315115743.431324096@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,48 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rongguang Wei <weirongguang@kylinos.cn>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit a9334b702a03b693f54ebd3b98f67bf722b74870 ]
+[ Upstream commit e539a105f947b9db470fec39fe91d85fe737a432 ]
 
-When MAC is not support PMT, driver will check PHY's WoL capability
-and set device wakeup capability in stmmac_init_phy(). We can enable
-the WoL through ethtool, the driver would enable the device wake up
-flag. Now the device_may_wakeup() return true.
+Adrien reports that incorrect data is transmitted when a single
+page straddles multiple records. We would transmit the same
+data in all iterations of the loop.
 
-But if there is a way which enable the PHY's WoL capability derectly,
-like in BIOS. The driver would not know the enable thing and would not
-set the device wake up flag. The phy_suspend may failed like this:
-
-[   32.409063] PM: dpm_run_callback(): mdio_bus_phy_suspend+0x0/0x50 returns -16
-[   32.409065] PM: Device stmmac-1:00 failed to suspend: error -16
-[   32.409067] PM: Some devices failed to suspend, or early wake event detected
-
-Add to set the device wakeup enable flag according to the get_wol
-function result in PHY can fix the error in this scene.
-
-v2: add a Fixes tag.
-
-Fixes: 1d8e5b0f3f2c ("net: stmmac: Support WOL with phy")
-Signed-off-by: Rongguang Wei <weirongguang@kylinos.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Adrien Moulin <amoulin@corp.free.fr>
+Link: https://lore.kernel.org/all/61481278.42813558.1677845235112.JavaMail.zimbra@corp.free.fr
+Fixes: c1318b39c7d3 ("tls: Add opt-in zerocopy mode of sendfile()")
+Tested-by: Adrien Moulin <amoulin@corp.free.fr>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Acked-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Link: https://lore.kernel.org/r/20230304192610.3818098-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/tls/tls_device.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 1a5b8dab5e9b6..01f7e19a2ca8b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1170,6 +1170,7 @@ static int stmmac_init_phy(struct net_device *dev)
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 6c593788dc250..a7cc4f9faac28 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -508,6 +508,8 @@ static int tls_push_data(struct sock *sk,
+ 			zc_pfrag.offset = iter_offset.offset;
+ 			zc_pfrag.size = copy;
+ 			tls_append_frag(record, &zc_pfrag, copy);
++
++			iter_offset.offset += copy;
+ 		} else if (copy) {
+ 			copy = min_t(size_t, copy, pfrag->size - pfrag->offset);
  
- 		phylink_ethtool_get_wol(priv->phylink, &wol);
- 		device_set_wakeup_capable(priv->device, !!wol.supported);
-+		device_set_wakeup_enable(priv->device, !!wol.wolopts);
- 	}
- 
- 	return ret;
 -- 
 2.39.2
 
