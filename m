@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0363D6BB0F2
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766C36BB18B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbjCOMXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
+        id S232395AbjCOM22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232339AbjCOMW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:56 -0400
+        with ESMTP id S232468AbjCOM2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29AA9008B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A929B2F3
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8271061D49
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94295C433EF;
-        Wed, 15 Mar 2023 12:21:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8817861D7A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972ECC433D2;
+        Wed, 15 Mar 2023 12:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882903;
-        bh=hB/5EUj0iTww9sDBBTdjFB80M1DxbE1yIRDYrdKA2gg=;
+        s=korg; t=1678883227;
+        bh=w36wwUefj1ARhM/VK0uzQOqGkNX82wlstg2RSJuSCqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUyC4F3YJJ/3pzxE6NTL3ghshO8+mJy+fb7itPSxi8bkxaxypig+OsoWsXf/dbHhh
-         Q/9lqfznZnoSv6v00yycj3naIOq2E4eIHtDPokfG6vIWPSrcZXaENgO/MkDShlwlj4
-         DLweX2uPiSUKrTvlJ3lahwZeB+Hwhy6sElrsZMk4=
+        b=m/a1309UGuEsrsoBIcO+hA0mzn/XJjn7janSPZn3qxL/fauGjVDpLZi37Gkup4MPP
+         Zq4dA0v6KUKG+bXt5fBqiTTbTh/mpaq+9HJ0+M2rMPo3+NU72wLabyYyy1GcHyvITr
+         C6kWuv4syKjV2248d4j8eGsB2s8fDejeZxCj3e/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Damodharam Ammepalli <damodharam.ammepalli@broadcom.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/104] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+Subject: [PATCH 5.15 063/145] bnxt_en: Avoid order-5 memory allocation for TPA data
 Date:   Wed, 15 Mar 2023 13:12:09 +0100
-Message-Id: <20230315115733.594088933@linuxfoundation.org>
+Message-Id: <20230315115741.114718694@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +58,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
+[ Upstream commit accd7e23693aaaa9aa0d3e9eca0ae77d1be80ab3 ]
 
-ila_xlat_nl_cmd_get_mapping() generates an empty skb,
-triggerring a recent sanity check [1].
+The driver needs to keep track of all the possible concurrent TPA (GRO/LRO)
+completions on the aggregation ring.  On P5 chips, the maximum number
+of concurrent TPA is 256 and the amount of memory we allocate is order-5
+on systems using 4K pages.  Memory allocation failure has been reported:
 
-Instead, return an error code, so that user space
-can get it.
+NetworkManager: page allocation failure: order:5, mode:0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO), nodemask=(null),cpuset=/,mems_allowed=0-1
+CPU: 15 PID: 2995 Comm: NetworkManager Kdump: loaded Not tainted 5.10.156 #1
+Hardware name: Dell Inc. PowerEdge R660/0M1CC5, BIOS 0.2.25 08/12/2022
+Call Trace:
+ dump_stack+0x57/0x6e
+ warn_alloc.cold.120+0x7b/0xdd
+ ? _cond_resched+0x15/0x30
+ ? __alloc_pages_direct_compact+0x15f/0x170
+ __alloc_pages_slowpath.constprop.108+0xc58/0xc70
+ __alloc_pages_nodemask+0x2d0/0x300
+ kmalloc_order+0x24/0xe0
+ kmalloc_order_trace+0x19/0x80
+ bnxt_alloc_mem+0x1150/0x15c0 [bnxt_en]
+ ? bnxt_get_func_stat_ctxs+0x13/0x60 [bnxt_en]
+ __bnxt_open_nic+0x12e/0x780 [bnxt_en]
+ bnxt_open+0x10b/0x240 [bnxt_en]
+ __dev_open+0xe9/0x180
+ __dev_change_flags+0x1af/0x220
+ dev_change_flags+0x21/0x60
+ do_setlink+0x35c/0x1100
 
-[1]
-skb_assert_len
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-Modules linked in:
-CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
-pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
-lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-sp : ffff80001e0d6c40
-x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
-x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
-x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
-x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
-x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
-x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
-x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
-x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
-x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
-Call trace:
-skb_assert_len include/linux/skbuff.h:2527 [inline]
-__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-dev_queue_xmit include/linux/netdevice.h:3033 [inline]
-__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
-__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
-netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
-__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
-netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
-netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
-nlmsg_unicast include/net/netlink.h:1099 [inline]
-genlmsg_unicast include/net/genetlink.h:433 [inline]
-genlmsg_reply include/net/genetlink.h:443 [inline]
-ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
-genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
-genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
-genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
-netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
-genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
-netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
-netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
-netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg net/socket.c:734 [inline]
-____sys_sendmsg+0x558/0x844 net/socket.c:2479
-___sys_sendmsg net/socket.c:2533 [inline]
-__sys_sendmsg+0x26c/0x33c net/socket.c:2562
-__do_sys_sendmsg net/socket.c:2571 [inline]
-__se_sys_sendmsg net/socket.c:2569 [inline]
-__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
-__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
-el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
-do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
-el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
-el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
-irq event stamp: 136484
-hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
-hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
-softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
-softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
-softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
----[ end trace 0000000000000000 ]---
-skb len=0 headroom=0 headlen=0 tailroom=192
-mac=(0,0) net=(0,-1) trans=-1
-shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
-csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
-hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
-dev name=nlmon0 feat=0x0000000000005861
+Instead of allocating this big chunk of memory and dividing it up for the
+concurrent TPA instances, allocate each small chunk separately for each
+TPA instance.  This will reduce it to order-0 allocations.
 
-Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 79632e9ba386 ("bnxt_en: Expand bnxt_tpa_info struct to support 57500 chips.")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Damodharam Ammepalli <damodharam.ammepalli@broadcom.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ila/ila_xlat.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
-index a1ac0e3d8c60c..163668531a57f 100644
---- a/net/ipv6/ila/ila_xlat.c
-+++ b/net/ipv6/ila/ila_xlat.c
-@@ -477,6 +477,7 @@ int ila_xlat_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index f64df4d532896..4e98e34fc46b5 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -2999,7 +2999,7 @@ static int bnxt_alloc_ring(struct bnxt *bp, struct bnxt_ring_mem_info *rmem)
  
- 	rcu_read_lock();
+ static void bnxt_free_tpa_info(struct bnxt *bp)
+ {
+-	int i;
++	int i, j;
  
-+	ret = -ESRCH;
- 	ila = ila_lookup_by_params(&xp, ilan);
- 	if (ila) {
- 		ret = ila_dump_info(ila,
+ 	for (i = 0; i < bp->rx_nr_rings; i++) {
+ 		struct bnxt_rx_ring_info *rxr = &bp->rx_ring[i];
+@@ -3007,8 +3007,10 @@ static void bnxt_free_tpa_info(struct bnxt *bp)
+ 		kfree(rxr->rx_tpa_idx_map);
+ 		rxr->rx_tpa_idx_map = NULL;
+ 		if (rxr->rx_tpa) {
+-			kfree(rxr->rx_tpa[0].agg_arr);
+-			rxr->rx_tpa[0].agg_arr = NULL;
++			for (j = 0; j < bp->max_tpa; j++) {
++				kfree(rxr->rx_tpa[j].agg_arr);
++				rxr->rx_tpa[j].agg_arr = NULL;
++			}
+ 		}
+ 		kfree(rxr->rx_tpa);
+ 		rxr->rx_tpa = NULL;
+@@ -3017,14 +3019,13 @@ static void bnxt_free_tpa_info(struct bnxt *bp)
+ 
+ static int bnxt_alloc_tpa_info(struct bnxt *bp)
+ {
+-	int i, j, total_aggs = 0;
++	int i, j;
+ 
+ 	bp->max_tpa = MAX_TPA;
+ 	if (bp->flags & BNXT_FLAG_CHIP_P5) {
+ 		if (!bp->max_tpa_v2)
+ 			return 0;
+ 		bp->max_tpa = max_t(u16, bp->max_tpa_v2, MAX_TPA_P5);
+-		total_aggs = bp->max_tpa * MAX_SKB_FRAGS;
+ 	}
+ 
+ 	for (i = 0; i < bp->rx_nr_rings; i++) {
+@@ -3038,12 +3039,12 @@ static int bnxt_alloc_tpa_info(struct bnxt *bp)
+ 
+ 		if (!(bp->flags & BNXT_FLAG_CHIP_P5))
+ 			continue;
+-		agg = kcalloc(total_aggs, sizeof(*agg), GFP_KERNEL);
+-		rxr->rx_tpa[0].agg_arr = agg;
+-		if (!agg)
+-			return -ENOMEM;
+-		for (j = 1; j < bp->max_tpa; j++)
+-			rxr->rx_tpa[j].agg_arr = agg + j * MAX_SKB_FRAGS;
++		for (j = 0; j < bp->max_tpa; j++) {
++			agg = kcalloc(MAX_SKB_FRAGS, sizeof(*agg), GFP_KERNEL);
++			if (!agg)
++				return -ENOMEM;
++			rxr->rx_tpa[j].agg_arr = agg;
++		}
+ 		rxr->rx_tpa_idx_map = kzalloc(sizeof(*rxr->rx_tpa_idx_map),
+ 					      GFP_KERNEL);
+ 		if (!rxr->rx_tpa_idx_map)
 -- 
 2.39.2
 
