@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41056BB15E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1E56BB204
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232500AbjCOM0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57036 "EHLO
+        id S231955AbjCOMcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232462AbjCOM0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFE89B2D1
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:45 -0700 (PDT)
+        with ESMTP id S232609AbjCOMbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203A096622
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96C5C61D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E8EC433D2;
-        Wed, 15 Mar 2023 12:25:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 30CC1CE19BD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BB8EC433EF;
+        Wed, 15 Mar 2023 12:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883114;
-        bh=IQKS+GKeMkD4VWf0S3rovvQFTc5uZNmJOyx+SS8Tr7Y=;
+        s=korg; t=1678883465;
+        bh=nrg8pWrR1jyw/2cG4nAiN4f762OvN7Mxbh9oWcnMej0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yF8Gr5yvs93p565PY6s6sewBcX0S/PGj3NmgX4WzHdUbWwSVpleyF43hCaTIP/RtM
-         QbIYd6DQpsX+8ZSFnN3tzR/WrfoT0qLHSaO6Dl3UcXun8bCXFTMOJ/Hh9pH88pS1dU
-         veGtEfpXnaOSsau+tJclvF61nwugv+kNdqXp4j9Q=
+        b=lXpC8Shik/VeHf8u4rnfFJxc60xMkR1j/23KLJUntovyOvQHFO8h+Kzabn8uLgu1H
+         +G3eJhCR+7dt13DYC/0r7yFTripo9iFYJtLAP9p4l+1pdXR62F+I3Go2yaUM84CDze
+         BOwtp+mQR9NpAWCT63QM7JLjDO2hhXUkYKci2Rro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/145] fs: dlm: fix log of lowcomms vs midcomms
+        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 6.1 001/143] fs: prevent out-of-bounds array speculation when closing a file descriptor
 Date:   Wed, 15 Mar 2023 13:11:27 +0100
-Message-Id: <20230315115739.717958805@linuxfoundation.org>
+Message-Id: <20230315115740.482493679@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,38 +55,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 3e54c9e80e68b765d8877023d93f1eea1b9d1c54 ]
+commit 609d54441493c99f21c1823dfd66fa7f4c512ff4 upstream.
 
-This patch will fix a small issue when printing out that
-dlm_midcomms_start() failed to start and it was printing out that the
-dlm subcomponent lowcomms was failed but lowcomms is behind the midcomms
-layer.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Stable-dep-of: aad633dc0cf9 ("fs: dlm: start midcomms before scand")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Google-Bug-Id: 114199369
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/lockspace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/file.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
-index 10eddfa6c3d7b..a1b34605742fc 100644
---- a/fs/dlm/lockspace.c
-+++ b/fs/dlm/lockspace.c
-@@ -393,7 +393,7 @@ static int threads_start(void)
- 	/* Thread for sending/receiving messages for all lockspace's */
- 	error = dlm_midcomms_start();
- 	if (error) {
--		log_print("cannot start dlm lowcomms %d", error);
-+		log_print("cannot start dlm midcomms %d", error);
- 		goto scand_fail;
- 	}
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -642,6 +642,7 @@ static struct file *pick_file(struct fil
+ 	if (fd >= fdt->max_fds)
+ 		return NULL;
  
--- 
-2.39.2
-
++	fd = array_index_nospec(fd, fdt->max_fds);
+ 	file = fdt->fd[fd];
+ 	if (file) {
+ 		rcu_assign_pointer(fdt->fd[fd], NULL);
 
 
