@@ -2,124 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AFB6BB103
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE2F46BB263
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232310AbjCOMYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:24:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45836 "EHLO
+        id S232823AbjCOMfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:35:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231892AbjCOMXe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E75395BDF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:29 -0700 (PDT)
+        with ESMTP id S232812AbjCOMfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BB89FBDC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F1EFBCE19BD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1534AC433EF;
-        Wed, 15 Mar 2023 12:22:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B62D1B81E06
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 319E8C4339B;
+        Wed, 15 Mar 2023 12:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882943;
-        bh=g8LqNWo8ULGajspdQobRw2/BlnNPtxYZEW31rZA9jqc=;
+        s=korg; t=1678883614;
+        bh=M6ph/WFijeTmLu7gzaeWiW4dhZ5jP1CaWzsWIYpVE7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgiv2WxUvMRcQV7A2MmmKZTTDfq6XLPqsNyLbPhA4kghQDGwgTYPR97nsaJAAQ2da
-         Vb3vZJ1ztvts4JGVc/QjAkWacdpOtY5aWxxv5Qb2DH4lTFGrc7UsTlOa0n+PSslUfM
-         te1obrOruixAJDWSBtHcN9suZWaQpYrBPza+zTww=
+        b=qc3x0MzuysGQ7hMveSWjmlW+Rlj15r+GsfkSUMK+LN4Q3sR7G0ttZ/OnJqltEodKT
+         HoZ6TKgaKARwycUPS2EP0W67B3eyk160wQ5zOhldko7IgHNwUm5YbSFCXEdqPOjmXd
+         Ob2vYFC9xmnOzNjWx0tR4SUY++7jg+rMds4epd2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Erkki Eilonen <erkki@bearmetal.eu>,
-        Morten Linderud <morten@linderud.pw>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        patches@lists.linux.dev, Kang Chen <void0red@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/104] tpm/eventlog: Dont abort tpm_read_log on faulty ACPI address
+Subject: [PATCH 6.1 065/143] nfc: fdp: add null check of devm_kmalloc_array in fdp_nci_i2c_read_device_properties
 Date:   Wed, 15 Mar 2023 13:12:31 +0100
-Message-Id: <20230315115734.483969486@linuxfoundation.org>
+Message-Id: <20230315115742.507039323@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Morten Linderud <morten@linderud.pw>
+From: Kang Chen <void0red@gmail.com>
 
-[ Upstream commit 80a6c216b16d7f5c584d2148c2e4345ea4eb06ce ]
+[ Upstream commit 11f180a5d62a51b484e9648f9b310e1bd50b1a57 ]
 
-tpm_read_log_acpi() should return -ENODEV when no eventlog from the ACPI
-table is found. If the firmware vendor includes an invalid log address
-we are unable to map from the ACPI memory and tpm_read_log() returns -EIO
-which would abort discovery of the eventlog.
+devm_kmalloc_array may fails, *fw_vsc_cfg might be null and cause
+out-of-bounds write in device_property_read_u8_array later.
 
-Change the return value from -EIO to -ENODEV when acpi_os_map_iomem()
-fails to map the event log.
-
-The following hardware was used to test this issue:
-    Framework Laptop (Pre-production)
-    BIOS: INSYDE Corp, Revision: 3.2
-    TPM Device: NTC, Firmware Revision: 7.2
-
-Dump of the faulty ACPI TPM2 table:
-    [000h 0000   4]                    Signature : "TPM2"    [Trusted Platform Module hardware interface Table]
-    [004h 0004   4]                 Table Length : 0000004C
-    [008h 0008   1]                     Revision : 04
-    [009h 0009   1]                     Checksum : 2B
-    [00Ah 0010   6]                       Oem ID : "INSYDE"
-    [010h 0016   8]                 Oem Table ID : "TGL-ULT"
-    [018h 0024   4]                 Oem Revision : 00000002
-    [01Ch 0028   4]              Asl Compiler ID : "ACPI"
-    [020h 0032   4]        Asl Compiler Revision : 00040000
-
-    [024h 0036   2]               Platform Class : 0000
-    [026h 0038   2]                     Reserved : 0000
-    [028h 0040   8]              Control Address : 0000000000000000
-    [030h 0048   4]                 Start Method : 06 [Memory Mapped I/O]
-
-    [034h 0052  12]            Method Parameters : 00 00 00 00 00 00 00 00 00 00 00 00
-    [040h 0064   4]           Minimum Log Length : 00010000
-    [044h 0068   8]                  Log Address : 000000004053D000
-
-Fixes: 0cf577a03f21 ("tpm: Fix handling of missing event log")
-Tested-by: Erkki Eilonen <erkki@bearmetal.eu>
-Signed-off-by: Morten Linderud <morten@linderud.pw>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: a06347c04c13 ("NFC: Add Intel Fields Peak NFC solution driver")
+Signed-off-by: Kang Chen <void0red@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230227093037.907654-1-void0red@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/eventlog/acpi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/nfc/fdp/i2c.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/char/tpm/eventlog/acpi.c b/drivers/char/tpm/eventlog/acpi.c
-index 0913d3eb8d518..cd266021d0103 100644
---- a/drivers/char/tpm/eventlog/acpi.c
-+++ b/drivers/char/tpm/eventlog/acpi.c
-@@ -143,8 +143,12 @@ int tpm_read_log_acpi(struct tpm_chip *chip)
+diff --git a/drivers/nfc/fdp/i2c.c b/drivers/nfc/fdp/i2c.c
+index 2d53e0f88d2f9..1e0f2297f9c66 100644
+--- a/drivers/nfc/fdp/i2c.c
++++ b/drivers/nfc/fdp/i2c.c
+@@ -247,6 +247,9 @@ static void fdp_nci_i2c_read_device_properties(struct device *dev,
+ 					   len, sizeof(**fw_vsc_cfg),
+ 					   GFP_KERNEL);
  
- 	ret = -EIO;
- 	virt = acpi_os_map_iomem(start, len);
--	if (!virt)
-+	if (!virt) {
-+		dev_warn(&chip->dev, "%s: Failed to map ACPI memory\n", __func__);
-+		/* try EFI log next */
-+		ret = -ENODEV;
- 		goto err;
-+	}
++		if (!*fw_vsc_cfg)
++			goto alloc_err;
++
+ 		r = device_property_read_u8_array(dev, FDP_DP_FW_VSC_CFG_NAME,
+ 						  *fw_vsc_cfg, len);
  
- 	memcpy_fromio(log->bios_event_log, virt, len);
+@@ -260,6 +263,7 @@ static void fdp_nci_i2c_read_device_properties(struct device *dev,
+ 		*fw_vsc_cfg = NULL;
+ 	}
  
++alloc_err:
+ 	dev_dbg(dev, "Clock type: %d, clock frequency: %d, VSC: %s",
+ 		*clock_type, *clock_freq, *fw_vsc_cfg != NULL ? "yes" : "no");
+ }
 -- 
 2.39.2
 
