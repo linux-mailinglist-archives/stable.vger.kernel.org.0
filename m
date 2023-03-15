@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5AB66BB147
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E70766BB1B8
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232418AbjCOM0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:26:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57532 "EHLO
+        id S232122AbjCOMaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232413AbjCOMZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:50 -0400
+        with ESMTP id S232558AbjCOM3o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A30960BD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DB89E50E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0830BB81E08
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27678C433D2;
-        Wed, 15 Mar 2023 12:24:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 877E1B81DFA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F359DC433D2;
+        Wed, 15 Mar 2023 12:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883058;
-        bh=jEmms8lj+xvfHMm71fwgcxBsB3dGtCttV7/9Zc+FvDk=;
+        s=korg; t=1678883324;
+        bh=zZqrl1XgFgm/6uo4wNCQ/Je2c0XduYQCBJ0fCd+aNfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBGgv7kAFWawBtNiwbFZVhSAxfFQonEfjCOslZM7jy8IwAJ50ESeU4Ni4y6FtwZni
-         wq1WBHRlFm/SRnD530yCrSWS0A9Wh2Kv0SWHSdQ6p/OHO+nytiUekJidrZWB80ZqUh
-         Gui9PXGHeSqC26Femb4RRHIiPuHmMd88OgRk2OPc=
+        b=PCji5aIs5lUMl/k2SaEvfzISPB6ceMcr52tngF2KSa7sVQfRFbxCcCzKkviRYySmL
+         Azd+ZMxol1qkz/vR6sNsz1ghv4mbZssg6t56Vwe4E6Wu1LnNyRio+GKl11EqV7ksMM
+         ATQX+DwrnbncAOaJWRQDYBstNorZ09lDjojT7zk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
-        Jai Luthra <j-luthra@ti.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Amir Goldstein <amir73il@gmail.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/104] media: ov5640: Fix analogue gain control
+Subject: [PATCH 5.15 100/145] attr: add in_group_or_capable()
 Date:   Wed, 15 Mar 2023 13:12:46 +0100
-Message-Id: <20230315115735.077904470@linuxfoundation.org>
+Message-Id: <20230315115742.268028203@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,91 +56,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Elder <paul.elder@ideasonboard.com>
+From: Christian Brauner <brauner@kernel.org>
 
-[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
+commit 11c2a8700cdcabf9b639b7204a1e38e2a0b6798e upstream.
 
-Gain control is badly documented in publicly available (including
-leaked) documentation.
+[backport to 5.15.y, prior to vfsgid_t]
 
-There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
-(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
-one application note states is equal to x1.047. The documentation also
-states that 0x40 is equel to x1.000. The pre-gain thus seems to be
-expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
-What the pre-gain does is however unspecified.
+In setattr_{copy,prepare}() we need to perform the same permission
+checks to determine whether we need to drop the setgid bit or not.
+Instead of open-coding it twice add a simple helper the encapsulates the
+logic. We will reuse this helpers to make dropping the setgid bit during
+write operations more consistent in a follow up patch.
 
-There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
-expressed as a 10-bit "real gain format" value. One application note
-sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
-expressed in 1/16 increments, up to x63.9375.
-
-The manual gain is stored in registers 0x350a and 0x350b, also as a
-10-bit "real gain format" value. It is documented in the application
-note as a Q6.4 values, up to x63.9375.
-
-One version of the datasheet indicates that the sensor supports a
-digital gain:
-
-  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
-  controlled automatically by the automatic gain control (AGC) block.
-
-It isn't clear how that would be controlled manually.
-
-There appears to be no indication regarding whether the gain controlled
-through registers 0x350a and 0x350b is an analogue gain only or also
-includes digital gain. The words "real gain" don't necessarily mean
-"combined analogue and digital gains". Some OmniVision sensors (such as
-the OV8858) are documented as supoprting different formats for the gain
-values, selectable through a register bit, and they are called "real
-gain format" and "sensor gain format". For that sensor, we have (one of)
-the gain registers documented as
-
-  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
-  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
-
-  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
-  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
-  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
-  0x70 is 4x gain
-
-(The second part of the text makes little sense)
-
-"Real gain" may thus refer to the combination of the coarse and fine
-analogue gains as a single value.
-
-The OV5640 0x350a and 0x350b registers thus appear to control analogue
-gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
-control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
-
-If registers 0x350a and 0x350b are later found to control digital gain
-as well, the driver could then restrict the range of the analogue gain
-control value to lower than x64 and add a separate digital gain control.
-
-Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
-Reviewed-by: Jai Luthra <j-luthra@ti.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/attr.c     |  8 ++++----
+ fs/inode.c    | 28 ++++++++++++++++++++++++----
+ fs/internal.h |  2 ++
+ 3 files changed, 30 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index 8f0812e859012..92a5f9aff9b53 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2748,7 +2748,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
- 	/* Auto/manual gain */
- 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
- 					     0, 1, 1, 1);
--	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
-+	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
- 					0, 1023, 1, 0);
+diff --git a/fs/attr.c b/fs/attr.c
+index f581c4d008971..686840aa91c8b 100644
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -18,6 +18,8 @@
+ #include <linux/evm.h>
+ #include <linux/ima.h>
  
- 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
++#include "internal.h"
++
+ /**
+  * chown_ok - verify permissions to chown inode
+  * @mnt_userns:	user namespace of the mount @inode was found from
+@@ -141,8 +143,7 @@ int setattr_prepare(struct user_namespace *mnt_userns, struct dentry *dentry,
+ 			mapped_gid = i_gid_into_mnt(mnt_userns, inode);
+ 
+ 		/* Also check the setgid bit! */
+-		if (!in_group_p(mapped_gid) &&
+-		    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
++		if (!in_group_or_capable(mnt_userns, inode, mapped_gid))
+ 			attr->ia_mode &= ~S_ISGID;
+ 	}
+ 
+@@ -257,8 +258,7 @@ void setattr_copy(struct user_namespace *mnt_userns, struct inode *inode,
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
+ 		kgid_t kgid = i_gid_into_mnt(mnt_userns, inode);
+-		if (!in_group_p(kgid) &&
+-		    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
++		if (!in_group_or_capable(mnt_userns, inode, kgid))
+ 			mode &= ~S_ISGID;
+ 		inode->i_mode = mode;
+ 	}
+diff --git a/fs/inode.c b/fs/inode.c
+index 957b2d18ec29f..a71fb82279bb1 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -2321,6 +2321,28 @@ struct timespec64 current_time(struct inode *inode)
+ }
+ EXPORT_SYMBOL(current_time);
+ 
++/**
++ * in_group_or_capable - check whether caller is CAP_FSETID privileged
++ * @mnt_userns: user namespace of the mount @inode was found from
++ * @inode:	inode to check
++ * @gid:	the new/current gid of @inode
++ *
++ * Check wether @gid is in the caller's group list or if the caller is
++ * privileged with CAP_FSETID over @inode. This can be used to determine
++ * whether the setgid bit can be kept or must be dropped.
++ *
++ * Return: true if the caller is sufficiently privileged, false if not.
++ */
++bool in_group_or_capable(struct user_namespace *mnt_userns,
++			 const struct inode *inode, kgid_t gid)
++{
++	if (in_group_p(gid))
++		return true;
++	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
++		return true;
++	return false;
++}
++
+ /**
+  * mode_strip_sgid - handle the sgid bit for non-directories
+  * @mnt_userns: User namespace of the mount the inode was created from
+@@ -2342,11 +2364,9 @@ umode_t mode_strip_sgid(struct user_namespace *mnt_userns,
+ 		return mode;
+ 	if (S_ISDIR(mode) || !dir || !(dir->i_mode & S_ISGID))
+ 		return mode;
+-	if (in_group_p(i_gid_into_mnt(mnt_userns, dir)))
+-		return mode;
+-	if (capable_wrt_inode_uidgid(mnt_userns, dir, CAP_FSETID))
++	if (in_group_or_capable(mnt_userns, dir,
++				i_gid_into_mnt(mnt_userns, dir)))
+ 		return mode;
+-
+ 	return mode & ~S_ISGID;
+ }
+ EXPORT_SYMBOL(mode_strip_sgid);
+diff --git a/fs/internal.h b/fs/internal.h
+index 9075490f21a62..c898147272817 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -150,6 +150,8 @@ extern int vfs_open(const struct path *, struct file *);
+ extern long prune_icache_sb(struct super_block *sb, struct shrink_control *sc);
+ extern void inode_add_lru(struct inode *inode);
+ extern int dentry_needs_remove_privs(struct dentry *dentry);
++bool in_group_or_capable(struct user_namespace *mnt_userns,
++			 const struct inode *inode, kgid_t gid);
+ 
+ /*
+  * fs-writeback.c
 -- 
 2.39.2
 
