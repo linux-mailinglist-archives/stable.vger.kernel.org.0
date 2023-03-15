@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0266C6BB313
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5BA66BB10C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbjCOMlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
+        id S232262AbjCOMYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232864AbjCOMk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 430915FA67
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:55 -0700 (PDT)
+        with ESMTP id S232052AbjCOMYE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B00896F01
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2375E6128D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36637C433D2;
-        Wed, 15 Mar 2023 12:39:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C650061D5E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D516FC433D2;
+        Wed, 15 Mar 2023 12:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883994;
-        bh=CoJGKh0FOnk5vX8Pwg3Lc1XM2guT1Iwm90uOmQLz6BM=;
+        s=korg; t=1678882909;
+        bh=JM9nH1hqXXtxR7vzxOsof9Fb6tuO6eIcPy0fFPEjs9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZyliDExkGagZ4y/NQmXW7kjh+5DVrHLdg7Q2DKPem3cDUiMTkR9Pw6YIhp7wEm23
-         am8CrwnuncEloRoslj6RRlLiFJ8sLnQXudA7HE2YtHHgwn44M8qC5FYZknpGND9Znc
-         CIHLsZ9nkgD8mvtPpcOZWq2WePMJ5Am9xrurnWgc=
+        b=roFJAHbofVFSTtlF8PvguO1nvRBkIuRnaF6jUOqT2G9eow1Db9K7UxQOfYSkJ+Tgc
+         qSrz6APfeNnxP1XXle4UW7gDZe7Znsp+CzDrP94Xpeca/egWZ0WIVLx6kYA4rd9662
+         +wBPTG0I4CDcPoiOzQ34YrwSH6v/AFjwhfrIA9XM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 036/141] powerpc/boot: Dont always pass -mcpu=powerpc when building 32-bit uImage
+Subject: [PATCH 5.10 048/104] btf: fix resolving BTF_KIND_VAR after ARRAY, STRUCT, UNION, PTR
 Date:   Wed, 15 Mar 2023 13:12:19 +0100
-Message-Id: <20230315115741.064257884@linuxfoundation.org>
+Message-Id: <20230315115734.009861589@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,62 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Lorenz Bauer <lorenz.bauer@isovalent.com>
 
-[ Upstream commit ff7c76f66d8bad4e694c264c789249e1d3a8205d ]
+[ Upstream commit 9b459804ff9973e173fabafba2a1319f771e85fa ]
 
-When CONFIG_TARGET_CPU is specified then pass its value to the compiler
--mcpu option. This fixes following build error when building kernel with
-powerpc e500 SPE capable cross compilers:
+btf_datasec_resolve contains a bug that causes the following BTF
+to fail loading:
 
-    BOOTAS  arch/powerpc/boot/crt0.o
-  powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
-  powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
-  make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
+    [1] DATASEC a size=2 vlen=2
+        type_id=4 offset=0 size=1
+        type_id=7 offset=1 size=1
+    [2] INT (anon) size=1 bits_offset=0 nr_bits=8 encoding=(none)
+    [3] PTR (anon) type_id=2
+    [4] VAR a type_id=3 linkage=0
+    [5] INT (anon) size=1 bits_offset=0 nr_bits=8 encoding=(none)
+    [6] TYPEDEF td type_id=5
+    [7] VAR b type_id=6 linkage=0
 
-Similar change was already introduced for the main powerpc Makefile in
-commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
-compiler").
+This error message is printed during btf_check_all_types:
 
-Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
-Cc: stable@vger.kernel.org # v5.19+
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
+    [1] DATASEC a size=2 vlen=2
+        type_id=7 offset=1 size=1 Invalid type
+
+By tracing btf_*_resolve we can pinpoint the problem:
+
+    btf_datasec_resolve(depth: 1, type_id: 1, mode: RESOLVE_TBD) = 0
+        btf_var_resolve(depth: 2, type_id: 4, mode: RESOLVE_TBD) = 0
+            btf_ptr_resolve(depth: 3, type_id: 3, mode: RESOLVE_PTR) = 0
+        btf_var_resolve(depth: 2, type_id: 4, mode: RESOLVE_PTR) = 0
+    btf_datasec_resolve(depth: 1, type_id: 1, mode: RESOLVE_PTR) = -22
+
+The last invocation of btf_datasec_resolve should invoke btf_var_resolve
+by means of env_stack_push, instead it returns EINVAL. The reason is that
+env_stack_push is never executed for the second VAR.
+
+    if (!env_type_is_resolve_sink(env, var_type) &&
+        !env_type_is_resolved(env, var_type_id)) {
+        env_stack_set_next_member(env, i + 1);
+        return env_stack_push(env, var_type, var_type_id);
+    }
+
+env_type_is_resolve_sink() changes its behaviour based on resolve_mode.
+For RESOLVE_PTR, we can simplify the if condition to the following:
+
+    (btf_type_is_modifier() || btf_type_is_ptr) && !env_type_is_resolved()
+
+Since we're dealing with a VAR the clause evaluates to false. This is
+not sufficient to trigger the bug however. The log output and EINVAL
+are only generated if btf_type_id_size() fails.
+
+    if (!btf_type_id_size(btf, &type_id, &type_size)) {
+        btf_verifier_log_vsi(env, v->t, vsi, "Invalid type");
+        return -EINVAL;
+    }
+
+Most types are sized, so for example a VAR referring to an INT is not a
+problem. The bug is only triggered if a VAR points at a modifier. Since
+we skipped btf_var_resolve that modifier was also never resolved, which
+means that btf_resolved_type_id returns 0 aka VOID for the modifier.
+This in turn causes btf_type_id_size to return NULL, triggering EINVAL.
+
+To summarise, the following conditions are necessary:
+
+- VAR pointing at PTR, STRUCT, UNION or ARRAY
+- Followed by a VAR pointing at TYPEDEF, VOLATILE, CONST, RESTRICT or
+  TYPE_TAG
+
+The fix is to reset resolve_mode to RESOLVE_TBD before attempting to
+resolve a VAR from a DATASEC.
+
+Fixes: 1dc92851849c ("bpf: kernel side support for BTF Var and DataSec")
+Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+Link: https://lore.kernel.org/r/20230306112138.155352-2-lmb@isovalent.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/Makefile | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ kernel/bpf/btf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
-index d32d95aea5d6f..295f76df13b55 100644
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
- 		 $(LINUXINCLUDE)
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 11b612e94e4e1..cb80d18a49b56 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -3541,6 +3541,7 @@ static int btf_datasec_resolve(struct btf_verifier_env *env,
+ 	struct btf *btf = env->btf;
+ 	u16 i;
  
- ifdef CONFIG_PPC64_BOOT_WRAPPER
--ifdef CONFIG_CPU_LITTLE_ENDIAN
--BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
-+BOOTCFLAGS	+= -m64
- else
--BOOTCFLAGS	+= -m64 -mcpu=powerpc64
-+BOOTCFLAGS	+= -m32
- endif
-+
-+ifdef CONFIG_TARGET_CPU_BOOL
-+BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
-+else ifdef CONFIG_PPC64_BOOT_WRAPPER
-+ifdef CONFIG_CPU_LITTLE_ENDIAN
-+BOOTCFLAGS	+= -mcpu=powerpc64le
- else
--BOOTCFLAGS	+= -m32 -mcpu=powerpc
-+BOOTCFLAGS	+= -mcpu=powerpc64
-+endif
- endif
- 
- BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
++	env->resolve_mode = RESOLVE_TBD;
+ 	for_each_vsi_from(i, v->next_member, v->t, vsi) {
+ 		u32 var_type_id = vsi->type, type_id, type_size = 0;
+ 		const struct btf_type *var_type = btf_type_by_id(env->btf,
 -- 
 2.39.2
 
