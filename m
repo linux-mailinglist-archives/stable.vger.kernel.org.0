@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA586BB18C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 519B76BB2F6
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232114AbjCOM2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57782 "EHLO
+        id S232916AbjCOMkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232416AbjCOM2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F1E90B7B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:15 -0700 (PDT)
+        with ESMTP id S232901AbjCOMkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26F37A21B2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0B0D61D59
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3DBEC433EF;
-        Wed, 15 Mar 2023 12:27:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EB6E61D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CCDFC433EF;
+        Wed, 15 Mar 2023 12:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883232;
-        bh=yX16k0Nh2KcYRzjmDNVj+RByDoVhwVbko8q98jgCSMA=;
+        s=korg; t=1678883894;
+        bh=pY5oKRL/60m1hFyGM31zA6AIXDpuAGgqf/QG1Ny+1ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBGq6BxLGz/DiAF8dG6gWLw6uNIsawVT+OU8dtN5TlAnqx4eNd3UV8K8QL+nntHQk
-         Ok9RUTUOFwLEJlz/2xrUiPKrN990cx5XrMtchnsLhMyp+D+rePa8KG6tF5vqUuTq4l
-         +P3PfqWfiCUsbdAwtae3i1Y+LMkNZcshF8zQgdKI=
+        b=B0P0/mqB5IH9AMYkcD1U5IAl3v9sC/Oays0H8A7Bi3w1KHcbZmIR8lrvQnBmuzmFz
+         b80tmjbO5pa5hTWC9X2OyClpMOt8YzvqOD6+wwt/n0vqTk/1t7gKbDS88IKwwhpxCl
+         zxB7EPQ+LQuWIByI5dVLkUKFC6HWhyeC2fnPxy2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?Major=20D=C3=A1vid?= <major.david@balasys.hu>
-Subject: [PATCH 5.15 065/145] netfilter: tproxy: fix deadlock due to missing BH disable
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 028/141] nfc: change order inside nfc_se_io error path
 Date:   Wed, 15 Mar 2023 13:12:11 +0100
-Message-Id: <20230315115741.182320068@linuxfoundation.org>
+Message-Id: <20230315115740.835606010@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,80 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit 4a02426787bf024dafdb79b362285ee325de3f5e ]
+commit 7d834b4d1ab66c48e8c0810fdeadaabb80fa2c81 upstream.
 
-The xtables packet traverser performs an unconditional local_bh_disable(),
-but the nf_tables evaluation loop does not.
+cb_context should be freed on the error path in nfc_se_io as stated by
+commit 25ff6f8a5a3b ("nfc: fix memory leak of se_io context in
+nfc_genl_se_io").
 
-Functions that are called from either xtables or nftables must assume
-that they can be called in process context.
+Make the error path in nfc_se_io unwind everything in reverse order, i.e.
+free the cb_context after unlocking the device.
 
-inet_twsk_deschedule_put() assumes that no softirq interrupt can occur.
-If tproxy is used from nf_tables its possible that we'll deadlock
-trying to aquire a lock already held in process context.
-
-Add a small helper that takes care of this and use it.
-
-Link: https://lore.kernel.org/netfilter-devel/401bd6ed-314a-a196-1cdc-e13c720cc8f2@balasys.hu/
-Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
-Reported-and-tested-by: Major Dávid <major.david@balasys.hu>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230306212650.230322-1-pchelkin@ispras.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_tproxy.h   | 7 +++++++
- net/ipv4/netfilter/nf_tproxy_ipv4.c | 2 +-
- net/ipv6/netfilter/nf_tproxy_ipv6.c | 2 +-
- 3 files changed, 9 insertions(+), 2 deletions(-)
+ net/nfc/netlink.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/netfilter/nf_tproxy.h b/include/net/netfilter/nf_tproxy.h
-index 82d0e41b76f22..faa108b1ba675 100644
---- a/include/net/netfilter/nf_tproxy.h
-+++ b/include/net/netfilter/nf_tproxy.h
-@@ -17,6 +17,13 @@ static inline bool nf_tproxy_sk_is_transparent(struct sock *sk)
- 	return false;
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1446,8 +1446,8 @@ static int nfc_se_io(struct nfc_dev *dev
+ 	return rc;
+ 
+ error:
+-	kfree(cb_context);
+ 	device_unlock(&dev->dev);
++	kfree(cb_context);
+ 	return rc;
  }
  
-+static inline void nf_tproxy_twsk_deschedule_put(struct inet_timewait_sock *tw)
-+{
-+	local_bh_disable();
-+	inet_twsk_deschedule_put(tw);
-+	local_bh_enable();
-+}
-+
- /* assign a socket to the skb -- consumes sk */
- static inline void nf_tproxy_assign_sock(struct sk_buff *skb, struct sock *sk)
- {
-diff --git a/net/ipv4/netfilter/nf_tproxy_ipv4.c b/net/ipv4/netfilter/nf_tproxy_ipv4.c
-index b2bae0b0e42a1..61cb2341f50fe 100644
---- a/net/ipv4/netfilter/nf_tproxy_ipv4.c
-+++ b/net/ipv4/netfilter/nf_tproxy_ipv4.c
-@@ -38,7 +38,7 @@ nf_tproxy_handle_time_wait4(struct net *net, struct sk_buff *skb,
- 					    hp->source, lport ? lport : hp->dest,
- 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
- 		if (sk2) {
--			inet_twsk_deschedule_put(inet_twsk(sk));
-+			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
- 			sk = sk2;
- 		}
- 	}
-diff --git a/net/ipv6/netfilter/nf_tproxy_ipv6.c b/net/ipv6/netfilter/nf_tproxy_ipv6.c
-index 6bac68fb27a39..3fe4f15e01dc8 100644
---- a/net/ipv6/netfilter/nf_tproxy_ipv6.c
-+++ b/net/ipv6/netfilter/nf_tproxy_ipv6.c
-@@ -63,7 +63,7 @@ nf_tproxy_handle_time_wait6(struct sk_buff *skb, int tproto, int thoff,
- 					    lport ? lport : hp->dest,
- 					    skb->dev, NF_TPROXY_LOOKUP_LISTENER);
- 		if (sk2) {
--			inet_twsk_deschedule_put(inet_twsk(sk));
-+			nf_tproxy_twsk_deschedule_put(inet_twsk(sk));
- 			sk = sk2;
- 		}
- 	}
--- 
-2.39.2
-
 
 
