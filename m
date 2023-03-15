@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5706BB23E
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2646BB2E8
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232706AbjCOMek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:34:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39612 "EHLO
+        id S232847AbjCOMjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232714AbjCOMeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 485036BC22
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:53 -0700 (PDT)
+        with ESMTP id S232979AbjCOMjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:39:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1815476157
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20B10613F9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 336C8C433D2;
-        Wed, 15 Mar 2023 12:32:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DA91B81DFD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B0CC4339B;
+        Wed, 15 Mar 2023 12:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883572;
-        bh=44xnEcKZxJO1pIukPrACJUgtC7Y5W7FfpqYKoj7tT1A=;
+        s=korg; t=1678883899;
+        bh=3x/A+2MGeGdMB43OhLiNVkcShYoaa19ONio/m/N34Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6MK7K8ELxKeARXTtdy/BifhVGdz8I+h42jx5bMDwij261lhovzY0sl8uUOeDBy8Z
-         L17WrMKwwWQMIbZODqkJebWOIVPydrOlYmSkNQqY4TLeGsbnY0qpV2DRSelZFtdQ/h
-         DtHGmydOrSrw6m0NpR52j43VPPmFMHQQeqLdIt5w=
+        b=kJ+vC92gp3kFg10iUILOXxZGic8rh4izS6gUc7FQLtxX/vJgilBwb9zu9I1y+5Nyn
+         9xUFMljlBgA95PWRneI74+pEzRVA4Erw7k9o5WnUmftARSQ9f106Fs35ykttscGdAX
+         e5/x8KCpfrKPhTigYZ0Cxw2Ct51DVDPWlUpTmprQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+6be2b977c89f79b6b153@syzkaller.appspotmail.com,
-        "Darrick J. Wong" <djwong@kernel.org>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 019/143] ext4: fix another off-by-one fsmap error on 1k block filesystems
-Date:   Wed, 15 Mar 2023 13:11:45 +0100
-Message-Id: <20230315115741.082842370@linuxfoundation.org>
+        patches@lists.linux.dev, Forza <forza@tnonline.net>,
+        Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.2 003/141] btrfs: fix percent calculation for bg reclaim message
+Date:   Wed, 15 Mar 2023 13:11:46 +0100
+Message-Id: <20230315115740.064238519@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,121 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit c993799baf9c5861f8df91beb80e1611b12efcbd upstream.
+commit 95cd356ca23c3807b5f3503687161e216b1c520d upstream.
 
-Apparently syzbot figured out that issuing this FSMAP call:
+We have a report, that the info message for block-group reclaim is
+crossing the 100% used mark.
 
-struct fsmap_head cmd = {
-	.fmh_count	= ...;
-	.fmh_keys	= {
-		{ .fmr_device = /* ext4 dev */, .fmr_physical = 0, },
-		{ .fmr_device = /* ext4 dev */, .fmr_physical = 0, },
-	},
-...
-};
-ret = ioctl(fd, FS_IOC_GETFSMAP, &cmd);
+This is happening as we were truncating the divisor for the division
+(the block_group->length) to a 32bit value.
 
-Produces this crash if the underlying filesystem is a 1k-block ext4
-filesystem:
+Fix this by using div64_u64() to not truncate the divisor.
 
-kernel BUG at fs/ext4/ext4.h:3331!
-invalid opcode: 0000 [#1] PREEMPT SMP
-CPU: 3 PID: 3227965 Comm: xfs_io Tainted: G        W  O       6.2.0-rc8-achx
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
-RIP: 0010:ext4_mb_load_buddy_gfp+0x47c/0x570 [ext4]
-RSP: 0018:ffffc90007c03998 EFLAGS: 00010246
-RAX: ffff888004978000 RBX: ffffc90007c03a20 RCX: ffff888041618000
-RDX: 0000000000000000 RSI: 00000000000005a4 RDI: ffffffffa0c99b11
-RBP: ffff888012330000 R08: ffffffffa0c2b7d0 R09: 0000000000000400
-R10: ffffc90007c03950 R11: 0000000000000000 R12: 0000000000000001
-R13: 00000000ffffffff R14: 0000000000000c40 R15: ffff88802678c398
-FS:  00007fdf2020c880(0000) GS:ffff88807e100000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd318a5fe8 CR3: 000000007f80f001 CR4: 00000000001706e0
-Call Trace:
- <TASK>
- ext4_mballoc_query_range+0x4b/0x210 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
- ext4_getfsmap_datadev+0x713/0x890 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
- ext4_getfsmap+0x2b7/0x330 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
- ext4_ioc_getfsmap+0x153/0x2b0 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
- __ext4_ioctl+0x2a7/0x17e0 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
- __x64_sys_ioctl+0x82/0xa0
- do_syscall_64+0x2b/0x80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7fdf20558aff
-RSP: 002b:00007ffd318a9e30 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00000000000200c0 RCX: 00007fdf20558aff
-RDX: 00007fdf1feb2010 RSI: 00000000c0c0583b RDI: 0000000000000003
-RBP: 00005625c0634be0 R08: 00005625c0634c40 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fdf1feb2010
-R13: 00005625be70d994 R14: 0000000000000800 R15: 0000000000000000
+In the worst case, it can lead to a div by zero error and should be
+possible to trigger on 4 disks RAID0, and each device is large enough:
 
-For GETFSMAP calls, the caller selects a physical block device by
-writing its block number into fsmap_head.fmh_keys[01].fmr_device.
-To query mappings for a subrange of the device, the starting byte of the
-range is written to fsmap_head.fmh_keys[0].fmr_physical and the last
-byte of the range goes in fsmap_head.fmh_keys[1].fmr_physical.
+  $ mkfs.btrfs  -f /dev/test/scratch[1234] -m raid1 -d raid0
+  btrfs-progs v6.1
+  [...]
+  Filesystem size:    40.00GiB
+  Block group profiles:
+    Data:             RAID0             4.00GiB <<<
+    Metadata:         RAID1           256.00MiB
+    System:           RAID1             8.00MiB
 
-IOWs, to query what mappings overlap with bytes 3-14 of /dev/sda, you'd
-set the inputs as follows:
-
-	fmh_keys[0] = { .fmr_device = major(8, 0), .fmr_physical = 3},
-	fmh_keys[1] = { .fmr_device = major(8, 0), .fmr_physical = 14},
-
-Which would return you whatever is mapped in the 12 bytes starting at
-physical offset 3.
-
-The crash is due to insufficient range validation of keys[1] in
-ext4_getfsmap_datadev.  On 1k-block filesystems, block 0 is not part of
-the filesystem, which means that s_first_data_block is nonzero.
-ext4_get_group_no_and_offset subtracts this quantity from the blocknr
-argument before cracking it into a group number and a block number
-within a group.  IOWs, block group 0 spans blocks 1-8192 (1-based)
-instead of 0-8191 (0-based) like what happens with larger blocksizes.
-
-The net result of this encoding is that blocknr < s_first_data_block is
-not a valid input to this function.  The end_fsb variable is set from
-the keys that are copied from userspace, which means that in the above
-example, its value is zero.  That leads to an underflow here:
-
-	blocknr = blocknr - le32_to_cpu(es->s_first_data_block);
-
-The division then operates on -1:
-
-	offset = do_div(blocknr, EXT4_BLOCKS_PER_GROUP(sb)) >>
-		EXT4_SB(sb)->s_cluster_bits;
-
-Leaving an impossibly large group number (2^32-1) in blocknr.
-ext4_getfsmap_check_keys checked that keys[0].fmr_physical and
-keys[1].fmr_physical are in increasing order, but
-ext4_getfsmap_datadev adjusts keys[0].fmr_physical to be at least
-s_first_data_block.  This implies that we have to check it again after
-the adjustment, which is the piece that I forgot.
-
-Reported-by: syzbot+6be2b977c89f79b6b153@syzkaller.appspotmail.com
-Fixes: 4a4956249dac ("ext4: fix off-by-one fsmap error on 1k block filesystems")
-Link: https://syzkaller.appspot.com/bug?id=79d5768e9bfe362911ac1a5057a36fc6b5c30002
-Cc: stable@vger.kernel.org
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Link: https://lore.kernel.org/r/Y+58NPTH7VNGgzdd@magnolia
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: Forza <forza@tnonline.net>
+Link: https://lore.kernel.org/linux-btrfs/e99483.c11a58d.1863591ca52@tnonline.net/
+Fixes: 5f93e776c673 ("btrfs: zoned: print unusable percentage when reclaiming block groups")
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ add Qu's note ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fsmap.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/block-group.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/fsmap.c
-+++ b/fs/ext4/fsmap.c
-@@ -486,6 +486,8 @@ static int ext4_getfsmap_datadev(struct
- 		keys[0].fmr_physical = bofs;
- 	if (keys[1].fmr_physical >= eofs)
- 		keys[1].fmr_physical = eofs - 1;
-+	if (keys[1].fmr_physical < keys[0].fmr_physical)
-+		return 0;
- 	start_fsb = keys[0].fmr_physical;
- 	end_fsb = keys[1].fmr_physical;
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1687,7 +1687,8 @@ void btrfs_reclaim_bgs_work(struct work_
  
+ 		btrfs_info(fs_info,
+ 			"reclaiming chunk %llu with %llu%% used %llu%% unusable",
+-				bg->start, div_u64(bg->used * 100, bg->length),
++				bg->start,
++				div64_u64(bg->used * 100, bg->length),
+ 				div64_u64(zone_unusable * 100, bg->length));
+ 		trace_btrfs_reclaim_block_group(bg);
+ 		ret = btrfs_relocate_chunk(fs_info, bg->start);
 
 
