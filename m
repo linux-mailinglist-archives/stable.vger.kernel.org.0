@@ -2,53 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B286BB343
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 636CA6BB12D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233062AbjCOMnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:43:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36898 "EHLO
+        id S232042AbjCOMZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232868AbjCOMmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6122A2C1B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:41:21 -0700 (PDT)
+        with ESMTP id S232208AbjCOMZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4F199C2D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 85981CE19BF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38A6C433EF;
-        Wed, 15 Mar 2023 12:41:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3BE61D40
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83E8C4339C;
+        Wed, 15 Mar 2023 12:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884076;
-        bh=TwIcYf7MZJ4YVx6S517a7KQ3JgmyO62xRTD5Xa97Tro=;
+        s=korg; t=1678882993;
+        bh=LeDfhv3dIOY5Ep3qwvO4rn9GSOS0rv5X429rZamhs2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZ13yIEtARBcaq4VKPq26daYy+SzZjZoi90wZhVuXThfN3YVmFYqNuhepiFvZJRAX
-         67l0Xqtx2+SqUyYKhDh3asdruwOCpthhvj5BKMLuVjvDGNbqpd17fYLXQBxjVLZAIX
-         kbzJlqsDoNFzkB3CcyAS09vgAX7d7W9+jWsMXRII=
+        b=oM7RIpfASYlTIsssE2fx1SdZrRgZToVz8cns6R5eYQ9gQG1FwY7NbGw/G2g+M9QOk
+         9+AvPXsfZ3hCVi2fIvF9k/Voxcc2zWjShpYCzEAq35Kc8GMkKF1cxtg4m25ItIGlPO
+         +MnirwsftHGSBl94nApNssEezQ2qnMbP+7u7rcXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Huanhuan Wang <huanhuan.wang@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 068/141] nfp: fix incorrectly set csum flag for nfd3 path
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.10 080/104] drm/i915: Dont use BAR mappings for ring buffers with LLC
 Date:   Wed, 15 Mar 2023 13:12:51 +0100
-Message-Id: <20230315115742.027580932@linuxfoundation.org>
+Message-Id: <20230315115735.257059643@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,93 +61,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huanhuan Wang <huanhuan.wang@corigine.com>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-[ Upstream commit 3e04419cbe2d0bc10ffc20c006c6513ffa4b1ca3 ]
+commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
 
-The csum flag of IPsec packet are set repeatedly. Therefore, the csum
-flag set of IPsec and non-IPsec packet need to be distinguished.
+Direction from hardware is that ring buffers should never be mapped
+via the BAR on systems with LLC. There are too many caching pitfalls
+due to the way BAR accesses are routed. So it is safest to just not
+use it.
 
-As the ipv6 header does not have a csum field, so l3-csum flag is not
-required to be set for ipv6 case.
-
-L4-csum flag include the tcp csum flag and udp csum flag, we shouldn't
-set the udp and tcp csum flag at the same time for one packet, should
-set l4-csum flag according to the transport layer is tcp or udp.
-
-Fixes: 57f273adbcd4 ("nfp: add framework to support ipsec offloading")
-Signed-off-by: Huanhuan Wang <huanhuan.wang@corigine.com>
-Reviewed-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
+(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfd3/dp.c  |  7 +++---
- .../net/ethernet/netronome/nfp/nfd3/ipsec.c   | 25 +++++++++++++++++--
- 2 files changed, 27 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_ring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfd3/dp.c b/drivers/net/ethernet/netronome/nfp/nfd3/dp.c
-index 861082c5dbffb..ee2e442809c69 100644
---- a/drivers/net/ethernet/netronome/nfp/nfd3/dp.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfd3/dp.c
-@@ -327,14 +327,15 @@ netdev_tx_t nfp_nfd3_tx(struct sk_buff *skb, struct net_device *netdev)
+--- a/drivers/gpu/drm/i915/gt/intel_ring.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring.c
+@@ -49,7 +49,7 @@ int intel_ring_pin(struct intel_ring *ri
+ 	if (unlikely(ret))
+ 		goto err_unpin;
  
- 	/* Do not reorder - tso may adjust pkt cnt, vlan may override fields */
- 	nfp_nfd3_tx_tso(r_vec, txbuf, txd, skb, md_bytes);
--	nfp_nfd3_tx_csum(dp, r_vec, txbuf, txd, skb);
-+	if (ipsec)
-+		nfp_nfd3_ipsec_tx(txd, skb);
-+	else
-+		nfp_nfd3_tx_csum(dp, r_vec, txbuf, txd, skb);
- 	if (skb_vlan_tag_present(skb) && dp->ctrl & NFP_NET_CFG_CTRL_TXVLAN) {
- 		txd->flags |= NFD3_DESC_TX_VLAN;
- 		txd->vlan = cpu_to_le16(skb_vlan_tag_get(skb));
- 	}
+-	if (i915_vma_is_map_and_fenceable(vma))
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
+ 		addr = (void __force *)i915_vma_pin_iomap(vma);
+ 	else
+ 		addr = i915_gem_object_pin_map(vma->obj,
+@@ -91,7 +91,7 @@ void intel_ring_unpin(struct intel_ring
+ 		return;
  
--	if (ipsec)
--		nfp_nfd3_ipsec_tx(txd, skb);
- 	/* Gather DMA */
- 	if (nr_frags > 0) {
- 		__le64 second_half;
-diff --git a/drivers/net/ethernet/netronome/nfp/nfd3/ipsec.c b/drivers/net/ethernet/netronome/nfp/nfd3/ipsec.c
-index e90f8c975903b..51087693072c2 100644
---- a/drivers/net/ethernet/netronome/nfp/nfd3/ipsec.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfd3/ipsec.c
-@@ -10,9 +10,30 @@
- void nfp_nfd3_ipsec_tx(struct nfp_nfd3_tx_desc *txd, struct sk_buff *skb)
- {
- 	struct xfrm_state *x = xfrm_input_state(skb);
-+	struct xfrm_offload *xo = xfrm_offload(skb);
-+	struct iphdr *iph = ip_hdr(skb);
-+	int l4_proto;
- 
- 	if (x->xso.dev && (x->xso.dev->features & NETIF_F_HW_ESP_TX_CSUM)) {
--		txd->flags |= NFD3_DESC_TX_CSUM | NFD3_DESC_TX_IP4_CSUM |
--			      NFD3_DESC_TX_TCP_CSUM | NFD3_DESC_TX_UDP_CSUM;
-+		txd->flags |= NFD3_DESC_TX_CSUM;
-+
-+		if (iph->version == 4)
-+			txd->flags |= NFD3_DESC_TX_IP4_CSUM;
-+
-+		if (x->props.mode == XFRM_MODE_TRANSPORT)
-+			l4_proto = xo->proto;
-+		else if (x->props.mode == XFRM_MODE_TUNNEL)
-+			l4_proto = xo->inner_ipproto;
-+		else
-+			return;
-+
-+		switch (l4_proto) {
-+		case IPPROTO_UDP:
-+			txd->flags |= NFD3_DESC_TX_UDP_CSUM;
-+			return;
-+		case IPPROTO_TCP:
-+			txd->flags |= NFD3_DESC_TX_TCP_CSUM;
-+			return;
-+		}
- 	}
- }
--- 
-2.39.2
-
+ 	i915_vma_unset_ggtt_write(vma);
+-	if (i915_vma_is_map_and_fenceable(vma))
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
+ 		i915_vma_unpin_iomap(vma);
+ 	else
+ 		i915_gem_object_unpin_map(vma->obj);
 
 
