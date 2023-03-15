@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 334456BB358
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B97736BB297
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233109AbjCOMnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36142 "EHLO
+        id S232844AbjCOMh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:37:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232889AbjCOMnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE9DA0B2A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:08 -0700 (PDT)
+        with ESMTP id S232808AbjCOMhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A406C56789
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEA8B61D69
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:41:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1EDBC433D2;
-        Wed, 15 Mar 2023 12:41:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB6F6128D
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E62AC433D2;
+        Wed, 15 Mar 2023 12:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884110;
-        bh=V3E38VUATFYY6TRZV+ClJrtJ2pL47y7zoxcTI/+V4gA=;
+        s=korg; t=1678883776;
+        bh=W1QfcQHVZVFp9rQvEhfqJH+RvdNqkFLq8fN0NrQTBe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zl1CRLOYh8trakWKxp/xzOJeYGaxtB1+jmidDH2eUtw1obs9tfs85+d4NaBBDGn3Z
-         FFi7ryDlBPT6ENVWGP69gCszEhAdrpd5ed1uZfyvoycyOYlqXf2R/amk3qIBPMWaHj
-         Ow6FNQOWKsb1xEp0N3Q7/62BVE0nKd+KzbX1mqi0=
+        b=ruoVYKS2qGmY44SVJAh1y+DXwLfyIJM0pbxLXU7gmGsoRZVygSalCx7t5EzKJECcL
+         0qcOJZ9RlrfG+9WbaI6WQZf/Qaf+csePKLmgzGIrsLKWLd1f5laOjnPfrUlleDT5CZ
+         1cACG/UZzu5QfWULCUVB/rrxdDIQTRxSfwb2Amr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+9d16c39efb5fade84574@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 111/141] ext4: Fix deadlock during directory rename
+Subject: [PATCH 6.1 128/143] powerpc/bpf/32: Only set a stack frame when necessary
 Date:   Wed, 15 Mar 2023 13:13:34 +0100
-Message-Id: <20230315115743.379590614@linuxfoundation.org>
+Message-Id: <20230315115744.422072097@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,84 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 3c92792da8506a295afb6d032b4476e46f979725 ]
+[ Upstream commit d084dcf256bc4565b4b1af9b00297ac7b51c7049 ]
 
-As lockdep properly warns, we should not be locking i_rwsem while having
-transactions started as the proper lock ordering used by all directory
-handling operations is i_rwsem -> transaction start. Fix the lock
-ordering by moving the locking of the directory earlier in
-ext4_rename().
+Until now a stack frame was set at all time due to the need
+to keep tail call counter in the stack.
 
-Reported-by: syzbot+9d16c39efb5fade84574@syzkaller.appspotmail.com
-Fixes: 0813299c586b ("ext4: Fix possible corruption when moving a directory")
-Link: https://syzkaller.appspot.com/bug?extid=9d16c39efb5fade84574
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230301141004.15087-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+But since commit 89d21e259a94 ("powerpc/bpf/32: Fix Oops on tail call
+tests") the tail call counter is passed via register r4. It is therefore
+not necessary anymore to have a stack frame for that.
+
+Just like PPC64, implement bpf_has_stack_frame() and only sets the frame
+when needed.
+
+The difference with PPC64 is that PPC32 doesn't have a redzone, so
+the stack is required as soon as non volatile registers are used or
+when tail call count is set up.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Fix commit reference in change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/62d7b654a3cfe73d998697cb29bbc5ffd89bfdb1.1675245773.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ arch/powerpc/net/bpf_jit_comp32.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index e8f429330f3c3..7cc3918e2f189 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3813,10 +3813,20 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 			return retval;
- 	}
+diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_comp32.c
+index a379b0ce19ffa..8643b2c8b76ef 100644
+--- a/arch/powerpc/net/bpf_jit_comp32.c
++++ b/arch/powerpc/net/bpf_jit_comp32.c
+@@ -79,6 +79,20 @@ static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
+ #define SEEN_NVREG_FULL_MASK	0x0003ffff /* Non volatile registers r14-r31 */
+ #define SEEN_NVREG_TEMP_MASK	0x00001e01 /* BPF_REG_5, BPF_REG_AX, TMP_REG */
  
++static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
++{
 +	/*
-+	 * We need to protect against old.inode directory getting converted
-+	 * from inline directory format into a normal one.
++	 * We only need a stack frame if:
++	 * - we call other functions (kernel helpers), or
++	 * - we use non volatile registers, or
++	 * - we use tail call counter
++	 * - the bpf program uses its stack area
++	 * The latter condition is deduced from the usage of BPF_REG_FP
 +	 */
-+	if (S_ISDIR(old.inode->i_mode))
-+		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
++	return ctx->seen & (SEEN_FUNC | SEEN_TAILCALL | SEEN_NVREG_FULL_MASK) ||
++	       bpf_is_seen_register(ctx, bpf_to_ppc(BPF_REG_FP));
++}
 +
- 	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
- 				 &old.inlined);
--	if (IS_ERR(old.bh))
--		return PTR_ERR(old.bh);
-+	if (IS_ERR(old.bh)) {
-+		retval = PTR_ERR(old.bh);
-+		goto unlock_moved_dir;
-+	}
-+
- 	/*
- 	 *  Check for inode number is _not_ due to possible IO errors.
- 	 *  We might rmdir the source, keep it as pwd of some process
-@@ -3873,11 +3883,6 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
- 				goto end_rename;
- 		}
--		/*
--		 * We need to protect against old.inode directory getting
--		 * converted from inline directory format into a normal one.
--		 */
--		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
- 		retval = ext4_rename_dir_prepare(handle, &old);
- 		if (retval) {
- 			inode_unlock(old.inode);
-@@ -4014,12 +4019,15 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
- 	} else {
- 		ext4_journal_stop(handle);
- 	}
--	if (old.dir_bh)
--		inode_unlock(old.inode);
- release_bh:
- 	brelse(old.dir_bh);
- 	brelse(old.bh);
- 	brelse(new.bh);
-+
-+unlock_moved_dir:
-+	if (S_ISDIR(old.inode->i_mode))
-+		inode_unlock(old.inode);
-+
- 	return retval;
- }
+ void bpf_jit_realloc_regs(struct codegen_context *ctx)
+ {
+ 	unsigned int nvreg_mask;
+@@ -118,7 +132,8 @@ void bpf_jit_build_prologue(u32 *image, struct codegen_context *ctx)
  
+ #define BPF_TAILCALL_PROLOGUE_SIZE	4
+ 
+-	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
++	if (bpf_has_stack_frame(ctx))
++		EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
+ 
+ 	if (ctx->seen & SEEN_TAILCALL)
+ 		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
+@@ -171,7 +186,8 @@ static void bpf_jit_emit_common_epilogue(u32 *image, struct codegen_context *ctx
+ 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
+ 
+ 	/* Tear down our stack frame */
+-	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
++	if (bpf_has_stack_frame(ctx))
++		EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
+ 
+ 	if (ctx->seen & SEEN_FUNC)
+ 		EMIT(PPC_RAW_MTLR(_R0));
 -- 
 2.39.2
 
