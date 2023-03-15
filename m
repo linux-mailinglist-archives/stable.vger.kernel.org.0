@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE2DA6BB28B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5AB66BB147
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232731AbjCOMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:37:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53106 "EHLO
+        id S232418AbjCOM0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232830AbjCOMgy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0CC1164E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:57 -0700 (PDT)
+        with ESMTP id S232413AbjCOMZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A30960BD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C16061D73
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A459C433D2;
-        Wed, 15 Mar 2023 12:34:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0830BB81E08
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27678C433D2;
+        Wed, 15 Mar 2023 12:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883698;
-        bh=dZM0juNaGCRHAds9/PYC3jKkQ2TJwJQyn5SyU+39jfY=;
+        s=korg; t=1678883058;
+        bh=jEmms8lj+xvfHMm71fwgcxBsB3dGtCttV7/9Zc+FvDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPZbIybgRWKeeOXk49lN8KbPBbhXqwqwr1KwnJrAWaIPkIOfj3uNxzmO9TolDWhaA
-         VPE0WwruEO064AhFzRNtp1xwvJ9sJpbEmTgJkNbT1+4gmKXr6O5RoEHe4RSsa4okRK
-         AlCJjS8qTkdBQrlq7VyhVJqHi94HdgmuQVuQHlNE=
+        b=FBGgv7kAFWawBtNiwbFZVhSAxfFQonEfjCOslZM7jy8IwAJ50ESeU4Ni4y6FtwZni
+         wq1WBHRlFm/SRnD530yCrSWS0A9Wh2Kv0SWHSdQ6p/OHO+nytiUekJidrZWB80ZqUh
+         Gui9PXGHeSqC26Femb4RRHIiPuHmMd88OgRk2OPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
+        Jai Luthra <j-luthra@ti.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 080/143] bpf, sockmap: Fix an infinite loop error when len is 0 in tcp_bpf_recvmsg_parser()
+Subject: [PATCH 5.10 075/104] media: ov5640: Fix analogue gain control
 Date:   Wed, 15 Mar 2023 13:12:46 +0100
-Message-Id: <20230315115742.969027140@linuxfoundation.org>
+Message-Id: <20230315115735.077904470@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,124 +58,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Paul Elder <paul.elder@ideasonboard.com>
 
-[ Upstream commit d900f3d20cc3169ce42ec72acc850e662a4d4db2 ]
+[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
 
-When the buffer length of the recvmsg system call is 0, we got the
-flollowing soft lockup problem:
+Gain control is badly documented in publicly available (including
+leaked) documentation.
 
-watchdog: BUG: soft lockup - CPU#3 stuck for 27s! [a.out:6149]
-CPU: 3 PID: 6149 Comm: a.out Kdump: loaded Not tainted 6.2.0+ #30
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
-RIP: 0010:remove_wait_queue+0xb/0xc0
-Code: 5e 41 5f c3 cc cc cc cc 0f 1f 80 00 00 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 41 57 <41> 56 41 55 41 54 55 48 89 fd 53 48 89 f3 4c 8d 6b 18 4c 8d 73 20
-RSP: 0018:ffff88811b5978b8 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffff88811a7d3780 RCX: ffffffffb7a4d768
-RDX: dffffc0000000000 RSI: ffff88811b597908 RDI: ffff888115408040
-RBP: 1ffff110236b2f1b R08: 0000000000000000 R09: ffff88811a7d37e7
-R10: ffffed10234fa6fc R11: 0000000000000001 R12: ffff88811179b800
-R13: 0000000000000001 R14: ffff88811a7d38a8 R15: ffff88811a7d37e0
-FS:  00007f6fb5398740(0000) GS:ffff888237180000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000000 CR3: 000000010b6ba002 CR4: 0000000000370ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- tcp_msg_wait_data+0x279/0x2f0
- tcp_bpf_recvmsg_parser+0x3c6/0x490
- inet_recvmsg+0x280/0x290
- sock_recvmsg+0xfc/0x120
- ____sys_recvmsg+0x160/0x3d0
- ___sys_recvmsg+0xf0/0x180
- __sys_recvmsg+0xea/0x1a0
- do_syscall_64+0x3f/0x90
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
+There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
+(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
+one application note states is equal to x1.047. The documentation also
+states that 0x40 is equel to x1.000. The pre-gain thus seems to be
+expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
+What the pre-gain does is however unspecified.
 
-The logic in tcp_bpf_recvmsg_parser is as follows:
+There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
+expressed as a 10-bit "real gain format" value. One application note
+sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
+expressed in 1/16 increments, up to x63.9375.
 
-msg_bytes_ready:
-	copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
-	if (!copied) {
-		wait data;
-		goto msg_bytes_ready;
-	}
+The manual gain is stored in registers 0x350a and 0x350b, also as a
+10-bit "real gain format" value. It is documented in the application
+note as a Q6.4 values, up to x63.9375.
 
-In this case, "copied" always is 0, the infinite loop occurs.
+One version of the datasheet indicates that the sensor supports a
+digital gain:
 
-According to the Linux system call man page, 0 should be returned in this
-case. Therefore, in tcp_bpf_recvmsg_parser(), if the length is 0, directly
-return. Also modify several other functions with the same problem.
+  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
+  controlled automatically by the automatic gain control (AGC) block.
 
-Fixes: 1f5be6b3b063 ("udp: Implement udp_bpf_recvmsg() for sockmap")
-Fixes: 9825d866ce0d ("af_unix: Implement unix_dgram_bpf_recvmsg()")
-Fixes: c5d2177a72a1 ("bpf, sockmap: Fix race in ingress receive verdict with redirect to self")
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Cc: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20230303080946.1146638-1-liujian56@huawei.com
+It isn't clear how that would be controlled manually.
+
+There appears to be no indication regarding whether the gain controlled
+through registers 0x350a and 0x350b is an analogue gain only or also
+includes digital gain. The words "real gain" don't necessarily mean
+"combined analogue and digital gains". Some OmniVision sensors (such as
+the OV8858) are documented as supoprting different formats for the gain
+values, selectable through a register bit, and they are called "real
+gain format" and "sensor gain format". For that sensor, we have (one of)
+the gain registers documented as
+
+  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
+  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
+
+  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
+  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
+  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
+  0x70 is 4x gain
+
+(The second part of the text makes little sense)
+
+"Real gain" may thus refer to the combination of the coarse and fine
+analogue gains as a single value.
+
+The OV5640 0x350a and 0x350b registers thus appear to control analogue
+gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
+control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
+
+If registers 0x350a and 0x350b are later found to control digital gain
+as well, the driver could then restrict the range of the analogue gain
+control value to lower than x64 and add a separate digital gain control.
+
+Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
+Reviewed-by: Jai Luthra <j-luthra@ti.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c  | 6 ++++++
- net/ipv4/udp_bpf.c  | 3 +++
- net/unix/unix_bpf.c | 3 +++
- 3 files changed, 12 insertions(+)
+ drivers/media/i2c/ov5640.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index cf26d65ca3893..ebf9175119370 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -186,6 +186,9 @@ static int tcp_bpf_recvmsg_parser(struct sock *sk,
- 	if (unlikely(flags & MSG_ERRQUEUE))
- 		return inet_recv_error(sk, msg, len, addr_len);
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 8f0812e859012..92a5f9aff9b53 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2748,7 +2748,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
+ 	/* Auto/manual gain */
+ 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
+ 					     0, 1, 1, 1);
+-	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
++	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
+ 					0, 1023, 1, 0);
  
-+	if (!len)
-+		return 0;
-+
- 	psock = sk_psock_get(sk);
- 	if (unlikely(!psock))
- 		return tcp_recvmsg(sk, msg, len, flags, addr_len);
-@@ -244,6 +247,9 @@ static int tcp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 	if (unlikely(flags & MSG_ERRQUEUE))
- 		return inet_recv_error(sk, msg, len, addr_len);
- 
-+	if (!len)
-+		return 0;
-+
- 	psock = sk_psock_get(sk);
- 	if (unlikely(!psock))
- 		return tcp_recvmsg(sk, msg, len, flags, addr_len);
-diff --git a/net/ipv4/udp_bpf.c b/net/ipv4/udp_bpf.c
-index e5dc91d0e0793..0735d820e413f 100644
---- a/net/ipv4/udp_bpf.c
-+++ b/net/ipv4/udp_bpf.c
-@@ -68,6 +68,9 @@ static int udp_bpf_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
- 	if (unlikely(flags & MSG_ERRQUEUE))
- 		return inet_recv_error(sk, msg, len, addr_len);
- 
-+	if (!len)
-+		return 0;
-+
- 	psock = sk_psock_get(sk);
- 	if (unlikely(!psock))
- 		return sk_udp_recvmsg(sk, msg, len, flags, addr_len);
-diff --git a/net/unix/unix_bpf.c b/net/unix/unix_bpf.c
-index e9bf155139612..2f9d8271c6ec7 100644
---- a/net/unix/unix_bpf.c
-+++ b/net/unix/unix_bpf.c
-@@ -54,6 +54,9 @@ static int unix_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
- 	struct sk_psock *psock;
- 	int copied;
- 
-+	if (!len)
-+		return 0;
-+
- 	psock = sk_psock_get(sk);
- 	if (unlikely(!psock))
- 		return __unix_recvmsg(sk, msg, len, flags);
+ 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
 -- 
 2.39.2
 
