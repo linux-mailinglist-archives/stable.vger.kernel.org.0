@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B9A6BB2CF
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4741B6BB1F2
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbjCOMit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52670 "EHLO
+        id S232666AbjCOMbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232829AbjCOMi3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:29 -0400
+        with ESMTP id S232597AbjCOMbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF2BA2181
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A604886144;
+        Wed, 15 Mar 2023 05:30:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00464B81E18
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51AE9C4339B;
-        Wed, 15 Mar 2023 12:37:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29E62B81DF6;
+        Wed, 15 Mar 2023 12:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A01C433D2;
+        Wed, 15 Mar 2023 12:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883831;
-        bh=sEBZsUUTh+fwbJ4dbRH653Ap5d0bADfCoSj/ADKDHj8=;
+        s=korg; t=1678883442;
+        bh=JTwlGXXkFOq5K2G1uJ2aGUWLFwpwAb9ftSSVR6mgz2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IH3ONMgGd0Z6KvznB/vx0EainTIVxRuvDSEFh3zN2Us/R0UodEWiLo4FrcH2NKfGm
-         qa7OYg4lHacWCkIEm5oZZKkqGh01hVEnh+w/UxyoTn875F2bcI8Jsi4uCTVopHBtov
-         LXtimqmCkeq0tLwsw0kT7ozXbBTEmSkBeq8I6xKY=
+        b=FOt2+3duUApAFjcoUUkZootC4n+s1pD2mRTwGkCtRf4LASLSq8L0wHVOgfvHq5Byr
+         VDTQe9EmltzUNBJQUo4FLMwCmxS2GwWO0q0GNaCYC5t2Bsht619RX3nmK+sCAXt1Yy
+         7T07ajK7dlrCL72Mn3wfBCk3DApexGAeiq98Lvoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Ross Zwisler <zwisler@kernel.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 118/143] adreno: Shutdown the GPU properly
+        patches@lists.linux.dev, Andres Freund <andres@anarazel.de>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ben Hutchings <benh@debian.org>, Jiri Olsa <jolsa@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>, bpf@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH 5.15 138/145] tools bpftool: Fix compilation error with new binutils
 Date:   Wed, 15 Mar 2023 13:13:24 +0100
-Message-Id: <20230315115744.091880130@linuxfoundation.org>
+Message-Id: <20230315115743.468829685@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,104 +58,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Fernandes (Google) <joel@joelfernandes.org>
+From: Andres Freund <andres@anarazel.de>
 
-[ Upstream commit e752e5454e6417da3f40ec1306a041ea96c56423 ]
+commit 600b7b26c07a070d0153daa76b3806c1e52c9e00 upstream.
 
-During kexec on ARM device, we notice that device_shutdown() only calls
-pm_runtime_force_suspend() while shutting down the GPU. This means the GPU
-kthread is still running and further, there maybe active submits.
+binutils changed the signature of init_disassemble_info(), which now causes
+compilation to fail for tools/bpf/bpftool/jit_disasm.c, e.g. on debian
+unstable.
 
-This causes all kinds of issues during a kexec reboot:
+Relevant binutils commit:
 
-Warning from shutdown path:
+  https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=60a3da00bd5407f07
 
-[  292.509662] WARNING: CPU: 0 PID: 6304 at [...] adreno_runtime_suspend+0x3c/0x44
-[  292.509863] Hardware name: Google Lazor (rev3 - 8) with LTE (DT)
-[  292.509872] pstate: 80400009 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  292.509881] pc : adreno_runtime_suspend+0x3c/0x44
-[  292.509891] lr : pm_generic_runtime_suspend+0x30/0x44
-[  292.509905] sp : ffffffc014473bf0
-[...]
-[  292.510043] Call trace:
-[  292.510051]  adreno_runtime_suspend+0x3c/0x44
-[  292.510061]  pm_generic_runtime_suspend+0x30/0x44
-[  292.510071]  pm_runtime_force_suspend+0x54/0xc8
-[  292.510081]  adreno_shutdown+0x1c/0x28
-[  292.510090]  platform_shutdown+0x2c/0x38
-[  292.510104]  device_shutdown+0x158/0x210
-[  292.510119]  kernel_restart_prepare+0x40/0x4c
+Wire up the feature test and switch to init_disassemble_info_compat(),
+which were introduced in prior commits, fixing the compilation failure.
 
-And here from GPU kthread, an SError OOPs:
+I verified that bpftool can still disassemble bpf programs, both with an
+old and new dis-asm.h API. There are no output changes for plain and json
+formats. When comparing the output from old binutils (2.35)
+to new bintuils with the patch (upstream snapshot) there are a few output
+differences, but they are unrelated to this patch. An example hunk is:
 
-[  192.648789]  el1h_64_error+0x7c/0x80
-[  192.648812]  el1_interrupt+0x20/0x58
-[  192.648833]  el1h_64_irq_handler+0x18/0x24
-[  192.648854]  el1h_64_irq+0x7c/0x80
-[  192.648873]  local_daif_inherit+0x10/0x18
-[  192.648900]  el1h_64_sync_handler+0x48/0xb4
-[  192.648921]  el1h_64_sync+0x7c/0x80
-[  192.648941]  a6xx_gmu_set_oob+0xbc/0x1fc
-[  192.648968]  a6xx_hw_init+0x44/0xe38
-[  192.648991]  msm_gpu_hw_init+0x48/0x80
-[  192.649013]  msm_gpu_submit+0x5c/0x1a8
-[  192.649034]  msm_job_run+0xb0/0x11c
-[  192.649058]  drm_sched_main+0x170/0x434
-[  192.649086]  kthread+0x134/0x300
-[  192.649114]  ret_from_fork+0x10/0x20
+     2f:	pop    %r14
+     31:	pop    %r13
+     33:	pop    %rbx
+  -  34:	leaveq
+  -  35:	retq
+  +  34:	leave
+  +  35:	ret
 
-Fix by calling adreno_system_suspend() in the device_shutdown() path.
-
-[ Applied Rob Clark feedback on fixing adreno_unbind() similarly, also
-  tested as above. ]
-
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ricardo Ribalda <ribalda@chromium.org>
-Cc: Ross Zwisler <zwisler@kernel.org>
-Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Patchwork: https://patchwork.freedesktop.org/patch/517633/
-Link: https://lore.kernel.org/r/20230109222547.1368644-1-joel@joelfernandes.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Stable-dep-of: 6153c44392b0 ("drm/msm/adreno: fix runtime PM imbalance at unbind")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Andres Freund <andres@anarazel.de>
+Acked-by: Quentin Monnet <quentin@isovalent.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Ben Hutchings <benh@debian.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
+Cc: Sedat Dilek <sedat.dilek@gmail.com>
+Cc: bpf@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20220622181918.ykrs5rsnmx3og4sv@alap3.anarazel.de
+Link: https://lore.kernel.org/r/20220801013834.156015-8-andres@anarazel.de
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_device.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/bpf/bpftool/Makefile     |    5 +++-
+ tools/bpf/bpftool/jit_disasm.c |   42 +++++++++++++++++++++++++++++++++--------
+ 2 files changed, 38 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
-index 628806423f7d2..36f062c7582f9 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_device.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
-@@ -551,13 +551,14 @@ static int adreno_bind(struct device *dev, struct device *master, void *data)
+--- a/tools/bpf/bpftool/Makefile
++++ b/tools/bpf/bpftool/Makefile
+@@ -76,7 +76,7 @@ INSTALL ?= install
+ RM ?= rm -f
+ 
+ FEATURE_USER = .bpftool
+-FEATURE_TESTS = libbfd disassembler-four-args reallocarray zlib libcap \
++FEATURE_TESTS = libbfd disassembler-four-args disassembler-init-styled reallocarray zlib libcap \
+ 	clang-bpf-co-re
+ FEATURE_DISPLAY = libbfd disassembler-four-args zlib libcap \
+ 	clang-bpf-co-re
+@@ -111,6 +111,9 @@ ifeq ($(feature-libcap), 1)
+ CFLAGS += -DUSE_LIBCAP
+ LIBS += -lcap
+ endif
++ifeq ($(feature-disassembler-init-styled), 1)
++    CFLAGS += -DDISASM_INIT_STYLED
++endif
+ 
+ include $(wildcard $(OUTPUT)*.d)
+ 
+--- a/tools/bpf/bpftool/jit_disasm.c
++++ b/tools/bpf/bpftool/jit_disasm.c
+@@ -24,6 +24,7 @@
+ #include <sys/stat.h>
+ #include <limits.h>
+ #include <bpf/libbpf.h>
++#include <tools/dis-asm-compat.h>
+ 
+ #include "json_writer.h"
+ #include "main.h"
+@@ -39,15 +40,12 @@ static void get_exec_path(char *tpath, s
+ }
+ 
+ static int oper_count;
+-static int fprintf_json(void *out, const char *fmt, ...)
++static int printf_json(void *out, const char *fmt, va_list ap)
+ {
+-	va_list ap;
+ 	char *s;
+ 	int err;
+ 
+-	va_start(ap, fmt);
+ 	err = vasprintf(&s, fmt, ap);
+-	va_end(ap);
+ 	if (err < 0)
+ 		return -1;
+ 
+@@ -73,6 +71,32 @@ static int fprintf_json(void *out, const
  	return 0;
  }
  
-+static int adreno_system_suspend(struct device *dev);
- static void adreno_unbind(struct device *dev, struct device *master,
- 		void *data)
- {
- 	struct msm_drm_private *priv = dev_get_drvdata(master);
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
++static int fprintf_json(void *out, const char *fmt, ...)
++{
++	va_list ap;
++	int r;
++
++	va_start(ap, fmt);
++	r = printf_json(out, fmt, ap);
++	va_end(ap);
++
++	return r;
++}
++
++static int fprintf_json_styled(void *out,
++			       enum disassembler_style style __maybe_unused,
++			       const char *fmt, ...)
++{
++	va_list ap;
++	int r;
++
++	va_start(ap, fmt);
++	r = printf_json(out, fmt, ap);
++	va_end(ap);
++
++	return r;
++}
++
+ void disasm_print_insn(unsigned char *image, ssize_t len, int opcodes,
+ 		       const char *arch, const char *disassembler_options,
+ 		       const struct btf *btf,
+@@ -99,11 +123,13 @@ void disasm_print_insn(unsigned char *im
+ 	assert(bfd_check_format(bfdf, bfd_object));
  
--	pm_runtime_force_suspend(dev);
-+	WARN_ON_ONCE(adreno_system_suspend(dev));
- 	gpu->funcs->destroy(gpu);
+ 	if (json_output)
+-		init_disassemble_info(&info, stdout,
+-				      (fprintf_ftype) fprintf_json);
++		init_disassemble_info_compat(&info, stdout,
++					     (fprintf_ftype) fprintf_json,
++					     fprintf_json_styled);
+ 	else
+-		init_disassemble_info(&info, stdout,
+-				      (fprintf_ftype) fprintf);
++		init_disassemble_info_compat(&info, stdout,
++					     (fprintf_ftype) fprintf,
++					     fprintf_styled);
  
- 	priv->gpu_pdev = NULL;
-@@ -609,7 +610,7 @@ static int adreno_remove(struct platform_device *pdev)
- 
- static void adreno_shutdown(struct platform_device *pdev)
- {
--	pm_runtime_force_suspend(&pdev->dev);
-+	WARN_ON_ONCE(adreno_system_suspend(&pdev->dev));
- }
- 
- static const struct of_device_id dt_match[] = {
--- 
-2.39.2
-
+ 	/* Update architecture info for offload. */
+ 	if (arch) {
 
 
