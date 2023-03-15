@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3F1D6BB323
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C666BB106
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbjCOMlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38106 "EHLO
+        id S232111AbjCOMYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232903AbjCOMlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB279F236
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:24 -0700 (PDT)
+        with ESMTP id S232117AbjCOMXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4076B984DC;
+        Wed, 15 Mar 2023 05:22:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E63A2613F9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04573C4339B;
-        Wed, 15 Mar 2023 12:40:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9334A61D5F;
+        Wed, 15 Mar 2023 12:21:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A721AC433EF;
+        Wed, 15 Mar 2023 12:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884002;
-        bh=b//Dznr01mHjzN7mdSjJvw1s62yh30H49n12ypuAucU=;
+        s=korg; t=1678882917;
+        bh=R961WI0cBKFxQ+sPtf1/Pl/Nes5ZlXE2dUwoGvajWt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocOR29rOuEyhsPaI82VL3n/3yXYzti4cTh2El2NvYju7AezuNNDsl4fkMJ2DiS4Km
-         /f57+UVtA1//oaTh/bz2fE9aSF//vlY5lMWGhL1GAeJyEZaXZAZcBaEEcKBJTfmACM
-         NxZk0cU6r7ivUeg1/OC1a40wPwr7bTypc3tlHPBY=
+        b=ACJD1JCma4sTCO9wpRusZTt6m4i2NZk34iU2vJ2a4rklpsUoQJWAxPJMnPHbJ3b2v
+         2zlIYszytcII34iBSfPPvaPgy9dPEsz2Q15dvFtXnjYl2nba82Ikq5q6+6VgmjnYNc
+         bN04yvfWyxezG2RqVhDWhrhTZRyYTCVPpB51eAl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        platform-driver-x86@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 039/141] drm/i915: Populate encoder->devdata for DSI on icl+
+Subject: [PATCH 5.10 051/104] platform: x86: MLX_PLATFORM: select REGMAP instead of depending on it
 Date:   Wed, 15 Mar 2023 13:12:22 +0100
-Message-Id: <20230315115741.152302693@linuxfoundation.org>
+Message-Id: <20230315115734.126776633@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,105 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 14e591a1930c2790fe862af5b01ee3ca587f752f ]
+[ Upstream commit 7e7e1541c91615e9950d0b96bcd1806d297e970e ]
 
-We now have some eDP+DSI dual panel systems floating around
-where the DSI panel is the secondary LFP and thus needs to
-consult "panel type 2" in VBT in order to locate all the
-other panel type dependant stuff correctly.
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-To that end we need to pass in the devdata to
-intel_bios_init_panel_late(), otherwise it'll just assume
-we want the primary panel type. So let's try to just populate
-the vbt.ports[] stuff and encoder->devdata for icl+ DSI
-panels as well.
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
 
-We can't do this on older platforms as there we risk a DSI
-port aliasing with a HDMI/DP port, which is a totally legal
-thing as the DSI ports live in their own little parallel
-universe.
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
 
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8016
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230207064337.18697-3-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit ba00eb6a4bfbe5194ddda50730aba063951f8ce0)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: ef0f62264b2a ("platform/x86: mlx-platform: Add physical bus number auto detection")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vadim Pasternak <vadimp@mellanox.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Mark Gross <markgross@kernel.org>
+Cc: platform-driver-x86@vger.kernel.org
+Link: https://lore.kernel.org/r/20230226053953.4681-7-rdunlap@infradead.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/icl_dsi.c    |  3 ++-
- drivers/gpu/drm/i915/display/intel_bios.c | 15 ++++++++++++---
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/platform/x86/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
-index ae14c794c4bc0..cf5d2f8885f08 100644
---- a/drivers/gpu/drm/i915/display/icl_dsi.c
-+++ b/drivers/gpu/drm/i915/display/icl_dsi.c
-@@ -2043,7 +2043,8 @@ void icl_dsi_init(struct drm_i915_private *dev_priv)
- 	/* attach connector to encoder */
- 	intel_connector_attach_encoder(intel_connector, encoder);
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index a1858689d6e10..84c5b922f245e 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -1195,7 +1195,8 @@ config I2C_MULTI_INSTANTIATE
  
--	intel_bios_init_panel_late(dev_priv, &intel_connector->panel, NULL, NULL);
-+	encoder->devdata = intel_bios_encoder_data_lookup(dev_priv, port);
-+	intel_bios_init_panel_late(dev_priv, &intel_connector->panel, encoder->devdata, NULL);
- 
- 	mutex_lock(&dev_priv->drm.mode_config.mutex);
- 	intel_panel_add_vbt_lfp_fixed_mode(intel_connector);
-diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-index e7ab9094ac51a..ff4e6d0a5ba2f 100644
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -2593,6 +2593,12 @@ intel_bios_encoder_supports_edp(const struct intel_bios_encoder_data *devdata)
- 		devdata->child.device_type & DEVICE_TYPE_INTERNAL_CONNECTOR;
- }
- 
-+static bool
-+intel_bios_encoder_supports_dsi(const struct intel_bios_encoder_data *devdata)
-+{
-+	return devdata->child.device_type & DEVICE_TYPE_MIPI_OUTPUT;
-+}
-+
- static int _intel_bios_hdmi_level_shift(const struct intel_bios_encoder_data *devdata)
- {
- 	if (!devdata || devdata->i915->display.vbt.version < 158)
-@@ -2643,7 +2649,7 @@ static void print_ddi_port(const struct intel_bios_encoder_data *devdata,
- {
- 	struct drm_i915_private *i915 = devdata->i915;
- 	const struct child_device_config *child = &devdata->child;
--	bool is_dvi, is_hdmi, is_dp, is_edp, is_crt, supports_typec_usb, supports_tbt;
-+	bool is_dvi, is_hdmi, is_dp, is_edp, is_dsi, is_crt, supports_typec_usb, supports_tbt;
- 	int dp_boost_level, dp_max_link_rate, hdmi_boost_level, hdmi_level_shift, max_tmds_clock;
- 
- 	is_dvi = intel_bios_encoder_supports_dvi(devdata);
-@@ -2651,13 +2657,14 @@ static void print_ddi_port(const struct intel_bios_encoder_data *devdata,
- 	is_crt = intel_bios_encoder_supports_crt(devdata);
- 	is_hdmi = intel_bios_encoder_supports_hdmi(devdata);
- 	is_edp = intel_bios_encoder_supports_edp(devdata);
-+	is_dsi = intel_bios_encoder_supports_dsi(devdata);
- 
- 	supports_typec_usb = intel_bios_encoder_supports_typec_usb(devdata);
- 	supports_tbt = intel_bios_encoder_supports_tbt(devdata);
- 
- 	drm_dbg_kms(&i915->drm,
--		    "Port %c VBT info: CRT:%d DVI:%d HDMI:%d DP:%d eDP:%d LSPCON:%d USB-Type-C:%d TBT:%d DSC:%d\n",
--		    port_name(port), is_crt, is_dvi, is_hdmi, is_dp, is_edp,
-+		    "Port %c VBT info: CRT:%d DVI:%d HDMI:%d DP:%d eDP:%d DSI:%d LSPCON:%d USB-Type-C:%d TBT:%d DSC:%d\n",
-+		    port_name(port), is_crt, is_dvi, is_hdmi, is_dp, is_edp, is_dsi,
- 		    HAS_LSPCON(i915) && child->lspcon,
- 		    supports_typec_usb, supports_tbt,
- 		    devdata->dsc != NULL);
-@@ -2710,6 +2717,8 @@ static void parse_ddi_port(struct intel_bios_encoder_data *devdata)
- 	enum port port;
- 
- 	port = dvo_port_to_port(i915, child->dvo_port);
-+	if (port == PORT_NONE && DISPLAY_VER(i915) >= 11)
-+		port = dsi_dvo_port_to_port(i915, child->dvo_port);
- 	if (port == PORT_NONE)
- 		return;
- 
+ config MLX_PLATFORM
+ 	tristate "Mellanox Technologies platform support"
+-	depends on I2C && REGMAP
++	depends on I2C
++	select REGMAP
+ 	help
+ 	  This option enables system support for the Mellanox Technologies
+ 	  platform. The Mellanox systems provide data center networking
 -- 
 2.39.2
 
