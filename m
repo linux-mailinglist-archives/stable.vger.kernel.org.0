@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 446AB6BB1EE
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1E56BB1B5
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232561AbjCOMbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39382 "EHLO
+        id S232120AbjCOMaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232553AbjCOMbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:25 -0400
+        with ESMTP id S232531AbjCOM3b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4950A85A43
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5591C99D45
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C44A461D3E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8BECC433EF;
-        Wed, 15 Mar 2023 12:30:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E08E161D6A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02E0CC433D2;
+        Wed, 15 Mar 2023 12:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883434;
-        bh=DsUwimLw1yMQL7dlhyrgLd67P0mbbgMCFZ2VICw34iE=;
+        s=korg; t=1678883011;
+        bh=NDVvCXAIBu8A9WpTnX4bam13dyYN5759xRA7E1ksYQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXe3mBks3CW8ghzqhh1AFysFEbzD9AayoBe+gdmKSw3Jxs3oh62jf/l1rNBAJ9S9b
-         HZ/9kLsBYs+p/IlKRCb31IwQv9OnD9ubd9jls763BiA3G7Ht+y4IwVYDyMpLceF+aL
-         k48Gkc6F0PQqCtbhTVDQAOMk463pZXdzdI7PVT3E=
+        b=LypEsGkML2iXNj+i6F1tFcjGAUc4gxDOAauFbMVBnIeZ0nWX1/w0XnCjRNMl7OT54
+         4w/CTOZGEnNsjHk2Ui6N3pTAC1Ce5PemZN2UbiKNBc2WzyMwotQrbP31IevbKhPafe
+         UtkRMc8ZnlyApo6yU9TkLL5cH1cpVI7MFkav7Cd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alvaro Karsz <alvaro.karsz@solid-run.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/145] PCI: Add SolidRun vendor ID
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.10 087/104] sched/fair: Detect capacity inversion
 Date:   Wed, 15 Mar 2023 13:12:58 +0100
-Message-Id: <20230315115742.663332831@linuxfoundation.org>
+Message-Id: <20230315115735.576511496@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit db6c4dee4c104f50ed163af71c53bfdb878a8318 ]
+commit: 44c7b80bffc3a657a36857098d5d9c49d94e652b upstream.
 
-Add SolidRun vendor ID to pci_ids.h
+Check each performance domain to see if thermal pressure is causing its
+capacity to be lower than another performance domain.
 
-The vendor ID is used in 2 different source files, the SNET vDPA driver
-and PCI quirks.
+We assume that each performance domain has CPUs with the same
+capacities, which is similar to an assumption made in energy_model.c
 
-Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Message-Id: <20230110165638.123745-2-alvaro.karsz@solid-run.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We also assume that thermal pressure impacts all CPUs in a performance
+domain equally.
+
+If there're multiple performance domains with the same capacity_orig, we
+will trigger a capacity inversion if the domain is under thermal
+pressure.
+
+The new cpu_in_capacity_inversion() should help users to know when
+information about capacity_orig are not reliable and can opt in to use
+the inverted capacity as the 'actual' capacity_orig.
+
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-9-qais.yousef@arm.com
+(cherry picked from commit 44c7b80bffc3a657a36857098d5d9c49d94e652b)
+[Trivial conflict in kernel/sched/fair.c due to code shuffling]
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pci_ids.h | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/fair.c  |   63 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ kernel/sched/sched.h |   19 +++++++++++++++
+ 2 files changed, 79 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 4853538bf1561..8a1e264735668 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -3094,6 +3094,8 @@
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8332,16 +8332,73 @@ static unsigned long scale_rt_capacity(i
  
- #define PCI_VENDOR_ID_3COM_2		0xa727
+ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
+ {
++	unsigned long capacity_orig = arch_scale_cpu_capacity(cpu);
+ 	unsigned long capacity = scale_rt_capacity(cpu);
+ 	struct sched_group *sdg = sd->groups;
++	struct rq *rq = cpu_rq(cpu);
  
-+#define PCI_VENDOR_ID_SOLIDRUN		0xd063
+-	cpu_rq(cpu)->cpu_capacity_orig = arch_scale_cpu_capacity(cpu);
++	rq->cpu_capacity_orig = capacity_orig;
+ 
+ 	if (!capacity)
+ 		capacity = 1;
+ 
+-	cpu_rq(cpu)->cpu_capacity = capacity;
+-	trace_sched_cpu_capacity_tp(cpu_rq(cpu));
++	rq->cpu_capacity = capacity;
 +
- #define PCI_VENDOR_ID_DIGIUM		0xd161
- #define PCI_DEVICE_ID_DIGIUM_HFC4S	0xb410
++	/*
++	 * Detect if the performance domain is in capacity inversion state.
++	 *
++	 * Capacity inversion happens when another perf domain with equal or
++	 * lower capacity_orig_of() ends up having higher capacity than this
++	 * domain after subtracting thermal pressure.
++	 *
++	 * We only take into account thermal pressure in this detection as it's
++	 * the only metric that actually results in *real* reduction of
++	 * capacity due to performance points (OPPs) being dropped/become
++	 * unreachable due to thermal throttling.
++	 *
++	 * We assume:
++	 *   * That all cpus in a perf domain have the same capacity_orig
++	 *     (same uArch).
++	 *   * Thermal pressure will impact all cpus in this perf domain
++	 *     equally.
++	 */
++	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
++		unsigned long inv_cap = capacity_orig - thermal_load_avg(rq);
++		struct perf_domain *pd = rcu_dereference(rq->rd->pd);
++
++		rq->cpu_capacity_inverted = 0;
++
++		for (; pd; pd = pd->next) {
++			struct cpumask *pd_span = perf_domain_span(pd);
++			unsigned long pd_cap_orig, pd_cap;
++
++			cpu = cpumask_any(pd_span);
++			pd_cap_orig = arch_scale_cpu_capacity(cpu);
++
++			if (capacity_orig < pd_cap_orig)
++				continue;
++
++			/*
++			 * handle the case of multiple perf domains have the
++			 * same capacity_orig but one of them is under higher
++			 * thermal pressure. We record it as capacity
++			 * inversion.
++			 */
++			if (capacity_orig == pd_cap_orig) {
++				pd_cap = pd_cap_orig - thermal_load_avg(cpu_rq(cpu));
++
++				if (pd_cap > inv_cap) {
++					rq->cpu_capacity_inverted = inv_cap;
++					break;
++				}
++			} else if (pd_cap_orig > inv_cap) {
++				rq->cpu_capacity_inverted = inv_cap;
++				break;
++			}
++		}
++	}
++
++	trace_sched_cpu_capacity_tp(rq);
  
--- 
-2.39.2
-
+ 	sdg->sgc->capacity = capacity;
+ 	sdg->sgc->min_capacity = capacity;
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -973,6 +973,7 @@ struct rq {
+ 
+ 	unsigned long		cpu_capacity;
+ 	unsigned long		cpu_capacity_orig;
++	unsigned long		cpu_capacity_inverted;
+ 
+ 	struct callback_head	*balance_callback;
+ 
+@@ -2541,6 +2542,24 @@ static inline unsigned long capacity_ori
+ }
+ #endif
+ 
++/*
++ * Returns inverted capacity if the CPU is in capacity inversion state.
++ * 0 otherwise.
++ *
++ * Capacity inversion detection only considers thermal impact where actual
++ * performance points (OPPs) gets dropped.
++ *
++ * Capacity inversion state happens when another performance domain that has
++ * equal or lower capacity_orig_of() becomes effectively larger than the perf
++ * domain this CPU belongs to due to thermal pressure throttling it hard.
++ *
++ * See comment in update_cpu_capacity().
++ */
++static inline unsigned long cpu_in_capacity_inversion(int cpu)
++{
++	return cpu_rq(cpu)->cpu_capacity_inverted;
++}
++
+ /**
+  * enum schedutil_type - CPU utilization type
+  * @FREQUENCY_UTIL:	Utilization used to select frequency
 
 
