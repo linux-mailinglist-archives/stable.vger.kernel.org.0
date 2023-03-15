@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 907236BB247
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:35:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 161FC6BB0F0
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232556AbjCOMfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40628 "EHLO
+        id S232361AbjCOMXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232684AbjCOMei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF2689F2E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:08 -0700 (PDT)
+        with ESMTP id S232245AbjCOMWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CEE794A72
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7E4361ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC507C4339C;
-        Wed, 15 Mar 2023 12:32:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D5A2DCE1986
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0FFBC433D2;
+        Wed, 15 Mar 2023 12:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883562;
-        bh=B63P0pRqD6TtSoVKi2T8I0DYDEQT3ZDjPfqa8+1ghhw=;
+        s=korg; t=1678882888;
+        bh=+PRn6Hdhuu9hqgLOrvFAc4IxVnZYao6pqfxr4Tfu/6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TC/eYTpdmJIJ8TFKajp2tWhrynJpeq2/j9uxdDmfzxsTCc5zUXVMKKxmszJT+FLb9
-         DK9I01CLpFXH8AIK0kz7sZO3D5tbTjsGLB8Qhi7p7zGItKPtIPsDhsu40od3ZpjteT
-         dIbs8246l9mDk+CQc7Or1IrGhfW1vuRLZOCxMoho=
+        b=vq0cR1iKupqEGbD8KheklJPv2oH6BusCeIL+Iq5MxuIYdQPcrXfATxyuakS4AgG+g
+         tWwn4fkyzYoqrtmdFKls5BOJoSgFB1ZYkCXyUPtnjVXy9YRpvUYz1n/YNsq4VBhPWL
+         1Spgz9OYATUyyGDu1irmbYjgUjmFU2kexYg0v2+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6.1 015/143] staging: rtl8723bs: Fix key-store index handling
+        patches@lists.linux.dev,
+        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
+        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 010/104] ext4: fix WARNING in ext4_update_inline_data
 Date:   Wed, 15 Mar 2023 13:11:41 +0100
-Message-Id: <20230315115740.940529395@linuxfoundation.org>
+Message-Id: <20230315115732.447293617@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,173 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 05cbcc415c9b8c8bc4f9a09f8e03610a89042f03 upstream.
+commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
 
-There are 2 issues with the key-store index handling
+Syzbot found the following issue:
+EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
+fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
+fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+Modules linked in:
+CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
+RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
+RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
+RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
+R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
+R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
+FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __alloc_pages_node include/linux/gfp.h:237 [inline]
+ alloc_pages_node include/linux/gfp.h:260 [inline]
+ __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
+ __do_kmalloc_node mm/slab_common.c:956 [inline]
+ __kmalloc+0xfe/0x190 mm/slab_common.c:981
+ kmalloc include/linux/slab.h:584 [inline]
+ kzalloc include/linux/slab.h:720 [inline]
+ ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
+ ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
+ ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
+ ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
+ ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
+ ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
+ lookup_open fs/namei.c:3413 [inline]
+ open_last_lookups fs/namei.c:3481 [inline]
+ path_openat+0x12ac/0x2dd0 fs/namei.c:3711
+ do_filp_open+0x264/0x4f0 fs/namei.c:3741
+ do_sys_openat2+0x124/0x4e0 fs/open.c:1310
+ do_sys_open fs/open.c:1326 [inline]
+ __do_sys_openat fs/open.c:1342 [inline]
+ __se_sys_openat fs/open.c:1337 [inline]
+ __x64_sys_openat+0x243/0x290 fs/open.c:1337
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-1. The non WEP key stores can store keys with indexes 0 - BIP_MAX_KEYID,
-   this means that they should be an array with BIP_MAX_KEYID + 1
-   entries. But some of the arrays where just BIP_MAX_KEYID entries
-   big. While one other array was hardcoded to a size of 6 entries,
-   instead of using the BIP_MAX_KEYID define.
+Above issue happens as follows:
+ext4_iget
+   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
+ext4_try_add_inline_entry
+   __ext4_mark_inode_dirty
+      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
+         ext4_xattr_shift_entries
+	 ->after shift i_inline_off is incorrect, actually is change to 176
+ext4_try_add_inline_entry
+  ext4_update_inline_dir
+    get_max_inline_xattr_value_size
+      if (EXT4_I(inode)->i_inline_off)
+	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
+			EXT4_I(inode)->i_inline_off);
+        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
+	->As entry is incorrect, then 'free' may be negative
+   ext4_update_inline_data
+      value = kzalloc(len, GFP_NOFS);
+      -> len is unsigned int, maybe very large, then trigger warning when
+         'kzalloc()'
 
-2. The rtw_cfg80211_set_encryption() and wpa_set_encryption() functions
-   index check where checking that the passed in key-index would fit
-   inside both the WEP key store (which only has 4 entries) as well as
-   in the non WEP key stores. This breaks any attempts to set non WEP
-   keys with index 4 or 5.
+To resolve the above issue we need to update 'i_inline_off' after
+'ext4_xattr_shift_entries()'.  We do not need to set
+EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
+already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
+when it is needed may trigger a BUG_ON in ext4_writepages().
 
-Issue 2. specifically breaks wifi connection with some access points
-which advertise PMF support. Without this fix connecting to these
-access points fails with the following wpa_supplicant messages:
-
- nl80211: kernel reports: key addition failed
- wlan0: WPA: Failed to configure IGTK to the driver
- wlan0: RSN: Failed to configure IGTK
- wlan0: CTRL-EVENT-DISCONNECTED bssid=... reason=1 locally_generated=1
-
-Fix 1. by using the right size for the key-stores. After this 2. can
-safely be fixed by checking the right max-index value depending on the
-used algorithm, fixing wifi not working with some PMF capable APs.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230306153512.162104-1-hdegoede@redhat.com
+Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/include/rtw_security.h  |    8 ++---
- drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c |   26 ++++++++++-------
- drivers/staging/rtl8723bs/os_dep/ioctl_linux.c    |   33 +++++++++++-----------
- 3 files changed, 36 insertions(+), 31 deletions(-)
+ fs/ext4/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/rtl8723bs/include/rtw_security.h
-+++ b/drivers/staging/rtl8723bs/include/rtw_security.h
-@@ -107,13 +107,13 @@ struct security_priv {
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2804,6 +2804,9 @@ shift:
+ 			(void *)header, total_ino);
+ 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
  
- 	u32 dot118021XGrpPrivacy;	/*  This specify the privacy algthm. used for Grp key */
- 	u32 dot118021XGrpKeyid;		/*  key id used for Grp Key (tx key index) */
--	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID];	/*  802.1x Group Key, for inx0 and inx1 */
--	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID];
--	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID];
-+	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID + 1];	/*  802.1x Group Key, for inx0 and inx1 */
-+	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID + 1];
-+	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID + 1];
- 	union pn48		dot11Grptxpn;			/*  PN48 used for Grp Key xmit. */
- 	union pn48		dot11Grprxpn;			/*  PN48 used for Grp Key recv. */
- 	u32 dot11wBIPKeyid;						/*  key id used for BIP Key (tx key index) */
--	union Keytype	dot11wBIPKey[6];		/*  BIP Key, for index4 and index5 */
-+	union Keytype	dot11wBIPKey[BIP_MAX_KEYID + 1];	/*  BIP Key, for index4 and index5 */
- 	union pn48		dot11wBIPtxpn;			/*  PN48 used for Grp Key xmit. */
- 	union pn48		dot11wBIPrxpn;			/*  PN48 used for Grp Key recv. */
- 
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-@@ -711,6 +711,7 @@ exit:
- static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
- {
- 	int ret = 0;
-+	u8 max_idx;
- 	u32 wep_key_idx, wep_key_len;
- 	struct adapter *padapter = rtw_netdev_priv(dev);
- 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-@@ -724,26 +725,29 @@ static int rtw_cfg80211_set_encryption(s
- 		goto exit;
- 	}
- 
--	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
--	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
--	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
--		if (param->u.crypt.idx >= WEP_KEYS
--			|| param->u.crypt.idx >= BIP_MAX_KEYID) {
--			ret = -EINVAL;
--			goto exit;
--		}
--	} else {
--		{
-+	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
-+	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
-+	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
- 		ret = -EINVAL;
- 		goto exit;
- 	}
++	if (ext4_has_inline_data(inode))
++		error = ext4_find_inline_data_nolock(inode);
 +
-+	if (strcmp(param->u.crypt.alg, "WEP") == 0)
-+		max_idx = WEP_KEYS - 1;
-+	else
-+		max_idx = BIP_MAX_KEYID;
-+
-+	if (param->u.crypt.idx > max_idx) {
-+		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
-+		ret = -EINVAL;
-+		goto exit;
- 	}
- 
- 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
- 		wep_key_idx = param->u.crypt.idx;
- 		wep_key_len = param->u.crypt.key_len;
- 
--		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len <= 0)) {
-+		if (wep_key_len <= 0) {
- 			ret = -EINVAL;
- 			goto exit;
- 		}
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-@@ -46,6 +46,7 @@ static int wpa_set_auth_algs(struct net_
- static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
- {
- 	int ret = 0;
-+	u8 max_idx;
- 	u32 wep_key_idx, wep_key_len, wep_total_len;
- 	struct ndis_802_11_wep	 *pwep = NULL;
- 	struct adapter *padapter = rtw_netdev_priv(dev);
-@@ -60,19 +61,22 @@ static int wpa_set_encryption(struct net
- 		goto exit;
- 	}
- 
--	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
--	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
--	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
--		if (param->u.crypt.idx >= WEP_KEYS ||
--		    param->u.crypt.idx >= BIP_MAX_KEYID) {
--			ret = -EINVAL;
--			goto exit;
--		}
--	} else {
--		{
--			ret = -EINVAL;
--			goto exit;
--		}
-+	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
-+	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
-+	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
-+		ret = -EINVAL;
-+		goto exit;
-+	}
-+
-+	if (strcmp(param->u.crypt.alg, "WEP") == 0)
-+		max_idx = WEP_KEYS - 1;
-+	else
-+		max_idx = BIP_MAX_KEYID;
-+
-+	if (param->u.crypt.idx > max_idx) {
-+		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
-+		ret = -EINVAL;
-+		goto exit;
- 	}
- 
- 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
-@@ -84,9 +88,6 @@ static int wpa_set_encryption(struct net
- 		wep_key_idx = param->u.crypt.idx;
- 		wep_key_len = param->u.crypt.key_len;
- 
--		if (wep_key_idx > WEP_KEYS)
--			return -EINVAL;
--
- 		if (wep_key_len > 0) {
- 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
- 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, key_material);
+ cleanup:
+ 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
+ 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
 
 
