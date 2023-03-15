@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDBC6BB2C4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCBB56BB35F
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232927AbjCOMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:38:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52656 "EHLO
+        id S232986AbjCOMn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:43:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232847AbjCOMiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1BA9F053
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:17 -0700 (PDT)
+        with ESMTP id S233076AbjCOMni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:43:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E43A402C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:42:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26BAF61D51
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D96CC433EF;
-        Wed, 15 Mar 2023 12:36:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE96E61D74
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:42:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB656C433D2;
+        Wed, 15 Mar 2023 12:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883805;
-        bh=cMc+h0EdzLDs1AgWG9sov4h4C2Yo60GqELjLDqqHhHg=;
+        s=korg; t=1678884139;
+        bh=hVaj6og0LbClymWKNGcpAzAKCpHUuhLXZEtvPd4Q1VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaRWlnoIgwlzk/L15ErjCTHggLUS5tDubda9MnxYYnkEKwiLeuzzIWxMHRzM0/yNu
-         VX/Yf6RnpboEWtNM25R/pMqu9Dk0oPktCbgrEmXC8XUqUy465sOTfcrlMU0JIMIDkC
-         KN8oxZUu1/EbbfdkYIlO8dO9/LSy7Nn+LHE1JwJw=
+        b=B5w4aqLaUF6ah20m3ImXtQrPkr6NgMB51M4PjCwkeKfqCZEGiB2HZogUn2EkxJWUB
+         otczad2IXncQ+aInXltZBp43DB9Bi1i3PgcTllLpG4yVNMOhfhpCzGQ+bqQ5CUQS0p
+         R3yP6D6o2Lmyyoe7i2emK6wsaQwERd8qqKnCZLEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Jun <jun.li@nxp.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 138/143] media: rc: gpio-ir-recv: add remove function
+Subject: [PATCH 6.2 121/141] powerpc/64: Dont recurse irq replay
 Date:   Wed, 15 Mar 2023 13:13:44 +0100
-Message-Id: <20230315115744.804128763@linuxfoundation.org>
+Message-Id: <20230315115743.681330367@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,140 +54,257 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 30040818b338b8ebc956ce0ebd198f8d593586a6 ]
+[ Upstream commit 5746ca131e2496ccd5bb4d7a0244d6c38070cbf5 ]
 
-In case runtime PM is enabled, do runtime PM clean up to remove
-cpu latency qos request, otherwise driver removal may have below
-kernel dump:
+Interrupt handlers called by soft-pending irq replay code can run
+softirqs, softirq replay enables and disables local irqs, which allows
+interrupts to come in including soft-masked interrupts, and it can
+cause pending irqs to be replayed again. That makes the soft irq replay
+state machine and possible races more complicated and fragile than it
+needs to be.
 
-[   19.463299] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000048
-[   19.472161] Mem abort info:
-[   19.474985]   ESR = 0x0000000096000004
-[   19.478754]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   19.484081]   SET = 0, FnV = 0
-[   19.487149]   EA = 0, S1PTW = 0
-[   19.490361]   FSC = 0x04: level 0 translation fault
-[   19.495256] Data abort info:
-[   19.498149]   ISV = 0, ISS = 0x00000004
-[   19.501997]   CM = 0, WnR = 0
-[   19.504977] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000049f81000
-[   19.511432] [0000000000000048] pgd=0000000000000000,
-p4d=0000000000000000
-[   19.518245] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[   19.524520] Modules linked in: gpio_ir_recv(+) rc_core [last
-unloaded: rc_core]
-[   19.531845] CPU: 0 PID: 445 Comm: insmod Not tainted
-6.2.0-rc1-00028-g2c397a46d47c #72
-[   19.531854] Hardware name: FSL i.MX8MM EVK board (DT)
-[   19.531859] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS
-BTYPE=--)
-[   19.551777] pc : cpu_latency_qos_remove_request+0x20/0x110
-[   19.557277] lr : gpio_ir_recv_runtime_suspend+0x18/0x30
-[gpio_ir_recv]
-[   19.557294] sp : ffff800008ce3740
-[   19.557297] x29: ffff800008ce3740 x28: 0000000000000000 x27:
-ffff800008ce3d50
-[   19.574270] x26: ffffc7e3e9cea100 x25: 00000000000f4240 x24:
-ffffc7e3f9ef0e30
-[   19.574284] x23: 0000000000000000 x22: ffff0061803820f4 x21:
-0000000000000008
-[   19.574296] x20: ffffc7e3fa75df30 x19: 0000000000000020 x18:
-ffffffffffffffff
-[   19.588570] x17: 0000000000000000 x16: ffffc7e3f9efab70 x15:
-ffffffffffffffff
-[   19.595712] x14: ffff800008ce37b8 x13: ffff800008ce37aa x12:
-0000000000000001
-[   19.602853] x11: 0000000000000001 x10: ffffcbe3ec0dff87 x9 :
-0000000000000008
-[   19.609991] x8 : 0101010101010101 x7 : 0000000000000000 x6 :
-000000000f0bfe9f
-[   19.624261] x5 : 00ffffffffffffff x4 : 0025ab8e00000000 x3 :
-ffff006180382010
-[   19.631405] x2 : ffffc7e3e9ce8030 x1 : ffffc7e3fc3eb810 x0 :
-0000000000000020
-[   19.638548] Call trace:
-[   19.640995]  cpu_latency_qos_remove_request+0x20/0x110
-[   19.646142]  gpio_ir_recv_runtime_suspend+0x18/0x30 [gpio_ir_recv]
-[   19.652339]  pm_generic_runtime_suspend+0x2c/0x44
-[   19.657055]  __rpm_callback+0x48/0x1dc
-[   19.660807]  rpm_callback+0x6c/0x80
-[   19.664301]  rpm_suspend+0x10c/0x640
-[   19.667880]  rpm_idle+0x250/0x2d0
-[   19.671198]  update_autosuspend+0x38/0xe0
-[   19.675213]  pm_runtime_set_autosuspend_delay+0x40/0x60
-[   19.680442]  gpio_ir_recv_probe+0x1b4/0x21c [gpio_ir_recv]
-[   19.685941]  platform_probe+0x68/0xc0
-[   19.689610]  really_probe+0xc0/0x3dc
-[   19.693189]  __driver_probe_device+0x7c/0x190
-[   19.697550]  driver_probe_device+0x3c/0x110
-[   19.701739]  __driver_attach+0xf4/0x200
-[   19.705578]  bus_for_each_dev+0x70/0xd0
-[   19.709417]  driver_attach+0x24/0x30
-[   19.712998]  bus_add_driver+0x17c/0x240
-[   19.716834]  driver_register+0x78/0x130
-[   19.720676]  __platform_driver_register+0x28/0x34
-[   19.725386]  gpio_ir_recv_driver_init+0x20/0x1000 [gpio_ir_recv]
-[   19.731404]  do_one_initcall+0x44/0x2ac
-[   19.735243]  do_init_module+0x48/0x1d0
-[   19.739003]  load_module+0x19fc/0x2034
-[   19.742759]  __do_sys_finit_module+0xac/0x12c
-[   19.747124]  __arm64_sys_finit_module+0x20/0x30
-[   19.751664]  invoke_syscall+0x48/0x114
-[   19.755420]  el0_svc_common.constprop.0+0xcc/0xec
-[   19.760132]  do_el0_svc+0x38/0xb0
-[   19.763456]  el0_svc+0x2c/0x84
-[   19.766516]  el0t_64_sync_handler+0xf4/0x120
-[   19.770789]  el0t_64_sync+0x190/0x194
-[   19.774460] Code: 910003fd a90153f3 aa0003f3 91204021 (f9401400)
-[   19.780556] ---[ end trace 0000000000000000 ]---
+Use irq_enter/irq_exit around irq replay to prevent softirqs running
+while interrupts are being replayed. Softirqs will now be run at the
+irq_exit() call after all the irq replaying is done. This prevents irqs
+being replayed while irqs are being replayed, and should hopefully make
+things simpler and easier to think about and debug.
 
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+A new PACA_IRQ_REPLAYING is added to prevent asynchronous interrupt
+handlers hard-enabling EE while pending irqs are being replayed, because
+that causes new pending irqs to arrive which is also a complexity. This
+means pending irqs won't be profiled quite so well because perf irqs
+can't be taken.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230121102618.2824429-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/gpio-ir-recv.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/powerpc/include/asm/hw_irq.h |   6 +-
+ arch/powerpc/kernel/irq_64.c      | 101 +++++++++++++++++++-----------
+ 2 files changed, 70 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/media/rc/gpio-ir-recv.c b/drivers/media/rc/gpio-ir-recv.c
-index 22e524b69806a..a56c844d7f816 100644
---- a/drivers/media/rc/gpio-ir-recv.c
-+++ b/drivers/media/rc/gpio-ir-recv.c
-@@ -130,6 +130,23 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
- 				"gpio-ir-recv-irq", gpio_dev);
+diff --git a/arch/powerpc/include/asm/hw_irq.h b/arch/powerpc/include/asm/hw_irq.h
+index eb6d094083fd6..317659fdeacf2 100644
+--- a/arch/powerpc/include/asm/hw_irq.h
++++ b/arch/powerpc/include/asm/hw_irq.h
+@@ -36,15 +36,17 @@
+ #define PACA_IRQ_DEC		0x08 /* Or FIT */
+ #define PACA_IRQ_HMI		0x10
+ #define PACA_IRQ_PMI		0x20
++#define PACA_IRQ_REPLAYING	0x40
+ 
+ /*
+  * Some soft-masked interrupts must be hard masked until they are replayed
+  * (e.g., because the soft-masked handler does not clear the exception).
++ * Interrupt replay itself must remain hard masked too.
+  */
+ #ifdef CONFIG_PPC_BOOK3S
+-#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE|PACA_IRQ_PMI)
++#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE|PACA_IRQ_PMI|PACA_IRQ_REPLAYING)
+ #else
+-#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE)
++#define PACA_IRQ_MUST_HARD_MASK	(PACA_IRQ_EE|PACA_IRQ_REPLAYING)
+ #endif
+ 
+ #endif /* CONFIG_PPC64 */
+diff --git a/arch/powerpc/kernel/irq_64.c b/arch/powerpc/kernel/irq_64.c
+index eb2b380e52a0d..9dc0ad3c533a8 100644
+--- a/arch/powerpc/kernel/irq_64.c
++++ b/arch/powerpc/kernel/irq_64.c
+@@ -70,22 +70,19 @@ int distribute_irqs = 1;
+ 
+ static inline void next_interrupt(struct pt_regs *regs)
+ {
+-	/*
+-	 * Softirq processing can enable/disable irqs, which will leave
+-	 * MSR[EE] enabled and the soft mask set to IRQS_DISABLED. Fix
+-	 * this up.
+-	 */
+-	if (!(local_paca->irq_happened & PACA_IRQ_HARD_DIS))
+-		hard_irq_disable();
+-	else
+-		irq_soft_mask_set(IRQS_ALL_DISABLED);
++	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
++		WARN_ON(!(local_paca->irq_happened & PACA_IRQ_HARD_DIS));
++		WARN_ON(irq_soft_mask_return() != IRQS_ALL_DISABLED);
++	}
+ 
+ 	/*
+ 	 * We are responding to the next interrupt, so interrupt-off
+ 	 * latencies should be reset here.
+ 	 */
++	lockdep_hardirq_exit();
+ 	trace_hardirqs_on();
+ 	trace_hardirqs_off();
++	lockdep_hardirq_enter();
  }
  
-+static int gpio_ir_recv_remove(struct platform_device *pdev)
-+{
-+	struct gpio_rc_dev *gpio_dev = platform_get_drvdata(pdev);
-+	struct device *pmdev = gpio_dev->pmdev;
+ static inline bool irq_happened_test_and_clear(u8 irq)
+@@ -97,22 +94,11 @@ static inline bool irq_happened_test_and_clear(u8 irq)
+ 	return false;
+ }
+ 
+-void replay_soft_interrupts(void)
++static void __replay_soft_interrupts(void)
+ {
+ 	struct pt_regs regs;
+ 
+ 	/*
+-	 * Be careful here, calling these interrupt handlers can cause
+-	 * softirqs to be raised, which they may run when calling irq_exit,
+-	 * which will cause local_irq_enable() to be run, which can then
+-	 * recurse into this function. Don't keep any state across
+-	 * interrupt handler calls which may change underneath us.
+-	 *
+-	 * Softirqs can not be disabled over replay to stop this recursion
+-	 * because interrupts taken in idle code may require RCU softirq
+-	 * to run in the irq RCU tracking context. This is a hard problem
+-	 * to fix without changes to the softirq or idle layer.
+-	 *
+ 	 * We use local_paca rather than get_paca() to avoid all the
+ 	 * debug_smp_processor_id() business in this low level function.
+ 	 */
+@@ -120,13 +106,20 @@ void replay_soft_interrupts(void)
+ 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
+ 		WARN_ON_ONCE(mfmsr() & MSR_EE);
+ 		WARN_ON(!(local_paca->irq_happened & PACA_IRQ_HARD_DIS));
++		WARN_ON(local_paca->irq_happened & PACA_IRQ_REPLAYING);
+ 	}
+ 
++	/*
++	 * PACA_IRQ_REPLAYING prevents interrupt handlers from enabling
++	 * MSR[EE] to get PMIs, which can result in more IRQs becoming
++	 * pending.
++	 */
++	local_paca->irq_happened |= PACA_IRQ_REPLAYING;
 +
-+	if (pmdev) {
-+		pm_runtime_get_sync(pmdev);
-+		cpu_latency_qos_remove_request(&gpio_dev->qos);
-+
-+		pm_runtime_disable(pmdev);
-+		pm_runtime_put_noidle(pmdev);
-+		pm_runtime_set_suspended(pmdev);
-+	}
-+
-+	return 0;
+ 	ppc_save_regs(&regs);
+ 	regs.softe = IRQS_ENABLED;
+ 	regs.msr |= MSR_EE;
+ 
+-again:
+ 	/*
+ 	 * Force the delivery of pending soft-disabled interrupts on PS3.
+ 	 * Any HV call will have this side effect.
+@@ -175,13 +168,14 @@ void replay_soft_interrupts(void)
+ 		next_interrupt(&regs);
+ 	}
+ 
+-	/*
+-	 * Softirq processing can enable and disable interrupts, which can
+-	 * result in new irqs becoming pending. Must keep looping until we
+-	 * have cleared out all pending interrupts.
+-	 */
+-	if (local_paca->irq_happened & ~PACA_IRQ_HARD_DIS)
+-		goto again;
++	local_paca->irq_happened &= ~PACA_IRQ_REPLAYING;
 +}
 +
- #ifdef CONFIG_PM
- static int gpio_ir_recv_suspend(struct device *dev)
- {
-@@ -189,6 +206,7 @@ MODULE_DEVICE_TABLE(of, gpio_ir_recv_of_match);
++void replay_soft_interrupts(void)
++{
++	irq_enter(); /* See comment in arch_local_irq_restore */
++	__replay_soft_interrupts();
++	irq_exit();
+ }
  
- static struct platform_driver gpio_ir_recv_driver = {
- 	.probe  = gpio_ir_recv_probe,
-+	.remove = gpio_ir_recv_remove,
- 	.driver = {
- 		.name   = KBUILD_MODNAME,
- 		.of_match_table = of_match_ptr(gpio_ir_recv_of_match),
+ #if defined(CONFIG_PPC_BOOK3S_64) && defined(CONFIG_PPC_KUAP)
+@@ -200,13 +194,13 @@ static inline void replay_soft_interrupts_irqrestore(void)
+ 	if (kuap_state != AMR_KUAP_BLOCKED)
+ 		set_kuap(AMR_KUAP_BLOCKED);
+ 
+-	replay_soft_interrupts();
++	__replay_soft_interrupts();
+ 
+ 	if (kuap_state != AMR_KUAP_BLOCKED)
+ 		set_kuap(kuap_state);
+ }
+ #else
+-#define replay_soft_interrupts_irqrestore() replay_soft_interrupts()
++#define replay_soft_interrupts_irqrestore() __replay_soft_interrupts()
+ #endif
+ 
+ notrace void arch_local_irq_restore(unsigned long mask)
+@@ -219,9 +213,13 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 		return;
+ 	}
+ 
+-	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+-		WARN_ON_ONCE(in_nmi() || in_hardirq());
++	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
++		WARN_ON_ONCE(in_nmi());
++		WARN_ON_ONCE(in_hardirq());
++		WARN_ON_ONCE(local_paca->irq_happened & PACA_IRQ_REPLAYING);
++	}
+ 
++again:
+ 	/*
+ 	 * After the stb, interrupts are unmasked and there are no interrupts
+ 	 * pending replay. The restart sequence makes this atomic with
+@@ -248,6 +246,12 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+ 		WARN_ON_ONCE(!(mfmsr() & MSR_EE));
+ 
++	/*
++	 * If we came here from the replay below, we might have a preempt
++	 * pending (due to preempt_enable_no_resched()). Have to check now.
++	 */
++	preempt_check_resched();
++
+ 	return;
+ 
+ happened:
+@@ -261,6 +265,7 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 		irq_soft_mask_set(IRQS_ENABLED);
+ 		local_paca->irq_happened = 0;
+ 		__hard_irq_enable();
++		preempt_check_resched();
+ 		return;
+ 	}
+ 
+@@ -296,12 +301,38 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 	irq_soft_mask_set(IRQS_ALL_DISABLED);
+ 	trace_hardirqs_off();
+ 
++	/*
++	 * Now enter interrupt context. The interrupt handlers themselves
++	 * also call irq_enter/exit (which is okay, they can nest). But call
++	 * it here now to hold off softirqs until the below irq_exit(). If
++	 * we allowed replayed handlers to run softirqs, that enables irqs,
++	 * which must replay interrupts, which recurses in here and makes
++	 * things more complicated. The recursion is limited to 2, and it can
++	 * be made to work, but it's complicated.
++	 *
++	 * local_bh_disable can not be used here because interrupts taken in
++	 * idle are not in the right context (RCU, tick, etc) to run softirqs
++	 * so irq_enter must be called.
++	 */
++	irq_enter();
++
+ 	replay_soft_interrupts_irqrestore();
+ 
++	irq_exit();
++
++	if (unlikely(local_paca->irq_happened != PACA_IRQ_HARD_DIS)) {
++		/*
++		 * The softirq processing in irq_exit() may enable interrupts
++		 * temporarily, which can result in MSR[EE] being enabled and
++		 * more irqs becoming pending. Go around again if that happens.
++		 */
++		trace_hardirqs_on();
++		preempt_enable_no_resched();
++		goto again;
++	}
++
+ 	trace_hardirqs_on();
+ 	irq_soft_mask_set(IRQS_ENABLED);
+-	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+-		WARN_ON(local_paca->irq_happened != PACA_IRQ_HARD_DIS);
+ 	local_paca->irq_happened = 0;
+ 	__hard_irq_enable();
+ 	preempt_enable();
 -- 
 2.39.2
 
