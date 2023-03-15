@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A22E6BB17F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB4B6BB2DB
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:39:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232360AbjCOM2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:28:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58284 "EHLO
+        id S232976AbjCOMjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:39:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232307AbjCOM1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED4840CF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:47 -0700 (PDT)
+        with ESMTP id S232776AbjCOMiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C2AA2F37
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C6D861D26
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D308C433D2;
-        Wed, 15 Mar 2023 12:26:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80542B81E00
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1A42C433EF;
+        Wed, 15 Mar 2023 12:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883206;
-        bh=QLtvCmjHbF4eJWUPEkTlyzFhsNYXe+mt78loXuSAUFQ=;
+        s=korg; t=1678883868;
+        bh=Nfe5cQVGtVXe/Ymy+jYJi0HwVB0WFvQ7+/fjpCov2/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuLlGqtvqBdl1KPV5U9kvCLu3KR0W3ED2A9QlXzUK+MVlBQ0FHWkLSa/MtuE13Nm0
-         HLZTdT5ja5g8c32rC15TN3QSZHsVpaDNfv9or8aPliVMfc4o+7/koepVrQn5sjcOCW
-         jZtpdU4+NOB6DGk99UCZtwtjsg162FMZoMP7IAiA=
+        b=PlOAioiJPha37QjRVFR3kQJl+K1GYrnuQq3/9ONAvCCyJy9XxwFqnY1YLNUEBH97E
+         gbapx3c1lkZe2HXs/d+iPICenFs6ewUQa+wrtLoyNmG9sbyS9fxlcE3RPICmJopyhO
+         S3T5X/vYBxbFmvrywdWeLiyrJWnjT0DYIqYbMVx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuiko Oshino <yuiko.oshino@microchip.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/145] net: lan78xx: fix accessing the LAN7800s internal phy specific registers from the MAC driver
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 6.2 019/141] staging: rtl8723bs: Pass correct parameters to cfg80211_get_bss()
 Date:   Wed, 15 Mar 2023 13:12:02 +0100
-Message-Id: <20230315115740.891993373@linuxfoundation.org>
+Message-Id: <20230315115740.573821647@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
+References: <20230315115739.932786806@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuiko Oshino <yuiko.oshino@microchip.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e57cf3639c323eeed05d3725fd82f91b349adca8 ]
+commit d17789edd6a8270c38459e592ee536a84c6202db upstream.
 
-Move the LAN7800 internal phy (phy ID  0x0007c132) specific register
-accesses to the phy driver (microchip.c).
+To last 2 parameters to cfg80211_get_bss() should be of
+the enum ieee80211_bss_type resp. enum ieee80211_privacy types,
+which WLAN_CAPABILITY_ESS very much is not.
 
-Fix the error reported by Enguerrand de Ribaucourt in December 2022,
-"Some operations during the cable switch workaround modify the register
-LAN88XX_INT_MASK of the PHY. However, this register is specific to the
-LAN8835 PHY. For instance, if a DP8322I PHY is connected to the LAN7801,
-that register (0x19), corresponds to the LED and MAC address
-configuration, resulting in unapropriate behavior."
+Fix both cfg80211_get_bss() calls in ioctl_cfg80211.c to pass
+the right parameters.
 
-I did not test with the DP8322I PHY, but I tested with an EVB-LAN7800
-with the internal PHY.
+Note that the second call was already somewhat fixed by commenting
+out WLAN_CAPABILITY_ESS and passing in 0 instead. This was still
+not entirely correct though since that would limit returned
+BSS-es to ESS type BSS-es with privacy on.
 
-Fixes: 14437e3fa284 ("lan78xx: workaround of forced 100 Full/Half duplex mode error")
-Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20230301154307.30438-1-yuiko.oshino@microchip.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230306153512.162104-2-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/microchip.c | 32 ++++++++++++++++++++++++++++++++
- drivers/net/usb/lan78xx.c   | 27 +--------------------------
- 2 files changed, 33 insertions(+), 26 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/microchip.c b/drivers/net/phy/microchip.c
-index 9f1f2b6c97d4f..230f2fcf9c46a 100644
---- a/drivers/net/phy/microchip.c
-+++ b/drivers/net/phy/microchip.c
-@@ -342,6 +342,37 @@ static int lan88xx_config_aneg(struct phy_device *phydev)
- 	return genphy_config_aneg(phydev);
- }
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+index 3aba4e6eec8a..84a9f4dd8f95 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+@@ -350,7 +350,7 @@ int rtw_cfg80211_check_bss(struct adapter *padapter)
+ 	bss = cfg80211_get_bss(padapter->rtw_wdev->wiphy, notify_channel,
+ 			pnetwork->mac_address, pnetwork->ssid.ssid,
+ 			pnetwork->ssid.ssid_length,
+-			WLAN_CAPABILITY_ESS, WLAN_CAPABILITY_ESS);
++			IEEE80211_BSS_TYPE_ANY, IEEE80211_PRIVACY_ANY);
  
-+static void lan88xx_link_change_notify(struct phy_device *phydev)
-+{
-+	int temp;
-+
-+	/* At forced 100 F/H mode, chip may fail to set mode correctly
-+	 * when cable is switched between long(~50+m) and short one.
-+	 * As workaround, set to 10 before setting to 100
-+	 * at forced 100 F/H mode.
-+	 */
-+	if (!phydev->autoneg && phydev->speed == 100) {
-+		/* disable phy interrupt */
-+		temp = phy_read(phydev, LAN88XX_INT_MASK);
-+		temp &= ~LAN88XX_INT_MASK_MDINTPIN_EN_;
-+		phy_write(phydev, LAN88XX_INT_MASK, temp);
-+
-+		temp = phy_read(phydev, MII_BMCR);
-+		temp &= ~(BMCR_SPEED100 | BMCR_SPEED1000);
-+		phy_write(phydev, MII_BMCR, temp); /* set to 10 first */
-+		temp |= BMCR_SPEED100;
-+		phy_write(phydev, MII_BMCR, temp); /* set to 100 later */
-+
-+		/* clear pending interrupt generated while workaround */
-+		temp = phy_read(phydev, LAN88XX_INT_STS);
-+
-+		/* enable phy interrupt back */
-+		temp = phy_read(phydev, LAN88XX_INT_MASK);
-+		temp |= LAN88XX_INT_MASK_MDINTPIN_EN_;
-+		phy_write(phydev, LAN88XX_INT_MASK, temp);
-+	}
-+}
-+
- static struct phy_driver microchip_phy_driver[] = {
- {
- 	.phy_id		= 0x0007c130,
-@@ -355,6 +386,7 @@ static struct phy_driver microchip_phy_driver[] = {
+ 	cfg80211_put_bss(padapter->rtw_wdev->wiphy, bss);
  
- 	.config_init	= lan88xx_config_init,
- 	.config_aneg	= lan88xx_config_aneg,
-+	.link_change_notify = lan88xx_link_change_notify,
+@@ -1139,8 +1139,8 @@ void rtw_cfg80211_unlink_bss(struct adapter *padapter, struct wlan_network *pnet
  
- 	.config_intr	= lan88xx_phy_config_intr,
- 	.handle_interrupt = lan88xx_handle_interrupt,
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index 3e1a83a22fdd6..5700c9d20a3e2 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -1950,33 +1950,8 @@ static void lan78xx_remove_mdio(struct lan78xx_net *dev)
- static void lan78xx_link_status_change(struct net_device *net)
- {
- 	struct phy_device *phydev = net->phydev;
--	int temp;
--
--	/* At forced 100 F/H mode, chip may fail to set mode correctly
--	 * when cable is switched between long(~50+m) and short one.
--	 * As workaround, set to 10 before setting to 100
--	 * at forced 100 F/H mode.
--	 */
--	if (!phydev->autoneg && (phydev->speed == 100)) {
--		/* disable phy interrupt */
--		temp = phy_read(phydev, LAN88XX_INT_MASK);
--		temp &= ~LAN88XX_INT_MASK_MDINTPIN_EN_;
--		phy_write(phydev, LAN88XX_INT_MASK, temp);
+ 	bss = cfg80211_get_bss(wiphy, NULL/*notify_channel*/,
+ 		select_network->mac_address, select_network->ssid.ssid,
+-		select_network->ssid.ssid_length, 0/*WLAN_CAPABILITY_ESS*/,
+-		0/*WLAN_CAPABILITY_ESS*/);
++		select_network->ssid.ssid_length, IEEE80211_BSS_TYPE_ANY,
++		IEEE80211_PRIVACY_ANY);
  
--		temp = phy_read(phydev, MII_BMCR);
--		temp &= ~(BMCR_SPEED100 | BMCR_SPEED1000);
--		phy_write(phydev, MII_BMCR, temp); /* set to 10 first */
--		temp |= BMCR_SPEED100;
--		phy_write(phydev, MII_BMCR, temp); /* set to 100 later */
--
--		/* clear pending interrupt generated while workaround */
--		temp = phy_read(phydev, LAN88XX_INT_STS);
--
--		/* enable phy interrupt back */
--		temp = phy_read(phydev, LAN88XX_INT_MASK);
--		temp |= LAN88XX_INT_MASK_MDINTPIN_EN_;
--		phy_write(phydev, LAN88XX_INT_MASK, temp);
--	}
-+	phy_print_status(phydev);
- }
- 
- static int irq_map(struct irq_domain *d, unsigned int irq,
+ 	if (bss) {
+ 		cfg80211_unlink_bss(wiphy, bss);
 -- 
 2.39.2
 
