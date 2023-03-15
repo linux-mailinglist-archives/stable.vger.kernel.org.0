@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3196BB1AC
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F24F26BB033
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232587AbjCOM3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:29:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
+        id S231794AbjCOMQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232552AbjCOM3U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592FB88890
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:27 -0700 (PDT)
+        with ESMTP id S231676AbjCOMQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:16:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3403F8090F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F09FAB81DF6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641A0C4339B;
-        Wed, 15 Mar 2023 12:28:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4DE361D44
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEAEC4339B;
+        Wed, 15 Mar 2023 12:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883305;
-        bh=g8LqNWo8ULGajspdQobRw2/BlnNPtxYZEW31rZA9jqc=;
+        s=korg; t=1678882564;
+        bh=3BLZXnNxGAqsWf72UFDoEHfcTW1lEor3LRvXRS0aNxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4WPIhFTodn9tDIW8rv6ODCwjZsqXHtR+7/wZR6kD8NOgGQ414/vWKQrabru6AaIa
-         ENnN/doVSTiWc3ZlTo5AhukiPI+6ttP2F7O2scq1ygbCNnGznxf7POPfs8i54dzzXN
-         IFQFBSxQqwokREJTl/3AuvjG6G+wCAPc9N9RnVU0=
+        b=Nhm7cKaD/aURtZHPMsT96VDEO4x8yIRdifUJFMHeRf2BaAvEG7QcYX+fHKDVUBMLG
+         XaZsYQX1OPh25OOsTArVcIhOEnU8OFhDnMDNKm8ukHKfFiWDreb6TxB9jkfqzTW4WJ
+         g7E7TsTkiSLF0EmBsqw55KTyuDnyqfK80yVhq6wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Erkki Eilonen <erkki@bearmetal.eu>,
-        Morten Linderud <morten@linderud.pw>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 093/145] tpm/eventlog: Dont abort tpm_read_log on faulty ACPI address
-Date:   Wed, 15 Mar 2023 13:12:39 +0100
-Message-Id: <20230315115742.034490580@linuxfoundation.org>
+Subject: [PATCH 4.19 26/39] scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
+Date:   Wed, 15 Mar 2023 13:12:40 +0100
+Message-Id: <20230315115722.206642574@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Morten Linderud <morten@linderud.pw>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 80a6c216b16d7f5c584d2148c2e4345ea4eb06ce ]
+[ Upstream commit fc663711b94468f4e1427ebe289c9f05669699c9 ]
 
-tpm_read_log_acpi() should return -ENODEV when no eventlog from the ACPI
-table is found. If the firmware vendor includes an invalid log address
-we are unable to map from the ACPI memory and tpm_read_log() returns -EIO
-which would abort discovery of the eventlog.
+Remove the /proc/scsi/${proc_name} directory earlier to fix a race
+condition between unloading and reloading kernel modules. This fixes a bug
+introduced in 2009 by commit 77c019768f06 ("[SCSI] fix /proc memory leak in
+the SCSI core").
 
-Change the return value from -EIO to -ENODEV when acpi_os_map_iomem()
-fails to map the event log.
+Fix the following kernel warning:
 
-The following hardware was used to test this issue:
-    Framework Laptop (Pre-production)
-    BIOS: INSYDE Corp, Revision: 3.2
-    TPM Device: NTC, Firmware Revision: 7.2
+proc_dir_entry 'scsi/scsi_debug' already registered
+WARNING: CPU: 19 PID: 27986 at fs/proc/generic.c:376 proc_register+0x27d/0x2e0
+Call Trace:
+ proc_mkdir+0xb5/0xe0
+ scsi_proc_hostdir_add+0xb5/0x170
+ scsi_host_alloc+0x683/0x6c0
+ sdebug_driver_probe+0x6b/0x2d0 [scsi_debug]
+ really_probe+0x159/0x540
+ __driver_probe_device+0xdc/0x230
+ driver_probe_device+0x4f/0x120
+ __device_attach_driver+0xef/0x180
+ bus_for_each_drv+0xe5/0x130
+ __device_attach+0x127/0x290
+ device_initial_probe+0x17/0x20
+ bus_probe_device+0x110/0x130
+ device_add+0x673/0xc80
+ device_register+0x1e/0x30
+ sdebug_add_host_helper+0x1a7/0x3b0 [scsi_debug]
+ scsi_debug_init+0x64f/0x1000 [scsi_debug]
+ do_one_initcall+0xd7/0x470
+ do_init_module+0xe7/0x330
+ load_module+0x122a/0x12c0
+ __do_sys_finit_module+0x124/0x1a0
+ __x64_sys_finit_module+0x46/0x50
+ do_syscall_64+0x38/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Dump of the faulty ACPI TPM2 table:
-    [000h 0000   4]                    Signature : "TPM2"    [Trusted Platform Module hardware interface Table]
-    [004h 0004   4]                 Table Length : 0000004C
-    [008h 0008   1]                     Revision : 04
-    [009h 0009   1]                     Checksum : 2B
-    [00Ah 0010   6]                       Oem ID : "INSYDE"
-    [010h 0016   8]                 Oem Table ID : "TGL-ULT"
-    [018h 0024   4]                 Oem Revision : 00000002
-    [01Ch 0028   4]              Asl Compiler ID : "ACPI"
-    [020h 0032   4]        Asl Compiler Revision : 00040000
-
-    [024h 0036   2]               Platform Class : 0000
-    [026h 0038   2]                     Reserved : 0000
-    [028h 0040   8]              Control Address : 0000000000000000
-    [030h 0048   4]                 Start Method : 06 [Memory Mapped I/O]
-
-    [034h 0052  12]            Method Parameters : 00 00 00 00 00 00 00 00 00 00 00 00
-    [040h 0064   4]           Minimum Log Length : 00010000
-    [044h 0068   8]                  Log Address : 000000004053D000
-
-Fixes: 0cf577a03f21 ("tpm: Fix handling of missing event log")
-Tested-by: Erkki Eilonen <erkki@bearmetal.eu>
-Signed-off-by: Morten Linderud <morten@linderud.pw>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Link: https://lore.kernel.org/r/20230210205200.36973-3-bvanassche@acm.org
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Yi Zhang <yi.zhang@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 77c019768f06 ("[SCSI] fix /proc memory leak in the SCSI core")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/eventlog/acpi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/hosts.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/char/tpm/eventlog/acpi.c b/drivers/char/tpm/eventlog/acpi.c
-index 0913d3eb8d518..cd266021d0103 100644
---- a/drivers/char/tpm/eventlog/acpi.c
-+++ b/drivers/char/tpm/eventlog/acpi.c
-@@ -143,8 +143,12 @@ int tpm_read_log_acpi(struct tpm_chip *chip)
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index b3d6ea92b4f7c..2ffc2e15d822b 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -178,6 +178,7 @@ void scsi_remove_host(struct Scsi_Host *shost)
+ 	scsi_forget_host(shost);
+ 	mutex_unlock(&shost->scan_mutex);
+ 	scsi_proc_host_rm(shost);
++	scsi_proc_hostdir_rm(shost->hostt);
  
- 	ret = -EIO;
- 	virt = acpi_os_map_iomem(start, len);
--	if (!virt)
-+	if (!virt) {
-+		dev_warn(&chip->dev, "%s: Failed to map ACPI memory\n", __func__);
-+		/* try EFI log next */
-+		ret = -ENODEV;
- 		goto err;
-+	}
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	if (scsi_host_set_state(shost, SHOST_DEL))
+@@ -329,6 +330,7 @@ static void scsi_host_dev_release(struct device *dev)
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
- 	memcpy_fromio(log->bios_event_log, virt, len);
++	/* In case scsi_remove_host() has not been called. */
+ 	scsi_proc_hostdir_rm(shost->hostt);
  
+ 	/* Wait for functions invoked through call_rcu(&shost->rcu, ...) */
 -- 
 2.39.2
 
