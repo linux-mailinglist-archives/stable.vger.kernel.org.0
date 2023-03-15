@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D12946BB335
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C5F6BB1D7
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbjCOMma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:42:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
+        id S232594AbjCOMbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:31:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233062AbjCOMmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD0319F27
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:56 -0700 (PDT)
+        with ESMTP id S232604AbjCOMat (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5FBDBC3
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C59AFB81E0B
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234C5C433D2;
-        Wed, 15 Mar 2023 12:40:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D20761D58
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F1A0C433D2;
+        Wed, 15 Mar 2023 12:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884052;
-        bh=iTu6i0ivTDFW4n53srIoidGvDoKyRZbECsO5tKEL0AI=;
+        s=korg; t=1678883389;
+        bh=dAr4CsWQ3PFiWECTqIDKxRG93ARMMEFxO82YsLvsQ7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFtf8plFgrevb9Kl8XtoSE8zCM9vM/BuL7U3RwFeYLCWH7B/HHL3RwTbyfzXlT9WH
-         DInux1yOSBqFm28QrWRDkDjc2/JRC+VT6puOf+n1kFAJI+iibc4eEoapX4yes/2MFL
-         W7MEU8XcRh3RXd2YIk19PcL5AwmKj8I9WCk7ZGYo=
+        b=dpIRMNixD3txzXNHH/+S8NtELXYzwxOhG8TAPPpE6qyVHER+kgKjhICSSxkKdv05j
+         ++7ndenHee3qfRUPdG1KuZ3WMbWpfZtObl9b/k2ps8xCBRAS7XNHNwX3BItvpAJmam
+         v6PP0H6LA8zv/+0yQA2IsJeqxN8IRqAvnHh7yyS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 088/141] net: phy: smsc: fix link up detection in forced irq mode
+        patches@lists.linux.dev, Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 5.15 125/145] ext4: refactor ext4_free_blocks() to pull out ext4_mb_clear_bb()
 Date:   Wed, 15 Mar 2023 13:13:11 +0100
-Message-Id: <20230315115742.658341822@linuxfoundation.org>
+Message-Id: <20230315115743.088288597@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,79 +54,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-[ Upstream commit 58aac3a2ef414fea6d7fdf823ea177744a087d13 ]
+commit 8ac3939db99f99667b8eb670cf4baf292896e72d upstream.
 
-Currently link up can't be detected in forced mode if polling
-isn't used. Only link up interrupt source we have is aneg
-complete which isn't applicable in forced mode. Therefore we
-have to use energy-on as link up indicator.
+ext4_free_blocks() function became too long and confusing, this patch
+just pulls out the ext4_mb_clear_bb() function logic from it
+which clears the block bitmap and frees it.
 
-Fixes: 7365494550f6 ("net: phy: smsc: skip ENERGYON interrupt if disabled")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+No functionality change in this patch
+
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/22c30fbb26ba409cf8aa5f0c7912970272c459e8.1644992610.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/smsc.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ fs/ext4/mballoc.c |  180 ++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 102 insertions(+), 78 deletions(-)
 
-diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
-index ac7481ce2fc16..00d9eff91dcfa 100644
---- a/drivers/net/phy/smsc.c
-+++ b/drivers/net/phy/smsc.c
-@@ -44,7 +44,6 @@ static struct smsc_hw_stat smsc_hw_stats[] = {
- };
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -5888,7 +5888,8 @@ static void ext4_free_blocks_simple(stru
+ }
  
- struct smsc_phy_priv {
--	u16 intmask;
- 	bool energy_enable;
- };
- 
-@@ -57,7 +56,6 @@ static int smsc_phy_ack_interrupt(struct phy_device *phydev)
- 
- static int smsc_phy_config_intr(struct phy_device *phydev)
+ /**
+- * ext4_free_blocks() -- Free given blocks and update quota
++ * ext4_mb_clear_bb() -- helper function for freeing blocks.
++ *			Used by ext4_free_blocks()
+  * @handle:		handle for this transaction
+  * @inode:		inode
+  * @bh:			optional buffer of the block to be freed
+@@ -5896,9 +5897,9 @@ static void ext4_free_blocks_simple(stru
+  * @count:		number of blocks to be freed
+  * @flags:		flags used by ext4_free_blocks
+  */
+-void ext4_free_blocks(handle_t *handle, struct inode *inode,
+-		      struct buffer_head *bh, ext4_fsblk_t block,
+-		      unsigned long count, int flags)
++static void ext4_mb_clear_bb(handle_t *handle, struct inode *inode,
++			       ext4_fsblk_t block, unsigned long count,
++			       int flags)
  {
--	struct smsc_phy_priv *priv = phydev->priv;
- 	int rc;
+ 	struct buffer_head *bitmap_bh = NULL;
+ 	struct super_block *sb = inode->i_sb;
+@@ -5915,80 +5916,6 @@ void ext4_free_blocks(handle_t *handle,
  
- 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-@@ -65,14 +63,9 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
- 		if (rc)
- 			return rc;
+ 	sbi = EXT4_SB(sb);
  
--		priv->intmask = MII_LAN83C185_ISF_INT4 | MII_LAN83C185_ISF_INT6;
--		if (priv->energy_enable)
--			priv->intmask |= MII_LAN83C185_ISF_INT7;
+-	if (sbi->s_mount_state & EXT4_FC_REPLAY) {
+-		ext4_free_blocks_simple(inode, block, count);
+-		return;
+-	}
 -
--		rc = phy_write(phydev, MII_LAN83C185_IM, priv->intmask);
-+		rc = phy_write(phydev, MII_LAN83C185_IM,
-+			       MII_LAN83C185_ISF_INT_PHYLIB_EVENTS);
- 	} else {
--		priv->intmask = 0;
+-	might_sleep();
+-	if (bh) {
+-		if (block)
+-			BUG_ON(block != bh->b_blocknr);
+-		else
+-			block = bh->b_blocknr;
+-	}
 -
- 		rc = phy_write(phydev, MII_LAN83C185_IM, 0);
- 		if (rc)
- 			return rc;
-@@ -85,7 +78,6 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
+-	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
+-	    !ext4_inode_block_valid(inode, block, count)) {
+-		ext4_error(sb, "Freeing blocks not in datazone - "
+-			   "block = %llu, count = %lu", block, count);
+-		goto error_return;
+-	}
+-
+-	ext4_debug("freeing block %llu\n", block);
+-	trace_ext4_free_blocks(inode, block, count, flags);
+-
+-	if (bh && (flags & EXT4_FREE_BLOCKS_FORGET)) {
+-		BUG_ON(count > 1);
+-
+-		ext4_forget(handle, flags & EXT4_FREE_BLOCKS_METADATA,
+-			    inode, bh, block);
+-	}
+-
+-	/*
+-	 * If the extent to be freed does not begin on a cluster
+-	 * boundary, we need to deal with partial clusters at the
+-	 * beginning and end of the extent.  Normally we will free
+-	 * blocks at the beginning or the end unless we are explicitly
+-	 * requested to avoid doing so.
+-	 */
+-	overflow = EXT4_PBLK_COFF(sbi, block);
+-	if (overflow) {
+-		if (flags & EXT4_FREE_BLOCKS_NOFREE_FIRST_CLUSTER) {
+-			overflow = sbi->s_cluster_ratio - overflow;
+-			block += overflow;
+-			if (count > overflow)
+-				count -= overflow;
+-			else
+-				return;
+-		} else {
+-			block -= overflow;
+-			count += overflow;
+-		}
+-	}
+-	overflow = EXT4_LBLK_COFF(sbi, count);
+-	if (overflow) {
+-		if (flags & EXT4_FREE_BLOCKS_NOFREE_LAST_CLUSTER) {
+-			if (count > overflow)
+-				count -= overflow;
+-			else
+-				return;
+-		} else
+-			count += sbi->s_cluster_ratio - overflow;
+-	}
+-
+-	if (!bh && (flags & EXT4_FREE_BLOCKS_FORGET)) {
+-		int i;
+-		int is_metadata = flags & EXT4_FREE_BLOCKS_METADATA;
+-
+-		for (i = 0; i < count; i++) {
+-			cond_resched();
+-			if (is_metadata)
+-				bh = sb_find_get_block(inode->i_sb, block + i);
+-			ext4_forget(handle, is_metadata, inode, bh, block + i);
+-		}
+-	}
+-
+ do_more:
+ 	overflow = 0;
+ 	ext4_get_group_no_and_offset(sb, block, &block_group, &bit);
+@@ -6156,6 +6083,103 @@ error_return:
+ 	return;
+ }
  
- static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
- {
--	struct smsc_phy_priv *priv = phydev->priv;
- 	int irq_status;
- 
- 	irq_status = phy_read(phydev, MII_LAN83C185_ISF);
-@@ -96,7 +88,7 @@ static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
- 		return IRQ_NONE;
- 	}
- 
--	if (!(irq_status & priv->intmask))
-+	if (!(irq_status & MII_LAN83C185_ISF_INT_PHYLIB_EVENTS))
- 		return IRQ_NONE;
- 
- 	phy_trigger_machine(phydev);
--- 
-2.39.2
-
++/**
++ * ext4_free_blocks() -- Free given blocks and update quota
++ * @handle:		handle for this transaction
++ * @inode:		inode
++ * @bh:			optional buffer of the block to be freed
++ * @block:		starting physical block to be freed
++ * @count:		number of blocks to be freed
++ * @flags:		flags used by ext4_free_blocks
++ */
++void ext4_free_blocks(handle_t *handle, struct inode *inode,
++		      struct buffer_head *bh, ext4_fsblk_t block,
++		      unsigned long count, int flags)
++{
++	struct super_block *sb = inode->i_sb;
++	unsigned int overflow;
++	struct ext4_sb_info *sbi;
++
++	sbi = EXT4_SB(sb);
++
++	if (sbi->s_mount_state & EXT4_FC_REPLAY) {
++		ext4_free_blocks_simple(inode, block, count);
++		return;
++	}
++
++	might_sleep();
++	if (bh) {
++		if (block)
++			BUG_ON(block != bh->b_blocknr);
++		else
++			block = bh->b_blocknr;
++	}
++
++	if (!(flags & EXT4_FREE_BLOCKS_VALIDATED) &&
++	    !ext4_inode_block_valid(inode, block, count)) {
++		ext4_error(sb, "Freeing blocks not in datazone - "
++			   "block = %llu, count = %lu", block, count);
++		return;
++	}
++
++	ext4_debug("freeing block %llu\n", block);
++	trace_ext4_free_blocks(inode, block, count, flags);
++
++	if (bh && (flags & EXT4_FREE_BLOCKS_FORGET)) {
++		BUG_ON(count > 1);
++
++		ext4_forget(handle, flags & EXT4_FREE_BLOCKS_METADATA,
++			    inode, bh, block);
++	}
++
++	/*
++	 * If the extent to be freed does not begin on a cluster
++	 * boundary, we need to deal with partial clusters at the
++	 * beginning and end of the extent.  Normally we will free
++	 * blocks at the beginning or the end unless we are explicitly
++	 * requested to avoid doing so.
++	 */
++	overflow = EXT4_PBLK_COFF(sbi, block);
++	if (overflow) {
++		if (flags & EXT4_FREE_BLOCKS_NOFREE_FIRST_CLUSTER) {
++			overflow = sbi->s_cluster_ratio - overflow;
++			block += overflow;
++			if (count > overflow)
++				count -= overflow;
++			else
++				return;
++		} else {
++			block -= overflow;
++			count += overflow;
++		}
++	}
++	overflow = EXT4_LBLK_COFF(sbi, count);
++	if (overflow) {
++		if (flags & EXT4_FREE_BLOCKS_NOFREE_LAST_CLUSTER) {
++			if (count > overflow)
++				count -= overflow;
++			else
++				return;
++		} else
++			count += sbi->s_cluster_ratio - overflow;
++	}
++
++	if (!bh && (flags & EXT4_FREE_BLOCKS_FORGET)) {
++		int i;
++		int is_metadata = flags & EXT4_FREE_BLOCKS_METADATA;
++
++		for (i = 0; i < count; i++) {
++			cond_resched();
++			if (is_metadata)
++				bh = sb_find_get_block(inode->i_sb, block + i);
++			ext4_forget(handle, is_metadata, inode, bh, block + i);
++		}
++	}
++
++	ext4_mb_clear_bb(handle, inode, block, count, flags);
++	return;
++}
++
+ /**
+  * ext4_group_add_blocks() -- Add given blocks to an existing group
+  * @handle:			handle to this transaction
 
 
