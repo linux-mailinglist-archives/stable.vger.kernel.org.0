@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 243866BB301
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6E06BB1A0
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232978AbjCOMk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:40:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S232535AbjCOM3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232814AbjCOMki (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BFE5FEB6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:26 -0700 (PDT)
+        with ESMTP id S232254AbjCOM2s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767DC19F17
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A9C6128D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B09DC433EF;
-        Wed, 15 Mar 2023 12:39:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADD7BB81E02
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04591C433D2;
+        Wed, 15 Mar 2023 12:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883965;
-        bh=M+jEZo/G0TdDBpQSFA7NpqpK31M80bqJFkKMAZKjnno=;
+        s=korg; t=1678882964;
+        bh=Hzk9IvwA7y6VQfWSvbFOzDfMXY+1sArz+O0UOp50ojY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krYD+kRdQlJTQG3hrkbL+N7eZw8Hpj8+vbSUUXhCoIpVWa+nyMuYLqX6m8MQW4r9h
-         WPK738a847g4em0vkx/oMT0vIijeBP4NLd+Qo+vZaOiCKRTkYZX82agGBIn3PWSctp
-         U4ht8EMUdimMQZ9dETzOrBxBJwb42OAI1Tvhcs1o=
+        b=JMGMec1+mf5iM5rm0ZamGbnkZiTPn2UI/6RokxuByrxZiQxeYlw8iHVnKz9UQ4TfM
+         gxWkKUayxsiT1R2x5fm4hclPToP1oiIPl/UhQ30mR0GrwtNCR6biABtYRbx5lmcOlo
+         KLQ4cW+14UTkMFrE1jvUkpKfKchy997hqbyl9Fuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaurav Jain <gaurav.jain@nxp.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, xurui <xurui@kylinos.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 055/141] tls: rx: fix return value for async crypto
+Subject: [PATCH 5.10 067/104] MIPS: Fix a compilation issue
 Date:   Wed, 15 Mar 2023 13:12:38 +0100
-Message-Id: <20230315115741.642925537@linuxfoundation.org>
+Message-Id: <20230315115734.755401005@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: xurui <xurui@kylinos.cn>
 
-[ Upstream commit 4d42cd6bc2ac1b9be50ade13771daec90c9d18b1 ]
+[ Upstream commit 109d587a4b4d7ccca2200ab1f808f43ae23e2585 ]
 
-Gaurav reports that TLS Rx is broken with async crypto
-accelerators. The commit under fixes missed updating
-the retval byte counting logic when updating how records
-are stored. Even tho both before and after the change
-'decrypted' was updated inside the main loop, it was
-completely overwritten when processing the async
-completions. Now that the rx_list only holds
-non-zero-copy records we need to add, not overwrite.
+arch/mips/include/asm/mach-rc32434/pci.h:377:
+cc1: error: result of ‘-117440512 << 16’ requires 44 bits to represent, but ‘int’ only has 32 bits [-Werror=shift-overflow=]
 
-Reported-and-bisected-by: Gaurav Jain <gaurav.jain@nxp.com>
-Fixes: cbbdee9918a2 ("tls: rx: async: don't put async zc on the list")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217064
-Tested-by: Gaurav Jain <gaurav.jain@nxp.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230227181201.1793772-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+All bits in KORINA_STAT are already at the correct position, so there is
+no addtional shift needed.
+
+Signed-off-by: xurui <xurui@kylinos.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 2 +-
+ arch/mips/include/asm/mach-rc32434/pci.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 38dcd9b401027..992092aeebad9 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -2114,7 +2114,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 		else
- 			err = process_rx_list(ctx, msg, &control, 0,
- 					      async_copy_bytes, is_peek);
--		decrypted = max(err, 0);
-+		decrypted += max(err, 0);
- 	}
+diff --git a/arch/mips/include/asm/mach-rc32434/pci.h b/arch/mips/include/asm/mach-rc32434/pci.h
+index 9a6eefd127571..3eb767c8a4eec 100644
+--- a/arch/mips/include/asm/mach-rc32434/pci.h
++++ b/arch/mips/include/asm/mach-rc32434/pci.h
+@@ -374,7 +374,7 @@ struct pci_msu {
+ 				 PCI_CFG04_STAT_SSE | \
+ 				 PCI_CFG04_STAT_PE)
  
- 	copied += decrypted;
+-#define KORINA_CNFG1		((KORINA_STAT<<16)|KORINA_CMD)
++#define KORINA_CNFG1		(KORINA_STAT | KORINA_CMD)
+ 
+ #define KORINA_REVID		0
+ #define KORINA_CLASS_CODE	0
 -- 
 2.39.2
 
