@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CCE96BB1D5
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 239E06BB27B
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232565AbjCOMbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39380 "EHLO
+        id S232773AbjCOMgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232569AbjCOMam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:30:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227E618AA1
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:29:45 -0700 (PDT)
+        with ESMTP id S232834AbjCOMgT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCBC9EF60
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9882A61D64
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:29:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE57C433EF;
-        Wed, 15 Mar 2023 12:29:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6538861D79
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 791BDC433D2;
+        Wed, 15 Mar 2023 12:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883382;
-        bh=Nq5dWkuqGlWJhotvCSzZVdPLPEE/ketAmVeqMD91PD8=;
+        s=korg; t=1678883713;
+        bh=PP2vOhwYJFy/p40fVDOl/oAx4CphyQWstD6rS+UDdB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWP7zV8KcxP4uOumM8SFL8xQOGd0JFN7nTe7kWs7Q7dIigFeNMbRCYBb1/6B4r25O
-         NZ9cTRzD5wXT9nqZ4UnraiqThwj9zp1oKrBy4jdc3jEAZjbRJju+1eDyDB39Zo+jhG
-         ydtQfa3Zexm/r7amFvgtSNqGIF5Rwm19O/cGt03o=
+        b=DK5yRW9kz4zqSHNhtMJzsXwTPR/8cFjGpTFdQA3Z3rxuUyIS3LLRCd0p7BiayDmtc
+         DxQKGNDuANaOBq1F0OZRrhfh38ysgAPwcFZ/lMQlqNfcue9P0k/I6qcyEylxeuAsvO
+         dvMr5Caq3jLKe58M2D853m4G0GmNdr0fMCV7TNto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Subject: [PATCH 5.15 123/145] sched/uclamp: Fix a uninitialized variable warnings
+        patches@lists.linux.dev, flole@flole.de, Jan Kara <jack@suse.cz>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 103/143] NFSD: Protect against filesystem freezing
 Date:   Wed, 15 Mar 2023 13:13:09 +0100
-Message-Id: <20230315115743.024623259@linuxfoundation.org>
+Message-Id: <20230315115743.635882067@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,92 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qyousef@layalina.io>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit e26fd28db82899be71b4b949527373d0a6be1e65 upstream.
+[ Upstream commit fd9a2e1d513823e840960cb3bc26d8b7749d4ac2 ]
 
-Addresses the following warnings:
+Flole observes this WARNING on occasion:
 
-> config: riscv-randconfig-m031-20221111
-> compiler: riscv64-linux-gcc (GCC) 12.1.0
->
-> smatch warnings:
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_min'.
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_max'.
+[1210423.486503] WARNING: CPU: 8 PID: 1524732 at fs/ext4/ext4_jbd2.c:75 ext4_journal_check_start+0x68/0xb0
 
-Fixes: 244226035a1f ("sched/uclamp: Fix fits_capacity() check in feec()")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20230112122708.330667-2-qyousef@layalina.io
-(cherry picked from commit e26fd28db82899be71b4b949527373d0a6be1e65)
-[Conflict in kernel/sched/fair.c due to new automatic variables being
-added on master vs 5.15]
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: <flole@flole.de>
+Suggested-by: Jan Kara <jack@suse.cz>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217123
+Fixes: 73da852e3831 ("nfsd: use vfs_iter_read/write")
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c |   35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ fs/nfsd/vfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6977,14 +6977,16 @@ static int find_energy_efficient_cpu(str
- 		goto unlock;
- 
- 	for (; pd; pd = pd->next) {
-+		unsigned long util_min = p_util_min, util_max = p_util_max;
- 		unsigned long cur_delta, spare_cap, max_spare_cap = 0;
- 		unsigned long rq_util_min, rq_util_max;
--		unsigned long util_min, util_max;
- 		bool compute_prev_delta = false;
- 		unsigned long base_energy_pd;
- 		int max_spare_cap_cpu = -1;
- 
- 		for_each_cpu_and(cpu, perf_domain_span(pd), sched_domain_span(sd)) {
-+			struct rq *rq = cpu_rq(cpu);
-+
- 			if (!cpumask_test_cpu(cpu, p->cpus_ptr))
- 				continue;
- 
-@@ -7000,24 +7002,19 @@ static int find_energy_efficient_cpu(str
- 			 * much capacity we can get out of the CPU; this is
- 			 * aligned with sched_cpu_util().
- 			 */
--			if (uclamp_is_used()) {
--				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
--					util_min = p_util_min;
--					util_max = p_util_max;
--				} else {
--					/*
--					 * Open code uclamp_rq_util_with() except for
--					 * the clamp() part. Ie: apply max aggregation
--					 * only. util_fits_cpu() logic requires to
--					 * operate on non clamped util but must use the
--					 * max-aggregated uclamp_{min, max}.
--					 */
--					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
--					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
--
--					util_min = max(rq_util_min, p_util_min);
--					util_max = max(rq_util_max, p_util_max);
--				}
-+			if (uclamp_is_used() && !uclamp_rq_is_idle(rq)) {
-+				/*
-+				 * Open code uclamp_rq_util_with() except for
-+				 * the clamp() part. Ie: apply max aggregation
-+				 * only. util_fits_cpu() logic requires to
-+				 * operate on non clamped util but must use the
-+				 * max-aggregated uclamp_{min, max}.
-+				 */
-+				rq_util_min = uclamp_rq_get(rq, UCLAMP_MIN);
-+				rq_util_max = uclamp_rq_get(rq, UCLAMP_MAX);
-+
-+				util_min = max(rq_util_min, p_util_min);
-+				util_max = max(rq_util_max, p_util_max);
- 			}
- 			if (!util_fits_cpu(util, util_min, util_max, cpu))
- 				continue;
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index 0d49c6bb22eb1..59f9a8cee012a 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -1037,7 +1037,9 @@ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfsd_file *nf,
+ 	since = READ_ONCE(file->f_wb_err);
+ 	if (verf)
+ 		nfsd_copy_write_verifier(verf, nn);
++	file_start_write(file);
+ 	host_err = vfs_iter_write(file, &iter, &pos, flags);
++	file_end_write(file);
+ 	if (host_err < 0) {
+ 		nfsd_reset_write_verifier(nn);
+ 		trace_nfsd_writeverf_reset(nn, rqstp, host_err);
+-- 
+2.39.2
+
 
 
