@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3532E6BB0E4
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:22:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4168C6BB05C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232315AbjCOMWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:22:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S231888AbjCOMRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232102AbjCOMVy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:21:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902A77EA20
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:05 -0700 (PDT)
+        with ESMTP id S231848AbjCOMRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2208C91B6F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 010AE61ABD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DE3C433D2;
-        Wed, 15 Mar 2023 12:21:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD4C861ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C47AFC433D2;
+        Wed, 15 Mar 2023 12:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882864;
-        bh=jVEiBh1cumllNMhx16BB4Cbs4L0KoBrTLkdI4yOcI0U=;
+        s=korg; t=1678882641;
+        bh=git3cOpSx45gn+VKSXwQAPYtEAF1C7WoxQ646F5U3uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLltyhcr5f5FOQ4nxRw0ck8xVPQxbdC98vhHHOzz4A3KIIUGELtQHBE1m68EdntKU
-         xh+lnG1fvxtPFx6IyjZ44ye5nFUH+6KsjSq0wjafFcSOdASVAW7P1wLdjFJYObQD3N
-         XXek/irwT48DZAos/27uNbaQ1YuVckOAc5IndoNQ=
+        b=lyyW85uSbNhcWlAd+2Em7jMF+QRUOHGfgxW1lx4hILpyPSC1Rz13qoebsJePlcZok
+         pHfY9pJpKuZQ1OZ3XDXbEI0tsOyOytqqv4WFTtK2D/RrkPkXJx/E6V0T1IWz98DU5d
+         ubUCRBYxJVytGC1XRT+6LkS4+7y+jok2tmKDrHHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/104] drm/msm: Fix potential invalid ptr free
+        patches@lists.linux.dev,
+        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
+        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 07/68] ext4: fix WARNING in ext4_update_inline_data
 Date:   Wed, 15 Mar 2023 13:12:01 +0100
-Message-Id: <20230315115733.292831926@linuxfoundation.org>
+Message-Id: <20230315115726.396700423@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,49 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 8a86f213f4426f19511a16d886871805b35c3acf ]
+commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
 
-The error path cleanup expects that chain and syncobj are either NULL or
-valid pointers.  But post_deps was not allocated with __GFP_ZERO.
+Syzbot found the following issue:
+EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
+fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
+fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+Modules linked in:
+CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
+RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
+RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
+RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
+R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
+R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
+FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __alloc_pages_node include/linux/gfp.h:237 [inline]
+ alloc_pages_node include/linux/gfp.h:260 [inline]
+ __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
+ __do_kmalloc_node mm/slab_common.c:956 [inline]
+ __kmalloc+0xfe/0x190 mm/slab_common.c:981
+ kmalloc include/linux/slab.h:584 [inline]
+ kzalloc include/linux/slab.h:720 [inline]
+ ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
+ ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
+ ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
+ ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
+ ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
+ ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
+ lookup_open fs/namei.c:3413 [inline]
+ open_last_lookups fs/namei.c:3481 [inline]
+ path_openat+0x12ac/0x2dd0 fs/namei.c:3711
+ do_filp_open+0x264/0x4f0 fs/namei.c:3741
+ do_sys_openat2+0x124/0x4e0 fs/open.c:1310
+ do_sys_open fs/open.c:1326 [inline]
+ __do_sys_openat fs/open.c:1342 [inline]
+ __se_sys_openat fs/open.c:1337 [inline]
+ __x64_sys_openat+0x243/0x290 fs/open.c:1337
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Fixes: ab723b7a992a ("drm/msm: Add syncobj support.")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Patchwork: https://patchwork.freedesktop.org/patch/523051/
-Link: https://lore.kernel.org/r/20230215235048.1166484-1-robdclark@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Above issue happens as follows:
+ext4_iget
+   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
+ext4_try_add_inline_entry
+   __ext4_mark_inode_dirty
+      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
+         ext4_xattr_shift_entries
+	 ->after shift i_inline_off is incorrect, actually is change to 176
+ext4_try_add_inline_entry
+  ext4_update_inline_dir
+    get_max_inline_xattr_value_size
+      if (EXT4_I(inode)->i_inline_off)
+	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
+			EXT4_I(inode)->i_inline_off);
+        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
+	->As entry is incorrect, then 'free' may be negative
+   ext4_update_inline_data
+      value = kzalloc(len, GFP_NOFS);
+      -> len is unsigned int, maybe very large, then trigger warning when
+         'kzalloc()'
+
+To resolve the above issue we need to update 'i_inline_off' after
+'ext4_xattr_shift_entries()'.  We do not need to set
+EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
+already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
+when it is needed may trigger a BUG_ON in ext4_writepages().
+
+Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gem_submit.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ext4/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
-index aa5c60a7132d8..c4e5037512b9d 100644
---- a/drivers/gpu/drm/msm/msm_gem_submit.c
-+++ b/drivers/gpu/drm/msm/msm_gem_submit.c
-@@ -494,8 +494,8 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
- 	int ret = 0;
- 	uint32_t i, j;
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2819,6 +2819,9 @@ shift:
+ 			(void *)header, total_ino);
+ 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
  
--	post_deps = kmalloc_array(nr_syncobjs, sizeof(*post_deps),
--	                          GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
-+	post_deps = kcalloc(nr_syncobjs, sizeof(*post_deps),
-+			    GFP_KERNEL | __GFP_NOWARN | __GFP_NORETRY);
- 	if (!post_deps)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -510,7 +510,6 @@ static struct msm_submit_post_dep *msm_parse_post_deps(struct drm_device *dev,
- 		}
- 
- 		post_deps[i].point = syncobj_desc.point;
--		post_deps[i].chain = NULL;
- 
- 		if (syncobj_desc.flags) {
- 			ret = -EINVAL;
--- 
-2.39.2
-
++	if (ext4_has_inline_data(inode))
++		error = ext4_find_inline_data_nolock(inode);
++
+ cleanup:
+ 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
+ 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
 
 
