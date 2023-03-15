@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12E476BB318
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B24A6BB10A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232901AbjCOMla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
+        id S232345AbjCOMYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232891AbjCOMlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592D35DEFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:00 -0700 (PDT)
+        with ESMTP id S232384AbjCOMXv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:23:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B3997B43
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:22:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A860F61D51
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDD80C4339B;
-        Wed, 15 Mar 2023 12:38:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B2D661D13
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E878C433D2;
+        Wed, 15 Mar 2023 12:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883926;
-        bh=1yo2KcCxfaEyofz354vcdGSJanherrkelxMUZOFqUiw=;
+        s=korg; t=1678882924;
+        bh=xocjUkj3cJxmRZxulBV55DcXYIyH3e656wDo5Iu48S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kp8Df6ywoLgtQESZoggCO+JU9AGEZ7VEmGt0Cg4ZgVC0493+pi9iBVIJknWkuEDpO
-         +3P6xD+XI1+iCZRbDkeMenj/dtleOnmsGnY8TOHQpeYkb7sLQU/g5aP9DsL+TpkRnN
-         UIIY/adWjhfnPgkn4R/x++XHrTcu08Gj08OcJ1G4=
+        b=yljWsoImt7cAs429VLdUS6/O5jHGcZXq3HovU12qwW6tEhyv8kwQoZd1gO5ceAqfR
+         8sWhJXZNWN8R1warJW7y5Jdnte5nzJSE1xifEo5ZEwVoJ6aimQbV81IRbwMv3MMcUG
+         V/libKoojIuDRbBtse792PkFtWEGIs2zW5Yts+Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Yu Kuai <yukuai3@huawei.com>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/141] block: fix scan partition for exclusively open device again
-Date:   Wed, 15 Mar 2023 13:12:24 +0100
-Message-Id: <20230315115741.214538630@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Chathura Rajapaksha <chathura.abeyrathne.lk@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 054/104] riscv: Use READ_ONCE_NOCHECK in imprecise unwinding stack mode
+Date:   Wed, 15 Mar 2023 13:12:25 +0100
+Message-Id: <20230315115734.244885770@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,101 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Alexandre Ghiti <alexghiti@rivosinc.com>
 
-[ Upstream commit e5cfefa97bccf956ea0bb6464c1f6c84fd7a8d9f ]
+[ Upstream commit 76950340cf03b149412fe0d5f0810e52ac1df8cb ]
 
-As explained in commit 36369f46e917 ("block: Do not reread partition table
-on exclusively open device"), reread partition on the device that is
-exclusively opened by someone else is problematic.
+When CONFIG_FRAME_POINTER is unset, the stack unwinding function
+walk_stackframe randomly reads the stack and then, when KASAN is enabled,
+it can lead to the following backtrace:
 
-This patch will make sure partition scan will only be proceed if current
-thread open the device exclusively, or the device is not opened
-exclusively, and in the later case, other scanners and exclusive openers
-will be blocked temporarily until partition scan is done.
+[    0.000000] ==================================================================
+[    0.000000] BUG: KASAN: stack-out-of-bounds in walk_stackframe+0xa6/0x11a
+[    0.000000] Read of size 8 at addr ffffffff81807c40 by task swapper/0
+[    0.000000]
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 6.2.0-12919-g24203e6db61f #43
+[    0.000000] Hardware name: riscv-virtio,qemu (DT)
+[    0.000000] Call Trace:
+[    0.000000] [<ffffffff80007ba8>] walk_stackframe+0x0/0x11a
+[    0.000000] [<ffffffff80099ecc>] init_param_lock+0x26/0x2a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff80c49c80>] dump_stack_lvl+0x22/0x36
+[    0.000000] [<ffffffff80c3783e>] print_report+0x198/0x4a8
+[    0.000000] [<ffffffff80099ecc>] init_param_lock+0x26/0x2a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff8015f68a>] kasan_report+0x9a/0xc8
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff80007c4a>] walk_stackframe+0xa2/0x11a
+[    0.000000] [<ffffffff8006e99c>] desc_make_final+0x80/0x84
+[    0.000000] [<ffffffff8009a04e>] stack_trace_save+0x88/0xa6
+[    0.000000] [<ffffffff80099fc2>] filter_irq_stacks+0x72/0x76
+[    0.000000] [<ffffffff8006b95e>] devkmsg_read+0x32a/0x32e
+[    0.000000] [<ffffffff8015ec16>] kasan_save_stack+0x28/0x52
+[    0.000000] [<ffffffff8006e998>] desc_make_final+0x7c/0x84
+[    0.000000] [<ffffffff8009a04a>] stack_trace_save+0x84/0xa6
+[    0.000000] [<ffffffff8015ec52>] kasan_set_track+0x12/0x20
+[    0.000000] [<ffffffff8015f22e>] __kasan_slab_alloc+0x58/0x5e
+[    0.000000] [<ffffffff8015e7ea>] __kmem_cache_create+0x21e/0x39a
+[    0.000000] [<ffffffff80e133ac>] create_boot_cache+0x70/0x9c
+[    0.000000] [<ffffffff80e17ab2>] kmem_cache_init+0x6c/0x11e
+[    0.000000] [<ffffffff80e00fd6>] mm_init+0xd8/0xfe
+[    0.000000] [<ffffffff80e011d8>] start_kernel+0x190/0x3ca
+[    0.000000]
+[    0.000000] The buggy address belongs to stack of task swapper/0
+[    0.000000]  and is located at offset 0 in frame:
+[    0.000000]  stack_trace_save+0x0/0xa6
+[    0.000000]
+[    0.000000] This frame has 1 object:
+[    0.000000]  [32, 56) 'c'
+[    0.000000]
+[    0.000000] The buggy address belongs to the physical page:
+[    0.000000] page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x81a07
+[    0.000000] flags: 0x1000(reserved|zone=0)
+[    0.000000] raw: 0000000000001000 ff600003f1e3d150 ff600003f1e3d150 0000000000000000
+[    0.000000] raw: 0000000000000000 0000000000000000 00000001ffffffff
+[    0.000000] page dumped because: kasan: bad access detected
+[    0.000000]
+[    0.000000] Memory state around the buggy address:
+[    0.000000]  ffffffff81807b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000]  ffffffff81807b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000] >ffffffff81807c00: 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00 00 f3
+[    0.000000]                                            ^
+[    0.000000]  ffffffff81807c80: f3 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000]  ffffffff81807d00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[    0.000000] ==================================================================
 
-Fixes: 10c70d95c0f2 ("block: remove the bd_openers checks in blk_drop_partitions")
-Cc: <stable@vger.kernel.org>
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20230217022200.3092987-3-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix that by using READ_ONCE_NOCHECK when reading the stack in imprecise
+mode.
+
+Fixes: 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
+Reported-by: Chathura Rajapaksha <chathura.abeyrathne.lk@gmail.com>
+Link: https://lore.kernel.org/all/CAD7mqryDQCYyJ1gAmtMm8SASMWAQ4i103ptTb0f6Oda=tPY2=A@mail.gmail.com/
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Link: https://lore.kernel.org/r/20230308091639.602024-1-alexghiti@rivosinc.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c | 30 ++++++++++++++++++++++++++----
- block/ioctl.c |  2 +-
- 2 files changed, 27 insertions(+), 5 deletions(-)
+ arch/riscv/kernel/stacktrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index fe47071f79e88..6cdaeb7169004 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -359,6 +359,7 @@ EXPORT_SYMBOL_GPL(disk_uevent);
- int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
- {
- 	struct block_device *bdev;
-+	int ret = 0;
- 
- 	if (disk->flags & (GENHD_FL_NO_PART | GENHD_FL_HIDDEN))
- 		return -EINVAL;
-@@ -368,11 +369,27 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
- 		return -EBUSY;
- 
- 	set_bit(GD_NEED_PART_SCAN, &disk->state);
--	bdev = blkdev_get_by_dev(disk_devt(disk), mode, NULL);
-+	/*
-+	 * If the device is opened exclusively by current thread already, it's
-+	 * safe to scan partitons, otherwise, use bd_prepare_to_claim() to
-+	 * synchronize with other exclusive openers and other partition
-+	 * scanners.
-+	 */
-+	if (!(mode & FMODE_EXCL)) {
-+		ret = bd_prepare_to_claim(disk->part0, disk_scan_partitions);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	bdev = blkdev_get_by_dev(disk_devt(disk), mode & ~FMODE_EXCL, NULL);
- 	if (IS_ERR(bdev))
--		return PTR_ERR(bdev);
--	blkdev_put(bdev, mode);
--	return 0;
-+		ret =  PTR_ERR(bdev);
-+	else
-+		blkdev_put(bdev, mode);
-+
-+	if (!(mode & FMODE_EXCL))
-+		bd_abort_claiming(disk->part0, disk_scan_partitions);
-+	return ret;
+diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
+index 1e53fbe5eb783..9c34735c1e771 100644
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -96,7 +96,7 @@ void notrace walk_stackframe(struct task_struct *task,
+ 	while (!kstack_end(ksp)) {
+ 		if (__kernel_text_address(pc) && unlikely(fn(pc, arg)))
+ 			break;
+-		pc = (*ksp++) - 0x4;
++		pc = READ_ONCE_NOCHECK(*ksp++) - 0x4;
+ 	}
  }
  
- /**
-@@ -494,6 +511,11 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
- 		if (ret)
- 			goto out_unregister_bdi;
- 
-+		/* Make sure the first partition scan will be proceed */
-+		if (get_capacity(disk) && !(disk->flags & GENHD_FL_NO_PART) &&
-+		    !test_bit(GD_SUPPRESS_PART_SCAN, &disk->state))
-+			set_bit(GD_NEED_PART_SCAN, &disk->state);
-+
- 		bdev_add(disk->part0, ddev->devt);
- 		if (get_capacity(disk))
- 			disk_scan_partitions(disk, FMODE_READ);
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 6dd49d877584a..9c5f637ff153f 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -528,7 +528,7 @@ static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
- 			return -EACCES;
- 		if (bdev_is_partition(bdev))
- 			return -EINVAL;
--		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL);
-+		return disk_scan_partitions(bdev->bd_disk, mode);
- 	case BLKTRACESTART:
- 	case BLKTRACESTOP:
- 	case BLKTRACETEARDOWN:
 -- 
 2.39.2
 
