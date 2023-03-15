@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F356BB138
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A296BB2A7
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbjCOMZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
+        id S232830AbjCOMhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:37:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232375AbjCOMZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:27 -0400
+        with ESMTP id S232746AbjCOMhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:37:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842F920062
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C490C88890
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:36:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34A3E61D40
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498DEC433D2;
-        Wed, 15 Mar 2023 12:24:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E666661CC2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 048ADC433D2;
+        Wed, 15 Mar 2023 12:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883066;
-        bh=fofk8WbNwivuE0yeM3/KGpRswEl75MIfJGBz0O1B1Q8=;
+        s=korg; t=1678883737;
+        bh=jnhMI/YDvsYfLVoFcghG41hGCC2KAo3X0lJMCgMPjN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsFhCeolE1DpGhh8pGylmG0e34A5AyuIpAuVWeQxP5K99y3tOAglECztFzIZLnCYx
-         51n9+6hMKAU7sChsYPOhQSyjl9x+jUgQ5SrIYEqhR2S16CPMY2mVunF+ZWMabcIDBv
-         WeOC6qTi8AnJjERj76WHaE6QySFx+B3f7PlEK6OA=
+        b=Md070xQE3iV7p5SoTQ6krtTy6tQ/fonLUALLMCSBUJ6NUpVZ1xzill/eDN+XIueUh
+         cGq57zpxxT+7EGSoSPReusqrkVvxV6c8mR+vk8zf+SUKUM3nUd+9AUpe5j8Duatl/k
+         nz6dhGSbG2S26asdv3CP1hBdl3qXuvYjCyPnpkUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anton Lundin <glance@acc.umu.se>,
-        Corey Minyard <cminyard@mvista.com>, Stable@vger.kernel.org
-Subject: [PATCH 5.10 078/104] ipmi:watchdog: Set panic count to proper value on a panic
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Jami Kettunen <jami.kettunen@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 083/143] drm/msm/dpu: fix clocks settings for msm8998 SSPP blocks
 Date:   Wed, 15 Mar 2023 13:12:49 +0100
-Message-Id: <20230315115735.181500106@linuxfoundation.org>
+Message-Id: <20230315115743.059793812@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +59,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit db05ddf7f321634c5659a0cf7ea56594e22365f7 upstream.
+[ Upstream commit 0abb6a24aabc1252eae75fe23b0ccd3217c6ee07 ]
 
-You will get two decrements when the messages on a panic are sent, not
-one, since commit 2033f6858970 ("ipmi: Free receive messages when in an
-oops") was added, but the watchdog code had a bug where it didn't set
-the value properly.
+DMA2 and DMA3 planes on msm8998 should use corresponding DMA2 and DMA3
+clocks rather than CURSOR0/1 clocks (which are used for the CURSOR
+planes). Correct corresponding SSPP declarations.
 
-Reported-by: Anton Lundin <glance@acc.umu.se>
-Cc: <Stable@vger.kernel.org> # v5.4+
-Fixes: 2033f6858970 ("ipmi: Free receive messages when in an oops")
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94391a14fc27 ("drm/msm/dpu1: Add MSM8998 to hw catalog")
+Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Cc: Jami Kettunen <jami.kettunen@somainline.org>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/522230/
+Link: https://lore.kernel.org/r/20230211231259.1308718-13-dmitry.baryshkov@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_watchdog.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -503,7 +503,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 	msg.cmd = IPMI_WDOG_RESET_TIMER;
- 	msg.data = NULL;
- 	msg.data_len = 0;
--	atomic_inc(&panic_done_count);
-+	atomic_add(2, &panic_done_count);
- 	rv = ipmi_request_supply_msgs(watchdog_user,
- 				      (struct ipmi_addr *) &addr,
- 				      0,
-@@ -513,7 +513,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 				      &panic_halt_heartbeat_recv_msg,
- 				      1);
- 	if (rv)
--		atomic_dec(&panic_done_count);
-+		atomic_sub(2, &panic_done_count);
- }
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index 4c8d1d18b5055..41c93a18d5cb3 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -813,9 +813,9 @@ static const struct dpu_sspp_cfg msm8998_sspp[] = {
+ 	SSPP_BLK("sspp_9", SSPP_DMA1, 0x26000,  DMA_MSM8998_MASK,
+ 		sdm845_dma_sblk_1, 5, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA1),
+ 	SSPP_BLK("sspp_10", SSPP_DMA2, 0x28000,  DMA_CURSOR_MSM8998_MASK,
+-		sdm845_dma_sblk_2, 9, SSPP_TYPE_DMA, DPU_CLK_CTRL_CURSOR0),
++		sdm845_dma_sblk_2, 9, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA2),
+ 	SSPP_BLK("sspp_11", SSPP_DMA3, 0x2a000,  DMA_CURSOR_MSM8998_MASK,
+-		sdm845_dma_sblk_3, 13, SSPP_TYPE_DMA, DPU_CLK_CTRL_CURSOR1),
++		sdm845_dma_sblk_3, 13, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA3),
+ };
  
- static struct ipmi_smi_msg panic_halt_smi_msg = {
-@@ -537,12 +537,12 @@ static void panic_halt_ipmi_set_timeout(
- 	/* Wait for the messages to be free. */
- 	while (atomic_read(&panic_done_count) != 0)
- 		ipmi_poll_interface(watchdog_user);
--	atomic_inc(&panic_done_count);
-+	atomic_add(2, &panic_done_count);
- 	rv = __ipmi_set_timeout(&panic_halt_smi_msg,
- 				&panic_halt_recv_msg,
- 				&send_heartbeat_now);
- 	if (rv) {
--		atomic_dec(&panic_done_count);
-+		atomic_sub(2, &panic_done_count);
- 		pr_warn("Unable to extend the watchdog timeout\n");
- 	} else {
- 		if (send_heartbeat_now)
+ static const struct dpu_sspp_cfg sdm845_sspp[] = {
+-- 
+2.39.2
+
 
 
