@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E77E46BB182
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 946FF6BB241
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232308AbjCOM2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:28:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
+        id S232690AbjCOMeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232469AbjCOM1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC049CBE2
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:52 -0700 (PDT)
+        with ESMTP id S232731AbjCOMeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD31360A7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDFBA61D51
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDBD5C433D2;
-        Wed, 15 Mar 2023 12:26:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BD9AB81DF9
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA8DC4339B;
+        Wed, 15 Mar 2023 12:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883211;
-        bh=bSd5bfD4yYw/KciTPHFZ3Dfkdl9E6TZxHNUb7ggdWhg=;
+        s=korg; t=1678883575;
+        bh=alPoc+Dp0MVG/RrOGD8jgrFrRXZxVE5hhBtpGqLM59w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lP64fTpinYwFqDsf4oG7vAMfxIsk3cLTOje2atBDEOaBnE6MoVbesMBJRIkpAJB/O
-         95Sqdhgspm8kKp9y94h64dtXxM7n0B4g7PZL9yX5QDuuMtsoEhtW2j0A/kboERLtAe
-         AIGslUtPDe4hxV7aK86ZW2mYeVLg6QwDXjinoGsY=
+        b=G1jz7pFd03MPnY2LvxYeAyaVh6bi4D5gj+uX1hbLYtDKMRQMG9lvJtcZF1Ou47b/c
+         yEzUJwrlAsehUAq/3NsDSXdtRuK344LgD8kE4og/L40skdMhKY619FnjaJ5zSP2CcC
+         Xg8KQ7qHgLRyqSaeDjjtEPK0vc3nPSv3gezI+kdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Christian=20Kohlsch=C3=BCtter?= 
-        <christian@kohlschutter.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/145] regulator: core: Fix off-on-delay-us for always-on/boot-on regulators
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        stable@kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 020/143] ext4: move where set the MAY_INLINE_DATA flag is set
 Date:   Wed, 15 Mar 2023 13:11:46 +0100
-Message-Id: <20230315115740.398331976@linuxfoundation.org>
+Message-Id: <20230315115741.115760328@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Kohlschütter <christian@kohlschutter.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 218320fec29430438016f88dd4fbebfa1b95ad8d ]
+commit 1dcdce5919115a471bf4921a57f20050c545a236 upstream.
 
-Regulators marked with "regulator-always-on" or "regulator-boot-on"
-as well as an "off-on-delay-us", may run into cycling issues that are
-hard to detect.
+The only caller of ext4_find_inline_data_nolock() that needs setting of
+EXT4_STATE_MAY_INLINE_DATA flag is ext4_iget_extra_inode().  In
+ext4_write_inline_data_end() we just need to update inode->i_inline_off.
+Since we are going to add one more caller that does not need to set
+EXT4_STATE_MAY_INLINE_DATA, just move setting of EXT4_STATE_MAY_INLINE_DATA
+out to ext4_iget_extra_inode().
 
-This is caused by the "last_off" state not being initialized in this
-case.
-
-Fix the "last_off" initialization by setting it to the current kernel
-time upon initialization, regardless of always_on/boot_on state.
-
-Signed-off-by: Christian Kohlschütter <christian@kohlschutter.com>
-Link: https://lore.kernel.org/r/FAFD5B39-E9C4-47C7-ACF1-2A04CD59758D@kohlschutter.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Stable-dep-of: 80d2c29e09e6 ("regulator: core: Use ktime_get_boottime() to determine how long a regulator was off")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Cc: stable@kernel.org
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230307015253.2232062-2-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ext4/inline.c |    1 -
+ fs/ext4/inode.c  |    7 ++++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 450aa0756dd8c..c7b1e15bf7bb5 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1539,6 +1539,9 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 			rdev->constraints->always_on = true;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -159,7 +159,6 @@ int ext4_find_inline_data_nolock(struct
+ 					(void *)ext4_raw_inode(&is.iloc));
+ 		EXT4_I(inode)->i_inline_size = EXT4_MIN_INLINE_DATA_SIZE +
+ 				le32_to_cpu(is.s.here->e_value_size);
+-		ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
  	}
+ out:
+ 	brelse(is.iloc.bh);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4727,8 +4727,13 @@ static inline int ext4_iget_extra_inode(
  
-+	if (rdev->desc->off_on_delay)
-+		rdev->last_off = ktime_get();
+ 	if (EXT4_INODE_HAS_XATTR_SPACE(inode)  &&
+ 	    *magic == cpu_to_le32(EXT4_XATTR_MAGIC)) {
++		int err;
 +
- 	/* If the constraints say the regulator should be on at this point
- 	 * and we have control then make sure it is enabled.
- 	 */
-@@ -1572,8 +1575,6 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 
- 		if (rdev->constraints->always_on)
- 			rdev->use_count++;
--	} else if (rdev->desc->off_on_delay) {
--		rdev->last_off = ktime_get();
- 	}
- 
- 	print_constraints(rdev);
--- 
-2.39.2
-
+ 		ext4_set_inode_state(inode, EXT4_STATE_XATTR);
+-		return ext4_find_inline_data_nolock(inode);
++		err = ext4_find_inline_data_nolock(inode);
++		if (!err && ext4_has_inline_data(inode))
++			ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
++		return err;
+ 	} else
+ 		EXT4_I(inode)->i_inline_off = 0;
+ 	return 0;
 
 
