@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D47AE6BB26B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B71B6BB0BC
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:21:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232425AbjCOMgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52984 "EHLO
+        id S232077AbjCOMVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:21:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232698AbjCOMfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A6E919B6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:47 -0700 (PDT)
+        with ESMTP id S232100AbjCOMU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE46D93E03
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:20:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70DC261D49
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86721C433D2;
-        Wed, 15 Mar 2023 12:33:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E744B81DFE
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:20:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BF38C4339B;
+        Wed, 15 Mar 2023 12:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883624;
-        bh=tax5HNBs2jRqEFy9ozSMBd2IV1cguXW46DqrkOX6Ppo=;
+        s=korg; t=1678882803;
+        bh=UXz0odXSZ6smJbY7EwyajRapHaJfWjX6EmFVXElMPmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPi5DvPURYHTniKA8+u6P/HOd29GtzQvSWhfabBuKdWS2MwFGMKAkNv5EGPpq/B53
-         3s2OBhObAMH4reQcse7VoM2SC6yW0e4ja9t8AxfBo8E1ySF3E+SvvufHd0kZD+y9+9
-         NywYvU8wgpy4e+/4QcvZ9m0lG8i4MSKVBoxOYiXI=
+        b=WibKxXv0r+cHyohdUkg+DT0EfcxGkRzbEtV5HXZWZKVVlnLj83R9tXTA7kTZzQDfU
+         RHcvqE7W6q1KZoGCq0SKW02oK0OWKrpDWUoHysVrIDnZxv9SWe1hXtFECV2Ey1JDBC
+         c+H6RcLivHeNFrspkGCZ3WKGMG8hHIP+9blIIPBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yuiko Oshino <yuiko.oshino@microchip.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 069/143] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+Subject: [PATCH 5.4 41/68] net: lan78xx: fix accessing the LAN7800s internal phy specific registers from the MAC driver
 Date:   Wed, 15 Mar 2023 13:12:35 +0100
-Message-Id: <20230315115742.641889173@linuxfoundation.org>
+Message-Id: <20230315115727.724131693@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Yuiko Oshino <yuiko.oshino@microchip.com>
 
-[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
+[ Upstream commit e57cf3639c323eeed05d3725fd82f91b349adca8 ]
 
-ila_xlat_nl_cmd_get_mapping() generates an empty skb,
-triggerring a recent sanity check [1].
+Move the LAN7800 internal phy (phy ID  0x0007c132) specific register
+accesses to the phy driver (microchip.c).
 
-Instead, return an error code, so that user space
-can get it.
+Fix the error reported by Enguerrand de Ribaucourt in December 2022,
+"Some operations during the cable switch workaround modify the register
+LAN88XX_INT_MASK of the PHY. However, this register is specific to the
+LAN8835 PHY. For instance, if a DP8322I PHY is connected to the LAN7801,
+that register (0x19), corresponds to the LED and MAC address
+configuration, resulting in unapropriate behavior."
 
-[1]
-skb_assert_len
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-Modules linked in:
-CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
-pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
-lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-sp : ffff80001e0d6c40
-x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
-x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
-x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
-x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
-x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
-x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
-x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
-x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
-x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
-Call trace:
-skb_assert_len include/linux/skbuff.h:2527 [inline]
-__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-dev_queue_xmit include/linux/netdevice.h:3033 [inline]
-__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
-__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
-netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
-__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
-netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
-netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
-nlmsg_unicast include/net/netlink.h:1099 [inline]
-genlmsg_unicast include/net/genetlink.h:433 [inline]
-genlmsg_reply include/net/genetlink.h:443 [inline]
-ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
-genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
-genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
-genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
-netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
-genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
-netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
-netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
-netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg net/socket.c:734 [inline]
-____sys_sendmsg+0x558/0x844 net/socket.c:2479
-___sys_sendmsg net/socket.c:2533 [inline]
-__sys_sendmsg+0x26c/0x33c net/socket.c:2562
-__do_sys_sendmsg net/socket.c:2571 [inline]
-__se_sys_sendmsg net/socket.c:2569 [inline]
-__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
-__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
-el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
-do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
-el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
-el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
-irq event stamp: 136484
-hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
-hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
-softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
-softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
-softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
----[ end trace 0000000000000000 ]---
-skb len=0 headroom=0 headlen=0 tailroom=192
-mac=(0,0) net=(0,-1) trans=-1
-shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
-csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
-hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
-dev name=nlmon0 feat=0x0000000000005861
+I did not test with the DP8322I PHY, but I tested with an EVB-LAN7800
+with the internal PHY.
 
-Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 14437e3fa284 ("lan78xx: workaround of forced 100 Full/Half duplex mode error")
+Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20230301154307.30438-1-yuiko.oshino@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ila/ila_xlat.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/microchip.c | 32 ++++++++++++++++++++++++++++++++
+ drivers/net/usb/lan78xx.c   | 27 +--------------------------
+ 2 files changed, 33 insertions(+), 26 deletions(-)
 
-diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
-index 47447f0241df6..bee45dfeb1874 100644
---- a/net/ipv6/ila/ila_xlat.c
-+++ b/net/ipv6/ila/ila_xlat.c
-@@ -477,6 +477,7 @@ int ila_xlat_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
+diff --git a/drivers/net/phy/microchip.c b/drivers/net/phy/microchip.c
+index a644e8e5071c3..375bbd60b38af 100644
+--- a/drivers/net/phy/microchip.c
++++ b/drivers/net/phy/microchip.c
+@@ -326,6 +326,37 @@ static int lan88xx_config_aneg(struct phy_device *phydev)
+ 	return genphy_config_aneg(phydev);
+ }
  
- 	rcu_read_lock();
++static void lan88xx_link_change_notify(struct phy_device *phydev)
++{
++	int temp;
++
++	/* At forced 100 F/H mode, chip may fail to set mode correctly
++	 * when cable is switched between long(~50+m) and short one.
++	 * As workaround, set to 10 before setting to 100
++	 * at forced 100 F/H mode.
++	 */
++	if (!phydev->autoneg && phydev->speed == 100) {
++		/* disable phy interrupt */
++		temp = phy_read(phydev, LAN88XX_INT_MASK);
++		temp &= ~LAN88XX_INT_MASK_MDINTPIN_EN_;
++		phy_write(phydev, LAN88XX_INT_MASK, temp);
++
++		temp = phy_read(phydev, MII_BMCR);
++		temp &= ~(BMCR_SPEED100 | BMCR_SPEED1000);
++		phy_write(phydev, MII_BMCR, temp); /* set to 10 first */
++		temp |= BMCR_SPEED100;
++		phy_write(phydev, MII_BMCR, temp); /* set to 100 later */
++
++		/* clear pending interrupt generated while workaround */
++		temp = phy_read(phydev, LAN88XX_INT_STS);
++
++		/* enable phy interrupt back */
++		temp = phy_read(phydev, LAN88XX_INT_MASK);
++		temp |= LAN88XX_INT_MASK_MDINTPIN_EN_;
++		phy_write(phydev, LAN88XX_INT_MASK, temp);
++	}
++}
++
+ static struct phy_driver microchip_phy_driver[] = {
+ {
+ 	.phy_id		= 0x0007c130,
+@@ -339,6 +370,7 @@ static struct phy_driver microchip_phy_driver[] = {
  
-+	ret = -ESRCH;
- 	ila = ila_lookup_by_params(&xp, ilan);
- 	if (ila) {
- 		ret = ila_dump_info(ila,
+ 	.config_init	= lan88xx_config_init,
+ 	.config_aneg	= lan88xx_config_aneg,
++	.link_change_notify = lan88xx_link_change_notify,
+ 
+ 	.ack_interrupt	= lan88xx_phy_ack_interrupt,
+ 	.config_intr	= lan88xx_phy_config_intr,
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 5454a20384284..b51017966bb37 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -1851,33 +1851,8 @@ static void lan78xx_remove_mdio(struct lan78xx_net *dev)
+ static void lan78xx_link_status_change(struct net_device *net)
+ {
+ 	struct phy_device *phydev = net->phydev;
+-	int temp;
+-
+-	/* At forced 100 F/H mode, chip may fail to set mode correctly
+-	 * when cable is switched between long(~50+m) and short one.
+-	 * As workaround, set to 10 before setting to 100
+-	 * at forced 100 F/H mode.
+-	 */
+-	if (!phydev->autoneg && (phydev->speed == 100)) {
+-		/* disable phy interrupt */
+-		temp = phy_read(phydev, LAN88XX_INT_MASK);
+-		temp &= ~LAN88XX_INT_MASK_MDINTPIN_EN_;
+-		phy_write(phydev, LAN88XX_INT_MASK, temp);
+ 
+-		temp = phy_read(phydev, MII_BMCR);
+-		temp &= ~(BMCR_SPEED100 | BMCR_SPEED1000);
+-		phy_write(phydev, MII_BMCR, temp); /* set to 10 first */
+-		temp |= BMCR_SPEED100;
+-		phy_write(phydev, MII_BMCR, temp); /* set to 100 later */
+-
+-		/* clear pending interrupt generated while workaround */
+-		temp = phy_read(phydev, LAN88XX_INT_STS);
+-
+-		/* enable phy interrupt back */
+-		temp = phy_read(phydev, LAN88XX_INT_MASK);
+-		temp |= LAN88XX_INT_MASK_MDINTPIN_EN_;
+-		phy_write(phydev, LAN88XX_INT_MASK, temp);
+-	}
++	phy_print_status(phydev);
+ }
+ 
+ static int irq_map(struct irq_domain *d, unsigned int irq,
 -- 
 2.39.2
 
