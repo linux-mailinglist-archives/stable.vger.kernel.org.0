@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51BED6BB2F0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F366BB0D1
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:21:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232951AbjCOMkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
+        id S232142AbjCOMVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:21:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233071AbjCOMkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:40:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA959F208
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:38:49 -0700 (PDT)
+        with ESMTP id S232143AbjCOMVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:21:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6804095E2C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA8886128D
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 062D9C433D2;
-        Wed, 15 Mar 2023 12:38:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8065861D57
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:20:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B22C433EF;
+        Wed, 15 Mar 2023 12:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883910;
-        bh=cJyn5if9UHzNMhCT6qOO4Ca+N/e7eaTdLc59LvGpKzg=;
+        s=korg; t=1678882829;
+        bh=3bNM15ShRroBVTId57mEs4cY/R+KvaU72qKC+Nc8+H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ksZHOGy01WZAOQt3Ia2/g5hpMc6DSYdLktCuzPaxc13XiOKhtWEiEK72qFlBYjk2m
-         hI2wCS6N56UMB/cLDeV+hUEgh8XWu+6AQ3E/AFUcJbn/9KFjceNSX6xnjn5cOWn2CQ
-         9c0C+/F6HLT/+is1nu/sj3AK94uHXPstZ0YiEQSA=
+        b=JBkIZidglDkSTy8xudDlC3f0jk7F+gX3K2h/mv3pQ7NNN6yHYwTRsfR/HOLhbFFOE
+         EYubly8nnycHXKt4Km766SsfeQXe5/KHxyYGXxAS24NZbgjl/lrcHWmqxFOd15qii4
+         v16c43yy/S0SmzglNhsv+u+UlVymsGPDHdbOq2hY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yue Hu <huyue2@coolpad.com>,
-        Chao Yu <chao@kernel.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 6.2 006/141] erofs: fix wrong kunmap when using LZMA on HIGHMEM platforms
+        patches@lists.linux.dev, Bixuan Cui <cuibixuan@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 018/104] irqdomain: Change the type of size in __irq_domain_add() to be consistent
 Date:   Wed, 15 Mar 2023 13:11:49 +0100
-Message-Id: <20230315115740.152502046@linuxfoundation.org>
+Message-Id: <20230315115732.825280066@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,52 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-commit 8f121dfb15f7b4ab345992ce96003eb63fd608f4 upstream.
+[ Upstream commit 20c36ce2164f1774b487d443ece99b754bc6ad43 ]
 
-As the call trace shown, the root cause is kunmap incorrect pages:
+The 'size' is used in struct_size(domain, revmap, size) and its input
+parameter type is 'size_t'(unsigned int).
+Changing the size to 'unsigned int' to make the type consistent.
 
- BUG: kernel NULL pointer dereference, address: 00000000
- CPU: 1 PID: 40 Comm: kworker/u5:0 Not tainted 6.2.0-rc5 #4
- Workqueue: erofs_worker z_erofs_decompressqueue_work
- EIP: z_erofs_lzma_decompress+0x34b/0x8ac
-  z_erofs_decompress+0x12/0x14
-  z_erofs_decompress_queue+0x7e7/0xb1c
-  z_erofs_decompressqueue_work+0x32/0x60
-  process_one_work+0x24b/0x4d8
-  ? process_one_work+0x1a4/0x4d8
-  worker_thread+0x14c/0x3fc
-  kthread+0xe6/0x10c
-  ? rescuer_thread+0x358/0x358
-  ? kthread_complete_and_exit+0x18/0x18
-  ret_from_fork+0x1c/0x28
- ---[ end trace 0000000000000000 ]---
-
-The bug is trivial and should be fixed now.  It has no impact on
-!HIGHMEM platforms.
-
-Fixes: 622ceaddb764 ("erofs: lzma compression support")
-Cc: <stable@vger.kernel.org> # 5.16+
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230305134455.88236-1-hsiangkao@linux.alibaba.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210916025203.44841-1-cuibixuan@huawei.com
+Stable-dep-of: 8932c32c3053 ("irqdomain: Fix domain registration race")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/decompressor_lzma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/irqdomain.h | 2 +-
+ kernel/irq/irqdomain.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -278,7 +278,7 @@ again:
- 		}
- 	}
- 	if (no < nrpages_out && strm->buf.out)
--		kunmap(rq->in[no]);
-+		kunmap(rq->out[no]);
- 	if (ni < nrpages_in)
- 		kunmap(rq->in[ni]);
- 	/* 4. push back LZMA stream context to the global list */
+diff --git a/include/linux/irqdomain.h b/include/linux/irqdomain.h
+index ea5a337e0f8b8..9b9743f7538c4 100644
+--- a/include/linux/irqdomain.h
++++ b/include/linux/irqdomain.h
+@@ -256,7 +256,7 @@ static inline struct fwnode_handle *irq_domain_alloc_fwnode(phys_addr_t *pa)
+ }
+ 
+ void irq_domain_free_fwnode(struct fwnode_handle *fwnode);
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, int size,
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+ 				    irq_hw_number_t hwirq_max, int direct_max,
+ 				    const struct irq_domain_ops *ops,
+ 				    void *host_data);
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index 245e317c72908..426242c8903d4 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -130,7 +130,7 @@ EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
+  * Allocates and initializes an irq_domain structure.
+  * Returns pointer to IRQ domain, or NULL on failure.
+  */
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, int size,
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+ 				    irq_hw_number_t hwirq_max, int direct_max,
+ 				    const struct irq_domain_ops *ops,
+ 				    void *host_data)
+-- 
+2.39.2
+
 
 
