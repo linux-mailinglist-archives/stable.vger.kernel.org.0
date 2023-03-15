@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 017E06BB019
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:15:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE1B6BB272
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231397AbjCOMP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:15:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37856 "EHLO
+        id S232819AbjCOMgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231779AbjCOMPN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C567FD51
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:09 -0700 (PDT)
+        with ESMTP id S232827AbjCOMgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE406B954
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:35:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC9B1B81DDA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F210C4339B;
-        Wed, 15 Mar 2023 12:15:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A343861ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5829C433D2;
+        Wed, 15 Mar 2023 12:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882506;
-        bh=MU5EXANTWSsAxrH9VDoE9T6jLGfx/q/yU3e3ldMitrc=;
+        s=korg; t=1678883643;
+        bh=ffGYKZewXyWkbzMRzxdCv5xpaRaJM2+uClDpNdqV4Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhEx5Jxm2oNOuz5QaeV0MTq6w9e6yapWdR0rfzmzv9oOeDkqCGv8kaS/FG4QIRep3
-         DcgQEM0ExtbA4muL72kV5QU32arbCHSjgZtkdNkLUkQijXWVdJVBAfc43jYl2OxGHt
-         N5w2sbvcVIOa+glkMOY2aBrdyBakcmXXlihR3GHI=
+        b=s3G4SmPgEZIgufQkmXuP1oTI08cVvuXYICTsleuJEm4PPn6W8t4x8AkoFXtgIu5bQ
+         A0ZzfxH/RdfptmdOZAckA43TQc1VmgXybSx8Cp0QO8mIotcL7cAMaFjPoFBitFOgc0
+         Cv7ztucPS6xLmRf5uuaHCl1EsrQvqVbgGYCIMi9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
-        Jai Luthra <j-luthra@ti.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Brian Vazquez <brianvv@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/21] media: ov5640: Fix analogue gain control
+Subject: [PATCH 6.1 075/143] net: use indirect calls helpers for sk_exit_memory_pressure()
 Date:   Wed, 15 Mar 2023 13:12:41 +0100
-Message-Id: <20230315115719.517137420@linuxfoundation.org>
+Message-Id: <20230315115742.826325639@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115718.796692048@linuxfoundation.org>
-References: <20230315115718.796692048@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,91 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Elder <paul.elder@ideasonboard.com>
+From: Brian Vazquez <brianvv@google.com>
 
-[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
+[ Upstream commit 5c1ebbfabcd61142a4551bfc0e51840f9bdae7af ]
 
-Gain control is badly documented in publicly available (including
-leaked) documentation.
+Florian reported a regression and sent a patch with the following
+changelog:
 
-There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
-(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
-one application note states is equal to x1.047. The documentation also
-states that 0x40 is equel to x1.000. The pre-gain thus seems to be
-expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
-What the pre-gain does is however unspecified.
+<quote>
+ There is a noticeable tcp performance regression (loopback or cross-netns),
+ seen with iperf3 -Z (sendfile mode) when generic retpolines are needed.
 
-There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
-expressed as a 10-bit "real gain format" value. One application note
-sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
-expressed in 1/16 increments, up to x63.9375.
+ With SK_RECLAIM_THRESHOLD checks gone number of calls to enter/leave
+ memory pressure happen much more often. For TCP indirect calls are
+ used.
 
-The manual gain is stored in registers 0x350a and 0x350b, also as a
-10-bit "real gain format" value. It is documented in the application
-note as a Q6.4 values, up to x63.9375.
+ We can't remove the if-set-return short-circuit check in
+ tcp_enter_memory_pressure because there are callers other than
+ sk_enter_memory_pressure.  Doing a check in the sk wrapper too
+ reduces the indirect calls enough to recover some performance.
 
-One version of the datasheet indicates that the sensor supports a
-digital gain:
+ Before,
+ 0.00-60.00  sec   322 GBytes  46.1 Gbits/sec                  receiver
 
-  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
-  controlled automatically by the automatic gain control (AGC) block.
+ After:
+ 0.00-60.04  sec   359 GBytes  51.4 Gbits/sec                  receiver
 
-It isn't clear how that would be controlled manually.
+ "iperf3 -c $peer -t 60 -Z -f g", connected via veth in another netns.
+</quote>
 
-There appears to be no indication regarding whether the gain controlled
-through registers 0x350a and 0x350b is an analogue gain only or also
-includes digital gain. The words "real gain" don't necessarily mean
-"combined analogue and digital gains". Some OmniVision sensors (such as
-the OV8858) are documented as supoprting different formats for the gain
-values, selectable through a register bit, and they are called "real
-gain format" and "sensor gain format". For that sensor, we have (one of)
-the gain registers documented as
+It seems we forgot to upstream this indirect call mitigation we
+had for years, lets do this instead.
 
-  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
-  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
+[edumazet] - It seems we forgot to upstream this indirect call
+             mitigation we had for years, let's do this instead.
+           - Changed to INDIRECT_CALL_INET_1() to avoid bots reports.
 
-  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
-  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
-  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
-  0x70 is 4x gain
-
-(The second part of the text makes little sense)
-
-"Real gain" may thus refer to the combination of the coarse and fine
-analogue gains as a single value.
-
-The OV5640 0x350a and 0x350b registers thus appear to control analogue
-gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
-control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
-
-If registers 0x350a and 0x350b are later found to control digital gain
-as well, the driver could then restrict the range of the analogue gain
-control value to lower than x64 and add a separate digital gain control.
-
-Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
-Reviewed-by: Jai Luthra <j-luthra@ti.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 4890b686f408 ("net: keep sk->sk_forward_alloc as small as possible")
+Reported-by: Florian Westphal <fw@strlen.de>
+Link: https://lore.kernel.org/netdev/20230227152741.4a53634b@kernel.org/T/
+Signed-off-by: Brian Vazquez <brianvv@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230301133247.2346111-1-edumazet@google.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/sock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index eb0331b8a5833..b78e35425d14f 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2002,7 +2002,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
- 	/* Auto/manual gain */
- 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
- 					     0, 1, 1, 1);
--	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
-+	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
- 					0, 1023, 1, 0);
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 4dfdcdfd00114..eb0b76acd9df1 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2805,7 +2805,8 @@ static void sk_enter_memory_pressure(struct sock *sk)
+ static void sk_leave_memory_pressure(struct sock *sk)
+ {
+ 	if (sk->sk_prot->leave_memory_pressure) {
+-		sk->sk_prot->leave_memory_pressure(sk);
++		INDIRECT_CALL_INET_1(sk->sk_prot->leave_memory_pressure,
++				     tcp_leave_memory_pressure, sk);
+ 	} else {
+ 		unsigned long *memory_pressure = sk->sk_prot->memory_pressure;
  
- 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
 -- 
 2.39.2
 
