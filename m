@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C086BB317
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFE606BB02C
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232915AbjCOMl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35996 "EHLO
+        id S231271AbjCOMQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:16:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233005AbjCOMlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:41:03 -0400
+        with ESMTP id S231934AbjCOMPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:15:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DE359D0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:39:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907A687DBD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:15:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B83DD61D5E
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E7CC433D2;
-        Wed, 15 Mar 2023 12:39:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B60761D3F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C7DFC433EF;
+        Wed, 15 Mar 2023 12:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883997;
-        bh=HGhNJjTvsfcnLUFfjnwqETk5OPsLYrOYHUsK9mynZmg=;
+        s=korg; t=1678882548;
+        bh=Cq1alsNJUhlPmlWbTKWO4rS3CO8rjyhPZbnesJSB2R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6wkGTa401cv/SCVE+1YxFGr+q+qKrf8ouM2AEoHBnv8r461Pp5E42NvFQV96A6sq
-         S0VTDWzrNFcECDqqDqHPF5YjKwaj38y0FwoiF1700YXG1FaybxlIZxUdkTNqWmCvAY
-         oXNsyiOYuzOjsYb7u2uuRxRBYH14yKzq/Y7qMTi0=
+        b=qUTa5O2oHgYGeQc7GOqmCxmDIXm8BDJJMQwu1jQSGR2Y6Avp/vcOqWzNdJiLNf3UW
+         NLeSamJ/Sc9dePlSkE9I9+DVvJq53rRw3yYnH9/EL7u7XoZkrJkaxzGQkrJjYQwHJ6
+         7iXpdsh9eoiPc3v3Zcg3TkkPE0hZr9JeYQvmSDrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Animesh Manna <animesh.manna@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 037/141] drm/i915: Introduce intel_panel_init_alloc()
+        patches@lists.linux.dev,
+        syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com,
+        stable@kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 06/39] ext4: fix WARNING in ext4_update_inline_data
 Date:   Wed, 15 Mar 2023 13:12:20 +0100
-Message-Id: <20230315115741.093778043@linuxfoundation.org>
+Message-Id: <20230315115721.493406895@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115721.234756306@linuxfoundation.org>
+References: <20230315115721.234756306@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit f70f8153e3642337b444fbc0c64d546a46bbcd62 ]
+commit 2b96b4a5d9443ca4cad58b0040be455803c05a42 upstream.
 
-Introduce a place where we can initialize connector->panel
-after it's been allocated. We already have a intel_panel_init()
-so had to get creative with the name and came up with
-intel_panel_init_alloc().
+Syzbot found the following issue:
+EXT4-fs (loop0): mounted filesystem 00000000-0000-0000-0000-000000000000 without journal. Quota mode: none.
+fscrypt: AES-256-CTS-CBC using implementation "cts-cbc-aes-aesni"
+fscrypt: AES-256-XTS using implementation "xts-aes-aesni"
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 5071 at mm/page_alloc.c:5525 __alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+Modules linked in:
+CPU: 1 PID: 5071 Comm: syz-executor263 Not tainted 6.2.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:__alloc_pages+0x30a/0x560 mm/page_alloc.c:5525
+RSP: 0018:ffffc90003c2f1c0 EFLAGS: 00010246
+RAX: ffffc90003c2f220 RBX: 0000000000000014 RCX: 0000000000000000
+RDX: 0000000000000028 RSI: 0000000000000000 RDI: ffffc90003c2f248
+RBP: ffffc90003c2f2d8 R08: dffffc0000000000 R09: ffffc90003c2f220
+R10: fffff52000785e49 R11: 1ffff92000785e44 R12: 0000000000040d40
+R13: 1ffff92000785e40 R14: dffffc0000000000 R15: 1ffff92000785e3c
+FS:  0000555556c0d300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f95d5e04138 CR3: 00000000793aa000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __alloc_pages_node include/linux/gfp.h:237 [inline]
+ alloc_pages_node include/linux/gfp.h:260 [inline]
+ __kmalloc_large_node+0x95/0x1e0 mm/slab_common.c:1113
+ __do_kmalloc_node mm/slab_common.c:956 [inline]
+ __kmalloc+0xfe/0x190 mm/slab_common.c:981
+ kmalloc include/linux/slab.h:584 [inline]
+ kzalloc include/linux/slab.h:720 [inline]
+ ext4_update_inline_data+0x236/0x6b0 fs/ext4/inline.c:346
+ ext4_update_inline_dir fs/ext4/inline.c:1115 [inline]
+ ext4_try_add_inline_entry+0x328/0x990 fs/ext4/inline.c:1307
+ ext4_add_entry+0x5a4/0xeb0 fs/ext4/namei.c:2385
+ ext4_add_nondir+0x96/0x260 fs/ext4/namei.c:2772
+ ext4_create+0x36c/0x560 fs/ext4/namei.c:2817
+ lookup_open fs/namei.c:3413 [inline]
+ open_last_lookups fs/namei.c:3481 [inline]
+ path_openat+0x12ac/0x2dd0 fs/namei.c:3711
+ do_filp_open+0x264/0x4f0 fs/namei.c:3741
+ do_sys_openat2+0x124/0x4e0 fs/open.c:1310
+ do_sys_open fs/open.c:1326 [inline]
+ __do_sys_openat fs/open.c:1342 [inline]
+ __se_sys_openat fs/open.c:1337 [inline]
+ __x64_sys_openat+0x243/0x290 fs/open.c:1337
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Cc: Animesh Manna <animesh.manna@intel.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221125173156.31689-2-ville.syrjala@linux.intel.com
-Stable-dep-of: 14e591a1930c ("drm/i915: Populate encoder->devdata for DSI on icl+")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Above issue happens as follows:
+ext4_iget
+   ext4_find_inline_data_nolock ->i_inline_off=164 i_inline_size=60
+ext4_try_add_inline_entry
+   __ext4_mark_inode_dirty
+      ext4_expand_extra_isize_ea ->i_extra_isize=32 s_want_extra_isize=44
+         ext4_xattr_shift_entries
+	 ->after shift i_inline_off is incorrect, actually is change to 176
+ext4_try_add_inline_entry
+  ext4_update_inline_dir
+    get_max_inline_xattr_value_size
+      if (EXT4_I(inode)->i_inline_off)
+	entry = (struct ext4_xattr_entry *)((void *)raw_inode +
+			EXT4_I(inode)->i_inline_off);
+        free += EXT4_XATTR_SIZE(le32_to_cpu(entry->e_value_size));
+	->As entry is incorrect, then 'free' may be negative
+   ext4_update_inline_data
+      value = kzalloc(len, GFP_NOFS);
+      -> len is unsigned int, maybe very large, then trigger warning when
+         'kzalloc()'
+
+To resolve the above issue we need to update 'i_inline_off' after
+'ext4_xattr_shift_entries()'.  We do not need to set
+EXT4_STATE_MAY_INLINE_DATA flag here, since ext4_mark_inode_dirty()
+already sets this flag if needed.  Setting EXT4_STATE_MAY_INLINE_DATA
+when it is needed may trigger a BUG_ON in ext4_writepages().
+
+Reported-by: syzbot+d30838395804afc2fa6f@syzkaller.appspotmail.com
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230307015253.2232062-3-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_connector.c | 2 +-
- drivers/gpu/drm/i915/display/intel_panel.c     | 7 +++++++
- drivers/gpu/drm/i915/display/intel_panel.h     | 1 +
- 3 files changed, 9 insertions(+), 1 deletion(-)
+ fs/ext4/xattr.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_connector.c b/drivers/gpu/drm/i915/display/intel_connector.c
-index 6205ddd3ded03..562da3b741e2d 100644
---- a/drivers/gpu/drm/i915/display/intel_connector.c
-+++ b/drivers/gpu/drm/i915/display/intel_connector.c
-@@ -54,7 +54,7 @@ int intel_connector_init(struct intel_connector *connector)
- 	__drm_atomic_helper_connector_reset(&connector->base,
- 					    &conn_state->base);
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2823,6 +2823,9 @@ shift:
+ 			(void *)header, total_ino);
+ 	EXT4_I(inode)->i_extra_isize = new_extra_isize;
  
--	INIT_LIST_HEAD(&connector->panel.fixed_modes);
-+	intel_panel_init_alloc(connector);
- 
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
-index 1640726bfbf6a..b49228eb79e75 100644
---- a/drivers/gpu/drm/i915/display/intel_panel.c
-+++ b/drivers/gpu/drm/i915/display/intel_panel.c
-@@ -661,6 +661,13 @@ intel_panel_mode_valid(struct intel_connector *connector,
- 	return MODE_OK;
- }
- 
-+void intel_panel_init_alloc(struct intel_connector *connector)
-+{
-+	struct intel_panel *panel = &connector->panel;
++	if (ext4_has_inline_data(inode))
++		error = ext4_find_inline_data_nolock(inode);
 +
-+	INIT_LIST_HEAD(&panel->fixed_modes);
-+}
-+
- int intel_panel_init(struct intel_connector *connector)
- {
- 	struct intel_panel *panel = &connector->panel;
-diff --git a/drivers/gpu/drm/i915/display/intel_panel.h b/drivers/gpu/drm/i915/display/intel_panel.h
-index 5c5b5b7f95b6c..4b51e1c51da62 100644
---- a/drivers/gpu/drm/i915/display/intel_panel.h
-+++ b/drivers/gpu/drm/i915/display/intel_panel.h
-@@ -18,6 +18,7 @@ struct intel_connector;
- struct intel_crtc_state;
- struct intel_encoder;
- 
-+void intel_panel_init_alloc(struct intel_connector *connector);
- int intel_panel_init(struct intel_connector *connector);
- void intel_panel_fini(struct intel_connector *connector);
- enum drm_connector_status
--- 
-2.39.2
-
+ cleanup:
+ 	if (error && (mnt_count != le16_to_cpu(sbi->s_es->s_mnt_count))) {
+ 		ext4_warning(inode->i_sb, "Unable to expand inode %lu. Delete some EAs or run e2fsck.",
 
 
