@@ -2,140 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADE26BBE20
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 21:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7475A6BBDBB
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 21:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230036AbjCOUsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 16:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44018 "EHLO
+        id S232773AbjCOUBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 16:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229547AbjCOUsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 16:48:53 -0400
-X-Greylist: delayed 1799 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 15 Mar 2023 13:48:51 PDT
-Received: from tu.jetro.fi (tu.jetro.fi [IPv6:2a01:4f9:c010:1a1b::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F306A196AD
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 13:48:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=jetro.fi;
-        s=170418; h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:
-        In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=L/3f0niBe+n8QtNjT0soQtqCZoQEjpVo14Zv9dQPrTU=; b=d7D1qcKlDOF6w58pcKFC+1HK+y
-        Zn9aIASzbsmR0P1qmAI4pJ6Gs//Fe2fYk04FFQ1Z4Dr1WaZbBB4m5lMW8gLhBbDscHRqjrLbYJoGK
-        4aj9Xv6qAUsN+ABpF1Br2UX0JHxRfb8sBSK4AJ8HZHAMgIq1v9RdeeH7jM21R5+eLSTo=;
-Received: from [2001:470:28:7b9::190] (port=51694 helo=mopti)
-        by tu.jetro.fi with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-        (Exim 4.96)
-        (envelope-from <jje-lxkl@jetro.fi>)
-        id 1pcXFh-00CQu9-0R;
-        Wed, 15 Mar 2023 21:57:37 +0200
-Date:   Wed, 15 Mar 2023 21:57:36 +0200
-From:   Jetro Jormalainen <jje-lxkl@jetro.fi>
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Meng Tang <tangmeng@uniontech.com>, regressions@lists.linux.dev,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [REGRESSION] External mic not working on Lenovo Ideapad U310,
- ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model
-Message-ID: <20230315215736.419ac9eb@mopti>
-In-Reply-To: <87o7ou9jfi.wl-tiwai@suse.de>
-References: <20230308215009.4d3e58a6@mopti>
-        <87o7ou9jfi.wl-tiwai@suse.de>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.36; x86_64-pc-linux-gnu)
+        with ESMTP id S232424AbjCOUBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 16:01:54 -0400
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31D93B226
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 13:01:51 -0700 (PDT)
+Received: by mail-il1-x135.google.com with SMTP id r4so11002509ila.2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 13:01:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1678910511;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QdLj1A8OJQmCn9L+6EagDYwqPweTZs0gPc0iNxYbwNQ=;
+        b=LklbiHJvuZuqc/Bx1Wq8jpqDIoCGLqhnel9DKGs/Hr6pzv1ZAH4iK+hjfl9nfGI+7z
+         y3+pcG/jgu+3VVxyOH/l5ET0gdmJN8aa1jy5ULMS1i61ZoAI0TSA8xnhydXb32yLqvuO
+         X+hOlx/zn/q8aHK0qsN7FB/yOqBXYro4a2OrNdzQED7yTXzq5xFCkWI7aJSV5rWdxIyq
+         ywsZRYeQPuyKEdVm7u4QqA25tA8hMnuzpO38/qpMX8gCltPcINbjt6PqtH1PXN2WN+Jk
+         nW+FQLIO2NCMhb9XhzNdITDuYbA6KgRKI8wnYHArbl/TeDMH+hMPfgsVrLb+OoHy58iD
+         dLxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678910511;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QdLj1A8OJQmCn9L+6EagDYwqPweTZs0gPc0iNxYbwNQ=;
+        b=6biZSVuTprNqcF0J9AqS2xK0UYtH8Sgp1dd1Czgd1AeG8hKLU81vXr/W8c+aMI1nvl
+         /FOWm19FbkJV0K2ejXAslvQ98JjXbDj4NOVSbtP7cdExMQJ7RF5soYK7HvcoiMu8QGN3
+         GC8Nfb0Ogpr5KCCAkP/Ybj7unT0W0dSLaik448TDGUxcvZj9RH+yHIyFP8xHGE9MO22z
+         WkhAdtxY45DGcvB32ZgdxwyT8/1KWGaqgRK9y/V9ZYZv2am+EnalXdxnETNT63VBsBEp
+         Cl90cBmMOyjeanZpFzJ9QCUYOO6iyrnERsU9lvNx2g2z5m+Ruc5EAmI7jL6gGW+LO+yV
+         jk2g==
+X-Gm-Message-State: AO0yUKVXsKbmv8g27B9xJEoF1PM0uIe38H79hJ7adx2Bv6XI27AKjlSv
+        u4YWOWob7PEkl+Bkivgm9m+wMvqmKAYbiJhEfnuk5w==
+X-Google-Smtp-Source: AK7set9WGH1pDwg9Oc343uqZgOz19nbKLKKiJkee6xGh4enienlupjLecLu+/AQ9ICV9i8UGt+CllvLOVlLVwVN8HHE=
+X-Received: by 2002:a92:d90b:0:b0:322:fdbc:d1a2 with SMTP id
+ s11-20020a92d90b000000b00322fdbcd1a2mr3821819iln.2.1678910510983; Wed, 15 Mar
+ 2023 13:01:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
+References: <20230314235332.50270-1-ebiggers@kernel.org>
+In-Reply-To: <20230314235332.50270-1-ebiggers@kernel.org>
+From:   Victor Hsieh <victorhsieh@google.com>
+Date:   Wed, 15 Mar 2023 13:01:38 -0700
+Message-ID: <CAFCauYOtRO3i0=HuogKngkxO4_au7ftD7aB+M0A-kcsdMUXmfA@mail.gmail.com>
+Subject: Re: [PATCH] fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     fsverity@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Wed, 15 Mar 2023 15:29:53 +0100
-Takashi Iwai <tiwai@suse.de> kirjoitti:
+Reviewed-by: Victor Hsieh <victorhsieh@google.com>
 
-> On Wed, 08 Mar 2023 20:50:09 +0100,
-> Jetro Jormalainen wrote:
-> > 
-> > External mic on Lenovo Ideapad U310 has not been working with and
-> > after 5.19.2 release. Same problem still exists on 6.3.0-rc1.
-> > Reverting this commit makes external mic to work on 6.3.0-rc1.
-> > These were tested on vanilla kernels.
-> > 
-> > Bisecting shows that this commit breaks external mic:
-> > f83bb2592482fe94c6eea07a8121763c80f36ce5
-> > ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model  
-> 
-> Sounds like multiple models using the same PCI SSID.
-> Could you share the alsa-info.sh output?
-
-I added alsa-info.sh output on non-working kernel to here:
-https://e.pcloud.link/publink/show?code=XZjUqhZVP3JPN9gcyyh9lG23r5g3pKwaD8k
-
-If it's any use here is also output on same kernel with the commit
-reverted:
-https://e.pcloud.link/publink/show?code=XZ9UqhZ90gGNhCqiEkFwsKoQ6LWI0ECt8a7
-
-BR Jetro
-
-
-> Meng, also could you give alsa-info.sh output of Lenovo 20149, too?
-> 
-> 
-> thanks,
-> 
-> Takashi
-> 
-> 
-> > After this commit Pulseaudio only shows "Microphone" port as before
-> > there was "Internal microphone" and "Microphone". However when
-> > recording this "Microphone" port that seems to record internal
-> > microphone. External mic cannot be recorded at all after this
-> > commit.
-> > 
-> > External mic not working (dmesg):
-> > 
-> > [    7.565222] snd_hda_codec_conexant hdaudioC1D0: CX20590: BIOS
-> > auto-probing. [    7.566141] snd_hda_codec_conexant hdaudioC1D0:
-> > autoconfig for CX20590: line_outs=1 (0x1f/0x0/0x0/0x0/0x0)
-> > type:speaker [    7.566152] snd_hda_codec_conexant hdaudioC1D0:
-> > speaker_outs=0 (0x0/0x0/0x0/0x0/0x0) [    7.566158]
-> > snd_hda_codec_conexant hdaudioC1D0:    hp_outs=1
-> > (0x19/0x0/0x0/0x0/0x0) [    7.566162] snd_hda_codec_conexant
-> > hdaudioC1D0:    mono: mono_out=0x0 [    7.566166]
-> > snd_hda_codec_conexant hdaudioC1D0:    inputs: [    7.566169]
-> > snd_hda_codec_conexant hdaudioC1D0:      Mic=0x23 [    7.566172]
-> > snd_hda_codec_conexant hdaudioC1D0:    dig-in=0x1a
-> > 
-> > External mic working (dmesg):
-> > 
-> > [    8.381160] snd_hda_codec_conexant hdaudioC1D0: CX20590: BIOS
-> > auto-probing. [    8.381691] snd_hda_codec_conexant hdaudioC1D0:
-> > autoconfig for CX20590: line_outs=1 (0x1f/0x0/0x0/0x0/0x0)
-> > type:speaker [    8.381700] snd_hda_codec_conexant hdaudioC1D0:
-> > speaker_outs=0 (0x0/0x0/0x0/0x0/0x0) [    8.381705]
-> > snd_hda_codec_conexant hdaudioC1D0:    hp_outs=1
-> > (0x19/0x0/0x0/0x0/0x0) [    8.381710] snd_hda_codec_conexant
-> > hdaudioC1D0:    mono: mono_out=0x0 [    8.381714]
-> > snd_hda_codec_conexant hdaudioC1D0:    inputs: [    8.381717]
-> > snd_hda_codec_conexant hdaudioC1D0:      Internal Mic=0x23 [
-> > 8.381721] snd_hda_codec_conexant hdaudioC1D0:      Mic=0x1a
-> > 
-> > 
-> > cat /proc/version:
-> > Linux version 6.3.0-rc1-1 (linux@archlinux) (gcc (GCC) 12.2.1
-> > 20230201, GNU ld (GNU Binutils) 2.40) #10 SMP PREEMPT_DYNAMIC Wed,
-> > 08 Mar 2023 17:45:22 +0000
-> > 
-> > hostnamectl | grep "Operating System":
-> > Operating System: Arch Linux
-> > 
-> > uname -mi:
-> > x86_64 unknown
-> > 
-> > #regzbot introduced: f83bb2592482  
-> 
-
+On Tue, Mar 14, 2023 at 4:55=E2=80=AFPM Eric Biggers <ebiggers@kernel.org> =
+wrote:
+>
+> From: Eric Biggers <ebiggers@google.com>
+>
+> The full pagecache drop at the end of FS_IOC_ENABLE_VERITY is causing
+> performance problems and is hindering adoption of fsverity.  It was
+> intended to solve a race condition where unverified pages might be left
+> in the pagecache.  But actually it doesn't solve it fully.
+>
+> Since the incomplete solution for this race condition has too much
+> performance impact for it to be worth it, let's remove it for now.
+>
+> Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  fs/verity/enable.c | 25 +++++++++++++------------
+>  1 file changed, 13 insertions(+), 12 deletions(-)
+>
+> diff --git a/fs/verity/enable.c b/fs/verity/enable.c
+> index e13db6507b38b..7a0e3a84d370b 100644
+> --- a/fs/verity/enable.c
+> +++ b/fs/verity/enable.c
+> @@ -8,7 +8,6 @@
+>  #include "fsverity_private.h"
+>
+>  #include <linux/mount.h>
+> -#include <linux/pagemap.h>
+>  #include <linux/sched/signal.h>
+>  #include <linux/uaccess.h>
+>
+> @@ -367,25 +366,27 @@ int fsverity_ioctl_enable(struct file *filp, const =
+void __user *uarg)
+>                 goto out_drop_write;
+>
+>         err =3D enable_verity(filp, &arg);
+> -       if (err)
+> -               goto out_allow_write_access;
+>
+>         /*
+> -        * Some pages of the file may have been evicted from pagecache af=
+ter
+> -        * being used in the Merkle tree construction, then read into pag=
+ecache
+> -        * again by another process reading from the file concurrently.  =
+Since
+> -        * these pages didn't undergo verification against the file diges=
+t which
+> -        * fs-verity now claims to be enforcing, we have to wipe the page=
+cache
+> -        * to ensure that all future reads are verified.
+> +        * We no longer drop the inode's pagecache after enabling verity.=
+  This
+> +        * used to be done to try to avoid a race condition where pages c=
+ould be
+> +        * evicted after being used in the Merkle tree construction, then
+> +        * re-instantiated by a concurrent read.  Such pages are unverifi=
+ed, and
+> +        * the backing storage could have filled them with different cont=
+ent, so
+> +        * they shouldn't be used to fulfill reads once verity is enabled=
+.
+> +        *
+> +        * But, dropping the pagecache has a big performance impact, and =
+it
+> +        * doesn't fully solve the race condition anyway.  So for those r=
+easons,
+> +        * and also because this race condition isn't very important rela=
+tively
+> +        * speaking (especially for small-ish files, where the chance of =
+a page
+> +        * being used, evicted, *and* re-instantiated all while enabling =
+verity
+> +        * is quite small), we no longer drop the inode's pagecache.
+>          */
+> -       filemap_write_and_wait(inode->i_mapping);
+> -       invalidate_inode_pages2(inode->i_mapping);
+>
+>         /*
+>          * allow_write_access() is needed to pair with deny_write_access(=
+).
+>          * Regardless, the filesystem won't allow writing to verity files=
+.
+>          */
+> -out_allow_write_access:
+>         allow_write_access(filp);
+>  out_drop_write:
+>         mnt_drop_write_file(filp);
+>
+> base-commit: f959325e6ac3f499450088b8d9c626d1177be160
+> --
+> 2.39.2
+>
