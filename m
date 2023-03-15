@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 813D66BB1BD
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E13826BB151
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232468AbjCOMaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:30:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39436 "EHLO
+        id S232398AbjCOM0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232619AbjCOM3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:50 -0400
+        with ESMTP id S232449AbjCOM0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:26:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D5251C87
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B969984E2
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:25:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18CE1B81DFF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65CCBC433EF;
-        Wed, 15 Mar 2023 12:28:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0926B81E0C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0965C433EF;
+        Wed, 15 Mar 2023 12:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883329;
-        bh=0iM/cmRrXNdsjVn5KVYCdgr1QbuYLKPyPpLAslED/Lg=;
+        s=korg; t=1678883061;
+        bh=cMc+h0EdzLDs1AgWG9sov4h4C2Yo60GqELjLDqqHhHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2cm0C8o/Ii41vCvxd5N6v6H227f5BoyHBnh+kFiwmGBZPx8fdEuyx6/vuZaQ0QDBA
-         coJXcwW5ijCdKOOLdlJKoFcbReNnw4QJsEb5qprOY9l8wNQcNZyNo8hTz7bolwadgo
-         +3K0W2QdEIWwvuRVhZszJSFuFrsUkKSW6t9y58Gc=
+        b=NKAvNRH7ASMkMakCzXCL9ypycNI8l0h08k732HcoieHaMzJTfgEoT3tixV1CyCywZ
+         fd+7kDQu75gv1Olg5qO2W9CW/FIHp8jo7v4/QGmyB5kMSTMSJgGIXNJ2NDfp5exsgs
+         22x7dTw/bJVzLGdyXB2FuXHFfMc0gCSPGmoC0nHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Amir Goldstein <amir73il@gmail.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
+        patches@lists.linux.dev, Li Jun <jun.li@nxp.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 101/145] fs: move should_remove_suid()
+Subject: [PATCH 5.10 076/104] media: rc: gpio-ir-recv: add remove function
 Date:   Wed, 15 Mar 2023 13:12:47 +0100
-Message-Id: <20230315115742.305645082@linuxfoundation.org>
+Message-Id: <20230315115735.107365330@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,106 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <brauner@kernel.org>
+From: Li Jun <jun.li@nxp.com>
 
-commit e243e3f94c804ecca9a8241b5babe28f35258ef4 upstream.
+[ Upstream commit 30040818b338b8ebc956ce0ebd198f8d593586a6 ]
 
-Move the helper from inode.c to attr.c. This keeps the the core of the
-set{g,u}id stripping logic in one place when we add follow-up changes.
-It is the better place anyway, since should_remove_suid() returns
-ATTR_KILL_S{G,U}ID flags.
+In case runtime PM is enabled, do runtime PM clean up to remove
+cpu latency qos request, otherwise driver removal may have below
+kernel dump:
 
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+[   19.463299] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000048
+[   19.472161] Mem abort info:
+[   19.474985]   ESR = 0x0000000096000004
+[   19.478754]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   19.484081]   SET = 0, FnV = 0
+[   19.487149]   EA = 0, S1PTW = 0
+[   19.490361]   FSC = 0x04: level 0 translation fault
+[   19.495256] Data abort info:
+[   19.498149]   ISV = 0, ISS = 0x00000004
+[   19.501997]   CM = 0, WnR = 0
+[   19.504977] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000049f81000
+[   19.511432] [0000000000000048] pgd=0000000000000000,
+p4d=0000000000000000
+[   19.518245] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+[   19.524520] Modules linked in: gpio_ir_recv(+) rc_core [last
+unloaded: rc_core]
+[   19.531845] CPU: 0 PID: 445 Comm: insmod Not tainted
+6.2.0-rc1-00028-g2c397a46d47c #72
+[   19.531854] Hardware name: FSL i.MX8MM EVK board (DT)
+[   19.531859] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS
+BTYPE=--)
+[   19.551777] pc : cpu_latency_qos_remove_request+0x20/0x110
+[   19.557277] lr : gpio_ir_recv_runtime_suspend+0x18/0x30
+[gpio_ir_recv]
+[   19.557294] sp : ffff800008ce3740
+[   19.557297] x29: ffff800008ce3740 x28: 0000000000000000 x27:
+ffff800008ce3d50
+[   19.574270] x26: ffffc7e3e9cea100 x25: 00000000000f4240 x24:
+ffffc7e3f9ef0e30
+[   19.574284] x23: 0000000000000000 x22: ffff0061803820f4 x21:
+0000000000000008
+[   19.574296] x20: ffffc7e3fa75df30 x19: 0000000000000020 x18:
+ffffffffffffffff
+[   19.588570] x17: 0000000000000000 x16: ffffc7e3f9efab70 x15:
+ffffffffffffffff
+[   19.595712] x14: ffff800008ce37b8 x13: ffff800008ce37aa x12:
+0000000000000001
+[   19.602853] x11: 0000000000000001 x10: ffffcbe3ec0dff87 x9 :
+0000000000000008
+[   19.609991] x8 : 0101010101010101 x7 : 0000000000000000 x6 :
+000000000f0bfe9f
+[   19.624261] x5 : 00ffffffffffffff x4 : 0025ab8e00000000 x3 :
+ffff006180382010
+[   19.631405] x2 : ffffc7e3e9ce8030 x1 : ffffc7e3fc3eb810 x0 :
+0000000000000020
+[   19.638548] Call trace:
+[   19.640995]  cpu_latency_qos_remove_request+0x20/0x110
+[   19.646142]  gpio_ir_recv_runtime_suspend+0x18/0x30 [gpio_ir_recv]
+[   19.652339]  pm_generic_runtime_suspend+0x2c/0x44
+[   19.657055]  __rpm_callback+0x48/0x1dc
+[   19.660807]  rpm_callback+0x6c/0x80
+[   19.664301]  rpm_suspend+0x10c/0x640
+[   19.667880]  rpm_idle+0x250/0x2d0
+[   19.671198]  update_autosuspend+0x38/0xe0
+[   19.675213]  pm_runtime_set_autosuspend_delay+0x40/0x60
+[   19.680442]  gpio_ir_recv_probe+0x1b4/0x21c [gpio_ir_recv]
+[   19.685941]  platform_probe+0x68/0xc0
+[   19.689610]  really_probe+0xc0/0x3dc
+[   19.693189]  __driver_probe_device+0x7c/0x190
+[   19.697550]  driver_probe_device+0x3c/0x110
+[   19.701739]  __driver_attach+0xf4/0x200
+[   19.705578]  bus_for_each_dev+0x70/0xd0
+[   19.709417]  driver_attach+0x24/0x30
+[   19.712998]  bus_add_driver+0x17c/0x240
+[   19.716834]  driver_register+0x78/0x130
+[   19.720676]  __platform_driver_register+0x28/0x34
+[   19.725386]  gpio_ir_recv_driver_init+0x20/0x1000 [gpio_ir_recv]
+[   19.731404]  do_one_initcall+0x44/0x2ac
+[   19.735243]  do_init_module+0x48/0x1d0
+[   19.739003]  load_module+0x19fc/0x2034
+[   19.742759]  __do_sys_finit_module+0xac/0x12c
+[   19.747124]  __arm64_sys_finit_module+0x20/0x30
+[   19.751664]  invoke_syscall+0x48/0x114
+[   19.755420]  el0_svc_common.constprop.0+0xcc/0xec
+[   19.760132]  do_el0_svc+0x38/0xb0
+[   19.763456]  el0_svc+0x2c/0x84
+[   19.766516]  el0t_64_sync_handler+0xf4/0x120
+[   19.770789]  el0t_64_sync+0x190/0x194
+[   19.774460] Code: 910003fd a90153f3 aa0003f3 91204021 (f9401400)
+[   19.780556] ---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/attr.c  | 29 +++++++++++++++++++++++++++++
- fs/inode.c | 29 -----------------------------
- 2 files changed, 29 insertions(+), 29 deletions(-)
+ drivers/media/rc/gpio-ir-recv.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/fs/attr.c b/fs/attr.c
-index 686840aa91c8b..f045431bab1ad 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -20,6 +20,35 @@
+diff --git a/drivers/media/rc/gpio-ir-recv.c b/drivers/media/rc/gpio-ir-recv.c
+index 22e524b69806a..a56c844d7f816 100644
+--- a/drivers/media/rc/gpio-ir-recv.c
++++ b/drivers/media/rc/gpio-ir-recv.c
+@@ -130,6 +130,23 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
+ 				"gpio-ir-recv-irq", gpio_dev);
+ }
  
- #include "internal.h"
- 
-+/*
-+ * The logic we want is
-+ *
-+ *	if suid or (sgid and xgrp)
-+ *		remove privs
-+ */
-+int should_remove_suid(struct dentry *dentry)
++static int gpio_ir_recv_remove(struct platform_device *pdev)
 +{
-+	umode_t mode = d_inode(dentry)->i_mode;
-+	int kill = 0;
++	struct gpio_rc_dev *gpio_dev = platform_get_drvdata(pdev);
++	struct device *pmdev = gpio_dev->pmdev;
 +
-+	/* suid always must be killed */
-+	if (unlikely(mode & S_ISUID))
-+		kill = ATTR_KILL_SUID;
++	if (pmdev) {
++		pm_runtime_get_sync(pmdev);
++		cpu_latency_qos_remove_request(&gpio_dev->qos);
 +
-+	/*
-+	 * sgid without any exec bits is just a mandatory locking mark; leave
-+	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
-+	 */
-+	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
-+		kill |= ATTR_KILL_SGID;
-+
-+	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
-+		return kill;
++		pm_runtime_disable(pmdev);
++		pm_runtime_put_noidle(pmdev);
++		pm_runtime_set_suspended(pmdev);
++	}
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL(should_remove_suid);
 +
- /**
-  * chown_ok - verify permissions to chown inode
-  * @mnt_userns:	user namespace of the mount @inode was found from
-diff --git a/fs/inode.c b/fs/inode.c
-index a71fb82279bb1..3811269259e11 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1864,35 +1864,6 @@ void touch_atime(const struct path *path)
- }
- EXPORT_SYMBOL(touch_atime);
+ #ifdef CONFIG_PM
+ static int gpio_ir_recv_suspend(struct device *dev)
+ {
+@@ -189,6 +206,7 @@ MODULE_DEVICE_TABLE(of, gpio_ir_recv_of_match);
  
--/*
-- * The logic we want is
-- *
-- *	if suid or (sgid and xgrp)
-- *		remove privs
-- */
--int should_remove_suid(struct dentry *dentry)
--{
--	umode_t mode = d_inode(dentry)->i_mode;
--	int kill = 0;
--
--	/* suid always must be killed */
--	if (unlikely(mode & S_ISUID))
--		kill = ATTR_KILL_SUID;
--
--	/*
--	 * sgid without any exec bits is just a mandatory locking mark; leave
--	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
--	 */
--	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
--		kill |= ATTR_KILL_SGID;
--
--	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
--		return kill;
--
--	return 0;
--}
--EXPORT_SYMBOL(should_remove_suid);
--
- /*
-  * Return mask of changes for notify_change() that need to be done as a
-  * response to write or truncate. Return 0 if nothing has to be changed.
+ static struct platform_driver gpio_ir_recv_driver = {
+ 	.probe  = gpio_ir_recv_probe,
++	.remove = gpio_ir_recv_remove,
+ 	.driver = {
+ 		.name   = KBUILD_MODNAME,
+ 		.of_match_table = of_match_ptr(gpio_ir_recv_of_match),
 -- 
 2.39.2
 
