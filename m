@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 211AF6BB0AE
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12ABD6BB1CB
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbjCOMUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:20:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45776 "EHLO
+        id S232621AbjCOMat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232122AbjCOMUB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:20:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97437193E1
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:51 -0700 (PDT)
+        with ESMTP id S232441AbjCOM3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87DF295E1E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D5C861D4C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B948C433EF;
-        Wed, 15 Mar 2023 12:19:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1FEB61ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00C88C4339B;
+        Wed, 15 Mar 2023 12:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882790;
-        bh=AleEvc/ZZVB1bBO3rGEueez43tKhIpwprdOFv0+M6ag=;
+        s=korg; t=1678883308;
+        bh=qx0MY83mQC+jeSsJHwSIXz3zc/4twZaR9UaVDbhxRmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QhyrHjQTClL1zHbNpRoJqzb00fAQbxX1Kl+WX5qSbg+qLizx+ZOsLAls3I3l4xxm
-         6gMpYoPJ5xJpXHuGCkeBkjZX6+lt8u9uBRe8xpsB1gh1DoLZPRKj0VqIcvUX+F291R
-         FsBWyE7kS/mqFqX+3xu41lkPv/a/MKs1R6U4pskA=
+        b=jGUjqnWeWDrJ/NusRICY6E5I6MBnsD8ld2wFIMZRKpzjABUUYhIEQAu5HkiX4AXCQ
+         aY8RhKcxImQh8sJr49IS5KiFjps+7LqhNhC6aSSMfEaNMLnGWPXPxOEfDFanwv/A77
+         10j44PRkD2FWi+F7iZEHcRJCNanybTEOcDhXbV1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/68] scsi: megaraid_sas: Update max supported LD IDs to 240
+Subject: [PATCH 5.15 094/145] xfs: use setattr_copy to set vfs inode attributes
 Date:   Wed, 15 Mar 2023 13:12:40 +0100
-Message-Id: <20230315115727.927581183@linuxfoundation.org>
+Message-Id: <20230315115742.072177117@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,58 +58,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit bfa659177dcba48cf13f2bd88c1972f12a60bf1c ]
+commit e014f37db1a2d109afa750042ac4d69cf3e3d88e upsream.
 
-The firmware only supports Logical Disk IDs up to 240 and LD ID 255 (0xFF)
-is reserved for deleted LDs. However, in some cases, firmware was assigning
-LD ID 254 (0xFE) to deleted LDs and this was causing the driver to mark the
-wrong disk as deleted. This in turn caused the wrong disk device to be
-taken offline by the SCSI midlayer.
+Filipe Manana pointed out that XFS' behavior w.r.t. setuid/setgid
+revocation isn't consistent with btrfs[1] or ext4.  Those two
+filesystems use the VFS function setattr_copy to convey certain
+attributes from struct iattr into the VFS inode structure.
 
-To address this issue, limit the LD ID range from 255 to 240. This ensures
-the deleted LD ID is properly identified and removed by the driver without
-accidently deleting any valid LDs.
+Andrey Zhadchenko reported[2] that XFS uses the wrong user namespace to
+decide if it should clear setgid and setuid on a file attribute update.
+This is a second symptom of the problem that Filipe noticed.
 
-Fixes: ae6874ba4b43 ("scsi: megaraid_sas: Early detection of VD deletion through RaidMap update")
-Reported-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Link: https://lore.kernel.org/r/20230302105342.34933-2-chandrakanth.patil@broadcom.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+XFS, on the other hand, open-codes setattr_copy in xfs_setattr_mode,
+xfs_setattr_nonsize, and xfs_setattr_time.  Regrettably, setattr_copy is
+/not/ a simple copy function; it contains additional logic to clear the
+setgid bit when setting the mode, and XFS' version no longer matches.
+
+The VFS implements its own setuid/setgid stripping logic, which
+establishes consistent behavior.  It's a tad unfortunate that it's
+scattered across notify_change, should_remove_suid, and setattr_copy but
+XFS should really follow the Linux VFS.  Adapt XFS to use the VFS
+functions and get rid of the old functions.
+
+[1] https://lore.kernel.org/fstests/CAL3q7H47iNQ=Wmk83WcGB-KBJVOEtR9+qGczzCeXJ9Y2KCV25Q@mail.gmail.com/
+[2] https://lore.kernel.org/linux-xfs/20220221182218.748084-1-andrey.zhadchenko@virtuozzo.com/
+
+Fixes: 7fa294c8991c ("userns: Allow chown and setgid preservation")
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas.h    | 2 ++
- drivers/scsi/megaraid/megaraid_sas_fp.c | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_iops.c | 56 +++--------------------------------------------
+ fs/xfs/xfs_pnfs.c |  3 ++-
+ 2 files changed, 5 insertions(+), 54 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
-index aa62cc8ffd0af..ce0c36fa26bf7 100644
---- a/drivers/scsi/megaraid/megaraid_sas.h
-+++ b/drivers/scsi/megaraid/megaraid_sas.h
-@@ -1515,6 +1515,8 @@ struct megasas_ctrl_info {
- #define MEGASAS_MAX_LD_IDS			(MEGASAS_MAX_LD_CHANNELS * \
- 						MEGASAS_MAX_DEV_PER_CHANNEL)
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index a607d6aca5c4d..1eb71275e5b09 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -634,37 +634,6 @@ xfs_vn_getattr(
+ 	return 0;
+ }
  
-+#define MEGASAS_MAX_SUPPORTED_LD_IDS		240
-+
- #define MEGASAS_MAX_SECTORS                    (2*1024)
- #define MEGASAS_MAX_SECTORS_IEEE		(2*128)
- #define MEGASAS_DBG_LVL				1
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fp.c b/drivers/scsi/megaraid/megaraid_sas_fp.c
-index 8bfb46dbbed3a..ff20f47090810 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fp.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fp.c
-@@ -359,7 +359,7 @@ u8 MR_ValidateMapInfo(struct megasas_instance *instance, u64 map_id)
- 		ld = MR_TargetIdToLdGet(i, drv_map);
+-static void
+-xfs_setattr_mode(
+-	struct xfs_inode	*ip,
+-	struct iattr		*iattr)
+-{
+-	struct inode		*inode = VFS_I(ip);
+-	umode_t			mode = iattr->ia_mode;
+-
+-	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
+-
+-	inode->i_mode &= S_IFMT;
+-	inode->i_mode |= mode & ~S_IFMT;
+-}
+-
+-void
+-xfs_setattr_time(
+-	struct xfs_inode	*ip,
+-	struct iattr		*iattr)
+-{
+-	struct inode		*inode = VFS_I(ip);
+-
+-	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
+-
+-	if (iattr->ia_valid & ATTR_ATIME)
+-		inode->i_atime = iattr->ia_atime;
+-	if (iattr->ia_valid & ATTR_CTIME)
+-		inode->i_ctime = iattr->ia_ctime;
+-	if (iattr->ia_valid & ATTR_MTIME)
+-		inode->i_mtime = iattr->ia_mtime;
+-}
+-
+ static int
+ xfs_vn_change_ok(
+ 	struct user_namespace	*mnt_userns,
+@@ -763,16 +732,6 @@ xfs_setattr_nonsize(
+ 		gid = (mask & ATTR_GID) ? iattr->ia_gid : igid;
+ 		uid = (mask & ATTR_UID) ? iattr->ia_uid : iuid;
  
- 		/* For non existing VDs, iterate to next VD*/
--		if (ld >= (MAX_LOGICAL_DRIVES_EXT - 1))
-+		if (ld >= MEGASAS_MAX_SUPPORTED_LD_IDS)
- 			continue;
+-		/*
+-		 * CAP_FSETID overrides the following restrictions:
+-		 *
+-		 * The set-user-ID and set-group-ID bits of a file will be
+-		 * cleared upon successful return from chown()
+-		 */
+-		if ((inode->i_mode & (S_ISUID|S_ISGID)) &&
+-		    !capable(CAP_FSETID))
+-			inode->i_mode &= ~(S_ISUID|S_ISGID);
+-
+ 		/*
+ 		 * Change the ownerships and register quota modifications
+ 		 * in the transaction.
+@@ -784,7 +743,6 @@ xfs_setattr_nonsize(
+ 				olddquot1 = xfs_qm_vop_chown(tp, ip,
+ 							&ip->i_udquot, udqp);
+ 			}
+-			inode->i_uid = uid;
+ 		}
+ 		if (!gid_eq(igid, gid)) {
+ 			if (XFS_IS_GQUOTA_ON(mp)) {
+@@ -795,15 +753,10 @@ xfs_setattr_nonsize(
+ 				olddquot2 = xfs_qm_vop_chown(tp, ip,
+ 							&ip->i_gdquot, gdqp);
+ 			}
+-			inode->i_gid = gid;
+ 		}
+ 	}
  
- 		raid = MR_LdRaidGet(ld, drv_map);
+-	if (mask & ATTR_MODE)
+-		xfs_setattr_mode(ip, iattr);
+-	if (mask & (ATTR_ATIME|ATTR_CTIME|ATTR_MTIME))
+-		xfs_setattr_time(ip, iattr);
+-
++	setattr_copy(mnt_userns, inode, iattr);
+ 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+ 
+ 	XFS_STATS_INC(mp, xs_ig_attrchg);
+@@ -1028,11 +981,8 @@ xfs_setattr_size(
+ 		xfs_inode_clear_eofblocks_tag(ip);
+ 	}
+ 
+-	if (iattr->ia_valid & ATTR_MODE)
+-		xfs_setattr_mode(ip, iattr);
+-	if (iattr->ia_valid & (ATTR_ATIME|ATTR_CTIME|ATTR_MTIME))
+-		xfs_setattr_time(ip, iattr);
+-
++	ASSERT(!(iattr->ia_valid & (ATTR_UID | ATTR_GID)));
++	setattr_copy(mnt_userns, inode, iattr);
+ 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+ 
+ 	XFS_STATS_INC(mp, xs_ig_attrchg);
+diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
+index 5e1d29d8b2e73..8865f7d4404ae 100644
+--- a/fs/xfs/xfs_pnfs.c
++++ b/fs/xfs/xfs_pnfs.c
+@@ -283,7 +283,8 @@ xfs_fs_commit_blocks(
+ 	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
+ 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+ 
+-	xfs_setattr_time(ip, iattr);
++	ASSERT(!(iattr->ia_valid & (ATTR_UID | ATTR_GID)));
++	setattr_copy(&init_user_ns, inode, iattr);
+ 	if (update_isize) {
+ 		i_size_write(inode, iattr->ia_size);
+ 		ip->i_disk_size = iattr->ia_size;
 -- 
 2.39.2
 
