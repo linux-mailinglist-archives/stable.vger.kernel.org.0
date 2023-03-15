@@ -2,1483 +2,704 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 173666BAFBE
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 12:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DEA6BB146
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231608AbjCOL4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 07:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40504 "EHLO
+        id S232475AbjCOM0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:26:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231563AbjCOL4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 07:56:32 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3635882359
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 04:56:26 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id p20so19686308plw.13
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 04:56:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678881385;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=TqWfVAO08tosPTPf4+fZGArayP1eLbQNxBp9q6Fv7L4=;
-        b=FjugD71rLw7inhej5Wz2wR8C67wAr9bCwgDJ8GUPwh1wAW6mWhrlxKA+yN8Yd4iCbW
-         40rlNpZ0x+OPzNTmaC1GlqqYczum1QTrByzvOWKQ8SZvXrUTeHY5ROnZ4MI1b0mw2Vc+
-         IjsmIhUAo8P+7bBG8W+B00/K8EPiDdowMK6ZM6/4PmAwVXWsEM/c6FXD5v/4kiqf/6uR
-         gFKIxAARK3fH33ddTvXKJR9Uu4r+/kfrlmLsn3EsorJ8RieE5JlYmrrUo7u9NL+W9UR3
-         W1JNGtJJ9Vc80bU1YDd5VIZPtLfiZrIzs3T/JTsmvNibS+eZbduWKndeQLxHUIkjjugm
-         hKHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678881385;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TqWfVAO08tosPTPf4+fZGArayP1eLbQNxBp9q6Fv7L4=;
-        b=C6hKsLm9UQO7ysZ/9ywsCuCJUlD/b3YBHQCoxUEyGMlw3vb+vX5fahfmZ9ef4Fy8rZ
-         DYJL6thjOyQf5ATGBDMK8rk+2FJ2t2sdXBLOxbiQ7bfcwlV+fiBGSDigdUO3UxwuwSv1
-         EIaDcTVkydLzDjZSjXUlK3dNE8W1piWHCWmJQwVc1LkPglTJMCmzaiwA45704kdCqjkx
-         5WykboD6NZgYXwvYAJ+df8FAiHykp47p25u1hpavJIq8U8hPOyEFAqPlpsQbOGVnGchF
-         Ml7tA/5RqdDDacnnUJGu997NWuQqNEnL5Bwyqg4I5N20MJmIvUhrrhtGBjbSHVYRj0O2
-         /KkA==
-X-Gm-Message-State: AO0yUKUWgZVg3FXhYqRWtuQdb8QpCssSpvz4V5C99IWvp94ypFPt/yf0
-        1RDrgOy8D5o46wTTF0X1hG+X/uGBe2SO+iE8aLZXLs8v
-X-Google-Smtp-Source: AK7set9vRbHTOrZ1XzpflnIxWQlSw/apEJDW9jnDKpF3dAZzIbRZmeDpBNbZuC7eu/9xXog9nIBNRw==
-X-Received: by 2002:a05:6a20:258c:b0:cd:11e3:4105 with SMTP id k12-20020a056a20258c00b000cd11e34105mr41102976pzd.27.1678881384819;
-        Wed, 15 Mar 2023 04:56:24 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c21-20020aa78815000000b00625037cf695sm3376100pfo.86.2023.03.15.04.56.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Mar 2023 04:56:24 -0700 (PDT)
-Message-ID: <6411b268.a70a0220.4a776.6eee@mx.google.com>
-Date:   Wed, 15 Mar 2023 04:56:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232412AbjCOMZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:50 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EDC39AA24;
+        Wed, 15 Mar 2023 05:25:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1A62CE19C0;
+        Wed, 15 Mar 2023 12:24:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56D50C433D2;
+        Wed, 15 Mar 2023 12:24:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1678883093;
+        bh=HxobUR7YsoVwribI8QOOk0cgyEyxSdfD1k5aCnEhznY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RZ6F6NM5S+B90/4jRXN9tYq/Ca35W+dWv8R9NqPhea7mw4rEl824orRVtpwqXKWtB
+         eFUsZEti5g7t1a9uDr5QyI0rWrz653yiAXB9BZfRZrOGHT/mmlW5b+Qm50lDwjqzkH
+         jd1H8e9lBtO2mQO75iqRfVIGC5smWhGiafsmkoUM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 5.15 000/145] 5.15.103-rc1 review
+Date:   Wed, 15 Mar 2023 13:11:06 +0100
+Message-Id: <20230315115738.951067403@linuxfoundation.org>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.276-47-gcb91edfa52f0
-X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.19.y build: 198 builds: 24 failed, 174 passed,
- 36 errors, 39 warnings (v4.19.276-47-gcb91edfa52f0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.103-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.15.103-rc1
+X-KernelTest-Deadline: 2023-03-17T11:57+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 198 builds: 24 failed, 174 passed, 36 errors,=
- 39 warnings (v4.19.276-47-gcb91edfa52f0)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.276-47-gcb91edfa52f0/
-
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.276-47-gcb91edfa52f0
-Git Commit: cb91edfa52f0b1a9fca6342d158744cd1d673a57
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-arm64:
-    defconfig: (gcc-10) FAIL
-    defconfig+arm64-chromebook: (gcc-10) FAIL
-
-arm:
-    axm55xx_defconfig: (gcc-10) FAIL
-    cns3420vb_defconfig: (gcc-10) FAIL
-    davinci_all_defconfig: (gcc-10) FAIL
-    exynos_defconfig: (gcc-10) FAIL
-    multi_v5_defconfig: (gcc-10) FAIL
-    multi_v7_defconfig: (gcc-10) FAIL
-    s5pv210_defconfig: (gcc-10) FAIL
-    sama5_defconfig: (gcc-10) FAIL
-    sunxi_defconfig: (gcc-10) FAIL
-    zx_defconfig: (gcc-10) FAIL
-
-mips:
-    32r2el_defconfig: (gcc-10) FAIL
-    ci20_defconfig: (gcc-10) FAIL
-    db1xxx_defconfig: (gcc-10) FAIL
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-    loongson3_defconfig: (gcc-10) FAIL
-    omega2p_defconfig: (gcc-10) FAIL
-    sb1250_swarm_defconfig: (gcc-10) FAIL
-    vocore2_defconfig: (gcc-10) FAIL
-
-riscv:
-    allnoconfig: (gcc-10) FAIL
-    defconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm64:
-    defconfig (gcc-10): 2 errors, 1 warning
-    defconfig+arm64-chromebook (gcc-10): 2 errors, 1 warning
-
-arm:
-    axm55xx_defconfig (gcc-10): 2 errors, 1 warning
-    cns3420vb_defconfig (gcc-10): 2 errors, 1 warning
-    davinci_all_defconfig (gcc-10): 2 errors, 1 warning
-    multi_v5_defconfig (gcc-10): 2 errors, 1 warning
-    omap1_defconfig (gcc-10): 1 warning
-    s5pv210_defconfig (gcc-10): 2 errors, 1 warning
-    sama5_defconfig (gcc-10): 2 errors, 1 warning
-    sunxi_defconfig (gcc-10): 2 errors, 1 warning
-    zx_defconfig (gcc-10): 2 errors, 1 warning
-
-i386:
-    allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-
-mips:
-    32r2el_defconfig (gcc-10): 2 errors, 1 warning
-    ci20_defconfig (gcc-10): 2 errors, 1 warning
-    db1xxx_defconfig (gcc-10): 2 errors, 1 warning
-    lemote2f_defconfig (gcc-10): 1 warning
-    loongson3_defconfig (gcc-10): 2 errors, 1 warning
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 3 warnings
-    nlm_xlp_defconfig (gcc-10): 1 warning
-    omega2p_defconfig (gcc-10): 2 errors, 1 warning
-    sb1250_swarm_defconfig (gcc-10): 2 errors, 1 warning
-    vocore2_defconfig (gcc-10): 2 errors, 1 warning
-
-riscv:
-    defconfig (gcc-10): 2 errors, 1 warning
-
-x86_64:
-    allnoconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-    x86_64_defconfig (gcc-10): 2 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
-
-Errors summary:
-
-    18   kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of func=
-tion =E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cp=
-us=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    18   kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of func=
-tion =E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_me=
-ms=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings summary:
-
-    18   cc1: some warnings being treated as errors
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    {standard input}:132: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
-
-Section mismatches summary:
-
-    9    WARNING: modpost: Found 1 section mismatch(es).
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
-mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
-section mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
-smatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
-smatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warn=
-ing, 0 section mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:132: Warning: macro instruction expanded into multiple=
- instructions
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
- mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
-ismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-2 warnings, 0 section mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    kernel/cgroup/cgroup.c:2237:2: error: implicit declaration of function =
-=E2=80=98get_online_cpus=E2=80=99; did you mean =E2=80=98get_online_mems=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    kernel/cgroup/cgroup.c:2248:2: error: implicit declaration of function =
-=E2=80=98put_online_cpus=E2=80=99; did you mean =E2=80=98num_online_cpus=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----
-For more info write to <info@kernelci.org>
+This is the start of the stable review cycle for the 5.15.103 release.
+There are 145 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
+
+Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.103-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.15.103-rc1
+
+Alexandru Matei <alexandru.matei@uipath.com>
+    KVM: VMX: Fix crash due to uninitialized current_vmcs
+
+Vitaly Kuznetsov <vkuznets@redhat.com>
+    KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
+
+Vitaly Kuznetsov <vkuznets@redhat.com>
+    KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
+
+Christian Brauner <christian.brauner@ubuntu.com>
+    fs: hold writers when changing mount's idmapping
+
+Masahiro Yamada <masahiroy@kernel.org>
+    UML: define RUNTIME_DISCARD_EXIT
+
+Gaosheng Cui <cuigaosheng1@huawei.com>
+    xfs: remove xfs_setattr_time() declaration
+
+Miaohe Lin <linmiaohe@huawei.com>
+    KVM: fix memoryleak in kvm_init()
+
+Andres Freund <andres@anarazel.de>
+    tools bpftool: Fix compilation error with new binutils
+
+Andres Freund <andres@anarazel.de>
+    tools bpf_jit_disasm: Fix compilation error with new binutils
+
+Andres Freund <andres@anarazel.de>
+    tools perf: Fix compilation error with new binutils
+
+Andres Freund <andres@anarazel.de>
+    tools include: add dis-asm-compat.h to handle version differences
+
+Andres Freund <andres@anarazel.de>
+    tools build: Add feature test for init_disassemble_info API changes
+
+Tom Saeger <tom.saeger@oracle.com>
+    sh: define RUNTIME_DISCARD_EXIT
+
+Masahiro Yamada <masahiroy@kernel.org>
+    s390: define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/vmlinux.lds: Don't discard .rela* for relocatable builds
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT
+
+Masahiro Yamada <masahiroy@kernel.org>
+    arch: fix broken BuildID for arm64 and riscv
+
+Lukas Czerner <lczerner@redhat.com>
+    ext4: block range must be validated before use in ext4_mb_clear_bb()
+
+Ritesh Harjani <riteshh@linux.ibm.com>
+    ext4: add strict range checks while freeing blocks
+
+Ritesh Harjani <riteshh@linux.ibm.com>
+    ext4: add ext4_sb_block_valid() refactored out of ext4_inode_block_valid()
+
+Ritesh Harjani <riteshh@linux.ibm.com>
+    ext4: refactor ext4_free_blocks() to pull out ext4_mb_clear_bb()
+
+Qais Yousef <qyousef@layalina.io>
+    sched/fair: Fixes for capacity inversion detection
+
+Qais Yousef <qyousef@layalina.io>
+    sched/uclamp: Fix a uninitialized variable warnings
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/fair: Consider capacity inversion in util_fits_cpu()
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/fair: Detect capacity inversion
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()'s early exit condition
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
+
+Qais Yousef <qais.yousef@arm.com>
+    sched/uclamp: Fix fits_capacity() check in feec()
+
+Seth Forshee <sforshee@kernel.org>
+    filelocks: use mount idmapping for setlease permission check
+
+Li Jun <jun.li@nxp.com>
+    media: rc: gpio-ir-recv: add remove function
+
+Paul Elder <paul.elder@ideasonboard.com>
+    media: ov5640: Fix analogue gain control
+
+Masahiro Yamada <masahiroy@kernel.org>
+    scripts: handle BrokenPipeError for python scripts
+
+Alvaro Karsz <alvaro.karsz@solid-run.com>
+    PCI: Avoid FLR for SolidRun SNET DPU rev 1
+
+Alvaro Karsz <alvaro.karsz@solid-run.com>
+    PCI: Add SolidRun vendor ID
+
+Nathan Chancellor <nathan@kernel.org>
+    macintosh: windfarm: Use unsigned type for 1-bit bitfields
+
+Edward Humes <aurxenon@lunos.org>
+    alpha: fix R_ALPHA_LITERAL reloc for large modules
+
+Rohan McLure <rmclure@linux.ibm.com>
+    powerpc/kcsan: Exclude udelay to prevent recursive instrumentation
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    powerpc/iommu: fix memory leak with using debugfs_lookup()
+
+Christophe Leroy <christophe.leroy@csgroup.eu>
+    powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+
+xurui <xurui@kylinos.cn>
+    MIPS: Fix a compilation issue
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    clk: qcom: mmcc-apq8084: remove spdm clocks
+
+Christian Brauner <brauner@kernel.org>
+    fs: use consistent setgid checks in is_sxid()
+
+Christian Brauner <brauner@kernel.org>
+    attr: use consistent sgid stripping checks
+
+Christian Brauner <brauner@kernel.org>
+    attr: add setattr_should_drop_sgid()
+
+Christian Brauner <brauner@kernel.org>
+    fs: move should_remove_suid()
+
+Christian Brauner <brauner@kernel.org>
+    attr: add in_group_or_capable()
+
+Yang Xu <xuyang2018.jy@fujitsu.com>
+    fs: move S_ISGID stripping into the vfs_*() helpers
+
+Yang Xu <xuyang2018.jy@fujitsu.com>
+    fs: add mode_strip_sgid() helper
+
+Dave Chinner <dchinner@redhat.com>
+    xfs: set prealloc flag in xfs_alloc_file_space()
+
+Dave Chinner <dchinner@redhat.com>
+    xfs: fallocate() should call file_modified()
+
+Dave Chinner <dchinner@redhat.com>
+    xfs: remove XFS_PREALLOC_SYNC
+
+Darrick J. Wong <djwong@kernel.org>
+    xfs: use setattr_copy to set vfs inode attributes
+
+Morten Linderud <morten@linderud.pw>
+    tpm/eventlog: Don't abort tpm_read_log on faulty ACPI address
+
+David Disseldorp <ddiss@suse.de>
+    watch_queue: fix IOC_WATCH_QUEUE_SET_SIZE alloc error paths
+
+Hans de Goede <hdegoede@redhat.com>
+    staging: rtl8723bs: Fix key-store index handling
+
+Hannes Braun <hannesbraun@mail.de>
+    staging: rtl8723bs: fix placement of braces
+
+Jagath Jog J <jagathjog1996@gmail.com>
+    Staging: rtl8723bs: Placing opening { braces in previous line
+
+Michael Straube <straube.linux@gmail.com>
+    staging: rtl8723bs: clean up comparsions to NULL
+
+Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
+    iommu/amd: Add a length limitation for the ivrs_acpihid command-line parameter
+
+Kim Phillips <kim.phillips@amd.com>
+    iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options
+
+Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+    iommu/amd: Add PCI segment support for ivrs_[ioapic/hpet/acpihid] commands
+
+Christoph Hellwig <hch@lst.de>
+    nbd: use the correct block_device in nbd_bdev_reset
+
+Johan Hovold <johan+linaro@kernel.org>
+    irqdomain: Fix mapping-creation race
+
+Jan Kara <jack@suse.cz>
+    ext4: Fix deadlock during directory rename
+
+Conor Dooley <conor.dooley@microchip.com>
+    RISC-V: Don't check text_mutex during stop_machine
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/ftrace: remove dead code
+
+Alexandre Ghiti <alexghiti@rivosinc.com>
+    riscv: Use READ_ONCE_NOCHECK in imprecise unwinding stack mode
+
+Eric Dumazet <edumazet@google.com>
+    af_unix: fix struct pid leaks in OOB support
+
+Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+    af_unix: Remove unnecessary brackets around CONFIG_AF_UNIX_OOB.
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: dsa: mt7530: permit port 5 to work without port 6 on MT7621 SoC
+
+Benjamin Coddington <bcodding@redhat.com>
+    SUNRPC: Fix a server shutdown leak
+
+Suman Ghosh <sumang@marvell.com>
+    octeontx2-af: Unlock contexts in the queue context cache in case of fault detection
+
+D. Wythe <alibuda@linux.alibaba.com>
+    net/smc: fix fallback failed while sendmsg with fastopen
+
+Randy Dunlap <rdunlap@infradead.org>
+    platform: x86: MLX_PLATFORM: select REGMAP instead of depending on it
+
+Eric Dumazet <edumazet@google.com>
+    netfilter: conntrack: adopt safer max chain length
+
+Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+    scsi: megaraid_sas: Update max supported LD IDs to 240
+
+Daniel Golle <daniel@makrotopia.org>
+    net: ethernet: mtk_eth_soc: fix RX data corruption issue
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    net: phy: smsc: fix link up detection in forced irq mode
+
+Lukas Wunner <lukas@wunner.de>
+    net: phy: smsc: Cache interrupt mask
+
+Lorenz Bauer <lorenz.bauer@isovalent.com>
+    btf: fix resolving BTF_KIND_VAR after ARRAY, STRUCT, UNION, PTR
+
+Florian Westphal <fw@strlen.de>
+    netfilter: tproxy: fix deadlock due to missing BH disable
+
+Ivan Delalande <colona@arista.com>
+    netfilter: ctnetlink: revert to dumping mark regardless of event type
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Avoid order-5 memory allocation for TPA data
+
+Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+    net: phylib: get rid of unnecessary locking
+
+Rongguang Wei <weirongguang@kylinos.cn>
+    net: stmmac: add to set device wake up flag when stmmac init phy
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    drm/msm/dpu: fix len of sc7180 ctl blocks
+
+Liu Jian <liujian56@huawei.com>
+    bpf, sockmap: Fix an infinite loop error when len is 0 in tcp_bpf_recvmsg_parser()
+
+Petr Oros <poros@redhat.com>
+    ice: copy last block omitted in ice_get_module_eeprom()
+
+Shigeru Yoshida <syoshida@redhat.com>
+    net: caif: Fix use-after-free in cfusbl_device_notify()
+
+Yuiko Oshino <yuiko.oshino@microchip.com>
+    net: lan78xx: fix accessing the LAN7800's internal phy specific registers from the MAC driver
+
+Changbin Du <changbin.du@huawei.com>
+    perf stat: Fix counting when initial delay configured
+
+Hangbin Liu <liuhangbin@gmail.com>
+    selftests: nft_nat: ensuring the listening side is up before starting the client
+
+Eric Dumazet <edumazet@google.com>
+    ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    powerpc: dts: t1040rdb: fix compatible string for Rev A boards
+
+Kang Chen <void0red@gmail.com>
+    nfc: fdp: add null check of devm_kmalloc_array in fdp_nci_i2c_read_device_properties
+
+Rafał Miłecki <rafal@milecki.pl>
+    bgmac: fix *initial* chip reset to support BCM5358
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    drm/msm/a5xx: fix context faults during ring switch
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    drm/msm/a5xx: fix the emptyness check in the preempt code
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    drm/msm/a5xx: fix highest bank bit for a530
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    drm/msm/a5xx: fix setting of the CP_PREEMPT_ENABLE_LOCAL register
+
+Rob Clark <robdclark@chromium.org>
+    drm/msm: Fix potential invalid ptr free
+
+Jiri Slaby (SUSE) <jirislaby@kernel.org>
+    drm/nouveau/kms/nv50: fix nv50_wndw_new_ prototype
+
+Ben Skeggs <bskeggs@redhat.com>
+    drm/nouveau/kms/nv50-: remove unused functions
+
+Jan Kara <jack@suse.cz>
+    ext4: Fix possible corruption when moving a directory
+
+Matthias Kaehlcke <mka@chromium.org>
+    regulator: core: Use ktime_get_boottime() to determine how long a regulator was off
+
+Christian Kohlschütter <christian@kohlschutter.com>
+    regulator: core: Fix off-on-delay-us for always-on/boot-on regulators
+
+Mark Brown <broonie@kernel.org>
+    regulator: Flag uncontrollable regulators as always_on
+
+Bart Van Assche <bvanassche@acm.org>
+    scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
+
+Liao Chang <liaochang1@huawei.com>
+    riscv: Add header include guards to insn.h
+
+Mattias Nissler <mnissler@rivosinc.com>
+    riscv: Avoid enabling interrupts in die()
+
+Palmer Dabbelt <palmer@rivosinc.com>
+    RISC-V: Avoid dereferening NULL regs in die()
+
+Pierre Gondois <pierre.gondois@arm.com>
+    arm64: efi: Make efi_rt_lock a raw_spinlock
+
+Jens Axboe <axboe@kernel.dk>
+    brd: mark as nowait compatible
+
+Luis Chamberlain <mcgrof@kernel.org>
+    block/brd: add error handling support for add_disk()
+
+Jacob Pan <jacob.jun.pan@linux.intel.com>
+    iommu/vt-d: Fix PASID directory pointer coherency
+
+Johan Hovold <johan+linaro@kernel.org>
+    irqdomain: Refactor __irq_domain_alloc_irqs()
+
+Corey Minyard <cminyard@mvista.com>
+    ipmi:ssif: Add a timer between request retries
+
+Corey Minyard <cminyard@mvista.com>
+    ipmi:ssif: Increase the message retry time
+
+Jaegeuk Kim <jaegeuk@kernel.org>
+    f2fs: retry to update the inode page given data corruption
+
+Jaegeuk Kim <jaegeuk@kernel.org>
+    f2fs: do not bother checkpoint by f2fs_get_node_info
+
+Jaegeuk Kim <jaegeuk@kernel.org>
+    f2fs: avoid down_write on nat_tree_lock during checkpoint
+
+Jan Kara <jack@suse.cz>
+    udf: Fix off-by-one error when discarding preallocation
+
+Alexander Aring <aahringo@redhat.com>
+    fs: dlm: start midcomms before scand
+
+Alexander Aring <aahringo@redhat.com>
+    fs: dlm: add midcomms init/start functions
+
+Alexander Aring <aahringo@redhat.com>
+    fs: dlm: fix log of lowcomms vs midcomms
+
+Sean Christopherson <seanjc@google.com>
+    KVM: SVM: Process ICR on AVIC IPI delivery failure due to invalid target
+
+Sean Christopherson <seanjc@google.com>
+    KVM: SVM: Don't rewrite guest ICR on AVIC IPI virtualization failure
+
+Sean Christopherson <seanjc@google.com>
+    KVM: Register /dev/kvm as the _very_ last thing during initialization
+
+Vitaly Kuznetsov <vkuznets@redhat.com>
+    KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()
+
+Vitaly Kuznetsov <vkuznets@redhat.com>
+    KVM: Optimize kvm_make_vcpus_request_mask() a bit
+
+Fedor Pchelkin <pchelkin@ispras.ru>
+    nfc: change order inside nfc_se_io error path
+
+Zhihao Cheng <chengzhihao1@huawei.com>
+    ext4: zero i_disksize when initializing the bootloader inode
+
+Ye Bin <yebin10@huawei.com>
+    ext4: fix WARNING in ext4_update_inline_data
+
+Ye Bin <yebin10@huawei.com>
+    ext4: move where set the MAY_INLINE_DATA flag is set
+
+Darrick J. Wong <djwong@kernel.org>
+    ext4: fix another off-by-one fsmap error on 1k block filesystems
+
+Eric Whitney <enwlinux@gmail.com>
+    ext4: fix RENAME_WHITEOUT handling for inline directories
+
+Eric Biggers <ebiggers@google.com>
+    ext4: fix cgroup writeback accounting with fs-layer encryption
+
+Hans de Goede <hdegoede@redhat.com>
+    staging: rtl8723bs: Pass correct parameters to cfg80211_get_bss()
+
+Harry Wentland <harry.wentland@amd.com>
+    drm/connector: print max_requested_bpc in state debugfs
+
+Alex Deucher <alexander.deucher@amd.com>
+    drm/amdgpu: fix error checking in amdgpu_read_mm_registers for soc15
+
+Andrew Cooper <andrew.cooper3@citrix.com>
+    x86/CPU/AMD: Disable XSAVES on AMD family 0x17
+
+Tobias Klauser <tklauser@distanz.ch>
+    fork: allow CLONE_NEWTIME in clone3 flags
+
+Namhyung Kim <namhyung@kernel.org>
+    perf inject: Fix --buildid-all not to eat up MMAP2
+
+Johannes Thumshirn <johannes.thumshirn@wdc.com>
+    btrfs: fix percent calculation for bg reclaim message
+
+Theodore Ts'o <tytso@mit.edu>
+    fs: prevent out-of-bounds array speculation when closing a file descriptor
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt    |  51 ++-
+ Documentation/trace/ftrace.rst                     |   2 +-
+ Makefile                                           |   4 +-
+ arch/alpha/kernel/module.c                         |   4 +-
+ arch/arm64/include/asm/efi.h                       |   6 +-
+ arch/arm64/kernel/efi.c                            |   2 +-
+ arch/mips/include/asm/mach-rc32434/pci.h           |   2 +-
+ arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts       |   1 -
+ arch/powerpc/include/asm/irq.h                     |   3 -
+ arch/powerpc/kernel/iommu.c                        |   4 +-
+ arch/powerpc/kernel/time.c                         |   4 +-
+ arch/powerpc/kernel/vmlinux.lds.S                  |   6 +-
+ arch/powerpc/platforms/44x/fsp2.c                  |   2 +-
+ arch/riscv/include/asm/ftrace.h                    |   2 +-
+ arch/riscv/include/asm/parse_asm.h                 |   5 +
+ arch/riscv/include/asm/patch.h                     |   2 +
+ arch/riscv/kernel/ftrace.c                         |  14 +-
+ arch/riscv/kernel/patch.c                          |  28 +-
+ arch/riscv/kernel/stacktrace.c                     |   2 +-
+ arch/riscv/kernel/traps.c                          |  14 +-
+ arch/s390/kernel/ftrace.c                          |  86 +----
+ arch/s390/kernel/vmlinux.lds.S                     |   2 +
+ arch/sh/kernel/vmlinux.lds.S                       |   1 +
+ arch/um/kernel/vmlinux.lds.S                       |   2 +-
+ arch/x86/kernel/cpu/amd.c                          |   9 +
+ arch/x86/kvm/lapic.c                               |   1 +
+ arch/x86/kvm/svm/avic.c                            |  28 +-
+ arch/x86/kvm/vmx/evmcs.h                           |  11 -
+ arch/x86/kvm/vmx/vmx.c                             |  44 ++-
+ drivers/block/brd.c                                |  10 +-
+ drivers/block/nbd.c                                |  14 +-
+ drivers/char/ipmi/ipmi_ssif.c                      |  34 +-
+ drivers/char/tpm/eventlog/acpi.c                   |   6 +-
+ drivers/clk/qcom/mmcc-apq8084.c                    | 271 ----------------
+ drivers/gpu/drm/amd/amdgpu/soc15.c                 |   5 +-
+ drivers/gpu/drm/drm_atomic.c                       |   1 +
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c              |   6 +-
+ drivers/gpu/drm/msm/adreno/a5xx_preempt.c          |   4 +-
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c     |   6 +-
+ drivers/gpu/drm/msm/msm_gem_submit.c               |   5 +-
+ drivers/gpu/drm/nouveau/dispnv50/disp.c            |  16 -
+ drivers/gpu/drm/nouveau/dispnv50/wndw.c            |  12 -
+ drivers/gpu/drm/nouveau/dispnv50/wndw.h            |   7 +-
+ drivers/iommu/amd/init.c                           | 105 ++++--
+ drivers/iommu/intel/pasid.c                        |   7 +
+ drivers/macintosh/windfarm_lm75_sensor.c           |   4 +-
+ drivers/macintosh/windfarm_smu_sensors.c           |   4 +-
+ drivers/media/i2c/ov5640.c                         |   2 +-
+ drivers/media/rc/gpio-ir-recv.c                    |  18 ++
+ drivers/net/dsa/mt7530.c                           |  35 +-
+ drivers/net/ethernet/broadcom/bgmac.c              |   8 +-
+ drivers/net/ethernet/broadcom/bgmac.h              |   2 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  23 +-
+ drivers/net/ethernet/intel/ice/ice_ethtool.c       |   6 +-
+ drivers/net/ethernet/marvell/octeontx2/af/rvu.h    |   5 +
+ .../ethernet/marvell/octeontx2/af/rvu_debugfs.c    |   7 +-
+ .../net/ethernet/marvell/octeontx2/af/rvu_nix.c    |  16 +-
+ .../net/ethernet/marvell/octeontx2/af/rvu_npa.c    |  58 +++-
+ .../net/ethernet/marvell/octeontx2/af/rvu_reg.h    |   3 +
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c        |   3 +-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h        |   1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   1 +
+ drivers/net/phy/microchip.c                        |  32 ++
+ drivers/net/phy/phy_device.c                       |   8 +-
+ drivers/net/phy/smsc.c                             |  20 +-
+ drivers/net/usb/lan78xx.c                          |  27 +-
+ drivers/nfc/fdp/i2c.c                              |   4 +
+ drivers/pci/quirks.c                               |   8 +
+ drivers/platform/x86/Kconfig                       |   3 +-
+ drivers/regulator/core.c                           |  27 +-
+ drivers/scsi/hosts.c                               |   2 +
+ drivers/scsi/megaraid/megaraid_sas.h               |   2 +
+ drivers/scsi/megaraid/megaraid_sas_fp.c            |   2 +-
+ drivers/staging/rtl8723bs/core/rtw_ap.c            |  20 +-
+ drivers/staging/rtl8723bs/core/rtw_cmd.c           |  96 +++---
+ drivers/staging/rtl8723bs/core/rtw_ioctl_set.c     |   4 +-
+ drivers/staging/rtl8723bs/core/rtw_mlme.c          |   6 +-
+ drivers/staging/rtl8723bs/core/rtw_mlme_ext.c      |  56 ++--
+ drivers/staging/rtl8723bs/core/rtw_security.c      |   6 +-
+ drivers/staging/rtl8723bs/include/rtw_security.h   |   8 +-
+ drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c  | 355 +++++++--------------
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c     |  51 +--
+ drivers/staging/rtl8723bs/os_dep/os_intfs.c        |   4 +-
+ fs/attr.c                                          |  72 ++++-
+ fs/btrfs/block-group.c                             |   3 +-
+ fs/dlm/lockspace.c                                 |  21 +-
+ fs/dlm/lowcomms.c                                  |  16 +-
+ fs/dlm/lowcomms.h                                  |   1 +
+ fs/dlm/main.c                                      |   7 +-
+ fs/dlm/midcomms.c                                  |  17 +-
+ fs/dlm/midcomms.h                                  |   3 +
+ fs/ext4/block_validity.c                           |  26 +-
+ fs/ext4/ext4.h                                     |   3 +
+ fs/ext4/fsmap.c                                    |   2 +
+ fs/ext4/inline.c                                   |   1 -
+ fs/ext4/inode.c                                    |   7 +-
+ fs/ext4/ioctl.c                                    |   1 +
+ fs/ext4/mballoc.c                                  | 205 +++++++-----
+ fs/ext4/namei.c                                    |  36 ++-
+ fs/ext4/page-io.c                                  |  11 +-
+ fs/ext4/xattr.c                                    |   3 +
+ fs/f2fs/checkpoint.c                               |   2 +-
+ fs/f2fs/compress.c                                 |   2 +-
+ fs/f2fs/data.c                                     |   8 +-
+ fs/f2fs/f2fs.h                                     |   2 +-
+ fs/f2fs/file.c                                     |   2 +-
+ fs/f2fs/gc.c                                       |   6 +-
+ fs/f2fs/inline.c                                   |   4 +-
+ fs/f2fs/inode.c                                    |  14 +-
+ fs/f2fs/node.c                                     |  23 +-
+ fs/f2fs/recovery.c                                 |   2 +-
+ fs/f2fs/segment.c                                  |   2 +-
+ fs/file.c                                          |   1 +
+ fs/fuse/file.c                                     |   2 +-
+ fs/inode.c                                         |  90 +++---
+ fs/internal.h                                      |  10 +-
+ fs/locks.c                                         |   3 +-
+ fs/namei.c                                         |  82 ++++-
+ fs/namespace.c                                     |  29 +-
+ fs/ocfs2/file.c                                    |   4 +-
+ fs/ocfs2/namei.c                                   |   1 +
+ fs/open.c                                          |   8 +-
+ fs/udf/inode.c                                     |   2 +-
+ fs/xfs/xfs_bmap_util.c                             |   9 +-
+ fs/xfs/xfs_file.c                                  |  24 +-
+ fs/xfs/xfs_iops.c                                  |  56 +---
+ fs/xfs/xfs_iops.h                                  |   1 -
+ fs/xfs/xfs_pnfs.c                                  |   9 +-
+ include/asm-generic/vmlinux.lds.h                  |   5 +
+ include/linux/fs.h                                 |   6 +-
+ include/linux/pci_ids.h                            |   2 +
+ include/net/netfilter/nf_tproxy.h                  |   7 +
+ kernel/bpf/btf.c                                   |   1 +
+ kernel/fork.c                                      |   2 +-
+ kernel/irq/irqdomain.c                             | 152 +++++----
+ kernel/sched/core.c                                |  10 +-
+ kernel/sched/fair.c                                | 128 +++++++-
+ kernel/sched/sched.h                               |  61 +++-
+ kernel/watch_queue.c                               |   1 +
+ net/caif/caif_usb.c                                |   3 +
+ net/ipv4/netfilter/nf_tproxy_ipv4.c                |   2 +-
+ net/ipv4/tcp_bpf.c                                 |   6 +
+ net/ipv4/udp_bpf.c                                 |   3 +
+ net/ipv6/ila/ila_xlat.c                            |   1 +
+ net/ipv6/netfilter/nf_tproxy_ipv6.c                |   2 +-
+ net/netfilter/nf_conntrack_core.c                  |   4 +-
+ net/netfilter/nf_conntrack_netlink.c               |  14 +-
+ net/nfc/netlink.c                                  |   2 +-
+ net/smc/af_smc.c                                   |  13 +-
+ net/sunrpc/svc.c                                   |   6 +-
+ net/unix/af_unix.c                                 |  16 +-
+ net/unix/unix_bpf.c                                |   3 +
+ scripts/checkkconfigsymbols.py                     |  13 +-
+ scripts/clang-tools/run-clang-tools.py             |  21 +-
+ scripts/diffconfig                                 |  16 +-
+ tools/bpf/Makefile                                 |   5 +-
+ tools/bpf/bpf_jit_disasm.c                         |   5 +-
+ tools/bpf/bpftool/Makefile                         |   5 +-
+ tools/bpf/bpftool/jit_disasm.c                     |  42 ++-
+ tools/build/Makefile.feature                       |   1 +
+ tools/build/feature/Makefile                       |   4 +
+ tools/build/feature/test-all.c                     |   4 +
+ .../build/feature/test-disassembler-init-styled.c  |  13 +
+ tools/include/tools/dis-asm-compat.h               |  55 ++++
+ tools/perf/Makefile.config                         |   8 +
+ tools/perf/builtin-inject.c                        |   1 +
+ tools/perf/builtin-stat.c                          |  15 +-
+ tools/perf/util/annotate.c                         |   7 +-
+ tools/perf/util/stat.c                             |   6 +-
+ tools/perf/util/stat.h                             |   1 -
+ tools/perf/util/target.h                           |  12 +
+ tools/testing/selftests/netfilter/nft_nat.sh       |   2 +
+ virt/kvm/kvm_main.c                                | 145 ++++++---
+ 173 files changed, 1962 insertions(+), 1490 deletions(-)
+
+
