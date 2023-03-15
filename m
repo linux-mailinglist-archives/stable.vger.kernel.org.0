@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDAF76BB089
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0363D6BB0F2
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232119AbjCOMTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:19:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44802 "EHLO
+        id S232160AbjCOMXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbjCOMTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:02 -0400
+        with ESMTP id S232339AbjCOMW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:22:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC76E303C4
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29AA9008B
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:21:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44C0A61D13
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20172C433EF;
-        Wed, 15 Mar 2023 12:18:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8271061D49
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:21:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94295C433EF;
+        Wed, 15 Mar 2023 12:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882722;
-        bh=WOssZ52lBD3g0v6+lo2kG0aqwB6NpkEbI7Y4Q/TAwNY=;
+        s=korg; t=1678882903;
+        bh=hB/5EUj0iTww9sDBBTdjFB80M1DxbE1yIRDYrdKA2gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LrlMZaee1abzOniJldlbSbAlM7QTchUN7EZBwEdZgJ2NlhoGSl8rsekRBlODNjZN
-         3MCNl9qIrp71zO4UCn5eM/ne2cukjQbaFYANqWp+bucviQGn/leprpKADeZFeIcX2g
-         s5MiOriVOQ9UtU2icHjTzo0jiGCznvwguED9m48s=
+        b=zUyC4F3YJJ/3pzxE6NTL3ghshO8+mJy+fb7itPSxi8bkxaxypig+OsoWsXf/dbHhh
+         Q/9lqfznZnoSv6v00yycj3naIOq2E4eIHtDPokfG6vIWPSrcZXaENgO/MkDShlwlj4
+         DLweX2uPiSUKrTvlJ3lahwZeB+Hwhy6sElrsZMk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kim Phillips <kim.phillips@amd.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/68] iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 038/104] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
 Date:   Wed, 15 Mar 2023 13:12:09 +0100
-Message-Id: <20230315115726.684937976@linuxfoundation.org>
+Message-Id: <20230315115733.594088933@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
-References: <20230315115726.103942885@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,214 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1198d2316dc4265a97d0e8445a22c7a6d17580a4 ]
+[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
 
-Currently, these options cause the following libkmod error:
+ila_xlat_nl_cmd_get_mapping() generates an empty skb,
+triggerring a recent sanity check [1].
 
-libkmod: ERROR ../libkmod/libkmod-config.c:489 kcmdline_parse_result: \
-	Ignoring bad option on kernel command line while parsing module \
-	name: 'ivrs_xxxx[XX:XX'
+Instead, return an error code, so that user space
+can get it.
 
-Fix by introducing a new parameter format for these options and
-throw a warning for the deprecated format.
+[1]
+skb_assert_len
+WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
+WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+Modules linked in:
+CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
+pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
+lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+sp : ffff80001e0d6c40
+x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
+x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
+x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
+x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
+x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
+x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
+x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
+x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
+x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
+x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
+Call trace:
+skb_assert_len include/linux/skbuff.h:2527 [inline]
+__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
+dev_queue_xmit include/linux/netdevice.h:3033 [inline]
+__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
+__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
+netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
+__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
+netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
+netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
+nlmsg_unicast include/net/netlink.h:1099 [inline]
+genlmsg_unicast include/net/genetlink.h:433 [inline]
+genlmsg_reply include/net/genetlink.h:443 [inline]
+ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
+genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
+genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
+genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
+netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
+genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
+netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
+netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
+netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg net/socket.c:734 [inline]
+____sys_sendmsg+0x558/0x844 net/socket.c:2479
+___sys_sendmsg net/socket.c:2533 [inline]
+__sys_sendmsg+0x26c/0x33c net/socket.c:2562
+__do_sys_sendmsg net/socket.c:2571 [inline]
+__se_sys_sendmsg net/socket.c:2569 [inline]
+__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
+__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
+invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
+el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
+do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
+el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
+el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
+el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
+irq event stamp: 136484
+hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
+hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
+softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
+softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
+softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
+---[ end trace 0000000000000000 ]---
+skb len=0 headroom=0 headlen=0 tailroom=192
+mac=(0,0) net=(0,-1) trans=-1
+shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
+csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
+hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
+dev name=nlmon0 feat=0x0000000000005861
 
-Users are still allowed to omit the PCI Segment if zero.
-
-Adding a Link: to the reason why we're modding the syntax parsing
-in the driver and not in libkmod.
-
-Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-modules/20200310082308.14318-2-lucas.demarchi@intel.com/
-Reported-by: Kim Phillips <kim.phillips@amd.com>
-Co-developed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Link: https://lore.kernel.org/r/20220919155638.391481-2-kim.phillips@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Stable-dep-of: b6b26d86c61c ("iommu/amd: Add a length limitation for the ivrs_acpihid command-line parameter")
+Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/kernel-parameters.txt         | 27 +++++--
- drivers/iommu/amd_iommu_init.c                | 79 +++++++++++++------
- 2 files changed, 76 insertions(+), 30 deletions(-)
+ net/ipv6/ila/ila_xlat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 9164263839216..5e5704faae24a 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -1946,7 +1946,13 @@
- 			Provide an override to the IOAPIC-ID<->DEVICE-ID
- 			mapping provided in the IVRS ACPI table.
- 			By default, PCI segment is 0, and can be omitted.
--			For example:
-+
-+			For example, to map IOAPIC-ID decimal 10 to
-+			PCI segment 0x1 and PCI device 00:14.0,
-+			write the parameter as:
-+				ivrs_ioapic=10@0001:00:14.0
-+
-+			Deprecated formats:
- 			* To map IOAPIC-ID decimal 10 to PCI device 00:14.0
- 			  write the parameter as:
- 				ivrs_ioapic[10]=00:14.0
-@@ -1958,7 +1964,13 @@
- 			Provide an override to the HPET-ID<->DEVICE-ID
- 			mapping provided in the IVRS ACPI table.
- 			By default, PCI segment is 0, and can be omitted.
--			For example:
-+
-+			For example, to map HPET-ID decimal 10 to
-+			PCI segment 0x1 and PCI device 00:14.0,
-+			write the parameter as:
-+				ivrs_hpet=10@0001:00:14.0
-+
-+			Deprecated formats:
- 			* To map HPET-ID decimal 0 to PCI device 00:14.0
- 			  write the parameter as:
- 				ivrs_hpet[0]=00:14.0
-@@ -1969,15 +1981,20 @@
- 	ivrs_acpihid	[HW,X86_64]
- 			Provide an override to the ACPI-HID:UID<->DEVICE-ID
- 			mapping provided in the IVRS ACPI table.
-+			By default, PCI segment is 0, and can be omitted.
+diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
+index a1ac0e3d8c60c..163668531a57f 100644
+--- a/net/ipv6/ila/ila_xlat.c
++++ b/net/ipv6/ila/ila_xlat.c
+@@ -477,6 +477,7 @@ int ila_xlat_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
  
- 			For example, to map UART-HID:UID AMD0020:0 to
- 			PCI segment 0x1 and PCI device ID 00:14.5,
- 			write the parameter as:
--				ivrs_acpihid[0001:00:14.5]=AMD0020:0
-+				ivrs_acpihid=AMD0020:0@0001:00:14.5
+ 	rcu_read_lock();
  
--			By default, PCI segment is 0, and can be omitted.
--			For example, PCI device 00:14.5 write the parameter as:
-+			Deprecated formats:
-+			* To map UART-HID:UID AMD0020:0 to PCI segment is 0,
-+			  PCI device ID 00:14.5, write the parameter as:
- 				ivrs_acpihid[00:14.5]=AMD0020:0
-+			* To map UART-HID:UID AMD0020:0 to PCI segment 0x1 and
-+			  PCI device ID 00:14.5, write the parameter as:
-+				ivrs_acpihid[0001:00:14.5]=AMD0020:0
- 
- 	js=		[HW,JOY] Analog joystick
- 			See Documentation/input/joydev/joystick.rst.
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index f4e6173e749a4..71e4a8eac3c92 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -2976,18 +2976,24 @@ static int __init parse_amd_iommu_options(char *str)
- static int __init parse_ivrs_ioapic(char *str)
- {
- 	u32 seg = 0, bus, dev, fn;
--	int ret, id, i;
-+	int id, i;
- 	u32 devid;
- 
--	ret = sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn);
--	if (ret != 4) {
--		ret = sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn);
--		if (ret != 5) {
--			pr_err("Invalid command line: ivrs_ioapic%s\n", str);
--			return 1;
--		}
-+	if (sscanf(str, "=%d@%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
-+	    sscanf(str, "=%d@%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5)
-+		goto found;
-+
-+	if (sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
-+	    sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5) {
-+		pr_warn("ivrs_ioapic%s option format deprecated; use ivrs_ioapic=%d@%04x:%02x:%02x.%d instead\n",
-+			str, id, seg, bus, dev, fn);
-+		goto found;
- 	}
- 
-+	pr_err("Invalid command line: ivrs_ioapic%s\n", str);
-+	return 1;
-+
-+found:
- 	if (early_ioapic_map_size == EARLY_MAP_SIZE) {
- 		pr_err("Early IOAPIC map overflow - ignoring ivrs_ioapic%s\n",
- 			str);
-@@ -3008,18 +3014,24 @@ static int __init parse_ivrs_ioapic(char *str)
- static int __init parse_ivrs_hpet(char *str)
- {
- 	u32 seg = 0, bus, dev, fn;
--	int ret, id, i;
-+	int id, i;
- 	u32 devid;
- 
--	ret = sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn);
--	if (ret != 4) {
--		ret = sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn);
--		if (ret != 5) {
--			pr_err("Invalid command line: ivrs_hpet%s\n", str);
--			return 1;
--		}
-+	if (sscanf(str, "=%d@%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
-+	    sscanf(str, "=%d@%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5)
-+		goto found;
-+
-+	if (sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn) == 4 ||
-+	    sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn) == 5) {
-+		pr_warn("ivrs_hpet%s option format deprecated; use ivrs_hpet=%d@%04x:%02x:%02x.%d instead\n",
-+			str, id, seg, bus, dev, fn);
-+		goto found;
- 	}
- 
-+	pr_err("Invalid command line: ivrs_hpet%s\n", str);
-+	return 1;
-+
-+found:
- 	if (early_hpet_map_size == EARLY_MAP_SIZE) {
- 		pr_err("Early HPET map overflow - ignoring ivrs_hpet%s\n",
- 			str);
-@@ -3040,19 +3052,36 @@ static int __init parse_ivrs_hpet(char *str)
- static int __init parse_ivrs_acpihid(char *str)
- {
- 	u32 seg = 0, bus, dev, fn;
--	char *hid, *uid, *p;
-+	char *hid, *uid, *p, *addr;
- 	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] = {0};
--	int ret, i;
--
--	ret = sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid);
--	if (ret != 4) {
--		ret = sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid);
--		if (ret != 5) {
--			pr_err("Invalid command line: ivrs_acpihid(%s)\n", str);
--			return 1;
-+	int i;
-+
-+	addr = strchr(str, '@');
-+	if (!addr) {
-+		if (sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid) == 4 ||
-+		    sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid) == 5) {
-+			pr_warn("ivrs_acpihid%s option format deprecated; use ivrs_acpihid=%s@%04x:%02x:%02x.%d instead\n",
-+				str, acpiid, seg, bus, dev, fn);
-+			goto found;
- 		}
-+		goto not_found;
- 	}
- 
-+	/* We have the '@', make it the terminator to get just the acpiid */
-+	*addr++ = 0;
-+
-+	if (sscanf(str, "=%s", acpiid) != 1)
-+		goto not_found;
-+
-+	if (sscanf(addr, "%x:%x.%x", &bus, &dev, &fn) == 3 ||
-+	    sscanf(addr, "%x:%x:%x.%x", &seg, &bus, &dev, &fn) == 4)
-+		goto found;
-+
-+not_found:
-+	pr_err("Invalid command line: ivrs_acpihid%s\n", str);
-+	return 1;
-+
-+found:
- 	p = acpiid;
- 	hid = strsep(&p, ":");
- 	uid = p;
++	ret = -ESRCH;
+ 	ila = ila_lookup_by_params(&xp, ilan);
+ 	if (ila) {
+ 		ret = ila_dump_info(ila,
 -- 
 2.39.2
 
