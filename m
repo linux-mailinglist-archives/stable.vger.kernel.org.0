@@ -2,202 +2,2179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 032176BB4E8
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 14:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE6D6BB53F
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 14:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231436AbjCONmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 09:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56862 "EHLO
+        id S232529AbjCONyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 09:54:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231779AbjCONmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 09:42:35 -0400
-Received: from EUR05-VI1-obe.outbound.protection.outlook.com (mail-vi1eur05on2116.outbound.protection.outlook.com [40.107.21.116])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A00F87A3A
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 06:42:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gps+ie/glwhwEUeUibbCRoGsHiuDXfVaJStHYQy3RSCA9Ak9mPglUQwmD09n0tDDFj3bH99jbwlYL6CSU4kE0scOsG8L1lSSscgzRr7V+H7Vb9/UbX12IgfPDrKIyLjWiHR2JlGULIhEm8c0wPxLYGazbIA5/WTBHQ/IfqxrCDfT8h7sgsoQL4LpHBWKXm4rolBPJKLIMzOdrq0sqCo5ScJD2ZCvh75Q0nDi20HQVGkTDeTEP5wnZDCBORUjM/sfyEIeyK/Ih4AmiyFIy0+GD4ih0U2F9R6K4Ie7UJBvU1HXXk5zjogX5V77xhG+F+pkNdPak0aHhCfwqiIEdOU/BQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YdmYK0NZjVgrzspHcrkJkj8mIasZTgCOMYHreTp8b6E=;
- b=FzUgtP7v7nWU27M4+hcQIyX8tkGWYnq7R85YDbuycFlj6lMW7eO+zZeNSNHiJzcuc9+H7TSSLfSslKq/EtAXR0R7JITtjAU9NNic7MrdXylbwUW3gbiECiWMY2+lO8vTvEKNR4yj+KtBbRvVsTQP1KIdZ4AJ6EJE4lmhmb2S6O/TfqabXFqe9xMK7nG59YxKnfoLlPPkKJ5EESZX2UjBPd7vY+CGSKDxXe7zNq8YLywv1JiBKlqoX6uGmKyUE7nVDR6QETVe5tEXdckhTapr3r8orjNmbSp5mR9cTr//BDCea11qkXJ4kI1ucf33U5SgoToF3knLDwo9vrHhOEBYDg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=uipath.com; dmarc=pass action=none header.from=uipath.com;
- dkim=pass header.d=uipath.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uipath.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YdmYK0NZjVgrzspHcrkJkj8mIasZTgCOMYHreTp8b6E=;
- b=N807SfDKqNvQlmpr1HreJfKri/rsoyY1/06dq84ztHu+D9KdsOS4aqI0lFdQ1HOJosWDO/1L29GOgzVabS6ILq1HNLWbTDv4nA2QEaWFWsicVF+NxSc6yErbVNW0dRbj3obpdOtcsj5ryElTHeadAKrXjeCXyIGE5roGV76TmlIzXjeSNAV7Tz/HhMwfOK0H46WUBfPbZs4d2ooMsmE2etg1wmLvPaozsr7gQ/VgGfpxQZ5EZcrz3oGCA+2z+9hI4ouYvQ8AZajdcx2AplNx/pDkCnjFh5Bftf+iwhrpR7p6HiRjo2StyqkcnQ4gKXsKcex14MJqX1MUpfideEFpRg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=uipath.com;
-Received: from VI1PR02MB4527.eurprd02.prod.outlook.com (2603:10a6:803:b1::28)
- by DU0PR02MB9989.eurprd02.prod.outlook.com (2603:10a6:10:447::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26; Wed, 15 Mar
- 2023 13:42:28 +0000
-Received: from VI1PR02MB4527.eurprd02.prod.outlook.com
- ([fe80::224e:d6bd:a174:9605]) by VI1PR02MB4527.eurprd02.prod.outlook.com
- ([fe80::224e:d6bd:a174:9605%6]) with mapi id 15.20.6178.026; Wed, 15 Mar 2023
- 13:42:28 +0000
-Message-ID: <b8668d09-cfa6-5d94-1e84-f2cdff9b207e@uipath.com>
-Date:   Wed, 15 Mar 2023 15:41:49 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH 5.10.y v2 2/3] KVM: VMX: Introduce
- vmx_msr_bitmap_l01_changed() helper
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Mihai Petrisor <mihai.petrisor@uipath.com>,
-        Viorel Canja <viorel.canja@uipath.com>
-References: <20230315090528.4180-1-alexandru.matei@uipath.com>
- <20230315090528.4180-3-alexandru.matei@uipath.com>
-Content-Language: en-US
-From:   Alexandru Matei <alexandru.matei@uipath.com>
-In-Reply-To: <20230315090528.4180-3-alexandru.matei@uipath.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: VI1PR09CA0107.eurprd09.prod.outlook.com
- (2603:10a6:803:78::30) To VI1PR02MB4527.eurprd02.prod.outlook.com
- (2603:10a6:803:b1::28)
+        with ESMTP id S232617AbjCONyd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 09:54:33 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA893457CC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 06:54:25 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id rj10so8337794pjb.4
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 06:54:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678888465;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=owdT5xGgaVL8jxoFnuC0cr0E+7LtcZWbuIr4jYBTDX0=;
+        b=eIdVbJoLr36uUdL7/B5PZVVfJSnl66MIFtFZSqMFkYwaV96bkBTLmmvNLFjbMD2/hl
+         rP0JInT8p+XecPGb0QWFGd8u9gcHYDkJFqYysZoIeGYgxDUtc4susfUPlKlQplv9N9vj
+         J1ZGp3odA5HKWY4LSReWGuUF4B1Y+D4Mc/kUuezeEstNpo9WSZvsGu8IP4iUcDb0wC/5
+         F9Lmg6hQV7U8ZQC0gIs61gRRJXfJ6qUltnfh+LIUDQvZ4Bc6gdD9pVjSQDrM/X4qCq4q
+         wDhIJszVetj3rrNPME4d4NI5MQ5Umis+9zMXN++/IQziOIMv9nPcZebQy+Icb5hruQBk
+         xEyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678888465;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=owdT5xGgaVL8jxoFnuC0cr0E+7LtcZWbuIr4jYBTDX0=;
+        b=R8MsWSwg2kJ/A5wYC2H1n5HLTi/MTaIdj6N4GaCghwnzGN10qWm2wfFHFsdVK0LxZi
+         RfGCkL1JK9e1oZO3cVtqn9H3PXz1WTysyxd3nU8SrfMEn93B+s8LjBH+Z/y7jgXONMtK
+         Z7T7V0RN6DhOvgtV1AycMAba/SVNWIcgvMd5xGcrHrOEYv3Ay2BBuoQPuL7hoVlaRvBk
+         AK4Sxwutk+geKianm9hW+cS2vi+3osNsLmVFMyHe3mXLnaNTFFdMN4RzXpyfvwCR61C1
+         RtcSlVxDnJA7V0jjj+Tz6DYY+AhraIz098n7hg+t/l+t0pW5L3yZ0JpVz2KeiYOtescF
+         w8mw==
+X-Gm-Message-State: AO0yUKUMX3NaOIfo5ivhl1IwXoMqa7Uo0Yy/4tQukGGeBhzIQ5H8Cm85
+        dhFWJntSOhwefKOF1zG/ALTUXMPDdhOpDCWbP1JoEG1I
+X-Google-Smtp-Source: AK7set9AwfJMolHg2VIY19zvCJaG6rkGotG1H4xSithXQD98qN4+BadLA15f0J95HC6eSJ55UsQR6Q==
+X-Received: by 2002:a17:903:41c4:b0:19c:171a:d342 with SMTP id u4-20020a17090341c400b0019c171ad342mr3436968ple.37.1678888464266;
+        Wed, 15 Mar 2023 06:54:24 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id km6-20020a17090327c600b0019a70a42b0asm3687210plb.169.2023.03.15.06.54.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Mar 2023 06:54:23 -0700 (PDT)
+Message-ID: <6411ce0f.170a0220.df20f.8631@mx.google.com>
+Date:   Wed, 15 Mar 2023 06:54:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI1PR02MB4527:EE_|DU0PR02MB9989:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3cd116a1-461a-4617-3a11-08db255b1e43
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FcFa5tlICZmgGh25zxHFjQCrhcwHlXpe2NHhChVdp2JyePqKxJSbw3o0cAPA5DjqSbEz4VBMGsGTF4TXdh9ASEPiKshHAJ9EoSi7tLmG8Zo5eqwiTB0LLmYf4rcEYjObuLMKHS9l6O58ReCCR1Mmj/nUgZ+y13MwqWZ77I7NWMMVA7viDq8epeqeGDUxxHmPkVleVrFzL05+ZcceRm3Cj7/6vwOWOpbrJfSETeabw0C/g0tCv1sVWvQSqQUwXt7GiQe+xqlfafteSqR8P27W20doWo6yf/KEOAC5A+F4TjjYr9+WsJx8TNCzdthAnY9icVZhK45BV21vJlVA+mErRPnLehr2prIQXCvzOCrKdVrX5B/MxrjUKgVyE3cLSIdR1+Yw87vlkaa+lPpfP1Jb0gjGO7kxrn2CUzeubZAtrSEafJoj+TsVtLPZXeuXcfwebk0v7+3GFyLn0bXGrd4WbCUxxbCRwjfiztRZGGV9JW9o31dOGLyv8n7loF/8NQ45LhourNJq4kZaikuorV6YpWqCmIDw3Ar7a5JY9qJlngwIMM0k0eCfQs2GvlSN1jH0dyVeb0YiGkki+khtn2Hy3jTZfosr8zyxZJQGJXmH6O3HOcOJXSTWF/ll1O5qtoBt6Mp0rFS6Um6zdr1DTz8v22Gx0JUMcnmmzEnWbnQov3ZCdyCQtyU0wFoz3PhK8R2kl6OBZhBwSrJyNXjjN8tCs8oStNTr6Nukkh/JvzsOOEs=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR02MB4527.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(136003)(346002)(39860400002)(376002)(396003)(451199018)(6486002)(31686004)(2906002)(2616005)(6666004)(107886003)(44832011)(36756003)(6506007)(478600001)(53546011)(6512007)(5660300002)(8936002)(54906003)(316002)(186003)(26005)(31696002)(41300700001)(83380400001)(86362001)(4326008)(6916009)(8676002)(66476007)(66946007)(66556008)(38100700002)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?K2Q1bGZyY2ZHV2Y1eTFhUFJRVmZUWDg2bUZRaDRFMjNIQndHT3dYUXllREVU?=
- =?utf-8?B?NEtlYis2VDhld05XeDI1TDZMTTNlYVQ3S1RIRnU3czNXdXZNZ09oK3BwTXZt?=
- =?utf-8?B?TnRvVUJTV1hUQnlXZFVIWG8vU0xQRm5UcDVvK1dMLzVlbjdUMEFCVjY4TzB0?=
- =?utf-8?B?UzBLYTRwV2pPR2djcGhTS0NKdWNMbEhtZFdjZGpIbXFzay80eURqUDdCeTBx?=
- =?utf-8?B?Zlp5M3NKWkJ0SDBjeWhDSjcvd0JDWXJhMEpWQkRhN2hvbTNSNzVzV3YzM1Uy?=
- =?utf-8?B?aE1WMjhqRklWYituQ2p4K21QNXc0TFMvU0YzS1pUcWsrU0pvYitQMG4zcDhu?=
- =?utf-8?B?RnVaalRNY3JCdmZ3VlQrMmZoSDZXMEV3OVBwSjU4WXdXU2FrL2ViUXdnWE9K?=
- =?utf-8?B?ckdNVUozdE15dk0zeUlEM1FYOXNUbFhSM1BYVlBtcXFDNG1RYW90cExUVUNL?=
- =?utf-8?B?STNPaWkxYm1MVnhvSTY1bzFzVU5VcjgvRDFrMk1UeDU1R1dYY0xlbWlLcndy?=
- =?utf-8?B?bjNkWXRmNGNvc3FtbVFpOCswWTNzU1hUZUo2ZnNDM0ZlOE1JaEpxWExhTzlm?=
- =?utf-8?B?MTBmVGdmWE8xT3ZlOFRzd3Y2WW1sc0hWbFZhS3pxSko2aUhBTlB3eXI5ZUVG?=
- =?utf-8?B?Szk3NVE0Uy9UQ3REbmVnUExsWDlwLzJDVW9YUmVoTWJ5VlBjYk8vRmdBdGto?=
- =?utf-8?B?T084NFBsekwzN21tSml6NDhiT0dkK0xrTndXZ2ZkR3FzMURkbFlVaFZXOGJv?=
- =?utf-8?B?TERrRUNKYUxienFqcHBrdWpLVW1hUXBvQjIzSkNKMGNDL3VCK1dZcmJ3ci9V?=
- =?utf-8?B?cE5GR2lxdnZsQVhjd092c1BaUTlBVVpwZ0VlRzB6TkFMWGZsTUhyaldNR3l3?=
- =?utf-8?B?Zm5RUjNKeGJQY3dRMnBiQXhkYnJhMVkrK0tETHpVVkp2c0VkRTlXcVdWRG0v?=
- =?utf-8?B?a0M4VElVeUVmWm92RGdoTDYrWk1XMzBabVJidzJRMW5oNnJTMzVNWkljVnZz?=
- =?utf-8?B?d1NoZzFISmkxRmdIMG9oWXM3SlhsQjBiMDcveEZBRXFhVUUyR2JBcit3REZ3?=
- =?utf-8?B?UDdMdmlNMFZ5V1E3bUpVSU00MHo1UURidUg4QjByS3pKdWRPemJNT29NYTdM?=
- =?utf-8?B?aHI2d0szejA4TmUvT3Z6ZGxuaWEyQ0NpWHpmM0MvMXFkUEVjeTN5cHVuYUdx?=
- =?utf-8?B?Q0VwMWdFcy95eG5GUzI1bG9DemYwVldrOStPc0xqdWtjV3NTQi96eVFkQ3NJ?=
- =?utf-8?B?VmU0Y3JIOE1GK0JBaTBNM21HTFRZVGZWM3d5dmNPbWlwUzAxN3VPTFVWWDlJ?=
- =?utf-8?B?OVJHN2RaNTdVMnlyNXozd0UyL1A5TTlZRFpxandDYWd1T0FGN3d3YzdVaVFi?=
- =?utf-8?B?ZElOR0JnSHkwOWp3Wm1tdEVRcU0yeFluc1JGMUNDNEdBcnEzSmcvVEE4SWVD?=
- =?utf-8?B?MWdNUnlwQmhPUnhib3ZOdGhneDZydmpYaFVVN1dLMHc4UitqNER2ZnFTZ010?=
- =?utf-8?B?OVNHb3VwWGhIVHJHeWFMWldCbWhzSFZlT1FhTzFReUFLZWV1OExvRXAzOFVL?=
- =?utf-8?B?d05xSHFGeEFyYllWSnM4VWpQNjZxVjlyRjFHUDQyMDhQcmRodnBXcStkOFh6?=
- =?utf-8?B?emEybVFrM0VZbUhJNGJXSkRQMC9wZHYzVG0xMjZVVndSWFNSU1c5U3pIOGgz?=
- =?utf-8?B?R0dWQ0hrelQyZDE2b095TFZGQ1FRMTZhTk5zVnloY3RmT3dvUkFSZ2ozWEc2?=
- =?utf-8?B?YWNMdnV6MjRIWmdRckhYbzRvS3JBSnJTSDNLRFg3M21xK1ZsaGtpK1A3NmtV?=
- =?utf-8?B?S0RjUFJkRDlDSm9jMFhHQzNYeFNKeVMrY2NHcWcyY1N5aSsvaThDSHFMWGs5?=
- =?utf-8?B?T3N3dGZzUERhcWNHdHlWc2hlSTdmVjkzNm9jN0VhZ0FFWWZhd25FYWc3WTZt?=
- =?utf-8?B?NXdVRVdUYjJqdjBhVVEvWnp0YXZwRWRTNUhiODNxOG5POWNlTjl4RTF3bDQ2?=
- =?utf-8?B?N3NRR2dQOTBqTi9sdUo4UW0zVmNxbU9xRVVoR0RCOGhLSUtDT0ZEaVQvelZJ?=
- =?utf-8?B?Tm9LQTR1V1BQVEpwOFFqUllHMTNLTGRjNkN0Q0lCcUQ3MVVvZFBRdVFSR0hP?=
- =?utf-8?B?U3d5MFE1NlQ2Sm1aRW5WZSs0dmRFZ1VUekh3TFY4emZnNGN2YmFXWUt6aGk5?=
- =?utf-8?B?dmc9PQ==?=
-X-OriginatorOrg: uipath.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3cd116a1-461a-4617-3a11-08db255b1e43
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR02MB4527.eurprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2023 13:42:28.6155
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: d8353d2a-b153-4d17-8827-902c51f72357
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tX7cSDARcN58aDuCJdEqjn/JxDlHxs9Euhv5XpguxCKKPT7j+/2in7BrV5QBpcqbmhgt8jopXNEMysNRid0GZTy7Apuk2sHnyrISNWLa7zs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR02MB9989
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.173-108-ge3263528613b4
+X-Kernelci-Report-Type: build
+Subject: stable-rc/queue/5.10 build: 193 builds: 145 failed, 48 passed,
+ 219 errors, 15 warnings (v5.10.173-108-ge3263528613b4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+stable-rc/queue/5.10 build: 193 builds: 145 failed, 48 passed, 219 errors, =
+15 warnings (v5.10.173-108-ge3263528613b4)
 
-This patch appeared in the queue without the last Signed-off-by line.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.173-108-ge3263528613b4/
 
-Alex
+Tree: stable-rc
+Branch: queue/5.10
+Git Describe: v5.10.173-108-ge3263528613b4
+Git Commit: e3263528613b4ecea8c6091c0c9e8d84dea6e05a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-On 3/15/2023 11:05 AM, Alexandru Matei wrote:
-> From: Vitaly Kuznetsov <vkuznets@redhat.com>
-> 
-> commit b84155c38076b36d625043a06a2f1c90bde62903 upstream.
-> 
-> In preparation to enabling 'Enlightened MSR Bitmap' feature for Hyper-V
-> guests move MSR bitmap update tracking to a dedicated helper.
-> 
-> Note: vmx_msr_bitmap_l01_changed() is called when MSR bitmap might be
-> updated. KVM doesn't check if the bit we're trying to set is already set
-> (or the bit it's trying to clear is already cleared). Such situations
-> should not be common and a few false positives should not be a problem.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-> Reviewed-by: Sean Christopherson <seanjc@google.com>
-> Message-Id: <20211129094704.326635-3-vkuznets@redhat.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Alexandru Matei <alexandru.matei@uipath.com>
-> ---
->  arch/x86/kvm/vmx/vmx.c | 17 +++++++++++++----
->  1 file changed, 13 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index eefd6387a99d..ee05c0e1cb2a 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -3785,6 +3785,17 @@ static void vmx_set_msr_bitmap_write(ulong *msr_bitmap, u32 msr)
->  		__set_bit(msr & 0x1fff, msr_bitmap + 0xc00 / f);
->  }
->  
-> +static void vmx_msr_bitmap_l01_changed(struct vcpu_vmx *vmx)
-> +{
-> +	/*
-> +	 * When KVM is a nested hypervisor on top of Hyper-V and uses
-> +	 * 'Enlightened MSR Bitmap' feature L0 needs to know that MSR
-> +	 * bitmap has changed.
-> +	 */
-> +	if (static_branch_unlikely(&enable_evmcs))
-> +		evmcs_touch_msr_bitmap();
-> +}
-> +
->  static __always_inline void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu,
->  							  u32 msr, int type)
->  {
-> @@ -3794,8 +3805,7 @@ static __always_inline void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu,
->  	if (!cpu_has_vmx_msr_bitmap())
->  		return;
->  
-> -	if (static_branch_unlikely(&enable_evmcs))
-> -		evmcs_touch_msr_bitmap();
-> +	vmx_msr_bitmap_l01_changed(vmx);
->  
->  	/*
->  	 * Mark the desired intercept state in shadow bitmap, this is needed
-> @@ -3840,8 +3850,7 @@ static __always_inline void vmx_enable_intercept_for_msr(struct kvm_vcpu *vcpu,
->  	if (!cpu_has_vmx_msr_bitmap())
->  		return;
->  
-> -	if (static_branch_unlikely(&enable_evmcs))
-> -		evmcs_touch_msr_bitmap();
-> +	vmx_msr_bitmap_l01_changed(vmx);
->  
->  	/*
->  	 * Mark the desired intercept state in shadow bitmap, this is needed
+Build Failures Detected:
+
+arc:
+    allnoconfig: (gcc-10) FAIL
+    axs103_defconfig: (gcc-10) FAIL
+    haps_hs_defconfig: (gcc-10) FAIL
+    nsimosci_hs_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    vdk_hs38_defconfig: (gcc-10) FAIL
+
+arm:
+    allnoconfig: (gcc-10) FAIL
+    am200epdkit_defconfig: (gcc-10) FAIL
+    aspeed_g4_defconfig: (gcc-10) FAIL
+    assabet_defconfig: (gcc-10) FAIL
+    at91_dt_defconfig: (gcc-10) FAIL
+    badge4_defconfig: (gcc-10) FAIL
+    bcm2835_defconfig: (gcc-10) FAIL
+    cerfcube_defconfig: (gcc-10) FAIL
+    clps711x_defconfig: (gcc-10) FAIL
+    cm_x300_defconfig: (gcc-10) FAIL
+    cns3420vb_defconfig: (gcc-10) FAIL
+    colibri_pxa270_defconfig: (gcc-10) FAIL
+    colibri_pxa300_defconfig: (gcc-10) FAIL
+    collie_defconfig: (gcc-10) FAIL
+    corgi_defconfig: (gcc-10) FAIL
+    davinci_all_defconfig: (gcc-10) FAIL
+    dove_defconfig: (gcc-10) FAIL
+    ebsa110_defconfig: (gcc-10) FAIL
+    efm32_defconfig: (gcc-10) FAIL
+    ep93xx_defconfig: (gcc-10) FAIL
+    eseries_pxa_defconfig: (gcc-10) FAIL
+    ezx_defconfig: (gcc-10) FAIL
+    footbridge_defconfig: (gcc-10) FAIL
+    gemini_defconfig: (gcc-10) FAIL
+    h3600_defconfig: (gcc-10) FAIL
+    h5000_defconfig: (gcc-10) FAIL
+    hackkit_defconfig: (gcc-10) FAIL
+    imote2_defconfig: (gcc-10) FAIL
+    imx_v4_v5_defconfig: (gcc-10) FAIL
+    integrator_defconfig: (gcc-10) FAIL
+    iop32x_defconfig: (gcc-10) FAIL
+    ixp4xx_defconfig: (gcc-10) FAIL
+    jornada720_defconfig: (gcc-10) FAIL
+    keystone_defconfig: (gcc-10) FAIL
+    lart_defconfig: (gcc-10) FAIL
+    lpc18xx_defconfig: (gcc-10) FAIL
+    lpc32xx_defconfig: (gcc-10) FAIL
+    lpd270_defconfig: (gcc-10) FAIL
+    lubbock_defconfig: (gcc-10) FAIL
+    magician_defconfig: (gcc-10) FAIL
+    mainstone_defconfig: (gcc-10) FAIL
+    mini2440_defconfig: (gcc-10) FAIL
+    mmp2_defconfig: (gcc-10) FAIL
+    moxart_defconfig: (gcc-10) FAIL
+    mps2_defconfig: (gcc-10) FAIL
+    multi_v4t_defconfig: (gcc-10) FAIL
+    multi_v5_defconfig: (gcc-10) FAIL
+    mv78xx0_defconfig: (gcc-10) FAIL
+    mvebu_v5_defconfig: (gcc-10) FAIL
+    mxs_defconfig: (gcc-10) FAIL
+    neponset_defconfig: (gcc-10) FAIL
+    netwinder_defconfig: (gcc-10) FAIL
+    nhk8815_defconfig: (gcc-10) FAIL
+    omap1_defconfig: (gcc-10) FAIL
+    orion5x_defconfig: (gcc-10) FAIL
+    palmz72_defconfig: (gcc-10) FAIL
+    pcm027_defconfig: (gcc-10) FAIL
+    pleb_defconfig: (gcc-10) FAIL
+    pxa168_defconfig: (gcc-10) FAIL
+    pxa255-idp_defconfig: (gcc-10) FAIL
+    pxa3xx_defconfig: (gcc-10) FAIL
+    pxa910_defconfig: (gcc-10) FAIL
+    pxa_defconfig: (gcc-10) FAIL
+    s3c2410_defconfig: (gcc-10) FAIL
+    s3c6400_defconfig: (gcc-10) FAIL
+    s5pv210_defconfig: (gcc-10) FAIL
+    sama5_defconfig: (gcc-10) FAIL
+    shannon_defconfig: (gcc-10) FAIL
+    simpad_defconfig: (gcc-10) FAIL
+    spear3xx_defconfig: (gcc-10) FAIL
+    spear6xx_defconfig: (gcc-10) FAIL
+    spitz_defconfig: (gcc-10) FAIL
+    stm32_defconfig: (gcc-10) FAIL
+    tct_hammer_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    trizeps4_defconfig: (gcc-10) FAIL
+    u300_defconfig: (gcc-10) FAIL
+    versatile_defconfig: (gcc-10) FAIL
+    vf610m4_defconfig: (gcc-10) FAIL
+    viper_defconfig: (gcc-10) FAIL
+    vt8500_v6_v7_defconfig: (gcc-10) FAIL
+    xcep_defconfig: (gcc-10) FAIL
+    zeus_defconfig: (gcc-10) FAIL
+
+i386:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+mips:
+    allnoconfig: (gcc-10) FAIL
+    ar7_defconfig: (gcc-10) FAIL
+    ath25_defconfig: (gcc-10) FAIL
+    ath79_defconfig: (gcc-10) FAIL
+    bcm47xx_defconfig: (gcc-10) FAIL
+    bcm63xx_defconfig: (gcc-10) FAIL
+    bigsur_defconfig: (gcc-10) FAIL
+    capcella_defconfig: (gcc-10) FAIL
+    ci20_defconfig: (gcc-10) FAIL
+    cobalt_defconfig: (gcc-10) FAIL
+    cu1000-neo_defconfig: (gcc-10) FAIL
+    cu1830-neo_defconfig: (gcc-10) FAIL
+    db1xxx_defconfig: (gcc-10) FAIL
+    decstation_64_defconfig: (gcc-10) FAIL
+    decstation_defconfig: (gcc-10) FAIL
+    decstation_r4k_defconfig: (gcc-10) FAIL
+    e55_defconfig: (gcc-10) FAIL
+    fuloong2e_defconfig: (gcc-10) FAIL
+    gcw0_defconfig: (gcc-10) FAIL
+    gpr_defconfig: (gcc-10) FAIL
+    ip22_defconfig: (gcc-10) FAIL
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+    ip32_defconfig: (gcc-10) FAIL
+    jazz_defconfig: (gcc-10) FAIL
+    jmr3927_defconfig: (gcc-10) FAIL
+    lemote2f_defconfig: (gcc-10) FAIL
+    loongson1b_defconfig: (gcc-10) FAIL
+    loongson1c_defconfig: (gcc-10) FAIL
+    malta_kvm_guest_defconfig: (gcc-10) FAIL
+    malta_qemu_32r6_defconfig: (gcc-10) FAIL
+    mpc30x_defconfig: (gcc-10) FAIL
+    mtx1_defconfig: (gcc-10) FAIL
+    nlm_xlp_defconfig: (gcc-10) FAIL
+    nlm_xlr_defconfig: (gcc-10) FAIL
+    omega2p_defconfig: (gcc-10) FAIL
+    pic32mzda_defconfig: (gcc-10) FAIL
+    qi_lb60_defconfig: (gcc-10) FAIL
+    rb532_defconfig: (gcc-10) FAIL
+    rbtx49xx_defconfig: (gcc-10) FAIL
+    rm200_defconfig: (gcc-10) FAIL
+    rs90_defconfig: (gcc-10) FAIL
+    rt305x_defconfig: (gcc-10) FAIL
+    sb1250_swarm_defconfig: (gcc-10) FAIL
+    tb0219_defconfig: (gcc-10) FAIL
+    tb0226_defconfig: (gcc-10) FAIL
+    tb0287_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    vocore2_defconfig: (gcc-10) FAIL
+    workpad_defconfig: (gcc-10) FAIL
+
+riscv:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+x86_64:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-10): 2 errors
+    axs103_defconfig (gcc-10): 3 errors
+    haps_hs_defconfig (gcc-10): 1 error
+    nsimosci_hs_defconfig (gcc-10): 1 error
+    tinyconfig (gcc-10): 1 error
+    vdk_hs38_defconfig (gcc-10): 1 error
+
+arm64:
+
+arm:
+    allnoconfig (gcc-10): 1 error
+    am200epdkit_defconfig (gcc-10): 2 errors
+    aspeed_g4_defconfig (gcc-10): 2 errors
+    assabet_defconfig (gcc-10): 2 errors
+    at91_dt_defconfig (gcc-10): 2 errors
+    badge4_defconfig (gcc-10): 1 error
+    bcm2835_defconfig (gcc-10): 1 error
+    cerfcube_defconfig (gcc-10): 1 error
+    clps711x_defconfig (gcc-10): 2 errors
+    cm_x300_defconfig (gcc-10): 1 error
+    cns3420vb_defconfig (gcc-10): 2 errors
+    colibri_pxa270_defconfig (gcc-10): 1 error
+    colibri_pxa300_defconfig (gcc-10): 1 error
+    collie_defconfig (gcc-10): 1 error
+    corgi_defconfig (gcc-10): 1 error
+    davinci_all_defconfig (gcc-10): 1 error
+    dove_defconfig (gcc-10): 2 errors
+    ebsa110_defconfig (gcc-10): 1 error
+    efm32_defconfig (gcc-10): 3 errors
+    ep93xx_defconfig (gcc-10): 2 errors
+    eseries_pxa_defconfig (gcc-10): 1 error
+    ezx_defconfig (gcc-10): 1 error
+    footbridge_defconfig (gcc-10): 2 errors
+    gemini_defconfig (gcc-10): 1 error
+    h3600_defconfig (gcc-10): 2 errors
+    h5000_defconfig (gcc-10): 1 error
+    hackkit_defconfig (gcc-10): 1 error
+    imote2_defconfig (gcc-10): 3 errors
+    imx_v4_v5_defconfig (gcc-10): 1 error
+    integrator_defconfig (gcc-10): 1 error
+    iop32x_defconfig (gcc-10): 1 error
+    ixp4xx_defconfig (gcc-10): 2 errors
+    jornada720_defconfig (gcc-10): 2 errors
+    keystone_defconfig (gcc-10): 1 error, 2 warnings
+    lart_defconfig (gcc-10): 1 error
+    lpc18xx_defconfig (gcc-10): 1 error
+    lpc32xx_defconfig (gcc-10): 1 error
+    lpd270_defconfig (gcc-10): 2 errors
+    lubbock_defconfig (gcc-10): 1 error
+    magician_defconfig (gcc-10): 2 errors
+    mainstone_defconfig (gcc-10): 1 error
+    mini2440_defconfig (gcc-10): 1 error
+    mmp2_defconfig (gcc-10): 2 errors
+    moxart_defconfig (gcc-10): 1 error
+    mps2_defconfig (gcc-10): 2 errors
+    multi_v4t_defconfig (gcc-10): 4 errors
+    multi_v5_defconfig (gcc-10): 2 errors
+    mv78xx0_defconfig (gcc-10): 1 error
+    mvebu_v5_defconfig (gcc-10): 1 error
+    mxs_defconfig (gcc-10): 1 error
+    neponset_defconfig (gcc-10): 1 error
+    netwinder_defconfig (gcc-10): 1 error
+    nhk8815_defconfig (gcc-10): 2 errors
+    omap1_defconfig (gcc-10): 3 errors
+    orion5x_defconfig (gcc-10): 1 error
+    palmz72_defconfig (gcc-10): 1 error
+    pcm027_defconfig (gcc-10): 1 error
+    pleb_defconfig (gcc-10): 1 error
+    pxa168_defconfig (gcc-10): 2 errors
+    pxa255-idp_defconfig (gcc-10): 1 error
+    pxa3xx_defconfig (gcc-10): 3 errors
+    pxa910_defconfig (gcc-10): 2 errors
+    pxa_defconfig (gcc-10): 1 error
+    s3c2410_defconfig (gcc-10): 2 errors
+    s3c6400_defconfig (gcc-10): 1 error
+    s5pv210_defconfig (gcc-10): 2 errors
+    sama5_defconfig (gcc-10): 2 errors
+    shannon_defconfig (gcc-10): 1 error
+    simpad_defconfig (gcc-10): 1 error
+    spear3xx_defconfig (gcc-10): 3 errors
+    spear6xx_defconfig (gcc-10): 2 errors
+    spitz_defconfig (gcc-10): 1 error
+    stm32_defconfig (gcc-10): 2 errors
+    tct_hammer_defconfig (gcc-10): 1 error
+    tinyconfig (gcc-10): 1 error
+    trizeps4_defconfig (gcc-10): 3 errors
+    u300_defconfig (gcc-10): 2 errors
+    versatile_defconfig (gcc-10): 2 errors
+    vf610m4_defconfig (gcc-10): 2 errors
+    viper_defconfig (gcc-10): 1 error
+    vt8500_v6_v7_defconfig (gcc-10): 2 errors
+    xcep_defconfig (gcc-10): 1 error
+    zeus_defconfig (gcc-10): 2 errors
+
+i386:
+    allnoconfig (gcc-10): 1 error
+    tinyconfig (gcc-10): 1 error
+
+mips:
+    32r2el_defconfig (gcc-10): 1 warning
+    allnoconfig (gcc-10): 1 error
+    ar7_defconfig (gcc-10): 1 error
+    ath25_defconfig (gcc-10): 2 errors
+    ath79_defconfig (gcc-10): 1 error
+    bcm47xx_defconfig (gcc-10): 3 errors
+    bcm63xx_defconfig (gcc-10): 2 errors
+    bigsur_defconfig (gcc-10): 1 error, 2 warnings
+    capcella_defconfig (gcc-10): 1 error
+    ci20_defconfig (gcc-10): 3 errors
+    cobalt_defconfig (gcc-10): 2 errors
+    cu1000-neo_defconfig (gcc-10): 1 error
+    cu1830-neo_defconfig (gcc-10): 2 errors
+    db1xxx_defconfig (gcc-10): 1 error
+    decstation_64_defconfig (gcc-10): 1 error
+    decstation_defconfig (gcc-10): 1 error
+    decstation_r4k_defconfig (gcc-10): 1 error
+    e55_defconfig (gcc-10): 1 error
+    fuloong2e_defconfig (gcc-10): 3 errors
+    gcw0_defconfig (gcc-10): 1 error
+    gpr_defconfig (gcc-10): 3 errors
+    ip22_defconfig (gcc-10): 1 error
+    ip32_defconfig (gcc-10): 3 errors
+    jazz_defconfig (gcc-10): 2 errors
+    jmr3927_defconfig (gcc-10): 3 errors
+    lemote2f_defconfig (gcc-10): 1 error
+    loongson1b_defconfig (gcc-10): 1 error
+    loongson1c_defconfig (gcc-10): 1 error
+    malta_kvm_guest_defconfig (gcc-10): 2 errors
+    malta_qemu_32r6_defconfig (gcc-10): 1 error
+    mpc30x_defconfig (gcc-10): 3 errors
+    mtx1_defconfig (gcc-10): 1 error
+    nlm_xlp_defconfig (gcc-10): 1 error, 2 warnings
+    nlm_xlr_defconfig (gcc-10): 1 error, 2 warnings
+    omega2p_defconfig (gcc-10): 2 errors
+    pic32mzda_defconfig (gcc-10): 1 error
+    qi_lb60_defconfig (gcc-10): 2 errors
+    rb532_defconfig (gcc-10): 2 errors
+    rbtx49xx_defconfig (gcc-10): 1 error
+    rm200_defconfig (gcc-10): 1 error
+    rs90_defconfig (gcc-10): 1 error
+    rt305x_defconfig (gcc-10): 2 errors
+    sb1250_swarm_defconfig (gcc-10): 1 error, 2 warnings
+    tb0219_defconfig (gcc-10): 1 error
+    tb0226_defconfig (gcc-10): 1 error
+    tb0287_defconfig (gcc-10): 2 errors
+    tinyconfig (gcc-10): 2 errors
+    vocore2_defconfig (gcc-10): 1 error
+    workpad_defconfig (gcc-10): 1 error
+
+riscv:
+    allnoconfig (gcc-10): 1 error
+    rv32_defconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 3 errors
+
+x86_64:
+    allnoconfig (gcc-10): 1 error
+    tinyconfig (gcc-10): 1 error
+
+Errors summary:
+
+    206  kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 h=
+as no member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    9    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member nam=
+ed 'cpu_capacity_inverted'
+    5    drivers/pci/pci-driver.c:1297:2: error: implicit declaration of fu=
+nction =E2=80=98pci_restore_standard_config=E2=80=99 [-Werror=3Dimplicit-fu=
+nction-declaration]
+
+Warnings summary:
+
+    5    drivers/pci/pci-driver.c:536:13: warning: =E2=80=98pci_pm_default_=
+resume_early=E2=80=99 defined but not used [-Wunused-function]
+    5    cc1: some warnings being treated as errors
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
+mbol check will be entirely skipped.
+
+Section mismatches summary:
+
+    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
+ Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
+emory to the function .init.text:prom_init_numa_memory()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved symbol =
+check will be entirely skipped.
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mi=
+smatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    drivers/pci/pci-driver.c:1297:2: error: implicit declaration of functio=
+n =E2=80=98pci_restore_standard_config=E2=80=99 [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    drivers/pci/pci-driver.c:536:13: warning: =E2=80=98pci_pm_default_resum=
+e_early=E2=80=99 defined but not used [-Wunused-function]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings=
+, 0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    drivers/pci/pci-driver.c:1297:2: error: implicit declaration of functio=
+n =E2=80=98pci_restore_standard_config=E2=80=99 [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    drivers/pci/pci-driver.c:536:13: warning: =E2=80=98pci_pm_default_resum=
+e_early=E2=80=99 defined but not used [-Wunused-function]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
+ to the function .init.text:prom_init_numa_memory()
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnin=
+gs, 0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warning=
+s, 0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    drivers/pci/pci-driver.c:1297:2: error: implicit declaration of functio=
+n =E2=80=98pci_restore_standard_config=E2=80=99 [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    drivers/pci/pci-driver.c:536:13: warning: =E2=80=98pci_pm_default_resum=
+e_early=E2=80=99 defined but not used [-Wunused-function]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    drivers/pci/pci-driver.c:1297:2: error: implicit declaration of functio=
+n =E2=80=98pci_restore_standard_config=E2=80=99 [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    drivers/pci/pci-driver.c:536:13: warning: =E2=80=98pci_pm_default_resum=
+e_early=E2=80=99 defined but not used [-Wunused-function]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, =
+0 section mismatches
+
+Errors:
+    drivers/pci/pci-driver.c:1297:2: error: implicit declaration of functio=
+n =E2=80=98pci_restore_standard_config=E2=80=99 [-Werror=3Dimplicit-functio=
+n-declaration]
+
+Warnings:
+    drivers/pci/pci-driver.c:536:13: warning: =E2=80=98pci_pm_default_resum=
+e_early=E2=80=99 defined but not used [-Wunused-function]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mi=
+smatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mis=
+matches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mis=
+matches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: 'struct rq' has no member named 'c=
+pu_capacity_inverted'
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+0 warnings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+    kernel/sched/sched.h:2560:20: error: =E2=80=98struct rq=E2=80=99 has no=
+ member named =E2=80=98cpu_capacity_inverted=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---
+For more info write to <info@kernelci.org>
