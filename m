@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CBD6BB37B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 327D36BB2C8
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232999AbjCOMpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:45:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
+        id S232772AbjCOMid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233155AbjCOMow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:44:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554838EA09;
-        Wed, 15 Mar 2023 05:43:30 -0700 (PDT)
+        with ESMTP id S232432AbjCOMiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:38:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFBDC12F04
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:37:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB2861D73;
-        Wed, 15 Mar 2023 12:42:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F97C433EF;
-        Wed, 15 Mar 2023 12:42:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4E534CE19B7
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:36:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C2C2C433EF;
+        Wed, 15 Mar 2023 12:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884176;
-        bh=if5yWvrLs7s3hjiF6DzbVuIrkn5oiXCRR1mNGRrXXRI=;
+        s=korg; t=1678883810;
+        bh=7/gkUGHCW596SjNKfzp4ZFeqoZP/cvptV8o7p4P1Wlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJ+vQ16pXjgVXtdkSjzn/oDJbjx4Dc/EHfNpee+7fsTybApB/xTTlYhOsLv0UrXaf
-         2isiY/jAdd6I2HoxUxUDqbebQiHs9mesEycJIAkke9780rm8P8o7h8a7kVcFCaDfvV
-         8QxzOqiX1Qi4+mqei29hYIKmcYFUY5n+wF7iFq94=
+        b=2MuKOIsozZiRA1IAkJMq6FgEzIpokySYMJql1tUzg8lERaMKMjer7zBJNmSuHXVif
+         J9NpYuTOLnJrxI3JCz1zNuYtbjvU/v18Rw7YNIbT8aBTo6OL5tLFePeNP4570+Ym0M
+         k5aWxJUa2FjtFR/4FPs/MI6NxDjDr41aP9ItqGfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Michael Shych <michaelsh@nvidia.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        platform-driver-x86@vger.kernel.org,
+        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
+        Changbin Du <changbin.du@gmail.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 096/141] platform: mellanox: select REGMAP instead of depending on it
+Subject: [PATCH 6.1 113/143] RISC-V: Dont check text_mutex during stop_machine
 Date:   Wed, 15 Mar 2023 13:13:19 +0100
-Message-Id: <20230315115742.930964565@linuxfoundation.org>
+Message-Id: <20230315115743.932272562@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,87 +57,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 03f5eb300ad1241f854269a3e521b119189a4493 ]
+[ Upstream commit 2a8db5ec4a28a0fce822d10224db9471a44b6925 ]
 
-REGMAP is a hidden (not user visible) symbol. Users cannot set it
-directly thru "make *config", so drivers should select it instead of
-depending on it if they need it.
+We're currently using stop_machine() to update ftrace & kprobes, which
+means that the thread that takes text_mutex during may not be the same
+as the thread that eventually patches the code.  This isn't actually a
+race because the lock is still held (preventing any other concurrent
+accesses) and there is only one thread running during stop_machine(),
+but it does trigger a lockdep failure.
 
-Consistently using "select" or "depends on" can also help reduce
-Kconfig circular dependency issues.
+This patch just elides the lockdep check during stop_machine.
 
-Therefore, change the use of "depends on REGMAP" to "select REGMAP".
-
-For NVSW_SN2201, select REGMAP_I2C instead of depending on it.
-
-Fixes: c6acad68eb2d ("platform/mellanox: mlxreg-hotplug: Modify to use a regmap interface")
-Fixes: 5ec4a8ace06c ("platform/mellanox: Introduce support for Mellanox register access driver")
-Fixes: 62f9529b8d5c ("platform/mellanox: mlxreg-lc: Add initial support for Nvidia line card devices")
-Fixes: 662f24826f95 ("platform/mellanox: Add support for new SN2201 system")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Michael Shych <michaelsh@nvidia.com>
-Cc: Mark Gross <markgross@kernel.org>
-Cc: Vadim Pasternak <vadimp@nvidia.com>
-Cc: platform-driver-x86@vger.kernel.org
-Link: https://lore.kernel.org/r/20230226053953.4681-6-rdunlap@infradead.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: c15ac4fd60d5 ("riscv/ftrace: Add dynamic function tracer support")
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230303143754.4005217-1-conor.dooley@microchip.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/mellanox/Kconfig | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/riscv/include/asm/ftrace.h |  2 +-
+ arch/riscv/include/asm/patch.h  |  2 ++
+ arch/riscv/kernel/ftrace.c      | 13 +++++++++++--
+ arch/riscv/kernel/patch.c       | 28 +++++++++++++++++++++++++---
+ 4 files changed, 39 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/mellanox/Kconfig b/drivers/platform/mellanox/Kconfig
-index 09c7829e95c4b..382793e73a60a 100644
---- a/drivers/platform/mellanox/Kconfig
-+++ b/drivers/platform/mellanox/Kconfig
-@@ -16,17 +16,17 @@ if MELLANOX_PLATFORM
+diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
+index 9e73922e1e2e5..d47d87c2d7e3d 100644
+--- a/arch/riscv/include/asm/ftrace.h
++++ b/arch/riscv/include/asm/ftrace.h
+@@ -109,6 +109,6 @@ int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
+ #define ftrace_init_nop ftrace_init_nop
+ #endif
  
- config MLXREG_HOTPLUG
- 	tristate "Mellanox platform hotplug driver support"
--	depends on REGMAP
- 	depends on HWMON
- 	depends on I2C
-+	select REGMAP
- 	help
- 	  This driver handles hot-plug events for the power suppliers, power
- 	  cables and fans on the wide range Mellanox IB and Ethernet systems.
+-#endif
++#endif /* CONFIG_DYNAMIC_FTRACE */
  
- config MLXREG_IO
- 	tristate "Mellanox platform register access driver support"
--	depends on REGMAP
- 	depends on HWMON
-+	select REGMAP
- 	help
- 	  This driver allows access to Mellanox programmable device register
- 	  space through sysfs interface. The sets of registers for sysfs access
-@@ -36,9 +36,9 @@ config MLXREG_IO
+ #endif /* _ASM_RISCV_FTRACE_H */
+diff --git a/arch/riscv/include/asm/patch.h b/arch/riscv/include/asm/patch.h
+index 9a7d7346001ee..98d9de07cba17 100644
+--- a/arch/riscv/include/asm/patch.h
++++ b/arch/riscv/include/asm/patch.h
+@@ -9,4 +9,6 @@
+ int patch_text_nosync(void *addr, const void *insns, size_t len);
+ int patch_text(void *addr, u32 insn);
  
- config MLXREG_LC
- 	tristate "Mellanox line card platform driver support"
--	depends on REGMAP
- 	depends on HWMON
- 	depends on I2C
-+	select REGMAP
- 	help
- 	  This driver provides support for the Mellanox MSN4800-XX line cards,
- 	  which are the part of MSN4800 Ethernet modular switch systems
-@@ -80,10 +80,9 @@ config MLXBF_PMC
++extern int riscv_patch_in_stop_machine;
++
+ #endif /* _ASM_RISCV_PATCH_H */
+diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+index 5bff37af4770b..03a6434a8cdd0 100644
+--- a/arch/riscv/kernel/ftrace.c
++++ b/arch/riscv/kernel/ftrace.c
+@@ -15,10 +15,19 @@
+ void ftrace_arch_code_modify_prepare(void) __acquires(&text_mutex)
+ {
+ 	mutex_lock(&text_mutex);
++
++	/*
++	 * The code sequences we use for ftrace can't be patched while the
++	 * kernel is running, so we need to use stop_machine() to modify them
++	 * for now.  This doesn't play nice with text_mutex, we use this flag
++	 * to elide the check.
++	 */
++	riscv_patch_in_stop_machine = true;
+ }
  
- config NVSW_SN2201
- 	tristate "Nvidia SN2201 platform driver support"
--	depends on REGMAP
- 	depends on HWMON
- 	depends on I2C
--	depends on REGMAP_I2C
-+	select REGMAP_I2C
- 	help
- 	  This driver provides support for the Nvidia SN2201 platform.
- 	  The SN2201 is a highly integrated for one rack unit system with
+ void ftrace_arch_code_modify_post_process(void) __releases(&text_mutex)
+ {
++	riscv_patch_in_stop_machine = false;
+ 	mutex_unlock(&text_mutex);
+ }
+ 
+@@ -107,9 +116,9 @@ int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
+ {
+ 	int out;
+ 
+-	ftrace_arch_code_modify_prepare();
++	mutex_lock(&text_mutex);
+ 	out = ftrace_make_nop(mod, rec, MCOUNT_ADDR);
+-	ftrace_arch_code_modify_post_process();
++	mutex_unlock(&text_mutex);
+ 
+ 	return out;
+ }
+diff --git a/arch/riscv/kernel/patch.c b/arch/riscv/kernel/patch.c
+index 765004b605132..e099961453cca 100644
+--- a/arch/riscv/kernel/patch.c
++++ b/arch/riscv/kernel/patch.c
+@@ -11,6 +11,7 @@
+ #include <asm/kprobes.h>
+ #include <asm/cacheflush.h>
+ #include <asm/fixmap.h>
++#include <asm/ftrace.h>
+ #include <asm/patch.h>
+ 
+ struct patch_insn {
+@@ -19,6 +20,8 @@ struct patch_insn {
+ 	atomic_t cpu_count;
+ };
+ 
++int riscv_patch_in_stop_machine = false;
++
+ #ifdef CONFIG_MMU
+ /*
+  * The fix_to_virt(, idx) needs a const value (not a dynamic variable of
+@@ -59,8 +62,15 @@ static int patch_insn_write(void *addr, const void *insn, size_t len)
+ 	 * Before reaching here, it was expected to lock the text_mutex
+ 	 * already, so we don't need to give another lock here and could
+ 	 * ensure that it was safe between each cores.
++	 *
++	 * We're currently using stop_machine() for ftrace & kprobes, and while
++	 * that ensures text_mutex is held before installing the mappings it
++	 * does not ensure text_mutex is held by the calling thread.  That's
++	 * safe but triggers a lockdep failure, so just elide it for that
++	 * specific case.
+ 	 */
+-	lockdep_assert_held(&text_mutex);
++	if (!riscv_patch_in_stop_machine)
++		lockdep_assert_held(&text_mutex);
+ 
+ 	if (across_pages)
+ 		patch_map(addr + len, FIX_TEXT_POKE1);
+@@ -121,13 +131,25 @@ NOKPROBE_SYMBOL(patch_text_cb);
+ 
+ int patch_text(void *addr, u32 insn)
+ {
++	int ret;
+ 	struct patch_insn patch = {
+ 		.addr = addr,
+ 		.insn = insn,
+ 		.cpu_count = ATOMIC_INIT(0),
+ 	};
+ 
+-	return stop_machine_cpuslocked(patch_text_cb,
+-				       &patch, cpu_online_mask);
++	/*
++	 * kprobes takes text_mutex, before calling patch_text(), but as we call
++	 * calls stop_machine(), the lockdep assertion in patch_insn_write()
++	 * gets confused by the context in which the lock is taken.
++	 * Instead, ensure the lock is held before calling stop_machine(), and
++	 * set riscv_patch_in_stop_machine to skip the check in
++	 * patch_insn_write().
++	 */
++	lockdep_assert_held(&text_mutex);
++	riscv_patch_in_stop_machine = true;
++	ret = stop_machine_cpuslocked(patch_text_cb, &patch, cpu_online_mask);
++	riscv_patch_in_stop_machine = false;
++	return ret;
+ }
+ NOKPROBE_SYMBOL(patch_text);
 -- 
 2.39.2
 
