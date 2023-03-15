@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90316BB12C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7A16BB242
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:34:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232442AbjCOMZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57566 "EHLO
+        id S232692AbjCOMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:34:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231769AbjCOMY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:59 -0400
+        with ESMTP id S232693AbjCOMeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26B899C1F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8891865051
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:33:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE9361D49
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C15DDC433EF;
-        Wed, 15 Mar 2023 12:23:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3C6161D64
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01856C433AA;
+        Wed, 15 Mar 2023 12:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882988;
-        bh=u66U3m65PJqVDS28/79g2IDAVlH3OBmhN84cHiMjyqk=;
+        s=korg; t=1678883559;
+        bh=CoJGKh0FOnk5vX8Pwg3Lc1XM2guT1Iwm90uOmQLz6BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7Wi7j68kdkHYEHniSPKu3TSr0etlBUJFgJlj5Kbgsun0F9nus9U6YASRE3tXHWUf
-         MkUOOKuvpXHIfx3p6NMmzR50UeGCEQnVNErSrWnH9ukohAs9pWwRZri15sb/ncyVPK
-         kUFtaA+w5ORd/sHHcd3ZicfFdHSPcVfpq+mbRRCU=
+        b=VeCeqyv9WjH/Y2T5wyX/j8av/CAzS/D+L/IM91/LTWIQranWYZk8C3l1oJpN6fr9v
+         qCU0NL4zK/WhDeU13UG3mDZUgTcIQnY/VKu3EuET+pU2xYwXVjmM7B0SIcQdc1sKX8
+         euEqRJutAsP1qW4tHoEajW42iv/PCKquCfkA5KOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/104] powerpc: dts: t1040rdb: fix compatible string for Rev A boards
-Date:   Wed, 15 Mar 2023 13:12:08 +0100
-Message-Id: <20230315115733.562370556@linuxfoundation.org>
+Subject: [PATCH 6.1 043/143] powerpc/boot: Dont always pass -mcpu=powerpc when building 32-bit uImage
+Date:   Wed, 15 Mar 2023 13:12:09 +0100
+Message-Id: <20230315115741.820080128@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit ae44f1c9d1fc54aeceb335fedb1e73b2c3ee4561 ]
+[ Upstream commit ff7c76f66d8bad4e694c264c789249e1d3a8205d ]
 
-It looks like U-Boot fails to start the kernel properly when the
-compatible string of the board isn't fsl,T1040RDB, so stop overriding it
-from the rev-a.dts.
+When CONFIG_TARGET_CPU is specified then pass its value to the compiler
+-mcpu option. This fixes following build error when building kernel with
+powerpc e500 SPE capable cross compilers:
 
-Fixes: 5ebb74749202 ("powerpc: dts: t1040rdb: fix ports names for Seville Ethernet switch")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+    BOOTAS  arch/powerpc/boot/crt0.o
+  powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
+  powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
+  make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
+
+Similar change was already introduced for the main powerpc Makefile in
+commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
+compiler").
+
+Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
+Cc: stable@vger.kernel.org # v5.19+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/boot/Makefile | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-index 73f8c998c64df..d4f5f159d6f23 100644
---- a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-+++ b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-@@ -10,7 +10,6 @@
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index d32d95aea5d6f..295f76df13b55 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+ 		 $(LINUXINCLUDE)
  
- / {
- 	model = "fsl,T1040RDB-REV-A";
--	compatible = "fsl,T1040RDB-REV-A";
- };
+ ifdef CONFIG_PPC64_BOOT_WRAPPER
+-ifdef CONFIG_CPU_LITTLE_ENDIAN
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
++BOOTCFLAGS	+= -m64
+ else
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64
++BOOTCFLAGS	+= -m32
+ endif
++
++ifdef CONFIG_TARGET_CPU_BOOL
++BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
++else ifdef CONFIG_PPC64_BOOT_WRAPPER
++ifdef CONFIG_CPU_LITTLE_ENDIAN
++BOOTCFLAGS	+= -mcpu=powerpc64le
+ else
+-BOOTCFLAGS	+= -m32 -mcpu=powerpc
++BOOTCFLAGS	+= -mcpu=powerpc64
++endif
+ endif
  
- &seville_port0 {
+ BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
 -- 
 2.39.2
 
