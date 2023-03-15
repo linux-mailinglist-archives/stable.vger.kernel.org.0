@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF9D6BB141
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B8B6BB091
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232465AbjCOMZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57158 "EHLO
+        id S232123AbjCOMT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232283AbjCOMZk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:40 -0400
+        with ESMTP id S232125AbjCOMTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C4C95E15
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5722694A42
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:18:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6525161D5F
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:24:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D941C433EF;
-        Wed, 15 Mar 2023 12:24:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAAB861ABD
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:18:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6BCC433EF;
+        Wed, 15 Mar 2023 12:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883055;
-        bh=scIBUCibkZ6ezqacbiLi2xkfwIP7lbG0QjO+CwNdsuI=;
+        s=korg; t=1678882738;
+        bh=7xD3X6MpnJbx2RsII0tEO8wHfCTuyt13z+tHDer6SfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S640zHK2cAXOTiAmmOV+ito29WKNLJJ9GtyRibE953vS1fPHTxOy3Sf07WdZVIr+x
-         GTnr7vz7KN+xdcghDMMhaBUJWEa+I3VHtDviozOjKmHsHvLte1+Ryh5ONhAx+vErX4
-         UFyp6gmLSwvVjXYxpURwjVx9U0wzvlXLN/Od35aQ=
+        b=L1E3H1fcA0alpdQB4QHW3VC4EKLxBDEkwWtnHFPuLk1pOamBueOSq7YoF4Hs2gRB2
+         Y24Dn6bzEoYlk3eHIaQGduv/ORGvECWypz4tYIPAGPId0KQG4GzeGWqDSDV3HHAUzc
+         IcMcvtnDGTPQ9Iv0FINWMJhpsdq16n4CVaF36mjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
+        patches@lists.linux.dev,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/104] scripts: handle BrokenPipeError for python scripts
-Date:   Wed, 15 Mar 2023 13:12:45 +0100
-Message-Id: <20230315115735.039952713@linuxfoundation.org>
+Subject: [PATCH 5.4 52/68] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+Date:   Wed, 15 Mar 2023 13:12:46 +0100
+Message-Id: <20230315115728.140743203@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,191 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 87c7ee67deb7fce9951a5f9d80641138694aad17 ]
+[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
 
-In the follow-up of commit fb3041d61f68 ("kbuild: fix SIGPIPE error
-message for AR=gcc-ar and AR=llvm-ar"), Kees Cook pointed out that
-tools should _not_ catch their own SIGPIPEs [1] [2].
+NO_IRQ is a relic from the old days. It is not used anymore in core
+functions. By the way, function irq_of_parse_and_map() returns value 0
+on error.
 
-Based on his feedback, LLVM was fixed [3].
+In some drivers, NO_IRQ is erroneously used to check the return of
+irq_of_parse_and_map().
 
-However, Python's default behavior is to show noisy bracktrace when
-SIGPIPE is sent. So, scripts written in Python are basically in the
-same situation as the buggy llvm tools.
+It is not a real bug today because the only architectures using the
+drivers being fixed by this patch define NO_IRQ as 0, but there are
+architectures which define NO_IRQ as -1. If one day those
+architectures start using the non fixed drivers, there will be a
+problem.
 
-Example:
+Long time ago Linus advocated for not using NO_IRQ, see
+https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
 
-  $ make -s allnoconfig
-  $ make -s allmodconfig
-  $ scripts/diffconfig .config.old .config | head -n1
-  -ALIX n
-  Traceback (most recent call last):
-    File "/home/masahiro/linux/scripts/diffconfig", line 132, in <module>
-      main()
-    File "/home/masahiro/linux/scripts/diffconfig", line 130, in main
-      print_config("+", config, None, b[config])
-    File "/home/masahiro/linux/scripts/diffconfig", line 64, in print_config
-      print("+%s %s" % (config, new_value))
-  BrokenPipeError: [Errno 32] Broken pipe
+He re-iterated the same view recently in
+https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
 
-Python documentation [4] notes how to make scripts die immediately and
-silently:
+So test !irq instead of tesing irq == NO_IRQ.
 
-  """
-  Piping output of your program to tools like head(1) will cause a
-  SIGPIPE signal to be sent to your process when the receiver of its
-  standard output closes early. This results in an exception like
-  BrokenPipeError: [Errno 32] Broken pipe. To handle this case,
-  wrap your entry point to catch this exception as follows:
+All other usage of NO_IRQ for powerpc were removed in previous cycles so
+the time has come to remove NO_IRQ completely for powerpc.
 
-    import os
-    import sys
-
-    def main():
-        try:
-            # simulate large output (your code replaces this loop)
-            for x in range(10000):
-                print("y")
-            # flush output here to force SIGPIPE to be triggered
-            # while inside this try block.
-            sys.stdout.flush()
-        except BrokenPipeError:
-            # Python flushes standard streams on exit; redirect remaining output
-            # to devnull to avoid another BrokenPipeError at shutdown
-            devnull = os.open(os.devnull, os.O_WRONLY)
-            os.dup2(devnull, sys.stdout.fileno())
-            sys.exit(1)  # Python exits with error code 1 on EPIPE
-
-    if __name__ == '__main__':
-        main()
-
-  Do not set SIGPIPE’s disposition to SIG_DFL in order to avoid
-  BrokenPipeError. Doing that would cause your program to exit
-  unexpectedly whenever any socket connection is interrupted while
-  your program is still writing to it.
-  """
-
-Currently, tools/perf/scripts/python/intel-pt-events.py seems to be the
-only script that fixes the issue that way.
-
-tools/perf/scripts/python/compaction-times.py uses another approach
-signal.signal(signal.SIGPIPE, signal.SIG_DFL) but the Python
-documentation clearly says "Don't do it".
-
-I cannot fix all Python scripts since there are so many.
-I fixed some in the scripts/ directory.
-
-[1]: https://lore.kernel.org/all/202211161056.1B9611A@keescook/
-[2]: https://github.com/llvm/llvm-project/issues/59037
-[3]: https://github.com/llvm/llvm-project/commit/4787efa38066adb51e2c049499d25b3610c0877b
-[4]: https://docs.python.org/3/library/signal.html#note-on-sigpipe
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/checkkconfigsymbols.py         | 13 ++++++++++++-
- scripts/clang-tools/run-clang-tools.py | 21 ++++++++++++++-------
- scripts/diffconfig                     | 16 ++++++++++++++--
- 3 files changed, 40 insertions(+), 10 deletions(-)
+ arch/powerpc/include/asm/irq.h    | 3 ---
+ arch/powerpc/platforms/44x/fsp2.c | 2 +-
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/scripts/checkkconfigsymbols.py b/scripts/checkkconfigsymbols.py
-index 1548f9ce46827..697972432bbe7 100755
---- a/scripts/checkkconfigsymbols.py
-+++ b/scripts/checkkconfigsymbols.py
-@@ -113,7 +113,7 @@ def parse_options():
-     return args
+diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
+index 814dfab7e392e..f2f952ca87c37 100644
+--- a/arch/powerpc/include/asm/irq.h
++++ b/arch/powerpc/include/asm/irq.h
+@@ -17,9 +17,6 @@
  
+ extern atomic_t ppc_n_lost_interrupts;
  
--def main():
-+def print_undefined_symbols():
-     """Main function of this module."""
-     args = parse_options()
+-/* This number is used when no interrupt has been assigned */
+-#define NO_IRQ			(0)
+-
+ /* Total number of virq in the platform */
+ #define NR_IRQS		CONFIG_NR_IRQS
  
-@@ -472,5 +472,16 @@ def parse_kconfig_file(kfile):
-     return defined, references
+diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
+index 823397c802def..f8bbe05d9ef29 100644
+--- a/arch/powerpc/platforms/44x/fsp2.c
++++ b/arch/powerpc/platforms/44x/fsp2.c
+@@ -205,7 +205,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
  
- 
-+def main():
-+    try:
-+        print_undefined_symbols()
-+    except BrokenPipeError:
-+        # Python flushes standard streams on exit; redirect remaining output
-+        # to devnull to avoid another BrokenPipeError at shutdown
-+        devnull = os.open(os.devnull, os.O_WRONLY)
-+        os.dup2(devnull, sys.stdout.fileno())
-+        sys.exit(1)  # Python exits with error code 1 on EPIPE
-+
-+
- if __name__ == "__main__":
-     main()
-diff --git a/scripts/clang-tools/run-clang-tools.py b/scripts/clang-tools/run-clang-tools.py
-index f754415af398b..f42699134f1c0 100755
---- a/scripts/clang-tools/run-clang-tools.py
-+++ b/scripts/clang-tools/run-clang-tools.py
-@@ -60,14 +60,21 @@ def run_analysis(entry):
- 
- 
- def main():
--    args = parse_arguments()
-+    try:
-+        args = parse_arguments()
- 
--    lock = multiprocessing.Lock()
--    pool = multiprocessing.Pool(initializer=init, initargs=(lock, args))
--    # Read JSON data into the datastore variable
--    with open(args.path, "r") as f:
--        datastore = json.load(f)
--        pool.map(run_analysis, datastore)
-+        lock = multiprocessing.Lock()
-+        pool = multiprocessing.Pool(initializer=init, initargs=(lock, args))
-+        # Read JSON data into the datastore variable
-+        with open(args.path, "r") as f:
-+            datastore = json.load(f)
-+            pool.map(run_analysis, datastore)
-+    except BrokenPipeError:
-+        # Python flushes standard streams on exit; redirect remaining output
-+        # to devnull to avoid another BrokenPipeError at shutdown
-+        devnull = os.open(os.devnull, os.O_WRONLY)
-+        os.dup2(devnull, sys.stdout.fileno())
-+        sys.exit(1)  # Python exits with error code 1 on EPIPE
- 
- 
- if __name__ == "__main__":
-diff --git a/scripts/diffconfig b/scripts/diffconfig
-index d5da5fa05d1d3..43f0f3d273ae7 100755
---- a/scripts/diffconfig
-+++ b/scripts/diffconfig
-@@ -65,7 +65,7 @@ def print_config(op, config, value, new_value):
-         else:
-             print(" %s %s -> %s" % (config, value, new_value))
- 
--def main():
-+def show_diff():
-     global merge_style
- 
-     # parse command line args
-@@ -129,4 +129,16 @@ def main():
-     for config in new:
-         print_config("+", config, None, b[config])
- 
--main()
-+def main():
-+    try:
-+        show_diff()
-+    except BrokenPipeError:
-+        # Python flushes standard streams on exit; redirect remaining output
-+        # to devnull to avoid another BrokenPipeError at shutdown
-+        devnull = os.open(os.devnull, os.O_WRONLY)
-+        os.dup2(devnull, sys.stdout.fileno())
-+        sys.exit(1)  # Python exits with error code 1 on EPIPE
-+
-+
-+if __name__ == '__main__':
-+    main()
+ 	for_each_compatible_node(np, NULL, compat) {
+ 		irq = irq_of_parse_and_map(np, 0);
+-		if (irq == NO_IRQ) {
++		if (!irq) {
+ 			pr_err("device tree node %pOFn is missing a interrupt",
+ 			      np);
+ 			of_node_put(np);
 -- 
 2.39.2
 
