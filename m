@@ -2,50 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2DC6BB268
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 538C66BB09D
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232600AbjCOMgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
+        id S231290AbjCOMT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:19:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232671AbjCOMft (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:35:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0EF5A02AC
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:34:39 -0700 (PDT)
+        with ESMTP id S231800AbjCOMTh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:19:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA561222EA
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:19:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72E4961D72
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:34:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A449C433EF;
-        Wed, 15 Mar 2023 12:34:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2452FCE1986
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:19:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC17C433EF;
+        Wed, 15 Mar 2023 12:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883671;
-        bh=LaXCUhBH/CBTZ34v6FD8IzsiJel7CBzWL38VjDrxXQY=;
+        s=korg; t=1678882759;
+        bh=iPXiyCrAkpj3jmOYfdi5wQvQTQ+rXPBX1iIHnMOYdw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kI0jwfoWxYBz6C5BqJ9Ee6tguAJt/qhF92kwZUwkI0hgzOyBs+dgSXy43/zPQi0Jz
-         tDXTRydGme9qZKgfjGhkthRca0A9G/qtvI4PjzpdisicB3UX+TC2VpS9ovBoShyjH/
-         cibewKmBcriC/MP+ZQL/WY4dzqo/bLKbSPokIf+M=
+        b=0SlCfZnkKM+4gVtI9tZQno/eKA0H/iqe+wyw7LchPCaVSJSJuS5xEkLqg9Mpt6vQp
+         fPJZmLtzccWrmVCSGTRigv28JuYaKfNV9cLVd0qFFoxXqAvYr4BgivJER4lKSH0Hez
+         x+PAoMYJBpGJY40VSFqqhPCTVX+rv7L0D0bn//Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ivan Delalande <colona@arista.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 088/143] netfilter: ctnetlink: revert to dumping mark regardless of event type
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.4 60/68] drm/i915: Dont use BAR mappings for ring buffers with LLC
 Date:   Wed, 15 Mar 2023 13:12:54 +0100
-Message-Id: <20230315115743.201894648@linuxfoundation.org>
+Message-Id: <20230315115728.456218699@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,80 +61,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Delalande <colona@arista.com>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-[ Upstream commit 9f7dd42f0db1dc6915a52d4a8a96ca18dd8cc34e ]
+commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
 
-It seems that change was unintentional, we have userspace code that
-needs the mark while listening for events like REPLY, DESTROY, etc.
-Also include 0-marks in requested dumps, as they were before that fix.
+Direction from hardware is that ring buffers should never be mapped
+via the BAR on systems with LLC. There are too many caching pitfalls
+due to the way BAR accesses are routed. So it is safest to just not
+use it.
 
-Fixes: 1feeae071507 ("netfilter: ctnetlink: fix compilation warning after data race fixes in ct mark")
-Signed-off-by: Ivan Delalande <colona@arista.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
+(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_ringbuffer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 733bb56950c14..d095d3c1ceca6 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -328,11 +328,12 @@ ctnetlink_dump_timestamp(struct sk_buff *skb, const struct nf_conn *ct)
- }
+--- a/drivers/gpu/drm/i915/gt/intel_ringbuffer.c
++++ b/drivers/gpu/drm/i915/gt/intel_ringbuffer.c
+@@ -1208,7 +1208,7 @@ int intel_ring_pin(struct intel_ring *ri
+ 	if (unlikely(ret))
+ 		goto err_unpin;
  
- #ifdef CONFIG_NF_CONNTRACK_MARK
--static int ctnetlink_dump_mark(struct sk_buff *skb, const struct nf_conn *ct)
-+static int ctnetlink_dump_mark(struct sk_buff *skb, const struct nf_conn *ct,
-+			       bool dump)
- {
- 	u32 mark = READ_ONCE(ct->mark);
+-	if (i915_vma_is_map_and_fenceable(vma))
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
+ 		addr = (void __force *)i915_vma_pin_iomap(vma);
+ 	else
+ 		addr = i915_gem_object_pin_map(vma->obj,
+@@ -1252,7 +1252,7 @@ void intel_ring_unpin(struct intel_ring
+ 	intel_ring_reset(ring, ring->emit);
  
--	if (!mark)
-+	if (!mark && !dump)
- 		return 0;
- 
- 	if (nla_put_be32(skb, CTA_MARK, htonl(mark)))
-@@ -343,7 +344,7 @@ static int ctnetlink_dump_mark(struct sk_buff *skb, const struct nf_conn *ct)
- 	return -1;
- }
- #else
--#define ctnetlink_dump_mark(a, b) (0)
-+#define ctnetlink_dump_mark(a, b, c) (0)
- #endif
- 
- #ifdef CONFIG_NF_CONNTRACK_SECMARK
-@@ -548,7 +549,7 @@ static int ctnetlink_dump_extinfo(struct sk_buff *skb,
- static int ctnetlink_dump_info(struct sk_buff *skb, struct nf_conn *ct)
- {
- 	if (ctnetlink_dump_status(skb, ct) < 0 ||
--	    ctnetlink_dump_mark(skb, ct) < 0 ||
-+	    ctnetlink_dump_mark(skb, ct, true) < 0 ||
- 	    ctnetlink_dump_secctx(skb, ct) < 0 ||
- 	    ctnetlink_dump_id(skb, ct) < 0 ||
- 	    ctnetlink_dump_use(skb, ct) < 0 ||
-@@ -831,8 +832,7 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
- 	}
- 
- #ifdef CONFIG_NF_CONNTRACK_MARK
--	if (events & (1 << IPCT_MARK) &&
--	    ctnetlink_dump_mark(skb, ct) < 0)
-+	if (ctnetlink_dump_mark(skb, ct, events & (1 << IPCT_MARK)))
- 		goto nla_put_failure;
- #endif
- 	nlmsg_end(skb, nlh);
-@@ -2735,7 +2735,7 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
- 		goto nla_put_failure;
- 
- #ifdef CONFIG_NF_CONNTRACK_MARK
--	if (ctnetlink_dump_mark(skb, ct) < 0)
-+	if (ctnetlink_dump_mark(skb, ct, true) < 0)
- 		goto nla_put_failure;
- #endif
- 	if (ctnetlink_dump_labels(skb, ct) < 0)
--- 
-2.39.2
-
+ 	i915_vma_unset_ggtt_write(vma);
+-	if (i915_vma_is_map_and_fenceable(vma))
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
+ 		i915_vma_unpin_iomap(vma);
+ 	else
+ 		i915_gem_object_unpin_map(vma->obj);
 
 
