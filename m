@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CAC66BB13C
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2FF6BB275
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232460AbjCOMZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56794 "EHLO
+        id S232820AbjCOMg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232438AbjCOMZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED138E1AF
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:38 -0700 (PDT)
+        with ESMTP id S232212AbjCOMgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:36:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFB2900AB;
+        Wed, 15 Mar 2023 05:35:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC0BE61549
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D093EC433D2;
-        Wed, 15 Mar 2023 12:23:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D82F7B81E09;
+        Wed, 15 Mar 2023 12:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53127C433EF;
+        Wed, 15 Mar 2023 12:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883035;
-        bh=z7aF4luaIq+jqskT8QT4Y+2oCc7Og+Vqg8jakmdZh5w=;
+        s=korg; t=1678883708;
+        bh=0ZTy/K+sQEEKWVa5LE+BZI7IWuHHjn6btf/32a0R+mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1fFn3czJApi9Al/ycaYK25ylJAXgDyCeoHpoAtf/Yc5q4K4xE9Gagy5Pi0bVjm0o
-         vI4ci4MT3K3j3mi5gXrqZqqkzRY6lPX8VG3CdaA1kOnImjDoFd2cIjYiUEN/7d8Ybg
-         K2OTlrVpfsYphfboAJ7IyqgIe4wyyxlHSMT4AtsM=
+        b=0E8bPNTf7Ep08l+nCedBU2l2HBX0oYBM03Zqq65MFQ/omybMBi0ipuF8yuYBLja6o
+         hUIeSdHGn3TDV2x7PBcRtapmKQk9ApuV4CuZuSMBuGVPAivdcNS++wnJmkeKgQWtQ7
+         onikNydTgVjJB+KE/ycI2LcuoWx2YoqD0Pt6SlAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dennis Gilmore <dennis@ausil.us>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.10 095/104] arch: fix broken BuildID for arm64 and riscv
-Date:   Wed, 15 Mar 2023 13:13:06 +0100
-Message-Id: <20230315115736.013566359@linuxfoundation.org>
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 101/143] platform: x86: MLX_PLATFORM: select REGMAP instead of depending on it
+Date:   Wed, 15 Mar 2023 13:13:07 +0100
+Message-Id: <20230315115743.575533678@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
+References: <20230315115740.429574234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,86 +58,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
+[ Upstream commit 7e7e1541c91615e9950d0b96bcd1806d297e970e ]
 
-Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
-since commit 994b7ac1697b ("arm64: remove special treatment for the
-link order of head.o").
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-The issue is that the type of .notes section, which contains the BuildID,
-changed from NOTES to PROGBITS.
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
 
-Ard Biesheuvel figured out that whichever object gets linked first gets
-to decide the type of a section. The PROGBITS type is the result of the
-compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
 
-While Ard provided a fix for arm64, I want to fix this globally because
-the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
-remove special treatment for the link order of head.o"). This problem
-will happen in general for other architectures if they start to drop
-unneeded entries from scripts/head-object-list.txt.
-
-Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
-
-Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
-Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
-Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
-Reported-by: Dennis Gilmore <dennis@ausil.us>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-[Tom: stable backport 5.15.y, 5.10.y, 5.4.y]
-
-Though the above "Fixes:" commits are not in this kernel, the conditions
-which lead to a missing Build ID in arm64 vmlinux are similar.
-
-Evidence points to these conditions:
-1. ld version > 2.36 (exact binutils commit documented in a494398bde27)
-2. first object which gets linked (head.o) has a PROGBITS .note.GNU-stack segment
-
-These conditions can be observed when:
-- 5.15.60+ OR 5.10.136+ OR 5.4.210+
-- AND ld version > 2.36
-- AND arch=arm64
-- AND CONFIG_MODVERSIONS=y
-
-There are notable differences in the vmlinux elf files produced
-before(bad) and after(good) applying this series.
-
-Good: p_type:PT_NOTE segment exists.
- Bad: p_type:PT_NOTE segment is missing.
-
-Good: sh_name_str:.notes section has sh_type:SHT_NOTE
- Bad: sh_name_str:.notes section has sh_type:SHT_PROGBITS
-
-`readelf -n` (as of v2.40) searches for Build Id
-by processing only the very first note in sh_type:SHT_NOTE sections.
-
-This was previously bisected to the stable backport of 0d362be5b142.
-Follow-up experiments were discussed here: https://lore.kernel.org/all/20221221235413.xaisboqmr7dkqwn6@oracle.com/
-which strongly hints at condition 2.
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ef0f62264b2a ("platform/x86: mlx-platform: Add physical bus number auto detection")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vadim Pasternak <vadimp@mellanox.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Mark Gross <markgross@kernel.org>
+Cc: platform-driver-x86@vger.kernel.org
+Link: https://lore.kernel.org/r/20230226053953.4681-7-rdunlap@infradead.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/vmlinux.lds.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/platform/x86/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -906,7 +906,12 @@
- #define TRACEDATA
- #endif
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index f5312f51de19f..b02a8125bc7d5 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -997,7 +997,8 @@ config SERIAL_MULTI_INSTANTIATE
  
-+/*
-+ * Discard .note.GNU-stack, which is emitted as PROGBITS by the compiler.
-+ * Otherwise, the type of .notes section would become PROGBITS instead of NOTES.
-+ */
- #define NOTES								\
-+	/DISCARD/ : { *(.note.GNU-stack) }				\
- 	.notes : AT(ADDR(.notes) - LOAD_OFFSET) {			\
- 		__start_notes = .;					\
- 		KEEP(*(.note.*))					\
+ config MLX_PLATFORM
+ 	tristate "Mellanox Technologies platform support"
+-	depends on I2C && REGMAP
++	depends on I2C
++	select REGMAP
+ 	help
+ 	  This option enables system support for the Mellanox Technologies
+ 	  platform. The Mellanox systems provide data center networking
+-- 
+2.39.2
+
 
 
