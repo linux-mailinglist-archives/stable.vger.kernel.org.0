@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6E06BB1A0
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5BF6BB1AA
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232535AbjCOM3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:29:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
+        id S232483AbjCOM3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232254AbjCOM2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767DC19F17
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:55 -0700 (PDT)
+        with ESMTP id S232120AbjCOM3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:29:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF4E91B40
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:28:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADD7BB81E02
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04591C433D2;
-        Wed, 15 Mar 2023 12:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE22D61D26
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6008C433D2;
+        Wed, 15 Mar 2023 12:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678882964;
-        bh=Hzk9IvwA7y6VQfWSvbFOzDfMXY+1sArz+O0UOp50ojY=;
+        s=korg; t=1678883303;
+        bh=NXxbwTpjuQMERiimQw2G3MZdNPvAfBS+X3dkK9Iyyq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMGMec1+mf5iM5rm0ZamGbnkZiTPn2UI/6RokxuByrxZiQxeYlw8iHVnKz9UQ4TfM
-         gxWkKUayxsiT1R2x5fm4hclPToP1oiIPl/UhQ30mR0GrwtNCR6biABtYRbx5lmcOlo
-         KLQ4cW+14UTkMFrE1jvUkpKfKchy997hqbyl9Fuc=
+        b=po6RsgAh9qZq+8c6apE3wUR+du8YNGPGdPrw5viV4DvtbyrsbLgqbQLB9nUC4ZuyK
+         IYbidFh6vwW65en2bAkjW9j8vjVtJrYHYYpLyGQITGX8vzPo/ONuPgp1jLV0BKTk4v
+         52A1tDggN8nuUUyjsu3zb9iWNQa9av7qZSsdKxxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, xurui <xurui@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/104] MIPS: Fix a compilation issue
+Subject: [PATCH 5.15 092/145] watch_queue: fix IOC_WATCH_QUEUE_SET_SIZE alloc error paths
 Date:   Wed, 15 Mar 2023 13:12:38 +0100
-Message-Id: <20230315115734.755401005@linuxfoundation.org>
+Message-Id: <20230315115742.005167370@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
-References: <20230315115731.942692602@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,36 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xurui <xurui@kylinos.cn>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 109d587a4b4d7ccca2200ab1f808f43ae23e2585 ]
+[ Upstream commit 03e1d60e177eedbd302b77af4ea5e21b5a7ade31 ]
 
-arch/mips/include/asm/mach-rc32434/pci.h:377:
-cc1: error: result of ‘-117440512 << 16’ requires 44 bits to represent, but ‘int’ only has 32 bits [-Werror=shift-overflow=]
+The watch_queue_set_size() allocation error paths return the ret value
+set via the prior pipe_resize_ring() call, which will always be zero.
 
-All bits in KORINA_STAT are already at the correct position, so there is
-no addtional shift needed.
+As a result, IOC_WATCH_QUEUE_SET_SIZE callers such as "keyctl watch"
+fail to detect kernel wqueue->notes allocation failures and proceed to
+KEYCTL_WATCH_KEY, with any notifications subsequently lost.
 
-Signed-off-by: xurui <xurui@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: c73be61cede58 ("pipe: Add general notification queue support")
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-rc32434/pci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/watch_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/include/asm/mach-rc32434/pci.h b/arch/mips/include/asm/mach-rc32434/pci.h
-index 9a6eefd127571..3eb767c8a4eec 100644
---- a/arch/mips/include/asm/mach-rc32434/pci.h
-+++ b/arch/mips/include/asm/mach-rc32434/pci.h
-@@ -374,7 +374,7 @@ struct pci_msu {
- 				 PCI_CFG04_STAT_SSE | \
- 				 PCI_CFG04_STAT_PE)
+diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
+index 1059ef6c3711a..54cbaa9711398 100644
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -274,6 +274,7 @@ long watch_queue_set_size(struct pipe_inode_info *pipe, unsigned int nr_notes)
+ 	if (ret < 0)
+ 		goto error;
  
--#define KORINA_CNFG1		((KORINA_STAT<<16)|KORINA_CMD)
-+#define KORINA_CNFG1		(KORINA_STAT | KORINA_CMD)
- 
- #define KORINA_REVID		0
- #define KORINA_CLASS_CODE	0
++	ret = -ENOMEM;
+ 	pages = kcalloc(sizeof(struct page *), nr_pages, GFP_KERNEL);
+ 	if (!pages)
+ 		goto error;
 -- 
 2.39.2
 
