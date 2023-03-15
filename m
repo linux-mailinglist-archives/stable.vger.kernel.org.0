@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBAC6BB1EC
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C15A6BB135
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232647AbjCOMbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:31:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40126 "EHLO
+        id S232454AbjCOMZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbjCOMbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:31:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D399820D16
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:30:31 -0700 (PDT)
+        with ESMTP id S232128AbjCOMZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:25:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1737196F2A
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:24:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41471B81DFA
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E38C433D2;
-        Wed, 15 Mar 2023 12:30:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5594D61D5C
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DEB5C4339B;
+        Wed, 15 Mar 2023 12:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883429;
-        bh=bxTptbUVa63UoQCRWI3jLiKQBHLWc7zNuIcPhaE4q9U=;
+        s=korg; t=1678883008;
+        bh=kB/D25bGYwKhW84w/X5zvV49/OvtdA3ljgXXzcbaUDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Je/Kev0X3qcTzd9drfEwihSFz59G0zMk+34Wc+9h4W2BnakHssZPEcCmk88/nxMeX
-         AF4LnFF6szGmZQLjHAV9710OSoKeNEh3fvLWMtgUH44cvoIA10gE24Log5ZzNerNG6
-         v6U2yjU7wffrDTQRNW8wF8lZSH49iPGlhvo6oxFs=
+        b=HsupTDYZLmrxs+zM3i+CLszCf3AvKlzSMeUHoZroBFfXyigkSreT8T/CR4Pv+3BMc
+         Qbo9CmEP6XYYOl/vmutDccrOo7Gxjp6DVVaJfZtofEkY8x0JIQfyPhhG3rbRFIQZXE
+         ScoETyb+vjRjKNLBC7jmOaf6hkGzCFrLFC4kgq50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Humes <aurxenon@lunos.org>,
-        Matt Turner <mattst88@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/145] alpha: fix R_ALPHA_LITERAL reloc for large modules
-Date:   Wed, 15 Mar 2023 13:12:56 +0100
-Message-Id: <20230315115742.596348193@linuxfoundation.org>
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.10 086/104] sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()s early exit condition
+Date:   Wed, 15 Mar 2023 13:12:57 +0100
+Message-Id: <20230315115735.527375167@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,55 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Humes <aurxenon@lunos.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
+commit d81304bc6193554014d4372a01debdf65e1e9a4d upstream.
 
-Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
-modules.
+If the utilization of the woken up task is 0, we skip the energy
+calculation because it has no impact.
 
-This was because the Alpha's apply_relocate_add was relying on the kernel's
-module loader to have sorted the GOT towards the very end of the module as it
-was mapped into memory in order to correctly assign the global pointer. While
-this behavior would mostly work fine for small kernel modules, this approach
-would overflow on kernel modules with large GOT's since the global pointer
-would be very far away from the GOT, and thus, certain entries would be out of
-range.
+But if the task is boosted (uclamp_min != 0) will have an impact on task
+placement and frequency selection. Only skip if the util is truly
+0 after applying uclamp values.
 
-This patch fixes this by instead using the Tru64 behavior of assigning the
-global pointer to be 32KB away from the start of the GOT. The change made
-in this patch won't work for multi-GOT kernel modules as it makes the
-assumption the module only has one GOT located at the beginning of .got,
-although for the vast majority kernel modules, this should be fine. Of the
-kernel modules that would previously result in a relocation error, none of
-them, even modules like nouveau, have even come close to filling up a single
-GOT, and they've all worked fine under this patch.
+Change uclamp_task_cpu() signature to avoid unnecessary additional calls
+to uclamp_eff_get(). feec() is the only user now.
 
-Signed-off-by: Edward Humes <aurxenon@lunos.org>
-Signed-off-by: Matt Turner <mattst88@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 732cd75b8c920 ("sched/fair: Select an energy-efficient CPU on task wake-up")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-8-qais.yousef@arm.com
+(cherry picked from commit d81304bc6193554014d4372a01debdf65e1e9a4d)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/kernel/module.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ kernel/sched/fair.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
-index 5b60c248de9ea..cbefa5a773846 100644
---- a/arch/alpha/kernel/module.c
-+++ b/arch/alpha/kernel/module.c
-@@ -146,10 +146,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
- 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
- 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3928,14 +3928,16 @@ static inline unsigned long task_util_es
+ }
  
--	/* The small sections were sorted to the end of the segment.
--	   The following should definitely cover them.  */
--	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
- 	got = sechdrs[me->arch.gotsecindex].sh_addr;
-+	gp = got + 0x8000;
+ #ifdef CONFIG_UCLAMP_TASK
+-static inline unsigned long uclamp_task_util(struct task_struct *p)
++static inline unsigned long uclamp_task_util(struct task_struct *p,
++					     unsigned long uclamp_min,
++					     unsigned long uclamp_max)
+ {
+-	return clamp(task_util_est(p),
+-		     uclamp_eff_value(p, UCLAMP_MIN),
+-		     uclamp_eff_value(p, UCLAMP_MAX));
++	return clamp(task_util_est(p), uclamp_min, uclamp_max);
+ }
+ #else
+-static inline unsigned long uclamp_task_util(struct task_struct *p)
++static inline unsigned long uclamp_task_util(struct task_struct *p,
++					     unsigned long uclamp_min,
++					     unsigned long uclamp_max)
+ {
+ 	return task_util_est(p);
+ }
+@@ -6789,7 +6791,7 @@ static int find_energy_efficient_cpu(str
+ 		goto fail;
  
- 	for (i = 0; i < n; i++) {
- 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
--- 
-2.39.2
-
+ 	sync_entity_load_avg(&p->se);
+-	if (!task_util_est(p))
++	if (!uclamp_task_util(p, p_util_min, p_util_max))
+ 		goto unlock;
+ 
+ 	for (; pd; pd = pd->next) {
 
 
