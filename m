@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C89C6BB17B
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5836BB05A
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232443AbjCOM17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57160 "EHLO
+        id S231944AbjCOMRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232461AbjCOM1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:35 -0400
+        with ESMTP id S231903AbjCOMRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:17:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAAA9EF9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65A1B92F14
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:17:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58A98B81E00
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4394C433D2;
-        Wed, 15 Mar 2023 12:26:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23B09B81DFC
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:17:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9511EC4339B;
+        Wed, 15 Mar 2023 12:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883198;
-        bh=hB/5EUj0iTww9sDBBTdjFB80M1DxbE1yIRDYrdKA2gg=;
+        s=korg; t=1678882635;
+        bh=44xnEcKZxJO1pIukPrACJUgtC7Y5W7FfpqYKoj7tT1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzm4iV0rNjJYXX6VrJHqslayv8thUOh5hLC++uJjVGj7qSiAf+XlopyABmGFSjUHx
-         trHrWSTpuc+cPi0TEKk/TdeqS3gStGnavZf+k7O4TjsZ4D3amNrRNXOxCqiOS+ewO5
-         2aEZxbeKhiJ7ufdG8ce73IbyTPEtBnLDsjHQkiec=
+        b=PnXxZkHkc3ZWoasu1aM6cilVK+3NLBxuSm8rv1PTcb+M73T1S+QANxSqo69T+Z2lG
+         FOlxMjKzQGzIE7mQhRtpTXGyiq91wgWxllK2X9vgzqPH7uNVXXhaW1CUF72S3EDPae
+         E+c1BQgHjQt5Xk/vL17AoT4M1afEwvwZn9JKjm/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/145] ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+        patches@lists.linux.dev,
+        syzbot+6be2b977c89f79b6b153@syzkaller.appspotmail.com,
+        "Darrick J. Wong" <djwong@kernel.org>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 05/68] ext4: fix another off-by-one fsmap error on 1k block filesystems
 Date:   Wed, 15 Mar 2023 13:11:59 +0100
-Message-Id: <20230315115740.797467554@linuxfoundation.org>
+Message-Id: <20230315115726.312814363@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
-References: <20230315115738.951067403@linuxfoundation.org>
+In-Reply-To: <20230315115726.103942885@linuxfoundation.org>
+References: <20230315115726.103942885@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit 693aa2c0d9b6d5b1f2745d31b6e70d09dbbaf06e ]
+commit c993799baf9c5861f8df91beb80e1611b12efcbd upstream.
 
-ila_xlat_nl_cmd_get_mapping() generates an empty skb,
-triggerring a recent sanity check [1].
+Apparently syzbot figured out that issuing this FSMAP call:
 
-Instead, return an error code, so that user space
-can get it.
+struct fsmap_head cmd = {
+	.fmh_count	= ...;
+	.fmh_keys	= {
+		{ .fmr_device = /* ext4 dev */, .fmr_physical = 0, },
+		{ .fmr_device = /* ext4 dev */, .fmr_physical = 0, },
+	},
+...
+};
+ret = ioctl(fd, FS_IOC_GETFSMAP, &cmd);
 
-[1]
-skb_assert_len
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 skb_assert_len include/linux/skbuff.h:2527 [inline]
-WARNING: CPU: 0 PID: 5923 at include/linux/skbuff.h:2527 __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-Modules linked in:
-CPU: 0 PID: 5923 Comm: syz-executor269 Not tainted 6.2.0-syzkaller-18300-g2ebd1fbb946d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_assert_len include/linux/skbuff.h:2527 [inline]
-pc : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-lr : skb_assert_len include/linux/skbuff.h:2527 [inline]
-lr : __dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-sp : ffff80001e0d6c40
-x29: ffff80001e0d6e60 x28: dfff800000000000 x27: ffff0000c86328c0
-x26: dfff800000000000 x25: ffff0000c8632990 x24: ffff0000c8632a00
-x23: 0000000000000000 x22: 1fffe000190c6542 x21: ffff0000c8632a10
-x20: ffff0000c8632a00 x19: ffff80001856e000 x18: ffff80001e0d5fc0
-x17: 0000000000000000 x16: ffff80001235d16c x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000001
-x11: ff80800008353a30 x10: 0000000000000000 x9 : 21567eaf25bfb600
-x8 : 21567eaf25bfb600 x7 : 0000000000000001 x6 : 0000000000000001
-x5 : ffff80001e0d6558 x4 : ffff800015c74760 x3 : ffff800008596744
-x2 : 0000000000000001 x1 : 0000000100000000 x0 : 000000000000000e
-Call trace:
-skb_assert_len include/linux/skbuff.h:2527 [inline]
-__dev_queue_xmit+0x1bc0/0x3488 net/core/dev.c:4156
-dev_queue_xmit include/linux/netdevice.h:3033 [inline]
-__netlink_deliver_tap_skb net/netlink/af_netlink.c:307 [inline]
-__netlink_deliver_tap+0x45c/0x6f8 net/netlink/af_netlink.c:325
-netlink_deliver_tap+0xf4/0x174 net/netlink/af_netlink.c:338
-__netlink_sendskb net/netlink/af_netlink.c:1283 [inline]
-netlink_sendskb+0x6c/0x154 net/netlink/af_netlink.c:1292
-netlink_unicast+0x334/0x8d4 net/netlink/af_netlink.c:1380
-nlmsg_unicast include/net/netlink.h:1099 [inline]
-genlmsg_unicast include/net/genetlink.h:433 [inline]
-genlmsg_reply include/net/genetlink.h:443 [inline]
-ila_xlat_nl_cmd_get_mapping+0x620/0x7d0 net/ipv6/ila/ila_xlat.c:493
-genl_family_rcv_msg_doit net/netlink/genetlink.c:968 [inline]
-genl_family_rcv_msg net/netlink/genetlink.c:1048 [inline]
-genl_rcv_msg+0x938/0xc1c net/netlink/genetlink.c:1065
-netlink_rcv_skb+0x214/0x3c4 net/netlink/af_netlink.c:2574
-genl_rcv+0x38/0x50 net/netlink/genetlink.c:1076
-netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
-netlink_unicast+0x660/0x8d4 net/netlink/af_netlink.c:1365
-netlink_sendmsg+0x800/0xae0 net/netlink/af_netlink.c:1942
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg net/socket.c:734 [inline]
-____sys_sendmsg+0x558/0x844 net/socket.c:2479
-___sys_sendmsg net/socket.c:2533 [inline]
-__sys_sendmsg+0x26c/0x33c net/socket.c:2562
-__do_sys_sendmsg net/socket.c:2571 [inline]
-__se_sys_sendmsg net/socket.c:2569 [inline]
-__arm64_sys_sendmsg+0x80/0x94 net/socket.c:2569
-__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-invoke_syscall+0x98/0x2c0 arch/arm64/kernel/syscall.c:52
-el0_svc_common+0x138/0x258 arch/arm64/kernel/syscall.c:142
-do_el0_svc+0x64/0x198 arch/arm64/kernel/syscall.c:193
-el0_svc+0x58/0x168 arch/arm64/kernel/entry-common.c:637
-el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
-irq event stamp: 136484
-hardirqs last enabled at (136483): [<ffff800008350244>] __up_console_sem+0x60/0xb4 kernel/printk/printk.c:345
-hardirqs last disabled at (136484): [<ffff800012358d60>] el1_dbg+0x24/0x80 arch/arm64/kernel/entry-common.c:405
-softirqs last enabled at (136418): [<ffff800008020ea8>] softirq_handle_end kernel/softirq.c:414 [inline]
-softirqs last enabled at (136418): [<ffff800008020ea8>] __do_softirq+0xd4c/0xfa4 kernel/softirq.c:600
-softirqs last disabled at (136371): [<ffff80000802b4a4>] ____do_softirq+0x14/0x20 arch/arm64/kernel/irq.c:80
----[ end trace 0000000000000000 ]---
-skb len=0 headroom=0 headlen=0 tailroom=192
-mac=(0,0) net=(0,-1) trans=-1
-shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
-csum(0x0 ip_summed=0 complete_sw=0 valid=0 level=0)
-hash(0x0 sw=0 l4=0) proto=0x0010 pkttype=6 iif=0
-dev name=nlmon0 feat=0x0000000000005861
+Produces this crash if the underlying filesystem is a 1k-block ext4
+filesystem:
 
-Fixes: 7f00feaf1076 ("ila: Add generic ILA translation facility")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+kernel BUG at fs/ext4/ext4.h:3331!
+invalid opcode: 0000 [#1] PREEMPT SMP
+CPU: 3 PID: 3227965 Comm: xfs_io Tainted: G        W  O       6.2.0-rc8-achx
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:ext4_mb_load_buddy_gfp+0x47c/0x570 [ext4]
+RSP: 0018:ffffc90007c03998 EFLAGS: 00010246
+RAX: ffff888004978000 RBX: ffffc90007c03a20 RCX: ffff888041618000
+RDX: 0000000000000000 RSI: 00000000000005a4 RDI: ffffffffa0c99b11
+RBP: ffff888012330000 R08: ffffffffa0c2b7d0 R09: 0000000000000400
+R10: ffffc90007c03950 R11: 0000000000000000 R12: 0000000000000001
+R13: 00000000ffffffff R14: 0000000000000c40 R15: ffff88802678c398
+FS:  00007fdf2020c880(0000) GS:ffff88807e100000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd318a5fe8 CR3: 000000007f80f001 CR4: 00000000001706e0
+Call Trace:
+ <TASK>
+ ext4_mballoc_query_range+0x4b/0x210 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ ext4_getfsmap_datadev+0x713/0x890 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ ext4_getfsmap+0x2b7/0x330 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ ext4_ioc_getfsmap+0x153/0x2b0 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ __ext4_ioctl+0x2a7/0x17e0 [ext4 dfa189daddffe8fecd3cdfd00564e0f265a8ab80]
+ __x64_sys_ioctl+0x82/0xa0
+ do_syscall_64+0x2b/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7fdf20558aff
+RSP: 002b:00007ffd318a9e30 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00000000000200c0 RCX: 00007fdf20558aff
+RDX: 00007fdf1feb2010 RSI: 00000000c0c0583b RDI: 0000000000000003
+RBP: 00005625c0634be0 R08: 00005625c0634c40 R09: 0000000000000001
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007fdf1feb2010
+R13: 00005625be70d994 R14: 0000000000000800 R15: 0000000000000000
+
+For GETFSMAP calls, the caller selects a physical block device by
+writing its block number into fsmap_head.fmh_keys[01].fmr_device.
+To query mappings for a subrange of the device, the starting byte of the
+range is written to fsmap_head.fmh_keys[0].fmr_physical and the last
+byte of the range goes in fsmap_head.fmh_keys[1].fmr_physical.
+
+IOWs, to query what mappings overlap with bytes 3-14 of /dev/sda, you'd
+set the inputs as follows:
+
+	fmh_keys[0] = { .fmr_device = major(8, 0), .fmr_physical = 3},
+	fmh_keys[1] = { .fmr_device = major(8, 0), .fmr_physical = 14},
+
+Which would return you whatever is mapped in the 12 bytes starting at
+physical offset 3.
+
+The crash is due to insufficient range validation of keys[1] in
+ext4_getfsmap_datadev.  On 1k-block filesystems, block 0 is not part of
+the filesystem, which means that s_first_data_block is nonzero.
+ext4_get_group_no_and_offset subtracts this quantity from the blocknr
+argument before cracking it into a group number and a block number
+within a group.  IOWs, block group 0 spans blocks 1-8192 (1-based)
+instead of 0-8191 (0-based) like what happens with larger blocksizes.
+
+The net result of this encoding is that blocknr < s_first_data_block is
+not a valid input to this function.  The end_fsb variable is set from
+the keys that are copied from userspace, which means that in the above
+example, its value is zero.  That leads to an underflow here:
+
+	blocknr = blocknr - le32_to_cpu(es->s_first_data_block);
+
+The division then operates on -1:
+
+	offset = do_div(blocknr, EXT4_BLOCKS_PER_GROUP(sb)) >>
+		EXT4_SB(sb)->s_cluster_bits;
+
+Leaving an impossibly large group number (2^32-1) in blocknr.
+ext4_getfsmap_check_keys checked that keys[0].fmr_physical and
+keys[1].fmr_physical are in increasing order, but
+ext4_getfsmap_datadev adjusts keys[0].fmr_physical to be at least
+s_first_data_block.  This implies that we have to check it again after
+the adjustment, which is the piece that I forgot.
+
+Reported-by: syzbot+6be2b977c89f79b6b153@syzkaller.appspotmail.com
+Fixes: 4a4956249dac ("ext4: fix off-by-one fsmap error on 1k block filesystems")
+Link: https://syzkaller.appspot.com/bug?id=79d5768e9bfe362911ac1a5057a36fc6b5c30002
+Cc: stable@vger.kernel.org
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Link: https://lore.kernel.org/r/Y+58NPTH7VNGgzdd@magnolia
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ila/ila_xlat.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/fsmap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/ipv6/ila/ila_xlat.c b/net/ipv6/ila/ila_xlat.c
-index a1ac0e3d8c60c..163668531a57f 100644
---- a/net/ipv6/ila/ila_xlat.c
-+++ b/net/ipv6/ila/ila_xlat.c
-@@ -477,6 +477,7 @@ int ila_xlat_nl_cmd_get_mapping(struct sk_buff *skb, struct genl_info *info)
+--- a/fs/ext4/fsmap.c
++++ b/fs/ext4/fsmap.c
+@@ -486,6 +486,8 @@ static int ext4_getfsmap_datadev(struct
+ 		keys[0].fmr_physical = bofs;
+ 	if (keys[1].fmr_physical >= eofs)
+ 		keys[1].fmr_physical = eofs - 1;
++	if (keys[1].fmr_physical < keys[0].fmr_physical)
++		return 0;
+ 	start_fsb = keys[0].fmr_physical;
+ 	end_fsb = keys[1].fmr_physical;
  
- 	rcu_read_lock();
- 
-+	ret = -ESRCH;
- 	ila = ila_lookup_by_params(&xp, ilan);
- 	if (ila) {
- 		ret = ila_dump_info(ila,
--- 
-2.39.2
-
 
 
