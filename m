@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95B076BB23F
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E1F6BB19E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232642AbjCOMel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:34:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
+        id S232245AbjCOM3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232715AbjCOMeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:34:07 -0400
+        with ESMTP id S232257AbjCOM2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:28:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBE923C57
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:32:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2869C94F63
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:27:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C441B81DF6
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735A1C433EF;
-        Wed, 15 Mar 2023 12:32:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DCC7B81E05
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:27:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C16C433EF;
+        Wed, 15 Mar 2023 12:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883570;
-        bh=cxfNO5jL8rwzFPT19kSnl/uSJTcgxDcdqu4VNqcNuaM=;
+        s=korg; t=1678883266;
+        bh=zsbTqJsZCySsXl/+3aKihX7vVVf8qd1fhJ0FlNuFDNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcBDyTUavlKy7+LgqMyHL27kyIA+xHii6MRA8mWpqWqbhuyDEt0XrYOR68wRnzrtj
-         evAsOwB+YPtqkGaWlVwcRImCpmrIxbGoT0IfippslddAjzgeqZKZALjiqWtiYxOVwC
-         SEHrj1ydSr7e9M3svxg6YzIIiGtv8T2eP6kMA+6M=
+        b=W3q4S0jWwxQ7+PL+p+Xx5Zhjc2hULBzMdWGVaKuoqWjF1aN2my55RMZkEqDzckY9W
+         F6n/cOdzmGrSAIhv4Hu7WyJtE0thbr/7X+m1cYNWNFDKRVfNgJsvrjEXQb8BX40gwS
+         XT9ljxJO1DN9UfXGv6hlG9r2v80o4t2Y1uvXYNNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Eric Whitney <enwlinux@gmail.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 018/143] ext4: fix RENAME_WHITEOUT handling for inline directories
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 038/145] scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
 Date:   Wed, 15 Mar 2023 13:11:44 +0100
-Message-Id: <20230315115741.054563214@linuxfoundation.org>
+Message-Id: <20230315115740.324698268@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit c9f62c8b2dbf7240536c0cc9a4529397bb8bf38e upstream.
+[ Upstream commit fc663711b94468f4e1427ebe289c9f05669699c9 ]
 
-A significant number of xfstests can cause ext4 to log one or more
-warning messages when they are run on a test file system where the
-inline_data feature has been enabled.  An example:
+Remove the /proc/scsi/${proc_name} directory earlier to fix a race
+condition between unloading and reloading kernel modules. This fixes a bug
+introduced in 2009 by commit 77c019768f06 ("[SCSI] fix /proc memory leak in
+the SCSI core").
 
-"EXT4-fs warning (device vdc): ext4_dirblock_csum_set:425: inode
- #16385: comm fsstress: No space for directory leaf checksum. Please
-run e2fsck -D."
+Fix the following kernel warning:
 
-The xfstests include: ext4/057, 058, and 307; generic/013, 051, 068,
-070, 076, 078, 083, 232, 269, 270, 390, 461, 475, 476, 482, 579, 585,
-589, 626, 631, and 650.
+proc_dir_entry 'scsi/scsi_debug' already registered
+WARNING: CPU: 19 PID: 27986 at fs/proc/generic.c:376 proc_register+0x27d/0x2e0
+Call Trace:
+ proc_mkdir+0xb5/0xe0
+ scsi_proc_hostdir_add+0xb5/0x170
+ scsi_host_alloc+0x683/0x6c0
+ sdebug_driver_probe+0x6b/0x2d0 [scsi_debug]
+ really_probe+0x159/0x540
+ __driver_probe_device+0xdc/0x230
+ driver_probe_device+0x4f/0x120
+ __device_attach_driver+0xef/0x180
+ bus_for_each_drv+0xe5/0x130
+ __device_attach+0x127/0x290
+ device_initial_probe+0x17/0x20
+ bus_probe_device+0x110/0x130
+ device_add+0x673/0xc80
+ device_register+0x1e/0x30
+ sdebug_add_host_helper+0x1a7/0x3b0 [scsi_debug]
+ scsi_debug_init+0x64f/0x1000 [scsi_debug]
+ do_one_initcall+0xd7/0x470
+ do_init_module+0xe7/0x330
+ load_module+0x122a/0x12c0
+ __do_sys_finit_module+0x124/0x1a0
+ __x64_sys_finit_module+0x46/0x50
+ do_syscall_64+0x38/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-In this situation, the warning message indicates a bug in the code that
-performs the RENAME_WHITEOUT operation on a directory entry that has
-been stored inline.  It doesn't detect that the directory is stored
-inline, and incorrectly attempts to compute a dirent block checksum on
-the whiteout inode when creating it.  This attempt fails as a result
-of the integrity checking in get_dirent_tail (usually due to a failure
-to match the EXT4_FT_DIR_CSUM magic cookie), and the warning message
-is then emitted.
-
-Fix this by simply collecting the inlined data state at the time the
-search for the source directory entry is performed.  Existing code
-handles the rest, and this is sufficient to eliminate all spurious
-warning messages produced by the tests above.  Go one step further
-and do the same in the code that resets the source directory entry in
-the event of failure.  The inlined state should be present in the
-"old" struct, but given the possibility of a race there's no harm
-in taking a conservative approach and getting that information again
-since the directory entry is being reread anyway.
-
-Fixes: b7ff91fd030d ("ext4: find old entry again if failed to rename whiteout")
-Cc: stable@kernel.org
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230210173244.679890-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230210205200.36973-3-bvanassche@acm.org
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Yi Zhang <yi.zhang@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 77c019768f06 ("[SCSI] fix /proc memory leak in the SCSI core")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/scsi/hosts.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1595,11 +1595,10 @@ static struct buffer_head *__ext4_find_e
- 		int has_inline_data = 1;
- 		ret = ext4_find_inline_entry(dir, fname, res_dir,
- 					     &has_inline_data);
--		if (has_inline_data) {
--			if (inlined)
--				*inlined = 1;
-+		if (inlined)
-+			*inlined = has_inline_data;
-+		if (has_inline_data)
- 			goto cleanup_and_exit;
--		}
- 	}
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index 0165dad803001..28b201c443267 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -180,6 +180,7 @@ void scsi_remove_host(struct Scsi_Host *shost)
+ 	scsi_forget_host(shost);
+ 	mutex_unlock(&shost->scan_mutex);
+ 	scsi_proc_host_rm(shost);
++	scsi_proc_hostdir_rm(shost->hostt);
  
- 	if ((namelen <= 2) && (name[0] == '.') &&
-@@ -3646,7 +3645,8 @@ static void ext4_resetent(handle_t *hand
- 	 * so the old->de may no longer valid and need to find it again
- 	 * before reset old inode info.
- 	 */
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		retval = PTR_ERR(old.bh);
- 	if (!old.bh)
-@@ -3813,7 +3813,8 @@ static int ext4_rename(struct user_names
- 			return retval;
- 	}
+ 	spin_lock_irqsave(shost->host_lock, flags);
+ 	if (scsi_host_set_state(shost, SHOST_DEL))
+@@ -321,6 +322,7 @@ static void scsi_host_dev_release(struct device *dev)
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
--	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, NULL);
-+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de,
-+				 &old.inlined);
- 	if (IS_ERR(old.bh))
- 		return PTR_ERR(old.bh);
- 	/*
++	/* In case scsi_remove_host() has not been called. */
+ 	scsi_proc_hostdir_rm(shost->hostt);
+ 
+ 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
+-- 
+2.39.2
+
 
 
