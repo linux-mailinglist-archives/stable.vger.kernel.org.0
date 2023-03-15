@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0EAC6BB334
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 793946BB125
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233039AbjCOMm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
+        id S231942AbjCOMZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:25:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232896AbjCOMmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:42:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4BDA42FE
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:40:53 -0700 (PDT)
+        with ESMTP id S232339AbjCOMYh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:24:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E25E95E32
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:23:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA971B81E1C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:40:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15428C433EF;
-        Wed, 15 Mar 2023 12:40:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D47461D5E
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C20C433EF;
+        Wed, 15 Mar 2023 12:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678884018;
-        bh=cftPmR09EZ9EgGVAbjOlLRAjGqm1McqHv46B+kkKJA4=;
+        s=korg; t=1678883014;
+        bh=QNUXii6gqJHQs+G7v0RERnJFEU8DKC8naNTpPgoval0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hF2RoL/KFglMC2zJdLfm6BVXZWHMcfxNBbu9wnaFogLRj0v1LX2So+iWDmosbXb/s
-         ad3T12arqZUWeLucmAe+l8tuc+sjmBUYSeKdAfJkWizdkaSslmHurmgZ2pDrDkg+F0
-         lAmpI3RvVuOKXemRqqYSAc9ccrqcS54VjHJlQPEg=
+        b=KOAZzKFHYY7lEukXkTfCzgSlXH8yq3Z/KRYDye4L2CtZz758Ulb7uDuRPSZLXi3vA
+         azL4C7Amug6bMZZze9/SHyxjGVB+6WaJ0hdTjTK6nKhhiYGCqFg6DBMavKSeQTekY1
+         +xcqHrqGXTsXEaFWGKZuGSbzc43WTjvur9D9+E3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Jami Kettunen <jami.kettunen@somainline.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 076/141] drm/msm/dpu: fix clocks settings for msm8998 SSPP blocks
+        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Qais Yousef (Google)" <qyousef@layalina.io>
+Subject: [PATCH 5.10 088/104] sched/fair: Consider capacity inversion in util_fits_cpu()
 Date:   Wed, 15 Mar 2023 13:12:59 +0100
-Message-Id: <20230315115742.283627477@linuxfoundation.org>
+Message-Id: <20230315115735.619507722@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115739.932786806@linuxfoundation.org>
-References: <20230315115739.932786806@linuxfoundation.org>
+In-Reply-To: <20230315115731.942692602@linuxfoundation.org>
+References: <20230315115731.942692602@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,46 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 0abb6a24aabc1252eae75fe23b0ccd3217c6ee07 ]
+commit: aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8 upstream.
 
-DMA2 and DMA3 planes on msm8998 should use corresponding DMA2 and DMA3
-clocks rather than CURSOR0/1 clocks (which are used for the CURSOR
-planes). Correct corresponding SSPP declarations.
+We do consider thermal pressure in util_fits_cpu() for uclamp_min only.
+With the exception of the biggest cores which by definition are the max
+performance point of the system and all tasks by definition should fit.
 
-Fixes: 94391a14fc27 ("drm/msm/dpu1: Add MSM8998 to hw catalog")
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Cc: Jami Kettunen <jami.kettunen@somainline.org>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/522230/
-Link: https://lore.kernel.org/r/20230211231259.1308718-13-dmitry.baryshkov@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Even under thermal pressure, the capacity of the biggest CPU is the
+highest in the system and should still fit every task. Except when it
+reaches capacity inversion point, then this is no longer true.
+
+We can handle this by using the inverted capacity as capacity_orig in
+util_fits_cpu(). Which not only addresses the problem above, but also
+ensure uclamp_max now considers the inverted capacity. Force fitting
+a task when a CPU is in this adverse state will contribute to making the
+thermal throttling last longer.
+
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-10-qais.yousef@arm.com
+(cherry picked from commit aa69c36f31aadc1669bfa8a3de6a47b5e6c98ee8)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index a6288f29f0035..a5268207ab1fe 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -838,9 +838,9 @@ static const struct dpu_sspp_cfg msm8998_sspp[] = {
- 	SSPP_BLK("sspp_9", SSPP_DMA1, 0x26000,  DMA_MSM8998_MASK,
- 		sdm845_dma_sblk_1, 5, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA1),
- 	SSPP_BLK("sspp_10", SSPP_DMA2, 0x28000,  DMA_CURSOR_MSM8998_MASK,
--		sdm845_dma_sblk_2, 9, SSPP_TYPE_DMA, DPU_CLK_CTRL_CURSOR0),
-+		sdm845_dma_sblk_2, 9, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA2),
- 	SSPP_BLK("sspp_11", SSPP_DMA3, 0x2a000,  DMA_CURSOR_MSM8998_MASK,
--		sdm845_dma_sblk_3, 13, SSPP_TYPE_DMA, DPU_CLK_CTRL_CURSOR1),
-+		sdm845_dma_sblk_3, 13, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA3),
- };
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4113,12 +4113,16 @@ static inline int util_fits_cpu(unsigned
+ 	 * For uclamp_max, we can tolerate a drop in performance level as the
+ 	 * goal is to cap the task. So it's okay if it's getting less.
+ 	 *
+-	 * In case of capacity inversion, which is not handled yet, we should
+-	 * honour the inverted capacity for both uclamp_min and uclamp_max all
+-	 * the time.
++	 * In case of capacity inversion we should honour the inverted capacity
++	 * for both uclamp_min and uclamp_max all the time.
+ 	 */
+-	capacity_orig = capacity_orig_of(cpu);
+-	capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
++	capacity_orig = cpu_in_capacity_inversion(cpu);
++	if (capacity_orig) {
++		capacity_orig_thermal = capacity_orig;
++	} else {
++		capacity_orig = capacity_orig_of(cpu);
++		capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
++	}
  
- static const struct dpu_sspp_cfg sdm845_sspp[] = {
--- 
-2.39.2
-
+ 	/*
+ 	 * We want to force a task to fit a cpu as implied by uclamp_max.
 
 
