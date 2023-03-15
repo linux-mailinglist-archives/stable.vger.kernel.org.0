@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A466BB21D
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E75B6BB17E
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 13:28:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232636AbjCOMdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 08:33:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39654 "EHLO
+        id S232529AbjCOM2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 08:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232649AbjCOMcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:32:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2F28EA32
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:31:58 -0700 (PDT)
+        with ESMTP id S232533AbjCOM1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 08:27:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890858615F
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 05:26:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D7AE613F9
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:31:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54192C433D2;
-        Wed, 15 Mar 2023 12:31:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54A4B61D59
+        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 12:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E10C433EF;
+        Wed, 15 Mar 2023 12:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678883517;
-        bh=zMJcQZY4dDA3lZHLSJyw1spa8aO4z8+bLFmPEKMNJG8=;
+        s=korg; t=1678883187;
+        bh=QN8I2JvJ4gtzOVUQJ0cpI/91XsA4DHuXMq3Kv6D7jrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVFIXAgR+1c4CXOpNbzHtIDiL76x0RE0FnUg9yqsBrSCLugdMfW1og2wEc2z92Jmk
-         JE66MXGJI7svKLWpu05Mb5uKsf5wgbkihdy78VFBJnEPM9uxqczyzIfMGve+PyMcAL
-         6t1SNbMUPVMR6bNYhnkyaKyl0MpkwN9jJIwQtUE4=
+        b=LHa8uS8OyqJ/JCYHhOwL2sEriuTIiGQMJs8qz/W3k+cvVXdvUU5kvVW/Yka+wMtxt
+         VL1td4+GYyDJdDd5x+Jw0gM2uPRAv/6u8wiZBzFDI4pmGnzDIAaUJU0C/eKD7Xugnk
+         OPGz+qAPaUn/AYlJxQSpraeEx+/sz2rTHiZzFU40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Rob Clark <robdclark@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 029/143] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to userspace
+Subject: [PATCH 5.15 049/145] drm/msm/a5xx: fix context faults during ring switch
 Date:   Wed, 15 Mar 2023 13:11:55 +0100
-Message-Id: <20230315115741.394876122@linuxfoundation.org>
+Message-Id: <20230315115740.677604560@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230315115740.429574234@linuxfoundation.org>
-References: <20230315115740.429574234@linuxfoundation.org>
+In-Reply-To: <20230315115738.951067403@linuxfoundation.org>
+References: <20230315115738.951067403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,114 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit e32b120071ea114efc0b4ddd439547750b85f618 ]
+[ Upstream commit 32e7083429d46f29080626fe387ff90c086b1fbe ]
 
-Call kvm_init() only after _all_ setup is complete, as kvm_init() exposes
-/dev/kvm to userspace and thus allows userspace to create VMs (and call
-other ioctls).  E.g. KVM will encounter a NULL pointer when attempting to
-add a vCPU to the per-CPU loaded_vmcss_on_cpu list if userspace is able to
-create a VM before vmx_init() configures said list.
+The rptr_addr is set in the preempt_init_ring(), which is called from
+a5xx_gpu_init(). It uses shadowptr() to set the address, however the
+shadow_iova is not yet initialized at that time. Move the rptr_addr
+setting to the a5xx_preempt_hw_init() which is called after setting the
+shadow_iova, getting the correct value for the address.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000008
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 0 P4D 0
- Oops: 0002 [#1] SMP
- CPU: 6 PID: 1143 Comm: stable Not tainted 6.0.0-rc7+ #988
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
- RIP: 0010:vmx_vcpu_load_vmcs+0x68/0x230 [kvm_intel]
-  <TASK>
-  vmx_vcpu_load+0x16/0x60 [kvm_intel]
-  kvm_arch_vcpu_load+0x32/0x1f0 [kvm]
-  vcpu_load+0x2f/0x40 [kvm]
-  kvm_arch_vcpu_create+0x231/0x310 [kvm]
-  kvm_vm_ioctl+0x79f/0xe10 [kvm]
-  ? handle_mm_fault+0xb1/0x220
-  __x64_sys_ioctl+0x80/0xb0
-  do_syscall_64+0x2b/0x50
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
- RIP: 0033:0x7f5a6b05743b
-  </TASK>
- Modules linked in: vhost_net vhost vhost_iotlb tap kvm_intel(+) kvm irqbypass
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20221130230934.1014142-15-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8907afb476ac ("drm/msm: Allow a5xx to mark the RPTR shadow as privileged")
+Suggested-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/522640/
+Link: https://lore.kernel.org/r/20230214020956.164473-5-dmitry.baryshkov@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_preempt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 81a23ae4f872b..bc868958e91fe 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -8456,19 +8456,23 @@ static void vmx_cleanup_l1d_flush(void)
- 	l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
- }
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+index 6e326d851ba53..e0eef47dae632 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+@@ -208,6 +208,7 @@ void a5xx_preempt_hw_init(struct msm_gpu *gpu)
+ 		a5xx_gpu->preempt[i]->wptr = 0;
+ 		a5xx_gpu->preempt[i]->rptr = 0;
+ 		a5xx_gpu->preempt[i]->rbase = gpu->rb[i]->iova;
++		a5xx_gpu->preempt[i]->rptr_addr = shadowptr(a5xx_gpu, gpu->rb[i]);
+ 	}
  
--static void vmx_exit(void)
-+static void __vmx_exit(void)
- {
-+	allow_smaller_maxphyaddr = false;
-+
- #ifdef CONFIG_KEXEC_CORE
- 	RCU_INIT_POINTER(crash_vmclear_loaded_vmcss, NULL);
- 	synchronize_rcu();
- #endif
-+	vmx_cleanup_l1d_flush();
-+}
+ 	/* Write a 0 to signal that we aren't switching pagetables */
+@@ -259,7 +260,6 @@ static int preempt_init_ring(struct a5xx_gpu *a5xx_gpu,
+ 	ptr->data = 0;
+ 	ptr->cntl = MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE;
  
-+static void vmx_exit(void)
-+{
- 	kvm_exit();
- 	kvm_x86_vendor_exit();
+-	ptr->rptr_addr = shadowptr(a5xx_gpu, ring);
+ 	ptr->counter = counters_iova;
  
--	vmx_cleanup_l1d_flush();
--
--	allow_smaller_maxphyaddr = false;
-+	__vmx_exit();
- }
- module_exit(vmx_exit);
- 
-@@ -8513,11 +8517,6 @@ static int __init vmx_init(void)
- 	if (r)
- 		return r;
- 
--	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
--		     __alignof__(struct vcpu_vmx), THIS_MODULE);
--	if (r)
--		goto err_kvm_init;
--
- 	/*
- 	 * Must be called after common x86 init so enable_ept is properly set
- 	 * up. Hand the parameter mitigation value in which was stored in
-@@ -8551,11 +8550,20 @@ static int __init vmx_init(void)
- 	if (!enable_ept)
- 		allow_smaller_maxphyaddr = true;
- 
-+	/*
-+	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
-+	 * exposed to userspace!
-+	 */
-+	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
-+		     __alignof__(struct vcpu_vmx), THIS_MODULE);
-+	if (r)
-+		goto err_kvm_init;
-+
  	return 0;
- 
--err_l1d_flush:
--	vmx_exit();
- err_kvm_init:
-+	__vmx_exit();
-+err_l1d_flush:
- 	kvm_x86_vendor_exit();
- 	return r;
- }
 -- 
 2.39.2
 
