@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC706BC9C2
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 09:50:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E796BC9C0
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 09:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230029AbjCPIuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 04:50:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
+        id S230139AbjCPIuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 04:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231184AbjCPItv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 04:49:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A111594A47;
-        Thu, 16 Mar 2023 01:49:46 -0700 (PDT)
+        with ESMTP id S231210AbjCPItx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 04:49:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CAD56FFF6;
+        Thu, 16 Mar 2023 01:49:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41162B8208C;
-        Thu, 16 Mar 2023 08:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7D0C433D2;
-        Thu, 16 Mar 2023 08:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F77E61F7B;
+        Thu, 16 Mar 2023 08:49:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE52C433D2;
+        Thu, 16 Mar 2023 08:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678956583;
-        bh=evZsOLQ/RDFCme3QDzcNmfgG0DIRUR7CczVo9QT8Urg=;
+        s=korg; t=1678956590;
+        bh=FuG9NPMev39pkXrBo1v7jfqHjgF0JsSz0c9B7cgQFaQ=;
         h=From:To:Cc:Subject:Date:From;
-        b=puh1/giXPL3Y/KkQJDFqqw0PT8fF/eSatPJhBslrJXF/ZZXfDkBQgOGXA7IgKUzBo
-         Cm2m2+/r5qFE26J3PlKOGYbFopJDFugjhz857/+BSGQP9s+3ck/jAtCaMm9INYhELT
-         edQZPp57FYZ+rSJoh6ZoxvqRO8QsZb4a+HEtO5rQ=
+        b=XEtec4bshkJAm5wma+zraBhqQSZVsHCXGoP2qJQ7UYtruK9Oiofu4s/lvS2/uyOCV
+         7Kw5XlFZ74+sbTei4mHzXwezeBeCnrkghj+xJNXzrD2i6UD24WdvUfurXDRdKE96ID
+         w5fG9FFIRYIL+df4PoFDB2/tOW+dTkCLc9+wwZBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,23 +37,23 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 4.14 00/20] 4.14.310-rc2 review
-Date:   Thu, 16 Mar 2023 09:49:41 +0100
-Message-Id: <20230316083335.429724157@linuxfoundation.org>
+Subject: [PATCH 4.19 00/25] 4.19.278-rc2 review
+Date:   Thu, 16 Mar 2023 09:49:47 +0100
+Message-Id: <20230316083339.388760723@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.310-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.278-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.19.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.310-rc2
+X-KernelTest-Version: 4.19.278-rc2
 X-KernelTest-Deadline: 2023-03-18T08:33+00:00
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,8 +61,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.310 release.
-There are 20 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.19.278 release.
+There are 25 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -70,9 +70,9 @@ Responses should be made by Sat, 18 Mar 2023 08:33:04 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.310-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.278-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
 and the diffstat can be found below.
 
 thanks,
@@ -83,10 +83,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.310-rc2
-
-Rhythm Mahajan <rhythm.m.mahajan@oracle.com>
-    x86/cpu: Fix LFENCE serialization check in init_amd()
+    Linux 4.19.278-rc2
 
 John Harrison <John.C.Harrison@Intel.com>
     drm/i915: Don't use BAR mappings for ring buffers with LLC
@@ -112,14 +109,32 @@ xurui <xurui@kylinos.cn>
 Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
     clk: qcom: mmcc-apq8084: remove spdm clocks
 
-Shigeru Yoshida <syoshida@redhat.com>
-    net: caif: Fix use-after-free in cfusbl_device_notify()
+Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+    Revert "spi: mt7621: Fix an error message in mt7621_spi_probe()"
 
-Eric Dumazet <edumazet@google.com>
-    ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+Bart Van Assche <bvanassche@acm.org>
+    scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
 
-Kang Chen <void0red@gmail.com>
-    nfc: fdp: add null check of devm_kmalloc_array in fdp_nci_i2c_read_device_properties
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    kbuild: generate modules.order only in directories visited by obj-y/m
+
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    kbuild: fix false-positive need-builtin calculation
+
+Jan Kara <jack@suse.cz>
+    udf: Detect system inodes linked into directory hierarchy
+
+Jan Kara <jack@suse.cz>
+    udf: Preserve link count of system files
+
+Jan Kara <jack@suse.cz>
+    udf: Remove pointless union in udf_inode_info
+
+Steven J. Magnani <steve.magnani@digidescorp.com>
+    udf: reduce leakage of blocks related to named streams
+
+Jan Kara <jack@suse.cz>
+    udf: Explain handling of load_nls() failure
 
 Fedor Pchelkin <pchelkin@ispras.ru>
     nfc: change order inside nfc_se_io error path
@@ -153,13 +168,14 @@ Diffstat:
  Makefile                                 |   4 +-
  arch/alpha/kernel/module.c               |   4 +-
  arch/mips/include/asm/mach-rc32434/pci.h |   2 +-
- arch/x86/kernel/cpu/amd.c                |  11 +-
+ arch/x86/kernel/cpu/amd.c                |   9 +
  drivers/clk/qcom/mmcc-apq8084.c          | 271 -------------------------------
  drivers/gpu/drm/i915/intel_ringbuffer.c  |   4 +-
  drivers/macintosh/windfarm_lm75_sensor.c |   4 +-
  drivers/macintosh/windfarm_smu_sensors.c |   4 +-
  drivers/media/i2c/ov5640.c               |   2 +-
- drivers/nfc/fdp/i2c.c                    |   4 +
+ drivers/scsi/hosts.c                     |   2 +
+ drivers/staging/mt7621-spi/spi-mt7621.c  |   8 +-
  fs/ext4/fsmap.c                          |   2 +
  fs/ext4/inline.c                         |   1 -
  fs/ext4/inode.c                          |   7 +-
@@ -167,11 +183,20 @@ Diffstat:
  fs/ext4/namei.c                          |  13 +-
  fs/ext4/xattr.c                          |   3 +
  fs/file.c                                |   1 +
+ fs/udf/directory.c                       |   2 +-
+ fs/udf/file.c                            |   7 +-
+ fs/udf/ialloc.c                          |  14 +-
+ fs/udf/inode.c                           |  76 ++++++---
+ fs/udf/misc.c                            |   6 +-
+ fs/udf/namei.c                           |   7 +-
+ fs/udf/partition.c                       |   2 +-
+ fs/udf/super.c                           |  12 +-
+ fs/udf/symlink.c                         |   2 +-
+ fs/udf/udf_i.h                           |  12 +-
  include/linux/pci_ids.h                  |   2 +
- net/caif/caif_usb.c                      |   3 +
- net/ipv6/ila/ila_xlat.c                  |   1 +
  net/nfc/netlink.c                        |   2 +-
  net/tipc/socket.c                        |   2 +-
- 22 files changed, 53 insertions(+), 295 deletions(-)
+ scripts/Makefile.build                   |   4 +-
+ 32 files changed, 142 insertions(+), 350 deletions(-)
 
 
