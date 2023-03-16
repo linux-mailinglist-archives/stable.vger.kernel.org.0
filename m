@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED2B6BCEA7
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 12:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F9C56BCEA8
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 12:46:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbjCPLqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 07:46:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45664 "EHLO
+        id S229874AbjCPLqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 07:46:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbjCPLqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 07:46:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45185A8E9B
-        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 04:46:01 -0700 (PDT)
+        with ESMTP id S229471AbjCPLqK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 07:46:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84EF9A1FF5
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 04:46:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2DAB61FE8
-        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 11:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A80C433EF;
-        Thu, 16 Mar 2023 11:45:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38A4FB820CB
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 11:46:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D0CC433EF;
+        Thu, 16 Mar 2023 11:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678967160;
-        bh=+9BRDoGOPVitJhMV7SoyNl4JHJNo6808ypbCsIn4eQ0=;
+        s=korg; t=1678967167;
+        bh=s6IX7znc58EQtVW6oapiuCRxTEMZAl/OR9hhfXLn9ww=;
         h=Subject:To:From:Date:From;
-        b=01tSQjccvSz9cqUGefi9okT7iw0F5zt4xxepfgxV7Bthrgw6OzO8V8wJQzE4uuSoA
-         HoclelXR+FJ+aOhueX//a1lNJesNDSyexmoEahAyinq9/xBYiwE+hCKc4f1KK2iHuC
-         i52e/Z6Omri/N9cbgJMsexfBVt7nlaN2vm9fKQIk=
-Subject: patch "usb: cdnsp: Fixes issue with redundant Status Stage" added to usb-linus
+        b=yt/FI5lr8CuA7nIAF+2v2P/ZEXLl5JFrVqxKJZR6Z/wxVxxmRI+akqVgE6nokjozK
+         2EDJWku/f56zXcctgfTrqJ5+vmZ3+siQpv8ZlV0WgwJM6G5ha5jV+4NlOz78gJT41N
+         c0WJXlGkIMgYb7UDyD1O3ZKZj7QDAbZRqWI8BeiQ=
+Subject: patch "usb: cdnsp: changes PCI Device ID to fix conflict with CNDS3 driver" added to usb-linus
 To:     pawell@cadence.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Mar 2023 12:45:49 +0100
-Message-ID: <167896714988209@kroah.com>
+Date:   Thu, 16 Mar 2023 12:45:50 +0100
+Message-ID: <167896715021548@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdnsp: Fixes issue with redundant Status Stage
+    usb: cdnsp: changes PCI Device ID to fix conflict with CNDS3 driver
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -64,70 +64,76 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5bc38d33a5a1209fd4de65101d1ae8255ea12c6e Mon Sep 17 00:00:00 2001
+From 96b96b2a567fb34dd41c87e6cf01f6902ce8cae4 Mon Sep 17 00:00:00 2001
 From: Pawel Laszczak <pawell@cadence.com>
-Date: Tue, 7 Mar 2023 06:14:20 -0500
-Subject: usb: cdnsp: Fixes issue with redundant Status Stage
+Date: Thu, 9 Mar 2023 01:30:48 -0500
+Subject: usb: cdnsp: changes PCI Device ID to fix conflict with CNDS3 driver
 
-In some cases, driver trees to send Status Stage twice.
-The first one from upper layer of gadget usb subsystem and
-second time from controller driver.
-This patch fixes this issue and remove tricky handling of
-SET_INTERFACE from controller driver which is no longer
-needed.
+Patch changes CDNS_DEVICE_ID in USBSSP PCI Glue driver to remove
+the conflict with Cadence USBSS driver.
 
 cc: <stable@vger.kernel.org>
 Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
 Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20230307111420.376056-1-pawell@cadence.com
+Link: https://lore.kernel.org/r/20230309063048.299378-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-ep0.c | 19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ drivers/usb/cdns3/cdnsp-pci.c | 27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdnsp-ep0.c b/drivers/usb/cdns3/cdnsp-ep0.c
-index 9b8325f82499..d63d5d92f255 100644
---- a/drivers/usb/cdns3/cdnsp-ep0.c
-+++ b/drivers/usb/cdns3/cdnsp-ep0.c
-@@ -403,20 +403,6 @@ static int cdnsp_ep0_std_request(struct cdnsp_device *pdev,
- 	case USB_REQ_SET_ISOCH_DELAY:
- 		ret = cdnsp_ep0_set_isoch_delay(pdev, ctrl);
- 		break;
--	case USB_REQ_SET_INTERFACE:
--		/*
--		 * Add request into pending list to block sending status stage
--		 * by libcomposite.
--		 */
--		list_add_tail(&pdev->ep0_preq.list,
--			      &pdev->ep0_preq.pep->pending_list);
--
--		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
--		if (ret == -EBUSY)
--			ret = 0;
--
--		list_del(&pdev->ep0_preq.list);
--		break;
- 	default:
- 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
- 		break;
-@@ -474,9 +460,6 @@ void cdnsp_setup_analyze(struct cdnsp_device *pdev)
- 	else
- 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
+diff --git a/drivers/usb/cdns3/cdnsp-pci.c b/drivers/usb/cdns3/cdnsp-pci.c
+index efd54ed918b9..7b151f5af3cc 100644
+--- a/drivers/usb/cdns3/cdnsp-pci.c
++++ b/drivers/usb/cdns3/cdnsp-pci.c
+@@ -29,30 +29,23 @@
+ #define PLAT_DRIVER_NAME	"cdns-usbssp"
  
--	if (!len)
--		pdev->ep0_stage = CDNSP_STATUS_STAGE;
+ #define CDNS_VENDOR_ID		0x17cd
+-#define CDNS_DEVICE_ID		0x0100
++#define CDNS_DEVICE_ID		0x0200
++#define CDNS_DRD_ID		0x0100
+ #define CDNS_DRD_IF		(PCI_CLASS_SERIAL_USB << 8 | 0x80)
+ 
+ static struct pci_dev *cdnsp_get_second_fun(struct pci_dev *pdev)
+ {
+-	struct pci_dev *func;
 -
- 	if (ret == USB_GADGET_DELAYED_STATUS) {
- 		trace_cdnsp_ep0_status_stage("delayed");
- 		return;
-@@ -484,6 +467,6 @@ void cdnsp_setup_analyze(struct cdnsp_device *pdev)
- out:
- 	if (ret < 0)
- 		cdnsp_ep0_stall(pdev);
--	else if (pdev->ep0_stage == CDNSP_STATUS_STAGE)
-+	else if (!len && pdev->ep0_stage != CDNSP_STATUS_STAGE)
- 		cdnsp_status_stage(pdev);
+ 	/*
+ 	 * Gets the second function.
+-	 * It's little tricky, but this platform has two function.
+-	 * The fist keeps resources for Host/Device while the second
+-	 * keeps resources for DRD/OTG.
++	 * Platform has two function. The fist keeps resources for
++	 * Host/Device while the secon keeps resources for DRD/OTG.
+ 	 */
+-	func = pci_get_device(pdev->vendor, pdev->device, NULL);
+-	if (!func)
+-		return NULL;
++	if (pdev->device == CDNS_DEVICE_ID)
++		return  pci_get_device(pdev->vendor, CDNS_DRD_ID, NULL);
++	else if (pdev->device == CDNS_DRD_ID)
++		return pci_get_device(pdev->vendor, CDNS_DEVICE_ID, NULL);
+ 
+-	if (func->devfn == pdev->devfn) {
+-		func = pci_get_device(pdev->vendor, pdev->device, func);
+-		if (!func)
+-			return NULL;
+-	}
+-
+-	return func;
++	return NULL;
  }
+ 
+ static int cdnsp_pci_probe(struct pci_dev *pdev,
+@@ -230,6 +223,8 @@ static const struct pci_device_id cdnsp_pci_ids[] = {
+ 	  PCI_CLASS_SERIAL_USB_DEVICE, PCI_ANY_ID },
+ 	{ PCI_VENDOR_ID_CDNS, CDNS_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID,
+ 	  CDNS_DRD_IF, PCI_ANY_ID },
++	{ PCI_VENDOR_ID_CDNS, CDNS_DRD_ID, PCI_ANY_ID, PCI_ANY_ID,
++	  CDNS_DRD_IF, PCI_ANY_ID },
+ 	{ 0, }
+ };
+ 
 -- 
 2.40.0
 
