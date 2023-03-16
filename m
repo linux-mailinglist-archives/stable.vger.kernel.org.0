@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5C56BC805
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 09:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E25916BC80E
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 09:01:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbjCPIAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 04:00:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36080 "EHLO
+        id S229830AbjCPIBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 04:01:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbjCPIAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 04:00:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2FCC5FDA;
-        Thu, 16 Mar 2023 00:59:57 -0700 (PDT)
+        with ESMTP id S229765AbjCPIBi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 04:01:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396E23B218
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 01:01:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66C6761F63;
-        Thu, 16 Mar 2023 07:59:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51DA6C433D2;
-        Thu, 16 Mar 2023 07:59:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9DB3B82030
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 08:01:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55407C433EF;
+        Thu, 16 Mar 2023 08:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678953596;
-        bh=RBthfk4j3fRZwzUCODUd5Qdwu+15KXppdNriYMiR/CM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dyOOz/FQHkGv2fCHU7PmeKC5e+OOdAZd/Nd+zne8Cmva3rxZh2+Y5NfxTJ4s4cTV+
-         oOZXCMcLnwCH9fEfTEiUDzZzKLYhNJPY2inVaAqZF7AXt2mtjPo9o2OoIxLb08gXH7
-         Sxbd3pPaFhX9BnSM90wjdgm7vHI7CO5wsLoMhckE=
-Date:   Thu, 16 Mar 2023 08:59:54 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 000/145] 5.15.103-rc1 review
-Message-ID: <ZBLMei6P5/ZNiCZ5@kroah.com>
-References: <20230315115738.951067403@linuxfoundation.org>
- <6ed70071-96a3-4f79-17e4-c94f3ef868e2@linaro.org>
+        s=korg; t=1678953694;
+        bh=hAvo23GdHUOFibpXSkoFDPELhQ/eqsC/XJkOdczOD/8=;
+        h=Subject:To:Cc:From:Date:From;
+        b=I293s26FMqA1l2GcWTmdR9NY9Aa5N/0ZmhdhUbxBkj+K90EJUBh3bcQ98rFcKS3v/
+         V6Hl/puUw/vS08SSqEAER98K83axurOBdAl0D4r7DcJymshnhiDS2BUNX2imjDauOu
+         CkyHh/mloK2VjgaqqrKzjCoWNiOPQr7baNBC/6nA=
+Subject: FAILED: patch "[PATCH] powerpc/boot: Don't always pass -mcpu=powerpc when building" failed to apply to 6.1-stable tree
+To:     pali@kernel.org, christophe.leroy@csgroup.eu, mpe@ellerman.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 16 Mar 2023 09:01:31 +0100
+Message-ID: <1678953691202116@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <6ed70071-96a3-4f79-17e4-c94f3ef868e2@linaro.org>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -55,61 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 15, 2023 at 08:29:45AM -0600, Daniel D�az wrote:
-> Hello!
-> 
-> On 15/03/23 06:11, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.15.103 release.
-> > There are 145 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 17 Mar 2023 11:57:10 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.103-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> We're seeing PowerPC build failures like the following (GCC-8, GCC-12, Clang-16):
-> 
-> -----8<-----
-> In file included from /builds/linux/drivers/usb/host/ehci-hcd.c:1298:
-> /builds/linux/drivers/usb/host/ehci-ppc-of.c:122:13: error: use of undeclared identifier 'NO_IRQ'
->         if (irq == NO_IRQ) {
->                    ^
-> 1 error generated.
-> ----->8-----
 
-Will be fixed in -rc2
+The patch below does not apply to the 6.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> 
-> Then, Perf fails on Arm and i386 with GCC-12:
-> 
-> -----8<-----
-> In function 'parse_events_term__num',
->     inlined from 'parse_events_multi_pmu_add' at util/parse-events.c:1687:9:
-> util/parse-events.c:3100:64: error: array subscript 'YYLTYPE[0]' is partly outside array bounds of 'char[4]' [-Werror=array-bounds]
->  3100 |                 .err_term  = loc_term ? loc_term->first_column : 0,
->       |                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
-> util/parse-events.c: In function 'parse_events_multi_pmu_add':
-> util/parse-events.c:1678:39: note: object 'config' of size 4
->  1678 |                                 char *config;
->       |                                       ^~~~~~
-> cc1: all warnings being treated as errors
-> ----->8-----
+To reproduce the conflict and resubmit, you may use the following commands:
 
-This is odd as this file isn't modified, but other build fixes for perf
-for 5.15 were made.  Let's see if this still happens in -rc2 and if so,
-if you could bisect to track down the offending commit that would be
-great.
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git checkout FETCH_HEAD
+git cherry-pick -x ff7c76f66d8bad4e694c264c789249e1d3a8205d
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678953691202116@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+
+Possible dependencies:
+
+ff7c76f66d8b ("powerpc/boot: Don't always pass -mcpu=powerpc when building 32-bit uImage")
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ff7c76f66d8bad4e694c264c789249e1d3a8205d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Date: Wed, 25 Jan 2023 08:39:00 +0100
+Subject: [PATCH] powerpc/boot: Don't always pass -mcpu=powerpc when building
+ 32-bit uImage
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When CONFIG_TARGET_CPU is specified then pass its value to the compiler
+-mcpu option. This fixes following build error when building kernel with
+powerpc e500 SPE capable cross compilers:
+
+    BOOTAS  arch/powerpc/boot/crt0.o
+  powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
+  powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
+  make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
+
+Similar change was already introduced for the main powerpc Makefile in
+commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
+compiler").
+
+Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
+Cc: stable@vger.kernel.org # v5.19+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
+
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index d32d95aea5d6..295f76df13b5 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+ 		 $(LINUXINCLUDE)
+ 
+ ifdef CONFIG_PPC64_BOOT_WRAPPER
+-ifdef CONFIG_CPU_LITTLE_ENDIAN
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
++BOOTCFLAGS	+= -m64
+ else
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64
++BOOTCFLAGS	+= -m32
+ endif
++
++ifdef CONFIG_TARGET_CPU_BOOL
++BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
++else ifdef CONFIG_PPC64_BOOT_WRAPPER
++ifdef CONFIG_CPU_LITTLE_ENDIAN
++BOOTCFLAGS	+= -mcpu=powerpc64le
+ else
+-BOOTCFLAGS	+= -m32 -mcpu=powerpc
++BOOTCFLAGS	+= -mcpu=powerpc64
++endif
+ endif
+ 
+ BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
+
