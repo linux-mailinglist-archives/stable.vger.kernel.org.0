@@ -2,98 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A296BD5EA
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 17:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8480D6BD686
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 17:59:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231154AbjCPQgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 12:36:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41238 "EHLO
+        id S229489AbjCPQ7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 12:59:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230446AbjCPQgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 12:36:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 069A0E6FCF;
-        Thu, 16 Mar 2023 09:35:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61EA3620B2;
-        Thu, 16 Mar 2023 16:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05F5C4339B;
-        Thu, 16 Mar 2023 16:34:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678984464;
-        bh=mjOBt0hwl4VEkVOuBgR29W11lOITYRPWxwYwBi1U/4k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cVj2GxtjLQTTYFo543sjVm7xxVL4nXaEFA/LJqycpAeAQQq6KTGQi9xpCTqeNdxeC
-         TV6Tj6lJteEQROJC1H+OsM+JAcBskEjbZxa9kPygEMcnJ1aGCrLe/YCMDV69l7HhZX
-         Hg0zsmCAGygYi30cfP/oKIQ179pgdX5BqAGkbqZGe7UGpxVMd+9G3H3lXEtsGMB4DE
-         5JBING3F/g25M/sfMzTbLjdYKOpqdNPS0tNzLgpBgswruZ7JG2jP/1hkxa4tXolyNI
-         5OGu8WF02MlK9gwsFy5nOTZMc864/Xnz6J0XmAgEs6tQNkbgaLhEr4+PFhto6BWWfX
-         6Xf70d0TufMYg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Ghiti <alex@ghiti.fr>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14] riscv: Bump COMMAND_LINE_SIZE value to 1024
-Date:   Thu, 16 Mar 2023 12:34:18 -0400
-Message-Id: <20230316163422.709087-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S229473AbjCPQ7e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 12:59:34 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26C6366AC
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 09:59:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678985973; x=1710521973;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=TipeZemj07QYm0tsNflZV+cnvwkXU70t44vwDs3ncuc=;
+  b=eXYE6D5DkW4Z6k8Tixcq6tst2KpYaDZfWz/KvE+EDcm3CrjAqaKBKKPc
+   6a/GbEe1M+uJ3ZijeRxawIqGKLtHd5blWrshoEpddAByKu5nkTBLRhd2A
+   nix5h2KyFSt/9Nni3ZzmypNSVXxLQDXDDgaZZRZukrkK8R4WSZahmVqiM
+   IkpHJNYSEbnBDV4pJsT2qcd7hz8efQEUiHsW52BU2LHEt9ZFO0lSpK2jg
+   ufVVyrnfGhC3Gf5HKoKiIKeMmy7a7uiAJ/0t5zfTdiB9nIzoVnx4imZ4f
+   fUKheUlgpfMkJx4tWKS3GTOLv25+4euDIri/A2Cvv4DLZwI8suKvlrl4k
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10651"; a="317705510"
+X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
+   d="scan'208";a="317705510"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 09:59:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10651"; a="854130851"
+X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
+   d="scan'208";a="854130851"
+Received: from nirmoyda-desk.igk.intel.com ([10.91.214.27])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 09:59:30 -0700
+From:   Nirmoy Das <nirmoy.das@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Chris Wilson <chris.p.wilson@linux.intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@intel.com>
+Subject: [PATCH] drm/i915/gem: Flush lmem contents after construction
+Date:   Thu, 16 Mar 2023 17:59:18 +0100
+Message-Id: <20230316165918.13074-1-nirmoy.das@intel.com>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Organization: Intel Deutschland GmbH, Registered Address: Am Campeon 10, 85579 Neubiberg, Germany, Commercial Register: Amtsgericht Muenchen HRB 186928 
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Chris Wilson <chris.p.wilson@linux.intel.com>
 
-[ Upstream commit 61fc1ee8be26bc192d691932b0a67eabee45d12f ]
+i915_gem_object_create_lmem_from_data() lacks the flush of the data
+written to lmem to ensure the object is marked as dirty and the writes
+flushed to the backing store. Once created, we can immediately release
+the obj->mm.mapping caching of the vmap.
 
-Increase COMMAND_LINE_SIZE as the current default value is too low
-for syzbot kernel command line.
-
-There has been considerable discussion on this patch that has led to a
-larger patch set removing COMMAND_LINE_SIZE from the uapi headers on all
-ports.  That's not quite done yet, but it's gotten far enough we're
-confident this is not a uABI change so this is safe.
-
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Link: https://lore.kernel.org/r/20210316193420.904-1-alex@ghiti.fr
-[Palmer: it's not uabi]
-Link: https://lore.kernel.org/linux-riscv/874b8076-b0d1-4aaa-bcd8-05d523060152@app.fastmail.com/#t
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7acbbc7cf485 ("drm/i915/guc: put all guc objects in lmem when available")
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: Chris Wilson <chris.p.wilson@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.16+
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
 ---
- arch/riscv/include/uapi/asm/setup.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
- create mode 100644 arch/riscv/include/uapi/asm/setup.h
+ drivers/gpu/drm/i915/gem/i915_gem_lmem.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uapi/asm/setup.h
-new file mode 100644
-index 0000000000000..66b13a5228808
---- /dev/null
-+++ b/arch/riscv/include/uapi/asm/setup.h
-@@ -0,0 +1,8 @@
-+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
-+
-+#ifndef _UAPI_ASM_RISCV_SETUP_H
-+#define _UAPI_ASM_RISCV_SETUP_H
-+
-+#define COMMAND_LINE_SIZE	1024
-+
-+#endif /* _UAPI_ASM_RISCV_SETUP_H */
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_lmem.c b/drivers/gpu/drm/i915/gem/i915_gem_lmem.c
+index 8949fb0a944f..3198b64ad7db 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_lmem.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_lmem.c
+@@ -127,7 +127,8 @@ i915_gem_object_create_lmem_from_data(struct drm_i915_private *i915,
+ 
+ 	memcpy(map, data, size);
+ 
+-	i915_gem_object_unpin_map(obj);
++	i915_gem_object_flush_map(obj);
++	__i915_gem_object_release_map(obj);
+ 
+ 	return obj;
+ }
 -- 
-2.39.2
+2.39.0
 
