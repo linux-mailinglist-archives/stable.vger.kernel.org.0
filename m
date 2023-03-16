@@ -2,68 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0546BC360
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 02:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A4D6BC372
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 02:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229803AbjCPBiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Mar 2023 21:38:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55602 "EHLO
+        id S229456AbjCPBrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Mar 2023 21:47:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjCPBiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 21:38:52 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613E091B6C
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 18:38:51 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id p6so210312plf.0
-        for <stable@vger.kernel.org>; Wed, 15 Mar 2023 18:38:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678930730;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=yFQUMyHSdMyCVct642euZndyohnGhrb9A4PCSjA2K2Y=;
-        b=SHA+bWIj59SVD1K7KeqXzdRajdhXkvDhfRr855c/fAe+3DsQLamSM0v1w7vE2XSluf
-         +g1AGe5YTBLpeQYkXndsQW/XX7kevbzgp9GtIqVAi+dSEsN8hGe9KLUnmShhVOzGKLH5
-         RJ8vT1vN8CAm6IhiF/SPf2bmqb3CtheyVGVo7xf4kwq4mXtFN/Z009A/kmykF72+PmnQ
-         zn0Bw9boTMwFTTe5QEYtY6g3aTx6aRKEfsRirzcZIpjh0LeDlRS5ilFDl/ctyK4M83ht
-         7PoVrCs+2/nARx1UKdqMLc1HaPpyqeDt34JkEeN7jegXclzC+EcSEZZJpQZM1syZ4TQ3
-         FUnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678930730;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yFQUMyHSdMyCVct642euZndyohnGhrb9A4PCSjA2K2Y=;
-        b=sHhUM3oQggC9zuxACqz/PMJUwAeL8Zkx8/MzzTCoX+FLLs6WlmlFE+CHfbOaqagELG
-         wGHdMZjMcxUu46mGgBby9qpb1y4PEwcnh3vVqgty8rgNXs9lGYurSuvLp8e0+DwPVDqj
-         va7OedqR3hg9s8+nkVLdagv/B7//K5pHZIxwSzCDh7DUeDobVcupTlGp7UMSo89pr+2A
-         ucRMqnbMMHU055g7XxmbgyM/GnS6X7rEKmcn7LFdmDEnlF6+nDfotVZt41ZuKOC0t/+1
-         TH1j5VZlaMQ+RxSXv+QbGz/yPukgzO7iXDybnBhUY3hjtJfvGfWH1G/1TTm5ymePqq4n
-         s/mg==
-X-Gm-Message-State: AO0yUKW89TEXrsOqEd0eDU2qdeffPGyrjEnpPY97O76NSuqcMxE9kqQn
-        zwBEYaf6qZtE/XuUmc2QvasUeLMS56Rzo8nYZUJF3ltA
-X-Google-Smtp-Source: AK7set/XizaWGdK6oCnaeMNuMODQDjg8v/UVA1agqu47dWidhAWHXPhpVese/6aL3Pd9PcfOlAepVg==
-X-Received: by 2002:a17:90b:33c9:b0:234:190d:e636 with SMTP id lk9-20020a17090b33c900b00234190de636mr1930483pjb.8.1678930729985;
-        Wed, 15 Mar 2023 18:38:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id kx15-20020a17090b228f00b00231224439c1sm1301544pjb.27.2023.03.15.18.38.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Mar 2023 18:38:49 -0700 (PDT)
-Message-ID: <64127329.170a0220.7c0e4.2f88@mx.google.com>
-Date:   Wed, 15 Mar 2023 18:38:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229436AbjCPBrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Mar 2023 21:47:20 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3BFABAD3;
+        Wed, 15 Mar 2023 18:47:18 -0700 (PDT)
+Received: from dggpemm500005.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4PcVVr38VrzKnFn;
+        Thu, 16 Mar 2023 09:47:00 +0800 (CST)
+Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
+ (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Thu, 16 Mar
+ 2023 09:47:15 +0800
+Subject: Re: [PATCH net] vmxnet3: use gro callback when UPT is enabled
+To:     Ronak Doshi <doshir@vmware.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Pv-drivers <Pv-drivers@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Guolin Yang <gyang@vmware.com>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20230308222504.25675-1-doshir@vmware.com>
+ <e3768ae9-6a2b-3b5e-9381-21407f96dd63@huawei.com>
+ <4DF8ED21-92C2-404F-9766-691AEA5C4E8B@vmware.com>
+ <252026f5-f979-2c8d-90d9-7ba396d495c8@huawei.com>
+ <0389636C-F179-48E1-89D2-48DE0B34FD30@vmware.com>
+ <2e2ae42b-4f10-048e-4828-5cb6dd8558f5@huawei.com>
+ <3EF78217-44AA-44F6-99DC-86FF1CC03A94@vmware.com>
+ <207a0919-1a5a-dee6-1877-ee0b27fc744a@huawei.com>
+ <AA320ADE-E149-4C0D-80D5-338B19AD31A2@vmware.com>
+From:   Yunsheng Lin <linyunsheng@huawei.com>
+Message-ID: <77c30632-849f-8b7b-42ef-be8b32981c15@huawei.com>
+Date:   Thu, 16 Mar 2023 09:47:14 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/6.1
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v6.1.18-147-g17d91e680f61
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/6.1 baseline: 117 runs,
- 1 regressions (v6.1.18-147-g17d91e680f61)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+In-Reply-To: <AA320ADE-E149-4C0D-80D5-338B19AD31A2@vmware.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.69.30.204]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,84 +64,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/6.1 baseline: 117 runs, 1 regressions (v6.1.18-147-g17d91e6=
-80f61)
+On 2023/3/16 7:44, Ronak Doshi wrote:
+> 
+>> ﻿On 3/14/23, 8:05 PM, "Yunsheng Lin" <linyunsheng@huawei.com <mailto:linyunsheng@huawei.com>> wrote:
+>>
+>> I am not sure how we can handle the runtime hw capability changing thing yet, that is why
+>> I suggested setting the hw capability during the driver init process, then user can enable
+>> or disable GRO if need to.
+>>
+> It is not about enabling or disabling the LRO/GRO. It is about which callback to be used to
+> deliver the packets to the stack.
 
-Regressions Summary
--------------------
+That's the piont I am trying to make.
+If I understand it correctly, you can not change callback from napi_gro_receive() to
+netif_receive_skb() when netdev->features has the NETIF_F_GRO bit set.
 
-platform           | arch | lab         | compiler | defconfig         | re=
-gressions
--------------------+------+-------------+----------+-------------------+---=
----------
-bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
-         =
+NETIF_F_GRO bit in netdev->features is to tell user that netstack will perform the
+software GRO processing if the packet can be GRO'ed.
 
+Calling netif_receive_skb() with NETIF_F_GRO bit set in netdev->features will cause
+confusion for user, IMHO.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F6.1/kern=
-el/v6.1.18-147-g17d91e680f61/plan/baseline/
+> 
+> During init, the vnic will always come up in emulation (non-UPT) mode and user can request 
+> whichever feature they want (lro or gro or both). If it is in UPT mode, as we know UPT device
+> does not support LRO, we use gro API to deliver. If GRO is disabled by the user, then it can still
+> take the normal path. If in emulation (non-UPT) mode, ESXi will perform LRO.
+> 
+>> Suppose user enable the software GRO using ethtool, disabling the GRO through some runtime
+>> checking seems against the will of the user.
+>>
+> We are not disabling GRO here, it's either we perform LRO on ESXi or GRO in guest stack.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/6.1
-  Describe: v6.1.18-147-g17d91e680f61
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      17d91e680f61dc69fda3858f463a17ddc96fa1e2 =
+I means software GRO performed by netstack.
+There are NETIF_F_GRO_HW and NETIF_F_LRO bit for GRO and LRO performed by hw. LRO on ESXi
+is like hw offload in the eye of the driver in the guest, even if it is processed by some
+software in the ESXi.
 
+> 
+> 
+>> Also, if you are able to "add an event to notify the guest about this", I suppose the
+>> para-virtualized driver will clear the specific bit in netdev->hw_features and
+>> netdev->features when handling the event? does user need to be notified about this, does
+>> user get confusion about this change without notification?
+>>
+> We won’t be changing any feature bits. It is just to let know the driver that UPT is active and it
+> should use GRO path instead of relying on ESXi LRO.
 
+As above, there is different feature bit for that, NETIF_F_LRO, NETIF_F_GRO and
+NETIF_F_GRO_HW.
+IMHO, deciding which callback to be used depending on some driver configuation
+without corporation with the above feature bits does not seems right to me.
 
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab         | compiler | defconfig         | re=
-gressions
--------------------+------+-------------+----------+-------------------+---=
----------
-bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/64123c5739566c29088c8648
-
-  Results:     50 PASS, 2 FAIL, 1 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.18-14=
-7-g17d91e680f61/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-r=
-pi-b-rev2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.18-14=
-7-g17d91e680f61/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-r=
-pi-b-rev2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64123c5739566c29088c867f
-        new failure (last pass: v6.1.18-146-ge0f25c5308c10)
-
-    2023-03-15T21:44:36.479319  + set +x
-    2023-03-15T21:44:36.483721  <8>[   17.082366] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 169185_1.5.2.4.1>
-    2023-03-15T21:44:36.598631  / # #
-    2023-03-15T21:44:36.700724  export SHELL=3D/bin/sh
-    2023-03-15T21:44:36.701361  #
-    2023-03-15T21:44:36.803153  / # export SHELL=3D/bin/sh. /lava-169185/en=
-vironment
-    2023-03-15T21:44:36.803606  =
-
-    2023-03-15T21:44:36.905209  / # . /lava-169185/environment/lava-169185/=
-bin/lava-test-runner /lava-169185/1
-    2023-03-15T21:44:36.906033  =
-
-    2023-03-15T21:44:36.912494  / # /lava-169185/bin/lava-test-runner /lava=
--169185/1 =
-
-    ... (14 line(s) more)  =
-
- =20
+> 
+> Thanks,
+> Ronak
+> 
