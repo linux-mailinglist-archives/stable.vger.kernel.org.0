@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26ECE6BD5BC
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 17:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 970066BD5C0
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 17:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230341AbjCPQdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 12:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
+        id S230377AbjCPQde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 12:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230377AbjCPQdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 12:33:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B071CF62;
-        Thu, 16 Mar 2023 09:33:02 -0700 (PDT)
+        with ESMTP id S230388AbjCPQdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 12:33:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB1EB24BF0;
+        Thu, 16 Mar 2023 09:33:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9F3E1CE1DDC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F33B6620B3;
+        Thu, 16 Mar 2023 16:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05BC4C4339B;
         Thu, 16 Mar 2023 16:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D682AC433D2;
-        Thu, 16 Mar 2023 16:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678984379;
-        bh=NP0Ls7B1aIxpGe0fZTWet09qyPVhMgouoYrI9T3wV+0=;
+        s=k20201202; t=1678984382;
+        bh=O60AlAK0dYuFe6kh+EJ3AfCHCZSame9FzEHfiT+hQ9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vI70xHPN3RQp6+gFLKTDkVL0iMeEgbpJ96M6AJ9+9nABTC+DL9Tw6yy/7aUz7mI0A
-         suVYq1s32RuH2Lhe1lhl5TKtIeta5xs996T2yL4pTMMoMX3YSHFqdIyZHtoG/Q2HPq
-         ijin9ocQqVkHyiO5LMVyiLhgF9lBb5Nue/uP748IH2qCJzaYeLlpz5Cft6YfCW9epv
-         +oR3l35jpftoHUoKmgM/N1RswuE0SleDJrq8VKju+m1Kln+ioF9QNB2+Doje/dmyLU
-         OcIDhrX0kNeJ9hotZX8qg1sZUAo7kvcpIM2TtpcanoltMFv7jfHlkLrENVf0ZDBGRs
-         inivMJKm+Ox9g==
+        b=e0O8BKgntO0CZa47m0okJ6TgNWSQ1cOIVsyKLMV2GYo/ZDH0rwdyEF0Qq8bQA6ZUf
+         F+DlV31FrJbGqNBwnNWP7mRT7j2Bu5vDUJgrTYcvq+jlrvcKzZqQnCy7Gocmhdv4IO
+         6Qst54aeXtMvojANQlEEPikbPLmmNTCa7KkNoUSyIvcAf3WHdEnWBL0+PGkYzf5bhM
+         CT6ONeh+7yXHuUYgduh5qWYr/WqYsQUvz6zxdt3ZvZEXGskibm3J3b/wH4vqyXi9EO
+         Sqe9saRq2JfdV7PvMGhyAm6STgNDQ+OBIsBFWhJ1XZ1vkUtS+TU5jXMmJm7ouKdDGq
+         L+6RHiQLflDIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Anson Tsao <anson.tsao@amd.com>,
+        David Alvarez Lombardi <dqalombardi@proton.me>,
+        dbilios@stdio.gr, Elvis Angelaccio <elvis.angelaccio@kde.org>,
+        victor.bonnelle@proton.me, hurricanepootis@protonmail.com,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        philipp.zabel@gmail.com, hdegoede@redhat.com,
-        Shyam-sundar.S-k@amd.com, peterz@infradead.org,
+        hdegoede@redhat.com, andriy.shevchenko@linux.intel.com,
         linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 5/7] ACPI: x86: Drop quirk for HP Elitebook
-Date:   Thu, 16 Mar 2023 12:32:22 -0400
-Message-Id: <20230316163227.708614-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 6/7] ACPI: x86: utils: Add Cezanne to the list for forcing StorageD3Enable
+Date:   Thu, 16 Mar 2023 12:32:23 -0400
+Message-Id: <20230316163227.708614-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230316163227.708614-1-sashal@kernel.org>
 References: <20230316163227.708614-1-sashal@kernel.org>
@@ -50,8 +51,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,70 +62,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit e32d546c483a2a0f607687f5b521c2a2f942ffbe ]
+[ Upstream commit e2a56364485e7789e7b8f342637c7f3a219f7ede ]
 
-There was a quirk in `acpi/x86/s2idle.c` for an HP Elitebook G9
-platforms to force AMD GUID codepath instead of Microsoft codepath.
+commit 018d6711c26e4 ("ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1
+for StorageD3Enable") introduced a quirk to allow a system with ambiguous
+use of _ADR 0 to force StorageD3Enable.
 
-This was due to a bug with WCN6855 WLAN firmware interaction with
-the system.
+It was reported that several more Dell systems suffered the same symptoms.
+As the list is continuing to grow but these are all Cezanne systems,
+instead add Cezanne to the CPU list to apply the StorageD3Enable property
+and remove the whole list.
 
-This bug is fixed by WCN6855 firmware:
-WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.23
+It was also reported that an HP system only has StorageD3Enable on the ACPI
+device for the first NVME disk, not the second.
 
-Remove the quirk as it's no longer necessary with this firmware.
-
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/commit/?id=c7a57ef688f7d99d8338a5d8edddc8836ff0e6de
-Tested-by: Anson Tsao <anson.tsao@amd.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217003
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216773
+Reported-by: David Alvarez Lombardi <dqalombardi@proton.me>
+Reported-by: dbilios@stdio.gr
+Reported-and-tested-by: Elvis Angelaccio <elvis.angelaccio@kde.org>
+Tested-by: victor.bonnelle@proton.me
+Tested-by: hurricanepootis@protonmail.com
 Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/s2idle.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ drivers/acpi/x86/utils.c | 37 +++++++++++++------------------------
+ 1 file changed, 13 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index c7afce465a071..e499c60c45791 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -384,29 +384,6 @@ static const struct acpi_device_id amd_hid_ids[] = {
- 	{}
- };
- 
--static int lps0_prefer_amd(const struct dmi_system_id *id)
--{
--	pr_debug("Using AMD GUID w/ _REV 2.\n");
--	rev_id = 2;
--	return 0;
--}
--static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
--	{
--		/*
--		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
--		 * Contains specialized AML in AMD/_REV 2 path to avoid
--		 * triggering a bug in Qualcomm WLAN firmware. This may be
--		 * removed in the future if that firmware is fixed.
--		 */
--		.callback = lps0_prefer_amd,
--		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
--			DMI_MATCH(DMI_BOARD_NAME, "8990"),
--		},
--	},
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 4e816bb402f68..e45285d4e62a4 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -200,39 +200,28 @@ bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *s
+  * a hardcoded allowlist for D3 support, which was used for these platforms.
+  *
+  * This allows quirking on Linux in a similar fashion.
++ *
++ * Cezanne systems shouldn't *normally* need this as the BIOS includes
++ * StorageD3Enable.  But for two reasons we have added it.
++ * 1) The BIOS on a number of Dell systems have ambiguity
++ *    between the same value used for _ADR on ACPI nodes GPP1.DEV0 and GPP1.NVME.
++ *    GPP1.NVME is needed to get StorageD3Enable node set properly.
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=216440
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=216773
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=217003
++ * 2) On at least one HP system StorageD3Enable is missing on the second NVME
++      disk in the system.
+  */
+ static const struct x86_cpu_id storage_d3_cpu_ids[] = {
+ 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 96, NULL),	/* Renoir */
+ 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 104, NULL),	/* Lucienne */
 -	{}
 -};
 -
- static int lps0_device_attach(struct acpi_device *adev,
- 			      const struct acpi_device_id *not_used)
- {
-@@ -586,7 +563,6 @@ static const struct platform_s2idle_ops acpi_s2idle_ops_lps0 = {
+-static const struct dmi_system_id force_storage_d3_dmi[] = {
+-	{
+-		/*
+-		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
+-		 * but .NVME is needed to get StorageD3Enable node
+-		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
+-		 */
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
+-		}
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 16 5625"),
+-		}
+-	},
++	X86_MATCH_VENDOR_FAM_MODEL(AMD, 25, 80, NULL),	/* Cezanne */
+ 	{}
+ };
  
- void __init acpi_s2idle_setup(void)
+ bool force_storage_d3(void)
  {
--	dmi_check_system(s2idle_dmi_table);
- 	acpi_scan_add_handler(&lps0_handler);
- 	s2idle_set_ops(&acpi_s2idle_ops_lps0);
+-	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
+-
+-	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
++	return x86_match_cpu(storage_d3_cpu_ids);
  }
+ 
+ /*
 -- 
 2.39.2
 
