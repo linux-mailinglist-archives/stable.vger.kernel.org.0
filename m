@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ABD96BD5E8
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 17:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D05B36BD5EC
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 17:36:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230466AbjCPQgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 12:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S231236AbjCPQgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 12:36:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230446AbjCPQfX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 12:35:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718D622136;
-        Thu, 16 Mar 2023 09:34:55 -0700 (PDT)
+        with ESMTP id S231327AbjCPQgR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 12:36:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FAD0E6FF3;
+        Thu, 16 Mar 2023 09:35:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0616EB8227B;
-        Thu, 16 Mar 2023 16:34:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D8EC433EF;
-        Thu, 16 Mar 2023 16:34:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDCC9620AC;
+        Thu, 16 Mar 2023 16:34:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBA5C433D2;
+        Thu, 16 Mar 2023 16:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678984451;
+        s=k20201202; t=1678984458;
         bh=mjOBt0hwl4VEkVOuBgR29W11lOITYRPWxwYwBi1U/4k=;
         h=From:To:Cc:Subject:Date:From;
-        b=qbP9OtpNLzHBOyBlVvUQ320dSOpLLB9sl4zPFEqBnIBGKtEBkosLkF3kxkNsaSHZd
-         drxrdWB+9eRYYViNp4mqcBnVY+bjdyFMwxyBalks6+mdqRc2b7mM8w1wVjrm5JjTDI
-         mvISxVDlwREFt9HkYxMrQYcv0pBZr1SI0egb9LFQYiVGpWvbjr39ZZyiWr5MJX8ZnC
-         anNfQu7Y01pvsA1uWn6TQDlSHGuUmRHvtkN+0rpus8OSqd9DJw1K7Rnvj0/Q4cMR6S
-         3jTl/BKekVQxKe8yCNwZWrZLgJpkPHIDJps4cb6IvXIvSwmxCD/NjHby+LfU1uo09a
-         xJsD2LQhv8HIg==
+        b=RnSnpXS3Xm9ai5Poh1VPMCOF7dz6QmSqTFbozcXRAeC+l+0KtXZVWnJlpyLz0bIdG
+         hKIyzUss4eiVx/qGmhRY3qXHnaN7ZXXk9JPnz+gwZ6rNO+LugRHoQdKM05Sdy1iTGd
+         UXhet6KwQM+bUWX36+Y1S79y1XnV1xbJUXGTh0CaoJp53VDnhQypCY84NNL0O+JRWn
+         GmtLw0nFbSbxrSO/ExUjQIspo5YEeCCQhb91Sep/lozJ8MGQWOcgZ3nR4p/1o2gSrN
+         ZQ+rALb3FCKYIOhvTdm7t36ycNbFFFcFJqJzmQZSbd3GLxsJFmJsZ9ToBHkHFA61Jl
+         TbTQUIHM2oiPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexandre Ghiti <alex@ghiti.fr>,
@@ -39,9 +39,9 @@ Cc:     Alexandre Ghiti <alex@ghiti.fr>,
         Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
         palmer@dabbelt.com, aou@eecs.berkeley.edu,
         linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4] riscv: Bump COMMAND_LINE_SIZE value to 1024
-Date:   Thu, 16 Mar 2023 12:34:05 -0400
-Message-Id: <20230316163408.709028-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19] riscv: Bump COMMAND_LINE_SIZE value to 1024
+Date:   Thu, 16 Mar 2023 12:34:12 -0400
+Message-Id: <20230316163415.709058-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 X-stable: review
