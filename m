@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 653FC6BD0C1
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 14:25:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F27386BD0C4
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 14:25:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230274AbjCPNZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 09:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S230284AbjCPNZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 09:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230259AbjCPNZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 09:25:13 -0400
+        with ESMTP id S230205AbjCPNZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 09:25:14 -0400
 Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76750212B0;
-        Thu, 16 Mar 2023 06:25:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D653D6153B;
+        Thu, 16 Mar 2023 06:25:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678973106; x=1710509106;
+  t=1678973109; x=1710509109;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=sSrP2H0F2QdS2sJv68twXcd58hArlvzYGfTg+emznYc=;
-  b=h88A3BpLN3cLbrf+5Zt4yC9YHyko9dZZTZyqA387FOoa6X/u5oSt10pH
-   iH1PDvRMx9YXGBWC+UmLRZFGV4XA70uKGWB3aEl6v03oSPwGrkhkZwD2v
-   FV2356ZWlo2eK5gOUrm+marQOxBIIjm6t1eloam+RObwZ+zSIIEX/xSaG
-   t3ARBWYRDu9Dc8I+KTiIox6LUIwjclwH+q/evxIG6ka8GMVyJVoTVuRyq
-   U3hTbqEJZ4K07A2tHTrWKraqP8R/rYTHZunxKqZzMBdzrIfe2P0VChdu8
-   OdFU5MlRuXitMeZsbsChEJoOxPeEDr9ba5zsNCISe/E2+6HlaF0PGABdL
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10650"; a="338003202"
+  bh=caNHCSlVv04vW8WvdqMIWsxEprIGBrrELmdQAJ/JIYA=;
+  b=ODb8F5tPaypLeU+lek2ibIsO+9nu+sVdvHeQhuA76WTrY88O3Gey7xr3
+   Tzlo5Ko3+qdAzM4dJe7pu5e0CddMtBWdVoLZUAR2YTT/n3v6YoJnpoSHQ
+   byOPnicQHjfQjWyWiB2N00f1d/5etty+DYFBYRvnNTyxVG6M8lVtL9qAw
+   ebef0iIJHr9trCFhbV+GxkIpIMv4L5gE2ycp/+r3UGGTKaipGxpFQjYkH
+   TXvu0jKj3JFpEiZU2/LWi4kYzhozzoFThgla1XxkdFiqa6wNDQYLlP5II
+   r0frPhHKV51Y2J4faeOsrSomUxlIlQ7uMxznTXuhp0MwWoUzIhT/Np8I4
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10650"; a="338003211"
 X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="338003202"
+   d="scan'208";a="338003211"
 Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 06:25:06 -0700
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 06:25:09 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10650"; a="710109134"
+X-IronPort-AV: E=McAfee;i="6600,9927,10650"; a="710109180"
 X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="710109134"
+   d="scan'208";a="710109180"
 Received: from trybicki-mobl1.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.252.63.119])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 06:25:04 -0700
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 06:25:07 -0700
 From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
 To:     linux-serial@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, linux-kernel@vger.kernel.org
+        Jiri Slaby <jirislaby@kernel.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        linux-kernel@vger.kernel.org
 Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] tty: Prevent writing chars during tcsetattr TCSADRAIN/FLUSH
-Date:   Thu, 16 Mar 2023 15:24:51 +0200
-Message-Id: <20230316132452.76478-2-ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 2/2] serial: 8250: Fix serial8250_tx_empty() race with DMA Tx
+Date:   Thu, 16 Mar 2023 15:24:52 +0200
+Message-Id: <20230316132452.76478-3-ilpo.jarvinen@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20230316132452.76478-1-ilpo.jarvinen@linux.intel.com>
 References: <20230316132452.76478-1-ilpo.jarvinen@linux.intel.com>
@@ -62,124 +64,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If userspace races tcsetattr() with a write, the drained condition
-might not be guaranteed by the kernel. There is a race window after
-checking Tx is empty before tty_set_termios() takes termios_rwsem for
-write. During that race window, more characters can be queued by a
-racing writer.
+There's a potential race before THRE/TEMT deasserts when DMA Tx is
+starting up (or the next batch of continuous Tx is being submitted).
+This can lead to misdetecting Tx empty condition.
 
-Any ongoing transmission might produce garbage during HW's
-->set_termios() call. The intent of TCSADRAIN/FLUSH seems to be
-preventing such a character corruption. If those flags are set, take
-tty's write lock to stop any writer before performing the lower layer
-Tx empty check and wait for the pending characters to be sent (if any).
+It is entirely normal for THRE/TEMT to be set for some time after the
+DMA Tx had been setup in serial8250_tx_dma(). As Tx side is definitely
+not empty at that point, it seems incorrect for serial8250_tx_empty()
+claim Tx is empty.
 
-The initial wait for all-writers-done must be placed outside of tty's
-write lock to avoid deadlock which makes it impossible to use
-tty_wait_until_sent(). The write lock is retried if a racing write is
-detected.
+Fix the race by also checking in serial8250_tx_empty() whether there's
+DMA Tx active.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Note: This fix only addresses in-kernel race mainly to make using
+TCSADRAIN/FLUSH robust. Userspace can still cause other races but they
+seem userspace concurrency control problems.
+
+Fixes: 9ee4b83e51f74 ("serial: 8250: Add support for dmaengine")
 Cc: stable@vger.kernel.org
 Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 ---
- drivers/tty/tty.h       |  2 ++
- drivers/tty/tty_io.c    |  4 ++--
- drivers/tty/tty_ioctl.c | 45 ++++++++++++++++++++++++++++++-----------
- 3 files changed, 37 insertions(+), 14 deletions(-)
+ drivers/tty/serial/8250/8250.h      | 12 ++++++++++++
+ drivers/tty/serial/8250/8250_port.c |  7 ++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/tty.h b/drivers/tty/tty.h
-index f45cd683c02e..1e0d80e98d26 100644
---- a/drivers/tty/tty.h
-+++ b/drivers/tty/tty.h
-@@ -62,6 +62,8 @@ int __tty_check_change(struct tty_struct *tty, int sig);
- int tty_check_change(struct tty_struct *tty);
- void __stop_tty(struct tty_struct *tty);
- void __start_tty(struct tty_struct *tty);
-+void tty_write_unlock(struct tty_struct *tty);
-+int tty_write_lock(struct tty_struct *tty, int ndelay);
- void tty_vhangup_session(struct tty_struct *tty);
- void tty_open_proc_set_tty(struct file *filp, struct tty_struct *tty);
- int tty_signal_session_leader(struct tty_struct *tty, int exit_session);
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 766750e355ac..cfb3da0dee47 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -933,13 +933,13 @@ static ssize_t tty_read(struct kiocb *iocb, struct iov_iter *to)
- 	return i;
+diff --git a/drivers/tty/serial/8250/8250.h b/drivers/tty/serial/8250/8250.h
+index 287153d32536..1e8fe44a7099 100644
+--- a/drivers/tty/serial/8250/8250.h
++++ b/drivers/tty/serial/8250/8250.h
+@@ -365,6 +365,13 @@ static inline void serial8250_do_prepare_rx_dma(struct uart_8250_port *p)
+ 	if (dma->prepare_rx_dma)
+ 		dma->prepare_rx_dma(p);
+ }
++
++static inline bool serial8250_tx_dma_running(struct uart_8250_port *p)
++{
++	struct uart_8250_dma *dma = p->dma;
++
++	return dma && dma->tx_running;
++}
+ #else
+ static inline int serial8250_tx_dma(struct uart_8250_port *p)
+ {
+@@ -380,6 +387,11 @@ static inline int serial8250_request_dma(struct uart_8250_port *p)
+ 	return -1;
+ }
+ static inline void serial8250_release_dma(struct uart_8250_port *p) { }
++
++static inline bool serial8250_tx_dma_running(struct uart_8250_port *p)
++{
++	return false;
++}
+ #endif
+ 
+ static inline int ns16550a_goto_highspeed(struct uart_8250_port *up)
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index fa43df05342b..4954c4f15fb2 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2006,17 +2006,22 @@ static unsigned int serial8250_tx_empty(struct uart_port *port)
+ {
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	unsigned long flags;
++	bool dma_tx_running;
+ 	u16 lsr;
+ 
+ 	serial8250_rpm_get(up);
+ 
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	lsr = serial_lsr_in(up);
++	dma_tx_running = serial8250_tx_dma_running(up);
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 	serial8250_rpm_put(up);
+ 
+-	return uart_lsr_tx_empty(lsr) ? TIOCSER_TEMT : 0;
++	if (uart_lsr_tx_empty(lsr) && !dma_tx_running)
++		return TIOCSER_TEMT;
++
++	return 0;
  }
  
--static void tty_write_unlock(struct tty_struct *tty)
-+void tty_write_unlock(struct tty_struct *tty)
- {
- 	mutex_unlock(&tty->atomic_write_lock);
- 	wake_up_interruptible_poll(&tty->write_wait, EPOLLOUT);
- }
- 
--static int tty_write_lock(struct tty_struct *tty, int ndelay)
-+int tty_write_lock(struct tty_struct *tty, int ndelay)
- {
- 	if (!mutex_trylock(&tty->atomic_write_lock)) {
- 		if (ndelay)
-diff --git a/drivers/tty/tty_ioctl.c b/drivers/tty/tty_ioctl.c
-index 12983ce4e43e..a13e3797c477 100644
---- a/drivers/tty/tty_ioctl.c
-+++ b/drivers/tty/tty_ioctl.c
-@@ -500,21 +500,42 @@ static int set_termios(struct tty_struct *tty, void __user *arg, int opt)
- 	tmp_termios.c_ispeed = tty_termios_input_baud_rate(&tmp_termios);
- 	tmp_termios.c_ospeed = tty_termios_baud_rate(&tmp_termios);
- 
--	ld = tty_ldisc_ref(tty);
-+	if (opt & (TERMIOS_FLUSH|TERMIOS_WAIT)) {
-+retry_write_wait:
-+		retval = wait_event_interruptible(tty->write_wait, !tty_chars_in_buffer(tty));
-+		if (retval < 0)
-+			return retval;
- 
--	if (ld != NULL) {
--		if ((opt & TERMIOS_FLUSH) && ld->ops->flush_buffer)
--			ld->ops->flush_buffer(tty);
--		tty_ldisc_deref(ld);
--	}
-+		if (tty_write_lock(tty, 0) < 0)
-+			goto retry_write_wait;
- 
--	if (opt & TERMIOS_WAIT) {
--		tty_wait_until_sent(tty, 0);
--		if (signal_pending(current))
--			return -ERESTARTSYS;
--	}
-+		/* Racing writer? */
-+		if (tty_chars_in_buffer(tty)) {
-+			tty_write_unlock(tty);
-+			goto retry_write_wait;
-+		}
- 
--	tty_set_termios(tty, &tmp_termios);
-+		ld = tty_ldisc_ref(tty);
-+		if (ld != NULL) {
-+			if ((opt & TERMIOS_FLUSH) && ld->ops->flush_buffer)
-+				ld->ops->flush_buffer(tty);
-+			tty_ldisc_deref(ld);
-+		}
-+
-+		if ((opt & TERMIOS_WAIT) && tty->ops->wait_until_sent) {
-+			tty->ops->wait_until_sent(tty, 0);
-+			if (signal_pending(current)) {
-+				tty_write_unlock(tty);
-+				return -ERESTARTSYS;
-+			}
-+		}
-+
-+		tty_set_termios(tty, &tmp_termios);
-+
-+		tty_write_unlock(tty);
-+	} else {
-+		tty_set_termios(tty, &tmp_termios);
-+	}
- 
- 	/* FIXME: Arguably if tmp_termios == tty->termios AND the
- 	   actual requested termios was not tmp_termios then we may
+ unsigned int serial8250_do_get_mctrl(struct uart_port *port)
 -- 
 2.30.2
 
