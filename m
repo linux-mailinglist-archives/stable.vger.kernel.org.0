@@ -2,62 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6817F6BC96C
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 09:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC706BC9C2
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 09:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbjCPIli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 04:41:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
+        id S230029AbjCPIuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 04:50:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229873AbjCPIld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 04:41:33 -0400
-Received: from mail.penmade.pl (mail.penmade.pl [94.177.230.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C111A2A9A6
-        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 01:41:24 -0700 (PDT)
-Received: by mail.penmade.pl (Postfix, from userid 1001)
-        id A4952841A3; Thu, 16 Mar 2023 08:40:49 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=penmade.pl; s=mail;
-        t=1678956082; bh=CSKXLMgcdpWkXuTgJn5+jsCVobtU9JEF4vCnS5z6McM=;
-        h=Date:From:To:Subject:From;
-        b=ROgzgF4JDcTP7C+38jKPHt+HLAn9wshqerXEREo89LRQEtP1QcnPrrKkzdQgPpxz/
-         JyDQSxw4sizkjIsIInkL4VmReMxH4MorvuIK24knOLadkLH6x8BgBWHjIfnAS4FbrG
-         AVMaXKXkioETEY9N7fZSVLvHrUxrAsDeDSz/AytiQndCSrJbrdSHePO3AkaIorHqIq
-         j3bQZSyXVHyT52Fz4GGfV6Jve2W2JxRLcyO8e3Moe3DbXCDTNtrOpxCmeZ+D69RoTw
-         1xfFpzDnd2HBbgBorGk2d12r9m9zEin0TVAzTGRBsNZ/QuULFCQceBQk1lkLNjLZvL
-         6UeYqX/qkjfaQ==
-Received: by mail.penmade.pl for <stable@vger.kernel.org>; Thu, 16 Mar 2023 08:40:28 GMT
-Message-ID: <20230316074501-0.1.30.ath4.0.2gskiv5dqu@penmade.pl>
-Date:   Thu, 16 Mar 2023 08:40:28 GMT
-From:   "Wiktor Nurek" <wiktor.nurek@penmade.pl>
-To:     <stable@vger.kernel.org>
-Subject: =?UTF-8?Q?Nap=C5=82yw_Klient=C3=B3w_ze_strony?=
-X-Mailer: mail.penmade.pl
+        with ESMTP id S231184AbjCPItv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 04:49:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A111594A47;
+        Thu, 16 Mar 2023 01:49:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41162B8208C;
+        Thu, 16 Mar 2023 08:49:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7D0C433D2;
+        Thu, 16 Mar 2023 08:49:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1678956583;
+        bh=evZsOLQ/RDFCme3QDzcNmfgG0DIRUR7CczVo9QT8Urg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=puh1/giXPL3Y/KkQJDFqqw0PT8fF/eSatPJhBslrJXF/ZZXfDkBQgOGXA7IgKUzBo
+         Cm2m2+/r5qFE26J3PlKOGYbFopJDFugjhz857/+BSGQP9s+3ck/jAtCaMm9INYhELT
+         edQZPp57FYZ+rSJoh6ZoxvqRO8QsZb4a+HEtO5rQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 4.14 00/20] 4.14.310-rc2 review
+Date:   Thu, 16 Mar 2023 09:49:41 +0100
+Message-Id: <20230316083335.429724157@linuxfoundation.org>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_SBL_CSS,SPF_HELO_NONE,
-        SPF_PASS,URIBL_CSS_A,URIBL_DBL_SPAM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ***
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.310-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.310-rc2
+X-KernelTest-Deadline: 2023-03-18T08:33+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dzie=C5=84 dobry,
+This is the start of the stable review cycle for the 4.14.310 release.
+There are 20 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-chcia=C5=82bym poinformowa=C4=87 Pa=C5=84stwa o mo=C5=BCliwo=C5=9Bci pozy=
-skania nowych zlece=C5=84 ze strony www.
+Responses should be made by Sat, 18 Mar 2023 08:33:04 +0000.
+Anything received after that time might be too late.
 
-Widzimy zainteresowanie potencjalnych Klient=C3=B3w Pa=C5=84stwa firm=C4=85=
-, dlatego ch=C4=99tnie pomo=C5=BCemy Pa=C5=84stwu dotrze=C4=87 z ofert=C4=
-=85 do wi=C4=99kszego grona odbiorc=C3=B3w poprzez efektywne metody pozyc=
-jonowania strony w Google.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.310-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Czy m=C3=B3g=C5=82bym liczy=C4=87 na kontakt zwrotny?
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.310-rc2
+
+Rhythm Mahajan <rhythm.m.mahajan@oracle.com>
+    x86/cpu: Fix LFENCE serialization check in init_amd()
+
+John Harrison <John.C.Harrison@Intel.com>
+    drm/i915: Don't use BAR mappings for ring buffers with LLC
+
+Tung Nguyen <tung.q.nguyen@dektech.com.au>
+    tipc: improve function tipc_wait_for_cond()
+
+Paul Elder <paul.elder@ideasonboard.com>
+    media: ov5640: Fix analogue gain control
+
+Alvaro Karsz <alvaro.karsz@solid-run.com>
+    PCI: Add SolidRun vendor ID
+
+Nathan Chancellor <nathan@kernel.org>
+    macintosh: windfarm: Use unsigned type for 1-bit bitfields
+
+Edward Humes <aurxenon@lunos.org>
+    alpha: fix R_ALPHA_LITERAL reloc for large modules
+
+xurui <xurui@kylinos.cn>
+    MIPS: Fix a compilation issue
+
+Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+    clk: qcom: mmcc-apq8084: remove spdm clocks
+
+Shigeru Yoshida <syoshida@redhat.com>
+    net: caif: Fix use-after-free in cfusbl_device_notify()
+
+Eric Dumazet <edumazet@google.com>
+    ila: do not generate empty messages in ila_xlat_nl_cmd_get_mapping()
+
+Kang Chen <void0red@gmail.com>
+    nfc: fdp: add null check of devm_kmalloc_array in fdp_nci_i2c_read_device_properties
+
+Fedor Pchelkin <pchelkin@ispras.ru>
+    nfc: change order inside nfc_se_io error path
+
+Zhihao Cheng <chengzhihao1@huawei.com>
+    ext4: zero i_disksize when initializing the bootloader inode
+
+Ye Bin <yebin10@huawei.com>
+    ext4: fix WARNING in ext4_update_inline_data
+
+Ye Bin <yebin10@huawei.com>
+    ext4: move where set the MAY_INLINE_DATA flag is set
+
+Darrick J. Wong <djwong@kernel.org>
+    ext4: fix another off-by-one fsmap error on 1k block filesystems
+
+Eric Whitney <enwlinux@gmail.com>
+    ext4: fix RENAME_WHITEOUT handling for inline directories
+
+Andrew Cooper <andrew.cooper3@citrix.com>
+    x86/CPU/AMD: Disable XSAVES on AMD family 0x17
+
+Theodore Ts'o <tytso@mit.edu>
+    fs: prevent out-of-bounds array speculation when closing a file descriptor
 
 
-Pozdrawiam serdecznie,
-Wiktor Nurek
+-------------
+
+Diffstat:
+
+ Makefile                                 |   4 +-
+ arch/alpha/kernel/module.c               |   4 +-
+ arch/mips/include/asm/mach-rc32434/pci.h |   2 +-
+ arch/x86/kernel/cpu/amd.c                |  11 +-
+ drivers/clk/qcom/mmcc-apq8084.c          | 271 -------------------------------
+ drivers/gpu/drm/i915/intel_ringbuffer.c  |   4 +-
+ drivers/macintosh/windfarm_lm75_sensor.c |   4 +-
+ drivers/macintosh/windfarm_smu_sensors.c |   4 +-
+ drivers/media/i2c/ov5640.c               |   2 +-
+ drivers/nfc/fdp/i2c.c                    |   4 +
+ fs/ext4/fsmap.c                          |   2 +
+ fs/ext4/inline.c                         |   1 -
+ fs/ext4/inode.c                          |   7 +-
+ fs/ext4/ioctl.c                          |   1 +
+ fs/ext4/namei.c                          |  13 +-
+ fs/ext4/xattr.c                          |   3 +
+ fs/file.c                                |   1 +
+ include/linux/pci_ids.h                  |   2 +
+ net/caif/caif_usb.c                      |   3 +
+ net/ipv6/ila/ila_xlat.c                  |   1 +
+ net/nfc/netlink.c                        |   2 +-
+ net/tipc/socket.c                        |   2 +-
+ 22 files changed, 53 insertions(+), 295 deletions(-)
+
+
