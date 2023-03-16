@@ -2,154 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D729E6BCDB5
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 12:13:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAEB6BCE07
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 12:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230191AbjCPLNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 07:13:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47262 "EHLO
+        id S229648AbjCPLT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 07:19:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230186AbjCPLNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 07:13:48 -0400
-Received: from JPN01-TYC-obe.outbound.protection.outlook.com (mail-tycjpn01on2128.outbound.protection.outlook.com [40.107.114.128])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3B12A990;
-        Thu, 16 Mar 2023 04:13:44 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Q7HeRBZhnMiKNeCk0n34JVQx61HzLupNsABTE9q/5jFbcx5Jp2RjVkkEFRJuuHcj9UVdPMG2KqHegiQpSbmLiwpuXWy1dVjYMjuLcyMHHwxIwslWn0q/u6ZqIzXLuxjVh+otNY8v75mPt8dnZa6v+PngheHf0IxASsI6/0f/WFe6vjzVYWTjv3j2bH2/Ath4M+EYgvfQyV4eVqkEsA7x9+A2MAdoawp66dQ86UfZ1WGYWhOZi7PgVI9RDIazq7A9bnzBPNPB0wanuqG0IsHT07ftiDvYXnM6wLqJm+RoECMPvHWBAk222jStNS2uuUe/tAX34CzW9c6N+iCZ6VD6JQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7lJZsGyZX4ZloHAAkCleHVQCkX4I407tUroTb40sksk=;
- b=TKpbNrlV7aWdnoj6lI85+rrmhQUllZ37cj9DPrRrH+zyFGC9msA8w7VjuhSBRwP5w7jPMUU3UD5oYGjIqG6xGgdijsoSbIdr9Y20ffKpG03Cmhq2ZsyyhuZNuHSv9kIWPk7ouugYqhNaLZGP2coF0Rq7HFGN/mVow5b1V5lQXz0ZjaxkPwYcdB3aFDypNHxE/jS53/EgmB+hQ3gy4nKDh3aKM5C0ZhyeYcus2TvZkrN4HGliXCMUWWYwI2Hfhyxr8i/rzLLmXiZSFaR/s9ZDGXyLZDqA9FN2ScUZA9zC/eeSQJkJZSoDbXjG5m4JvTOQA5quT5+A88uFTDqWh31SNg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7lJZsGyZX4ZloHAAkCleHVQCkX4I407tUroTb40sksk=;
- b=PlGSKvzzR6esK9XJ3AX9T5tCcCt1GQCb7svRvIopZItwqsL719zXiiJOdIAq+ocHolCci22yKb3irUO4T5Bm9EEw2hO2sbWB5sDHXVI1T0vQKCLi4/363KVD7wOnU7Zcjp+7CRtk/sZXpv6ftz9/cqCOWVKjVyJjuZ2B4uToknE=
-Received: from TYCPR01MB10588.jpnprd01.prod.outlook.com (2603:1096:400:309::8)
- by OSZPR01MB9633.jpnprd01.prod.outlook.com (2603:1096:604:1d5::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.30; Thu, 16 Mar
- 2023 11:13:41 +0000
-Received: from TYCPR01MB10588.jpnprd01.prod.outlook.com
- ([fe80::dc49:e307:b424:4a53]) by TYCPR01MB10588.jpnprd01.prod.outlook.com
- ([fe80::dc49:e307:b424:4a53%4]) with mapi id 15.20.6178.030; Thu, 16 Mar 2023
- 11:13:41 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     "patches@lists.linux.dev" <patches@lists.linux.dev>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "pavel@denx.de" <pavel@denx.de>,
-        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
-        "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
-        "sudipm.mukherjee@gmail.com" <sudipm.mukherjee@gmail.com>,
-        "srw@sladewatkins.net" <srw@sladewatkins.net>,
-        "rwarsow@gmx.de" <rwarsow@gmx.de>
-Subject: RE: [PATCH 5.4 00/55] 5.4.237-rc2 review
-Thread-Topic: [PATCH 5.4 00/55] 5.4.237-rc2 review
-Thread-Index: AQHZV+RTRTu3S7Y1OECCZQyw0OUida79QJAg
-Date:   Thu, 16 Mar 2023 11:13:41 +0000
-Message-ID: <TYCPR01MB1058858745E9067B2D2B3F046B7BC9@TYCPR01MB10588.jpnprd01.prod.outlook.com>
-References: <20230316083403.224993044@linuxfoundation.org>
-In-Reply-To: <20230316083403.224993044@linuxfoundation.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=renesas.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TYCPR01MB10588:EE_|OSZPR01MB9633:EE_
-x-ms-office365-filtering-correlation-id: 15e3a12d-46b5-400d-b6af-08db260f800c
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 3RpIao2HJV7h80EPJ0E9InXyD7TFHR/IX2F0e6nEcAftR1bw2fqw/pIYWdS1LDDqWzHoGRLxuZl8D8kbeLBZMtZtcSlfBpV9BTJTb1oaY/SOPf0qCHm+440GC+u1KFgr8DXPyKG2KcDaKqkluB7LmijF164KKMXoIJ9M/37mle2o9lLo4EXgj+FfXq6q6qkzTf0eOjDpeNDuX3cAjxgC5+8Cs1BXwJoLZHZ0Bs2dfMa2uzIY8WXvEHihqpFhfeupknZot3Upmv/FeKQN+zrLCZqwYzNO1NH0VwWd4dsI3qgSoWCBYbTU31ZhrXikGQ1SGBvoEilu8AE3+BDJD6cLAhsUr5lyAy8wGfINRk0RTAiuq4CKopjWIh3zsyuMxXYBksW8/pUau6wnAgcwb/2VjnEQ/55Vue4xS5mKCWPLEtBv4h/VxkKxf2DmxRjvx0akZKFCF6fb4bgb0n/wMNhhBrMDGICuMzpLEgy5Uar/tXjmIXdT0quV0dojt06yO+wMKP/uH1xCEotRiGJI2EHeFhWDgyPDaz168pGGqIewo+nzeNS6CgQt0xqgLV5Pso8haYct5glTB7hE+H5/rIq4Xkwtm7NJ5h2Iknq27vzdhXEHvLpAvPC3Yg25dStMbsrGMsdMX8liGYXinL6Mef6alaVPfQoNI8J7Ms+Y7oqXRrDv8UMr6FVvmYLqJ5mBLn8sziUvLyN9RJa+0GQuVQMGEX823aDm6Z3Zk7laIXA4p7I=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYCPR01MB10588.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(346002)(376002)(136003)(396003)(39860400002)(366004)(451199018)(8676002)(76116006)(4326008)(66556008)(66446008)(64756008)(41300700001)(66476007)(2906002)(4744005)(122000001)(66946007)(38100700002)(5660300002)(8936002)(52536014)(7416002)(26005)(966005)(6506007)(9686003)(86362001)(186003)(55016003)(316002)(110136005)(54906003)(38070700005)(7696005)(71200400001)(33656002)(478600001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?Windows-1252?Q?KiVHWYPRChK3v13BLJwIQc29286yGOsY9wWXkqWLy0ILmstITMGanDOG?=
- =?Windows-1252?Q?CuaEE10kzhSUZ7yIbfqkSwpDbw65eQ8QDC2x5nRjgFoErDEywSYloBNH?=
- =?Windows-1252?Q?LE0KiKD/H+V2mCI2jhoHONqaCSWEWGuePvfMbHabbKrJ1tJXdd4PODiA?=
- =?Windows-1252?Q?xbtTz2kxTaQCck/ELRXDRIuoMWhP5gmfEy9mjoWSrJ+nUrEitCMMU8IO?=
- =?Windows-1252?Q?vvEit9pGOMjyRi1kBNEI24ZzR73z7RO1tZZfycm/Frpng6wAzed1borY?=
- =?Windows-1252?Q?xprzP15nW3/Vl+kBTxC0Olwr30QvvFUOlv6TkrRFVFB5yl7RMWrjvaAb?=
- =?Windows-1252?Q?p3W1zZc2o5PJqxpTxqAzThK3f1Oaqnl/MiM2xN39gHTdwAUXp6WO2WfD?=
- =?Windows-1252?Q?OFJw0TRPbAWGotGcZIRtRjhySxRNeCcPCW8n/ioheBkXiZ4MaPP6oa8q?=
- =?Windows-1252?Q?jCBV8Y1JwzC8AxCMmGA2sJlrAFG35KgyljGuzO9iyCAlsxFqRdvUV9dq?=
- =?Windows-1252?Q?hpof16e/6Nf9zjx3+6cuWeZQ+YJFYiuLKEDPM4YWBKABp4ULAZYdVYAE?=
- =?Windows-1252?Q?CT74frFCh5Mrwb07nKlyDpxorTQn4O60BMwzM8UvQep4j0Syd5PejtOm?=
- =?Windows-1252?Q?9Z6OQGDn6RqUfAmxq6hmoRiR6JT5M3GSkkshVPl+OTjQSg9UqxKgXKnL?=
- =?Windows-1252?Q?RKPUrci1Xi68dAItFGVDmprIt32XcSf66KQ7NBytrupFOzfktl2/TQt9?=
- =?Windows-1252?Q?NK9d+RVgiEFcMf888mveYInjYnU32Dcoje+VJOHge23No1r7duM820yP?=
- =?Windows-1252?Q?YKyN0YVYjNC38N3PZQFfVnt8/hJcRZiw90QS85XfE6oni5qtKBE6/HEn?=
- =?Windows-1252?Q?By8ewuNAQeySeyHSdkA4f6mU4KYZtukCyNID5+jhY+XkidRX4jBwD1Yo?=
- =?Windows-1252?Q?+zjEdpHVJD41mjgx5tEtaLqfL19pzi68FBcnn9R++m5FlrxcsHY5j+5R?=
- =?Windows-1252?Q?A66xYE4BiE7eUnlR1vuBKE3u4hw+jyhjar0DjVpCEALWh3GXXuvcrcGO?=
- =?Windows-1252?Q?rE6rM5/CkOd4Uo5MmXA84/iJbWMnqR7DmKb6KzrgnYS3a5I8IVttmDZ5?=
- =?Windows-1252?Q?0bC2UgFxVab9aHDJOgA76bXe0yGvGJr8FqRxnnW2mY51N+gerHOwbf8q?=
- =?Windows-1252?Q?B8/Y14mokEeM0C2dmNK0z53kIHsZNcGSBTjTK+bj3V2c6YM51nLAY23J?=
- =?Windows-1252?Q?be5le2YPm4GYD6d5+20zI1VuZQsCB0daKbjgxGduXyVxMGXusxGOFP4s?=
- =?Windows-1252?Q?r+3pu2PKRAWhSNsXi7SXzVHfXltlhUxZmyKI/opx5KJ4sWkQvj94UWhQ?=
- =?Windows-1252?Q?VAQ1ouqTlEkh10P0+LoOPNEimELHpcXs77PiueKkazqYRCu+utmIbi2o?=
- =?Windows-1252?Q?zCFnH89kklCBi/l7wblhv/sTiB6HyCx8NS9o59BSmmL775/1FY5bmn75?=
- =?Windows-1252?Q?9zS8ocicTsqsQCh9pReSFIoV869ALgI46lDfzsUaaOnzpjcJCpTNDXhv?=
- =?Windows-1252?Q?FuJI02VUSJsGxWMmq+tyrXLNFW8/L8GRR4Qywc0ixebDPMR2FpyMSE9q?=
- =?Windows-1252?Q?4owRaQcybZ2zC5e9flqvmF9PXUtHzSboU/CteAA3+iYsYlteXwBBZCCX?=
- =?Windows-1252?Q?SLhPpwcUkg2UvAvb4g256oNyNOe/tYsUhOO9HD951Mx1lffTHpr0YQ?=
- =?Windows-1252?Q?=3D=3D?=
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TYCPR01MB10588.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 15e3a12d-46b5-400d-b6af-08db260f800c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Mar 2023 11:13:41.7582
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: UJyrehgCxpskuRsaloaFtnQ83KvHd77EdRbU8BRKX5dgjBFSMAnY7i5oIMb9B5rsSz3BmKLptPaus+QUTz6LdjrgpDJqhc/Hu10nz9FqW7Q=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSZPR01MB9633
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229629AbjCPLT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 07:19:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69B89D503;
+        Thu, 16 Mar 2023 04:19:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E8ABB81FA7;
+        Thu, 16 Mar 2023 11:18:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3460C433D2;
+        Thu, 16 Mar 2023 11:18:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678965534;
+        bh=JarC/Lr5xGEmHxjDuOh254kaR60wlKpI3/R82UkKIkY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=sHza2oKk2ydXN4NMEL+WH03zZSjsr9n00J8DdZDfrCeL0lLaJ94uBKUsZ4ZWLvFml
+         sqUClx0WCDATpxFq9k0YnANvGtw+8pahG7nc5QaLaO+GhuMowPFBoC7wryEnL2eSDJ
+         x6V76rTuo6lg0yPNZlux5Rb7xlMKcVvRRWIxzZ+olWmpXNYDmT2Xw0zE9XScwkHT8z
+         gZsaNax3v09jckC/KY3BbP2Nt3d2uzsGlVCnk/IQLrvnliIqzoBpgJIXhJwQBihIS4
+         IXWcmyM4W8lLDLOjG0s2UqvzAXkAA47jphmR/41QptSnUaQAG1Zx40KmbJf2FFSwHA
+         +cHUzeqDqvu5g==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1pcldE-000YvR-Ci;
+        Thu, 16 Mar 2023 11:18:52 +0000
+Date:   Thu, 16 Mar 2023 11:18:52 +0000
+Message-ID: <868rfxx7tv.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Lorenzo Pieralisi <lpieralisi@kernel.org>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>, Janne Grunau <j@jannau.net>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Krzysztof =?UTF-8?B?V2lsY3p5xYRza2k=?= <kw@linux.com>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Daire McNamara <daire.mcnamara@microchip.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] PCI: apple: Set only available ports up
+In-Reply-To: <ZBLzr1MZ2whtvusL@lpieralisi>
+References: <20230307-apple_pcie_disabled_ports-v2-1-c3bd1fd278a4@jannau.net>
+        <20230309163935.GA1140101@bhelgaas>
+        <86a60dxcr0.wl-maz@kernel.org>
+        <ZBLzr1MZ2whtvusL@lpieralisi>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: lpieralisi@kernel.org, helgaas@kernel.org, j@jannau.net, alyssa@rosenzweig.io, kw@linux.com, robh@kernel.org, bhelgaas@google.com, sven@svenpeter.dev, linux-pci@vger.kernel.org, asahi@lists.linux.dev, linux-kernel@vger.kernel.org, daire.mcnamara@microchip.com, conor.dooley@microchip.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg,
+On Thu, 16 Mar 2023 10:47:11 +0000,
+Lorenzo Pieralisi <lpieralisi@kernel.org> wrote:
+> 
+> On Thu, Mar 16, 2023 at 09:32:35AM +0000, Marc Zyngier wrote:
+> > On Thu, 09 Mar 2023 16:39:35 +0000,
+> > Bjorn Helgaas <helgaas@kernel.org> wrote:
+> > > 
+> > > [+cc Daire, Conor for apple/microchip use of ECAM .init() method]
+> > > 
+> > > On Thu, Mar 09, 2023 at 02:36:24PM +0100, Janne Grunau wrote:
+> > > > Fixes following warning inside of_irq_parse_raw() called from the common
+> > > > PCI device probe path.
+> > > > 
+> > > >   /soc/pcie@690000000/pci@1,0 interrupt-map failed, using interrupt-controller
+> > > >   WARNING: CPU: 4 PID: 252 at drivers/of/irq.c:279 of_irq_parse_raw+0x5fc/0x724
+> > > 
+> > > Based on this commit log, I assume this patch only fixes the warning,
+> > > and the system *works* just fine either way.  If that's the case, it's
+> > > debatable whether it meets the stable kernel criteria, although the
+> > > documented criteria are much stricter than what happens in practice.
+> > > 
+> > > >   ...
+> > > >   Call trace:
+> > > >    of_irq_parse_raw+0x5fc/0x724
+> > > >    of_irq_parse_and_map_pci+0x128/0x1d8
+> > > >    pci_assign_irq+0xc8/0x140
+> > > >    pci_device_probe+0x70/0x188
+> > > >    really_probe+0x178/0x418
+> > > >    __driver_probe_device+0x120/0x188
+> > > >    driver_probe_device+0x48/0x22c
+> > > >    __device_attach_driver+0x134/0x1d8
+> > > >    bus_for_each_drv+0x8c/0xd8
+> > > >    __device_attach+0xdc/0x1d0
+> > > >    device_attach+0x20/0x2c
+> > > >    pci_bus_add_device+0x5c/0xc0
+> > > >    pci_bus_add_devices+0x58/0x88
+> > > >    pci_host_probe+0x124/0x178
+> > > >    pci_host_common_probe+0x124/0x198 [pci_host_common]
+> > > >    apple_pcie_probe+0x108/0x16c [pcie_apple]
+> > > >    platform_probe+0xb4/0xdc
+> > > > 
+> > > > This became apparent after disabling unused PCIe ports in the Apple
+> > > > silicon device trees instead of deleting them.
+> > > > 
+> > > > Use for_each_available_child_of_node instead of for_each_child_of_node
+> > > > which takes the "status" property into account.
+> > > > 
+> > > > Link: https://lore.kernel.org/asahi/20230214-apple_dts_pcie_disable_unused-v1-0-5ea0d3ddcde3@jannau.net/
+> > > > Link: https://lore.kernel.org/asahi/1ea2107a-bb86-8c22-0bbc-82c453ab08ce@linaro.org/
+> > > > Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
+> > > > Cc: stable@vger.kernel.org
+> > > > Reviewed-by: Marc Zyngier <maz@kernel.org>
+> > > > Signed-off-by: Janne Grunau <j@jannau.net>
+> > > > ---
+> > > > Changes in v2:
+> > > > - rewritten commit message with more details and corrections
+> > > > - collected Marc's "Reviewed-by:"
+> > > > - Link to v1: https://lore.kernel.org/r/20230307-apple_pcie_disabled_ports-v1-1-b32ef91faf19@jannau.net
+> > > > ---
+> > > >  drivers/pci/controller/pcie-apple.c | 2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+> > > > index 66f37e403a09..f8670a032f7a 100644
+> > > > --- a/drivers/pci/controller/pcie-apple.c
+> > > > +++ b/drivers/pci/controller/pcie-apple.c
+> > > > @@ -783,7 +783,7 @@ static int apple_pcie_init(struct pci_config_window *cfg)
+> > > >  	cfg->priv = pcie;
+> > > >  	INIT_LIST_HEAD(&pcie->ports);
+> > > >  
+> > > > -	for_each_child_of_node(dev->of_node, of_port) {
+> > > > +	for_each_available_child_of_node(dev->of_node, of_port) {
+> > > >  		ret = apple_pcie_setup_port(pcie, of_port);
+> > > >  		if (ret) {
+> > > >  			dev_err(pcie->dev, "Port %pOF setup fail: %d\n", of_port, ret);
+> > > 
+> > > Is this change still needed after 6fffbc7ae137 ("PCI: Honor firmware's
+> > > device disabled status")?  This is a generic problem, and it would be
+> > > a lot nicer if we had a generic solution.  But I assume it *is* still
+> > > needed because Rob gave his Reviewed-by.
+> > 
+> > I'm not sure this is addressing the same issue. The way I read it, the
+> > patch you mention here allows a PCI device to be disabled in firmware,
+> > even if it could otherwise be probed.
+> > 
+> > What this patch does is to prevent root ports that exist in the HW but
+> > that have been disabled from being probed. Same concept, only at a
+> > different level.
+> 
+> A root port is a PCI device though and that's what's causing the warning
+> AFAIK (? it is triggered on the root port PCI device pci_assign_irq()
+> call),
 
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Sent: 16 March 2023 08:50
->=20
-> This is the start of the stable review cycle for the 5.4.237 release.
-> There are 55 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Sat, 18 Mar 2023 08:33:04 +0000.
-> Anything received after that time might be too late.
+As usual, there are two sides to things. The root ports are also part
+of a platform device, and this what this patch uses.
 
-CIP configurations built and booted with Linux 5.4.237-rc2 (1baba0e91ac5):
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/8=
-08352559
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/commits/lin=
-ux-5.4.y
+> I am not sure the root port DT node is associated with the root
+> port PCI device correctly, which might explain why, even after
+> 6fffbc7ae137, the PCI enumeration code is adding the root port PCI
+> device to the PCI tree.
 
-Tested-by: Chris Paterson (CIP) <chris.paterson2@renesas.com>
+I didn't say that commit did not suppress the warning. I haven't
+tested it the first place because I really need all the PCIe ports I
+can get on the machines I have.
 
-Kind regards, Chris
+It just feels to me that they are tracking different things.
+
+> Is the dts available anywhere ? How are root ports described in it ?
+
+arch/arm64/boot/dts/apple/t8103.dtsi
+Documentation/devicetree/bindings/pci/apple,pcie.yaml
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
