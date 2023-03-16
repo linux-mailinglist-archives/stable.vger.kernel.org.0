@@ -2,224 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EED76BDA7C
-	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 21:58:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 052EB6BDA95
+	for <lists+stable@lfdr.de>; Thu, 16 Mar 2023 22:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbjCPU6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 16:58:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
+        id S229489AbjCPVJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 17:09:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229701AbjCPU6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 16:58:42 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F3D6A42D
-        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 13:58:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679000321; x=1710536321;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=rydI6o7V+IYvZbbzy224QtzmzrK+nNXGUfqQuRZIzP4=;
-  b=G21QWQXOza2V/jRieiKo7KoHMOjci+mflqnv7VXry1rS3HkcgfnAti8q
-   yTcpExVcuogAE2LMVH4famUuYOhg9T13WOtrHD3Hhue8n1WuCq7686pBc
-   jDpJO4UDkInBLinpVQaSoyL9G5Li4FmaneH+x6/xY+to80WXNew1rRDWA
-   42XUJlE9wU/c0kp7eI/Y42UahPs2SfsPKlIMdMyY7HWAHVBpbVdcL15ra
-   NkwsDo5pH/K4OaUD9kMUu+0i6PftfIxLUNSKnrO23SH6MpjJvpSKVi51T
-   tAOzIiS05WeuyPiRbKSx1/8PxpuQStEEJbo1qpMzuydb4dH2txwQftnxV
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10651"; a="400696509"
-X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="400696509"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 13:58:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10651"; a="823414365"
-X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="823414365"
-Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
-  by fmsmga001.fm.intel.com with ESMTP; 16 Mar 2023 13:58:40 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Thu, 16 Mar 2023 13:58:40 -0700
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21 via Frontend Transport; Thu, 16 Mar 2023 13:58:40 -0700
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.174)
- by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.21; Thu, 16 Mar 2023 13:58:40 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EAFuue0O2HcYQU0ft2HXhyt/gjbAyVzk6kglKr6z6sfFmWB6X94dd0L4WkT7bumUyraENI+L6rH338sAfv8Ym7Covt63k4aQrmW1hHoDp2tGxkSD9bHwO7iR6ycgd5eUdolHcTyxvUyF40Qk6KtX5GAiWoeCObP0b57u1vKruGcQs9Qgg+pxP7FsuHJPMlGaH+YuXg3TUOjdpOBEbg8Gg2gIMx+zFvWgnhjFvMiXD112W97C3jdm2U6hg+9XJOXFeDn8rUwZcLaPTtwDhX+wP13iYZYxIiuRevhimkmWglCwnvsHgF+kSQloplYC8wexVDDowl8m1ZY0uEwyczZk9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=s8a/tHEdwE+tW44M3McDd+z2L0oLrJdGKArvHi0k7ck=;
- b=lWCtSQvoqGryhXTj8+Ov+26UBBVLhybYWlMjUJ/bqUGAe31QugAoPdsdN+vI9CjkltmyJaFXTOeaaNON/oqfZ7QlYi3A9gY3Jvg2nR7NPcrENLCQJQZZYt2mkaT32e2gC+d4d4QpBhjlycRQ9wVchoQ32Lru2IJSFwQWlZWrhrjF84/aQqGNtcwTTKO+XXKX7B5ZV1iUicH74lRm0Gbk42R1mHy5jjDcb49f2eshCOpMzSvoAnl9onxYEs1sQ8CyF+bLMQYi7BWEL0jblyXE1WurCw2iGmBIhVepjerhDYH/8wDH08pXPpUCqej1Lp6OJd/31PnWEeNBJH5GfeIFVg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from BY5PR11MB3911.namprd11.prod.outlook.com (2603:10b6:a03:18d::29)
- by CY8PR11MB6915.namprd11.prod.outlook.com (2603:10b6:930:59::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.31; Thu, 16 Mar
- 2023 20:58:38 +0000
-Received: from BY5PR11MB3911.namprd11.prod.outlook.com
- ([fe80::5399:6c34:d8f5:9fab]) by BY5PR11MB3911.namprd11.prod.outlook.com
- ([fe80::5399:6c34:d8f5:9fab%6]) with mapi id 15.20.6178.024; Thu, 16 Mar 2023
- 20:58:38 +0000
-Message-ID: <5ed286b7-c2df-9e63-d85a-be9994f93eec@intel.com>
-Date:   Thu, 16 Mar 2023 13:58:35 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.8.0
-Subject: Re: [PATCH 5.4.y] drm/i915: Don't use BAR mappings for ring buffers
- with LLC
-Content-Language: en-GB
-To:     Greg KH <greg@kroah.com>
-CC:     <stable@vger.kernel.org>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        <intel-gfx@lists.freedesktop.org>,
-        =?UTF-8?Q?Jouni_H=c3=b6gander?= <jouni.hogander@intel.com>,
-        "Daniele Ceraolo Spurio" <daniele.ceraolospurio@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-References: <167820543971229@kroah.com>
- <20230314022211.1393031-1-John.C.Harrison@Intel.com>
- <ZBF48kVhFmXIsR+K@kroah.com> <a5cf5572-4160-3efb-4f80-aaf53aa06efe@intel.com>
- <ZBIHJD5FkxiammjB@kroah.com>
-From:   John Harrison <john.c.harrison@intel.com>
-In-Reply-To: <ZBIHJD5FkxiammjB@kroah.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BYAPR02CA0030.namprd02.prod.outlook.com
- (2603:10b6:a02:ee::43) To BY5PR11MB3911.namprd11.prod.outlook.com
- (2603:10b6:a03:18d::29)
+        with ESMTP id S229549AbjCPVJF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 17:09:05 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77566C6B0
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 14:09:00 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id h8so12855787ede.8
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 14:09:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679000939;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mo21bXSqJEEs1fH3Hhlq/Ji61Lv/UMBWopZqqi3k7nY=;
+        b=OjqSSm3Gq0V9630rIW0EpnCK2NRWkdnIH8cTIvkeVFWRyFNMkf6GYPmHFvgXgitcf6
+         fkwPScAJkj8W3oW2tBZucDDPpFvZOovDRkonmKd53rXW6F4kNX08XNnRF4uSQxySnvSU
+         FfkFhjGbx/42XFt5O58b07ytwDArWAq/JE5kWpVbsA1HZEye0/J+6O6zFnuYawba14YN
+         fELcQVMvYlljxNP7xGWmwg9VHJe3g7ZzkvbnFc+0YxTfG7Ls/wHfg+Um2mD7oj+KdKbm
+         2SiCAWrr+9PnLR7Q04vJ1frK+c9GCrwivMiaop2oexViQlB8e+X8xZbVepJEeuAryvg/
+         dnbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679000939;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mo21bXSqJEEs1fH3Hhlq/Ji61Lv/UMBWopZqqi3k7nY=;
+        b=LfQAqxeJK1knhyxOR0m7cjDs1B7BzvzPpaZrWPvgJJHoKvANTymVf6IFBTeKhxAiw/
+         GOsMcQt/EnCLiMmkbpaTpQK95ulJUqbZGVXS0MrHUiURugoNtwavNHlfKvgfxG1ksEhD
+         dtaQSJn/fopN3b3jhkfVGdQ9Y/SlKhlMPjO1+7Q0jV546wZAFcK5Rq5C1wFhx5+lEGtf
+         R6ZVGmzre7KOF5Whu0kGWhAprNxRmP56kf6BSeMOUH8sRU5BY80OE9bTUEu0WvQMASWZ
+         pZygFFcg1p3X4obSlboCkdT10OeWjbsFgQcc9K7E+RR8huM9C+bH/TAsFJjQDznqCIUd
+         nB7g==
+X-Gm-Message-State: AO0yUKXWjt0lwR6NP0Mx6S63qHZ5ZXVXg7wB3Z8D4fsF4klruNfS9NQh
+        nOFNNLFrSyRcMWUwnBw0HYw=
+X-Google-Smtp-Source: AK7set99S8EXCKqADK4tLtGJAPItn3DNysoXBxnqgVyBlKq9lRzqXL2U6xdgc8bHtmE2J1PaSn1KTQ==
+X-Received: by 2002:a17:907:36e:b0:8b1:32b0:2a24 with SMTP id rs14-20020a170907036e00b008b132b02a24mr11709930ejb.47.1679000939206;
+        Thu, 16 Mar 2023 14:08:59 -0700 (PDT)
+Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
+        by smtp.gmail.com with ESMTPSA id e6-20020a170906748600b008bfe95c46c3sm83231ejl.220.2023.03.16.14.08.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Mar 2023 14:08:58 -0700 (PDT)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Received: by eldamar.lan (Postfix, from userid 1000)
+        id 208A7BE2DE0; Thu, 16 Mar 2023 22:08:57 +0100 (CET)
+Date:   Thu, 16 Mar 2023 22:08:57 +0100
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     gregkh@linuxfoundation.org
+Cc:     lyude@redhat.com, alexander.deucher@amd.com,
+        harry.wentland@amd.com, odyx@debian.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] drm/amdgpu/display/mst: Fix
+ mst_state->pbn_div and slot count" failed to apply to 6.1-stable tree
+Message-ID: <ZBOFaX9VNbedlGSj@eldamar.lan>
+References: <167844819310084@kroah.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BY5PR11MB3911:EE_|CY8PR11MB6915:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3c4f8705-cd50-48e3-6af6-08db266136c4
-X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: awFtvOOwJaIgy04/LjQEntvWl22SAow5inWXqtkRaaifJZZgL/JRhVM0Fm52D1K6cfvg6q+QfGlYEqbqy4YcIk/NOfCb0E+/raoTQOHbpwQNYBIZS6AvAcV8SWwIvjhYKDADtOBk/YQaLRtx9zD642q2bhfJwAWV2Uo8YCfWygLjO7UMSENKknMbhEvUFlPLB86IhS1gPUY1hSHB4zM3G1AQ81CHNo6Xf727TOZOb2V4itcJtwS7Hjteke+g8Do+5MEO9VYg+RBLR3XHK+cOFUppsliWFPkCP+PogNhstC88DHqZGTroUfcvIOc7oopLW4YYpp5yF8doPwWEovGDFj9jYApxgzeo86RDhCeR5kbWMzmZa6MZj2BOTXTwkY1icQnFTcgR/8rBkBQLr1lbOBYHYDdffYsGM5lonoT9wquNBDouio4es6GmHOO1/59o5PY80HooBySc31IC+2uFp6ZkP6DQdKwlmmx1cX/cKr5xDYKsOFXMhmiCHGS6/dbXJlDd3S0tTu/4QVP8v3sGIQASK7HLnNaldfIkIpxDwBv4U6GcCFbwnDUvpBYWZqitBt06JnMtmTFSexbPldI+PCeC62OqSdBmZkpoQ6ologNqXisY9sDltWMU6obN6w8Dz3crygw9L/uQArqwC2A3QuBVrmE22oHHo10P3WuZTk3V/gCCcoFrs379TC3XAAm8
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR11MB3911.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(396003)(346002)(136003)(366004)(376002)(451199018)(36756003)(6916009)(83380400001)(66574015)(478600001)(53546011)(6666004)(26005)(6512007)(5660300002)(966005)(2616005)(6506007)(31696002)(66946007)(66476007)(8936002)(66556008)(8676002)(86362001)(4326008)(41300700001)(54906003)(316002)(82960400001)(186003)(38100700002)(6486002)(31686004)(2906002)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bDJpU2ZtbWoyVTdibnlFbm1KeEhkZVI2MWpiYjVNSmhySG9hOWFwUUxJSVFW?=
- =?utf-8?B?bHlaQ0NVdlVadnhLbmFKVGFlMXlGRUNzREk2VUJPd1FaSFlqdGhpNUdSa2hu?=
- =?utf-8?B?b3RFZFlVR0RVeUtaOW1EekpiQXlTVzVKMGRMVFhXMTczVE0rT1ptaU5tTzZE?=
- =?utf-8?B?YXFoSjJnNDkyaXJqRTZLV2JndjB1MWlQSjBkSzAyaldCTVg0RmVNZTFuSlVJ?=
- =?utf-8?B?Y3pST2t5cUI4Rzl0bXlzdE9zYlhuSGNsSFRQT0t5ZkJsM1hhMmtZdVhhUExw?=
- =?utf-8?B?ZTlFMnBRcEJZTnM1Z1RZL09Nb3J5aHk3UHUwUG9IYmJOU2ZCd2V0dllnOVBI?=
- =?utf-8?B?aHJ3VmUxd1pRSjdJeWM1V3BxajIydXMrZUxkQU1LUjJwbVh1MkNBbm81Vjdz?=
- =?utf-8?B?Y3dWT1ZoSnBDUENGNm5zc0g1T3VrU2pTci9tRmZycXdrRjFUajBWZWpvZlN5?=
- =?utf-8?B?Vk5HdTkxWkJyMkpjeHVtdUFXejg1WElibmF3ZHg5UkF3YWlGTVYzY3dIbDR2?=
- =?utf-8?B?RkFnVk5sZTVIQWpLdWZJQnlSc0NTNmRsOGg0QjRRTUh0OFZTekd1OFhkYlVs?=
- =?utf-8?B?bEdSVFRMS3FLRkJvQ2JvRXA0ZjF5SElLSnZIbTRUV3VuRmtjOWpCRmhZUk1j?=
- =?utf-8?B?UjZkY1BBNCswSnExNFFEdU8zS0trck03M3hLWjlCSVJiLyt3VFZHSllQc3dM?=
- =?utf-8?B?Ung3bUQrUHlDZjlHVHdRMitQWnA2MzJCbi91RHhSMXFQTnZ2UXh1NXp5bytp?=
- =?utf-8?B?aUZCeGdsRWpkdGJIZDJSWnBNNHBHdUxvMlR2YVhzTXVxMGRucFo1Y1gxWVU3?=
- =?utf-8?B?ZW4vQVdwUnJhL1JLNjNZNGZQL1hGTXhsblBqQ1d4TnJDMDkvdWJCekVvbFdw?=
- =?utf-8?B?Zy9GUndCSzF0a1B4NWk0ZFVtVGFTOCtRNUFObitscVQvWTB1QU5uM2Z6WUlx?=
- =?utf-8?B?bW5FTUpmRjA1NHZqK3NhdU1CQkRNN3NwZVdJdTlIbEpuWXg1WUNlWW9QTjdI?=
- =?utf-8?B?L2lNVEtqUjc2Vk9JSTJzTnptNjI4aG5qUWpPR3ZyMm5qN0JNaE42SHJKeFh4?=
- =?utf-8?B?dmhVWExkd3JNci95YXViTGtZVkNienBZb1ovWlhrcHlCbk1zVENBeE0za3I4?=
- =?utf-8?B?ZmdlYjRNeGpISGVyYTkwSFUvdVREYkI2cmR0bjgvMDB1SzJ5c0dXdUo0SSsz?=
- =?utf-8?B?VnNvZ29NTW1EM1d2eWV3RCszU2hBN1FGalMwUjNzQ3QreWFPSEpSai9kNEsw?=
- =?utf-8?B?VTFFYTFSMHh6dVVEWjZoY1ZlR3dTRnZkUm5EcFpNN1luZmRxUUxKMXBrU2dI?=
- =?utf-8?B?b1RGaWZjcytIaGNSeEI3N0xnTHgyR1V5VWM3S0NCREcxVDUxbkNzbmlWSXFR?=
- =?utf-8?B?UFpScXpadnM4cTRUVXZxTTV5ajhPdWswSExocHdpeU9nWVRpQjQzeWdHNjl0?=
- =?utf-8?B?b3pjTE8raDlSQkVoeGhqUjNFR0pUYWgzZ2o3WXd4Z1lKb3ZJdWczWG1UNjBX?=
- =?utf-8?B?NVcxamhHcTNNaFhuOHJaT21TZmp6ZEJZeEp0dUR3VkNiK2xqSW10NmR2Njlh?=
- =?utf-8?B?WFk5VnpUWXVsdXE4MTBnU3g4cTg2VmF2SXYvN0ZLdVh4WE9BWU13TmRqbFBR?=
- =?utf-8?B?MkVvbnRZNEtKa1lHMTl3b2VkcUp6VHBmQTltYXRKRUZQTndWN2xlVGpvWFFa?=
- =?utf-8?B?ZkdUa1BqME9jYSsvTXNJUWhmRTVpZXFaZzMvWXhjbW5BNklQWHc1REhia0ZW?=
- =?utf-8?B?NkZJamFxVEpIYi9RblN6c0lyT284L0huR1k4WjF3ekxXQnhlUXE3TXdVeDhX?=
- =?utf-8?B?UFRxL3NWMnF5RkJSenF5Z3NqUkRrNW8yNmY2TU9vL1JyNS9wT1lUSkFKWTho?=
- =?utf-8?B?blZwR2t2MFJsRWpOUnYzekZ0bG11UVdJMFVpQUlIR1BwMXFoSTYzamtreUEw?=
- =?utf-8?B?S1hoeXpLRmRQYjAyemVkNlh5b2U2Mk1jdERWSldyY0t2aWxKZW5RS2I1RkxQ?=
- =?utf-8?B?Y0JFYTlVQjRBcVpBbEVQbEJ4UDVKajI3TTZpM0NaV0pZM1NBRjU0Z2ZhaTNv?=
- =?utf-8?B?bUVjbUhUNTNvVlNqRjBjMEIyZ1ZEOXlpNzhUcFRnOEZCM2FRa0FZMGhFcUZk?=
- =?utf-8?B?aTlkd3Nwek9sQURqdWhyUktlc2YrVnh2RXBYcngwaTBYUWRscEdEM3h3Tmw4?=
- =?utf-8?B?blE9PQ==?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3c4f8705-cd50-48e3-6af6-08db266136c4
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR11MB3911.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Mar 2023 20:58:37.7301
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rV2+O7zL2wohARm/m2hYJnTj6JVdsh3cL+wfVZky7nfVNJoDWyjAbW/fMEU/H0huV4jQCgRSfNr0WDpb3Zj/Io/zPPz1xt14vEX9HFAoFSU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR11MB6915
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <167844819310084@kroah.com>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/15/2023 10:57, Greg KH wrote:
-> On Wed, Mar 15, 2023 at 10:07:53AM -0700, John Harrison wrote:
->> On 3/15/2023 00:51, Greg KH wrote:
->>> On Mon, Mar 13, 2023 at 07:22:11PM -0700, John.C.Harrison@Intel.com wrote:
->>>> From: John Harrison <John.C.Harrison@Intel.com>
->>>>
->>>> Direction from hardware is that ring buffers should never be mapped
->>>> via the BAR on systems with LLC. There are too many caching pitfalls
->>>> due to the way BAR accesses are routed. So it is safest to just not
->>>> use it.
->>>>
->>>> Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
->>>> Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
->>>> Cc: Chris Wilson <chris@chris-wilson.co.uk>
->>>> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
->>>> Cc: Jani Nikula <jani.nikula@linux.intel.com>
->>>> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
->>>> Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
->>>> Cc: intel-gfx@lists.freedesktop.org
->>>> Cc: <stable@vger.kernel.org> # v4.9+
->>>> Tested-by: Jouni Högander <jouni.hogander@intel.com>
->>>> Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
->>>> Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
->>>> (cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
->>>> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
->>>> (cherry picked from commit 85636167e3206c3fbd52254fc432991cc4e90194)
->>>> Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
->>>> ---
->>>>    drivers/gpu/drm/i915/gt/intel_ringbuffer.c | 4 ++--
->>>>    1 file changed, 2 insertions(+), 2 deletions(-)
->>> Also queued up for 5.10.y, you forgot that one :)
->> I'm still working through the backlog of them.
->>
->> Note that these patches must all be applied as a pair. The 'don't use
->> stolen' can be applied in isolation but won't totally fix the problem.
->> However, applying 'don't use BAR mappings' without applying the stolen patch
->> first will results in problems such as the failure to boot that was recently
->> reported and resulted in a revert in one of the trees.
-> I do not understand, you only submitted 1 patch here, what is the
-> "pair"?
-The original patch series was two patches - 
-https://patchwork.freedesktop.org/series/114080/. One to not use stolen 
-memory and the other to not use BAR mappings. If the anti-BAR patch is 
-applied without the anti-stolen patch then the i915 driver will attempt 
-to access stolen memory directly which will fail. So both patches must 
-be applied and in the correct order to fix the problem of cache aliasing 
-when using BAR accesses on LLC systems.
+Hi,
 
-As above, I am working my way through the bunch of 'FAILED patch' 
-emails. The what-to-do instructions in those emails explicitly say to 
-send the patch individually in reply to the 'FAILED' message rather than 
-as part of any original series.
+On Fri, Mar 10, 2023 at 12:36:33PM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 6.1-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> To reproduce the conflict and resubmit, you may use the following commands:
+> 
+> git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+> git checkout FETCH_HEAD
+> git cherry-pick -x c689e1e362ea29d10fbd9a5e94b17be991d0e231
+> # <resolve conflicts, build, test, etc.>
+> git commit -s
+> git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167844819310084@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+> 
+> Possible dependencies:
+> 
+> c689e1e362ea ("drm/amdgpu/display/mst: Fix mst_state->pbn_div and slot count assignments")
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From c689e1e362ea29d10fbd9a5e94b17be991d0e231 Mon Sep 17 00:00:00 2001
+> From: Lyude Paul <lyude@redhat.com>
+> Date: Wed, 23 Nov 2022 14:50:16 -0500
+> Subject: [PATCH] drm/amdgpu/display/mst: Fix mst_state->pbn_div and slot count
+>  assignments
+> 
+> Looks like I made a pretty big mistake here without noticing: it seems when
+> I moved the assignments of mst_state->pbn_div I completely missed the fact
+> that the reason for us calling drm_dp_mst_update_slots() earlier was to
+> account for the fact that we need to call this function using info from the
+> root MST connector, instead of just trying to do this from each MST
+> encoder's atomic check function. Otherwise, we end up filling out all of
+> DC's link information with zeroes.
+> 
+> So, let's restore that and hopefully fix this DSC regression.
+> 
+> Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2171
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+> Fixes: 4d07b0bc4034 ("drm/display/dp_mst: Move all payload info into the atomic state")
+> Cc: stable@vger.kernel.org # 6.1
+> Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+> Tested-by: Didier Raboud <odyx@debian.org>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> 
+> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> index 39513a6d2244..2122c2be269b 100644
+> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> @@ -9683,6 +9683,8 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+>  	struct drm_connector_state *old_con_state, *new_con_state;
+>  	struct drm_crtc *crtc;
+>  	struct drm_crtc_state *old_crtc_state, *new_crtc_state;
+> +	struct drm_dp_mst_topology_mgr *mgr;
+> +	struct drm_dp_mst_topology_state *mst_state;
+>  	struct drm_plane *plane;
+>  	struct drm_plane_state *old_plane_state, *new_plane_state;
+>  	enum dc_status status;
+> @@ -9938,6 +9940,28 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+>  		lock_and_validation_needed = true;
+>  	}
+>  
+> +#if defined(CONFIG_DRM_AMD_DC_DCN)
+> +	/* set the slot info for each mst_state based on the link encoding format */
+> +	for_each_new_mst_mgr_in_state(state, mgr, mst_state, i) {
+> +		struct amdgpu_dm_connector *aconnector;
+> +		struct drm_connector *connector;
+> +		struct drm_connector_list_iter iter;
+> +		u8 link_coding_cap;
+> +
+> +		drm_connector_list_iter_begin(dev, &iter);
+> +		drm_for_each_connector_iter(connector, &iter) {
+> +			if (connector->index == mst_state->mgr->conn_base_id) {
+> +				aconnector = to_amdgpu_dm_connector(connector);
+> +				link_coding_cap = dc_link_dp_mst_decide_link_encoding_format(aconnector->dc_link);
+> +				drm_dp_mst_update_slots(mst_state, link_coding_cap);
+> +
+> +				break;
+> +			}
+> +		}
+> +		drm_connector_list_iter_end(&iter);
+> +	}
+> +#endif
+> +
+>  	/**
+>  	 * Streams and planes are reset when there are changes that affect
+>  	 * bandwidth. Anything that affects bandwidth needs to go through
+> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+> index 5fa9bab95038..e8d14ab0953a 100644
+> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+> @@ -927,11 +927,6 @@ static int compute_mst_dsc_configs_for_link(struct drm_atomic_state *state,
+>  	if (IS_ERR(mst_state))
+>  		return PTR_ERR(mst_state);
+>  
+> -	mst_state->pbn_div = dm_mst_get_pbn_divider(dc_link);
+> -#if defined(CONFIG_DRM_AMD_DC_DCN)
+> -	drm_dp_mst_update_slots(mst_state, dc_link_dp_mst_decide_link_encoding_format(dc_link));
+> -#endif
+> -
+>  	/* Set up params */
+>  	for (i = 0; i < dc_state->stream_count; i++) {
+>  		struct dc_dsc_policy dsc_policy = {0};
 
-John.
+FWIW, I'm not sure what happened here exactly. The commit was applied
+for the first time in 1119e1f9636b76aef14068c7fd0b4d55132b86b8 in
+6.2-rc6, backported to 6.1.9. Then again as
+c689e1e362ea29d10fbd9a5e94b17be991d0e231 in 6.3-rc1.
 
+Similar for the related commits, which was one of the major blocking
+regressions for the 6.1 series.
+
+Just wanted to mention here as noiced the failed apply mail.
+
+Regards,
+Salvatore
