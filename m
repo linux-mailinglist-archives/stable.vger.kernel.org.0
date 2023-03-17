@@ -2,238 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F856BDE9F
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 03:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E1C6BDEEE
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 03:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbjCQCdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 22:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39964 "EHLO
+        id S229708AbjCQCjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 22:39:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbjCQCdX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 22:33:23 -0400
-Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA4B2C64C
-        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 19:33:21 -0700 (PDT)
-Received: by mail-ua1-x932.google.com with SMTP id v48so2469140uad.6
-        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 19:33:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1679020400;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/29vahDq+IahclEIO3DqdUneYi5GpXJQJAJm71A3XfQ=;
-        b=Wd5ZkxLw4+Tx76Qi2UxtLWnf3DstimMl1Ge1JEgwOOJYirLkItALIyA2uSTUYLLVi5
-         Pky2SYJEzblGGzw84/aDoERI28pvsdNlQvUkwszvIRjo2a3R06RprL3jFk+6IighMIyr
-         7kvmq1Hz5ay6OK8U3MJoDCL+d+gqkMdQfTpNZoXt5m1rgRevF4+YSCZdwot6SXaPpM1Q
-         w9mTg88avKFa2zBMiVzV90x4wFORGAa29D8QKPDMOPVc9EgNuYPy5XN8buraRNZIahnu
-         HrcpW/ksBlMg593JBZ9dTftmfouy/AsD6p3oaxoOCqN6DwENu7xfEZJu3j+n0GFfxnjn
-         CQKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679020400;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/29vahDq+IahclEIO3DqdUneYi5GpXJQJAJm71A3XfQ=;
-        b=Dh6WTegkqE18SwTESiaSJXKpm617G+ET7Lk9q/cMMbIR37Z0l/nJadb+JTR8bv7OFx
-         hQ4Pa7zIJnPWITwLzKRuPsBLqaAR7BNOtbTaSQE6cdOlfbQllQ+a04JjkrJvT0lKUWgX
-         mTHhrTRV4Z8HpgTy2FapuuKqK5szyojrgYSuU5yAxLMJZRrNGtCfwudB6rwMhrAqTooi
-         z5w1HCSA89bNUdChvbP1l0ubnpqKnKFqL0e5/Twcsb1S1Agvz1OmktWtYusSSRebDJYD
-         qy5lCgb9OeTMR2+BCFiDUageWFLioNoUk/0tDZ6EcWq740mhzTAjE+z7TNcoqu4aPcHM
-         VqjQ==
-X-Gm-Message-State: AO0yUKWK2V2r5nv+7KhEOjaFRWlkTRtwi0yjNDOLwjbWNCjL8t9l9yzN
-        OkQ34E0+zhNZvz2L1RN/Fd3VgeB6OVkvRuOkRNi/VA==
-X-Google-Smtp-Source: AK7set9UurZSx4mwUvtzm0f7zfh1TxXciq/dMpK0gv4nD8/JSRYoaikln7SYbfdD14YxI53hbDtfO2TLXOkokgnBll0=
-X-Received: by 2002:a05:6122:c8f:b0:401:7625:e9e3 with SMTP id
- ba15-20020a0561220c8f00b004017625e9e3mr1275144vkb.1.1679020400302; Thu, 16
- Mar 2023 19:33:20 -0700 (PDT)
+        with ESMTP id S229638AbjCQCi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 22:38:59 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A38F7D80;
+        Thu, 16 Mar 2023 19:38:25 -0700 (PDT)
+Received: from dggpemm500005.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Pd7W350VjznXGh;
+        Fri, 17 Mar 2023 10:34:23 +0800 (CST)
+Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
+ (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Fri, 17 Mar
+ 2023 10:37:23 +0800
+Subject: Re: [PATCH net] vmxnet3: use gro callback when UPT is enabled
+To:     Jakub Kicinski <kuba@kernel.org>, Ronak Doshi <doshir@vmware.com>
+CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Pv-drivers <Pv-drivers@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Guolin Yang <gyang@vmware.com>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20230308222504.25675-1-doshir@vmware.com>
+ <e3768ae9-6a2b-3b5e-9381-21407f96dd63@huawei.com>
+ <4DF8ED21-92C2-404F-9766-691AEA5C4E8B@vmware.com>
+ <252026f5-f979-2c8d-90d9-7ba396d495c8@huawei.com>
+ <0389636C-F179-48E1-89D2-48DE0B34FD30@vmware.com>
+ <2e2ae42b-4f10-048e-4828-5cb6dd8558f5@huawei.com>
+ <3EF78217-44AA-44F6-99DC-86FF1CC03A94@vmware.com>
+ <207a0919-1a5a-dee6-1877-ee0b27fc744a@huawei.com>
+ <AA320ADE-E149-4C0D-80D5-338B19AD31A2@vmware.com>
+ <77c30632-849f-8b7b-42ef-be8b32981c15@huawei.com>
+ <1743CDA0-8F35-4F60-9D22-A17788B90F9B@vmware.com>
+ <20230315211329.1c7b3566@kernel.org>
+ <4FC80D64-DACB-4223-A345-BCE71125C342@vmware.com>
+ <20230316133405.0ffbea6a@kernel.org>
+From:   Yunsheng Lin <linyunsheng@huawei.com>
+Message-ID: <06e4a534-d15d-4b17-b548-4927d42152e1@huawei.com>
+Date:   Fri, 17 Mar 2023 10:37:22 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.0
 MIME-Version: 1.0
-References: <20230316083430.973448646@linuxfoundation.org>
-In-Reply-To: <20230316083430.973448646@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 17 Mar 2023 08:03:09 +0530
-Message-ID: <CA+G9fYt9KrMohHLEpbPc2CxzNS28hnss7=qnCYGvpbi34_p7rg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/91] 5.10.175-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20230316133405.0ffbea6a@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.69.30.204]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 16 Mar 2023 at 14:20, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.175 release.
-> There are 91 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 18 Mar 2023 08:33:04 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.175-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 2023/3/17 4:34, Jakub Kicinski wrote:
+> On Thu, 16 Mar 2023 05:21:42 +0000 Ronak Doshi wrote:
+>> Below are some sample test numbers collected by our perf team. 
+>>                           Test                                    socket & msg size                          base               using only gro
+>> 1VM    14vcpu UDP stream receive        256K 256 bytes (packets/sec)    217.01 Kps    187.98 Kps         -13.37%
+>> 16VM  2vcpu   TCP stream send Thpt     8K     256 bytes (Gbps)                18.00 Gbps    17.02 Gbps         -5.44%
+>> 1VM    14vcpu ResponseTimeMean Receive (in micro secs)                      163 us             170 us                -4.29%
+> 
+> A bit more than I suspected, thanks for the data.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Maybe we do some investigation to find out why the performace lost is more than
+suspected first.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+For example if LRO'ed skb is added in gro_list->list, and then new LRO'ed skb from
+the same flow only go through the whole GSO processing only to find out we have to
+flush out the old LRO'ed in the gro_list->list, and add new LRO'ed skb in gro_list->list
+again?
 
-## Build
-* kernel: 5.10.175-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: ba6c29f68bb2cc2c8bf9fbffe4856db450c9447f
-* git describe: v5.10.173-96-gba6c29f68bb2
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.173-96-gba6c29f68bb2
 
-## Test Regressions (compared to v5.10.173)
-
-## Metric Regressions (compared to v5.10.173)
-
-## Test Fixes (compared to v5.10.173)
-
-## Metric Fixes (compared to v5.10.173)
-
-## Test result summary
-total: 134577, pass: 112556, fail: 3872, skip: 17830, xfail: 319
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 115 total, 114 passed, 1 failed
-* arm64: 42 total, 39 passed, 3 failed
-* i386: 33 total, 31 passed, 2 failed
-* mips: 27 total, 26 passed, 1 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 26 total, 20 passed, 6 failed
-* riscv: 12 total, 11 passed, 1 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 8 passed, 0 failed
-* x86_64: 36 total, 34 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+> .
+> 
