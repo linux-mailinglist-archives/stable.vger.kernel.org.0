@@ -2,109 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A26526BE138
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 07:27:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F399C6BE06F
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 06:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229902AbjCQG1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 02:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34666 "EHLO
+        id S229494AbjCQFFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 01:05:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbjCQG1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 02:27:41 -0400
-X-Greylist: delayed 7792 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 16 Mar 2023 23:27:32 PDT
-Received: from mail.academia-cj.ro (mail.academia-cj.ro [188.213.48.91])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE6865446;
-        Thu, 16 Mar 2023 23:27:32 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.academia-cj.ro (Postfix) with ESMTP id 00EB0680DAD;
-        Fri, 17 Mar 2023 04:42:23 +0200 (EET)
-Received: from mail.academia-cj.ro ([127.0.0.1])
-        by localhost (mail.academia-cj.ro [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id UGbvRFU7UBIQ; Fri, 17 Mar 2023 04:42:22 +0200 (EET)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.academia-cj.ro (Postfix) with ESMTP id C49F8680DAC;
-        Fri, 17 Mar 2023 04:42:22 +0200 (EET)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.academia-cj.ro C49F8680DAC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=academia-cj.ro;
-        s=93010AC8-7C69-11ED-80B1-80F20A9C3584; t=1679020942;
-        bh=ilyBKoEsbFgoxQ4KiMq7Cbg9B/0DhK6wwDyOd/epA1Q=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=dKCK32CZYSHbjXq7mhW7nCHjDQPRBn+WBgKBxsiYuOYYdJRL6aZHa40mrl+3bNf3l
-         Aarcf9omNW4+h/AO9OEZiu3/tQruwxsf46cOFfgug3vDUZOZtjamGC6vtgGtKC1hca
-         xcYgXtwH+id1vohFvDNu55wf5xPk2XBSSGg/yTK8P9QJj43mjS8mZKph0g9zNoZRRy
-         D5tuYRkHVGNYy08IY+7wJ1JkkzoKXhg0zFUYrBI7W7W+rcOb/BFPlGevlMcMm1Ch8x
-         StAeBh9RCo2lNouAy/1Ou/2K7H5SOTwZL1kuMAXpRlDwXzrWEJuNq8Y25+K/xfRxD9
-         V7h56/NfgYGnA==
-X-Virus-Scanned: amavisd-new at mail.academia-cj.ro
-Received: from mail.academia-cj.ro ([127.0.0.1])
-        by localhost (mail.academia-cj.ro [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id zbnrF1wWKeQD; Fri, 17 Mar 2023 04:42:22 +0200 (EET)
-Received: from [10.120.22.42] (unknown [185.246.210.15])
-        by mail.academia-cj.ro (Postfix) with ESMTPSA id 7684467FC5B;
-        Fri, 17 Mar 2023 04:42:18 +0200 (EET)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229489AbjCQFFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 01:05:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEED5231F4;
+        Thu, 16 Mar 2023 22:05:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2510EB82401;
+        Fri, 17 Mar 2023 05:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D649C433EF;
+        Fri, 17 Mar 2023 05:05:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679029518;
+        bh=+FCsAePNiEbZwQOAc4eWABK4quiynO1ZGWgjAZOkSBg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=huTFhY5Jr/7vbHIbYrNlAvwONQTZNgPii/fR4rcV/BgnxLZ6JDgpFZ0DtTeLIyRoi
+         JeA7kcM5AP4nuqj5knHPHkQSxgmn/cyG3agSCH7LmxR+AReSeLyIYZy5snW+sjhyQv
+         DDiRfWzgu24DDgNgcr7+o5k0f4TUGuLwvuCq4OvsVDOTFNCjAvHib2aGGTKC6/h9IA
+         OxbBg/dOw5WlJ7pEvmllpE5s9Fo7oHsRaPfy0ypTyHb4DwK+wqVOB29hl/TqKqomKL
+         bfdMjgk3ZOvv0KiGz63S6N9Wo0bAesLUZjYc73dP1O0qV6e/9fBM/kRpIwsdfao9NH
+         Lt1SHW+4SrM4g==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     linux-ext4@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Tejun Heo <tj@kernel.org>, Theodore Ts'o <tytso@mit.edu>
+Subject: [PATCH 4.19] ext4: fix cgroup writeback accounting with fs-layer encryption
+Date:   Thu, 16 Mar 2023 22:05:10 -0700
+Message-Id: <20230317050510.61555-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Hallo Sonnenschein, wie geht es dir?
-To:     Recipients <marion@academia-cj.ro>
-From:   "Marion" <marion@academia-cj.ro>
-Date:   Fri, 17 Mar 2023 03:42:11 +0100
-Reply-To: marion.K08@bahnhof.se
-X-Antivirus: Avast (VPS 230316-10, 3/16/2023), Outbound message
-X-Antivirus-Status: Clean
-Message-Id: <20230317024218.7684467FC5B@mail.academia-cj.ro>
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Es tut mir leid, Sie zu st=C3=B6ren und in Ihre Privatsph=C3=A4re einzudrin=
-gen. Ich bin ledig,
-  einsam und auf der Suche nach einem f=C3=BCrsorglichen, liebevollen und r=
-omantischen Begleiter.
+From: Eric Biggers <ebiggers@google.com>
 
-Ich bin ein heimlicher Verehrer und w=C3=BCrde gerne die Gelegenheit dazu n=
-utzen
-mehr voneinander erfahren. Ich wei=C3=9F, es ist seltsam, Sie zu kontaktier=
-en
-auf diese Weise und ich hoffe, Sie k=C3=B6nnen mir verzeihen. Ich bin ein s=
-ch=C3=BCchterner Mensch u
-Das ist der einzige Weg, wie ich wei=C3=9F, dass ich Ihre Aufmerksamkeit er=
-regen k=C3=B6nnte. Ich will nur
-zu wissen, was Sie denken, und meine Absicht ist es nicht, Sie zu beleidige=
-n.
-Ich hoffe, wir k=C3=B6nnen Freunde sein, wenn es das ist, was Sie wollen, o=
-bwohl ich es w=C3=BCnsche
-mehr als nur ein Freund zu sein. Ich wei=C3=9F, dass Sie ein paar Fragen ha=
-ben
-Fragen Sie und ich hoffe, ich kann einige Ihrer Neugier mit ein paar befrie=
-digen
-Antworten.
+commit ffec85d53d0f39ee4680a2cf0795255e000e1feb upstream.
 
-Ich glaube an das Sprichwort: =E2=80=9EF=C3=BCr die Welt bist du nur eine P=
-erson,
-aber f=C3=BCr jemand Besonderen bist du die Welt'. Alles was ich will ist L=
-iebe,
-romantische F=C3=BCrsorge und Aufmerksamkeit von einem besonderen Begleiter=
-, der ich bin
-hoffend w=C3=A4rst du.
+When writing a page from an encrypted file that is using
+filesystem-layer encryption (not inline encryption), ext4 encrypts the
+pagecache page into a bounce page, then writes the bounce page.
 
-Ich hoffe, dass diese Botschaft der Beginn einer langen Frist sein wird
-Kommunikation zwischen uns, senden Sie einfach eine Antwort auf diese Nachr=
-icht, it
-wird mich gl=C3=BCcklich machen.
+It also passes the bounce page to wbc_account_cgroup_owner().  That's
+incorrect, because the bounce page is a newly allocated temporary page
+that doesn't have the memory cgroup of the original pagecache page.
+This makes wbc_account_cgroup_owner() not account the I/O to the owner
+of the pagecache page as it should.
 
+Fix this by always passing the pagecache page to
+wbc_account_cgroup_owner().
 
-Umarmungen und K=C3=BCsse,
+Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
+Cc: stable@vger.kernel.org
+Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230203005503.141557-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+---
+ fs/ext4/page-io.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-Marion.
-
+diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
+index 3de933354a08b..bf910f2664690 100644
+--- a/fs/ext4/page-io.c
++++ b/fs/ext4/page-io.c
+@@ -388,7 +388,8 @@ static int io_submit_init_bio(struct ext4_io_submit *io,
+ 
+ static int io_submit_add_bh(struct ext4_io_submit *io,
+ 			    struct inode *inode,
+-			    struct page *page,
++			    struct page *pagecache_page,
++			    struct page *bounce_page,
+ 			    struct buffer_head *bh)
+ {
+ 	int ret;
+@@ -403,10 +404,11 @@ static int io_submit_add_bh(struct ext4_io_submit *io,
+ 			return ret;
+ 		io->io_bio->bi_write_hint = inode->i_write_hint;
+ 	}
+-	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
++	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
++			   bh->b_size, bh_offset(bh));
+ 	if (ret != bh->b_size)
+ 		goto submit_and_retry;
+-	wbc_account_io(io->io_wbc, page, bh->b_size);
++	wbc_account_io(io->io_wbc, pagecache_page, bh->b_size);
+ 	io->io_next_block++;
+ 	return 0;
+ }
+@@ -514,8 +516,7 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
+ 	do {
+ 		if (!buffer_async_write(bh))
+ 			continue;
+-		ret = io_submit_add_bh(io, inode,
+-				       data_page ? data_page : page, bh);
++		ret = io_submit_add_bh(io, inode, page, data_page, bh);
+ 		if (ret) {
+ 			/*
+ 			 * We only get here on ENOMEM.  Not much else
 -- 
-This email has been checked for viruses by Avast antivirus software.
-www.avast.com
+2.39.2
+
