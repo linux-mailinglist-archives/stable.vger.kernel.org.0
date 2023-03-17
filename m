@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3251F6BE54A
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 10:16:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0DF6BE5B0
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 10:35:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230458AbjCQJQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 05:16:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50086 "EHLO
+        id S229970AbjCQJfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 05:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230452AbjCQJQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 05:16:44 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD46AF68E
-        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 02:16:37 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id lr16-20020a17090b4b9000b0023f187954acso4553286pjb.2
-        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 02:16:37 -0700 (PDT)
+        with ESMTP id S229603AbjCQJfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 05:35:13 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E59DCF48
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 02:35:05 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id p20so4698218plw.13
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 02:35:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679044597;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679045705;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=qXF4wIIIJi8/Bu4ihQ5IhZtCxm2HLBZNz7H5cHaVaRY=;
-        b=bzfYqqu4DlEHovNaXu8zzkDt8uVN0awtgqNqZdKcyDGlgRLaWjKaPyle5Jbzojkpzf
-         eYqgdc5Rngq8pkQ8htiaWbbVVREKGgFgwLEpisryCBKvBcIpH2lRvGvko4Xk/jbe/q6I
-         vH7tCvEVMjFvj0nOUNSGB0U2zB8VzrAp1SIRUB+/STOmXPsl053dVnTT4w2LIZ4gO/N/
-         id8hc5PtNvUGniMj8dWViZinvUlEEy5BB1/wy9ZJUDwtmaKZF+4xT3tHqPhMdGdYdpPB
-         +Q3SaZg/ucdUQh30IpUByJsPCuXDbuKKHCCIpxlXyU3OoIi2bdcGFQTyZFRQvegMGBfN
-         /4Xw==
+        bh=M/EXccoCJI5qpsSjWBY6EULN60zUWlMAODG4fR45hKU=;
+        b=p3htMPlOTMcisED7RDPn5Md40H4vdUt7GUpFe5hryhl97n1E5yZVs14GGrkQVQ8Rn6
+         62i+CLD4o0bd/ZbYwPSjkP0d5y6Bpz4S8fGkWbs9ABRLq1OrJ8DDOgE4gleVthLhftea
+         UrzJdV41uU9uUC0E9jgG0smLzWFoV3a8x73l5cfD+esx0Y0I0xadf1BwD8EYNcAIKS68
+         /we+SQRq05cXDVMCQg8FOXGymqpMjjKpWhgPoEWsV4RFVJbU5gWzaEMfLNpr/UWJOrqu
+         tzAwARKNFTEzbB+LGoRVOCYxHwX0rnEMtO1HppFVNYiOlpZvD28fF+bcPFnqLAYrbnqo
+         KAsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679044597;
+        d=1e100.net; s=20210112; t=1679045705;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=qXF4wIIIJi8/Bu4ihQ5IhZtCxm2HLBZNz7H5cHaVaRY=;
-        b=lS703Rf5JaYF5Mx3wjMdiJ4iHf4IJZHIxpgYx+wk5eimI9H3eE5dMjB9VRhoEQlFki
-         GD4zjpIpC0AEMs7nIJ+1njpC4klvddfbpwn4bfNddfXXSJAIkoaau3uGPo/XUsHzM8aZ
-         zGnWBibVQbVxsrpPhS21ZeEepq2998Zwz215uVbqT+4WpAFrxxD1zs4OgO9E8bI2VG2U
-         Q/JODq7O2xrqVxKpwJqu8JRpCOLuMo/fHy/cXB4zkSwodXH43lAivv1zXMVX8jvgpHD6
-         B7oLbadL+UHaTRXBg3sBRo3JDzKHCTp7avilx4rGf2xt0XAKC4A+Qyu1awfgEkHmXdUW
-         fsVQ==
-X-Gm-Message-State: AO0yUKWn2guIDCBPnHxOFW4VhYVvIxlyCag5wxYnXWV13j0I1/RJUr1j
-        lI7UrbyFv27H9jyKx/nqsoDtXQGhxnXOviqta7Qoh0my
-X-Google-Smtp-Source: AK7set+Ik+IAg+6qtReURTBgFvjBpU1SW9lOpxuRJO9OIWHKG5Lok/wYA+dDaDUs8yOeO1EYjD2yaA==
-X-Received: by 2002:a17:903:885:b0:19e:e39b:6d98 with SMTP id kt5-20020a170903088500b0019ee39b6d98mr5757596plb.35.1679044595922;
-        Fri, 17 Mar 2023 02:16:35 -0700 (PDT)
+        bh=M/EXccoCJI5qpsSjWBY6EULN60zUWlMAODG4fR45hKU=;
+        b=WbawiwzRuGeJS8NyFN9v5g7ayMt//K06/lIkLVJwMcG0lToF1846t9ked1KVDlX7Bv
+         8Eqo7OjVdkoCibkiEPxWVM/3X+ffKA+4UtXwErDBwUSzqE9hRbQIrdUwbjh6J1bV/zV7
+         RB+nKRjNDlh9t+C+7mm1xDrvSAcl8W+7YP+IqwDVZEYlz5pXVk/4k64OK78BkTl2TU5J
+         FgqCYqg4vpg43hwKm2mr91OAdA2XNFAFIgBm0df6NIcIbdUmv852lkFrPWOQeFaZ14zG
+         iZt2+AxWgCTq1MzhtDnn2mTmWmySPL0lqIf3i2sAm4GjOtBMo2v2sXt04zbuO0TyQx6l
+         7QUw==
+X-Gm-Message-State: AO0yUKXXfVdbr8WFAVy+C5cVPI+zJ6ZFr2uyINz7gKFWCI5ThzBCZp3s
+        GzW0oDI9GM/xOb9RQOY1QQHxVOxTy18k8M6GUXG0CoUf
+X-Google-Smtp-Source: AK7set+9ZjH48CZZAyGdLDDhCkM/gJRsXmrvHtJxaV4DLO+DYj7PayMfVstna46xHVEmIf1Vy8ovkQ==
+X-Received: by 2002:a05:6a20:9288:b0:d5:b3d1:bff9 with SMTP id q8-20020a056a20928800b000d5b3d1bff9mr6555659pzg.52.1679045704325;
+        Fri, 17 Mar 2023 02:35:04 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t10-20020a170902bc4a00b001a178e6d5efsm1066884plz.267.2023.03.17.02.16.35
+        by smtp.gmail.com with ESMTPSA id a22-20020aa780d6000000b0059435689e36sm1141464pfn.170.2023.03.17.02.35.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Mar 2023 02:16:35 -0700 (PDT)
-Message-ID: <64142ff3.170a0220.42f34.21ba@mx.google.com>
-Date:   Fri, 17 Mar 2023 02:16:35 -0700 (PDT)
+        Fri, 17 Mar 2023 02:35:03 -0700 (PDT)
+Message-ID: <64143447.a70a0220.1f475.205c@mx.google.com>
+Date:   Fri, 17 Mar 2023 02:35:03 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.4.237
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.236-54-gb822a3689cd8
 X-Kernelci-Report-Type: build
-Subject: stable/linux-5.4.y build: 188 builds: 3 failed, 185 passed, 3 errors,
- 35 warnings (v5.4.237)
+Subject: stable-rc/queue/5.4 build: 188 builds: 3 failed, 185 passed, 3 errors,
+ 35 warnings (v5.4.236-54-gb822a3689cd8)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,18 +71,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y build: 188 builds: 3 failed, 185 passed, 3 errors, 35 wa=
-rnings (v5.4.237)
+stable-rc/queue/5.4 build: 188 builds: 3 failed, 185 passed, 3 errors, 35 w=
+arnings (v5.4.236-54-gb822a3689cd8)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
-rnel/v5.4.237/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.236-54-gb822a3689cd8/
 
-Tree: stable
-Branch: linux-5.4.y
-Git Describe: v5.4.237
-Git Commit: e4b5c766f50525d84754cfdf0e4edef1db9622c0
+Tree: stable-rc
+Branch: queue/5.4
+Git Describe: v5.4.236-54-gb822a3689cd8
+Git Commit: b822a3689cd80494256329822781cde194799b10
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 7 unique architectures
 
 Build Failures Detected:
@@ -1140,20 +1140,6 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
-rted intra-function call
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
 tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
 ismatches
 
@@ -1166,6 +1152,20 @@ y section `.head.text'
 -----
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
