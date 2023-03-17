@@ -2,120 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3614F6BE065
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 06:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A94726BE084
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 06:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229832AbjCQFCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 01:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52844 "EHLO
+        id S229516AbjCQFSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 01:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjCQFCK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 01:02:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983F0BBB10;
-        Thu, 16 Mar 2023 22:02:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B800B82445;
-        Fri, 17 Mar 2023 05:01:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B50C4339B;
-        Fri, 17 Mar 2023 05:01:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679029318;
-        bh=SEN+wVm2sQvgTh/0rJIl6wpeBwZA0mlG/ddXP4Pu9c4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=GdXT4Rk8vzBIR4XokQIN+LPdhMeFXmo7XveFUVq9UdrVHVGiKuyCTSSJc2s6UNqbp
-         3fyYeXuukxXzuDJlqTqqi7Ooe6zNSv1zilDtgdDc0T2vNFB+JXHmvfo/YcrP9bhPvQ
-         Qf6+BqIOlwJZixNvqNBEzOTU6gOAFrLriMpZc2NEb55pBkdmQF0iw3G1uATS4JsfAj
-         P34z4cOmnmji1Ajy8cX328afAJQeqX6IkPazubVHP/tI6EN1RmbsBNBpiORsRYG5in
-         JMQXYzYtcqBUVsKgmAVWkrlVvpcR6al20FU8LiQoa9IvtItdMA8+C8fDoq4CsXuc2H
-         Xd2cnP0ipWCQw==
-From:   Eric Biggers <ebiggers@kernel.org>
+        with ESMTP id S229848AbjCQFSF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 01:18:05 -0400
+X-Greylist: delayed 6959 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 16 Mar 2023 22:17:59 PDT
+Received: from mailgateway.karatekin.edu.tr (mailgateway.karatekin.edu.tr [79.123.131.244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBED35FDB
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 22:17:59 -0700 (PDT)
+Received: from mailgateway.karatekin.edu.tr (localhost.localdomain [127.0.0.1])
+        by mailgateway.karatekin.edu.tr (Proxmox) with ESMTP id 49CA65C41AF
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 05:38:42 +0300 (+03)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        karatekin.edu.tr; h=cc:content-transfer-encoding:content-type
+        :content-type:date:from:from:message-id:mime-version:reply-to
+        :reply-to:subject:subject:to:to; s=
+        B823A104-F9A1-11EB-ABD1-5FF28B0FD97F; bh=4UJYwH5CsGC9B4dg3xY9/Uf
+        kNlB/eMgnV7q0JQlsHlM=; b=pMo2w/ZehG+rLKiY6pdID9jmD/Y1E/Xw2qyhaS+
+        gWsn/FIGfEvQWhHteTeftytATM2qZDTPAjAtq9/DQwUIC7advgoY1YJDasChWMSJ
+        w82/21wWHCuQp8DhMHY8avqz77Px4Vgy1qTthKbWxkPjyCDx4pjxqgMqEI33iTiT
+        w6KdVzjFfQ85PIbdpabyL564K5BpixBSQpAMgqcVPPTLhbzh+ThtiX01Saw/tx89
+        /wZhA/Ipu0yOMKLE4OgjXXc+qYwt27mLxv9+cIpa6sZMbDvnW2sMy/zGIPqyIsDi
+        t69x40U+qksco7TzKuQwKsvAFLhaTttcfbFG0WtXYeQ496g==
+Received: from eposta.karatekin.edu.tr (eposta.karatekin.edu.tr [79.123.131.37])
+        by mailgateway.karatekin.edu.tr (Proxmox) with ESMTPS
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 05:38:42 +0300 (+03)
+Received: from localhost (localhost [127.0.0.1])
+        by eposta.karatekin.edu.tr (Postfix) with ESMTP id 4704A8EB7ED
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 05:38:47 +0300 (+03)
+Received: from eposta.karatekin.edu.tr ([127.0.0.1])
+        by localhost (eposta.karatekin.edu.tr [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id z78NttfE_hCA for <stable@vger.kernel.org>;
+        Fri, 17 Mar 2023 05:38:47 +0300 (+03)
+Received: from localhost (localhost [127.0.0.1])
+        by eposta.karatekin.edu.tr (Postfix) with ESMTP id 327B68EB73D
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 05:38:26 +0300 (+03)
+X-Virus-Scanned: amavisd-new at karatekin.edu.tr
+Received: from eposta.karatekin.edu.tr ([127.0.0.1])
+        by localhost (eposta.karatekin.edu.tr [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id XejY4eL0BRov for <stable@vger.kernel.org>;
+        Fri, 17 Mar 2023 05:38:26 +0300 (+03)
+Received: from [157.97.122.56] (unknown [157.97.122.57])
+        by eposta.karatekin.edu.tr (Postfix) with ESMTPSA id E573A8EB7DE
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 05:38:22 +0300 (+03)
+Reply-To: ttewoodcapitals09@hotmail.com
+From:   "TCS SERVICE" <omerkamis@karatekin.edu.tr>
 To:     stable@vger.kernel.org
-Cc:     linux-ext4@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Tejun Heo <tj@kernel.org>, Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH 5.4] ext4: fix cgroup writeback accounting with fs-layer encryption
-Date:   Thu, 16 Mar 2023 22:01:19 -0700
-Message-Id: <20230317050119.55794-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.39.2
+Subject: R: Darlehen
+Date:   17 Mar 2023 03:38:14 +0100
+Message-ID: <20230317033814.8E6A72A1E6E704A0@karatekin.edu.tr>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=5.8 required=5.0 tests=BAYES_99,BAYES_999,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
+        *      [score: 1.0000]
+        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 1.0000]
+        *  0.0 URIBL_BLOCKED ADMINISTRATOR NOTICE: The query to URIBL was
+        *      blocked.  See
+        *      http://wiki.apache.org/spamassassin/DnsBlocklists#dnsbl-block
+        *      for more information.
+        *      [URIs: karatekin.edu.tr]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [79.123.131.244 listed in wl.mailspike.net]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [ttewoodcapitals09[at]hotmail.com]
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+Hallo,
 
-commit ffec85d53d0f39ee4680a2cf0795255e000e1feb upstream.
+Ben=C3=B6tigen Sie einen DARLEHEN f=C3=BCr gesch=C3=A4ftliche oder private=
+=20
+Zwecke? Wir helfen Ihnen bei jeder Kreditsumme, die Sie=20
+ben=C3=B6tigen. Unser Zinssatz ist attraktiv, nur 3 % Zinsen. Sie=20
+k=C3=B6nnen einen beliebigen Betrag zu 3 % Zinsen von =E2=82=AC5,000 bis=20=
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), ext4 encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+maximal =E2=82=AC10,000,000.00 ausleihen.=20
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
+Do you need a loan for business or personal purposes?
 
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
+Kontaktieren Sie uns f=C3=BCr weitere Details und Informationen
 
-Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20230203005503.141557-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
----
- fs/ext4/page-io.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Whatapp: +34 602 06 2806
 
-diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
-index b66b335a0ca6f..5858fb9b5cd53 100644
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -380,7 +380,8 @@ static int io_submit_init_bio(struct ext4_io_submit *io,
- 
- static int io_submit_add_bh(struct ext4_io_submit *io,
- 			    struct inode *inode,
--			    struct page *page,
-+			    struct page *pagecache_page,
-+			    struct page *bounce_page,
- 			    struct buffer_head *bh)
- {
- 	int ret;
-@@ -395,10 +396,11 @@ static int io_submit_add_bh(struct ext4_io_submit *io,
- 			return ret;
- 		io->io_bio->bi_write_hint = inode->i_write_hint;
- 	}
--	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
-+	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
-+			   bh->b_size, bh_offset(bh));
- 	if (ret != bh->b_size)
- 		goto submit_and_retry;
--	wbc_account_cgroup_owner(io->io_wbc, page, bh->b_size);
-+	wbc_account_cgroup_owner(io->io_wbc, pagecache_page, bh->b_size);
- 	io->io_next_block++;
- 	return 0;
- }
-@@ -511,7 +513,7 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
- 	do {
- 		if (!buffer_async_write(bh))
- 			continue;
--		ret = io_submit_add_bh(io, inode, bounce_page ?: page, bh);
-+		ret = io_submit_add_bh(io, inode, page, bounce_page, bh);
- 		if (ret) {
- 			/*
- 			 * We only get here on ENOMEM.  Not much else
--- 
-2.39.2
+Danke und tsch=C3=BCss
 
