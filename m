@@ -2,412 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C906BEF87
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 18:21:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 873836BEF8C
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 18:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbjCQRV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 13:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45354 "EHLO
+        id S229523AbjCQRWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 13:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230267AbjCQRVX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 13:21:23 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FAE7E41CE
-        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 10:21:06 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id h8so5993164plf.10
-        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 10:21:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679073665;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=9CSBBIvBkXhn+92e6GcGuJiwWSbBdhVAm7YM4T5Yln0=;
-        b=v/QMFXv849FOOAQuG6IEcqu9CKbnt2rGCcq7lmV+08xtCWdWtk1svbNmRqCwYgha5l
-         uJHTIFM/+ySstxJt1OJ4RdMwK8rdojRm2y985ruqwrIvuMZwj/Rp4E4yHDoT0xz6dIGo
-         StA2WeM+PvpIpEbfVlTcknVcdMUq9DPNWE7cqJMMv+4M7E/66B77V4fGWL0dbqQcJE8a
-         N8/WZjTxfOuexzqPPLSC3b8Ij6wSbCmLCi9obla4l5IOOFRBppc/K7IbWviRzzCgoikZ
-         xWQoTvlwYQ9AVb5qBteaDobEO+Ei+BpJIJBZ9PUY3GZROFUix/SmTjvSxN1IOfgx/vDX
-         Txrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679073665;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9CSBBIvBkXhn+92e6GcGuJiwWSbBdhVAm7YM4T5Yln0=;
-        b=RY+NtNvF6SBR50BqKzYmq4QDeVtfb46k+d/gevwu6awYhKxOjikS1UaDu/Poh87h+z
-         ZzeN2QHrrFj8d6V6RYYvS7Ew4wiULzXVUzVMy50Cvv44aB8T+MjcAoLC8xVBA9Ek/isH
-         7hiI5CMi39ELbdwuQI00A+h0/FPH0yvpy5tqskRi9SAyBaFe+mWv6Jamkbnob1+f7oXM
-         oNcN2aHD+2qFBRFKECLftE976toQwK1HIYPeHGlumUSFgVgikYPG5acptPzZf3NhEc1m
-         8k3YeK9Mfz9nCkdnGytcVi6yrVqmO2EqQPUfDYTboHBr8yGK/lfj43uUyuPc/LL9vmwU
-         9Few==
-X-Gm-Message-State: AO0yUKWcGG/YWsVYoNO8843oEQ6WggytxHPUDH0JAQifZaGq8TUzHHqi
-        ub1LEMQIV8bhvPJsL/MdWHW20TXX1k2dsB+RW2Ve4g==
-X-Google-Smtp-Source: AK7set9HwHns8BLj+CjMddMZTyD8AQKrw1KlmPfWWQ2NCwdBiViJV8wkYrcPWy0zjK5Gc8reOJHnEA==
-X-Received: by 2002:a17:903:1111:b0:1a1:460e:6a5d with SMTP id n17-20020a170903111100b001a1460e6a5dmr8682514plh.49.1679073664766;
-        Fri, 17 Mar 2023 10:21:04 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d21-20020a170902b71500b0019896d29197sm1804241pls.46.2023.03.17.10.21.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Mar 2023 10:21:04 -0700 (PDT)
-Message-ID: <6414a180.170a0220.f0a2d.4101@mx.google.com>
-Date:   Fri, 17 Mar 2023 10:21:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229494AbjCQRWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 13:22:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3EB6E41D2
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 10:22:04 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 321CCB82640
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 17:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 832FCC433D2;
+        Fri, 17 Mar 2023 17:22:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679073720;
+        bh=LcKL84YlERoqSdqkJ3NY6XZlF25LNyocYt0Ta6Gf170=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aWz6J0n0zFIZsGxgRM4JQJsCpWsqZ1gypuJyr/qaKl9586hvuuWUcnksQmHy+C9zO
+         g0Pch2JrV2q5QhOn3vmXi6A6bnkwTpkZiN2SpN/TLQwq5qcjGc8et76twboRs19i47
+         mKj3sejlatKa1KkqeUvxEcxJ/+ERkYyiNuhBcOkxo7I9B6fss8mNH4+ZwpqiRas5qx
+         Ulcvr90uc1SJHm0nHrO10RrfSQhqSk/1k60hLqFH4xn9vOIyzmAA2jXWp1ob2yU48K
+         IxVOll4b0z7WetbVHRyowSAxt2mQ63YtgUh5nHhWE+FUKLyT4Il58PKhkLYhFS0erB
+         GhckRm54K0hsw==
+Received: by pali.im (Postfix)
+        id 56F2C648; Fri, 17 Mar 2023 18:21:57 +0100 (CET)
+Date:   Fri, 17 Mar 2023 18:21:57 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     christophe.leroy@csgroup.eu, mpe@ellerman.id.au,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] powerpc/boot: Don't always pass
+ -mcpu=powerpc when building" failed to apply to 6.1-stable tree
+Message-ID: <20230317172157.ces5ikgyj3rt2vne@pali>
+References: <1678953691202116@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.10.175
-X-Kernelci-Report-Type: test
-Subject: stable/linux-5.10.y baseline: 171 runs, 9 regressions (v5.10.175)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1678953691202116@kroah.com>
+User-Agent: NeoMutt/20180716
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 171 runs, 9 regressions (v5.10.175)
-
-Regressions Summary
--------------------
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-asus-C433TA-AJ0005-rammus    | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-asus-C436FA-Flip-hatch       | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-asus-cx9400-volteer          | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-cubietruck                   | arm    | lab-baylibre  | gcc-10   | multi_v7=
-_defconfig           | 1          =
-
-dell-latitude...4305U-sarien | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-dell-latitude...8665U-sarien | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-hp-x360-14-G1-sona           | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-rk3399-gru-kevin             | arm64  | lab-collabora | gcc-10   | defconfi=
-g+arm64-chromebook   | 2          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.175/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.175
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      de26e1b2103b1f56451f6ad77f0190c9066c87dc =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-asus-C433TA-AJ0005-rammus    | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64146f9a9ffb2b25438c865e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-asus-C=
-433TA-AJ0005-rammus.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-asus-C=
-433TA-AJ0005-rammus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/64146f9a9ffb2b25438c8=
-65f
-        new failure (last pass: v5.10.174) =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-asus-C436FA-Flip-hatch       | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64146f9bcdaf820ea78c862f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-asus-C=
-436FA-Flip-hatch.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-asus-C=
-436FA-Flip-hatch.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/64146f9bcdaf820ea78c8=
-630
-        new failure (last pass: v5.10.174) =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-asus-cx9400-volteer          | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64146f87cf8cf8ec248c863c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-asus-c=
-x9400-volteer.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-asus-c=
-x9400-volteer.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/64146f87cf8cf8ec248c8=
-63d
-        new failure (last pass: v5.10.174) =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-cubietruck                   | arm    | lab-baylibre  | gcc-10   | multi_v7=
-_defconfig           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64146fb9aeedd557808c863c
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubietruck.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubietruck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64146fb9aeedd557808c8645
-        failing since 57 days (last pass: v5.10.158, first fail: v5.10.164)
-
-    2023-03-17T13:48:28.774097  <8>[   10.959051] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3420861_1.5.2.4.1>
-    2023-03-17T13:48:28.887372  / # #
-    2023-03-17T13:48:28.990644  export SHELL=3D/bin/sh
-    2023-03-17T13:48:28.991809  #
-    2023-03-17T13:48:29.094345  / # export SHELL=3D/bin/sh. /lava-3420861/e=
-nvironment
-    2023-03-17T13:48:29.095353  =
-
-    2023-03-17T13:48:29.197522  / # . /lava-3420861/environment/lava-342086=
-1/bin/lava-test-runner /lava-3420861/1
-    2023-03-17T13:48:29.199123  =
-
-    2023-03-17T13:48:29.199580  / # /lava-3420861/bin/lava-test-runner /lav=
-a-3420861/1<3>[   11.371470] Bluetooth: hci0: command 0x0c03 tx timeout
-    2023-03-17T13:48:29.203912   =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-dell-latitude...4305U-sarien | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64146f869ffb2b25438c862f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-dell-l=
-atitude-5400-4305U-sarien.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-dell-l=
-atitude-5400-4305U-sarien.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/64146f869ffb2b25438c8=
-630
-        new failure (last pass: v5.10.174) =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-dell-latitude...8665U-sarien | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64147562b838b755958c86e3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-dell-l=
-atitude-5400-8665U-sarien.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-dell-l=
-atitude-5400-8665U-sarien.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/64147562b838b755958c8=
-6e4
-        new failure (last pass: v5.10.174) =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-hp-x360-14-G1-sona           | x86_64 | lab-collabora | gcc-10   | x86_64_d=
-efcon...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64147346939869e04b8c8694
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-hp-x36=
-0-14-G1-sona.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-hp-x36=
-0-14-G1-sona.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/64147346939869e04b8c8=
-695
-        new failure (last pass: v5.10.174) =
-
- =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g                    | regressions
------------------------------+--------+---------------+----------+---------=
----------------------+------------
-rk3399-gru-kevin             | arm64  | lab-collabora | gcc-10   | defconfi=
-g+arm64-chromebook   | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64146e09481f3ec1938c86fb
-
-  Results:     84 PASS, 2 FAIL, 1 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
-evin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.175/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
-evin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-usb2phy1-probed: https://kernelci.org/test/cas=
-e/id/64146e09481f3ec1938c8705
-        new failure (last pass: v5.10.174)
-
-    2023-03-17T13:41:19.925447  /lava-9666617/1/../bin/lava-test-case
-   =
-
-
-  * baseline.bootrr.rockchip-usb2phy0-probed: https://kernelci.org/test/cas=
-e/id/64146e09481f3ec1938c8706
-        new failure (last pass: v5.10.174)
-
-    2023-03-17T13:41:17.864369  <8>[   33.133064] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-usb2phy-driver-present RESULT=3Dpass>
-
-    2023-03-17T13:41:18.888752  /lava-9666617/1/../bin/lava-test-case
-
-    2023-03-17T13:41:18.899556  <8>[   34.169146] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-usb2phy0-probed RESULT=3Dfail>
-   =
-
- =20
+On Thursday 16 March 2023 09:01:31 gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 6.1-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> To reproduce the conflict and resubmit, you may use the following commands:
+> 
+> git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+> git checkout FETCH_HEAD
+> git cherry-pick -x ff7c76f66d8bad4e694c264c789249e1d3a8205d
+
+It applies cleanly for me with above steps.
+
+> # <resolve conflicts, build, test, etc.>
+> git commit -s
+> git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678953691202116@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+> 
+> Possible dependencies:
+> 
+> ff7c76f66d8b ("powerpc/boot: Don't always pass -mcpu=powerpc when building 32-bit uImage")
+
+Probably you are missing fix for CONFIG_TARGET_CPU_BOOL as mentioned
+previously. Commit is:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=45f7091aac3546ef8112bf62836650ca0bbf0b79
+
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From ff7c76f66d8bad4e694c264c789249e1d3a8205d Mon Sep 17 00:00:00 2001
+> From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+> Date: Wed, 25 Jan 2023 08:39:00 +0100
+> Subject: [PATCH] powerpc/boot: Don't always pass -mcpu=powerpc when building
+>  32-bit uImage
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=UTF-8
+> Content-Transfer-Encoding: 8bit
+> 
+> When CONFIG_TARGET_CPU is specified then pass its value to the compiler
+> -mcpu option. This fixes following build error when building kernel with
+> powerpc e500 SPE capable cross compilers:
+> 
+>     BOOTAS  arch/powerpc/boot/crt0.o
+>   powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
+>   powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
+>   make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
+> 
+> Similar change was already introduced for the main powerpc Makefile in
+> commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
+> compiler").
+> 
+> Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
+> Cc: stable@vger.kernel.org # v5.19+
+> Signed-off-by: Pali Rohár <pali@kernel.org>
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
+> 
+> diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+> index d32d95aea5d6..295f76df13b5 100644
+> --- a/arch/powerpc/boot/Makefile
+> +++ b/arch/powerpc/boot/Makefile
+> @@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+>  		 $(LINUXINCLUDE)
+>  
+>  ifdef CONFIG_PPC64_BOOT_WRAPPER
+> -ifdef CONFIG_CPU_LITTLE_ENDIAN
+> -BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
+> +BOOTCFLAGS	+= -m64
+>  else
+> -BOOTCFLAGS	+= -m64 -mcpu=powerpc64
+> +BOOTCFLAGS	+= -m32
+>  endif
+> +
+> +ifdef CONFIG_TARGET_CPU_BOOL
+> +BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
+> +else ifdef CONFIG_PPC64_BOOT_WRAPPER
+> +ifdef CONFIG_CPU_LITTLE_ENDIAN
+> +BOOTCFLAGS	+= -mcpu=powerpc64le
+>  else
+> -BOOTCFLAGS	+= -m32 -mcpu=powerpc
+> +BOOTCFLAGS	+= -mcpu=powerpc64
+> +endif
+>  endif
+>  
+>  BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
+> 
