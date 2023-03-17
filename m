@@ -2,98 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D016B6BE5B9
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 10:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9EAC6BE648
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 11:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbjCQJf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 05:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53260 "EHLO
+        id S230033AbjCQKLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 06:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231300AbjCQJfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 05:35:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2051BAD3C;
-        Fri, 17 Mar 2023 02:35:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FFE8B82464;
-        Fri, 17 Mar 2023 09:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100A7C433EF;
-        Fri, 17 Mar 2023 09:35:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679045746;
-        bh=Omg+SkEpbIcXnNJopGMFeOZdmErKoHj8IKn0VgieQFg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=EoNN4dyVUga9iD0RDEZ2TnJC77q3IYSOv9J03dgc//D2E0pke0MgdMd0b5JOXYSb7
-         QXIpcd9BAzGUSGqPXFYf4KYS2TlDwtlzUrDm881XQYv4/1TibjIb6kOBoIL5gxiSCZ
-         a8x3SVPTG7DJW2/0vnqrn+O7kSlsibg3Z027SqfW8AlD0DP3mPZifXc8MvrYBoHo9A
-         jJQsCMFltz0gkyA84f/Em73kDWZTH3P+3rs69F+wXyOYXMu/eFiH/f/neQtGz/caiz
-         R3LQMy9+9dLMVtw9nERBi/ayO1eLHjH3dVXqpDBt+BnawoRAXvk/tngVnouAAZNtgb
-         dz4c48jb7sg0Q==
-Received: by mail-lf1-f54.google.com with SMTP id br6so5689309lfb.11;
-        Fri, 17 Mar 2023 02:35:45 -0700 (PDT)
-X-Gm-Message-State: AO0yUKWmxf9oF52vTm+Px8Sg9zpji+tc2q3uqsHF/2vLVkl4dqKMBN62
-        CkcwGn1GoQJd8kmiOOcl6SZwnpBErO5r88eVcKs=
-X-Google-Smtp-Source: AK7set/pat6sxR9X2sBlMoniCNge7UuBIOTqvSvXr++BHQqWi654KI/9QQeHHQaB7UBlvAUKcwIEqSHGvKi7PdvT80M=
-X-Received: by 2002:ac2:44a1:0:b0:4d9:861e:26cc with SMTP id
- c1-20020ac244a1000000b004d9861e26ccmr4116658lfm.4.1679045743996; Fri, 17 Mar
- 2023 02:35:43 -0700 (PDT)
+        with ESMTP id S230028AbjCQKLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 06:11:31 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF42A1FC0;
+        Fri, 17 Mar 2023 03:11:26 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id i9so3919767wrp.3;
+        Fri, 17 Mar 2023 03:11:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679047885;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ywd0zlvs+Ok8+NCtUrmMkjPrLX0hyvij+lHU7CL6uzw=;
+        b=PxKF0LKLaz7mpdWCzu7DSi1rKQ2iIRH4zjjR5EheliZ3I4AOf0r5uvbDl0iVjRAYnZ
+         w58gHBG8ZuqkG1PegJ27Fn2hJBs6xY8bIW++zH+BlutkQjIwpI8MZhJaQ7sYjWlU0Hmi
+         sdW/ox6tDQCiL1l2GPwzZQCl68+Y8ryiZdNnhYvwZsbzf1KTcKeIpM9/CRUJ0VOqE2ff
+         sxPvfDyLTa0mE9aZqejCYbrWhGfH1v0inQWD+4ekoEQMUuNd+7da2N7Z6Ku6ZAXysvHP
+         EQaUOIp4Wtd18MMoBwfAhxySzigegopwlj5KPMvs1oEM6gySBV1oNO8BkR/AcpUVF5r0
+         QPDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679047885;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ywd0zlvs+Ok8+NCtUrmMkjPrLX0hyvij+lHU7CL6uzw=;
+        b=rD/dnBINP0JkPTb/oIbXr5V8aiO0xz4B2tSB3OMYxuB14TL5u8csNbnuX8/OlViDCN
+         FreyD9KuPp1nHi4kWowQQVg3fr6spvK1bQm6v4ciZrLgdqKxFTE3kYs28bJQT1uSHLPI
+         OO9/mXbFuaHarWqGKvOsTWyuM9/ltMkgLebRpCciPZc8Q4EH21JwymIA+nJ7h87Jc6hN
+         kQgtXQ1q0kiZ5LhNso4Zk8Nf0DRa9Xp0yvpiCBZnDC42BoEjnCDoCzMnNRXN/fNNLCQU
+         WiNvrjIUxZxQ+1A8/CXYWqsjjOPbaLgEXuA8aimZQSwsT/MXPqBsV50ahinZHaaXU/1v
+         K43w==
+X-Gm-Message-State: AO0yUKXtbFUfEUzIkMmMWtfILZVS/UUGOC+AefIzwxZMOzyS8QLXHH0l
+        iYGWmXSekE0lI73rwDaH6Ms=
+X-Google-Smtp-Source: AK7set/iFRs8ppYToM4Wd+e0OMERRL0dSQg3ICgKebjeYyFNLl6Kk+ipUdF/tDN8+Ay8lGhnFl59Mg==
+X-Received: by 2002:adf:e34e:0:b0:2ce:a251:6956 with SMTP id n14-20020adfe34e000000b002cea2516956mr6186771wrj.66.1679047885321;
+        Fri, 17 Mar 2023 03:11:25 -0700 (PDT)
+Received: from debian ([167.98.27.226])
+        by smtp.gmail.com with ESMTPSA id b7-20020a5d4b87000000b002cfe0ab1246sm1593401wrt.20.2023.03.17.03.11.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Mar 2023 03:11:25 -0700 (PDT)
+Date:   Fri, 17 Mar 2023 10:11:22 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 6.2 000/137] 6.2.7-rc2 review
+Message-ID: <ZBQ8yqfk3FgF06Fe@debian>
+References: <20230316083443.733397152@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20230314123103.522115-1-hdegoede@redhat.com> <87fsa7l2e7.fsf@minerva.mail-host-address-is-not-set>
-In-Reply-To: <87fsa7l2e7.fsf@minerva.mail-host-address-is-not-set>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 17 Mar 2023 10:35:33 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXHUQ9pvxdE4d1=ewME2MPn=Qh0zoiZpn6RARHLR12hEww@mail.gmail.com>
-Message-ID: <CAMj1kXHUQ9pvxdE4d1=ewME2MPn=Qh0zoiZpn6RARHLR12hEww@mail.gmail.com>
-Subject: Re: [PATCH 1/2] efi: sysfb_efi: Fix DMI quirks not working for simpledrm
-To:     Javier Martinez Canillas <javierm@redhat.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        dri-devel@lists.freedesktop.org, linux-efi@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230316083443.733397152@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 14 Mar 2023 at 17:32, Javier Martinez Canillas
-<javierm@redhat.com> wrote:
->
-> Hans de Goede <hdegoede@redhat.com> writes:
->
-> Hello Hans,
->
-> > Commit 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup
-> > for all arches") moved the sysfb_apply_efi_quirks() call in sysfb_init()
-> > from before the [sysfb_]parse_mode() call to after it.
-> > But sysfb_apply_efi_quirks() modifies the global screen_info struct which
-> > [sysfb_]parse_mode() parses, so doing it later is too late.
-> >
-> > This has broken all DMI based quirks for correcting wrong firmware efifb
-> > settings when simpledrm is used.
-> >
->
-> Indeed... sorry for missing this.
->
-> > To fix this move the sysfb_apply_efi_quirks() call back to its old place
-> > and split the new setup of the efifb_fwnode (which requires
-> > the platform_device) into its own function and call that at
-> > the place of the moved sysfb_apply_efi_quirks(pd) calls.
-> >
-> > Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
-> > Cc: stable@vger.kernel.org
-> > Cc: Javier Martinez Canillas <javierm@redhat.com>
-> > Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > ---
->
-> Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
->
+Hi Greg,
 
-Thanks - I've queued these up now
+On Thu, Mar 16, 2023 at 09:50:31AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.2.7 release.
+> There are 137 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 18 Mar 2023 08:33:04 +0000.
+> Anything received after that time might be too late.
+
+Build test (gcc version 12.2.1 20230311):
+mips: 52 configs -> no failure
+arm: 100 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
+
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+mips: Booted on ci20 board. No regression. [3]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/3136
+[2]. https://openqa.qa.codethink.co.uk/tests/3147
+[3]. https://openqa.qa.codethink.co.uk/tests/3148
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+-- 
+Regards
+Sudip
