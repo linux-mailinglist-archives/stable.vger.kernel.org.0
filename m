@@ -2,225 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6936BDEFE
-	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 03:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E20C16BDF08
+	for <lists+stable@lfdr.de>; Fri, 17 Mar 2023 03:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbjCQCmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Mar 2023 22:42:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57426 "EHLO
+        id S229617AbjCQCsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Mar 2023 22:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229547AbjCQCmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 22:42:37 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1596B4E5D6;
-        Thu, 16 Mar 2023 19:42:09 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id j13so3604083pjd.1;
-        Thu, 16 Mar 2023 19:42:09 -0700 (PDT)
+        with ESMTP id S229539AbjCQCsn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Mar 2023 22:48:43 -0400
+Received: from mail-ua1-x92d.google.com (mail-ua1-x92d.google.com [IPv6:2607:f8b0:4864:20::92d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB064E3B0
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 19:48:40 -0700 (PDT)
+Received: by mail-ua1-x92d.google.com with SMTP id v48so2484086uad.6
+        for <stable@vger.kernel.org>; Thu, 16 Mar 2023 19:48:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679020928;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=linaro.org; s=google; t=1679021320;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IhCWHyMCWkCDTxDG3Tk5hH+ucDJE122QjsB041WgAUE=;
-        b=ZBhH2hbCqjcdzFjLwO+haTYB2i6y4Owwts2HnRXGmGaObBJMWHik7zZrlS1SoyA5GY
-         ST+6ol+ITJcS7M0BtSyRuHvnV3mST8jy/AGwXJU9inKpSVFvlqDKrdPowFWO44JoBdaz
-         yuzLnumQaSqEJn/wcdVjOhoHKE9s/laUuBZuFUiUgS08G4doWTpXqzNJ3Luh8ZYpGJvp
-         VcBNbYkNce6E10JZskxXQmbOtTKaBGLKr8LclyggEIogFStGn/kWSpW0b1Mc6+xltBn4
-         AT6yHADLid17yrBSfbrJczPQjIzUqjwd5inGH3cZmQ+gHIjDmZ4emVfQaBw7E+bv18tv
-         UKhQ==
+        bh=BYp3m8qSQa5jXzR5wJFnI7z+muhy6wYlNR657/7Bnzg=;
+        b=ycu67eqcQEPgZswh2Cw/GXk31IUlyBm+M3+fkuMlB4e7MI6+UATgkJMbbYegOYFapi
+         BmqHChU/RV4zmv0sAxenIy+3ZY/fFI/72dQBIDmtfX0MzxO0G0xzqFll48mRAT1zM4/C
+         5FYxe6jBmtKecVvtBK/ArWu/xqxIQyrA1SZgQcntjNzxIVX0T2S2lxP1+kliwp7qRDnW
+         nps2tGSlAaoHFT+0bVwQCouCt/DEJf6z8AXZvnYmXgPR+mZLUGG7iS5FxQlPqC/gFRVi
+         vZV6Fibifj6T9UqvUgn3izcUygbfTv2XWWn+DMlekXfnN9yz0nYPrHykyBOJIWjW7/TY
+         uCDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679020928;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20210112; t=1679021320;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IhCWHyMCWkCDTxDG3Tk5hH+ucDJE122QjsB041WgAUE=;
-        b=DCslcuxRLbdwlJ0CBGOF95TLfhSTDuaWivxeKuusmlrLVeY5uJbo8D2vCpUV+IXFNC
-         Zcpw0xg5nMkZKc93NnVhSAydOpaHYEKQNjqpb/7/7r5chiZ4pGHNIoGHQLgc9ZD5owx9
-         S2W15t8WG/5qkCKTs2XcAZksV/n4ixqzun5xhVQz1zwnMbJP/RrSNT2BdiknrnmxYr4i
-         cq6kfpITFnHsHfnsfUYVOGwp14B4P8Pq9JGje2TDHcYyqVaQ8bxpFrk9dWxrhqD9JBTD
-         i2PQiyEEY4VibyDcnQAtu//NiLkCt6bbuqsGfq6zSXkUOUg04Acnu2Dyt/yTCrtNZKzz
-         p0Gg==
-X-Gm-Message-State: AO0yUKUanCuDswqfk8s42Es9wQIwK3Bfe1wIJc1iyUI33MjL4nxdE/QY
-        Q/j7lpq7sMMYvVGxSU6b4WUyUU21Sf+JeQ==
-X-Google-Smtp-Source: AK7set+bQKfaYDZS2VwAoSzkRniXwFgVYHCl/WoGILfHLX1vRw8vyW93zRRBv235/UmTfuvaOj8nGg==
-X-Received: by 2002:a17:903:7c3:b0:1a0:6bd4:ea9b with SMTP id ko3-20020a17090307c300b001a06bd4ea9bmr4913133plb.3.1679020928356;
-        Thu, 16 Mar 2023 19:42:08 -0700 (PDT)
-Received: from localhost.localdomain ([43.155.90.222])
-        by smtp.googlemail.com with ESMTPSA id n3-20020a654503000000b004fb997a0bd8sm344195pgq.30.2023.03.16.19.42.06
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Mar 2023 19:42:08 -0700 (PDT)
-From:   juanfengpy@gmail.com
-X-Google-Original-From: caelli@tencent.com
-To:     gregkh@linuxfoundation.org
-Cc:     jirislaby@kernel.org, ilpo.jarvinen@linux.intel.com,
-        benbjiang@tencent.com, robinlai@tencent.com,
-        linux-serial@vger.kernel.org, juanfengpy@gmail.com,
-        Hui Li <caelli@tencent.com>, <stable@vger.kernel.org>
-Subject: [PATCH v7] tty: fix hang on tty device with no_room set
-Date:   Fri, 17 Mar 2023 10:41:55 +0800
-Message-Id: <1679020915-8349-1-git-send-email-caelli@tencent.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <YrmdEJrM3z6Dbvgn@kroah.com>
-References: <YrmdEJrM3z6Dbvgn@kroah.com>
+        bh=BYp3m8qSQa5jXzR5wJFnI7z+muhy6wYlNR657/7Bnzg=;
+        b=rIaIY6+RW+s76FBr+UwCARQCQYBww3pPm/WQtWPKNS8UX/mDWyRb4YhD5BS4dRzbu0
+         Py+yTRjr/eZLxnRpMPZexp4A2ZuCuL+7tbdgWqk3+mSn8A20Qb6hUA1jh8WwHKXJQWh4
+         z19sjbCEedD+RsY40C0cTo+5IvZQTCmbGgpLMm+OOaNGHjgr7u36181xpq1PYyYlLGti
+         aXZbTULGinSB6T1KoA4YTk14pFxL1QKN+fUgLHvzrVxOw4ohJ1sGUhoP7Ch8wPGjWkhN
+         6aFhE6ySyelFEICkGcLCSKTz74yaGmp/+cCP7jHp8a7GFM77IK4zYSyUqtSyxg0lOxvI
+         kRsw==
+X-Gm-Message-State: AO0yUKXnOJCgLtWNxJJGwRnlpHaISt9RNZSNNyr/9F4Fx+JyrQFQlQuq
+        BQERO3IJ+n4d/F+kP3Zg0XePDkePXAumk1zD3GKhCA==
+X-Google-Smtp-Source: AK7set97lVkSZa2tyXvZpdqEKZCD/CoIOD+RSGe4K+VNXilfJn+/bnGbfxki6kJj/BghsJXL2d7EVUztTmFJDUNUO1Q=
+X-Received: by 2002:a1f:a913:0:b0:435:bf4b:848b with SMTP id
+ s19-20020a1fa913000000b00435bf4b848bmr942018vke.0.1679021319962; Thu, 16 Mar
+ 2023 19:48:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20230316083335.429724157@linuxfoundation.org>
+In-Reply-To: <20230316083335.429724157@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 17 Mar 2023 08:18:28 +0530
+Message-ID: <CA+G9fYviF4qnLe+i1a3VnwsWWwcENYxH--2WbLSMDkZL-0Y-RA@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/20] 4.14.310-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Li <caelli@tencent.com>
+On Thu, 16 Mar 2023 at 14:19, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.310 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 18 Mar 2023 08:33:04 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.310-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-We have met a hang on pty device, the reader was blocking
-at epoll on master side, the writer was sleeping at wait_woken
-inside n_tty_write on slave side, and the write buffer on
-tty_port was full, we found that the reader and writer would
-never be woken again and blocked forever.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-The problem was caused by a race between reader and kworker:
-n_tty_read(reader):  n_tty_receive_buf_common(kworker):
-copy_from_read_buf()|
-                    |room = N_TTY_BUF_SIZE - (ldata->read_head - tail)
-                    |room <= 0
-n_tty_kick_worker() |
-                    |ldata->no_room = true
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-After writing to slave device, writer wakes up kworker to flush
-data on tty_port to reader, and the kworker finds that reader
-has no room to store data so room <= 0 is met. At this moment,
-reader consumes all the data on reader buffer and calls
-n_tty_kick_worker to check ldata->no_room which is false and
-reader quits reading. Then kworker sets ldata->no_room=true
-and quits too.
+## Build
+* kernel: 4.14.310-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.14.y
+* git commit: 12379b7d143a8f0f07b4c069202ed684212ecacc
+* git describe: v4.14.308-25-g12379b7d143a
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.308-25-g12379b7d143a
 
-If write buffer is not full, writer will wake kworker to flush data
-again after following writes, but if write buffer is full and writer
-goes to sleep, kworker will never be woken again and tty device is
-blocked.
+## Test Regressions (compared to v4.14.308)
 
-This problem can be solved with a check for read buffer size inside
-n_tty_receive_buf_common, if read buffer is empty and ldata->no_room
-is true, a call to n_tty_kick_worker is necessary to keep flushing
-data to reader.
+## Metric Regressions (compared to v4.14.308)
 
-Cc: <stable@vger.kernel.org>
-Fixes: 42458f41d08f ("n_tty: Ensure reader restarts worker for next reader")
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Hui Li <caelli@tencent.com>
----
-Patch changelogs between v1 and v2:
-	-add barrier inside n_tty_read and n_tty_receive_buf_common;
-	-comment why barrier is needed;
-	-access to ldata->no_room is changed with READ_ONCE and WRITE_ONCE;
-Patch changelogs between v2 and v3:
-	-in function n_tty_receive_buf_common, add unlikely to check
-	 ldata->no_room, eg: if (unlikely(ldata->no_room)), and READ_ONCE
-	 is removed here to get locality;
-	-change comment for barrier to show the race condition to make
-	 comment easier to understand;
-Patch changelogs between v3 and v4:
-	-change subject from 'tty: fix a possible hang on tty device' to
-	 'tty: fix hang on tty device with no_room set' to make subject 
-	 more obvious;
-Patch changelogs between v4 and v5:
-	-name is changed from cael to caelli, li is added as the family
-	 name and caelli is the fullname.
-Patch changelogs between v5 and v6:
-	-change from and Signed-off-by, from 'caelli <juanfengpy@gmail.com>'
-	 to 'caelli <caelli@tencent.com>', later one is my corporate address.
-Patch changelogs between v6 and v7:
-	-change name from caelli to 'Hui Li', which is my name in chinese.
-	-the comment for barrier is improved, and a Fixes and Reviewed-by
-	 tags is added.
+## Test Fixes (compared to v4.14.308)
 
- drivers/tty/n_tty.c | 41 +++++++++++++++++++++++++++++++++++++----
- 1 file changed, 37 insertions(+), 4 deletions(-)
+## Metric Fixes (compared to v4.14.308)
 
-diff --git a/drivers/tty/n_tty.c b/drivers/tty/n_tty.c
-index c8f56c9b1a1c..8c17304fffcf 100644
---- a/drivers/tty/n_tty.c
-+++ b/drivers/tty/n_tty.c
-@@ -204,8 +204,8 @@ static void n_tty_kick_worker(struct tty_struct *tty)
- 	struct n_tty_data *ldata = tty->disc_data;
- 
- 	/* Did the input worker stop? Restart it */
--	if (unlikely(ldata->no_room)) {
--		ldata->no_room = 0;
-+	if (unlikely(READ_ONCE(ldata->no_room))) {
-+		WRITE_ONCE(ldata->no_room, 0);
- 
- 		WARN_RATELIMIT(tty->port->itty == NULL,
- 				"scheduling with invalid itty\n");
-@@ -1698,7 +1698,7 @@ n_tty_receive_buf_common(struct tty_struct *tty, const unsigned char *cp,
- 			if (overflow && room < 0)
- 				ldata->read_head--;
- 			room = overflow;
--			ldata->no_room = flow && !room;
-+			WRITE_ONCE(ldata->no_room, flow && !room);
- 		} else
- 			overflow = 0;
- 
-@@ -1729,6 +1729,27 @@ n_tty_receive_buf_common(struct tty_struct *tty, const unsigned char *cp,
- 	} else
- 		n_tty_check_throttle(tty);
- 
-+	if (unlikely(ldata->no_room)) {
-+		/*
-+		 * Barrier here is to ensure to read the latest read_tail in
-+		 * chars_in_buffer() and to make sure that read_tail is not loaded
-+		 * before ldata->no_room is set, otherwise, following race may occur:
-+		 * n_tty_receive_buf_common()
-+		 *				n_tty_read()
-+		 *   if (!chars_in_buffer(tty))->false
-+		 *				  copy_from_read_buf()
-+		 *				    read_tail=commit_head
-+		 *				  n_tty_kick_worker()
-+		 *				    if (ldata->no_room)->false
-+		 *   ldata->no_room = 1
-+		 * Then both kworker and reader will fail to kick n_tty_kick_worker(),
-+		 * smp_mb is paired with smp_mb() in n_tty_read().
-+		 */
-+		smp_mb();
-+		if (!chars_in_buffer(tty))
-+			n_tty_kick_worker(tty);
-+	}
-+
- 	up_read(&tty->termios_rwsem);
- 
- 	return rcvd;
-@@ -2282,8 +2303,25 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
- 		if (time)
- 			timeout = time;
- 	}
--	if (old_tail != ldata->read_tail)
-+	if (old_tail != ldata->read_tail) {
-+		/*
-+		 * Make sure no_room is not read in n_tty_kick_worker()
-+		 * before setting ldata->read_tail in copy_from_read_buf(),
-+		 * otherwise, following race may occur:
-+		 * n_tty_read()
-+		 *			n_tty_receive_buf_common()
-+		 *   n_tty_kick_worker()
-+		 *     if(ldata->no_room)->false
-+		 *			  ldata->no_room = 1
-+		 *			  if (!chars_in_buffer(tty))->false
-+		 *   copy_from_read_buf()
-+		 *     read_tail=commit_head
-+		 * Both reader and kworker will fail to kick tty_buffer_restart_work(),
-+		 * smp_mb is paired with smp_mb() in n_tty_receive_buf_common().
-+		 */
-+		smp_mb();
- 		n_tty_kick_worker(tty);
-+	}
- 	up_read(&tty->termios_rwsem);
- 
- 	remove_wait_queue(&tty->read_wait, &wait);
--- 
-2.27.0
+## Test result summary
+total: 72731, pass: 62239, fail: 2894, skip: 7289, xfail: 309
 
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 199 total, 197 passed, 2 failed
+* arm64: 37 total, 35 passed, 2 failed
+* i386: 29 total, 28 passed, 1 failed
+* mips: 41 total, 41 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 20 total, 19 passed, 1 failed
+* s390: 15 total, 11 passed, 4 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 34 total, 33 passed, 1 failed
+
+## Test suites summary
+* boot
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
