@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B4C6BF6C2
-	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 01:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C9C6BF6D4
+	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 01:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbjCRAGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 20:06:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
+        id S229602AbjCRAQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 20:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbjCRAGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 20:06:24 -0400
+        with ESMTP id S229639AbjCRAQx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 20:16:53 -0400
 Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937EC29E09
-        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 17:06:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8F9D0E51
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 17:16:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679097983; x=1710633983;
+  t=1679098605; x=1710634605;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=2ZN3XehKf6V/+o4cym7ghdqwjW9B7JwRJm1Sh8M7T4A=;
-  b=bdjUVvmsoBsvze8sm/Fidlo5xDzq8lQ++VLC7+68zV+emgArA38dSEnB
-   5rRtOG00s3dQzx0RvIjQL2Iiu0dPNPbDEM8TRxZIr+W4GfK7L3HrBTXNW
-   /Ry+mxMN7iVjEXfoHu4lv+3mk5xU7mNN0WjCxNctUrcszPSL++eTieYTd
-   b49QcPW+VIYBoWVZVhMZ9LQZ5jl9KSlkpQh5qKYAxoKuwHZhY5ZIBwz9X
-   vl9GgYwhdbh8DVyOutIsVZY9hfdrYwzXgtQxB1H8z3AJ2PngG+X/0UK9d
-   MtT8sBLq/ifn3vxuN+mx2BFrs0nzUCPeJngXaDU0kXAJnsEBQMOs3B7vG
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10652"; a="337093697"
+  bh=+ONo8XIc0U1AZTiCJ9+NmtvbnONr4XN5ITIYV9FotKU=;
+  b=EuJMgq3M3jByuthcTHi1IVEZDsdbK7JyPe8vEFNHQ+cFaAzd2jkRnRKo
+   up/h+pn6wBUloztppkRY1dIoBBQiYjT/1zEC1DGtws5FF5ku0jomu1tbY
+   qGVNJwjWnJ9fBZ46bbRFx6ShTgCAX4jLM9D8p3RT0ZVGi8w1wEj0FCRp4
+   cHOU28PDh/J+RUeHWC3tjbwU54Ualr1kijj18rxQ+atsnLVFTkkHRICoj
+   UshOVILLXHHRuLBPhvdEIq3sQtbJa3srRJD5/PSM4+KWVgcLKS/6OA5ew
+   uZyWvfNYTtl1kp9e76VzmHnG3yAWc9eEgElCjaspt5NIn3v+RKeU0tGP8
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10652"; a="337095153"
 X-IronPort-AV: E=Sophos;i="5.98,270,1673942400"; 
-   d="scan'208";a="337093697"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2023 17:06:23 -0700
+   d="scan'208";a="337095153"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2023 17:16:45 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10652"; a="657740935"
+X-IronPort-AV: E=McAfee;i="6600,9927,10652"; a="680470618"
 X-IronPort-AV: E=Sophos;i="5.98,270,1673942400"; 
-   d="scan'208";a="657740935"
+   d="scan'208";a="680470618"
 Received: from relo-linux-5.jf.intel.com ([10.165.21.152])
-  by orsmga006.jf.intel.com with ESMTP; 17 Mar 2023 17:06:22 -0700
+  by orsmga002.jf.intel.com with ESMTP; 17 Mar 2023 17:16:44 -0700
 From:   John.C.Harrison@Intel.com
 To:     stable@vger.kernel.org
 Cc:     John Harrison <John.C.Harrison@Intel.com>,
@@ -50,12 +50,12 @@ Cc:     John Harrison <John.C.Harrison@Intel.com>,
         =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
         Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 4.14.y] drm/i915: Don't use stolen memory for ring buffers with LLC
-Date:   Fri, 17 Mar 2023 17:05:31 -0700
-Message-Id: <20230318000531.480966-1-John.C.Harrison@Intel.com>
+Subject: [PATCH 4.19.y] drm/i915: Don't use stolen memory for ring buffers with LLC
+Date:   Fri, 17 Mar 2023 17:15:53 -0700
+Message-Id: <20230318001553.564934-1-John.C.Harrison@Intel.com>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <167820540147158@kroah.com>
-References: <167820540147158@kroah.com>
+In-Reply-To: <16782053932851@kroah.com>
+References: <16782053932851@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -97,13 +97,13 @@ Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/intel_ringbuffer.c b/drivers/gpu/drm/i915/intel_ringbuffer.c
-index 6c7563c1ab5f..f0b923e037df 100644
+index 979d130b24c4..16eec72f0fed 100644
 --- a/drivers/gpu/drm/i915/intel_ringbuffer.c
 +++ b/drivers/gpu/drm/i915/intel_ringbuffer.c
-@@ -1359,10 +1359,11 @@ static struct i915_vma *
+@@ -1132,10 +1132,11 @@ static struct i915_vma *
  intel_ring_create_vma(struct drm_i915_private *dev_priv, int size)
  {
- 	struct i915_address_space *vm = &dev_priv->ggtt.base;
+ 	struct i915_address_space *vm = &dev_priv->ggtt.vm;
 -	struct drm_i915_gem_object *obj;
 +	struct drm_i915_gem_object *obj = NULL;
  	struct i915_vma *vma;
