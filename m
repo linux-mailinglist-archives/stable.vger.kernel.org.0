@@ -2,63 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8086BFBF1
-	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 18:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 820596BFBF2
+	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 18:40:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbjCRRkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Mar 2023 13:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47596 "EHLO
+        id S229541AbjCRRkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Mar 2023 13:40:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229713AbjCRRkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 13:40:33 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B5A222E5
-        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:29 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id g6-20020a05600c4ec600b003ed8826253aso1621109wmq.0
-        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:29 -0700 (PDT)
+        with ESMTP id S229591AbjCRRkg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 13:40:36 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 994CE22A3E
+        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:33 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id l15-20020a05600c4f0f00b003ed58a9a15eso5118786wmq.5
+        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1679161228;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wZ/Puoclnevh/x9T2MYrlO/lJcAkMpBbXHKu8D3KWZc=;
-        b=eS88+pAh5R2aZqNSRC2Rb0oNBnhBco1tOqya9V68NBbDzr/cSC6PZLIrG7vMxo6Anb
-         /lPIm5uemItwciVnRlFAEFHE8V9B0ZfrQJXoIHHo92gGPta/Md05VDYTzq5ZfeR0Cgjx
-         omvfv17pA+Uzy4lx4mVylT7VR8pVfm6myr0gOgdsIUAib8sm38xYkVtvpoylHCxVFLDB
-         A00JlGSzijqoC8gt0nKv9hD3ezsT+hAO8bMz6mtv+YvW62itjb1jPjMM16MmDxDzZEOc
-         fRZz/x5VFt4pAVS7IelD0mwMHIptkjOekRQm/Er98KHzdFbmxFtJP7Jie1fJsvDJ5cSY
-         xZfg==
+        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1679161232;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=L8V9YSwmWG8n2IxSW6nZDku18nbiFHuZNDpp6hhof7U=;
+        b=7WgmI/gVuom7cCR2D/7qrmk9I7F+Z90/0j2jLqhDAALTNgt58e9qgLAyJ64hrxsPFO
+         nyD88tA66eGHbwIYsbKdmHeu77T8qP1C9iy/3LlAsotRpwfcZed2XvuVfo3WTjpnfwq/
+         TIUybaFV7MrlNYOgE8086LVaoY2sPiwfCmXnXONUMjdoaBQ4cR1SxjmtGewduwj6CN6y
+         MHeO9AlBJEnKEjZWypvrQEuSCDH4fgLc3XiRgs31g4jI1mQ1cDggr+P28NwHpQqDb2UK
+         wUJAHxCfdut04BaOiSNHQz0I+zukZLyuc4v4HLPjwng88VGZO3M55n8DTu1PuSeGpX5i
+         nRCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679161228;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wZ/Puoclnevh/x9T2MYrlO/lJcAkMpBbXHKu8D3KWZc=;
-        b=21ztlJr67WeIkpycyVdBbiBU1OSXiFBDXRiWks59u+RxsBtYg8GAVROOrGqgpIT8pJ
-         kVsigOVGC8bq550UW5rxWJhVtXEyogTsq/Jh5CU+2QGR6k9K6kFX/Duvx7Y8RsMY7WU8
-         BRR1C/HM/L5glLLlnr5rnl9ngEiFwbf/QceF1YgmO/ZozV0YKuQB+qMCFzIcX0oZs5yO
-         4vOFV42yAGmo/ue+akswzmUuVM1eXW6fFvF4U6AtCeabaxMKvngxDluFvuQ4mocCJySk
-         n25F1322eYh/51p8NN5k97Driqvyx4gD0AgBrfll4mHKAmqVUgtVR1P9MxwdT7B6/+3i
-         dAdA==
-X-Gm-Message-State: AO0yUKXdgZwGIpi26ZeaN8ngYfD8eCgZ3V16bSqzhgQJflXWt3BKfK1E
-        s3UKCAWj9h4eTSPiKX+DicZvmQ7en4gMaCQ/5X0=
-X-Google-Smtp-Source: AK7set/mCl4MNjuc6rgWloyzoa3Ki5E1JfiUks3gQRMiXZuHECVKC4x1pHsRn2OAja60ORuwLamDdw==
-X-Received: by 2002:a7b:cb98:0:b0:3ed:8360:e54 with SMTP id m24-20020a7bcb98000000b003ed83600e54mr5584106wmi.8.1679161228006;
-        Sat, 18 Mar 2023 10:40:28 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1679161232;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=L8V9YSwmWG8n2IxSW6nZDku18nbiFHuZNDpp6hhof7U=;
+        b=HjgQk0Sr8MrCEitAA3V2p7DnDaYm+5ijlaPLErWwcFx7FVrSrDmA/PaWT/YgppNPCZ
+         OX1vcVYBXXXNec4EBh4o+QWmrPITjSremwAAw5/o5Met273c4cMeffTojpBC1YejhbNJ
+         PojI3DG4xqqSZvUQMssrJFHL65HJe8Tk1Ra2L9XiRRWZKQso9QvZ0+DP3lOUG3hN1wkf
+         a1FGVyrCUtTspwtkBl3trj6/+JnrhW80rHOaIz9cO//QQ6zqwJpRjwblpc7ZSUNksHJD
+         JEQRDrzkgrbiioNQJz4OdnQcsNN+RtpTFs13S2v8TBXnslQwfewQgZzLHm7E9JQKuFpt
+         ac3g==
+X-Gm-Message-State: AO0yUKX7ixIsk1G1XKFwnYYqoVirplSc2YAqekaxg1XFaPBPksrWjqxz
+        DKJGA/GAszZyvNuqy9RThdCOS/l/mwrZHvCsFmw=
+X-Google-Smtp-Source: AK7set8MwzjwFAiLT/4uARrhzEghaa3kmwd22jgTWbHeJ0wnbhYis84SO9qC0lg8KA4w3ljTTo0ARA==
+X-Received: by 2002:a05:600c:1e02:b0:3ed:31f5:11e with SMTP id ay2-20020a05600c1e0200b003ed31f5011emr13058182wmb.5.1679161232115;
+        Sat, 18 Mar 2023 10:40:32 -0700 (PDT)
 Received: from localhost.localdomain (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
-        by smtp.gmail.com with ESMTPSA id f20-20020a7bcd14000000b003e203681b26sm5313886wmj.29.2023.03.18.10.40.26
+        by smtp.gmail.com with ESMTPSA id f20-20020a7bcd14000000b003e203681b26sm5313886wmj.29.2023.03.18.10.40.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Mar 2023 10:40:27 -0700 (PDT)
+        Sat, 18 Mar 2023 10:40:31 -0700 (PDT)
 From:   Qais Yousef <qyousef@layalina.io>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Qais Yousef <qyousef@layalina.io>
-Subject: [PATCH v2 00/10] Backport uclamp vs margin fixes into 5.10.y
-Date:   Sat, 18 Mar 2023 17:39:33 +0000
-Message-Id: <20230318173943.3188213-1-qyousef@layalina.io>
+        Qais Yousef <qais.yousef@arm.com>
+Subject: [PATCH v2 01/10] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
+Date:   Sat, 18 Mar 2023 17:39:34 +0000
+Message-Id: <20230318173943.3188213-2-qyousef@layalina.io>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230318173943.3188213-1-qyousef@layalina.io>
+References: <20230318173943.3188213-1-qyousef@layalina.io>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -70,57 +73,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Changes in v2:
-	* Fix compilation error against patch 7 due to misiplace #endif to
-	  protect against CONFIG_SMP which doesn't contain the newly added
-	  field to struct rq.
+From: Qais Yousef <qais.yousef@arm.com>
 
-Commit 2ff401441711 ("sched/uclamp: Fix relationship between uclamp and
-migration margin") was cherry-picked into 5.10 kernels but missed the rest of
-the series.
+commit b48e16a69792b5dc4a09d6807369d11b2970cc36 upstream.
 
-This ports the remainder of the fixes.
+So that the new uclamp rules in regard to migration margin and capacity
+pressure are taken into account correctly.
 
-Based on 5.10.172.
+Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
+Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
+(cherry picked from commit b48e16a69792b5dc4a09d6807369d11b2970cc36)
+Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
+---
+ kernel/sched/fair.c  | 26 ++++++++++++++++----------
+ kernel/sched/sched.h |  9 +++++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-NOTE:
-
-a2e90611b9f4 ("sched/fair: Remove capacity inversion detection") is not
-necessary to backport because it has a dependency on e5ed0550c04c ("sched/fair:
-unlink misfit task from cpu overutilized") which is nice to have but not
-strictly required. It improves the search for best CPU under adverse thermal
-pressure to try harder. And the new search effectively replaces the capacity
-inversion detection, so it is removed afterwards.
-
-Build tested on (cross compile when necessary; x86_64 otherwise):
-
-	1. default ubuntu config which has uclamp + smp
-	2. default ubuntu config without uclamp + smp
-	3. default ubunto config without smp (which automatically disables
-	   uclamp)
-	4. reported riscv-allnoconfig, mips-randconfig, x86_64-randocnfigs
-
-Tested on 5.10 Android GKI kernel and android device (with slight modifications
-due to other conflicts on there).
-
-Qais Yousef (10):
-  sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
-  sched/uclamp: Fix fits_capacity() check in feec()
-  sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
-  sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()
-  sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
-  sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()'s early
-    exit condition
-  sched/fair: Detect capacity inversion
-  sched/fair: Consider capacity inversion in util_fits_cpu()
-  sched/uclamp: Fix a uninitialized variable warnings
-  sched/fair: Fixes for capacity inversion detection
-
- kernel/sched/core.c  |  10 +--
- kernel/sched/fair.c  | 183 ++++++++++++++++++++++++++++++++++---------
- kernel/sched/sched.h |  70 ++++++++++++++++-
- 3 files changed, 217 insertions(+), 46 deletions(-)
-
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index c39d2fc3f994..de7e81cbfed2 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4197,10 +4197,12 @@ static inline int util_fits_cpu(unsigned long util,
+ 	return fits;
+ }
+ 
+-static inline int task_fits_capacity(struct task_struct *p,
+-				     unsigned long capacity)
++static inline int task_fits_cpu(struct task_struct *p, int cpu)
+ {
+-	return fits_capacity(uclamp_task_util(p), capacity);
++	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
++	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
++	unsigned long util = task_util_est(p);
++	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
+ }
+ 
+ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+@@ -4213,7 +4215,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 		return;
+ 	}
+ 
+-	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
++	if (task_fits_cpu(p, cpu_of(rq))) {
+ 		rq->misfit_task_load = 0;
+ 		return;
+ 	}
+@@ -7898,7 +7900,7 @@ static int detach_tasks(struct lb_env *env)
+ 
+ 		case migrate_misfit:
+ 			/* This is not a misfit task */
+-			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
++			if (task_fits_cpu(p, env->src_cpu))
+ 				goto next;
+ 
+ 			env->imbalance = 0;
+@@ -8840,6 +8842,10 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 
+ 	memset(sgs, 0, sizeof(*sgs));
+ 
++	/* Assume that task can't fit any CPU of the group */
++	if (sd->flags & SD_ASYM_CPUCAPACITY)
++		sgs->group_misfit_task_load = 1;
++
+ 	for_each_cpu(i, sched_group_span(group)) {
+ 		struct rq *rq = cpu_rq(i);
+ 		unsigned int local;
+@@ -8859,12 +8865,12 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 		if (!nr_running && idle_cpu_without(i, p))
+ 			sgs->idle_cpus++;
+ 
+-	}
++		/* Check if task fits in the CPU */
++		if (sd->flags & SD_ASYM_CPUCAPACITY &&
++		    sgs->group_misfit_task_load &&
++		    task_fits_cpu(p, i))
++			sgs->group_misfit_task_load = 0;
+ 
+-	/* Check if task fits in the group */
+-	if (sd->flags & SD_ASYM_CPUCAPACITY &&
+-	    !task_fits_capacity(p, group->sgc->max_capacity)) {
+-		sgs->group_misfit_task_load = 1;
+ 	}
+ 
+ 	sgs->group_capacity = group->sgc->capacity;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 12c65628801c..3758f98c068c 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2468,6 +2468,15 @@ static inline bool uclamp_is_used(void)
+ 	return static_branch_likely(&sched_uclamp_used);
+ }
+ #else /* CONFIG_UCLAMP_TASK */
++static inline unsigned long uclamp_eff_value(struct task_struct *p,
++					     enum uclamp_id clamp_id)
++{
++	if (clamp_id == UCLAMP_MIN)
++		return 0;
++
++	return SCHED_CAPACITY_SCALE;
++}
++
+ static inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
 -- 
 2.25.1
 
