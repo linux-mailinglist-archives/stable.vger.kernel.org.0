@@ -2,117 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 790456BF698
-	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 00:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B4C6BF6C2
+	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 01:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229680AbjCQXl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Mar 2023 19:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56910 "EHLO
+        id S229629AbjCRAGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Mar 2023 20:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229665AbjCQXl4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 19:41:56 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0146B3C7BE;
-        Fri, 17 Mar 2023 16:41:38 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id p3-20020a17090a74c300b0023f69bc7a68so2410159pjl.4;
-        Fri, 17 Mar 2023 16:41:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679096498;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9h8q/I2sD6IvFiDI6TF78QYtvbfIGdc+Oun0JMTRP38=;
-        b=pq9Bxlhk1+IeE8xXIpSDkScQMW/qxfsDA7Dgtuy3Cm5vw+w7CKvrTi1/wFguq2FCQ8
-         kMQp+aRxDm3RFMTo4ET47/K7KAlqGTwlcR97mDVFaTGzBLQw7nrVZdohyPpvyxM43L88
-         LwH2ZsLj47vi5vol7cGlVYGQ/uSc/HxMC5SzKAgv03FgPtZQNA2mt9eMCkL1wrofZduq
-         etL5K3yGstdQp+W0dQ6wk/CbYQZHmwsBMJPqY769Q2OZnasKKK3R5HO5DpDszdhCq0L1
-         QGUj/t8IzLxMojwpEBFAmI3kV4mSHL5ljIph6OvzjydNudkPH/COzuriZXdFXUV/8SNw
-         bKMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679096498;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9h8q/I2sD6IvFiDI6TF78QYtvbfIGdc+Oun0JMTRP38=;
-        b=WBswT4ZsEetkfu1dOr4AbK/a4N3PXgqsRMYeu9HFSmmW6f7exiv253Q2arVRAs9gpq
-         SPnysLno13Z0ULHKfTPkO7cVJg9177IiIDZuJHAX8sMiFuOaATKU1RA6Qos+U38qUV1w
-         DGz+/al1DNowFH2pJSd3ejTfCp8r4DX+YklvMXJMLMD5C0f+Y8UnTfIwxy1Zw0EK7pME
-         aE8tqDlMkhWxBkqOdHjeOQQgGMmcckdNVfKwfUWiBOxOMPKjOWgi9DSlZxWCPXs6XY2e
-         JsLOBb8JiubXN1yOxm/4u9RE9BdTrAuP4UhO6Q7AUEWcCe38Ht9bqwshHKAPRVXtpi+/
-         zXTg==
-X-Gm-Message-State: AO0yUKWOadVcV+7UttXSu3GogN8GSjkL+VMChPJYcnqSuU09ZM4IfRjH
-        UTGRsn2BiZz1fFv0ofMg5jgRk8SAWog=
-X-Google-Smtp-Source: AK7set8YUkBnKgmmm03CKldw33fmzNVi6ZtNLNnouiFMVFFMa79c1LbeiXGVVAqXjhjBnanm5/sxYg==
-X-Received: by 2002:a17:903:2850:b0:19a:7f4b:3ef6 with SMTP id kq16-20020a170903285000b0019a7f4b3ef6mr7491787plb.3.1679096498224;
-        Fri, 17 Mar 2023 16:41:38 -0700 (PDT)
-Received: from octofox.hsd1.ca.comcast.net ([2601:641:401:1d20:3222:a57e:6612:daf3])
-        by smtp.gmail.com with ESMTPSA id k2-20020a170902e90200b0019c919bccf8sm2078951pld.86.2023.03.17.16.41.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Mar 2023 16:41:37 -0700 (PDT)
-From:   Max Filippov <jcmvbkbc@gmail.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] xtensa: fix KASAN report for show_stack
-Date:   Fri, 17 Mar 2023 16:41:32 -0700
-Message-Id: <20230317234132.2426441-1-jcmvbkbc@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S229489AbjCRAGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Mar 2023 20:06:24 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937EC29E09
+        for <stable@vger.kernel.org>; Fri, 17 Mar 2023 17:06:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1679097983; x=1710633983;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=2ZN3XehKf6V/+o4cym7ghdqwjW9B7JwRJm1Sh8M7T4A=;
+  b=bdjUVvmsoBsvze8sm/Fidlo5xDzq8lQ++VLC7+68zV+emgArA38dSEnB
+   5rRtOG00s3dQzx0RvIjQL2Iiu0dPNPbDEM8TRxZIr+W4GfK7L3HrBTXNW
+   /Ry+mxMN7iVjEXfoHu4lv+3mk5xU7mNN0WjCxNctUrcszPSL++eTieYTd
+   b49QcPW+VIYBoWVZVhMZ9LQZ5jl9KSlkpQh5qKYAxoKuwHZhY5ZIBwz9X
+   vl9GgYwhdbh8DVyOutIsVZY9hfdrYwzXgtQxB1H8z3AJ2PngG+X/0UK9d
+   MtT8sBLq/ifn3vxuN+mx2BFrs0nzUCPeJngXaDU0kXAJnsEBQMOs3B7vG
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10652"; a="337093697"
+X-IronPort-AV: E=Sophos;i="5.98,270,1673942400"; 
+   d="scan'208";a="337093697"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2023 17:06:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10652"; a="657740935"
+X-IronPort-AV: E=Sophos;i="5.98,270,1673942400"; 
+   d="scan'208";a="657740935"
+Received: from relo-linux-5.jf.intel.com ([10.165.21.152])
+  by orsmga006.jf.intel.com with ESMTP; 17 Mar 2023 17:06:22 -0700
+From:   John.C.Harrison@Intel.com
+To:     stable@vger.kernel.org
+Cc:     John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 4.14.y] drm/i915: Don't use stolen memory for ring buffers with LLC
+Date:   Fri, 17 Mar 2023 17:05:31 -0700
+Message-Id: <20230318000531.480966-1-John.C.Harrison@Intel.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <167820540147158@kroah.com>
+References: <167820540147158@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FROM_LOCAL_NOVOWEL,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-show_stack dumps raw stack contents which may trigger an unnecessary
-KASAN report. Fix it by copying stack contents to a temporary buffer
-with __memcpy and then printing that buffer instead of passing stack
-pointer directly to the print_hex_dump.
+From: John Harrison <John.C.Harrison@Intel.com>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Direction from hardware is that stolen memory should never be used for
+ring buffer allocations on platforms with LLC. There are too many
+caching pitfalls due to the way stolen memory accesses are routed. So
+it is safest to just not use it.
+
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: c58b735fc762 ("drm/i915: Allocate rings from stolen")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-2-John.C.Harrison@Intel.com
+(cherry picked from commit f54c1f6c697c4297f7ed94283c184acc338a5cf8)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 690e0ec8e63da9a29b39fedc6ed5da09c7c82651)
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
 ---
- arch/xtensa/kernel/traps.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/intel_ringbuffer.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/xtensa/kernel/traps.c b/arch/xtensa/kernel/traps.c
-index cd98366a9b23..f0a7d1c2641e 100644
---- a/arch/xtensa/kernel/traps.c
-+++ b/arch/xtensa/kernel/traps.c
-@@ -539,7 +539,7 @@ static size_t kstack_depth_to_print = CONFIG_PRINT_STACK_DEPTH;
- 
- void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
+diff --git a/drivers/gpu/drm/i915/intel_ringbuffer.c b/drivers/gpu/drm/i915/intel_ringbuffer.c
+index 6c7563c1ab5f..f0b923e037df 100644
+--- a/drivers/gpu/drm/i915/intel_ringbuffer.c
++++ b/drivers/gpu/drm/i915/intel_ringbuffer.c
+@@ -1359,10 +1359,11 @@ static struct i915_vma *
+ intel_ring_create_vma(struct drm_i915_private *dev_priv, int size)
  {
--	size_t len;
-+	size_t len, off = 0;
+ 	struct i915_address_space *vm = &dev_priv->ggtt.base;
+-	struct drm_i915_gem_object *obj;
++	struct drm_i915_gem_object *obj = NULL;
+ 	struct i915_vma *vma;
  
- 	if (!sp)
- 		sp = stack_pointer(task);
-@@ -548,9 +548,17 @@ void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
- 		  kstack_depth_to_print * STACK_DUMP_ENTRY_SIZE);
- 
- 	printk("%sStack:\n", loglvl);
--	print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
--		       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
--		       sp, len, false);
-+	while (off < len) {
-+		u8 line[STACK_DUMP_LINE_SIZE];
-+		size_t line_len = len - off > STACK_DUMP_LINE_SIZE ?
-+			STACK_DUMP_LINE_SIZE : len - off;
-+
-+		__memcpy(line, (u8 *)sp + off, line_len);
-+		print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
-+			       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
-+			       line, line_len, false);
-+		off += STACK_DUMP_LINE_SIZE;
-+	}
- 	show_trace(task, sp, loglvl);
- }
- 
+-	obj = i915_gem_object_create_stolen(dev_priv, size);
++	if (!HAS_LLC(dev_priv))
++		obj = i915_gem_object_create_stolen(dev_priv, size);
+ 	if (!obj)
+ 		obj = i915_gem_object_create_internal(dev_priv, size);
+ 	if (IS_ERR(obj))
 -- 
-2.30.2
+2.39.1
 
