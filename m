@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C51856BF949
-	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 11:15:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6B36BF94D
+	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 11:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229830AbjCRKPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Mar 2023 06:15:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54746 "EHLO
+        id S229850AbjCRKPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Mar 2023 06:15:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbjCRKPj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 06:15:39 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D539234CE;
-        Sat, 18 Mar 2023 03:15:37 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id o11-20020a05600c4fcb00b003eb33ea29a8so4726302wmq.1;
-        Sat, 18 Mar 2023 03:15:37 -0700 (PDT)
+        with ESMTP id S229588AbjCRKPl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 06:15:41 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDBAD2410D;
+        Sat, 18 Mar 2023 03:15:38 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id bh21-20020a05600c3d1500b003ed1ff06fb0so4717598wmb.3;
+        Sat, 18 Mar 2023 03:15:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679134536;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=auw9Bjm4gCLE/eVanEdZ+kImILmnXZOboNPQLAKXOn4=;
-        b=RsZGDmiXqai4Xx0+iewRMdWV6WVMW7qu4pfnE422sN8cnxyY/85LJbQt26iJW594FQ
-         S1rMEO4jcgWrjhZoVyqi4mP5fUIU0VyPr51KnJKSIZVu9I3wddbb3N3Y3K6g8eDcZiyl
-         bcQ7IbmvcLE8UL5ejJ5QNyyLMgrdOr0IEdI9HSwpUmsc/F5B0PyYAqU8dEunTb7vIidW
-         tCHpCugXdL9B5Hdq/llrVC43KfRlzXDtbOC1LlbPPI4vSahFldk1Ysj6EZ9nSEspi6PB
-         zG+JeQ7hoj0GZvH+1DoIq23dpX9ogLd3RP9P5QmVWdwPUC3cn7R9yjfvV4SW5/yBIJTf
-         +GBQ==
+        d=gmail.com; s=20210112; t=1679134537;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PP8hrBv8Zg8teY5qFhszUF4+5kq7WXrNzkvw8H5L9wU=;
+        b=kPRmcTrxrivd2xuDLHt5cE6iYYvBIHf4nvCdgVa+M+57aq9hnoNz7SrURAVTqmcwPg
+         iXCx7XbGglaOK3BtBjKOVMsgnSzpKRusVDL/ERfbg56PZ7tRy7qtTIKcmIw4zqVl8fmm
+         84XVgCIMZk81KcVFqz9lcpiNqmzaRjAJpbdxq+ks06+yy0f0oRJLtngFozSegNtu5SHO
+         f2pWlOZAVvH3Gl1NCF18uFJS50b8QLPty/J82SovpwM6Xan2kXTkJJEBEPfCUjp9zgZL
+         Bd9r203XrnqdAw42//OsNcerPTq67OEjWwklA0e4O6MHXr/pmI4uM7azyfDVz1WaMFzy
+         uSMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679134536;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=auw9Bjm4gCLE/eVanEdZ+kImILmnXZOboNPQLAKXOn4=;
-        b=36KoMVk2S4D8e0EcfPhSBjlKBQeqAmOslxlo7niTpJRgwc7o53XsE6OyrVuOjyKyKc
-         HbGgDlxa3gR2z/+hc6lFvMPk8nPLG8ejQ8qrNZ7Hc7R+2SOF+mOuN7ADCANc/lsfz5C6
-         KH+CWbjv3H7IQ4KryE1PtfZaPWtJ0fUVYX+4cyYN58ZdQGOzkzbluHoVV1awrHAkSs3h
-         PV29JnK6dROHqLpf1aPSINN6PoXD8tNrRLd4kE04xCb/EDyCQEyvYbebc2fwtARj+4Nz
-         CJKzZY2YWPAOmvUj9LZE2AokhmJWXaW8reAcDNBZjVUbz4SUzbbr4xK1sRT25gY3LYdj
-         ksQQ==
-X-Gm-Message-State: AO0yUKUTela/Mg219F4srO1hsibiicC6hbdjDNvPKB/Z5LY0dh8LktM3
-        NoXEDPIdCrHQNSz79Wi+HVE=
-X-Google-Smtp-Source: AK7set/HBHHQ9+doLuxTNYp7PrveT7wTG6L/IoeE4N0lHBGWKhAUoX4keWv6XUbHYQ9WaCrN4ksPGw==
-X-Received: by 2002:a7b:c5d7:0:b0:3ed:5eed:5581 with SMTP id n23-20020a7bc5d7000000b003ed5eed5581mr4848466wmk.2.1679134535585;
-        Sat, 18 Mar 2023 03:15:35 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1679134537;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PP8hrBv8Zg8teY5qFhszUF4+5kq7WXrNzkvw8H5L9wU=;
+        b=ct83WwT1lZJ2Y4mzP66acvwZ/UohlCbfJ1I52yzHcSqcXXux9iFF5JGLkqCflzCb+g
+         5nwfjSzyzglNX9+vkl8JjbdGjAVcGvYbMkwQw3L452spXizM1qZ0Ji2otmpkXMB0XDrd
+         gVYT9WYUU3r/rx8TIkF3y55iVZwtGoarXla+T4rO+MGf5j9V8B3MNmDOESyHUxycFxoY
+         HEPf1R4yEyOr5Ec3myGuwZlfz/vtwEVfnwsUsZoXmkeXoaj3zF6kxgnzlHFI/4FIOsds
+         ahKdcsiIBBxoLMv35Uqd/1B0ZxAhnyKJUH36l5uSTY/GGdTm7ZiGIHtTpC22cXYw1taC
+         hdNQ==
+X-Gm-Message-State: AO0yUKXQMMoB1zUOF1CBrGdsa6kFCoorKUzKRfORBeqw3pK700rvsG0B
+        tatVdU5DhIFDY82tBfcMQaA=
+X-Google-Smtp-Source: AK7set/eTR5iXiGk1JpNxuDJvoCXQSBxXjSju76oRZWaqFETPcKCm/WhdvKoMixuwGaiLannhivCUg==
+X-Received: by 2002:a05:600c:3c9e:b0:3e1:f8af:8772 with SMTP id bg30-20020a05600c3c9e00b003e1f8af8772mr26614966wmb.9.1679134537368;
+        Sat, 18 Mar 2023 03:15:37 -0700 (PDT)
 Received: from amir-ThinkPad-T480.lan ([5.29.249.86])
-        by smtp.gmail.com with ESMTPSA id v26-20020a05600c215a00b003eafc47eb09sm4333965wml.43.2023.03.18.03.15.33
+        by smtp.gmail.com with ESMTPSA id v26-20020a05600c215a00b003eafc47eb09sm4333965wml.43.2023.03.18.03.15.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Mar 2023 03:15:35 -0700 (PDT)
+        Sat, 18 Mar 2023 03:15:36 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -56,11 +57,15 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Chandan Babu R <chandan.babu@oracle.com>,
         Christian Brauner <brauner@kernel.org>,
         linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.10 00/15] xfs backports for 5.10.y (from v5.15.103)
-Date:   Sat, 18 Mar 2023 12:15:14 +0200
-Message-Id: <20230318101529.1361673-1-amir73il@gmail.com>
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>
+Subject: [PATCH 5.10 01/15] xfs: don't assert fail on perag references on teardown
+Date:   Sat, 18 Mar 2023 12:15:15 +0200
+Message-Id: <20230318101529.1361673-2-amir73il@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230318101529.1361673-1-amir73il@gmail.com>
+References: <20230318101529.1361673-1-amir73il@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -73,73 +78,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg,
+From: Dave Chinner <dchinner@redhat.com>
 
-Following backports catch up with recent 5.15.y xfs backports.
+commit 5b55cbc2d72632e874e50d2e36bce608e55aaaea upstream.
 
-Patches 1-3 are the backports from the previous 5.15 xfs backports
-round that Chandan requested for 5.4 [1].
+[backport for 5.10.y, prior to perag refactoring in v5.14]
 
-Patches 4-14 are the SGID fixes that I collaborated with Leah [2].
-Christian has reviewed the backports of his vfs patches to 5.10.
+Not fatal, the assert is there to catch developer attention. I'm
+seeing this occasionally during recoveryloop testing after a
+shutdown, and I don't want this to stop an overnight recoveryloop
+run as it is currently doing.
 
-Patch 15 is a fix for a build warning caused by one of the SGID fixes
-that you applied to 5.15.y.
+Convert the ASSERT to a XFS_IS_CORRUPT() check so it will dump a
+corruption report into the log and cause a test failure that way,
+but it won't stop the machine dead.
 
-This series has gone through the usual xfs test/review routine.
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+---
+ fs/xfs/xfs_mount.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Thanks,
-Amir.
-
-[1] https://lore.kernel.org/linux-xfs/874jrtzlgp.fsf@debian-BULLSEYE-live-builder-AMD64/
-[2] https://lore.kernel.org/linux-xfs/20230307185922.125907-1-leah.rumancik@gmail.com/
-
-Amir Goldstein (4):
-  attr: add in_group_or_capable()
-  fs: move should_remove_suid()
-  attr: add setattr_should_drop_sgid()
-  attr: use consistent sgid stripping checks
-
-Christian Brauner (1):
-  fs: use consistent setgid checks in is_sxid()
-
-Darrick J. Wong (3):
-  xfs: purge dquots after inode walk fails during quotacheck
-  xfs: don't leak btree cursor when insrec fails after a split
-  xfs: use setattr_copy to set vfs inode attributes
-
-Dave Chinner (4):
-  xfs: don't assert fail on perag references on teardown
-  xfs: remove XFS_PREALLOC_SYNC
-  xfs: fallocate() should call file_modified()
-  xfs: set prealloc flag in xfs_alloc_file_space()
-
-Gaosheng Cui (1):
-  xfs: remove xfs_setattr_time() declaration
-
-Yang Xu (2):
-  fs: add mode_strip_sgid() helper
-  fs: move S_ISGID stripping into the vfs_*() helpers
-
- Documentation/trace/ftrace.rst |  2 +-
- fs/attr.c                      | 70 ++++++++++++++++++++++++++---
- fs/inode.c                     | 80 +++++++++++++++++++---------------
- fs/internal.h                  |  6 +++
- fs/namei.c                     | 80 ++++++++++++++++++++++++++++------
- fs/ocfs2/file.c                |  4 +-
- fs/ocfs2/namei.c               |  1 +
- fs/open.c                      |  6 +--
- fs/xfs/libxfs/xfs_btree.c      |  8 ++--
- fs/xfs/xfs_bmap_util.c         |  9 ++--
- fs/xfs/xfs_file.c              | 24 +++++-----
- fs/xfs/xfs_iops.c              | 56 ++----------------------
- fs/xfs/xfs_iops.h              |  1 -
- fs/xfs/xfs_mount.c             |  3 +-
- fs/xfs/xfs_pnfs.c              |  9 ++--
- fs/xfs/xfs_qm.c                |  9 +++-
- include/linux/fs.h             |  5 ++-
- 17 files changed, 229 insertions(+), 144 deletions(-)
-
+diff --git a/fs/xfs/xfs_mount.c b/fs/xfs/xfs_mount.c
+index a2a5a0fd9233..402cf828cc91 100644
+--- a/fs/xfs/xfs_mount.c
++++ b/fs/xfs/xfs_mount.c
+@@ -126,7 +126,6 @@ __xfs_free_perag(
+ {
+ 	struct xfs_perag *pag = container_of(head, struct xfs_perag, rcu_head);
+ 
+-	ASSERT(atomic_read(&pag->pag_ref) == 0);
+ 	kmem_free(pag);
+ }
+ 
+@@ -145,7 +144,7 @@ xfs_free_perag(
+ 		pag = radix_tree_delete(&mp->m_perag_tree, agno);
+ 		spin_unlock(&mp->m_perag_lock);
+ 		ASSERT(pag);
+-		ASSERT(atomic_read(&pag->pag_ref) == 0);
++		XFS_IS_CORRUPT(pag->pag_mount, atomic_read(&pag->pag_ref) != 0);
+ 		xfs_iunlink_destroy(pag);
+ 		xfs_buf_hash_destroy(pag);
+ 		call_rcu(&pag->rcu_head, __xfs_free_perag);
 -- 
 2.34.1
 
