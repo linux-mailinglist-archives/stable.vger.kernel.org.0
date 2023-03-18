@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8186C6BFBF6
-	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 18:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B3A6BFBF7
+	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 18:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbjCRRko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Mar 2023 13:40:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48032 "EHLO
+        id S229822AbjCRRkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Mar 2023 13:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229867AbjCRRkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 13:40:43 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775E62312F
-        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:41 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id r19-20020a05600c459300b003eb3e2a5e7bso5138896wmo.0
-        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:41 -0700 (PDT)
+        with ESMTP id S229888AbjCRRko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 13:40:44 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B2C2213F
+        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:43 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id c8-20020a05600c0ac800b003ed2f97a63eso6798845wmr.3
+        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 10:40:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1679161240;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1679161241;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=544uuq3F9dLXA/08+tMENDXO1zPaLb7o7naTx3gxOpw=;
-        b=kTKHVWPQV23S2D1r4nH3QlYUP6Xleh7Kjqo7Bf2VnPHsiIbc5SeunxfSAsp/iVcDYu
-         MsbZh5TJrzTurWLgFlyTqE8DGrXYyHK4M8s04kLxvWQ3xwoEWt07xnPU1Ib+Bbm55iDL
-         Q0H6I1aMIHAQHbu793vZDseR5McVonEZdsn3yQ5PnyWwdjSJBNPMR1zSOaZoslOZ3FAY
-         4Jz4F7zq64lgLQrV5sTaZeZ+Z7mYHZkY/kF8DPjTwDT9NBYfjmMPEdl1WCFStUYW3Xfx
-         ov9eEpUlPxC5oE2pYUk8UpKHad0E21w5xerY+QY1UsQy0qn8mARwA8SlEP/MghnSB2K/
-         LUvQ==
+        bh=oL/SZKj4sy5TbUYwqAtD83DRN3/SqY86+LNlauIFk24=;
+        b=8S5AuS7ZuGnCH4d3hlYZbnI9xLQ32gUSxGnNc24qA59tHZCGeFQ49+ZhvNZJ0PH8Qu
+         wOL9UvTjPrqQCDZLdqVurlo9JfI3PohNHYWFWFVtPNWAPT3yFZYBF5xy6rzDw7Jdz0dH
+         p9LVIVY/fSZF81uQzYUdTY7xwCY8Q05t0yI7rLYPXCB3KSrhPDRzmvFymjkXM57DYtXt
+         aiPTkMFtPJn2iysNMNSIA/ImUT7wnHe6gfx6pzMj7JC8mLI8nZykY8z9XhR8J5zhXTD9
+         SBVcl8wYBVGUFqBlUi3bueE19717SvvZPuvVuu1NoxX8ZQG4ytJueg95/b6VNg5jw9MY
+         bwlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679161240;
+        d=1e100.net; s=20210112; t=1679161241;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=544uuq3F9dLXA/08+tMENDXO1zPaLb7o7naTx3gxOpw=;
-        b=ePOJIiolGdFO/xRonuPwoarVGAOD+0sgreKP1ix6LkA3kWQ41FBymZ12PmBn+1ZJMR
-         w4oQEZhcoV12CUMU9DykawIMoN8cDaOHA4xohrHhbGkxLOwtycd21qdWj0sVohDEm25V
-         eLCgK7rIk13ZDNfi8J5wzGN0QvqUM4h1mBXI06+7qbokf3GsqbLENlhPVt1AFkwWTLSC
-         tfxGLkX/QcwlQ9OKIY8hCq1j9zYioceWzEpbodcNjyvkt4VjJhffaqLn5i4hZ+N59Xhf
-         +1aQziuHnjxVXoomZdcLmcnGm0mvtou+GEu5WsMghOGPiyLdn1e+JLaGWaBwxtltbebp
-         Gnkw==
-X-Gm-Message-State: AO0yUKWaHF4SJKIveK+/8N0af0+MZhwGPTKNi7wUfIrKt+rpy9/0a1wT
-        2eBVyGx8kJM+P8Ho7WKr0EWQnCx1deQ3ZK2rHBU=
-X-Google-Smtp-Source: AK7set++p4qgG0tp24EqccvFmfoMiXULTIOB+HRicNH2YVC5bRMzIT+BqSPBMmetSg6nwldYtDH5FA==
-X-Received: by 2002:a05:600c:540a:b0:3ea:e582:48dd with SMTP id he10-20020a05600c540a00b003eae58248ddmr28593959wmb.34.1679161239963;
-        Sat, 18 Mar 2023 10:40:39 -0700 (PDT)
+        bh=oL/SZKj4sy5TbUYwqAtD83DRN3/SqY86+LNlauIFk24=;
+        b=SUDM/WEXENjhoNcvnTL95uPcZpiAcTF9sEFmWVCCbE1lJOiXt+k+y5irOIy5D/G48c
+         7xX2cON6Tt1UJ004sVVK461g1xN34KbMY84hcrm8oH0KCtSEMm3GCnM/dqJrZUeYoRsm
+         mJDo8NKKJ486z6gzP7q1clUDFd3bCQeZSwpttvLKRXcnwUJ2zVZ7jR4jlibvVK/fzIhN
+         MMQBCg3f1JTTLqxCchBvz0nSr9yqskvILRBWcnsrJoXTojtd1X00FnW2zoipxopvvxn/
+         P+qqPfyko/JT0RGwB12ltQCg/WgyRQqCN6E8qKpMMjTdghrn0FGKnj7o6GyZUeCutLqR
+         K/pw==
+X-Gm-Message-State: AO0yUKXxkNBa5LCqB7w90yBd/fhnMd5aYsI0l9wdjAkn8r5S41XERurV
+        YPee55A/xp5A48UMMWJdNm5IU/lbK0bYRoY7DH4=
+X-Google-Smtp-Source: AK7set8FO7Om9JhRyGpFQyF1u6iPV/r+OaDWcvuTaFZabe/OJEnrObCrBpWlzDlhlWN5QNlGO/adDQ==
+X-Received: by 2002:a05:600c:3b99:b0:3ed:234d:b0c0 with SMTP id n25-20020a05600c3b9900b003ed234db0c0mr20596205wms.13.1679161241556;
+        Sat, 18 Mar 2023 10:40:41 -0700 (PDT)
 Received: from localhost.localdomain (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
-        by smtp.gmail.com with ESMTPSA id f20-20020a7bcd14000000b003e203681b26sm5313886wmj.29.2023.03.18.10.40.39
+        by smtp.gmail.com with ESMTPSA id f20-20020a7bcd14000000b003e203681b26sm5313886wmj.29.2023.03.18.10.40.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Mar 2023 10:40:39 -0700 (PDT)
+        Sat, 18 Mar 2023 10:40:41 -0700 (PDT)
 From:   Qais Yousef <qyousef@layalina.io>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -56,9 +56,9 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Qais Yousef <qais.yousef@arm.com>
-Subject: [PATCH v2 05/10] sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
-Date:   Sat, 18 Mar 2023 17:39:38 +0000
-Message-Id: <20230318173943.3188213-6-qyousef@layalina.io>
+Subject: [PATCH v2 06/10] sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()'s early exit condition
+Date:   Sat, 18 Mar 2023 17:39:39 +0000
+Message-Id: <20230318173943.3188213-7-qyousef@layalina.io>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230318173943.3188213-1-qyousef@layalina.io>
 References: <20230318173943.3188213-1-qyousef@layalina.io>
@@ -75,55 +75,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-commit c56ab1b3506ba0e7a872509964b100912bde165d upstream.
+commit d81304bc6193554014d4372a01debdf65e1e9a4d upstream.
 
-So that it is now uclamp aware.
+If the utilization of the woken up task is 0, we skip the energy
+calculation because it has no impact.
 
-This fixes a major problem of busy tasks capped with UCLAMP_MAX keeping
-the system in overutilized state which disables EAS and leads to wasting
-energy in the long run.
+But if the task is boosted (uclamp_min != 0) will have an impact on task
+placement and frequency selection. Only skip if the util is truly
+0 after applying uclamp values.
 
-Without this patch running a busy background activity like JIT
-compilation on Pixel 6 causes the system to be in overutilized state
-74.5% of the time.
+Change uclamp_task_cpu() signature to avoid unnecessary additional calls
+to uclamp_eff_get(). feec() is the only user now.
 
-With this patch this goes down to  9.79%.
-
-It also fixes another problem when long running tasks that have their
-UCLAMP_MIN changed while running such that they need to upmigrate to
-honour the new UCLAMP_MIN value. The upmigration doesn't get triggered
-because overutilized state never gets set in this state, hence misfit
-migration never happens at tick in this case until the task wakes up
-again.
-
-Fixes: af24bde8df202 ("sched/uclamp: Add uclamp support to energy_compute()")
+Fixes: 732cd75b8c920 ("sched/fair: Select an energy-efficient CPU on task wake-up")
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-7-qais.yousef@arm.com
-(cherry picked from commit c56ab1b3506ba0e7a872509964b100912bde165d)
-[Conflict in kernel/sched/fair.c: use cpu_util() instead of
-cpu_util_cfs()]
+Link: https://lore.kernel.org/r/20220804143609.515789-8-qais.yousef@arm.com
+(cherry picked from commit d81304bc6193554014d4372a01debdf65e1e9a4d)
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 ---
- kernel/sched/fair.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index b03633bc994f..fdfbed1e9be5 100644
+index fdfbed1e9be5..d25c6122e243 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -5610,7 +5610,10 @@ static inline unsigned long cpu_util(int cpu);
- 
- static inline bool cpu_overutilized(int cpu)
- {
--	return !fits_capacity(cpu_util(cpu), capacity_of(cpu));
-+	unsigned long rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
-+	unsigned long rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
-+
-+	return !util_fits_cpu(cpu_util(cpu), rq_util_min, rq_util_max, cpu);
+@@ -3928,14 +3928,16 @@ static inline unsigned long task_util_est(struct task_struct *p)
  }
  
- static inline void update_overutilized_status(struct rq *rq)
+ #ifdef CONFIG_UCLAMP_TASK
+-static inline unsigned long uclamp_task_util(struct task_struct *p)
++static inline unsigned long uclamp_task_util(struct task_struct *p,
++					     unsigned long uclamp_min,
++					     unsigned long uclamp_max)
+ {
+-	return clamp(task_util_est(p),
+-		     uclamp_eff_value(p, UCLAMP_MIN),
+-		     uclamp_eff_value(p, UCLAMP_MAX));
++	return clamp(task_util_est(p), uclamp_min, uclamp_max);
+ }
+ #else
+-static inline unsigned long uclamp_task_util(struct task_struct *p)
++static inline unsigned long uclamp_task_util(struct task_struct *p,
++					     unsigned long uclamp_min,
++					     unsigned long uclamp_max)
+ {
+ 	return task_util_est(p);
+ }
+@@ -6789,7 +6791,7 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
+ 		goto fail;
+ 
+ 	sync_entity_load_avg(&p->se);
+-	if (!task_util_est(p))
++	if (!uclamp_task_util(p, p_util_min, p_util_max))
+ 		goto unlock;
+ 
+ 	for (; pd; pd = pd->next) {
 -- 
 2.25.1
 
