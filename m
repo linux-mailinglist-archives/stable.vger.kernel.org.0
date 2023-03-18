@@ -2,139 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8FD6BF8B3
-	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 08:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C51856BF949
+	for <lists+stable@lfdr.de>; Sat, 18 Mar 2023 11:15:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229542AbjCRH6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Mar 2023 03:58:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46468 "EHLO
+        id S229830AbjCRKPl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Mar 2023 06:15:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229769AbjCRH6B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 03:58:01 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2073.outbound.protection.outlook.com [40.107.93.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C7C6B5E0
-        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 00:57:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bYS5FY9S/FVPsLOPWV0Df69EZEJSd5RSoCAtFEE2KgBbxz1mrfPYfyqo6Lini8FpGX/w0e2RcGykCLUUj9CZMU0o/cZwtsZDD4Y0aiaTuQMRtmhxDShJGfuc7EO25QrDpLYVGKyb7jgYJ+KI5mCkXgByHW8bZwpB7fP0GuPMwSFuzbswIN2Cy+Zi6sIbNixXYLnTrodQhAVe6rUn5XZk88uW752eZfIHqTiQkIlffbxBBJWrBDKbFuA5qllUDUTat6LfumoUZB8ZFfY6affiR+aJzobBW4bx9tiEV492ByqA2+DQ9whQEgKXNWWqGloSGJTI80WzbRLNNmiEZ5vnNQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=auNQtjzloAXrGfc2DkvblvPW3MUIqiN3jfIKHploqfw=;
- b=A0+PVie1Fke6qxni/hWhVbenSEGpeHcUjMQepvR23dvsDUT567u9jDmDYHnYFYt0H9kXy85lcdkCBF50ylyLX+bgMrTYYz1CWo5F1dKxkOYDn4jft6zklgv2kuHsWVFw4vHkupP/CMz4yOZHKtu2VfqGlyQIaF5KjKnnkfmmx837LEUaR6jURtXs9nRfymnGp+43UItDSFPuo0RM7t/2TycH9Tn0GI4Yqc6LkV5lKxu5hDl9MxYbfUWdSGwJdaVmwI6PsLcnQNYJZUDTqSqDIa4k78x5uqjwpBauKNhtsp1hrolRZgDClrJEsiYj+uHvRyE9c2Ph+6JYJROU32gbGQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=auNQtjzloAXrGfc2DkvblvPW3MUIqiN3jfIKHploqfw=;
- b=wD/aOKmua/CECZ3CmW2CPKPFjg35XauaaaDyh3o1QeRtsTD6woGXu5Xnngh/aOMVmyiM3UoVkHW8sjpZ0xtBbFyXXKWCUngXmHCa0LfQN1rkTfk4uT5d1fYVjUNgvvXL+VpYx4L341WOxel56+o0wj7IVnWNWmPJTMiOFMpROHg=
-Received: from BN9PR03CA0357.namprd03.prod.outlook.com (2603:10b6:408:f6::32)
- by CYYPR12MB8730.namprd12.prod.outlook.com (2603:10b6:930:c1::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.36; Sat, 18 Mar
- 2023 07:57:53 +0000
-Received: from BN8NAM11FT005.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:f6:cafe::fd) by BN9PR03CA0357.outlook.office365.com
- (2603:10b6:408:f6::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.35 via Frontend
- Transport; Sat, 18 Mar 2023 07:57:53 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BN8NAM11FT005.mail.protection.outlook.com (10.13.176.69) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6222.11 via Frontend Transport; Sat, 18 Mar 2023 07:57:53 +0000
-Received: from localhost.localdomain (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Sat, 18 Mar
- 2023 02:57:48 -0500
-From:   Qingqing Zhuo <qingqing.zhuo@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
-        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
-        <Aurabindo.Pillai@amd.com>, <qingqing.zhuo@amd.com>,
-        <roman.li@amd.com>, <wayne.lin@amd.com>, <stylon.wang@amd.com>,
-        <solomon.chiu@amd.com>, <pavle.kotarac@amd.com>,
-        <agustin.gutierrez@amd.com>, Hersen Wu <hersenxs.wu@amd.com>,
-        <stable@vger.kernel.org>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 16/19] drm/amd/display: fix wrong index used in dccg32_set_dpstreamclk
-Date:   Sat, 18 Mar 2023 03:56:12 -0400
-Message-ID: <20230318075615.2630-17-qingqing.zhuo@amd.com>
+        with ESMTP id S229575AbjCRKPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Mar 2023 06:15:39 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D539234CE;
+        Sat, 18 Mar 2023 03:15:37 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id o11-20020a05600c4fcb00b003eb33ea29a8so4726302wmq.1;
+        Sat, 18 Mar 2023 03:15:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679134536;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=auw9Bjm4gCLE/eVanEdZ+kImILmnXZOboNPQLAKXOn4=;
+        b=RsZGDmiXqai4Xx0+iewRMdWV6WVMW7qu4pfnE422sN8cnxyY/85LJbQt26iJW594FQ
+         S1rMEO4jcgWrjhZoVyqi4mP5fUIU0VyPr51KnJKSIZVu9I3wddbb3N3Y3K6g8eDcZiyl
+         bcQ7IbmvcLE8UL5ejJ5QNyyLMgrdOr0IEdI9HSwpUmsc/F5B0PyYAqU8dEunTb7vIidW
+         tCHpCugXdL9B5Hdq/llrVC43KfRlzXDtbOC1LlbPPI4vSahFldk1Ysj6EZ9nSEspi6PB
+         zG+JeQ7hoj0GZvH+1DoIq23dpX9ogLd3RP9P5QmVWdwPUC3cn7R9yjfvV4SW5/yBIJTf
+         +GBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679134536;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=auw9Bjm4gCLE/eVanEdZ+kImILmnXZOboNPQLAKXOn4=;
+        b=36KoMVk2S4D8e0EcfPhSBjlKBQeqAmOslxlo7niTpJRgwc7o53XsE6OyrVuOjyKyKc
+         HbGgDlxa3gR2z/+hc6lFvMPk8nPLG8ejQ8qrNZ7Hc7R+2SOF+mOuN7ADCANc/lsfz5C6
+         KH+CWbjv3H7IQ4KryE1PtfZaPWtJ0fUVYX+4cyYN58ZdQGOzkzbluHoVV1awrHAkSs3h
+         PV29JnK6dROHqLpf1aPSINN6PoXD8tNrRLd4kE04xCb/EDyCQEyvYbebc2fwtARj+4Nz
+         CJKzZY2YWPAOmvUj9LZE2AokhmJWXaW8reAcDNBZjVUbz4SUzbbr4xK1sRT25gY3LYdj
+         ksQQ==
+X-Gm-Message-State: AO0yUKUTela/Mg219F4srO1hsibiicC6hbdjDNvPKB/Z5LY0dh8LktM3
+        NoXEDPIdCrHQNSz79Wi+HVE=
+X-Google-Smtp-Source: AK7set/HBHHQ9+doLuxTNYp7PrveT7wTG6L/IoeE4N0lHBGWKhAUoX4keWv6XUbHYQ9WaCrN4ksPGw==
+X-Received: by 2002:a7b:c5d7:0:b0:3ed:5eed:5581 with SMTP id n23-20020a7bc5d7000000b003ed5eed5581mr4848466wmk.2.1679134535585;
+        Sat, 18 Mar 2023 03:15:35 -0700 (PDT)
+Received: from amir-ThinkPad-T480.lan ([5.29.249.86])
+        by smtp.gmail.com with ESMTPSA id v26-20020a05600c215a00b003eafc47eb09sm4333965wml.43.2023.03.18.03.15.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Mar 2023 03:15:35 -0700 (PDT)
+From:   Amir Goldstein <amir73il@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Christian Brauner <brauner@kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.10 00/15] xfs backports for 5.10.y (from v5.15.103)
+Date:   Sat, 18 Mar 2023 12:15:14 +0200
+Message-Id: <20230318101529.1361673-1-amir73il@gmail.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230318075615.2630-1-qingqing.zhuo@amd.com>
-References: <20230318075615.2630-1-qingqing.zhuo@amd.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT005:EE_|CYYPR12MB8730:EE_
-X-MS-Office365-Filtering-Correlation-Id: e32834ba-c753-44b9-fc08-08db27867a46
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: DUxoCjB3bu9uYVv9+Z+Z6Uzdy6zj1AETCunUKOssJCQN1C8TQF4d1SCcmwr38cFJJGw7i9dP58h1GfpSwmfYkNP+WdNRC0TrNfR4+e0PEBp/UKGW3WhvBJuLRGULKfDfuUH7OMM+SeKdBcqwndk8t832BugFFrIwduQTVekzDuM5HK/bJ/7/JG5aznvPCpMifJQ6qUAg43t4+BtsDnM0UhAoGdabZX3t6W5rxs7xb6wBX51uNRqLAlkSfVPgeGO8vMQUlk0XZ7P74MqwE6SdyBVaRoIXLWYHIE9MXWMVNXDygLkqdjqc73B6O6Zg1MZVyf8rmjPkFNq5WpD5ND3t/JFtVG0NR2ItHr9SZVaJYAiuODbszlZf/8imScY8mW1t9t2a9aE1W6M5L416eskvKerjdfkovozgEVEwnVE8y2Exi+VCzIu5QfbC/wAC8b3B6uUp3fsHf7rKAwGV55w6bvivNe327JFARcfFDEV3oDOg+u9rMEbtJc/Rj5hB5IhgX03Gp5Tk4CpnWujxmIJqNcang0cmYLsqp4SwN1F05vtWyVEsqdeJMiTyj/yDqOLWXB/xECHKV38kr1MAXVnxSgFvYK7WCweE6Iu89i6XOs4t5y6mrvnOUfNCnlJyTuDZY0rcl3lqYvGiNblcAdcJ+ob2Ze/baN2WvjUDNX2DcLEq3HE9J4pV2SqPbW17x0VhnCUuKfnH7LICjTZpRGlU22XH+tWekzdk5mrtBPBtgH4=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(346002)(376002)(396003)(39860400002)(136003)(451199018)(40470700004)(46966006)(36840700001)(82310400005)(86362001)(40460700003)(36756003)(40480700001)(316002)(70586007)(70206006)(8676002)(4326008)(83380400001)(478600001)(54906003)(186003)(16526019)(26005)(1076003)(2616005)(426003)(47076005)(6666004)(336012)(6916009)(356005)(44832011)(8936002)(5660300002)(2906002)(41300700001)(81166007)(36860700001)(82740400003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Mar 2023 07:57:53.3161
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e32834ba-c753-44b9-fc08-08db27867a46
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT005.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB8730
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hersen Wu <hersenxs.wu@amd.com>
+Greg,
 
-[Why & How]
-When merging commit 8f6de23e03f1
-("drm/amd/display: Fix DCN32 DPSTREAMCLK_CNTL programming"),
-index change was not picked up.
+Following backports catch up with recent 5.15.y xfs backports.
 
-Cc: stable@vger.kernel.org
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Fixes: 8f6de23e03f1 ("drm/amd/display: Fix DCN32 DPSTREAMCLK_CNTL programming")
-Reviewed-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
----
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Patches 1-3 are the backports from the previous 5.15 xfs backports
+round that Chandan requested for 5.4 [1].
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
-index 5dbef498580b..ffbb739d85b6 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
-@@ -293,8 +293,7 @@ static void dccg32_set_dpstreamclk(
- 	dccg32_set_dtbclk_p_src(dccg, src, otg_inst);
- 
- 	/* enabled to select one of the DTBCLKs for pipe */
--	switch (otg_inst)
--	{
-+	switch (dp_hpo_inst) {
- 	case 0:
- 		REG_UPDATE_2(DPSTREAMCLK_CNTL,
- 			     DPSTREAMCLK0_EN,
+Patches 4-14 are the SGID fixes that I collaborated with Leah [2].
+Christian has reviewed the backports of his vfs patches to 5.10.
+
+Patch 15 is a fix for a build warning caused by one of the SGID fixes
+that you applied to 5.15.y.
+
+This series has gone through the usual xfs test/review routine.
+
+Thanks,
+Amir.
+
+[1] https://lore.kernel.org/linux-xfs/874jrtzlgp.fsf@debian-BULLSEYE-live-builder-AMD64/
+[2] https://lore.kernel.org/linux-xfs/20230307185922.125907-1-leah.rumancik@gmail.com/
+
+Amir Goldstein (4):
+  attr: add in_group_or_capable()
+  fs: move should_remove_suid()
+  attr: add setattr_should_drop_sgid()
+  attr: use consistent sgid stripping checks
+
+Christian Brauner (1):
+  fs: use consistent setgid checks in is_sxid()
+
+Darrick J. Wong (3):
+  xfs: purge dquots after inode walk fails during quotacheck
+  xfs: don't leak btree cursor when insrec fails after a split
+  xfs: use setattr_copy to set vfs inode attributes
+
+Dave Chinner (4):
+  xfs: don't assert fail on perag references on teardown
+  xfs: remove XFS_PREALLOC_SYNC
+  xfs: fallocate() should call file_modified()
+  xfs: set prealloc flag in xfs_alloc_file_space()
+
+Gaosheng Cui (1):
+  xfs: remove xfs_setattr_time() declaration
+
+Yang Xu (2):
+  fs: add mode_strip_sgid() helper
+  fs: move S_ISGID stripping into the vfs_*() helpers
+
+ Documentation/trace/ftrace.rst |  2 +-
+ fs/attr.c                      | 70 ++++++++++++++++++++++++++---
+ fs/inode.c                     | 80 +++++++++++++++++++---------------
+ fs/internal.h                  |  6 +++
+ fs/namei.c                     | 80 ++++++++++++++++++++++++++++------
+ fs/ocfs2/file.c                |  4 +-
+ fs/ocfs2/namei.c               |  1 +
+ fs/open.c                      |  6 +--
+ fs/xfs/libxfs/xfs_btree.c      |  8 ++--
+ fs/xfs/xfs_bmap_util.c         |  9 ++--
+ fs/xfs/xfs_file.c              | 24 +++++-----
+ fs/xfs/xfs_iops.c              | 56 ++----------------------
+ fs/xfs/xfs_iops.h              |  1 -
+ fs/xfs/xfs_mount.c             |  3 +-
+ fs/xfs/xfs_pnfs.c              |  9 ++--
+ fs/xfs/xfs_qm.c                |  9 +++-
+ include/linux/fs.h             |  5 ++-
+ 17 files changed, 229 insertions(+), 144 deletions(-)
+
 -- 
 2.34.1
 
