@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBC06BFFA0
-	for <lists+stable@lfdr.de>; Sun, 19 Mar 2023 07:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B33F96BFFA6
+	for <lists+stable@lfdr.de>; Sun, 19 Mar 2023 08:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229778AbjCSGu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 02:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55140 "EHLO
+        id S229541AbjCSHCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 03:02:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjCSGu0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 02:50:26 -0400
-X-Greylist: delayed 468 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 18 Mar 2023 23:50:24 PDT
-Received: from mailout1.hostsharing.net (mailout1.hostsharing.net [IPv6:2a01:37:1000::53df:5fcc:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14104CDFA
-        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 23:50:23 -0700 (PDT)
+        with ESMTP id S230014AbjCSHCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 03:02:02 -0400
+X-Greylist: delayed 551 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 19 Mar 2023 00:01:59 PDT
+Received: from mailout2.hostsharing.net (mailout2.hostsharing.net [IPv6:2a01:37:3000::53df:4ee9:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE6A513509
+        for <stable@vger.kernel.org>; Sun, 19 Mar 2023 00:01:59 -0700 (PDT)
 Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
          client-signature RSA-PSS (4096 bits) client-digest SHA256)
         (Client CN "*.hostsharing.net", Issuer "RapidSSL Global TLS RSA4096 SHA256 2022 CA1" (verified OK))
-        by mailout1.hostsharing.net (Postfix) with ESMTPS id B3F4910190FBD;
-        Sun, 19 Mar 2023 07:42:31 +0100 (CET)
+        by mailout2.hostsharing.net (Postfix) with ESMTPS id 232DB10189E0B;
+        Sun, 19 Mar 2023 07:52:45 +0100 (CET)
 Received: from localhost (unknown [89.246.108.87])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by h08.hostsharing.net (Postfix) with ESMTPSA id 7A7576031F35;
-        Sun, 19 Mar 2023 07:42:31 +0100 (CET)
-X-Mailbox-Line: From 50c1ab1e329d2fecafd69a8438ab91e5e3dcd572 Mon Sep 17 00:00:00 2001
-Message-Id: <50c1ab1e329d2fecafd69a8438ab91e5e3dcd572.1679207873.git.lukas@wunner.de>
-In-Reply-To: <167820491185214@kroah.com>
-References: <167820491185214@kroah.com>
+        by h08.hostsharing.net (Postfix) with ESMTPSA id E64916031F35;
+        Sun, 19 Mar 2023 07:52:44 +0100 (CET)
+X-Mailbox-Line: From 7da18b0db2b68becfbab7ff2ec81586e747c5908 Mon Sep 17 00:00:00 2001
+Message-Id: <7da18b0db2b68becfbab7ff2ec81586e747c5908.1679208519.git.lukas@wunner.de>
+In-Reply-To: <16782049101756@kroah.com>
+References: <16782049101756@kroah.com>
 From:   Lukas Wunner <lukas@wunner.de>
-Date:   Sun, 19 Mar 2023 07:42:00 +0100
-Subject: [PATCH 5.4.y] PCI: Unify delay handling for reset and resume
+Date:   Sun, 19 Mar 2023 07:53:32 +0100
+Subject: [PATCH 5.10.y 1/2] PCI: Unify delay handling for reset and resume
 To:     <stable@vger.kernel.org>
 Cc:     Bjorn Helgaas <bhelgaas@google.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
@@ -106,10 +106,10 @@ Cc: stable@vger.kernel.org # v4.17+
  3 files changed, 35 insertions(+), 33 deletions(-)
 
 diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 5ea612a15550..70c8584b3ffc 100644
+index 8b587fc97f7b..c22cc20db1a7 100644
 --- a/drivers/pci/pci-driver.c
 +++ b/drivers/pci/pci-driver.c
-@@ -946,7 +946,7 @@ static int pci_pm_resume_noirq(struct device *dev)
+@@ -911,7 +911,7 @@ static int pci_pm_resume_noirq(struct device *dev)
  	pcie_pme_root_status_cleanup(pci_dev);
  
  	if (!skip_bus_pm && prev_state == PCI_D3cold)
@@ -117,21 +117,21 @@ index 5ea612a15550..70c8584b3ffc 100644
 +		pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
  
  	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_resume_early(dev);
-@@ -1355,7 +1355,7 @@ static int pci_pm_runtime_resume(struct device *dev)
- 	pci_fixup_device(pci_fixup_resume, pci_dev);
+ 		return 0;
+@@ -1298,7 +1298,7 @@ static int pci_pm_runtime_resume(struct device *dev)
+ 	pci_pm_default_resume(pci_dev);
  
  	if (prev_state == PCI_D3cold)
 -		pci_bridge_wait_for_secondary_bus(pci_dev);
 +		pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
  
  	if (pm && pm->runtime_resume)
- 		rc = pm->runtime_resume(dev);
+ 		error = pm->runtime_resume(dev);
 diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 365b9ed6d815..f8c730b6701b 100644
+index 744a2e05635b..f1a3f165f88a 100644
 --- a/drivers/pci/pci.c
 +++ b/drivers/pci/pci.c
-@@ -4483,7 +4483,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
+@@ -1221,7 +1221,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
  			return -ENOTTY;
  		}
  
@@ -140,7 +140,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  			pci_info(dev, "not ready %dms after %s; waiting\n",
  				 delay - 1, reset_type);
  
-@@ -4492,7 +4492,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
+@@ -1230,7 +1230,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
  		pci_read_config_dword(dev, PCI_COMMAND, &id);
  	}
  
@@ -149,7 +149,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  		pci_info(dev, "ready %dms after %s\n", delay - 1,
  			 reset_type);
  
-@@ -4727,24 +4727,31 @@ static int pci_bus_max_d3cold_delay(const struct pci_bus *bus)
+@@ -4792,24 +4792,31 @@ static int pci_bus_max_d3cold_delay(const struct pci_bus *bus)
  /**
   * pci_bridge_wait_for_secondary_bus - Wait for secondary bus to be accessible
   * @dev: PCI bridge
@@ -185,7 +185,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  
  	down_read(&pci_bus_sem);
  
-@@ -4756,14 +4763,14 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
+@@ -4821,14 +4828,14 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
  	 */
  	if (!dev->subordinate || list_empty(&dev->subordinate->devices)) {
  		up_read(&pci_bus_sem);
@@ -202,7 +202,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  	}
  
  	child = list_first_entry(&dev->subordinate->devices, struct pci_dev,
-@@ -4772,14 +4779,12 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
+@@ -4837,14 +4844,12 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
  
  	/*
  	 * Conventional PCI and PCI-X we need to wait Tpvrh + Trhfa before
@@ -219,7 +219,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  	}
  
  	/*
-@@ -4796,11 +4801,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
+@@ -4861,11 +4866,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
  	 * configuration requests if we only wait for 100 ms (see
  	 * https://bugzilla.kernel.org/show_bug.cgi?id=203885).
  	 *
@@ -234,10 +234,10 @@ index 365b9ed6d815..f8c730b6701b 100644
  
  	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
  		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
-@@ -4810,14 +4815,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 			delay);
+@@ -4876,14 +4881,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
  		if (!pcie_wait_for_link_delay(dev, true, delay)) {
  			/* Did not train, no need to wait any further */
+ 			pci_info(dev, "Data Link Layer Link Active not set in 1000 msec\n");
 -			return;
 +			return -ENOTTY;
  		}
@@ -251,7 +251,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  }
  
  void pci_reset_secondary_bus(struct pci_dev *dev)
-@@ -4836,15 +4838,6 @@ void pci_reset_secondary_bus(struct pci_dev *dev)
+@@ -4902,15 +4904,6 @@ void pci_reset_secondary_bus(struct pci_dev *dev)
  
  	ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
  	pci_write_config_word(dev, PCI_BRIDGE_CONTROL, ctrl);
@@ -267,7 +267,7 @@ index 365b9ed6d815..f8c730b6701b 100644
  }
  
  void __weak pcibios_reset_secondary_bus(struct pci_dev *dev)
-@@ -4863,7 +4856,8 @@ int pci_bridge_secondary_bus_reset(struct pci_dev *dev)
+@@ -4929,7 +4922,8 @@ int pci_bridge_secondary_bus_reset(struct pci_dev *dev)
  {
  	pcibios_reset_secondary_bus(dev);
  
@@ -278,12 +278,12 @@ index 365b9ed6d815..f8c730b6701b 100644
  EXPORT_SYMBOL_GPL(pci_bridge_secondary_bus_reset);
  
 diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 2db1e2bee215..725d2b0d4569 100644
+index 9197d7362731..77dd7bbe861d 100644
 --- a/drivers/pci/pci.h
 +++ b/drivers/pci/pci.h
 @@ -47,6 +47,13 @@ int pci_bus_error_reset(struct pci_dev *dev);
- #define PCI_PM_D3COLD_WAIT      100
- #define PCI_PM_BUS_WAIT         50
+ #define PCI_PM_D3HOT_WAIT       10	/* msec */
+ #define PCI_PM_D3COLD_WAIT      100	/* msec */
  
 +/*
 + * Following exit from Conventional Reset, devices must be ready within 1 sec
@@ -295,7 +295,7 @@ index 2db1e2bee215..725d2b0d4569 100644
  /**
   * struct pci_platform_pm_ops - Firmware PM callbacks
   *
-@@ -107,7 +114,8 @@ void pci_allocate_cap_save_buffers(struct pci_dev *dev);
+@@ -108,7 +115,8 @@ void pci_allocate_cap_save_buffers(struct pci_dev *dev);
  void pci_free_cap_save_buffers(struct pci_dev *dev);
  bool pci_bridge_d3_possible(struct pci_dev *dev);
  void pci_bridge_d3_update(struct pci_dev *dev);
