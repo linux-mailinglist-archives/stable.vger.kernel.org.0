@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B33F96BFFA6
-	for <lists+stable@lfdr.de>; Sun, 19 Mar 2023 08:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 888576BFFA1
+	for <lists+stable@lfdr.de>; Sun, 19 Mar 2023 07:53:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229541AbjCSHCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 03:02:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34290 "EHLO
+        id S229959AbjCSGxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 02:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230014AbjCSHCC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 03:02:02 -0400
-X-Greylist: delayed 551 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 19 Mar 2023 00:01:59 PDT
-Received: from mailout2.hostsharing.net (mailout2.hostsharing.net [IPv6:2a01:37:3000::53df:4ee9:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE6A513509
-        for <stable@vger.kernel.org>; Sun, 19 Mar 2023 00:01:59 -0700 (PDT)
+        with ESMTP id S229541AbjCSGxt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 02:53:49 -0400
+X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 18 Mar 2023 23:53:48 PDT
+Received: from mailout2.hostsharing.net (mailout2.hostsharing.net [83.223.78.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3775BB80
+        for <stable@vger.kernel.org>; Sat, 18 Mar 2023 23:53:48 -0700 (PDT)
 Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
          client-signature RSA-PSS (4096 bits) client-digest SHA256)
         (Client CN "*.hostsharing.net", Issuer "RapidSSL Global TLS RSA4096 SHA256 2022 CA1" (verified OK))
-        by mailout2.hostsharing.net (Postfix) with ESMTPS id 232DB10189E0B;
-        Sun, 19 Mar 2023 07:52:45 +0100 (CET)
+        by mailout2.hostsharing.net (Postfix) with ESMTPS id 11A8D10189E0D;
+        Sun, 19 Mar 2023 07:53:44 +0100 (CET)
 Received: from localhost (unknown [89.246.108.87])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by h08.hostsharing.net (Postfix) with ESMTPSA id E64916031F35;
-        Sun, 19 Mar 2023 07:52:44 +0100 (CET)
-X-Mailbox-Line: From 7da18b0db2b68becfbab7ff2ec81586e747c5908 Mon Sep 17 00:00:00 2001
-Message-Id: <7da18b0db2b68becfbab7ff2ec81586e747c5908.1679208519.git.lukas@wunner.de>
+        by h08.hostsharing.net (Postfix) with ESMTPSA id E24B76031F35;
+        Sun, 19 Mar 2023 07:53:43 +0100 (CET)
+X-Mailbox-Line: From a97ccac88631d60800946d18374c0846a074be39 Mon Sep 17 00:00:00 2001
+Message-Id: <a97ccac88631d60800946d18374c0846a074be39.1679208519.git.lukas@wunner.de>
 In-Reply-To: <16782049101756@kroah.com>
 References: <16782049101756@kroah.com>
 From:   Lukas Wunner <lukas@wunner.de>
-Date:   Sun, 19 Mar 2023 07:53:32 +0100
-Subject: [PATCH 5.10.y 1/2] PCI: Unify delay handling for reset and resume
+Date:   Sun, 19 Mar 2023 07:53:33 +0100
+Subject: [PATCH 5.10.y 2/2] PCI/DPC: Await readiness of secondary bus after
+ reset
 To:     <stable@vger.kernel.org>
 Cc:     Bjorn Helgaas <bhelgaas@google.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
@@ -42,269 +43,93 @@ Cc:     Bjorn Helgaas <bhelgaas@google.com>,
         Sathyanarayanan Kuppuswamy 
         <sathyanarayanan.kuppuswamy@linux.intel.com>,
         Sheng Bi <windy.bi.enflame@gmail.com>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ac91e6980563ed53afadd925fa6585ffd2bc4a2c upstream.
+commit 53b54ad074de1896f8b021615f65b27f557ce874 upstream.
 
-Sheng Bi reports that pci_bridge_secondary_bus_reset() may fail to wait
-for devices on the secondary bus to become accessible after reset:
+pci_bridge_wait_for_secondary_bus() is called after a Secondary Bus
+Reset, but not after a DPC-induced Hot Reset.
 
-Although it does call pci_dev_wait(), it erroneously passes the bridge's
-pci_dev rather than that of a child.  The bridge of course is always
-accessible while its secondary bus is reset, so pci_dev_wait() returns
-immediately.
+As a result, the delays prescribed by PCIe r6.0 sec 6.6.1 are not
+observed and devices on the secondary bus may be accessed before
+they're ready.
 
-Sheng Bi proposes introducing a new pci_bridge_secondary_bus_wait()
-function which is called from pci_bridge_secondary_bus_reset():
+One affected device is Intel's Ponte Vecchio HPC GPU.  It comprises a
+PCIe switch whose upstream port is not immediately ready after reset.
+Because its config space is restored too early, it remains in
+D0uninitialized, its subordinate devices remain inaccessible and DPC
+recovery fails with messages such as:
 
-https://lore.kernel.org/linux-pci/20220523171517.32407-1-windy.bi.enflame@gmail.com/
+  i915 0000:8c:00.0: can't change power state from D3cold to D0 (config space inaccessible)
+  intel_vsec 0000:8e:00.1: can't change power state from D3cold to D0 (config space inaccessible)
+  pcieport 0000:89:02.0: AER: device recovery failed
 
-However we already have pci_bridge_wait_for_secondary_bus() which does
-almost exactly what we need.  So far it's only called on resume from
-D3cold (which implies a Fundamental Reset per PCIe r6.0 sec 5.8).
-Re-using it for Secondary Bus Resets is a leaner and more rational
-approach than introducing a new function.
+Fix it.
 
-That only requires a few minor tweaks:
-
-- Amend pci_bridge_wait_for_secondary_bus() to await accessibility of
-  the first device on the secondary bus by calling pci_dev_wait() after
-  performing the prescribed delays.  pci_dev_wait() needs two parameters,
-  a reset reason and a timeout, which callers must now pass to
-  pci_bridge_wait_for_secondary_bus().  The timeout is 1 sec for resume
-  (PCIe r6.0 sec 6.6.1) and 60 sec for reset (commit 821cdad5c46c ("PCI:
-  Wait up to 60 seconds for device to become ready after FLR")).
-  Introduce a PCI_RESET_WAIT macro for the 1 sec timeout.
-
-- Amend pci_bridge_wait_for_secondary_bus() to return 0 on success or
-  -ENOTTY on error for consumption by pci_bridge_secondary_bus_reset().
-
-- Drop an unnecessary 1 sec delay from pci_reset_secondary_bus() which
-  is now performed by pci_bridge_wait_for_secondary_bus().  A static
-  delay this long is only necessary for Conventional PCI, so modern
-  PCIe systems benefit from shorter reset times as a side effect.
-
-Fixes: 6b2f1351af56 ("PCI: Wait for device to become ready after secondary bus reset")
-Link: https://lore.kernel.org/r/da77c92796b99ec568bd070cbe4725074a117038.1673769517.git.lukas@wunner.de
-Reported-by: Sheng Bi <windy.bi.enflame@gmail.com>
+Link: https://lore.kernel.org/r/9f5ff00e1593d8d9a4b452398b98aa14d23fca11.1673769517.git.lukas@wunner.de
 Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.17+
+Cc: stable@vger.kernel.org
 ---
- drivers/pci/pci-driver.c |  4 +--
- drivers/pci/pci.c        | 54 ++++++++++++++++++----------------------
- drivers/pci/pci.h        | 10 +++++++-
- 3 files changed, 35 insertions(+), 33 deletions(-)
+ drivers/pci/pci.c      | 3 ---
+ drivers/pci/pci.h      | 6 ++++++
+ drivers/pci/pcie/dpc.c | 4 ++--
+ 3 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 8b587fc97f7b..c22cc20db1a7 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -911,7 +911,7 @@ static int pci_pm_resume_noirq(struct device *dev)
- 	pcie_pme_root_status_cleanup(pci_dev);
- 
- 	if (!skip_bus_pm && prev_state == PCI_D3cold)
--		pci_bridge_wait_for_secondary_bus(pci_dev);
-+		pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return 0;
-@@ -1298,7 +1298,7 @@ static int pci_pm_runtime_resume(struct device *dev)
- 	pci_pm_default_resume(pci_dev);
- 
- 	if (prev_state == PCI_D3cold)
--		pci_bridge_wait_for_secondary_bus(pci_dev);
-+		pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
- 
- 	if (pm && pm->runtime_resume)
- 		error = pm->runtime_resume(dev);
 diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 744a2e05635b..f1a3f165f88a 100644
+index f1a3f165f88a..d37013d007b6 100644
 --- a/drivers/pci/pci.c
 +++ b/drivers/pci/pci.c
-@@ -1221,7 +1221,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
- 			return -ENOTTY;
- 		}
- 
--		if (delay > 1000)
-+		if (delay > PCI_RESET_WAIT)
- 			pci_info(dev, "not ready %dms after %s; waiting\n",
- 				 delay - 1, reset_type);
- 
-@@ -1230,7 +1230,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
- 		pci_read_config_dword(dev, PCI_COMMAND, &id);
- 	}
- 
--	if (delay > 1000)
-+	if (delay > PCI_RESET_WAIT)
- 		pci_info(dev, "ready %dms after %s\n", delay - 1,
- 			 reset_type);
- 
-@@ -4792,24 +4792,31 @@ static int pci_bus_max_d3cold_delay(const struct pci_bus *bus)
- /**
-  * pci_bridge_wait_for_secondary_bus - Wait for secondary bus to be accessible
-  * @dev: PCI bridge
-+ * @reset_type: reset type in human-readable form
-+ * @timeout: maximum time to wait for devices on secondary bus (milliseconds)
-  *
-  * Handle necessary delays before access to the devices on the secondary
-- * side of the bridge are permitted after D3cold to D0 transition.
-+ * side of the bridge are permitted after D3cold to D0 transition
-+ * or Conventional Reset.
-  *
-  * For PCIe this means the delays in PCIe 5.0 section 6.6.1. For
-  * conventional PCI it means Tpvrh + Trhfa specified in PCI 3.0 section
-  * 4.3.2.
-+ *
-+ * Return 0 on success or -ENOTTY if the first device on the secondary bus
-+ * failed to become accessible.
-  */
--void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
-+int pci_bridge_wait_for_secondary_bus(struct pci_dev *dev, char *reset_type,
-+				      int timeout)
- {
- 	struct pci_dev *child;
- 	int delay;
- 
- 	if (pci_dev_is_disconnected(dev))
--		return;
-+		return 0;
- 
- 	if (!pci_is_bridge(dev))
--		return;
-+		return 0;
- 
- 	down_read(&pci_bus_sem);
- 
-@@ -4821,14 +4828,14 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 	 */
- 	if (!dev->subordinate || list_empty(&dev->subordinate->devices)) {
- 		up_read(&pci_bus_sem);
--		return;
-+		return 0;
- 	}
- 
- 	/* Take d3cold_delay requirements into account */
- 	delay = pci_bus_max_d3cold_delay(dev->subordinate);
- 	if (!delay) {
- 		up_read(&pci_bus_sem);
--		return;
-+		return 0;
- 	}
- 
- 	child = list_first_entry(&dev->subordinate->devices, struct pci_dev,
-@@ -4837,14 +4844,12 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 
- 	/*
- 	 * Conventional PCI and PCI-X we need to wait Tpvrh + Trhfa before
--	 * accessing the device after reset (that is 1000 ms + 100 ms). In
--	 * practice this should not be needed because we don't do power
--	 * management for them (see pci_bridge_d3_possible()).
-+	 * accessing the device after reset (that is 1000 ms + 100 ms).
- 	 */
- 	if (!pci_is_pcie(dev)) {
- 		pci_dbg(dev, "waiting %d ms for secondary bus\n", 1000 + delay);
- 		msleep(1000 + delay);
--		return;
-+		return 0;
- 	}
- 
- 	/*
-@@ -4861,11 +4866,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 	 * configuration requests if we only wait for 100 ms (see
- 	 * https://bugzilla.kernel.org/show_bug.cgi?id=203885).
- 	 *
--	 * Therefore we wait for 100 ms and check for the device presence.
--	 * If it is still not present give it an additional 100 ms.
-+	 * Therefore we wait for 100 ms and check for the device presence
-+	 * until the timeout expires.
- 	 */
- 	if (!pcie_downstream_port(dev))
--		return;
-+		return 0;
- 
- 	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
- 		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
-@@ -4876,14 +4881,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 		if (!pcie_wait_for_link_delay(dev, true, delay)) {
- 			/* Did not train, no need to wait any further */
- 			pci_info(dev, "Data Link Layer Link Active not set in 1000 msec\n");
--			return;
-+			return -ENOTTY;
- 		}
- 	}
- 
--	if (!pci_device_is_present(child)) {
--		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
--		msleep(delay);
--	}
-+	return pci_dev_wait(child, reset_type, timeout - delay);
+@@ -157,9 +157,6 @@ static int __init pcie_port_pm_setup(char *str)
  }
+ __setup("pcie_port_pm=", pcie_port_pm_setup);
  
- void pci_reset_secondary_bus(struct pci_dev *dev)
-@@ -4902,15 +4904,6 @@ void pci_reset_secondary_bus(struct pci_dev *dev)
- 
- 	ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
- 	pci_write_config_word(dev, PCI_BRIDGE_CONTROL, ctrl);
+-/* Time to wait after a reset for device to become responsive */
+-#define PCIE_RESET_READY_POLL_MS 60000
 -
--	/*
--	 * Trhfa for conventional PCI is 2^25 clock cycles.
--	 * Assuming a minimum 33MHz clock this results in a 1s
--	 * delay before we can consider subordinate devices to
--	 * be re-initialized.  PCIe has some ways to shorten this,
--	 * but we don't make use of them yet.
--	 */
--	ssleep(1);
- }
- 
- void __weak pcibios_reset_secondary_bus(struct pci_dev *dev)
-@@ -4929,7 +4922,8 @@ int pci_bridge_secondary_bus_reset(struct pci_dev *dev)
- {
- 	pcibios_reset_secondary_bus(dev);
- 
--	return pci_dev_wait(dev, "bus reset", PCIE_RESET_READY_POLL_MS);
-+	return pci_bridge_wait_for_secondary_bus(dev, "bus reset",
-+						 PCIE_RESET_READY_POLL_MS);
- }
- EXPORT_SYMBOL_GPL(pci_bridge_secondary_bus_reset);
- 
+ /**
+  * pci_bus_max_busnr - returns maximum PCI bus number of given bus' children
+  * @bus: pointer to PCI bus structure to search
 diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 9197d7362731..77dd7bbe861d 100644
+index 77dd7bbe861d..72436000ff25 100644
 --- a/drivers/pci/pci.h
 +++ b/drivers/pci/pci.h
-@@ -47,6 +47,13 @@ int pci_bus_error_reset(struct pci_dev *dev);
- #define PCI_PM_D3HOT_WAIT       10	/* msec */
- #define PCI_PM_D3COLD_WAIT      100	/* msec */
- 
+@@ -53,6 +53,12 @@ int pci_bus_error_reset(struct pci_dev *dev);
+  * Reset (PCIe r6.0 sec 5.8).
+  */
+ #define PCI_RESET_WAIT		1000	/* msec */
 +/*
-+ * Following exit from Conventional Reset, devices must be ready within 1 sec
-+ * (PCIe r6.0 sec 6.6.1).  A D3cold to D0 transition implies a Conventional
-+ * Reset (PCIe r6.0 sec 5.8).
++ * Devices may extend the 1 sec period through Request Retry Status completions
++ * (PCIe r6.0 sec 2.3.1).  The spec does not provide an upper limit, but 60 sec
++ * ought to be enough for any device to become responsive.
 + */
-+#define PCI_RESET_WAIT		1000	/* msec */
-+
++#define PCIE_RESET_READY_POLL_MS 60000	/* msec */
+ 
  /**
   * struct pci_platform_pm_ops - Firmware PM callbacks
-  *
-@@ -108,7 +115,8 @@ void pci_allocate_cap_save_buffers(struct pci_dev *dev);
- void pci_free_cap_save_buffers(struct pci_dev *dev);
- bool pci_bridge_d3_possible(struct pci_dev *dev);
- void pci_bridge_d3_update(struct pci_dev *dev);
--void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev);
-+int pci_bridge_wait_for_secondary_bus(struct pci_dev *dev, char *reset_type,
-+				      int timeout);
+diff --git a/drivers/pci/pcie/dpc.c b/drivers/pci/pcie/dpc.c
+index c556e7beafe3..f21d64ae4ffc 100644
+--- a/drivers/pci/pcie/dpc.c
++++ b/drivers/pci/pcie/dpc.c
+@@ -170,8 +170,8 @@ pci_ers_result_t dpc_reset_link(struct pci_dev *pdev)
+ 	pci_write_config_word(pdev, cap + PCI_EXP_DPC_STATUS,
+ 			      PCI_EXP_DPC_STATUS_TRIGGER);
  
- static inline void pci_wakeup_event(struct pci_dev *dev)
- {
+-	if (!pcie_wait_for_link(pdev, true)) {
+-		pci_info(pdev, "Data Link Layer Link Active not set in 1000 msec\n");
++	if (pci_bridge_wait_for_secondary_bus(pdev, "DPC",
++					      PCIE_RESET_READY_POLL_MS)) {
+ 		clear_bit(PCI_DPC_RECOVERED, &pdev->priv_flags);
+ 		ret = PCI_ERS_RESULT_DISCONNECT;
+ 	} else {
 -- 
 2.39.2
 
