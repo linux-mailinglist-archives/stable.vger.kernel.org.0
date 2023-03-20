@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2FB6C078D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:59:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A9F6C07AA
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230070AbjCTA7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:59:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
+        id S230182AbjCTBAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:00:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbjCTA6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:58:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6120120A3E;
-        Sun, 19 Mar 2023 17:55:37 -0700 (PDT)
+        with ESMTP id S231225AbjCTBAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:00:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 877D8222F7;
+        Sun, 19 Mar 2023 17:56:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEF79B80D4D;
-        Mon, 20 Mar 2023 00:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9522EC4339C;
-        Mon, 20 Mar 2023 00:54:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D256EB80D52;
+        Mon, 20 Mar 2023 00:54:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C35FC433D2;
+        Mon, 20 Mar 2023 00:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273685;
-        bh=x8V2g7ZD+Au9PDGMbS/5phCngMePeOQTK1SYJlN3vCo=;
+        s=k20201202; t=1679273688;
+        bh=qb8yH8Fx+GMp5rkS/hxuwGUxW4rYKZAJHqP6w+sGNKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPey1SWgQuyTPwZ2R4r4LZjcA+EuNMyTsFkD3U/IIN7euxXiMBeVOQ2q/mvhSNyqh
-         qgSLqbInZDSaKCeT7WZC3f62prevriAi9RB8qVw6sgwiAd1V1c5OqUwzfBs+UBm4Dp
-         jSEVtN/THbk0FhRVrtSjxYEAuM/8elKTkn6jwHaFY1GmVT0N2z2rBIlne1dunjtJ5k
-         FDQZ1dBZ4JiLae+2lvGZqTPtvLthDTaizpyAGJrpO5TDL5WlLhUOp19C98QQ65/uec
-         bfdRKHXVp133w8M7kd/HqzLWNApgTeMklCw36x7WAZqR+zg1Ckehr+0CHgLXdAlvZz
-         E4Cnywd0WgHcw==
+        b=oqYEXYpax9vJsEFRFjIwkv2k6g4Twamio+Mf+aXkXwIoEgfONo+811zq/0OHL7Zxe
+         oyKG6pFAx1qFsNbXSIJltr2+MXjsapHY5segYYOJPSZDn5iBwoqXkZ29YNvw11euKb
+         J7M0iNycx1NtUY16rDIM7ox2h3LjGVU5+/1d4Ax/KmLnDvyBIlZtxDXzl1NJ0szNPI
+         h4vXIoK1B6Wmu5syKjJ2PuilYmgeIEgg5wOaGZ9xUJc/jR2d5h3nGUojioelWRaQLf
+         bp2ke3nqX5w6JEbvztWCvtjrkU/LM5b1+J0tvMGfW5egH0+Kwodk8Hj5VdknuHOJgc
+         isZL/RxwkKsMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Justin Tee <justin.tee@broadcom.com>,
-        Kang Chen <void0red@gmail.com>,
+Cc:     Ranjan Kumar <ranjan.kumar@broadcom.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
-        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        Sasha Levin <sashal@kernel.org>, sathya.prakash@broadcom.com,
+        kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
+        jejb@linux.ibm.com, mpi3mr-linuxdrv.pdl@broadcom.com,
         linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 13/29] scsi: lpfc: Check kzalloc() in lpfc_sli4_cgn_params_read()
-Date:   Sun, 19 Mar 2023 20:53:55 -0400
-Message-Id: <20230320005413.1428452-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 15/29] scsi: mpi3mr: ioctl timeout when disabling/enabling interrupt
+Date:   Sun, 19 Mar 2023 20:53:57 -0400
+Message-Id: <20230320005413.1428452-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -49,8 +50,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,57 +59,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Tee <justin.tee@broadcom.com>
+From: Ranjan Kumar <ranjan.kumar@broadcom.com>
 
-[ Upstream commit 312320b0e0ec21249a17645683fe5304d796aec1 ]
+[ Upstream commit 02ca7da2919ada525fb424640205110e24646b50 ]
 
-If kzalloc() fails in lpfc_sli4_cgn_params_read(), then we rely on
-lpfc_read_object()'s routine to NULL check pdata.
+As part of Task Management handling, the driver will disable and enable the
+MSIx index zero which belongs to the Admin reply queue. During this
+transition the driver loses some interrupts and this leads to Admin request
+and ioctl timeouts.
 
-Currently, an early return error is thrown from lpfc_read_object() to
-protect us from NULL ptr dereference, but the errno code is -ENODEV.
+After enabling the interrupts, poll the Admin reply queue to avoid
+timeouts.
 
-Change the errno code to a more appropriate -ENOMEM.
-
-Reported-by: Kang Chen <void0red@gmail.com>
-Link: https://lore.kernel.org/all/20230226102338.3362585-1-void0red@gmail.com
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Link: https://lore.kernel.org/r/20230228044336.5195-1-justintee8345@gmail.com
+Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Link: https://lore.kernel.org/r/20230228140835.4075-2-ranjan.kumar@broadcom.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 2 ++
- drivers/scsi/lpfc/lpfc_sli.c  | 4 ----
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/mpi3mr/mpi3mr.h    |  3 +++
+ drivers/scsi/mpi3mr/mpi3mr_fw.c | 12 ++++++++++--
+ drivers/scsi/mpi3mr/mpi3mr_os.c |  1 +
+ 3 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index b535f1fd30100..2f38c8d5a48a9 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -7234,6 +7234,8 @@ lpfc_sli4_cgn_params_read(struct lpfc_hba *phba)
- 	/* Find out if the FW has a new set of congestion parameters. */
- 	len = sizeof(struct lpfc_cgn_param);
- 	pdata = kzalloc(len, GFP_KERNEL);
-+	if (!pdata)
-+		return -ENOMEM;
- 	ret = lpfc_read_object(phba, (char *)LPFC_PORT_CFG_NAME,
- 			       pdata, len);
+diff --git a/drivers/scsi/mpi3mr/mpi3mr.h b/drivers/scsi/mpi3mr/mpi3mr.h
+index 8a438f248a820..68f29ffb05b82 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr.h
++++ b/drivers/scsi/mpi3mr/mpi3mr.h
+@@ -903,6 +903,7 @@ struct scmd_priv {
+  * @admin_reply_ephase:Admin reply queue expected phase
+  * @admin_reply_base: Admin reply queue base virtual address
+  * @admin_reply_dma: Admin reply queue base dma address
++ * @admin_reply_q_in_use: Queue is handled by poll/ISR
+  * @ready_timeout: Controller ready timeout
+  * @intr_info: Interrupt cookie pointer
+  * @intr_info_count: Number of interrupt cookies
+@@ -1056,6 +1057,7 @@ struct mpi3mr_ioc {
+ 	u8 admin_reply_ephase;
+ 	void *admin_reply_base;
+ 	dma_addr_t admin_reply_dma;
++	atomic_t admin_reply_q_in_use;
  
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index b93c948c4fcc4..43e06bb917e77 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -22096,10 +22096,6 @@ lpfc_read_object(struct lpfc_hba *phba, char *rdobject, uint32_t *datap,
- 	struct lpfc_dmabuf *pcmd;
- 	u32 rd_object_name[LPFC_MBX_OBJECT_NAME_LEN_DW] = {0};
+ 	u32 ready_timeout;
  
--	/* sanity check on queue memory */
--	if (!datap)
--		return -ENODEV;
--
- 	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
- 	if (!mbox)
- 		return -ENOMEM;
+@@ -1391,4 +1393,5 @@ void mpi3mr_add_event_wait_for_device_refresh(struct mpi3mr_ioc *mrioc);
+ void mpi3mr_flush_drv_cmds(struct mpi3mr_ioc *mrioc);
+ void mpi3mr_flush_cmds_for_unrecovered_controller(struct mpi3mr_ioc *mrioc);
+ void mpi3mr_free_enclosure_list(struct mpi3mr_ioc *mrioc);
++int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc);
+ #endif /*MPI3MR_H_INCLUDED*/
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+index 1e4467ea8472a..4efab23b40d25 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+@@ -415,7 +415,7 @@ static void mpi3mr_process_admin_reply_desc(struct mpi3mr_ioc *mrioc,
+ 		    le64_to_cpu(scsi_reply->sense_data_buffer_address));
+ }
+ 
+-static int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
++int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
+ {
+ 	u32 exp_phase = mrioc->admin_reply_ephase;
+ 	u32 admin_reply_ci = mrioc->admin_reply_ci;
+@@ -423,12 +423,17 @@ static int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
+ 	u64 reply_dma = 0;
+ 	struct mpi3_default_reply_descriptor *reply_desc;
+ 
++	if (!atomic_add_unless(&mrioc->admin_reply_q_in_use, 1, 1))
++		return 0;
++
+ 	reply_desc = (struct mpi3_default_reply_descriptor *)mrioc->admin_reply_base +
+ 	    admin_reply_ci;
+ 
+ 	if ((le16_to_cpu(reply_desc->reply_flags) &
+-	    MPI3_REPLY_DESCRIPT_FLAGS_PHASE_MASK) != exp_phase)
++	    MPI3_REPLY_DESCRIPT_FLAGS_PHASE_MASK) != exp_phase) {
++		atomic_dec(&mrioc->admin_reply_q_in_use);
+ 		return 0;
++	}
+ 
+ 	do {
+ 		if (mrioc->unrecoverable)
+@@ -454,6 +459,7 @@ static int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
+ 	writel(admin_reply_ci, &mrioc->sysif_regs->admin_reply_queue_ci);
+ 	mrioc->admin_reply_ci = admin_reply_ci;
+ 	mrioc->admin_reply_ephase = exp_phase;
++	atomic_dec(&mrioc->admin_reply_q_in_use);
+ 
+ 	return num_admin_replies;
+ }
+@@ -2605,6 +2611,7 @@ static int mpi3mr_setup_admin_qpair(struct mpi3mr_ioc *mrioc)
+ 	mrioc->admin_reply_ci = 0;
+ 	mrioc->admin_reply_ephase = 1;
+ 	mrioc->admin_reply_base = NULL;
++	atomic_set(&mrioc->admin_reply_q_in_use, 0);
+ 
+ 	if (!mrioc->admin_req_base) {
+ 		mrioc->admin_req_base = dma_alloc_coherent(&mrioc->pdev->dev,
+@@ -4156,6 +4163,7 @@ void mpi3mr_memset_buffers(struct mpi3mr_ioc *mrioc)
+ 		memset(mrioc->admin_req_base, 0, mrioc->admin_req_q_sz);
+ 	if (mrioc->admin_reply_base)
+ 		memset(mrioc->admin_reply_base, 0, mrioc->admin_reply_q_sz);
++	atomic_set(&mrioc->admin_reply_q_in_use, 0);
+ 
+ 	if (mrioc->init_cmds.reply) {
+ 		memset(mrioc->init_cmds.reply, 0, sizeof(*mrioc->init_cmds.reply));
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_os.c b/drivers/scsi/mpi3mr/mpi3mr_os.c
+index 6eaeba41072cb..a794cc8a1c0b1 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_os.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_os.c
+@@ -3720,6 +3720,7 @@ int mpi3mr_issue_tm(struct mpi3mr_ioc *mrioc, u8 tm_type,
+ 		mpi3mr_poll_pend_io_completions(mrioc);
+ 		mpi3mr_ioc_enable_intr(mrioc);
+ 		mpi3mr_poll_pend_io_completions(mrioc);
++		mpi3mr_process_admin_reply_q(mrioc);
+ 	}
+ 	switch (tm_type) {
+ 	case MPI3_SCSITASKMGMT_TASKTYPE_TARGET_RESET:
 -- 
 2.39.2
 
