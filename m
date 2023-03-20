@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB4E6C1632
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:03:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC106C1716
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232117AbjCTPDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:03:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54452 "EHLO
+        id S232365AbjCTPLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:11:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230332AbjCTPCe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:02:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3162195D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:58:55 -0700 (PDT)
+        with ESMTP id S232106AbjCTPLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD9C2ED72
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA05B80ECD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:58:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3217C433EF;
-        Mon, 20 Mar 2023 14:58:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EFF361570
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 482D6C433D2;
+        Mon, 20 Mar 2023 15:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324315;
-        bh=yyAmvTzP9IHyWxV4Jdjqlo4809+LGWPKyRNtsQBqZ3k=;
+        s=korg; t=1679324785;
+        bh=3DZKPSB3eGEDg/foRv0B/RKMlE+9sgeTdtFENIatV2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWzO4RfojWGrkWJCmjYU+ymNWICMK+Vl3uqejAWfnGXZxFTatkE0ayYl7iiqK42eF
-         RJn7pwhnp9EKdQReBXqXQVLFbAa/PuyLzGvrdHXeHS7FEVoYJkFXadQ3E8vypemfuQ
-         DlKiHstgOkY4OgkIvVr6KhS/TIleNrtbPiApzeK8=
+        b=mGO3WYDXQOgFacBpO+AVQ5GBr7cmsHgyM6F7D4nVJB3xTyhfSTQrK0fJfbKD1Fhoy
+         Ev3f3SSrEijy8W3bGfwCpYyjdwLEvlA6Go9/rXx/utMJFphKlACd9Dz5wtTefGNJNC
+         g3U1in2EhmU6ZjqjezNKXJoDZYParZ269yg/gdgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Alex Hung <alex.hung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/36] qed/qed_dev: guard against a possible division by zero
-Date:   Mon, 20 Mar 2023 15:54:32 +0100
-Message-Id: <20230320145424.474561208@linuxfoundation.org>
+Subject: [PATCH 5.10 55/99] drm/amd/display: fix shift-out-of-bounds in CalculateVMAndRowBytes
+Date:   Mon, 20 Mar 2023 15:54:33 +0100
+Message-Id: <20230320145445.683892299@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
-References: <20230320145424.191578432@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Alex Hung <alex.hung@amd.com>
 
-[ Upstream commit 1a9dc5610ef89d807acdcfbff93a558f341a44da ]
+[ Upstream commit 031f196d1b1b6d5dfcb0533b431e3ab1750e6189 ]
 
-Previously we would divide total_left_rate by zero if num_vports
-happened to be 1 because non_requested_count is calculated as
-num_vports - req_count. Guard against this by validating num_vports at
-the beginning and returning an error otherwise.
+[WHY]
+When PTEBufferSizeInRequests is zero, UBSAN reports the following
+warning because dml_log2 returns an unexpected negative value:
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+  shift exponent 4294966273 is too large for 32-bit type 'int'
 
-Fixes: bcd197c81f63 ("qed: Add vport WFQ configuration APIs")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230309201556.191392-1-d-tatianin@yandex-team.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[HOW]
+
+In the case PTEBufferSizeInRequests is zero, skip the dml_log2() and
+assign the result directly.
+
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alex Hung <alex.hung@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_dev.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c   | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-index e50fc8f714dcf..7e5beb4136014 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-@@ -4062,6 +4062,11 @@ static int qed_init_wfq_param(struct qed_hwfn *p_hwfn,
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
+index e427f4ffa0807..e5b1002d7f3f0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
+@@ -1868,7 +1868,10 @@ static unsigned int CalculateVMAndRowBytes(
+ 	}
  
- 	num_vports = p_hwfn->qm_info.num_vports;
- 
-+	if (num_vports < 2) {
-+		DP_NOTICE(p_hwfn, "Unexpected num_vports: %d\n", num_vports);
-+		return -EINVAL;
-+	}
-+
- 	/* Accounting for the vports which are configured for WFQ explicitly */
- 	for (i = 0; i < num_vports; i++) {
- 		u32 tmp_speed;
+ 	if (SurfaceTiling == dm_sw_linear) {
+-		*dpte_row_height = dml_min(128, 1 << (unsigned int) dml_floor(dml_log2(PTEBufferSizeInRequests * *PixelPTEReqWidth / Pitch), 1));
++		if (PTEBufferSizeInRequests == 0)
++			*dpte_row_height = 1;
++		else
++			*dpte_row_height = dml_min(128, 1 << (unsigned int) dml_floor(dml_log2(PTEBufferSizeInRequests * *PixelPTEReqWidth / Pitch), 1));
+ 		*dpte_row_width_ub = (dml_ceil(((double) SwathWidth - 1) / *PixelPTEReqWidth, 1) + 1) * *PixelPTEReqWidth;
+ 		*PixelPTEBytesPerRow = *dpte_row_width_ub / *PixelPTEReqWidth * *PTERequestSize;
+ 	} else if (ScanDirection != dm_vert) {
 -- 
 2.39.2
 
