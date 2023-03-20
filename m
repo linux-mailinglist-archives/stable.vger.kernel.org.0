@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3186C0D1D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:22:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FDE76C0D1C
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbjCTJWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57368 "EHLO
+        id S231290AbjCTJWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231299AbjCTJWP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:22:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066121688D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:21:28 -0700 (PDT)
+        with ESMTP id S231287AbjCTJWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:22:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4E519C48
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:21:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5A42612A1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:21:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B54C433D2;
-        Mon, 20 Mar 2023 09:21:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23F92B80C88
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF82C433D2;
+        Mon, 20 Mar 2023 09:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679304070;
-        bh=UlL0yACnVrcDqoFzBIYpedqNHKWAgJ8McBFISyAAevA=;
+        s=korg; t=1679304078;
+        bh=1pCUscXLbPPWCzdjPgBqiOAkYQiIXOxoqyzKGcBC0LM=;
         h=Subject:To:Cc:From:Date:From;
-        b=1HuWdP7FOE4O4lvX+uv+RClmXBiCCokeveV2ZRUpHG7ooFnYYk9pi6VaTEHIn4Ljf
-         u1d3hEYp6If8pfAwjkgm1IlTHlznqNO8FbrcVtNJR6ENzl08v1IhdaAz84YOUvoVwh
-         96zhKE1ZWZE/Pi62ZxP0iRD0WtLIIEhuV3XlHyKM=
-Subject: FAILED: patch "[PATCH] interconnect: qcom: rpmh: fix registration race" failed to apply to 5.15-stable tree
+        b=ga4/4IiUP0LRPBww3a6WCALh/aR+ZDmkCpOjTkYyHelBCca16EkdUL5Ydjz339lGN
+         62AqO5q/kzDQg/MGDohUBRAJ2d9Sn2HWGfCptbcvMWeOvOQtjBtUhbRAuvi16x/o5d
+         m+s/CBXGcPb362wW/cvlN1+hv68JbAtPd5Ry4FGk=
+Subject: FAILED: patch "[PATCH] interconnect: qcom: rpmh: fix registration race" failed to apply to 5.10-stable tree
 To:     johan+linaro@kernel.org, djakov@kernel.org,
         konrad.dybcio@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:21:07 +0100
-Message-ID: <1679304067198142@kroah.com>
+Date:   Mon, 20 Mar 2023 10:21:08 +0100
+Message-ID: <1679304068175236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 74240a5bebd48d8b843c6d0f1acfaa722a5abeb7
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679304067198142@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679304068175236@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
@@ -68,6 +68,9 @@ Possible dependencies:
 6570d1d46eea ("interconnect: qcom: rpmh: fix probe child-node error handling")
 4681086c9bec ("interconnect: icc-rpmh: Ignore return value of icc_provider_del() in .remove()")
 57eb14779dfd ("interconnect: qcom: icc-rpmh: Support child NoC device probe")
+789a39ad39bc ("interconnect: qcom: icc-rpmh: Consolidate probe functions")
+46bdcac533cc ("interconnect: qcom: Add SC7280 interconnect provider driver")
+c1de07884f2b ("Merge branch 'icc-sm8350' into icc-next")
 
 thanks,
 
