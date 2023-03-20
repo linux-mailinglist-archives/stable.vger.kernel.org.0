@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F08676C1873
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 641C96C1945
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232655AbjCTPYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39712 "EHLO
+        id S233083AbjCTPcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232672AbjCTPYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D485E360A6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:17 -0700 (PDT)
+        with ESMTP id S232734AbjCTPcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B97A3608E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37E4AB80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7529AC433EF;
-        Mon, 20 Mar 2023 15:17:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E66E615A9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB8D4C433A1;
+        Mon, 20 Mar 2023 15:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325432;
-        bh=kJkK3+l+HP8IxMfE2VAikLE5Y6vW92FODnSE6P8vndQ=;
+        s=korg; t=1679325855;
+        bh=r+kgplJXHjd4tajKtvfGZAuZW/s6s6j+ygIfj0Wv5w8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/ZeNzl5Y7jiOd7iAiCVDdM5nchms7v4HhdH3VryPTwd3Q1jX6GJFRv1I+Rd8STA8
-         p0CdPPe0adFvGmzivSdzkNbdrCuKYVWXOBQbjI+lb1tz/mmnMGR1gQxcb8ZXjTd5W7
-         JSUQPtLYQGXeEpUMW2GO0EoBR536mKXcU6r1VgMg=
+        b=YEnZHxTkmIyFl1SocbYwZj00rGSiEZqIiPD2JL5wdeyRAND37pxyLOTWm1WAyzPTb
+         k0dtMGXyZykQ0pKJd5lwZYJwHWZ8dpxHZkxJLrU9MXizN9H93MOThZi2xXi0gql3Fh
+         +Bk1s4pinPavXPQN4LOxW2LyIQi2KUtilaVJC1ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 084/198] net: atlantic: Fix crash when XDP is enabled but no program is loaded
+Subject: [PATCH 6.2 087/211] net: atlantic: Fix crash when XDP is enabled but no program is loaded
 Date:   Mon, 20 Mar 2023 15:53:42 +0100
-Message-Id: <20230320145511.057934169@linuxfoundation.org>
+Message-Id: <20230320145516.955198486@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -89,7 +90,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 21 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-index 25129e723b575..2dc8d215a5918 100644
+index 1e8d902e1c8ea..7f933175cbdac 100644
 --- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
 +++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
 @@ -412,6 +412,25 @@ int aq_xdp_xmit(struct net_device *dev, int num_frames,
