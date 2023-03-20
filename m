@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C73906C19F6
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:40:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2EA06C19E8
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233285AbjCTPkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:40:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40750 "EHLO
+        id S233269AbjCTPjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:39:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233351AbjCTPj4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:56 -0400
+        with ESMTP id S233274AbjCTPjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6145911654
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:31:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205E938B53
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5700861561
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D09C433EF;
-        Mon, 20 Mar 2023 15:31:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B3136154E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ADFBC433D2;
+        Mon, 20 Mar 2023 15:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326260;
-        bh=1otGdFx6iiLUrvIdNEbbydIeJ0Txsn/Beh1/ie3gto8=;
+        s=korg; t=1679326239;
+        bh=JGoVHzgVWqTkRaEk8LYC+vjk6fqlImbqLIvIF5tP868=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUMBSYyCy3lcWLMLmS7TdBIpsw37pHaWnspSh07tB5XlQvdsGLQDD6gtcQg0cJwAP
-         KWHFWRgZUM/iP4ElPHNAuJzlFeymdtU5Yfdvo4flEtDSYzu/CTUU9mq+Z3IqRifGHd
-         U9VivYITr6y0ZX9kc1kZbyHRWPV2O6vSgy1oSosc=
+        b=ee/hQtfXnVJZ98CzEb0ha8FhfPuIglIRwRrbpPdLtv4aC4uGMbVR3C4+4ofwL6jlV
+         A+fvnp4qggTWW5faPOn7AQ9D3IH18PbunJL0YNB2UQt+0cZelaVtF0BUVq8Rk7hdF3
+         MkMfhXwwapZ2F7jegG9rRxkCtcWrrytRAZk6B9to=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Hao <xhao@linux.alibaba.com>,
-        Shawn Wang <shawnwang@linux.alibaba.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 6.2 203/211] x86/resctrl: Clear staged_config[] before and after it is used
-Date:   Mon, 20 Mar 2023 15:55:38 +0100
-Message-Id: <20230320145522.044590144@linuxfoundation.org>
+        patches@lists.linux.dev, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.2 204/211] powerpc: Pass correct CPU reference to assembler
+Date:   Mon, 20 Mar 2023 15:55:39 +0100
+Message-Id: <20230320145522.085152195@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -54,165 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Wang <shawnwang@linux.alibaba.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 0424a7dfe9129b93f29b277511a60e87f052ac6b upstream.
+commit bfb03af71a3798b5a88a945a9c19ad67e1c4986d upstream.
 
-As a temporary storage, staged_config[] in rdt_domain should be cleared
-before and after it is used. The stale value in staged_config[] could
-cause an MSR access error.
+Jan-Benedict reported issue with building ppc64e_defconfig
+with mainline GCC work:
 
-Here is a reproducer on a system with 16 usable CLOSIDs for a 15-way L3
-Cache (MBA should be disabled if the number of CLOSIDs for MB is less than
-16.) :
-	mount -t resctrl resctrl -o cdp /sys/fs/resctrl
-	mkdir /sys/fs/resctrl/p{1..7}
-	umount /sys/fs/resctrl/
-	mount -t resctrl resctrl /sys/fs/resctrl
-	mkdir /sys/fs/resctrl/p{1..8}
+  powerpc64-linux-gcc -Wp,-MMD,arch/powerpc/kernel/vdso/.gettimeofday-64.o.d -nostdinc -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -D__KERNEL__ -I ./arch/powerpc -DHAVE_AS_ATHIGH=1 -fmacro-prefix-map=./= -D__ASSEMBLY__ -fno-PIE -m64 -Wl,-a64 -mabi=elfv1 -Wa,-me500 -Wa,-me500mc -mabi=elfv1 -mbig-endian    -Wl,-soname=linux-vdso64.so.1 -D__VDSO64__ -s -c -o arch/powerpc/kernel/vdso/gettimeofday-64.o arch/powerpc/kernel/vdso/gettimeofday.S
+	arch/powerpc/kernel/vdso/gettimeofday.S: Assembler messages:
+	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `stdu'
+	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `stdu'
+	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `std'
+	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `std'
+	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `ld'
+	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `ld'
+	...
+	make[1]: *** [arch/powerpc/kernel/vdso/Makefile:76: arch/powerpc/kernel/vdso/gettimeofday-64.o] Error 1
+	make: *** [arch/powerpc/Makefile:387: vdso_prepare] Error 2
 
-An error occurs when creating resource group named p8:
-    unchecked MSR access error: WRMSR to 0xca0 (tried to write 0x00000000000007ff) at rIP: 0xffffffff82249142 (cat_wrmsr+0x32/0x60)
-    Call Trace:
-     <IRQ>
-     __flush_smp_call_function_queue+0x11d/0x170
-     __sysvec_call_function+0x24/0xd0
-     sysvec_call_function+0x89/0xc0
-     </IRQ>
-     <TASK>
-     asm_sysvec_call_function+0x16/0x20
+This is due to assembler being called with -me500mc which is
+a 32 bits target.
 
-When creating a new resource control group, hardware will be configured
-by the following process:
-    rdtgroup_mkdir()
-      rdtgroup_mkdir_ctrl_mon()
-        rdtgroup_init_alloc()
-          resctrl_arch_update_domains()
+The problem comes from the fact that CONFIG_PPC_E500MC is selected for
+both the e500mc (32 bits) and the e5500 (64 bits), and therefore the
+following makefile rule is wrong:
 
-resctrl_arch_update_domains() iterates and updates all resctrl_conf_type
-whose have_new_ctrl is true. Since staged_config[] holds the same values as
-when CDP was enabled, it will continue to update the CDP_CODE and CDP_DATA
-configurations. When group p8 is created, get_config_index() called in
-resctrl_arch_update_domains() will return 16 and 17 as the CLOSIDs for
-CDP_CODE and CDP_DATA, which will be translated to an invalid register -
-0xca0 in this scenario.
+  cpu-as-$(CONFIG_PPC_E500MC)    += $(call as-option,-Wa$(comma)-me500mc)
 
-Fix it by clearing staged_config[] before and after it is used.
+Today we have CONFIG_TARGET_CPU which provides the identification of the
+expected CPU, it is used for GCC. Once GCC knows the target CPU, it adds
+the correct CPU option to assembler, no need to add it explicitly.
 
-[reinette: re-order commit tags]
+With that change (And also commit 45f7091aac35 ("powerpc/64: Set default
+CPU in Kconfig")), it now is:
 
-Fixes: 75408e43509e ("x86/resctrl: Allow different CODE/DATA configurations to be staged")
-Suggested-by: Xin Hao <xhao@linux.alibaba.com>
-Signed-off-by: Shawn Wang <shawnwang@linux.alibaba.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc:stable@vger.kernel.org
-Link: https://lore.kernel.org/all/2fad13f49fbe89687fc40e9a5a61f23a28d1507a.1673988935.git.reinette.chatre%40intel.com
+  powerpc64-linux-gcc -Wp,-MMD,arch/powerpc/kernel/vdso/.gettimeofday-64.o.d -nostdinc -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -D__KERNEL__ -I ./arch/powerpc -DHAVE_AS_ATHIGH=1 -fmacro-prefix-map=./= -D__ASSEMBLY__ -fno-PIE -m64 -Wl,-a64 -mabi=elfv1 -mcpu=e500mc64 -mabi=elfv1 -mbig-endian    -Wl,-soname=linux-vdso64.so.1 -D__VDSO64__ -s -c -o arch/powerpc/kernel/vdso/gettimeofday-64.o arch/powerpc/kernel/vdso/gettimeofday.S
+
+Reported-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Acked-by: Pali Rohár <pali@kernel.org>
+[mpe: Retain -Wa,-mpower4 -Wa,-many for Book3S 64 builds for now]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/758ad54128fa9dd2fdedc4c511592111cbded900.1671475543.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/resctrl/ctrlmondata.c |    7 ++-----
- arch/x86/kernel/cpu/resctrl/internal.h    |    1 +
- arch/x86/kernel/cpu/resctrl/rdtgroup.c    |   25 +++++++++++++++++++++----
- 3 files changed, 24 insertions(+), 9 deletions(-)
+ arch/powerpc/Makefile |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/ctrlmondata.c
-+++ b/arch/x86/kernel/cpu/resctrl/ctrlmondata.c
-@@ -373,7 +373,6 @@ ssize_t rdtgroup_schemata_write(struct k
- {
- 	struct resctrl_schema *s;
- 	struct rdtgroup *rdtgrp;
--	struct rdt_domain *dom;
- 	struct rdt_resource *r;
- 	char *tok, *resname;
- 	int ret = 0;
-@@ -402,10 +401,7 @@ ssize_t rdtgroup_schemata_write(struct k
- 		goto out;
- 	}
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -201,10 +201,7 @@ KBUILD_CFLAGS += -fno-asynchronous-unwin
+ # often slow when they are implemented at all
+ KBUILD_CFLAGS		+= $(call cc-option,-mno-string)
  
--	list_for_each_entry(s, &resctrl_schema_all, list) {
--		list_for_each_entry(dom, &s->res->domains, list)
--			memset(dom->staged_config, 0, sizeof(dom->staged_config));
--	}
-+	rdt_staged_configs_clear();
+-cpu-as-$(CONFIG_40x)		+= -Wa,-m405
+-cpu-as-$(CONFIG_44x)		+= -Wa,-m440
+ cpu-as-$(CONFIG_ALTIVEC)	+= $(call as-option,-Wa$(comma)-maltivec)
+-cpu-as-$(CONFIG_PPC_E500)		+= -Wa,-me500
  
- 	while ((tok = strsep(&buf, "\n")) != NULL) {
- 		resname = strim(strsep(&tok, ":"));
-@@ -450,6 +446,7 @@ ssize_t rdtgroup_schemata_write(struct k
- 	}
+ # When using '-many -mpower4' gas will first try and find a matching power4
+ # mnemonic and failing that it will allow any valid mnemonic that GAS knows
+@@ -212,7 +209,6 @@ cpu-as-$(CONFIG_PPC_E500)		+= -Wa,-me500
+ # LLVM IAS doesn't understand either flag: https://github.com/ClangBuiltLinux/linux/issues/675
+ # but LLVM IAS only supports ISA >= 2.06 for Book3S 64 anyway...
+ cpu-as-$(CONFIG_PPC_BOOK3S_64)	+= $(call as-option,-Wa$(comma)-mpower4) $(call as-option,-Wa$(comma)-many)
+-cpu-as-$(CONFIG_PPC_E500MC)	+= $(call as-option,-Wa$(comma)-me500mc)
  
- out:
-+	rdt_staged_configs_clear();
- 	rdtgroup_kn_unlock(of->kn);
- 	cpus_read_unlock();
- 	return ret ?: nbytes;
---- a/arch/x86/kernel/cpu/resctrl/internal.h
-+++ b/arch/x86/kernel/cpu/resctrl/internal.h
-@@ -527,5 +527,6 @@ bool has_busy_rmid(struct rdt_resource *
- void __check_limbo(struct rdt_domain *d, bool force_free);
- void rdt_domain_reconfigure_cdp(struct rdt_resource *r);
- void __init thread_throttle_mode_init(void);
-+void rdt_staged_configs_clear(void);
- 
- #endif /* _ASM_X86_RESCTRL_INTERNAL_H */
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -78,6 +78,19 @@ void rdt_last_cmd_printf(const char *fmt
- 	va_end(ap);
- }
- 
-+void rdt_staged_configs_clear(void)
-+{
-+	struct rdt_resource *r;
-+	struct rdt_domain *dom;
-+
-+	lockdep_assert_held(&rdtgroup_mutex);
-+
-+	for_each_alloc_capable_rdt_resource(r) {
-+		list_for_each_entry(dom, &r->domains, list)
-+			memset(dom->staged_config, 0, sizeof(dom->staged_config));
-+	}
-+}
-+
- /*
-  * Trivial allocator for CLOSIDs. Since h/w only supports a small number,
-  * we can keep a bitmap of free CLOSIDs in a single integer.
-@@ -2851,7 +2864,9 @@ static int rdtgroup_init_alloc(struct rd
- {
- 	struct resctrl_schema *s;
- 	struct rdt_resource *r;
--	int ret;
-+	int ret = 0;
-+
-+	rdt_staged_configs_clear();
- 
- 	list_for_each_entry(s, &resctrl_schema_all, list) {
- 		r = s->res;
-@@ -2862,20 +2877,22 @@ static int rdtgroup_init_alloc(struct rd
- 		} else {
- 			ret = rdtgroup_init_cat(s, rdtgrp->closid);
- 			if (ret < 0)
--				return ret;
-+				goto out;
- 		}
- 
- 		ret = resctrl_arch_update_domains(r, rdtgrp->closid);
- 		if (ret < 0) {
- 			rdt_last_cmd_puts("Failed to initialize allocations\n");
--			return ret;
-+			goto out;
- 		}
- 
- 	}
- 
- 	rdtgrp->mode = RDT_MODE_SHAREABLE;
- 
--	return 0;
-+out:
-+	rdt_staged_configs_clear();
-+	return ret;
- }
- 
- static int mkdir_rdt_prepare(struct kernfs_node *parent_kn,
+ KBUILD_AFLAGS += $(cpu-as-y)
+ KBUILD_CFLAGS += $(cpu-as-y)
 
 
