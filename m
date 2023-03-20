@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A546C1746
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D6236C17C7
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232323AbjCTPMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:12:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36564 "EHLO
+        id S232608AbjCTPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:17:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbjCTPMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1CE231E04
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:59 -0700 (PDT)
+        with ESMTP id S232501AbjCTPQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3854E2ED4D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24BA5B80EC0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75470C4339B;
-        Mon, 20 Mar 2023 15:06:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA5B6B80EAC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31E9AC4339B;
+        Mon, 20 Mar 2023 15:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324815;
-        bh=XwhxWQK96IbIIQiLsXR79yWBP+OjTwppm1bSSb70sI4=;
+        s=korg; t=1679325108;
+        bh=S6tEHWndNmSMMQ5WutitFRxVDIVV+AOXs7zwPkBG9T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrcdwwWFPxwSAtDcgVwIWVLuedxy8Mc6mPvYV+sr/8oIHXRIc5xz+ZuWjjyfAE3SR
-         Os4SOZMoFM1JmEtFZaxv+xOyqdc/kY1lCg9t4mbdGvwJ8oAsE1QAjXJJ16GtTdI3YO
-         +E5R6+vSYtpn9LcXafqiJayvOYFn5h47K+gFx2ZE=
+        b=ST4l563Tae8ws4bzI3zV6He60HvttbU8ICH4xPGzMzUytUJn6m0YdktfUTQM/8ja4
+         d1asHJe3hCogXrKAqJIaae162q7m3cGvSgfJrUdWHR1OFU8nVaCgFEzxjWBiaLYp1s
+         QnGzhnIJ1WLQBElcdkH5BUy6qUtvImSg5aylSOyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        patches@lists.linux.dev,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 003/198] drm/msm/gem: Prevent blocking within shrinker loop
-Date:   Mon, 20 Mar 2023 15:52:21 +0100
-Message-Id: <20230320145507.583738689@linuxfoundation.org>
+Subject: [PATCH 6.2 007/211] drm/meson: fix 1px pink line on GXM when scaling video overlay
+Date:   Mon, 20 Mar 2023 15:52:22 +0100
+Message-Id: <20230320145513.601843880@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,144 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 9630b585b607bd26f505d34620b14d75b9a5af7d ]
+[ Upstream commit 5c8cf1664f288098a971a1d1e65716a2b6a279e1 ]
 
-Consider this scenario:
+Playing media with a resolution smaller than the crtc size requires the
+video overlay to be scaled for output and GXM boards display a 1px pink
+line on the bottom of the scaled overlay. Comparing with the downstream
+vendor driver revealed VPP_DUMMY_DATA not being set [0].
 
-1. APP1 continuously creates lots of small GEMs
-2. APP2 triggers `drop_caches`
-3. Shrinker starts to evict APP1 GEMs, while APP1 produces new purgeable
-   GEMs
-4. msm_gem_shrinker_scan() returns non-zero number of freed pages
-   and causes shrinker to try shrink more
-5. msm_gem_shrinker_scan() returns non-zero number of freed pages again,
-   goto 4
-6. The APP2 is blocked in `drop_caches` until APP1 stops producing
-   purgeable GEMs
+Setting VPP_DUMMY_DATA prevents the 1px pink line from being seen.
 
-To prevent this blocking scenario, check number of remaining pages
-that GPU shrinker couldn't release due to a GEM locking contention
-or shrinking rejection. If there are no remaining pages left to shrink,
-then there is no need to free up more pages and shrinker may break out
-from the loop.
+[0] https://github.com/endlessm/linux-s905x/blob/master/drivers/amlogic/amports/video.c#L7869
 
-This problem was found during shrinker/madvise IOCTL testing of
-virtio-gpu driver. The MSM driver is affected in the same way.
-
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: b352ba54a820 ("drm/msm/gem: Convert to using drm_gem_lru")
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://lore.kernel.org/all/20230108210445.3948344-2-dmitry.osipenko@collabora.com/
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Suggested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230303123312.155164-1-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem.c              |  9 +++++++--
- drivers/gpu/drm/msm/msm_gem_shrinker.c | 11 +++++++++--
- include/drm/drm_gem.h                  |  4 +++-
- 3 files changed, 19 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/meson/meson_vpp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-index 8b68a3c1e6ab6..b87ed4238fc83 100644
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -1351,10 +1351,13 @@ EXPORT_SYMBOL(drm_gem_lru_move_tail);
-  *
-  * @lru: The LRU to scan
-  * @nr_to_scan: The number of pages to try to reclaim
-+ * @remaining: The number of pages left to reclaim, should be initialized by caller
-  * @shrink: Callback to try to shrink/reclaim the object.
-  */
- unsigned long
--drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
-+drm_gem_lru_scan(struct drm_gem_lru *lru,
-+		 unsigned int nr_to_scan,
-+		 unsigned long *remaining,
- 		 bool (*shrink)(struct drm_gem_object *obj))
- {
- 	struct drm_gem_lru still_in_lru;
-@@ -1393,8 +1396,10 @@ drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
- 		 * hit shrinker in response to trying to get backing pages
- 		 * for this obj (ie. while it's lock is already held)
- 		 */
--		if (!dma_resv_trylock(obj->resv))
-+		if (!dma_resv_trylock(obj->resv)) {
-+			*remaining += obj->size >> PAGE_SHIFT;
- 			goto tail;
-+		}
+diff --git a/drivers/gpu/drm/meson/meson_vpp.c b/drivers/gpu/drm/meson/meson_vpp.c
+index 154837688ab0d..5df1957c8e41f 100644
+--- a/drivers/gpu/drm/meson/meson_vpp.c
++++ b/drivers/gpu/drm/meson/meson_vpp.c
+@@ -100,6 +100,8 @@ void meson_vpp_init(struct meson_drm *priv)
+ 			       priv->io_base + _REG(VPP_DOLBY_CTRL));
+ 		writel_relaxed(0x1020080,
+ 				priv->io_base + _REG(VPP_DUMMY_DATA1));
++		writel_relaxed(0x42020,
++				priv->io_base + _REG(VPP_DUMMY_DATA));
+ 	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+ 		writel_relaxed(0xf, priv->io_base + _REG(DOLBY_PATH_CTRL));
  
- 		if (shrink(obj)) {
- 			freed += obj->size >> PAGE_SHIFT;
-diff --git a/drivers/gpu/drm/msm/msm_gem_shrinker.c b/drivers/gpu/drm/msm/msm_gem_shrinker.c
-index 1de14e67f96b0..31f054c903a43 100644
---- a/drivers/gpu/drm/msm/msm_gem_shrinker.c
-+++ b/drivers/gpu/drm/msm/msm_gem_shrinker.c
-@@ -107,6 +107,7 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
- 		bool (*shrink)(struct drm_gem_object *obj);
- 		bool cond;
- 		unsigned long freed;
-+		unsigned long remaining;
- 	} stages[] = {
- 		/* Stages of progressively more aggressive/expensive reclaim: */
- 		{ &priv->lru.dontneed, purge,        true },
-@@ -116,14 +117,18 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
- 	};
- 	long nr = sc->nr_to_scan;
- 	unsigned long freed = 0;
-+	unsigned long remaining = 0;
- 
- 	for (unsigned i = 0; (nr > 0) && (i < ARRAY_SIZE(stages)); i++) {
- 		if (!stages[i].cond)
- 			continue;
- 		stages[i].freed =
--			drm_gem_lru_scan(stages[i].lru, nr, stages[i].shrink);
-+			drm_gem_lru_scan(stages[i].lru, nr,
-+					&stages[i].remaining,
-+					 stages[i].shrink);
- 		nr -= stages[i].freed;
- 		freed += stages[i].freed;
-+		remaining += stages[i].remaining;
- 	}
- 
- 	if (freed) {
-@@ -132,7 +137,7 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
- 				     stages[3].freed);
- 	}
- 
--	return (freed > 0) ? freed : SHRINK_STOP;
-+	return (freed > 0 && remaining > 0) ? freed : SHRINK_STOP;
- }
- 
- #ifdef CONFIG_DEBUG_FS
-@@ -182,10 +187,12 @@ msm_gem_shrinker_vmap(struct notifier_block *nb, unsigned long event, void *ptr)
- 		NULL,
- 	};
- 	unsigned idx, unmapped = 0;
-+	unsigned long remaining = 0;
- 
- 	for (idx = 0; lrus[idx] && unmapped < vmap_shrink_limit; idx++) {
- 		unmapped += drm_gem_lru_scan(lrus[idx],
- 					     vmap_shrink_limit - unmapped,
-+					     &remaining,
- 					     vmap_shrink);
- 	}
- 
-diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
-index bd42f25e449c2..60b2dda8d964b 100644
---- a/include/drm/drm_gem.h
-+++ b/include/drm/drm_gem.h
-@@ -472,7 +472,9 @@ int drm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
- void drm_gem_lru_init(struct drm_gem_lru *lru, struct mutex *lock);
- void drm_gem_lru_remove(struct drm_gem_object *obj);
- void drm_gem_lru_move_tail(struct drm_gem_lru *lru, struct drm_gem_object *obj);
--unsigned long drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
-+unsigned long drm_gem_lru_scan(struct drm_gem_lru *lru,
-+			       unsigned int nr_to_scan,
-+			       unsigned long *remaining,
- 			       bool (*shrink)(struct drm_gem_object *obj));
- 
- #endif /* __DRM_GEM_H__ */
 -- 
 2.39.2
 
