@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0E66C18DF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E396C1761
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232942AbjCTP2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:28:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48228 "EHLO
+        id S232233AbjCTPNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:13:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232941AbjCTP1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:50 -0400
+        with ESMTP id S232424AbjCTPMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24ADE37F3E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5322FCDE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 736E5B80E55
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31BDC4339B;
-        Mon, 20 Mar 2023 15:20:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B26CDB80D34
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1852FC433D2;
+        Mon, 20 Mar 2023 15:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325652;
-        bh=vTQIaP7iOeheEDxhXDXR/ycHDSFOludrNgQNOXSc49Q=;
+        s=korg; t=1679324873;
+        bh=eTM3ynYl0rbQL2JudvHkeSkQ+ZmEqTagcpyQ7o8oXxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvXTVS+xodxxTJLOQwcUJFuvAb/OJ1e33RoAdphXNDveSDLfmgYdRjKehhu/LMe8G
-         WpgJX7/2I4UIeOj2Hz4NHldMDtSPvlkY/Tom2N9tyaGNg/YXssmuVsmFRttr/7Pbbt
-         0N2fISbjesBUDVLchUs0X2BvAlxWfMJCohJXc6R4=
+        b=pRCT9PGHVK9iHhQZipToBbNn3m33F8s1UpF1q22naIug3XAlqEItS0DXou3TsjAts
+         8ktbeXTwd7R7TEIzkRxsisC6ROPGfBvbv5kbMwKcZTFSQWcOxM9cv68OgafUmndz/1
+         lL3Jbu/aSj1EQq/7/vPGbCSqLdHraCsMhCu64h0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Tom Rix <trix@redhat.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 6.1 117/198] Revert "tty: serial: fsl_lpuart: adjust SERIAL_FSL_LPUART_CONSOLE config dependency"
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Michal Kubiak <michal.kubiak@intel.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 043/115] ravb: avoid PHY being resumed when interface is not up
 Date:   Mon, 20 Mar 2023 15:54:15 +0100
-Message-Id: <20230320145512.467356038@linuxfoundation.org>
+Message-Id: <20230320145451.247897771@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 2d638be71155b2e036aca1966b6129e2d661e91f upstream.
+[ Upstream commit 7f5ebf5dae42e710162f1c481ebcf28ab7b741c7 ]
 
-This reverts commit 5779a072c248db7a40cfd0f5ea958097fd1d9a30.
+RAVB doesn't need mdiobus suspend/resume, that's why it sets
+'mac_managed_pm'. However, setting it needs to be moved from init to
+probe, so mdiobus PM functions will really never be called (e.g. when
+the interface is not up yet during suspend/resume).
 
-This results in a link error of
-
-ld: drivers/tty/serial/earlycon.o: in function `parse_options':
-drivers/tty/serial/earlycon.c:99: undefined reference to `uart_parse_earlycon'
-
-When the config is in this state
-
-CONFIG_SERIAL_CORE=m
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_SERIAL_EARLYCON=y
-CONFIG_SERIAL_FSL_LPUART=m
-CONFIG_SERIAL_FSL_LPUART_CONSOLE=y
-
-Fixes: 5779a072c248 ("tty: serial: fsl_lpuart: adjust SERIAL_FSL_LPUART_CONSOLE config dependency")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20230226173846.236691-1-trix@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4924c0cdce75 ("net: ravb: Fix PHY state warning splat during system resume")
+Suggested-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Michal Kubiak <michal.kubiak@intel.com>
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/Kconfig
-+++ b/drivers/tty/serial/Kconfig
-@@ -1311,7 +1311,7 @@ config SERIAL_FSL_LPUART
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index c6fe1cda7b889..12548eeef4f8a 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1115,8 +1115,6 @@ static int ravb_phy_init(struct net_device *ndev)
+ 	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+ 	phy_remove_link_mode(phydev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
  
- config SERIAL_FSL_LPUART_CONSOLE
- 	bool "Console on Freescale lpuart serial port"
--	depends on SERIAL_FSL_LPUART
-+	depends on SERIAL_FSL_LPUART=y
- 	select SERIAL_CORE_CONSOLE
- 	select SERIAL_EARLYCON
- 	help
+-	/* Indicate that the MAC is responsible for managing PHY PM */
+-	phydev->mac_managed_pm = true;
+ 	phy_attached_info(phydev);
+ 
+ 	return 0;
+@@ -1961,6 +1959,8 @@ static int ravb_mdio_init(struct ravb_private *priv)
+ {
+ 	struct platform_device *pdev = priv->pdev;
+ 	struct device *dev = &pdev->dev;
++	struct phy_device *phydev;
++	struct device_node *pn;
+ 	int error;
+ 
+ 	/* Bitbang init */
+@@ -1982,6 +1982,14 @@ static int ravb_mdio_init(struct ravb_private *priv)
+ 	if (error)
+ 		goto out_free_bus;
+ 
++	pn = of_parse_phandle(dev->of_node, "phy-handle", 0);
++	phydev = of_phy_find_device(pn);
++	if (phydev) {
++		phydev->mac_managed_pm = true;
++		put_device(&phydev->mdio.dev);
++	}
++	of_node_put(pn);
++
+ 	return 0;
+ 
+ out_free_bus:
+-- 
+2.39.2
+
 
 
