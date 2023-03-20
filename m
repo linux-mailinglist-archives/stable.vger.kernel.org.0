@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE93B6C19E1
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50FA06C185E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233281AbjCTPjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36730 "EHLO
+        id S232657AbjCTPXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233247AbjCTPjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC8C3B66C
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:31 -0700 (PDT)
+        with ESMTP id S232754AbjCTPX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28FAC305EB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D1B2615AE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C4B1C433EF;
-        Mon, 20 Mar 2023 15:30:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A1ED3CE12DA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D03CC433EF;
+        Mon, 20 Mar 2023 15:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326230;
-        bh=LDMpgvdSlhBGJEIl7kQbhlWXF5mtM9vNSflgxzvgIKs=;
+        s=korg; t=1679325402;
+        bh=98+Q1BV12Rd6K+mcQVW9onstFbXaXP6InYdQpX8JPOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2WcHFftoF+eJu7kPLKXOqRIzyKGXILw7Fem6hWbNyxsIlHe7sWCBsjY7Gr3zKCsq
-         Q3CLLlTmAKn6ekJ4cs9FOEUVeD61a4hhgm4qHk7L2xseD4ijPmjrQ46FoX1v8bfRFW
-         RxwsFWKammqF+k2lPNH1jYrxTifO6jy3F2Bu28pY=
+        b=gj0Z6Ts2zILTvi9oCVeqIk5p+pTD6hgN/G83rIIOxnn7l1q+sQObQb0lxk1wNBK69
+         44yn5hDMH39nIR0Kjv5x8G7fppP4gFofVS1+RS6KymEvzmykDP98fOSJl6KSgZIw/2
+         fkwtxBGgvipfAw86lr8QGVU6YYlHdJO8CpL5o4jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christoph Paasch <cpaasch@apple.com>
-Subject: [PATCH 6.2 176/211] mptcp: fix UaF in listener shutdown
-Date:   Mon, 20 Mar 2023 15:55:11 +0100
-Message-Id: <20230320145520.832444601@linuxfoundation.org>
+        patches@lists.linux.dev, David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Jerome Glisse <jglisse@redhat.com>, Shaohua Li <shli@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 100/115] mm/userfaultfd: propagate uffd-wp bit when PTE-mapping the huge zeropage
+Date:   Mon, 20 Mar 2023 15:55:12 +0100
+Message-Id: <20230320145453.614829215@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,184 +56,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 0a3f4f1f9c27215e4ddcd312558342e57b93e518 upstream.
+commit 42b2af2c9b7eede8ef21d0943f84d135e21a32a3 upstream.
 
-As reported by Christoph after having refactored the passive
-socket initialization, the mptcp listener shutdown path is prone
-to an UaF issue.
+Currently, we'd lose the userfaultfd-wp marker when PTE-mapping a huge
+zeropage, resulting in the next write faults in the PMD range not
+triggering uffd-wp events.
 
-  BUG: KASAN: use-after-free in _raw_spin_lock_bh+0x73/0xe0
-  Write of size 4 at addr ffff88810cb23098 by task syz-executor731/1266
+Various actions (partial MADV_DONTNEED, partial mremap, partial munmap,
+partial mprotect) could trigger this.  However, most importantly,
+un-protecting a single sub-page from the userfaultfd-wp handler when
+processing a uffd-wp event will PTE-map the shared huge zeropage and lose
+the uffd-wp bit for the remainder of the PMD.
 
-  CPU: 1 PID: 1266 Comm: syz-executor731 Not tainted 6.2.0-rc59af4eaa31c1f6c00c8f1e448ed99a45c66340dd5 #6
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x6e/0x91
-   print_report+0x16a/0x46f
-   kasan_report+0xad/0x130
-   kasan_check_range+0x14a/0x1a0
-   _raw_spin_lock_bh+0x73/0xe0
-   subflow_error_report+0x6d/0x110
-   sk_error_report+0x3b/0x190
-   tcp_disconnect+0x138c/0x1aa0
-   inet_child_forget+0x6f/0x2e0
-   inet_csk_listen_stop+0x209/0x1060
-   __mptcp_close_ssk+0x52d/0x610
-   mptcp_destroy_common+0x165/0x640
-   mptcp_destroy+0x13/0x80
-   __mptcp_destroy_sock+0xe7/0x270
-   __mptcp_close+0x70e/0x9b0
-   mptcp_close+0x2b/0x150
-   inet_release+0xe9/0x1f0
-   __sock_release+0xd2/0x280
-   sock_close+0x15/0x20
-   __fput+0x252/0xa20
-   task_work_run+0x169/0x250
-   exit_to_user_mode_prepare+0x113/0x120
-   syscall_exit_to_user_mode+0x1d/0x40
-   do_syscall_64+0x48/0x90
-   entry_SYSCALL_64_after_hwframe+0x72/0xdc
+Let's properly propagate the uffd-wp bit to the PMDs.
 
-The msk grace period can legitly expire in between the last
-reference count dropped in mptcp_subflow_queue_clean() and
-the later eventual access in inet_csk_listen_stop()
+ #define _GNU_SOURCE
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
+ #include <stdbool.h>
+ #include <inttypes.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <poll.h>
+ #include <pthread.h>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>
+ #include <sys/ioctl.h>
+ #include <linux/userfaultfd.h>
 
-After the previous patch we don't need anymore special-casing
-msk listener socket cleanup: the mptcp worker will process each
-of the unaccepted msk sockets.
+ static size_t pagesize;
+ static int uffd;
+ static volatile bool uffd_triggered;
 
-Just drop the now unnecessary code.
+ #define barrier() __asm__ __volatile__("": : :"memory")
 
-Please note this commit depends on the two parent ones:
+ static void uffd_wp_range(char *start, size_t size, bool wp)
+ {
+ 	struct uffdio_writeprotect uffd_writeprotect;
 
-  mptcp: refactor passive socket initialization
-  mptcp: use the workqueue to destroy unaccepted sockets
-
-Fixes: 6aeed9045071 ("mptcp: fix race on unaccepted mptcp sockets")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Christoph Paasch <cpaasch@apple.com>
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/346
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mptcp/protocol.c |    7 +---
- net/mptcp/protocol.h |    1 
- net/mptcp/subflow.c  |   72 ---------------------------------------------------
- 3 files changed, 2 insertions(+), 78 deletions(-)
-
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2366,12 +2366,9 @@ static void __mptcp_close_ssk(struct soc
- 		mptcp_subflow_drop_ctx(ssk);
+ 	uffd_writeprotect.range.start = (unsigned long) start;
+ 	uffd_writeprotect.range.len = size;
+ 	if (wp) {
+ 		uffd_writeprotect.mode = UFFDIO_WRITEPROTECT_MODE_WP;
  	} else {
- 		/* otherwise tcp will dispose of the ssk and subflow ctx */
--		if (ssk->sk_state == TCP_LISTEN) {
--			tcp_set_state(ssk, TCP_CLOSE);
--			mptcp_subflow_queue_clean(sk, ssk);
--			inet_csk_listen_stop(ssk);
-+		if (ssk->sk_state == TCP_LISTEN)
- 			mptcp_event_pm_listener(ssk, MPTCP_EVENT_LISTENER_CLOSED);
--		}
-+
- 		__tcp_close(ssk, 0);
- 
- 		/* close acquired an extra ref */
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -629,7 +629,6 @@ void mptcp_close_ssk(struct sock *sk, st
- 		     struct mptcp_subflow_context *subflow);
- void __mptcp_subflow_send_ack(struct sock *ssk);
- void mptcp_subflow_reset(struct sock *ssk);
--void mptcp_subflow_queue_clean(struct sock *sk, struct sock *ssk);
- void mptcp_sock_graft(struct sock *sk, struct socket *parent);
- struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
- bool __mptcp_close(struct sock *sk, long timeout);
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1823,78 +1823,6 @@ static void subflow_state_change(struct
+ 		uffd_writeprotect.mode = 0;
+ 	}
+ 	if (ioctl(uffd, UFFDIO_WRITEPROTECT, &uffd_writeprotect)) {
+ 		fprintf(stderr, "UFFDIO_WRITEPROTECT failed: %d\n", errno);
+ 		exit(1);
  	}
  }
- 
--void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_ssk)
--{
--	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
--	struct mptcp_sock *msk, *next, *head = NULL;
--	struct request_sock *req;
--
--	/* build a list of all unaccepted mptcp sockets */
--	spin_lock_bh(&queue->rskq_lock);
--	for (req = queue->rskq_accept_head; req; req = req->dl_next) {
--		struct mptcp_subflow_context *subflow;
--		struct sock *ssk = req->sk;
--		struct mptcp_sock *msk;
--
--		if (!sk_is_mptcp(ssk))
--			continue;
--
--		subflow = mptcp_subflow_ctx(ssk);
--		if (!subflow || !subflow->conn)
--			continue;
--
--		/* skip if already in list */
--		msk = mptcp_sk(subflow->conn);
--		if (msk->dl_next || msk == head)
--			continue;
--
--		msk->dl_next = head;
--		head = msk;
--	}
--	spin_unlock_bh(&queue->rskq_lock);
--	if (!head)
--		return;
--
--	/* can't acquire the msk socket lock under the subflow one,
--	 * or will cause ABBA deadlock
--	 */
--	release_sock(listener_ssk);
--
--	for (msk = head; msk; msk = next) {
--		struct sock *sk = (struct sock *)msk;
--		bool do_cancel_work;
--
--		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
--		next = msk->dl_next;
--		msk->first = NULL;
--		msk->dl_next = NULL;
--
--		do_cancel_work = __mptcp_close(sk, 0);
--		release_sock(sk);
--		if (do_cancel_work) {
--			/* lockdep will report a false positive ABBA deadlock
--			 * between cancel_work_sync and the listener socket.
--			 * The involved locks belong to different sockets WRT
--			 * the existing AB chain.
--			 * Using a per socket key is problematic as key
--			 * deregistration requires process context and must be
--			 * performed at socket disposal time, in atomic
--			 * context.
--			 * Just tell lockdep to consider the listener socket
--			 * released here.
--			 */
--			mutex_release(&listener_sk->sk_lock.dep_map, _RET_IP_);
--			mptcp_cancel_work(sk);
--			mutex_acquire(&listener_sk->sk_lock.dep_map,
--				      SINGLE_DEPTH_NESTING, 0, _RET_IP_);
--		}
--		sock_put(sk);
--	}
--
--	/* we are still under the listener msk socket lock */
--	lock_sock_nested(listener_ssk, SINGLE_DEPTH_NESTING);
--}
--
- static int subflow_ulp_init(struct sock *sk)
+
+ static void *uffd_thread_fn(void *arg)
  {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	static struct uffd_msg msg;
+ 	ssize_t nread;
+
+ 	while (1) {
+ 		struct pollfd pollfd;
+ 		int nready;
+
+ 		pollfd.fd = uffd;
+ 		pollfd.events = POLLIN;
+ 		nready = poll(&pollfd, 1, -1);
+ 		if (nready == -1) {
+ 			fprintf(stderr, "poll() failed: %d\n", errno);
+ 			exit(1);
+ 		}
+
+ 		nread = read(uffd, &msg, sizeof(msg));
+ 		if (nread <= 0)
+ 			continue;
+
+ 		if (msg.event != UFFD_EVENT_PAGEFAULT ||
+ 		    !(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WP)) {
+ 			printf("FAIL: wrong uffd-wp event fired\n");
+ 			exit(1);
+ 		}
+
+ 		/* un-protect the single page. */
+ 		uffd_triggered = true;
+ 		uffd_wp_range((char *)(uintptr_t)msg.arg.pagefault.address,
+ 			      pagesize, false);
+ 	}
+ 	return arg;
+ }
+
+ static int setup_uffd(char *map, size_t size)
+ {
+ 	struct uffdio_api uffdio_api;
+ 	struct uffdio_register uffdio_register;
+ 	pthread_t thread;
+
+ 	uffd = syscall(__NR_userfaultfd,
+ 		       O_CLOEXEC | O_NONBLOCK | UFFD_USER_MODE_ONLY);
+ 	if (uffd < 0) {
+ 		fprintf(stderr, "syscall() failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	uffdio_api.api = UFFD_API;
+ 	uffdio_api.features = UFFD_FEATURE_PAGEFAULT_FLAG_WP;
+ 	if (ioctl(uffd, UFFDIO_API, &uffdio_api) < 0) {
+ 		fprintf(stderr, "UFFDIO_API failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	if (!(uffdio_api.features & UFFD_FEATURE_PAGEFAULT_FLAG_WP)) {
+ 		fprintf(stderr, "UFFD_FEATURE_WRITEPROTECT missing\n");
+ 		return -ENOSYS;
+ 	}
+
+ 	uffdio_register.range.start = (unsigned long) map;
+ 	uffdio_register.range.len = size;
+ 	uffdio_register.mode = UFFDIO_REGISTER_MODE_WP;
+ 	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) < 0) {
+ 		fprintf(stderr, "UFFDIO_REGISTER failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	pthread_create(&thread, NULL, uffd_thread_fn, NULL);
+
+ 	return 0;
+ }
+
+ int main(void)
+ {
+ 	const size_t size = 4 * 1024 * 1024ull;
+ 	char *map, *cur;
+
+ 	pagesize = getpagesize();
+
+ 	map = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
+ 	if (map == MAP_FAILED) {
+ 		fprintf(stderr, "mmap() failed\n");
+ 		return -errno;
+ 	}
+
+ 	if (madvise(map, size, MADV_HUGEPAGE)) {
+ 		fprintf(stderr, "MADV_HUGEPAGE failed\n");
+ 		return -errno;
+ 	}
+
+ 	if (setup_uffd(map, size))
+ 		return 1;
+
+ 	/* Read the whole range, populating zeropages. */
+ 	madvise(map, size, MADV_POPULATE_READ);
+
+ 	/* Write-protect the whole range. */
+ 	uffd_wp_range(map, size, true);
+
+ 	/* Make sure uffd-wp triggers on each page. */
+ 	for (cur = map; cur < map + size; cur += pagesize) {
+ 		uffd_triggered = false;
+
+ 		barrier();
+ 		/* Trigger a write fault. */
+ 		*cur = 1;
+ 		barrier();
+
+ 		if (!uffd_triggered) {
+ 			printf("FAIL: uffd-wp did not trigger\n");
+ 			return 1;
+ 		}
+ 	}
+
+ 	printf("PASS: uffd-wp triggered\n");
+ 	return 0;
+ }
+
+Link: https://lkml.kernel.org/r/20230302175423.589164-1-david@redhat.com
+Fixes: e06f1e1dd499 ("userfaultfd: wp: enabled write protection in userfaultfd API")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Shaohua Li <shli@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ mm/huge_memory.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1926,7 +1926,7 @@ static void __split_huge_zero_page_pmd(s
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	pgtable_t pgtable;
+-	pmd_t _pmd;
++	pmd_t _pmd, old_pmd;
+ 	int i;
+ 
+ 	/*
+@@ -1937,7 +1937,7 @@ static void __split_huge_zero_page_pmd(s
+ 	 *
+ 	 * See Documentation/vm/mmu_notifier.rst
+ 	 */
+-	pmdp_huge_clear_flush(vma, haddr, pmd);
++	old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
+ 
+ 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
+ 	pmd_populate(mm, &_pmd, pgtable);
+@@ -1946,6 +1946,8 @@ static void __split_huge_zero_page_pmd(s
+ 		pte_t *pte, entry;
+ 		entry = pfn_pte(my_zero_pfn(haddr), vma->vm_page_prot);
+ 		entry = pte_mkspecial(entry);
++		if (pmd_uffd_wp(old_pmd))
++			entry = pte_mkuffd_wp(entry);
+ 		pte = pte_offset_map(&_pmd, haddr);
+ 		VM_BUG_ON(!pte_none(*pte));
+ 		set_pte_at(mm, haddr, pte, entry);
 
 
