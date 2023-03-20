@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDF96C16F0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B11E56C191A
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232330AbjCTPKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60410 "EHLO
+        id S233038AbjCTPam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbjCTPJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:59 -0400
+        with ESMTP id S233109AbjCTPaG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:30:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3ABE303FC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9351432E7D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3F18B80D34
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26642C433EF;
-        Mon, 20 Mar 2023 15:05:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCB14B80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA77C433D2;
+        Mon, 20 Mar 2023 15:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324711;
-        bh=6cxS4m80Ezf2GPjn4+YCuF9rMU5fZ9CAwz9Ntc5fLro=;
+        s=korg; t=1679325775;
+        bh=bRb6TR5KYwtr9MR7+KocAOUsZL7ovGjeYKku9GQ4Ra4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlHFtwE7z6qNKmai/v5aalhvbxBN+w2gThQoV+HSD2xSv/KkgMRLhElZfG8+etvPj
-         mVS7idDKtf9dhTUWzGmkWA+Gw6FCh1xG2OM1s2h1dpjITLR1RRoWJpBD/cHbFQneeq
-         Qs5u8B5KJOSvJNrseLQliU1BJKf5gpZsLBb4gIkc=
+        b=NAfsMP6X2UrJHM2Q6h/fPIFMtGekg1NzJ6z8xUb/KPSilBFL6Z1Jgzh2GkBRlfyAi
+         3Uh7dJSKkqqPsbd/3TmOv92sMI8ckxgqaTLaAWDYJRh5kYpPEn3TrzGDVbN2aRphdO
+         hBNLwWGz/iy9/1mTFJqCNO5DxKUaJ7NrbFNAO02c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/115] drm/i915/display: Workaround cursor left overs with PSR2 selective fetch enabled
-Date:   Mon, 20 Mar 2023 15:53:53 +0100
-Message-Id: <20230320145450.300784720@linuxfoundation.org>
+Subject: [PATCH 6.2 099/211] hwmon: (adt7475) Fix masking of hysteresis registers
+Date:   Mon, 20 Mar 2023 15:53:54 +0100
+Message-Id: <20230320145517.441443834@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Roberto de Souza <jose.souza@intel.com>
+From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
 
-[ Upstream commit 1f3a11c341ab211d6ba55ef3d58026b7b5319945 ]
+[ Upstream commit 48e8186870d9d0902e712d601ccb7098cb220688 ]
 
-Not sure why but when moving the cursor fast it causes some artifacts
-of the cursor to be left in the cursor path, adding some pixels above
-the cursor to the damaged area fixes the issue, so leaving this as a
-workaround until proper fix is found.
+The wrong bits are masked in the hysteresis register; indices 0 and 2
+should zero bits [7:4] and preserve bits [3:0], and index 1 should zero
+bits [3:0] and preserve bits [7:4].
 
-This is reproducile on TGL and ADL-P.
-
-Cc: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
-Reviewed-by: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210914212507.177511-3-jose.souza@intel.com
-Stable-dep-of: 71c602103c74 ("drm/i915/psr: Use calculated io and fast wake lines")
+Fixes: 1c301fc5394f ("hwmon: Add a driver for the ADT7475 hardware monitoring chip")
+Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20230222005228.158661-3-tony.obrien@alliedtelesis.co.nz
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_psr.c | 25 ++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/hwmon/adt7475.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_psr.c b/drivers/gpu/drm/i915/display/intel_psr.c
-index a3d0c57ec0f0b..b4b193c2bc32e 100644
---- a/drivers/gpu/drm/i915/display/intel_psr.c
-+++ b/drivers/gpu/drm/i915/display/intel_psr.c
-@@ -1601,6 +1601,28 @@ static void intel_psr2_sel_fetch_pipe_alignment(const struct intel_crtc_state *c
- 		drm_warn(&dev_priv->drm, "Missing PSR2 sel fetch alignment with DSC\n");
- }
+diff --git a/drivers/hwmon/adt7475.c b/drivers/hwmon/adt7475.c
+index 77222c35a38ec..6e4c92b500b8e 100644
+--- a/drivers/hwmon/adt7475.c
++++ b/drivers/hwmon/adt7475.c
+@@ -488,10 +488,10 @@ static ssize_t temp_store(struct device *dev, struct device_attribute *attr,
+ 		val = (temp - val) / 1000;
  
-+/*
-+ * FIXME: Not sure why but when moving the cursor fast it causes some artifacts
-+ * of the cursor to be left in the cursor path, adding some pixels above the
-+ * cursor to the damaged area fixes the issue.
-+ */
-+static void cursor_area_workaround(const struct intel_plane_state *new_plane_state,
-+				   struct drm_rect *damaged_area,
-+				   struct drm_rect *pipe_clip)
-+{
-+	const struct intel_plane *plane = to_intel_plane(new_plane_state->uapi.plane);
-+	int height;
-+
-+	if (plane->id != PLANE_CURSOR)
-+		return;
-+
-+	height = drm_rect_height(&new_plane_state->uapi.dst) / 2;
-+	damaged_area->y1 -=  height;
-+	damaged_area->y1 = max(damaged_area->y1, 0);
-+
-+	clip_area_update(pipe_clip, damaged_area);
-+}
-+
- int intel_psr2_sel_fetch_update(struct intel_atomic_state *state,
- 				struct intel_crtc *crtc)
- {
-@@ -1669,6 +1691,9 @@ int intel_psr2_sel_fetch_update(struct intel_atomic_state *state,
- 				damaged_area.y2 = new_plane_state->uapi.dst.y2;
- 				clip_area_update(&pipe_clip, &damaged_area);
- 			}
-+
-+			cursor_area_workaround(new_plane_state, &damaged_area,
-+					       &pipe_clip);
- 			continue;
- 		} else if (new_plane_state->uapi.alpha != old_plane_state->uapi.alpha ||
- 			   (!num_clips &&
+ 		if (sattr->index != 1) {
+-			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
++			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
+ 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF) << 4;
+ 		} else {
+-			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
++			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
+ 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF);
+ 		}
+ 
 -- 
 2.39.2
 
