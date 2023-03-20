@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1596C086A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:19:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B586C0815
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbjCTBTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 21:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        id S231211AbjCTBGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbjCTBSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:18:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7B2420692;
-        Sun, 19 Mar 2023 18:09:17 -0700 (PDT)
+        with ESMTP id S231350AbjCTBD1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:03:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C0623A61;
+        Sun, 19 Mar 2023 17:57:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2363F611EC;
-        Mon, 20 Mar 2023 00:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9931BC433D2;
-        Mon, 20 Mar 2023 00:56:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DD10B80D48;
+        Mon, 20 Mar 2023 00:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A8F9C433D2;
+        Mon, 20 Mar 2023 00:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273803;
-        bh=zxOf/nGpknIPFp7a70Wr/dNwaARtrLnZu7RGXHKLgxc=;
+        s=k20201202; t=1679273806;
+        bh=HFFX2fAl8OfFHPhOUngXFoLexJdmRG+1d1kDH9UkmiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qjp9qIQ1Y5cJHcJV4gnrfivfiAgpQfj4JzgY9mjg9MzoI7H/VAKr0PrjgmrWjVL1t
-         Vn7aIMWaog3pAhQpjg245e0R0j7DN7WfdIfrSQxyVaomRfq73UQWJPR1IcZGtzlpEj
-         b56boNXhUsb0lbelRIxTjXjzfMnWCxPyBIOW7CgwzzjITifW2YiOqtiD5w+nuN2l1m
-         6Ec2sqmDDJCv+3n1Z/WbVi1O9yyItuBmd/xexCgjB+MtkLOo4es8KbYBOu6tQXg6k6
-         dIkTLqYfmU3Xsq7vlE+7kb6F9Ok8IuseImx5kZ8lCZyO49rWc7CGIyiFvxFnCEiici
-         OqX7W9y7f6iXA==
+        b=DwQazwDvfDO6Fgi9gq88vkxtvfX9VeyrAKDEYxvnkZkdAbmxsvhuhwPit0SEfjiMZ
+         LlgzwnI19PISrzMyYwjvrh8MpYn8vGscma7I15ycRa4fwbyKIAQICt4etd63SyX5On
+         JKUyjTEQlAByOnI5QOnLyAS9h1deTd2yWsVOiaJDw8+j3J6WVcb3TV3VZ8yvxvjHE6
+         nZJGkhdEoI9s+oovzxyf/RKnETmQfWscXYc6zf1ZeRjGn95UKz/e5dxtq7IlPA0c28
+         bsz7wlkBdAtPYL1J2zFjGxEd7Vf5BL2RkJ5gFuqGQwxgzpsGDJ8XzmEvrX1a4IOoLI
+         nRnfwiBJmY79g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Reka Norman <rekanorman@chromium.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        liqiong@nfschina.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/12] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
-Date:   Sun, 19 Mar 2023 20:56:26 -0400
-Message-Id: <20230320005636.1429242-3-sashal@kernel.org>
+Cc:     Michael Schmitz <schmitzmic@gmail.com>,
+        Eero Tamminen <oak@helsinkinet.fi>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>, laurent@vivier.eu,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 5.4 04/12] m68k: Only force 030 bus error if PC not in exception table
+Date:   Sun, 19 Mar 2023 20:56:27 -0400
+Message-Id: <20230320005636.1429242-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005636.1429242-1-sashal@kernel.org>
 References: <20230320005636.1429242-1-sashal@kernel.org>
@@ -50,74 +50,81 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reka Norman <rekanorman@chromium.org>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 8ae2f2b0a28416ed2f6d8478ac8b9f7862f36785 ]
+[ Upstream commit e36a82bebbf7da814530d5a179bef9df5934b717 ]
 
-When a reset notify IPC message is received, the ISR schedules a work
-function and passes the ISHTP device to it via a global pointer
-ishtp_dev. If ish_probe() fails, the devm-managed device resources
-including ishtp_dev are freed, but the work is not cancelled, causing a
-use-after-free when the work function tries to access ishtp_dev. Use
-devm_work_autocancel() instead, so that the work is automatically
-cancelled if probe fails.
+__get_kernel_nofault() does copy data in supervisor mode when
+forcing a task backtrace log through /proc/sysrq_trigger.
+This is expected cause a bus error exception on e.g. NULL
+pointer dereferencing when logging a kernel task has no
+workqueue associated. This bus error ought to be ignored.
 
-Signed-off-by: Reka Norman <rekanorman@chromium.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Our 030 bus error handler is ill equipped to deal with this:
+
+Whenever ssw indicates a kernel mode access on a data fault,
+we don't even attempt to handle the fault and instead always
+send a SEGV signal (or panic). As a result, the check
+for exception handling at the fault PC (buried in
+send_sig_fault() which gets called from do_page_fault()
+eventually) is never used.
+
+In contrast, both 040 and 060 access error handlers do not
+care whether a fault happened on supervisor mode access,
+and will call do_page_fault() on those, ultimately honoring
+the exception table.
+
+Add a check in bus_error030 to call do_page_fault() in case
+we do have an entry for the fault PC in our exception table.
+
+I had attempted a fix for this earlier in 2019 that did rely
+on testing pagefault_disabled() (see link below) to achieve
+the same thing, but this patch should be more generic.
+
+Tested on 030 Atari Falcon.
+
+Reported-by: Eero Tamminen <oak@helsinkinet.fi>
+Link: https://lore.kernel.org/r/alpine.LNX.2.21.1904091023540.25@nippy.intranet
+Link: https://lore.kernel.org/r/63130691-1984-c423-c1f2-73bfd8d3dcd3@gmail.com
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20230301021107.26307-1-schmitzmic@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/m68k/kernel/traps.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 8f8dfdf64833e..e23766ca9d3e1 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2014-2016, Intel Corporation.
-  */
+diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
+index a245c1933d418..5bf314871e9f6 100644
+--- a/arch/m68k/kernel/traps.c
++++ b/arch/m68k/kernel/traps.c
+@@ -30,6 +30,7 @@
+ #include <linux/init.h>
+ #include <linux/ptrace.h>
+ #include <linux/kallsyms.h>
++#include <linux/extable.h>
  
-+#include <linux/devm-helpers.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-@@ -594,7 +595,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
- 	case MNG_RESET_NOTIFY:
- 		if (!ishtp_dev) {
- 			ishtp_dev = dev;
--			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
- 		}
- 		schedule_work(&fw_reset_work);
- 		break;
-@@ -885,6 +885,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- {
- 	struct ishtp_device *dev;
- 	int	i;
-+	int	ret;
+ #include <asm/setup.h>
+ #include <asm/fpu.h>
+@@ -550,7 +551,8 @@ static inline void bus_error030 (struct frame *fp)
+ 			errorcode |= 2;
  
- 	dev = devm_kzalloc(&pdev->dev,
- 			   sizeof(struct ishtp_device) + sizeof(struct ish_hw),
-@@ -920,6 +921,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- 		list_add_tail(&tx_buf->link, &dev->wr_free_list);
- 	}
- 
-+	ret = devm_work_autocancel(&pdev->dev, &fw_reset_work, fw_reset_work_fn);
-+	if (ret) {
-+		dev_err(dev->devc, "Failed to initialise FW reset work\n");
-+		return NULL;
-+	}
-+
- 	dev->ops = &ish_hw_ops;
- 	dev->devc = &pdev->dev;
- 	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
+ 		if (mmusr & (MMU_I | MMU_WP)) {
+-			if (ssw & 4) {
++			/* We might have an exception table for this PC */
++			if (ssw & 4 && !search_exception_tables(fp->ptregs.pc)) {
+ 				pr_err("Data %s fault at %#010lx in %s (pc=%#lx)\n",
+ 				       ssw & RW ? "read" : "write",
+ 				       fp->un.fmtb.daddr,
 -- 
 2.39.2
 
