@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B57D26C188E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E096C1758
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232847AbjCTPZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39724 "EHLO
+        id S231796AbjCTPNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:13:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232851AbjCTPZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:23 -0400
+        with ESMTP id S232373AbjCTPMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C84CF34F67
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F9EC163
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 050B1615AE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156B9C433EF;
-        Mon, 20 Mar 2023 15:13:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E42CD61588
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF979C433EF;
+        Mon, 20 Mar 2023 15:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325202;
-        bh=8oT5Qks2GUmGIWwxRKF0xeqvKQH4iV8Xqvz3XCm+TxI=;
+        s=korg; t=1679324854;
+        bh=sFh+slsaerm0TBFtv1wg/yGEi4mxAKvEZDoV0mTpmvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBJGQ1KZ10vRsjYTDgUV4105tVRgjAsUm1S14ep/A2ROKgdGHDp8LwaUKHkIIhFJz
-         cg0M6gybd+jp85fKJ8wFCNSaVAkj6wL84Fq5G4MySw29FMUiD8I79ZdoKEO+iiPQ7C
-         LKD7J9BEZbj58OxGHokQBlS6YL479k3LLXHnUW9I=
+        b=VeL/4MgbTwyFaufDEJV7NeBtF6GCWDwB7rSV3LO5eUuRGtX8jMSt6Oijv06byNmPx
+         uR/uYdUzlvf+5/2xFZQex7Dz0TWXX89ICfuVM5ObSGDGeBn91Lupf9aWvtWzJ9EmsU
+         MgbnCj1Yl4tzXj+OokvbCeF7M1IT6P7kLAjXzZR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenchao Hao <haowenchao2@huawei.com>,
-        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Jaska Uimonen <jaska.uimonen@linux.intel.com>,
+        Adrian Bonislawski <adrian.bonislawski@intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 016/211] scsi: mpt3sas: Fix NULL pointer access in mpt3sas_transport_port_add()
+Subject: [PATCH 6.1 013/198] ASoC: SOF: ipc4-topology: set dmic dai index from copier
 Date:   Mon, 20 Mar 2023 15:52:31 +0100
-Message-Id: <20230320145513.978775071@linuxfoundation.org>
+Message-Id: <20230320145508.045557908@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Hao <haowenchao2@huawei.com>
+From: Jaska Uimonen <jaska.uimonen@linux.intel.com>
 
-[ Upstream commit d3c57724f1569311e4b81e98fad0931028b9bdcd ]
+[ Upstream commit c99e48f4ce9b986ab7992ec7283a06dae875f668 ]
 
-Port is allocated by sas_port_alloc_num() and rphy is allocated by either
-sas_end_device_alloc() or sas_expander_alloc(), all of which may return
-NULL. So we need to check the rphy to avoid possible NULL pointer access.
+Dmic dai index was set incorrectly to bits 5-7, when it is actually using
+just the lowest 3. Fix the macro for setting the bits.
 
-If sas_rphy_add() returned with failure, rphy is set to NULL. We would
-access the rphy in the following lines which would also result NULL pointer
-access.
-
-Fixes: 78316e9dfc24 ("scsi: mpt3sas: Fix possible resource leaks in mpt3sas_transport_port_add()")
-Signed-off-by: Wenchao Hao <haowenchao2@huawei.com>
-Link: https://lore.kernel.org/r/20230225100135.2109330-1-haowenchao2@huawei.com
-Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: aa84ffb72158 ("ASoC: SOF: ipc4-topology: Add support for SSP/DMIC DAI's")
+Signed-off-by: Jaska Uimonen <jaska.uimonen@linux.intel.com>
+Reviewed-by: Adrian Bonislawski <adrian.bonislawski@intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230307110730.1995-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_transport.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ sound/soc/sof/ipc4-topology.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_transport.c b/drivers/scsi/mpt3sas/mpt3sas_transport.c
-index e5ecd6ada6cdd..e8a4750f6ec47 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_transport.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_transport.c
-@@ -785,7 +785,7 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 		goto out_fail;
- 	}
- 	port = sas_port_alloc_num(sas_node->parent_dev);
--	if ((sas_port_add(port))) {
-+	if (!port || (sas_port_add(port))) {
- 		ioc_err(ioc, "failure at %s:%d/%s()!\n",
- 			__FILE__, __LINE__, __func__);
- 		goto out_fail;
-@@ -824,6 +824,12 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 			    mpt3sas_port->remote_identify.sas_address;
- 	}
+diff --git a/sound/soc/sof/ipc4-topology.h b/sound/soc/sof/ipc4-topology.h
+index 0aa87a8add5d3..2363a7cc0b57d 100644
+--- a/sound/soc/sof/ipc4-topology.h
++++ b/sound/soc/sof/ipc4-topology.h
+@@ -46,7 +46,7 @@
+ #define SOF_IPC4_NODE_INDEX_INTEL_SSP(x) (((x) & 0xf) << 4)
  
-+	if (!rphy) {
-+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
-+			__FILE__, __LINE__, __func__);
-+		goto out_delete_port;
-+	}
-+
- 	rphy->identify = mpt3sas_port->remote_identify;
+ /* Node ID for DMIC type DAI copiers */
+-#define SOF_IPC4_NODE_INDEX_INTEL_DMIC(x) (((x) & 0x7) << 5)
++#define SOF_IPC4_NODE_INDEX_INTEL_DMIC(x) ((x) & 0x7)
  
- 	if ((sas_rphy_add(rphy))) {
-@@ -831,6 +837,7 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 			__FILE__, __LINE__, __func__);
- 		sas_rphy_free(rphy);
- 		rphy = NULL;
-+		goto out_delete_port;
- 	}
- 
- 	if (mpt3sas_port->remote_identify.device_type == SAS_END_DEVICE) {
-@@ -857,7 +864,10 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 		    rphy_to_expander_device(rphy), hba_port->port_id);
- 	return mpt3sas_port;
- 
-- out_fail:
-+out_delete_port:
-+	sas_port_delete(port);
-+
-+out_fail:
- 	list_for_each_entry_safe(mpt3sas_phy, next, &mpt3sas_port->phy_list,
- 	    port_siblings)
- 		list_del(&mpt3sas_phy->port_siblings);
+ #define SOF_IPC4_GAIN_ALL_CHANNELS_MASK 0xffffffff
+ #define SOF_IPC4_VOL_ZERO_DB	0x7fffffff
 -- 
 2.39.2
 
