@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC0376C15D3
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 15:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C195D6C1602
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231164AbjCTO6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 10:58:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
+        id S231953AbjCTPBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbjCTO5w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 10:57:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842413C25
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:55:57 -0700 (PDT)
+        with ESMTP id S232009AbjCTPBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:01:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69F09EF2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FFF661582
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:55:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C235C433EF;
-        Mon, 20 Mar 2023 14:55:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40D306158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:57:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50EF2C433A0;
+        Mon, 20 Mar 2023 14:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324156;
-        bh=1N6bPRRz4qdxBESG+tTreMNIbPd/kIL4F0yP29hhSZI=;
+        s=korg; t=1679324240;
+        bh=v0uafu2RIETWV2/bC0afztTsBXSYkOI1XkB+wQoi9Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rr3+DyejJ5Za50SJJRC733pyTWk29DQbski/gCiwxzgsXbOkTQr9l9LOKCPursO9F
-         jAPdHGcg55JMmOj0T+yN/ThC6n8rUAVlorDuYcpgGbOS0eXH8vodRqY8RU07WSMnfw
-         PxcMbCwe/8ZMmtAHFbpiNeV0TlaQutZJL3wz/Tuw=
+        b=i6qMwwc+W9Bxl37YVaCeIsmPrr7+FzFV/wfWygHrCqzjRMW9Z8iNkaAZjZuBmY00E
+         kimQWhflgJ+Lyv3JIVs07ROTPLuc00pOgJFzqFa61FjV4x08eHNQNzrQ3zQlE2M+zd
+         EV58uGVoqhh1nENnW0vUxqJ/xl4I+CgE4jva030g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 01/30] ext4: fix cgroup writeback accounting with fs-layer encryption
-Date:   Mon, 20 Mar 2023 15:54:25 +0100
-Message-Id: <20230320145420.269797637@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <yujie.liu@intel.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.14 02/30] fs: sysfs_emit_at: Remove PAGE_SIZE alignment check
+Date:   Mon, 20 Mar 2023 15:54:26 +0100
+Message-Id: <20230320145420.318285072@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145420.204894191@linuxfoundation.org>
 References: <20230320145420.204894191@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,70 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eric Biggers <ebiggers@kernel.org>
+
 From: Eric Biggers <ebiggers@google.com>
 
-commit ffec85d53d0f39ee4680a2cf0795255e000e1feb upstream.
+[No upstream commit because this fixes a bug in a backport.]
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), ext4 encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+Before upstream commit 59bb47985c1d ("mm, sl[aou]b: guarantee natural
+alignment for kmalloc(power-of-two)") which went into v5.4, kmalloc did
+*not* always guarantee that PAGE_SIZE allocations are PAGE_SIZE-aligned.
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
+Upstream commit 2efc459d06f1 ("sysfs: Add sysfs_emit and sysfs_emit_at
+to format sysfs output") added two WARN()s that trigger when PAGE_SIZE
+allocations are not PAGE_SIZE-aligned.  This was backported to old
+kernels that don't guarantee PAGE_SIZE alignment.
 
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
+Commit 10ddfb495232 ("fs: sysfs_emit: Remove PAGE_SIZE alignment check")
+in 4.19.y, and its equivalent in 4.14.y and 4.9.y, tried to fix this
+bug.  However, only it handled sysfs_emit(), not sysfs_emit_at().
 
-Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Fix it in sysfs_emit_at() too.
+
+A reproducer is to build the kernel with the following options:
+
+	CONFIG_SLUB=y
+	CONFIG_SLUB_DEBUG=y
+	CONFIG_SLUB_DEBUG_ON=y
+	CONFIG_PM=y
+	CONFIG_SUSPEND=y
+	CONFIG_PM_WAKELOCKS=y
+
+Then run:
+
+	echo foo > /sys/power/wake_lock && cat /sys/power/wake_lock
+
+Fixes: cb1f69d53ac8 ("sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output")
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Link: https://lore.kernel.org/r/202303141634.1e64fd76-yujie.liu@intel.com
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20230203005503.141557-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/page-io.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/sysfs/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -388,7 +388,8 @@ static int io_submit_init_bio(struct ext
+--- a/fs/sysfs/file.c
++++ b/fs/sysfs/file.c
+@@ -592,7 +592,7 @@ int sysfs_emit_at(char *buf, int at, con
+ 	va_list args;
+ 	int len;
  
- static int io_submit_add_bh(struct ext4_io_submit *io,
- 			    struct inode *inode,
--			    struct page *page,
-+			    struct page *pagecache_page,
-+			    struct page *bounce_page,
- 			    struct buffer_head *bh)
- {
- 	int ret;
-@@ -403,10 +404,11 @@ submit_and_retry:
- 			return ret;
- 		io->io_bio->bi_write_hint = inode->i_write_hint;
- 	}
--	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
-+	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
-+			   bh->b_size, bh_offset(bh));
- 	if (ret != bh->b_size)
- 		goto submit_and_retry;
--	wbc_account_io(io->io_wbc, page, bh->b_size);
-+	wbc_account_io(io->io_wbc, pagecache_page, bh->b_size);
- 	io->io_next_block++;
- 	return 0;
- }
-@@ -514,8 +516,7 @@ int ext4_bio_write_page(struct ext4_io_s
- 	do {
- 		if (!buffer_async_write(bh))
- 			continue;
--		ret = io_submit_add_bh(io, inode,
--				       data_page ? data_page : page, bh);
-+		ret = io_submit_add_bh(io, inode, page, data_page, bh);
- 		if (ret) {
- 			/*
- 			 * We only get here on ENOMEM.  Not much else
+-	if (WARN(!buf || offset_in_page(buf) || at < 0 || at >= PAGE_SIZE,
++	if (WARN(!buf || at < 0 || at >= PAGE_SIZE,
+ 		 "invalid sysfs_emit_at: buf:%p at:%d\n", buf, at))
+ 		return 0;
+ 
 
 
