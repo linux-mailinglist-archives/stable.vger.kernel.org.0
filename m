@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DA26C1834
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF386C17EF
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbjCTPVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:21:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58070 "EHLO
+        id S232535AbjCTPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:18:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232683AbjCTPVa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549292595C
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:18 -0700 (PDT)
+        with ESMTP id S232344AbjCTPSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9BA34C1D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:12:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EF215CE12EC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE10C433D2;
-        Mon, 20 Mar 2023 15:15:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C6EBB80EDA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B62BDC433D2;
+        Mon, 20 Mar 2023 15:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325306;
-        bh=8x4VWYXcWqcNxMzU6WigeW/7mGU0LrVAQdpsiAJHtqU=;
+        s=korg; t=1679325172;
+        bh=Yq5xMHiMzweEfu/LfB+RmNNgp5aMAbF9pPi9Rhd7t50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+AzKKpIIVLjecvivX+kL3qXE0YZrtBb0gIO1yRVDNgQLQRNbatb+n45rwkMc7g40
-         NZ5CemzQvNeZPQXlLheINumkhlx1YmncHh+CyofjIKSG6gux4qWpK6KSJ4r9+9g2Er
-         QpIDvIdDlhgyqG0ucGF8X6noPSlEDBWn7WnrZJXI=
+        b=VuKfoj+l+nqk49tNSLwbFuhITq/sVck+B+ZGN1QoGOMYRTQirMZ+Qgvf3Y9Kzsl7P
+         mxvoUqBNrx8QPGoCIUoF6gQew53J18GvWn7Axg7afgTBupsSqIRqWR0LKeYGK9LTx5
+         Yk9mZWx1Un+rfVQydjgSJvhhkV5S9dyDhfPoUzcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeremy Sowden <jeremy@azazel.net>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 027/211] netfilter: nft_masq: correct length for loading protocol registers
+        patches@lists.linux.dev, Bjorn Helgaas <bhelgaas@google.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 024/198] ALSA: hda: Match only Intel devices with CONTROLLER_IN_GPU()
 Date:   Mon, 20 Mar 2023 15:52:42 +0100
-Message-Id: <20230320145514.414107719@linuxfoundation.org>
+Message-Id: <20230320145508.512060818@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit ec2c5917eb858428b2083d1c74f445aabbe8316b ]
+[ Upstream commit ff447886e675979d66b2bc01810035d3baea1b3a ]
 
-The values in the protocol registers are two bytes wide.  However, when
-parsing the register loads, the code currently uses the larger 16-byte
-size of a `union nf_inet_addr`.  Change it to use the (correct) size of
-a `union nf_conntrack_man_proto` instead.
+CONTROLLER_IN_GPU() is clearly intended to match only Intel devices, but
+previously it checked only the PCI Device ID, not the Vendor ID, so it
+could match devices from other vendors that happened to use the same Device
+ID.
 
-Fixes: 8a6bf5da1aef ("netfilter: nft_masq: support port range")
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Update CONTROLLER_IN_GPU() so it matches only Intel devices.
+
+Fixes: 535115b5ff51 ("ALSA: hda - Abort the probe without i915 binding for HSW/B")
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20230307214054.886721-1-helgaas@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_masq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_masq.c b/net/netfilter/nft_masq.c
-index e55e455275c48..9544c2f16998b 100644
---- a/net/netfilter/nft_masq.c
-+++ b/net/netfilter/nft_masq.c
-@@ -43,7 +43,7 @@ static int nft_masq_init(const struct nft_ctx *ctx,
- 			 const struct nft_expr *expr,
- 			 const struct nlattr * const tb[])
- {
--	u32 plen = sizeof_field(struct nf_nat_range, min_addr.all);
-+	u32 plen = sizeof_field(struct nf_nat_range, min_proto.all);
- 	struct nft_masq *priv = nft_expr_priv(expr);
- 	int err;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 81c4a45254ff2..77a592f219472 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -328,14 +328,15 @@ enum {
+ #define needs_eld_notify_link(chip)	false
+ #endif
+ 
+-#define CONTROLLER_IN_GPU(pci) (((pci)->device == 0x0a0c) || \
++#define CONTROLLER_IN_GPU(pci) (((pci)->vendor == 0x8086) &&         \
++				       (((pci)->device == 0x0a0c) || \
+ 					((pci)->device == 0x0c0c) || \
+ 					((pci)->device == 0x0d0c) || \
+ 					((pci)->device == 0x160c) || \
+ 					((pci)->device == 0x490d) || \
+ 					((pci)->device == 0x4f90) || \
+ 					((pci)->device == 0x4f91) || \
+-					((pci)->device == 0x4f92))
++					((pci)->device == 0x4f92)))
+ 
+ #define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
  
 -- 
 2.39.2
