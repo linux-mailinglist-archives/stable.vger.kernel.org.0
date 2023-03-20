@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5A7C6C1837
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 412CD6C1951
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232410AbjCTPWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:22:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36246 "EHLO
+        id S232839AbjCTPch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232719AbjCTPVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D198136CD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:33 -0700 (PDT)
+        with ESMTP id S232929AbjCTPcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4175C19686
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 66E3BCE12EB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2779CC4339B;
-        Mon, 20 Mar 2023 15:15:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0B05B80ED6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D5AAC433EF;
+        Mon, 20 Mar 2023 15:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325328;
-        bh=YAq+Bf7ra3cq1nrDi5rHRjehqZChJcH6ijEaUwTFk00=;
+        s=korg; t=1679325904;
+        bh=eVWF+RV6ONMyGgCg6cAAQL1NezYgXiiBN+yWb1EOTjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDcgsp0Gok/B4h+HWZuIKB/vpEEVVDxih8x0Mk8K3dHuSbFgpxmlggGhz/qC7AxgS
-         lQu5/bTvhpcujhMpScx6UzX5thcnKkz7xB/PXYCLjf1J9crPjtwvyBUvJ9DtrkU5Be
-         8sV4UfIxTwjI3psEzc6XyzUfFkWJeaxcieV9+kTk=
+        b=kcD3T7AjNcUMpNLfUXC2oL/JRJgajJIU0a0sLadhFwAPhYB4HW1CFmwZcWa1gURk+
+         1Ulq7SPsSCBgZwE+/qj+/RMu/s1pyseD36Uig6ljJi39FEZulYlhD/ji+A6jLH0FsS
+         tsxZry16mNHGhLnTjuT2/x3wabpsVtQWh6KuxOWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxime Ripard <mripard@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.15 091/115] drm/sun4i: fix missing component unbind on bind errors
+        patches@lists.linux.dev, Geliang Tang <geliang.tang@suse.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 165/198] mptcp: add ro_after_init for tcp{,v6}_prot_override
 Date:   Mon, 20 Mar 2023 15:55:03 +0100
-Message-Id: <20230320145453.230740845@linuxfoundation.org>
+Message-Id: <20230320145514.453295180@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Geliang Tang <geliang.tang@suse.com>
 
-commit c22f2ff8724b49dce2ae797e9fbf4bc0fa91112f upstream.
+commit 822467a48e938e661965d09df5fcac66f7291050 upstream.
 
-Make sure to unbind all subcomponents when binding the aggregate device
-fails.
+Add __ro_after_init labels for the variables tcp_prot_override and
+tcpv6_prot_override, just like other variables adjacent to them, to
+indicate that they are initialised from the init hooks and no writes
+occur afterwards.
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Cc: stable@vger.kernel.org      # 4.7
-Cc: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230306103242.4775-1-johan+linaro@kernel.org
+Fixes: b19bc2945b40 ("mptcp: implement delegated actions")
+Cc: stable@vger.kernel.org
+Fixes: 51fa7f8ebf0e ("mptcp: mark ops structures as ro_after_init")
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/mptcp/subflow.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -94,12 +94,12 @@ static int sun4i_drv_bind(struct device
- 	/* drm_vblank_init calls kcalloc, which can fail */
- 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -560,7 +560,7 @@ static struct request_sock_ops mptcp_sub
+ static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops __ro_after_init;
+ static struct inet_connection_sock_af_ops subflow_v6_specific __ro_after_init;
+ static struct inet_connection_sock_af_ops subflow_v6m_specific __ro_after_init;
+-static struct proto tcpv6_prot_override;
++static struct proto tcpv6_prot_override __ro_after_init;
  
- 	/* Remove early framebuffers (ie. simplefb) */
- 	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ {
+@@ -846,7 +846,7 @@ dispose_child:
+ }
  
- 	sun4i_framebuffer_init(drm);
+ static struct inet_connection_sock_af_ops subflow_specific __ro_after_init;
+-static struct proto tcp_prot_override;
++static struct proto tcp_prot_override __ro_after_init;
  
-@@ -118,6 +118,8 @@ static int sun4i_drv_bind(struct device
- 
- finish_poll:
- 	drm_kms_helper_poll_fini(drm);
-+unbind_all:
-+	component_unbind_all(dev, NULL);
- cleanup_mode_config:
- 	drm_mode_config_cleanup(drm);
- 	of_reserved_mem_device_release(dev);
+ enum mapping_status {
+ 	MAPPING_OK,
 
 
