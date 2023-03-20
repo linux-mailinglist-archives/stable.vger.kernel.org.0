@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 003BC6C16EE
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0299D6C194E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232315AbjCTPKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
+        id S232920AbjCTPcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232361AbjCTPJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D63E303DF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:11 -0700 (PDT)
+        with ESMTP id S233076AbjCTPcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6602193CF;
+        Mon, 20 Mar 2023 08:25:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1E74B80EC3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D30C4339C;
-        Mon, 20 Mar 2023 15:04:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 33C05CE12EB;
+        Mon, 20 Mar 2023 15:25:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2625EC433EF;
+        Mon, 20 Mar 2023 15:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324678;
-        bh=JsSUs3d/yDCt6EnGrrrVyV2AGFW09dmfpdOFyeuKY+E=;
+        s=korg; t=1679325901;
+        bh=gbkODAwK/OWLYiSLQQ1vtVK4wzka5QYbDWyqUr7xv/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKXJgSpjjr7cT0UI0vTbQoJCzdq9P5iuREJ4TKxWdzU4rWUROglbTaeNlLBNu0+Ol
-         5SnrOjJlkTt2YFDG3wlnSUGiHYEjUqGG615TVNA8Jl5mzRYhBjEKvxHSRQRR8iKfEa
-         TBXWG5Wl4tHXCrDQufop4phy9IKJ3cEee/hfk2Mw=
+        b=rXoM7JOHtwnRul3uXUALqxEFuueD4g7mWgFmsbQizkSjBCkdC5Xyxeeg32CXtKdmm
+         QtvRJR1du5VmBt9FZzXIIFYMHFQ1/bU+dO8BuxDLCs3/leYUqoOYfJ6iPVVCzaN9YJ
+         KDP1HhKY64Dbhe3ETCaxHJ9WN1t/3zLyZIMwBnzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Piotr Raczynski <piotr.raczynski@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/99] ethernet: sun: add check for the mdesc_grab()
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Oskar Senft <osk@google.com>, linux-serial@vger.kernel.org
+Subject: [PATCH 6.2 122/211] serial: 8250: ASPEED_VUART: select REGMAP instead of depending on it
 Date:   Mon, 20 Mar 2023 15:54:17 +0100
-Message-Id: <20230320145445.007414697@linuxfoundation.org>
+Message-Id: <20230320145518.470112216@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 90de546d9a0b3c771667af18bb3f80567eabb89b ]
+commit f8086d1a65ac693e3fd863128352b4b11ee7324d upstream.
 
-In vnet_port_probe() and vsw_port_probe(), we should
-check the return value of mdesc_grab() as it may
-return NULL which can caused NPD bugs.
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-Fixes: 5d01fa0c6bd8 ("ldmvsw: Add ldmvsw.c driver code")
-Fixes: 43fdf27470b2 ("[SPARC64]: Abstract out mdesc accesses for better MD update handling.")
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
+
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
+
+Fixes: 8d310c9107a2 ("drivers/tty/serial/8250: Make Aspeed VUART SIRQ polarity configurable")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Oskar Senft <osk@google.com>
+Cc: linux-serial@vger.kernel.org
+Link: https://lore.kernel.org/r/20230226053953.4681-9-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/ldmvsw.c  | 3 +++
- drivers/net/ethernet/sun/sunvnet.c | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/tty/serial/8250/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sun/ldmvsw.c b/drivers/net/ethernet/sun/ldmvsw.c
-index 01ea0d6f88193..934a4b54784b8 100644
---- a/drivers/net/ethernet/sun/ldmvsw.c
-+++ b/drivers/net/ethernet/sun/ldmvsw.c
-@@ -290,6 +290,9 @@ static int vsw_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 
- 	hp = mdesc_grab();
- 
-+	if (!hp)
-+		return -ENODEV;
-+
- 	rmac = mdesc_get_property(hp, vdev->mp, remote_macaddr_prop, &len);
- 	err = -ENODEV;
- 	if (!rmac) {
-diff --git a/drivers/net/ethernet/sun/sunvnet.c b/drivers/net/ethernet/sun/sunvnet.c
-index 96b883f965f63..b6c03adf1e762 100644
---- a/drivers/net/ethernet/sun/sunvnet.c
-+++ b/drivers/net/ethernet/sun/sunvnet.c
-@@ -431,6 +431,9 @@ static int vnet_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 
- 	hp = mdesc_grab();
- 
-+	if (!hp)
-+		return -ENODEV;
-+
- 	vp = vnet_find_parent(hp, vdev->mp, vdev);
- 	if (IS_ERR(vp)) {
- 		pr_err("Cannot find port parent vnet\n");
--- 
-2.39.2
-
+--- a/drivers/tty/serial/8250/Kconfig
++++ b/drivers/tty/serial/8250/Kconfig
+@@ -253,8 +253,9 @@ config SERIAL_8250_ASPEED_VUART
+ 	tristate "Aspeed Virtual UART"
+ 	depends on SERIAL_8250
+ 	depends on OF
+-	depends on REGMAP && MFD_SYSCON
++	depends on MFD_SYSCON
+ 	depends on ARCH_ASPEED || COMPILE_TEST
++	select REGMAP
+ 	help
+ 	  If you want to use the virtual UART (VUART) device on Aspeed
+ 	  BMC platforms, enable this option. This enables the 16550A-
 
 
