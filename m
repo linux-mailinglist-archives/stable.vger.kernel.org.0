@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA496C1682
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCF76C1968
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232156AbjCTPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54444 "EHLO
+        id S233113AbjCTPdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232231AbjCTPEv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2902BEC0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:54 -0700 (PDT)
+        with ESMTP id S233104AbjCTPdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC47B34C2D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC9FD61583
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9944C4339B;
-        Mon, 20 Mar 2023 15:00:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E972B80EC8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94BD4C433D2;
+        Mon, 20 Mar 2023 15:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324415;
-        bh=h1sONQgw9qZOJu5se/PZZGysohtwrtzMudcWJk/kSmo=;
+        s=korg; t=1679325948;
+        bh=7NBaoj5epw2EWaCt3Ia8FlZOBg2J+aRdzIyMQe5D3gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0irG45P/Nr+sfCPVxcUr+t886SIvzppvF9fryb2FSNfMlPheDEqUQMOFQnj+sZkI
-         u+qaTQY6YLyzZcxcM+rSkTTDZOtP9wvw1XPh6jWTEhnKoVWFF1pMsPP0zwHftpHwJh
-         WKZAI8ks9TvwPWIvf4rppC6sdR60h5GzCMR6/7YM=
+        b=jvu8JozPhLD82ODlt3sNHXdWNlFYTAiMjMff26N06CuTCyxRB5keF5AufTxLCXOCN
+         wAccH+I+2d9JtbGKrN3vAJ56HXGAXrENCWYEdbHO5EXKcwdNFihdFtcKn3i0fQTRe8
+         CvsgJ8wrlx0ahE49D26ItvCz/I74LJ//WGxVUgUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
-        syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/60] scsi: core: Fix a procfs host directory removal regression
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>
+Subject: [PATCH 6.2 130/211] interconnect: fix icc_provider_del() error handling
 Date:   Mon, 20 Mar 2023 15:54:25 +0100
-Message-Id: <20230320145431.569660402@linuxfoundation.org>
+Message-Id: <20230320145518.856678151@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit be03df3d4bfe7e8866d4aa43d62e648ffe884f5f ]
+commit e0e7089bf9a87bc5e3997422e4e24563424f9018 upstream.
 
-scsi_proc_hostdir_rm() decreases a reference counter and hence must only be
-called once per host that is removed. This change does not require a
-scsi_add_host_with_dma() change since scsi_add_host_with_dma() will return
-0 (success) if scsi_proc_host_add() is called.
+The interconnect framework currently expects that providers are only
+removed when there are no users and after all nodes have been removed.
 
-Fixes: fc663711b944 ("scsi: core: Remove the /proc/scsi/${proc_name} directory earlier")
-Cc: John Garry <john.g.garry@oracle.com>
-Reported-by: John Garry <john.g.garry@oracle.com>
-Link: https://lore.kernel.org/all/ed6b8027-a9d9-1b45-be8e-df4e8c6c4605@oracle.com/
-Reported-by: syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-scsi/000000000000890fab05f65342b6@google.com/
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20230307214428.3703498-1-bvanassche@acm.org
-Tested-by: John Garry <john.g.garry@oracle.com>
-Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There is currently nothing that guarantees this to be the case and the
+framework does not do any reference counting, but refusing to remove the
+provider is never correct as that would leave a dangling pointer to a
+resource that is about to be released in the global provider list (e.g.
+accessible through debugfs).
+
+Replace the current sanity checks with WARN_ON() so that the provider is
+always removed.
+
+Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
+Cc: stable@vger.kernel.org      # 5.1: 680f8666baf6: interconnect: Make icc_provider_del() return void
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
+Link: https://lore.kernel.org/r/20230306075651.2449-3-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/interconnect/core.c |   14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index d3a63961b98a9..b97e046c6a6e1 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -319,9 +319,6 @@ static void scsi_host_dev_release(struct device *dev)
- 	struct Scsi_Host *shost = dev_to_shost(dev);
- 	struct device *parent = dev->parent;
- 
--	/* In case scsi_remove_host() has not been called. */
--	scsi_proc_hostdir_rm(shost->hostt);
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -1061,18 +1061,8 @@ EXPORT_SYMBOL_GPL(icc_provider_add);
+ void icc_provider_del(struct icc_provider *provider)
+ {
+ 	mutex_lock(&icc_lock);
+-	if (provider->users) {
+-		pr_warn("interconnect provider still has %d users\n",
+-			provider->users);
+-		mutex_unlock(&icc_lock);
+-		return;
+-	}
 -
- 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
- 	rcu_barrier();
+-	if (!list_empty(&provider->nodes)) {
+-		pr_warn("interconnect provider still has nodes\n");
+-		mutex_unlock(&icc_lock);
+-		return;
+-	}
++	WARN_ON(provider->users);
++	WARN_ON(!list_empty(&provider->nodes));
  
--- 
-2.39.2
-
+ 	list_del(&provider->provider_list);
+ 	mutex_unlock(&icc_lock);
 
 
