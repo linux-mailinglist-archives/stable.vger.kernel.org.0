@@ -2,56 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D1B46C1935
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC53F6C196C
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233085AbjCTPbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
+        id S233120AbjCTPda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232839AbjCTPb2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D823734020
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:54 -0700 (PDT)
+        with ESMTP id S233122AbjCTPdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F03D34F53
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C97FB80E55
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 328C4C4339C;
-        Mon, 20 Mar 2023 15:23:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 995C36157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AADA8C4339C;
+        Mon, 20 Mar 2023 15:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325827;
-        bh=SfCZawwhNVkHFA9/sY9LZNRj6mtwDsVyCSJo6iC8ZxI=;
+        s=korg; t=1679325956;
+        bh=hFcIikj1mDKjeQuTUK9pVgnuAW8pKQ8py83+y1206JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+kRlSBM027emes+TDJwlRfWMAzqt8y0XSLiJY0ujgljnASz9gmo9/n/1BvN+dvhW
-         2sIs/TlzQCquh9uL9eDjSBHhqR6yg/vMnW3vJ5cXbWbj0QJhjFdiT9srcVK1frQ7iu
-         UnXqhSFNXarCLgj1BIOPBWALwxdxSyuxOgt35pzI=
+        b=fcJelWwLWAfaBCRs2UZ+w1ACXybSOP3bVN1RqEiyooHPaQiS+pgTjlNTU/V/qNeHw
+         oO83WaMuHmr9Phuy8/s7HGSg5dx6PBhNfCJ2PCSRGGMDRO1Lo8kvLVjV1z1cjM9Ahc
+         lawi+upc/NSYSSdJKWF0cZ8RF9AQ8r9XoYHHzLBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Huang Rui <ray.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Philip Yang <Philip.Yang@amd.com>, Qiang Yu <qiang.yu@amd.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Nirmoy Das <nirmoy.das@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Anshuman Gupta <anshuman.gupta@intel.com>,
-        Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 6.1 127/198] drm/ttm: Fix a NULL pointer dereference
-Date:   Mon, 20 Mar 2023 15:54:25 +0100
-Message-Id: <20230320145512.868867333@linuxfoundation.org>
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>
+Subject: [PATCH 6.2 131/211] interconnect: fix provider registration API
+Date:   Mon, 20 Mar 2023 15:54:26 +0100
+Message-Id: <20230320145518.909502554@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,60 +54,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 9a9a8fe26751334b7739193a94eba741073b8a55 upstream.
+commit eb59eca0d8ac15f8c1b7f1cd35999455a90292c0 upstream.
 
-The LRU mechanism may look up a resource in the process of being removed
-from an object. The locking rules here are a bit unclear but it looks
-currently like res->bo assignment is protected by the LRU lock, whereas
-bo->resource is protected by the object lock, while *clearing* of
-bo->resource is also protected by the LRU lock. This means that if
-we check that bo->resource points to the LRU resource under the LRU
-lock we should be safe.
-So perform that check before deciding to swap out a bo. That avoids
-dereferencing a NULL bo->resource in ttm_bo_swapout().
+The current interconnect provider interface is inherently racy as
+providers are expected to be added before being fully initialised.
 
-Fixes: 6a9b02899402 ("drm/ttm: move the LRU into resource handling v4")
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Christian Koenig <christian.koenig@amd.com>
-Cc: Huang Rui <ray.huang@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: Philip Yang <Philip.Yang@amd.com>
-Cc: Qiang Yu <qiang.yu@amd.com>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Cc: Nirmoy Das <nirmoy.das@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
-Cc: Anshuman Gupta <anshuman.gupta@intel.com>
-Cc: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.19+
-Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230307144621.10748-2-thomas.hellstrom@linux.intel.com
+Specifically, nodes are currently not added and the provider data is not
+initialised until after registering the provider which can cause racing
+DT lookups to fail.
+
+Add a new provider API which will be used to fix up the interconnect
+drivers.
+
+The old API is reimplemented using the new interface and will be removed
+once all drivers have been fixed.
+
+Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
+Fixes: 87e3031b6fbd ("interconnect: Allow endpoints translation via DT")
+Cc: stable@vger.kernel.org      # 5.1
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
+Link: https://lore.kernel.org/r/20230306075651.2449-4-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ttm/ttm_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/interconnect/core.c           |   52 ++++++++++++++++++++++++----------
+ include/linux/interconnect-provider.h |   12 +++++++
+ 2 files changed, 50 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_device.c b/drivers/gpu/drm/ttm/ttm_device.c
-index e7147e304637..b84f74807ca1 100644
---- a/drivers/gpu/drm/ttm/ttm_device.c
-+++ b/drivers/gpu/drm/ttm/ttm_device.c
-@@ -158,7 +158,7 @@ int ttm_device_swapout(struct ttm_device *bdev, struct ttm_operation_ctx *ctx,
- 			struct ttm_buffer_object *bo = res->bo;
- 			uint32_t num_pages;
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -1029,44 +1029,68 @@ int icc_nodes_remove(struct icc_provider
+ EXPORT_SYMBOL_GPL(icc_nodes_remove);
  
--			if (!bo)
-+			if (!bo || bo->resource != res)
- 				continue;
+ /**
+- * icc_provider_add() - add a new interconnect provider
+- * @provider: the interconnect provider that will be added into topology
++ * icc_provider_init() - initialize a new interconnect provider
++ * @provider: the interconnect provider to initialize
++ *
++ * Must be called before adding nodes to the provider.
++ */
++void icc_provider_init(struct icc_provider *provider)
++{
++	WARN_ON(!provider->set);
++
++	INIT_LIST_HEAD(&provider->nodes);
++}
++EXPORT_SYMBOL_GPL(icc_provider_init);
++
++/**
++ * icc_provider_register() - register a new interconnect provider
++ * @provider: the interconnect provider to register
+  *
+  * Return: 0 on success, or an error code otherwise
+  */
+-int icc_provider_add(struct icc_provider *provider)
++int icc_provider_register(struct icc_provider *provider)
+ {
+-	if (WARN_ON(!provider->set))
+-		return -EINVAL;
+ 	if (WARN_ON(!provider->xlate && !provider->xlate_extended))
+ 		return -EINVAL;
  
- 			num_pages = PFN_UP(bo->base.size);
--- 
-2.40.0
-
+ 	mutex_lock(&icc_lock);
+-
+-	INIT_LIST_HEAD(&provider->nodes);
+ 	list_add_tail(&provider->provider_list, &icc_providers);
+-
+ 	mutex_unlock(&icc_lock);
+ 
+-	dev_dbg(provider->dev, "interconnect provider added to topology\n");
++	dev_dbg(provider->dev, "interconnect provider registered\n");
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(icc_provider_add);
++EXPORT_SYMBOL_GPL(icc_provider_register);
+ 
+ /**
+- * icc_provider_del() - delete previously added interconnect provider
+- * @provider: the interconnect provider that will be removed from topology
++ * icc_provider_deregister() - deregister an interconnect provider
++ * @provider: the interconnect provider to deregister
+  */
+-void icc_provider_del(struct icc_provider *provider)
++void icc_provider_deregister(struct icc_provider *provider)
+ {
+ 	mutex_lock(&icc_lock);
+ 	WARN_ON(provider->users);
+-	WARN_ON(!list_empty(&provider->nodes));
+ 
+ 	list_del(&provider->provider_list);
+ 	mutex_unlock(&icc_lock);
+ }
++EXPORT_SYMBOL_GPL(icc_provider_deregister);
++
++int icc_provider_add(struct icc_provider *provider)
++{
++	icc_provider_init(provider);
++
++	return icc_provider_register(provider);
++}
++EXPORT_SYMBOL_GPL(icc_provider_add);
++
++void icc_provider_del(struct icc_provider *provider)
++{
++	WARN_ON(!list_empty(&provider->nodes));
++
++	icc_provider_deregister(provider);
++}
+ EXPORT_SYMBOL_GPL(icc_provider_del);
+ 
+ static int of_count_icc_providers(struct device_node *np)
+--- a/include/linux/interconnect-provider.h
++++ b/include/linux/interconnect-provider.h
+@@ -122,6 +122,9 @@ int icc_link_destroy(struct icc_node *sr
+ void icc_node_add(struct icc_node *node, struct icc_provider *provider);
+ void icc_node_del(struct icc_node *node);
+ int icc_nodes_remove(struct icc_provider *provider);
++void icc_provider_init(struct icc_provider *provider);
++int icc_provider_register(struct icc_provider *provider);
++void icc_provider_deregister(struct icc_provider *provider);
+ int icc_provider_add(struct icc_provider *provider);
+ void icc_provider_del(struct icc_provider *provider);
+ struct icc_node_data *of_icc_get_from_provider(struct of_phandle_args *spec);
+@@ -167,6 +170,15 @@ static inline int icc_nodes_remove(struc
+ 	return -ENOTSUPP;
+ }
+ 
++static inline void icc_provider_init(struct icc_provider *provider) { }
++
++static inline int icc_provider_register(struct icc_provider *provider)
++{
++	return -ENOTSUPP;
++}
++
++static inline void icc_provider_deregister(struct icc_provider *provider) { }
++
+ static inline int icc_provider_add(struct icc_provider *provider)
+ {
+ 	return -ENOTSUPP;
 
 
