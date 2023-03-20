@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBEF76C1859
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29DCC6C187E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232512AbjCTPXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40444 "EHLO
+        id S232723AbjCTPZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:25:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232569AbjCTPXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5009D2BF30
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:39 -0700 (PDT)
+        with ESMTP id S232788AbjCTPY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C95436457
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBDE0615AD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C61EBC433D2;
-        Mon, 20 Mar 2023 15:16:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B71CB80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D531C433D2;
+        Mon, 20 Mar 2023 15:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325397;
-        bh=TMe+YEG/jrnwL3TwmcqKzGKtVJVIfWUK1pzvxGYy2tM=;
+        s=korg; t=1679325457;
+        bh=KybEv8xqTLeH2QWdnQbVpYQSe3+YI3q6mmf67zLEscQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lT+zv+XK8UUp3IcE07TSISsi5VHxTtciQ4v+geR9fs+fhqdk2hhrKeS3JOesED3IB
-         0yqUGjQyVubXlDyI4YaHdi3pOYdcd70fsYwbm2+YW0erXOOC/6GOfgb+cue39OZtwu
-         27vxp5OSMoT1QMrlb8QaUfRtyMSj8qlasoSlGsq0=
+        b=of97//NpThxv3mCe2Mu90rraon6YzMcmm++hIVQjdxmjEYcAYB/PSRcFXJq28fUQz
+         O3EMQTU1TvYNPhjDshW/IX3wNycm21yS0yvDEZDoLpCjfnGD0YB7hEwwFa3CKLALMY
+         FBDTczM4MCMMg4EReC7hkL49PyWlu7lS6EciLpU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Breno Leitao <leitao@debian.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
+        Si-Wei Liu <si-wei.liu@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 033/211] tcp: tcp_make_synack() can be called from process context
-Date:   Mon, 20 Mar 2023 15:52:48 +0100
-Message-Id: <20230320145514.647565084@linuxfoundation.org>
+Subject: [PATCH 6.2 034/211] vdpa/mlx5: should not activate virtq object when suspended
+Date:   Mon, 20 Mar 2023 15:52:49 +0100
+Message-Id: <20230320145514.687137472@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -54,62 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
 
-[ Upstream commit bced3f7db95ff2e6ca29dc4d1c9751ab5e736a09 ]
+[ Upstream commit 09e65ee9059d76b89cb713795748805efd3f50c6 ]
 
-tcp_rtx_synack() now could be called in process context as explained in
-0a375c822497 ("tcp: tcp_rtx_synack() can be called from process
-context").
+Otherwise the virtqueue object to instate could point to invalid address
+that was unmapped from the MTT:
 
-tcp_rtx_synack() might call tcp_make_synack(), which will touch per-CPU
-variables with preemption enabled. This causes the following BUG:
+  mlx5_core 0000:41:04.2: mlx5_cmd_out_err:782:(pid 8321):
+  CREATE_GENERAL_OBJECT(0xa00) op_mod(0xd) failed, status
+  bad parameter(0x3), syndrome (0x5fa1c), err(-22)
 
-    BUG: using __this_cpu_add() in preemptible [00000000] code: ThriftIO1/5464
-    caller is tcp_make_synack+0x841/0xac0
-    Call Trace:
-     <TASK>
-     dump_stack_lvl+0x10d/0x1a0
-     check_preemption_disabled+0x104/0x110
-     tcp_make_synack+0x841/0xac0
-     tcp_v6_send_synack+0x5c/0x450
-     tcp_rtx_synack+0xeb/0x1f0
-     inet_rtx_syn_ack+0x34/0x60
-     tcp_check_req+0x3af/0x9e0
-     tcp_rcv_state_process+0x59b/0x2030
-     tcp_v6_do_rcv+0x5f5/0x700
-     release_sock+0x3a/0xf0
-     tcp_sendmsg+0x33/0x40
-     ____sys_sendmsg+0x2f2/0x490
-     __sys_sendmsg+0x184/0x230
-     do_syscall_64+0x3d/0x90
+Fixes: cae15c2ed8e6 ("vdpa/mlx5: Implement susupend virtqueue callback")
+Cc: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
 
-Avoid calling __TCP_INC_STATS() with will touch per-cpu variables. Use
-TCP_INC_STATS() which is safe to be called from context switch.
-
-Fixes: 8336886f786f ("tcp: TCP Fast Open Server - support TFO listeners")
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230308190745.780221-1-leitao@debian.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Message-Id: <1676424640-11673-1-git-send-email-si-wei.liu@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h | 1 +
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 71d01cf3c13eb..ba839e441450f 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3605,7 +3605,7 @@ struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
- 	th->window = htons(min(req->rsk_rcv_wnd, 65535U));
- 	tcp_options_write(th, NULL, &opts);
- 	th->doff = (tcp_header_size >> 2);
--	__TCP_INC_STATS(sock_net(sk), TCP_MIB_OUTSEGS);
-+	TCP_INC_STATS(sock_net(sk), TCP_MIB_OUTSEGS);
+diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+index 058fbe28107e9..25fc4120b618d 100644
+--- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
++++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+@@ -96,6 +96,7 @@ struct mlx5_vdpa_dev {
+ 	struct mlx5_control_vq cvq;
+ 	struct workqueue_struct *wq;
+ 	unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
++	bool suspended;
+ };
  
- #ifdef CONFIG_TCP_MD5SIG
- 	/* Okay, we have all we need - do the md5 hash if needed */
+ int mlx5_vdpa_alloc_pd(struct mlx5_vdpa_dev *dev, u32 *pdn, u16 uid);
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 3a6dbbc6440d4..daac3ab314785 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -2411,7 +2411,7 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
+ 	if (err)
+ 		goto err_mr;
+ 
+-	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK))
++	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) || mvdev->suspended)
+ 		goto err_mr;
+ 
+ 	restore_channels_info(ndev);
+@@ -2579,6 +2579,7 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
+ 	clear_vqs_ready(ndev);
+ 	mlx5_vdpa_destroy_mr(&ndev->mvdev);
+ 	ndev->mvdev.status = 0;
++	ndev->mvdev.suspended = false;
+ 	ndev->cur_num_vqs = 0;
+ 	ndev->mvdev.cvq.received_desc = 0;
+ 	ndev->mvdev.cvq.completed_desc = 0;
+@@ -2815,6 +2816,8 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
+ 	struct mlx5_vdpa_virtqueue *mvq;
+ 	int i;
+ 
++	mlx5_vdpa_info(mvdev, "suspending device\n");
++
+ 	down_write(&ndev->reslock);
+ 	ndev->nb_registered = false;
+ 	mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+@@ -2824,6 +2827,7 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
+ 		suspend_vq(ndev, mvq);
+ 	}
+ 	mlx5_vdpa_cvq_suspend(mvdev);
++	mvdev->suspended = true;
+ 	up_write(&ndev->reslock);
+ 	return 0;
+ }
 -- 
 2.39.2
 
