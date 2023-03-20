@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E656C1689
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5C476C1981
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232221AbjCTPGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54948 "EHLO
+        id S233168AbjCTPeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232218AbjCTPGh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687B92C645
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:11 -0700 (PDT)
+        with ESMTP id S233110AbjCTPdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E3739BB2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1612DB80ECA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80FC5C433A0;
-        Mon, 20 Mar 2023 15:02:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B4266154E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893D2C433D2;
+        Mon, 20 Mar 2023 15:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324524;
-        bh=wSM917sD8/HaXAnSt8Gh7XV8eH5qHAJdLIicQqHvGK0=;
+        s=korg; t=1679326005;
+        bh=Lp+Eg4VK8rObcKndcZEw48ieVuAJl9AgoRCjAquKAxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0GLDU7O3vuBWNLgmkkbqJW+5YDALjgcghlrmhfCQ4yp8Td5nndNNShTbfkbPZ015
-         lCGCTe9nkgwBdqItXNye08AO9m8rLuPZmrWl0WRxdAbmcQAs9qctp884CrXuy/MgRE
-         bMCwsDtsi1DgQnQ7DIZxgKrQAsyAVwdKasamBNQ4=
+        b=yE5lHblRORZaSCXky4pkcRfXczAGA7wDjfz7dlwv0KxBYNpWzvRTuBwKqxA2K9ofp
+         87QBgzcldcRl/J7wZ1QPLi/21PYVtxbtP73D7rNKboeRLM5fqkqF00PLPOL1BUoCHr
+         HtNJzjuLC2zIo2gB3HUuv/U4lx4cY6kf5Dp2fcBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>
-Subject: [PATCH 5.4 46/60] interconnect: fix mem leak when freeing nodes
+        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.1 157/198] drm/i915/active: Fix misuse of non-idle barriers as fence trackers
 Date:   Mon, 20 Mar 2023 15:54:55 +0100
-Message-Id: <20230320145432.833846619@linuxfoundation.org>
+Message-Id: <20230320145514.109343938@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
 
-commit a5904f415e1af72fa8fe6665aa4f554dc2099a95 upstream.
+commit e0e6b416b25ee14716f3549e0cbec1011b193809 upstream.
 
-The node link array is allocated when adding links to a node but is not
-deallocated when nodes are destroyed.
+Users reported oopses on list corruptions when using i915 perf with a
+number of concurrently running graphics applications.  Root cause analysis
+pointed at an issue in barrier processing code -- a race among perf open /
+close replacing active barriers with perf requests on kernel context and
+concurrent barrier preallocate / acquire operations performed during user
+context first pin / last unpin.
 
-Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
-Cc: stable@vger.kernel.org      # 5.1
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
-Link: https://lore.kernel.org/r/20230306075651.2449-2-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+When adding a request to a composite tracker, we try to reuse an existing
+fence tracker, already allocated and registered with that composite.  The
+tracker we obtain may already track another fence, may be an idle barrier,
+or an active barrier.
+
+If the tracker we get occurs a non-idle barrier then we try to delete that
+barrier from a list of barrier tasks it belongs to.  However, while doing
+that we don't respect return value from a function that performs the
+barrier deletion.  Should the deletion ever fail, we would end up reusing
+the tracker still registered as a barrier task.  Since the same structure
+field is reused with both fence callback lists and barrier tasks list,
+list corruptions would likely occur.
+
+Barriers are now deleted from a barrier tasks list by temporarily removing
+the list content, traversing that content with skip over the node to be
+deleted, then populating the list back with the modified content.  Should
+that intentionally racy concurrent deletion attempts be not serialized,
+one or more of those may fail because of the list being temporary empty.
+
+Related code that ignores the results of barrier deletion was initially
+introduced in v5.4 by commit d8af05ff38ae ("drm/i915: Allow sharing the
+idle-barrier from other kernel requests").  However, all users of the
+barrier deletion routine were apparently serialized at that time, then the
+issue didn't exhibit itself.  Results of git bisect with help of a newly
+developed igt@gem_barrier_race@remote-request IGT test indicate that list
+corruptions might start to appear after commit 311770173fac ("drm/i915/gt:
+Schedule request retirement when timeline idles"), introduced in v5.5.
+
+Respect results of barrier deletion attempts -- mark the barrier as idle
+only if successfully deleted from the list.  Then, before proceeding with
+setting our fence as the one currently tracked, make sure that the tracker
+we've got is not a non-idle barrier.  If that check fails then don't use
+that tracker but go back and try to acquire a new, usable one.
+
+v3: use unlikely() to document what outcome we expect (Andi),
+  - fix bad grammar in commit description.
+v2: no code changes,
+  - blame commit 311770173fac ("drm/i915/gt: Schedule request retirement
+    when timeline idles"), v5.5, not commit d8af05ff38ae ("drm/i915: Allow
+    sharing the idle-barrier from other kernel requests"), v5.4,
+  - reword commit description.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6333
+Fixes: 311770173fac ("drm/i915/gt: Schedule request retirement when timeline idles")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: stable@vger.kernel.org # v5.5
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230302120820.48740-1-janusz.krzysztofik@linux.intel.com
+(cherry picked from commit 506006055769b10d1b2b4e22f636f3b45e0e9fc7)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/i915_active.c |   27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
---- a/drivers/interconnect/core.c
-+++ b/drivers/interconnect/core.c
-@@ -612,6 +612,10 @@ void icc_node_destroy(int id)
- 
- 	mutex_unlock(&icc_lock);
- 
-+	if (!node)
-+		return;
-+
-+	kfree(node->links);
- 	kfree(node);
+--- a/drivers/gpu/drm/i915/i915_active.c
++++ b/drivers/gpu/drm/i915/i915_active.c
+@@ -422,12 +422,12 @@ replace_barrier(struct i915_active *ref,
+ 	 * we can use it to substitute for the pending idle-barrer
+ 	 * request that we want to emit on the kernel_context.
+ 	 */
+-	__active_del_barrier(ref, node_from_active(active));
+-	return true;
++	return __active_del_barrier(ref, node_from_active(active));
  }
- EXPORT_SYMBOL_GPL(icc_node_destroy);
+ 
+ int i915_active_add_request(struct i915_active *ref, struct i915_request *rq)
+ {
++	u64 idx = i915_request_timeline(rq)->fence_context;
+ 	struct dma_fence *fence = &rq->fence;
+ 	struct i915_active_fence *active;
+ 	int err;
+@@ -437,16 +437,19 @@ int i915_active_add_request(struct i915_
+ 	if (err)
+ 		return err;
+ 
+-	active = active_instance(ref, i915_request_timeline(rq)->fence_context);
+-	if (!active) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-
+-	if (replace_barrier(ref, active)) {
+-		RCU_INIT_POINTER(active->fence, NULL);
+-		atomic_dec(&ref->count);
+-	}
++	do {
++		active = active_instance(ref, idx);
++		if (!active) {
++			err = -ENOMEM;
++			goto out;
++		}
++
++		if (replace_barrier(ref, active)) {
++			RCU_INIT_POINTER(active->fence, NULL);
++			atomic_dec(&ref->count);
++		}
++	} while (unlikely(is_barrier(active)));
++
+ 	if (!__i915_active_fence_set(active, fence))
+ 		__i915_active_acquire(ref);
+ 
 
 
