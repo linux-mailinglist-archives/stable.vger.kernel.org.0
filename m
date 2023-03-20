@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4086C1814
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 965FD6C1816
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232453AbjCTPUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:20:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60954 "EHLO
+        id S232526AbjCTPUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:20:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232667AbjCTPTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:39 -0400
+        with ESMTP id S232650AbjCTPTn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A992415C98
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7A52FCF9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97484615B3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A78B9C433EF;
-        Mon, 20 Mar 2023 15:14:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF6BE615AB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC5BC433D2;
+        Mon, 20 Mar 2023 15:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325249;
-        bh=BEv8/iSKoK73RPz9OD7bGTIKJw7pgok0xUVDzJq5W/c=;
+        s=korg; t=1679325257;
+        bh=ZEXuUZ6tnyP9XDvjgUq4SWG4Mp0T7Uy/II4sX+pGXlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ksiICQi/SdUZYKgJOk+Xd9DCYn3C1da+n0sI+88odif/LIiGn2IBrvRzDQSm6Xx4j
-         voP9BTNVgxMzLaLitTCcy55aVzKnSM6bdkNBpErvwnkv3YismR3uPujioPGnnoFpIT
-         z65cYYvfb+MZJtUfmbyyVLOCdMFcYanUc8H9eKe0=
+        b=sjxXYckTdjylsnUCA9Ev1otRRjaItkAHbNJrIhehoQHBjkCp/roZCVI1Q3w/EyD4q
+         aZt4r2hzghDIA8uTQKP9jvEggWGjDCmf8bv7nhpXrpzt0mk1iF/g7yeZUbX0z3OnzN
+         lZkAID+hMiQ0euArzLMahDVV9eRBbvs/1dlzpbME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 021/211] scsi: mpi3mr: Return proper values for failures in firmware init path
-Date:   Mon, 20 Mar 2023 15:52:36 +0100
-Message-Id: <20230320145514.182483390@linuxfoundation.org>
+Subject: [PATCH 6.2 022/211] scsi: mpi3mr: Fix memory leaks in mpi3mr_init_ioc()
+Date:   Mon, 20 Mar 2023 15:52:37 +0100
+Message-Id: <20230320145514.228897123@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -54,75 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjan Kumar <ranjan.kumar@broadcom.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit ba8a9ba41fbde250fd8b0ed1e5dad0dc9318df46 ]
+[ Upstream commit c798304470cab88723d895726d17fcb96472e0e9 ]
 
-Return proper non-zero return values for all the cases when the controller
-initialization and re-initialization fails.
+Don't allocate memory again when IOC is being reinitialized.
 
-Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Link: https://lore.kernel.org/r/20230228140835.4075-5-ranjan.kumar@broadcom.com
+Fixes: fe6db6151565 ("scsi: mpi3mr: Handle offline FW activation in graceful manner")
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Link: https://lore.kernel.org/r/20230302234336.25456-6-thenzl@redhat.com
+Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Stable-dep-of: c798304470ca ("scsi: mpi3mr: Fix memory leaks in mpi3mr_init_ioc()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_fw.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/scsi/mpi3mr/mpi3mr_fw.c | 41 ++++++++++++++++++---------------
+ 1 file changed, 23 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
-index 77282ad5688da..e702911e8e934 100644
+index e702911e8e934..4147920afbaee 100644
 --- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
 +++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
-@@ -3816,8 +3816,10 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
- 	dprint_init(mrioc, "allocating config page buffers\n");
- 	mrioc->cfg_page = dma_alloc_coherent(&mrioc->pdev->dev,
- 	    MPI3MR_DEFAULT_CFG_PAGE_SZ, &mrioc->cfg_page_dma, GFP_KERNEL);
--	if (!mrioc->cfg_page)
-+	if (!mrioc->cfg_page) {
-+		retval = -1;
- 		goto out_failed_noretry;
-+	}
+@@ -3813,29 +3813,34 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
  
- 	mrioc->cfg_page_sz = MPI3MR_DEFAULT_CFG_PAGE_SZ;
+ 	mpi3mr_print_ioc_info(mrioc);
  
-@@ -3879,8 +3881,10 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
- 		dprint_init(mrioc, "allocating memory for throttle groups\n");
- 		sz = sizeof(struct mpi3mr_throttle_group_info);
- 		mrioc->throttle_groups = kcalloc(mrioc->num_io_throttle_group, sz, GFP_KERNEL);
--		if (!mrioc->throttle_groups)
-+		if (!mrioc->throttle_groups) {
+-	dprint_init(mrioc, "allocating config page buffers\n");
+-	mrioc->cfg_page = dma_alloc_coherent(&mrioc->pdev->dev,
+-	    MPI3MR_DEFAULT_CFG_PAGE_SZ, &mrioc->cfg_page_dma, GFP_KERNEL);
+ 	if (!mrioc->cfg_page) {
+-		retval = -1;
+-		goto out_failed_noretry;
++		dprint_init(mrioc, "allocating config page buffers\n");
++		mrioc->cfg_page_sz = MPI3MR_DEFAULT_CFG_PAGE_SZ;
++		mrioc->cfg_page = dma_alloc_coherent(&mrioc->pdev->dev,
++		    mrioc->cfg_page_sz, &mrioc->cfg_page_dma, GFP_KERNEL);
++		if (!mrioc->cfg_page) {
 +			retval = -1;
- 			goto out_failed_noretry;
++			goto out_failed_noretry;
 +		}
  	}
  
- 	retval = mpi3mr_enable_events(mrioc);
-@@ -3900,6 +3904,7 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
- 		mpi3mr_memset_buffers(mrioc);
- 		goto retry_init;
- 	}
-+	retval = -1;
- out_failed_noretry:
- 	ioc_err(mrioc, "controller initialization failed\n");
- 	mpi3mr_issue_reset(mrioc, MPI3_SYSIF_HOST_DIAG_RESET_ACTION_DIAG_FAULT,
-@@ -4012,6 +4017,7 @@ int mpi3mr_reinit_ioc(struct mpi3mr_ioc *mrioc, u8 is_resume)
- 		ioc_err(mrioc,
- 		    "cannot create minimum number of operational queues expected:%d created:%d\n",
- 		    mrioc->shost->nr_hw_queues, mrioc->num_op_reply_q);
-+		retval = -1;
- 		goto out_failed_noretry;
+-	mrioc->cfg_page_sz = MPI3MR_DEFAULT_CFG_PAGE_SZ;
+-
+-	retval = mpi3mr_alloc_reply_sense_bufs(mrioc);
+-	if (retval) {
+-		ioc_err(mrioc,
+-		    "%s :Failed to allocated reply sense buffers %d\n",
+-		    __func__, retval);
+-		goto out_failed_noretry;
++	if (!mrioc->init_cmds.reply) {
++		retval = mpi3mr_alloc_reply_sense_bufs(mrioc);
++		if (retval) {
++			ioc_err(mrioc,
++			    "%s :Failed to allocated reply sense buffers %d\n",
++			    __func__, retval);
++			goto out_failed_noretry;
++		}
  	}
  
-@@ -4078,6 +4084,7 @@ int mpi3mr_reinit_ioc(struct mpi3mr_ioc *mrioc, u8 is_resume)
- 		mpi3mr_memset_buffers(mrioc);
- 		goto retry_init;
+-	retval = mpi3mr_alloc_chain_bufs(mrioc);
+-	if (retval) {
+-		ioc_err(mrioc, "Failed to allocated chain buffers %d\n",
+-		    retval);
+-		goto out_failed_noretry;
++	if (!mrioc->chain_sgl_list) {
++		retval = mpi3mr_alloc_chain_bufs(mrioc);
++		if (retval) {
++			ioc_err(mrioc, "Failed to allocated chain buffers %d\n",
++			    retval);
++			goto out_failed_noretry;
++		}
  	}
-+	retval = -1;
- out_failed_noretry:
- 	ioc_err(mrioc, "controller %s is failed\n",
- 	    (is_resume)?"resume":"re-initialization");
+ 
+ 	retval = mpi3mr_issue_iocinit(mrioc);
 -- 
 2.39.2
 
