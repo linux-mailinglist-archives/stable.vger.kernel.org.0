@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A55906C17C8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35E7F6C1969
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232584AbjCTPRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:17:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50628 "EHLO
+        id S233145AbjCTPd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232523AbjCTPQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D54F30EB7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:55 -0700 (PDT)
+        with ESMTP id S232976AbjCTPdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1874D2F79C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EBE5B80EDA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B43C433A0;
-        Mon, 20 Mar 2023 15:11:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BB17614CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B330C4339C;
+        Mon, 20 Mar 2023 15:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325111;
-        bh=7/l21qbPvL/uLOnO4QYZxpja9Gy/MCZCG6dCrpk+nFM=;
+        s=korg; t=1679325950;
+        bh=OK51pA6AfDny/zyDfCNFG8jKyJLbssprXLRN+gZ2oFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RO8d4oLS6Zb+ygVXQxchyRlAht2PECyQWgQWPZDvBFH2auXMk/8hmUoX+nDirpySV
-         at0GkQoStmfyfQjkg8whLcYrWoWkAsbQodSe4tYgENbxYBVVA709WPEruNTxSSo09H
-         MNLl+iWCsTc0ZDveF56vDAgZ/CwteuyK/XhAqxcA=
+        b=aRbLTkcP55bdLjuuYuuD2WioFjsYzgkvUpuTfG+jnPmmK+fMX2vU1gx0f3ZMeYl7F
+         EEnvNvv0+VKTCu5eLYarSoY1i9GIsQZO55Gd9hB37YNDggZhwmT1W/m+uDUh9AbuBY
+         SZneY2oWjT28GuBxC2FtGOeaeVVJyXa2x+20fKzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Amir Goldstein <amir73il@gmail.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>
-Subject: [PATCH 5.10 92/99] attr: add in_group_or_capable()
-Date:   Mon, 20 Mar 2023 15:55:10 +0100
-Message-Id: <20230320145447.267143971@linuxfoundation.org>
+        patches@lists.linux.dev, David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Jerome Glisse <jglisse@redhat.com>, Shaohua Li <shli@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 173/198] mm/userfaultfd: propagate uffd-wp bit when PTE-mapping the huge zeropage
+Date:   Mon, 20 Mar 2023 15:55:11 +0100
+Message-Id: <20230320145514.773748187@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +56,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 11c2a8700cdcabf9b639b7204a1e38e2a0b6798e upstream.
+commit 42b2af2c9b7eede8ef21d0943f84d135e21a32a3 upstream.
 
-[backported to 5.10.y, prior to idmapped mounts]
+Currently, we'd lose the userfaultfd-wp marker when PTE-mapping a huge
+zeropage, resulting in the next write faults in the PMD range not
+triggering uffd-wp events.
 
-In setattr_{copy,prepare}() we need to perform the same permission
-checks to determine whether we need to drop the setgid bit or not.
-Instead of open-coding it twice add a simple helper the encapsulates the
-logic. We will reuse this helpers to make dropping the setgid bit during
-write operations more consistent in a follow up patch.
+Various actions (partial MADV_DONTNEED, partial mremap, partial munmap,
+partial mprotect) could trigger this.  However, most importantly,
+un-protecting a single sub-page from the userfaultfd-wp handler when
+processing a uffd-wp event will PTE-map the shared huge zeropage and lose
+the uffd-wp bit for the remainder of the PMD.
 
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Let's properly propagate the uffd-wp bit to the PMDs.
+
+ #define _GNU_SOURCE
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
+ #include <stdbool.h>
+ #include <inttypes.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <poll.h>
+ #include <pthread.h>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>
+ #include <sys/ioctl.h>
+ #include <linux/userfaultfd.h>
+
+ static size_t pagesize;
+ static int uffd;
+ static volatile bool uffd_triggered;
+
+ #define barrier() __asm__ __volatile__("": : :"memory")
+
+ static void uffd_wp_range(char *start, size_t size, bool wp)
+ {
+ 	struct uffdio_writeprotect uffd_writeprotect;
+
+ 	uffd_writeprotect.range.start = (unsigned long) start;
+ 	uffd_writeprotect.range.len = size;
+ 	if (wp) {
+ 		uffd_writeprotect.mode = UFFDIO_WRITEPROTECT_MODE_WP;
+ 	} else {
+ 		uffd_writeprotect.mode = 0;
+ 	}
+ 	if (ioctl(uffd, UFFDIO_WRITEPROTECT, &uffd_writeprotect)) {
+ 		fprintf(stderr, "UFFDIO_WRITEPROTECT failed: %d\n", errno);
+ 		exit(1);
+ 	}
+ }
+
+ static void *uffd_thread_fn(void *arg)
+ {
+ 	static struct uffd_msg msg;
+ 	ssize_t nread;
+
+ 	while (1) {
+ 		struct pollfd pollfd;
+ 		int nready;
+
+ 		pollfd.fd = uffd;
+ 		pollfd.events = POLLIN;
+ 		nready = poll(&pollfd, 1, -1);
+ 		if (nready == -1) {
+ 			fprintf(stderr, "poll() failed: %d\n", errno);
+ 			exit(1);
+ 		}
+
+ 		nread = read(uffd, &msg, sizeof(msg));
+ 		if (nread <= 0)
+ 			continue;
+
+ 		if (msg.event != UFFD_EVENT_PAGEFAULT ||
+ 		    !(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WP)) {
+ 			printf("FAIL: wrong uffd-wp event fired\n");
+ 			exit(1);
+ 		}
+
+ 		/* un-protect the single page. */
+ 		uffd_triggered = true;
+ 		uffd_wp_range((char *)(uintptr_t)msg.arg.pagefault.address,
+ 			      pagesize, false);
+ 	}
+ 	return arg;
+ }
+
+ static int setup_uffd(char *map, size_t size)
+ {
+ 	struct uffdio_api uffdio_api;
+ 	struct uffdio_register uffdio_register;
+ 	pthread_t thread;
+
+ 	uffd = syscall(__NR_userfaultfd,
+ 		       O_CLOEXEC | O_NONBLOCK | UFFD_USER_MODE_ONLY);
+ 	if (uffd < 0) {
+ 		fprintf(stderr, "syscall() failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	uffdio_api.api = UFFD_API;
+ 	uffdio_api.features = UFFD_FEATURE_PAGEFAULT_FLAG_WP;
+ 	if (ioctl(uffd, UFFDIO_API, &uffdio_api) < 0) {
+ 		fprintf(stderr, "UFFDIO_API failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	if (!(uffdio_api.features & UFFD_FEATURE_PAGEFAULT_FLAG_WP)) {
+ 		fprintf(stderr, "UFFD_FEATURE_WRITEPROTECT missing\n");
+ 		return -ENOSYS;
+ 	}
+
+ 	uffdio_register.range.start = (unsigned long) map;
+ 	uffdio_register.range.len = size;
+ 	uffdio_register.mode = UFFDIO_REGISTER_MODE_WP;
+ 	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) < 0) {
+ 		fprintf(stderr, "UFFDIO_REGISTER failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	pthread_create(&thread, NULL, uffd_thread_fn, NULL);
+
+ 	return 0;
+ }
+
+ int main(void)
+ {
+ 	const size_t size = 4 * 1024 * 1024ull;
+ 	char *map, *cur;
+
+ 	pagesize = getpagesize();
+
+ 	map = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
+ 	if (map == MAP_FAILED) {
+ 		fprintf(stderr, "mmap() failed\n");
+ 		return -errno;
+ 	}
+
+ 	if (madvise(map, size, MADV_HUGEPAGE)) {
+ 		fprintf(stderr, "MADV_HUGEPAGE failed\n");
+ 		return -errno;
+ 	}
+
+ 	if (setup_uffd(map, size))
+ 		return 1;
+
+ 	/* Read the whole range, populating zeropages. */
+ 	madvise(map, size, MADV_POPULATE_READ);
+
+ 	/* Write-protect the whole range. */
+ 	uffd_wp_range(map, size, true);
+
+ 	/* Make sure uffd-wp triggers on each page. */
+ 	for (cur = map; cur < map + size; cur += pagesize) {
+ 		uffd_triggered = false;
+
+ 		barrier();
+ 		/* Trigger a write fault. */
+ 		*cur = 1;
+ 		barrier();
+
+ 		if (!uffd_triggered) {
+ 			printf("FAIL: uffd-wp did not trigger\n");
+ 			return 1;
+ 		}
+ 	}
+
+ 	printf("PASS: uffd-wp triggered\n");
+ 	return 0;
+ }
+
+Link: https://lkml.kernel.org/r/20230302175423.589164-1-david@redhat.com
+Fixes: e06f1e1dd499 ("userfaultfd: wp: enabled write protection in userfaultfd API")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Shaohua Li <shli@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/attr.c     |   11 +++++------
- fs/inode.c    |   25 +++++++++++++++++++++----
- fs/internal.h |    1 +
- 3 files changed, 27 insertions(+), 10 deletions(-)
+ mm/huge_memory.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -18,6 +18,8 @@
- #include <linux/evm.h>
- #include <linux/ima.h>
- 
-+#include "internal.h"
-+
- static bool chown_ok(const struct inode *inode, kuid_t uid)
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2004,7 +2004,7 @@ static void __split_huge_zero_page_pmd(s
  {
- 	if (uid_eq(current_fsuid(), inode->i_uid) &&
-@@ -90,9 +92,8 @@ int setattr_prepare(struct dentry *dentr
- 		if (!inode_owner_or_capable(inode))
- 			return -EPERM;
- 		/* Also check the setgid bit! */
--		if (!in_group_p((ia_valid & ATTR_GID) ? attr->ia_gid :
--				inode->i_gid) &&
--		    !capable_wrt_inode_uidgid(inode, CAP_FSETID))
-+		if (!in_group_or_capable(inode, (ia_valid & ATTR_GID) ?
-+						attr->ia_gid : inode->i_gid))
- 			attr->ia_mode &= ~S_ISGID;
- 	}
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	pgtable_t pgtable;
+-	pmd_t _pmd;
++	pmd_t _pmd, old_pmd;
+ 	int i;
  
-@@ -193,9 +194,7 @@ void setattr_copy(struct inode *inode, c
- 		inode->i_ctime = attr->ia_ctime;
- 	if (ia_valid & ATTR_MODE) {
- 		umode_t mode = attr->ia_mode;
--
--		if (!in_group_p(inode->i_gid) &&
--		    !capable_wrt_inode_uidgid(inode, CAP_FSETID))
-+		if (!in_group_or_capable(inode, inode->i_gid))
- 			mode &= ~S_ISGID;
- 		inode->i_mode = mode;
- 	}
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -2380,6 +2380,26 @@ int vfs_ioc_fssetxattr_check(struct inod
- EXPORT_SYMBOL(vfs_ioc_fssetxattr_check);
+ 	/*
+@@ -2015,7 +2015,7 @@ static void __split_huge_zero_page_pmd(s
+ 	 *
+ 	 * See Documentation/mm/mmu_notifier.rst
+ 	 */
+-	pmdp_huge_clear_flush(vma, haddr, pmd);
++	old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
  
- /**
-+ * in_group_or_capable - check whether caller is CAP_FSETID privileged
-+ * @inode:	inode to check
-+ * @gid:	the new/current gid of @inode
-+ *
-+ * Check wether @gid is in the caller's group list or if the caller is
-+ * privileged with CAP_FSETID over @inode. This can be used to determine
-+ * whether the setgid bit can be kept or must be dropped.
-+ *
-+ * Return: true if the caller is sufficiently privileged, false if not.
-+ */
-+bool in_group_or_capable(const struct inode *inode, kgid_t gid)
-+{
-+	if (in_group_p(gid))
-+		return true;
-+	if (capable_wrt_inode_uidgid(inode, CAP_FSETID))
-+		return true;
-+	return false;
-+}
-+
-+/**
-  * mode_strip_sgid - handle the sgid bit for non-directories
-  * @dir: parent directory inode
-  * @mode: mode of the file to be created in @dir
-@@ -2398,11 +2418,8 @@ umode_t mode_strip_sgid(const struct ino
- 		return mode;
- 	if (S_ISDIR(mode) || !dir || !(dir->i_mode & S_ISGID))
- 		return mode;
--	if (in_group_p(dir->i_gid))
-+	if (in_group_or_capable(dir, dir->i_gid))
- 		return mode;
--	if (capable_wrt_inode_uidgid(dir, CAP_FSETID))
--		return mode;
--
- 	return mode & ~S_ISGID;
- }
- EXPORT_SYMBOL(mode_strip_sgid);
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -149,6 +149,7 @@ extern int vfs_open(const struct path *,
- extern long prune_icache_sb(struct super_block *sb, struct shrink_control *sc);
- extern void inode_add_lru(struct inode *inode);
- extern int dentry_needs_remove_privs(struct dentry *dentry);
-+bool in_group_or_capable(const struct inode *inode, kgid_t gid);
- 
- /*
-  * fs-writeback.c
+ 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
+ 	pmd_populate(mm, &_pmd, pgtable);
+@@ -2024,6 +2024,8 @@ static void __split_huge_zero_page_pmd(s
+ 		pte_t *pte, entry;
+ 		entry = pfn_pte(my_zero_pfn(haddr), vma->vm_page_prot);
+ 		entry = pte_mkspecial(entry);
++		if (pmd_uffd_wp(old_pmd))
++			entry = pte_mkuffd_wp(entry);
+ 		pte = pte_offset_map(&_pmd, haddr);
+ 		VM_BUG_ON(!pte_none(*pte));
+ 		set_pte_at(mm, haddr, pte, entry);
 
 
