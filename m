@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4658E6C0CD9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A486C0CDC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231233AbjCTJMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44504 "EHLO
+        id S229927AbjCTJM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:12:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231201AbjCTJMm (ORCPT
+        with ESMTP id S231203AbjCTJMm (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 111D0234D8
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C45D234DC
         for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73A81B80DB3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB20C4339B;
-        Mon, 20 Mar 2023 09:12:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ECBE612CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 709C6C433EF;
+        Mon, 20 Mar 2023 09:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303547;
-        bh=BELm58qqXUlGgKEfcUE/wewO10I9d9ZsFhd2sYbE4AM=;
+        s=korg; t=1679303549;
+        bh=/xFBb1mqZQI/cPFaGkg7GVju/Wczy444tmEi139fFVA=;
         h=Subject:To:Cc:From:Date:From;
-        b=0Wd6Tp6SlnMupE+ApF59fNFyzLjEH/6g+twolicbgrpVNCpPbSCzI6wVAgYA6dtVd
-         2DvzliTKdQYuPS/q0OSfC8gCKQyD2rFjzw2CBVy0eN3iU5uIiQnUYIdsld05XeYWtM
-         a2N0ruaEJopU2LtCxJw3Nw6X0YXGJFCKinRic6bw=
-Subject: FAILED: patch "[PATCH] serial: 8250_em: Fix UART port type" failed to apply to 5.4-stable tree
+        b=Si1UjM+/6/EM2ttly83CuVFktvTiugURN3P4BC6flvntqSpJxjjAPbOSNZVpCDRx3
+         FxRej486XBSe9T9KXVifvX2ghXb65KY+f2aFm8ALpLJTCrdYKwX8twktPUhNe2RKod
+         2ryoJPF54Wsivr6j4Dx+9Zh0JksV/3CqZ5TYfdCQ=
+Subject: FAILED: patch "[PATCH] serial: 8250_em: Fix UART port type" failed to apply to 4.19-stable tree
 To:     biju.das.jz@bp.renesas.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:12:18 +0100
-Message-ID: <167930353815674@kroah.com>
+Date:   Mon, 20 Mar 2023 10:12:19 +0100
+Message-ID: <1679303539169236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 32e293be736b853f168cd065d9cbc1b0c69f545d
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930353815674@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303539169236@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
