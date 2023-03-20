@@ -2,145 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ACDA6C2261
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:17:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 004496C226E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:20:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229801AbjCTURX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 16:17:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33282 "EHLO
+        id S229876AbjCTUUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 16:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229629AbjCTURW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:17:22 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62651D907;
-        Mon, 20 Mar 2023 13:17:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=vJY8jKToHd8+Kg5E3edi1QUWHeaaaoycoz45vWtsFB4=; b=vNnQefJX4YTN2NyTDlsr84Dc+R
-        EHhJLQhHUazB7469F/UWQmi346XjrebvEcH3PCbVsNvaZqCjz1gBwqoyx6zhxPdOJBOU3kCrIPZAP
-        oIZ+9Yum7nwupiTbqHrGwA483ezvqqHMcP4oJGSd/g7UKbSywduars0sz2FTrePfJINJCXxQUG8qD
-        A0tbVv8t2y7T8eta0NU1QBJHhbwp1JioKAmsAZ6doVJ4PHS3gxwyXLrM//iXrDv/+auD3QhZ08pnk
-        LWTeaD4AE9hmcRATb83zeLu/Qyunf5weca12E+Fj1ZDuL9F8zswEdmCUgwWcPeFbOoSGaQcd8qSjz
-        8Zm6bG7g==;
-Received: from [2601:1c2:980:9ec0::21b4]
-        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1peLwV-00AOl0-0Q;
-        Mon, 20 Mar 2023 20:17:19 +0000
-Message-ID: <bc1afc02-967b-73b3-49a0-b8d22cb96b35@infradead.org>
-Date:   Mon, 20 Mar 2023 13:17:16 -0700
+        with ESMTP id S229610AbjCTUUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:20:44 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DBC86582
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 13:20:42 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id e15-20020a17090ac20f00b0023d1b009f52so17868382pjt.2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 13:20:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679343642;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=yTf7FAR2tU1EoBqS2XcH1CvlzxJgSOHwOzVShU56VwM=;
+        b=ZBwTvCHqgugIZRvtmGH8LfFMHL4ycj0n4Z2LjOpZpXWOxkoteRBk0HyFTFGMwISYjU
+         gTpL2hEpzLK2BhGFyHLwY63/HQHlx7CmtwdorbAGy11T7ZQPE8yi622O3mPUkC7DEAS8
+         7g3MHuL+i/4HHZHwaYqb4tcXrewmiHjuYehmfhTdq5ucpe5qoVKcXWyPJtC7xX5c8c0F
+         VIN3nueSsL300H63Xs0UYldd4pBKPapPo6iuEgmnxbPTAO7aSkI3LKjdrw2IliFjIuK0
+         9hMQd6J/qPX+RIXgJMaxS3oyZDCz2kEHiAsBTooiZ/XXLALIgMuOuBh69uTpmrMDyDOo
+         MVWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679343642;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yTf7FAR2tU1EoBqS2XcH1CvlzxJgSOHwOzVShU56VwM=;
+        b=zxdVwz0DaR8GYk3tKY6rwJCWQ3OWIpG/IhKHEbdBNl9+tRWMNCGDEpgwdzlpWL19gy
+         rpnlDwlYvoJEbdAbWFLKTUrXDw37OMAe5wNHKNMF5P/5p3hKMU2vEfJb23ZmdJrQx8b/
+         8QNDXJ6ZIf/AUaHHXeQS3dvZBktkdBKEWqG1ZjP2MzoRM2gVlVuKSsqeX9TImjRDk6j4
+         8UQZsoBBq3wm1VTowHWMCXqwbXJOz5s4hN0q3bkT3lkuBnJLPpuu2jFhx3Dg3+ezOhPQ
+         uH+kyvR2zgoK6R4E3IzewBPxx7G0B4pzLcA4lztWa92pOuP85XkJ+0toytqVw4vQphOs
+         vX3A==
+X-Gm-Message-State: AO0yUKVUK8xWdQQSxJ3vJv96flDhBQpHQl463gT3bquJZ3BWQ8UmiIHj
+        3pRqrGgceN/K9g7Arcov4+EUmd8AGIy/0NAWTac=
+X-Google-Smtp-Source: AK7set+9FC6gol0zxpWxl4XBGdyhU6DizVulyLrXf6ABWH+SNy/XvQXBGgC427+WIV1+MzQvZQ259g==
+X-Received: by 2002:a05:6a20:8c02:b0:d9:fc6c:51fa with SMTP id j2-20020a056a208c0200b000d9fc6c51famr2464056pzh.32.1679343641710;
+        Mon, 20 Mar 2023 13:20:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s5-20020a656445000000b004fb3e5681cesm6691931pgv.20.2023.03.20.13.20.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Mar 2023 13:20:41 -0700 (PDT)
+Message-ID: <6418c019.650a0220.edb2f.afe1@mx.google.com>
+Date:   Mon, 20 Mar 2023 13:20:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH 6/7 v4] sh: fix Kconfig entry for NUMA => SMP
-Content-Language: en-US
-To:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        linux-kernel@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20230306040037.20350-1-rdunlap@infradead.org>
- <20230306040037.20350-7-rdunlap@infradead.org>
- <2186c0e97e6747e71ebceade317f88a7cc016772.camel@physik.fu-berlin.de>
- <c9a748cb2ee6145a3ffe85ca55a28b990f6be68c.camel@physik.fu-berlin.de>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <c9a748cb2ee6145a3ffe85ca55a28b990f6be68c.camel@physik.fu-berlin.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.103-116-g433daa4de681
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.15.y baseline: 163 runs,
+ 2 regressions (v5.15.103-116-g433daa4de681)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.15.y baseline: 163 runs, 2 regressions (v5.15.103-116-g43=
+3daa4de681)
+
+Regressions Summary
+-------------------
+
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+cubietruck      | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+fsl-lx2160a-rdb | arm64 | lab-nxp      | gcc-10   | defconfig          | 1 =
+         =
 
 
-On 3/20/23 13:13, John Paul Adrian Glaubitz wrote:
-> Hi Randy!
-> 
-> On Sun, 2023-03-19 at 21:20 +0100, John Paul Adrian Glaubitz wrote:
->> On Sun, 2023-03-05 at 20:00 -0800, Randy Dunlap wrote:
->>> Fix SUPERH builds that select SYS_SUPPORTS_NUMA but do not select
->>> SYS_SUPPORTS_SMP and SMP.
->>>
->>> kernel/sched/topology.c is only built for CONFIG_SMP and then the NUMA
->>> code + data inside topology.c is only built when CONFIG_NUMA is
->>> set/enabled, so these arch/sh/ configs need to select SMP and
->>> SYS_SUPPORTS_SMP to build the NUMA support.
->>>
->>> Fixes this build error in multiple SUPERH configs:
->>>
->>> mm/page_alloc.o: In function `get_page_from_freelist':
->>> page_alloc.c:(.text+0x2ca8): undefined reference to `node_reclaim_distance'
->>>
->>> Fixes: 357d59469c11 ("sh: Tidy up dependencies for SH-2 build.")
->>> Fixes: 9109a30e5a54 ("sh: add support for sh7366 processor")
->>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
->>> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
->>> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
->>> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
->>> Cc: Rich Felker <dalias@libc.org>
->>> Cc: linux-sh@vger.kernel.org
->>> Cc: stable@vger.kernel.org
->>> ---
->>> v2: skipped
->>> v3: skipped
->>> v4: refresh & resend
->>>
->>>  arch/sh/Kconfig |    4 ++++
->>>  1 file changed, 4 insertions(+)
->>>
->>> diff -- a/arch/sh/Kconfig b/arch/sh/Kconfig
->>> --- a/arch/sh/Kconfig
->>> +++ b/arch/sh/Kconfig
->>> @@ -477,6 +477,8 @@ config CPU_SUBTYPE_SH7722
->>>  	select CPU_SHX2
->>>  	select ARCH_SHMOBILE
->>>  	select ARCH_SPARSEMEM_ENABLE
->>> +	select SYS_SUPPORTS_SMP
->>> +	select SMP
->>>  	select SYS_SUPPORTS_NUMA
->>>  	select SYS_SUPPORTS_SH_CMT
->>>  	select PINCTRL
->>> @@ -487,6 +489,8 @@ config CPU_SUBTYPE_SH7366
->>>  	select CPU_SHX2
->>>  	select ARCH_SHMOBILE
->>>  	select ARCH_SPARSEMEM_ENABLE
->>> +	select SYS_SUPPORTS_SMP
->>> +	select SMP
->>>  	select SYS_SUPPORTS_NUMA
->>>  	select SYS_SUPPORTS_SH_CMT
->>>  
->>
->> It seems that we need this change for these configurations as well:
->>
->> - config CPU_SHX3
->> - config CPU_SUBTYPE_SH7785
->>
->> Although I can trigger a build failure for CPU_SUBTYPE_SH7785 only when
->> setting CONFIG_NUMA=y:
->>
->>   CC      net/ipv6/addrconf_core.o
->> mm/slab.c: In function 'slab_memory_callback':
->> mm/slab.c:1127:23: error: implicit declaration of function 'init_cache_node_node'; did you mean 'drain_cache_node_node'? [-Werror=implicit-function-declaration]
->>  1127 |                 ret = init_cache_node_node(nid);
->>       |                       ^~~~~~~~~~~~~~~~~~~~
->>       |                       drain_cache_node_node
->>
->> I would expect this error to be reproducible for CPU_SHX3 as well when
->> CONFIG_NUMA=y but CONFIG_SMP=n. But for some reason, I am not seeing
->> the error then.
-> 
-> Can you make this change for config CPU_SUBTYPE_SH7785 as well?
-> 
-> Then the change should be fine.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.103-116-g433daa4de681/plan/baseline/
 
-Will do. Thanks.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.103-116-g433daa4de681
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      433daa4de6819b2f97fc17c5a71d1fa5b1f8b14c =
 
--- 
-~Randy
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+cubietruck      | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/64188c4461fe2efd4b8c8636
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+03-116-g433daa4de681/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+03-116-g433daa4de681/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/64188c4461fe2efd4b8c863f
+        failing since 62 days (last pass: v5.15.82-124-gd731c63c25d1, first=
+ fail: v5.15.87-101-g5bcc318cb4cd)
+
+    2023-03-20T16:39:08.668888  <8>[    9.991986] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3429371_1.5.2.4.1>
+    2023-03-20T16:39:08.778563  / # #
+    2023-03-20T16:39:08.880448  export SHELL=3D/bin/sh
+    2023-03-20T16:39:08.881162  #
+    2023-03-20T16:39:08.983011  / # export SHELL=3D/bin/sh. /lava-3429371/e=
+nvironment
+    2023-03-20T16:39:08.983847  =
+
+    2023-03-20T16:39:09.085956  / # . /lava-3429371/environment/lava-342937=
+1/bin/lava-test-runner /lava-3429371/1
+    2023-03-20T16:39:09.087065  =
+
+    2023-03-20T16:39:09.087375  / # <3>[   10.353188] Bluetooth: hci0: comm=
+and 0x0c03 tx timeout
+    2023-03-20T16:39:09.092484  /lava-3429371/bin/lava-test-runner /lava-34=
+29371/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform        | arch  | lab          | compiler | defconfig          | re=
+gressions
+----------------+-------+--------------+----------+--------------------+---=
+---------
+fsl-lx2160a-rdb | arm64 | lab-nxp      | gcc-10   | defconfig          | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/64188a14c2b03be7738c8666
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+03-116-g433daa4de681/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-rd=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+03-116-g433daa4de681/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-rd=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/64188a14c2b03be7738c866d
+        failing since 16 days (last pass: v5.15.79, first fail: v5.15.98)
+
+    2023-03-20T16:29:40.146491  [   11.100360] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+1179366_1.5.2.4.1>
+    2023-03-20T16:29:40.252456  / # #
+    2023-03-20T16:29:40.354149  export SHELL=3D/bin/sh
+    2023-03-20T16:29:40.354640  #
+    2023-03-20T16:29:40.455823  / # export SHELL=3D/bin/sh. /lava-1179366/e=
+nvironment
+    2023-03-20T16:29:40.456227  =
+
+    2023-03-20T16:29:40.557561  / # . /lava-1179366/environment/lava-117936=
+6/bin/lava-test-runner /lava-1179366/1
+    2023-03-20T16:29:40.558177  =
+
+    2023-03-20T16:29:40.559881  / # /lava-1179366/bin/lava-test-runner /lav=
+a-1179366/1
+    2023-03-20T16:29:40.576121  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =20
