@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8C06C170B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 631FD6C16B4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbjCTPLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41922 "EHLO
+        id S231866AbjCTPIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:08:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232316AbjCTPKm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:10:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7050303F4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:00 -0700 (PDT)
+        with ESMTP id S232258AbjCTPHz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF0753019B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:03:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB563615A1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBB6CC433D2;
-        Mon, 20 Mar 2023 15:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CAABB80ED0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D06D2C4339C;
+        Mon, 20 Mar 2023 15:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324758;
-        bh=wRnxQkblKbpnVM2h61hSyvGZcoJ6iSuas2uNkzI7gDo=;
+        s=korg; t=1679324599;
+        bh=xCmItfak/Ee3pijQvtPOXKezg1qLH8Yi/tBnF8gDm+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O22k/raz1rJnpcJ7Sxvbmo5bbq6abSPQzFnh86fQy9IDTPwUpdqU56MKBu5JG1BpU
-         GnozbkxPwvZ5sQh2YMKrpzcFdiEJ/aaY5g9IO2CW8j06o9sSuSZRIR09w3K4I4fa6g
-         aTubEkahqJlzhBFk0t5nA40yEI1vF8DWivgW43A0=
+        b=BE79otu1C2vn3zC9WbMzRu0l9RnpGXcfQUGBwvhbtVAOgZbIFzR6fLr7V9S/6KPdM
+         pylygaO61RqtafbEEWOvBkcS5g83la+tUIOifr5SfbQxQzwPqSONXHTHyypLfG8opC
+         z5x43lDXix5/h0mqh0vyIOXPEyXIf4FWSgvl1PJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 029/115] net: dsa: mt7530: set PLL frequency and trgmii only when trgmii is used
+Subject: [PATCH 5.10 23/99] nfc: st-nci: Fix use after free bug in ndlc_remove due to race condition
 Date:   Mon, 20 Mar 2023 15:54:01 +0100
-Message-Id: <20230320145450.657749054@linuxfoundation.org>
+Message-Id: <20230320145444.354789776@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,114 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 0b086d76e7b011772b0ac214c6e5fd5816eff2df ]
+[ Upstream commit 5000fe6c27827a61d8250a7e4a1d26c3298ef4f6 ]
 
-As my testing on the MCM MT7530 switch on MT7621 SoC shows, setting the PLL
-frequency does not affect MII modes other than trgmii on port 5 and port 6.
-So the assumption is that the operation here called "setting the PLL
-frequency" actually sets the frequency of the TRGMII TX clock.
+This bug influences both st_nci_i2c_remove and st_nci_spi_remove.
+Take st_nci_i2c_remove as an example.
 
-Make it so that it and the rest of the trgmii setup run only when the
-trgmii mode is used.
+In st_nci_i2c_probe, it called ndlc_probe and bound &ndlc->sm_work
+with llt_ndlc_sm_work.
 
-Tested rgmii and trgmii modes of port 6 on MCM MT7530 on MT7621AT Unielec
-U7621-06 and standalone MT7530 on MT7623NI Bananapi BPI-R2.
+When it calls ndlc_recv or timeout handler, it will finally call
+schedule_work to start the work.
 
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Tested-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20230310073338.5836-2-arinc.unal@arinc9.com
+When we call st_nci_i2c_remove to remove the driver, there
+may be a sequence as follows:
+
+Fix it by finishing the work before cleanup in ndlc_remove
+
+CPU0                  CPU1
+
+                    |llt_ndlc_sm_work
+st_nci_i2c_remove   |
+  ndlc_remove       |
+     st_nci_remove  |
+     nci_free_device|
+     kfree(ndev)    |
+//free ndlc->ndev   |
+                    |llt_ndlc_rcv_queue
+                    |nci_recv_frame
+                    |//use ndlc->ndev
+
+Fixes: 35630df68d60 ("NFC: st21nfcb: Add driver for STMicroelectronics ST21NFCB NFC chip")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230312160837.2040857-1-zyytlz.wz@163.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 62 ++++++++++++++++++++--------------------
- 1 file changed, 31 insertions(+), 31 deletions(-)
+ drivers/nfc/st-nci/ndlc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 22a09a11d8749..793992c378559 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -425,8 +425,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 	switch (interface) {
- 	case PHY_INTERFACE_MODE_RGMII:
- 		trgint = 0;
--		/* PLL frequency: 125MHz */
--		ncpo1 = 0x0c80;
- 		break;
- 	case PHY_INTERFACE_MODE_TRGMII:
- 		trgint = 1;
-@@ -457,38 +455,40 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
- 		   P6_INTF_MODE(trgint));
+diff --git a/drivers/nfc/st-nci/ndlc.c b/drivers/nfc/st-nci/ndlc.c
+index 5d74c674368a5..8ccf5a86ad1bb 100644
+--- a/drivers/nfc/st-nci/ndlc.c
++++ b/drivers/nfc/st-nci/ndlc.c
+@@ -286,13 +286,15 @@ EXPORT_SYMBOL(ndlc_probe);
  
--	/* Lower Tx Driving for TRGMII path */
--	for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
--		mt7530_write(priv, MT7530_TRGMII_TD_ODT(i),
--			     TD_DM_DRVP(8) | TD_DM_DRVN(8));
+ void ndlc_remove(struct llt_ndlc *ndlc)
+ {
+-	st_nci_remove(ndlc->ndev);
 -
--	/* Disable MT7530 core and TRGMII Tx clocks */
--	core_clear(priv, CORE_TRGMII_GSW_CLK_CG,
--		   REG_GSWCK_EN | REG_TRGMIICK_EN);
--
--	/* Setup the MT7530 TRGMII Tx Clock */
--	core_write(priv, CORE_PLL_GROUP5, RG_LCDDS_PCW_NCPO1(ncpo1));
--	core_write(priv, CORE_PLL_GROUP6, RG_LCDDS_PCW_NCPO0(0));
--	core_write(priv, CORE_PLL_GROUP10, RG_LCDDS_SSC_DELTA(ssc_delta));
--	core_write(priv, CORE_PLL_GROUP11, RG_LCDDS_SSC_DELTA1(ssc_delta));
--	core_write(priv, CORE_PLL_GROUP4,
--		   RG_SYSPLL_DDSFBK_EN | RG_SYSPLL_BIAS_EN |
--		   RG_SYSPLL_BIAS_LPF_EN);
--	core_write(priv, CORE_PLL_GROUP2,
--		   RG_SYSPLL_EN_NORMAL | RG_SYSPLL_VODEN |
--		   RG_SYSPLL_POSDIV(1));
--	core_write(priv, CORE_PLL_GROUP7,
--		   RG_LCDDS_PCW_NCPO_CHG | RG_LCCDS_C(3) |
--		   RG_LCDDS_PWDB | RG_LCDDS_ISO_EN);
--
--	/* Enable MT7530 core and TRGMII Tx clocks */
--	core_set(priv, CORE_TRGMII_GSW_CLK_CG,
--		 REG_GSWCK_EN | REG_TRGMIICK_EN);
--
--	if (!trgint)
-+	if (trgint) {
-+		/* Lower Tx Driving for TRGMII path */
-+		for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
-+			mt7530_write(priv, MT7530_TRGMII_TD_ODT(i),
-+				     TD_DM_DRVP(8) | TD_DM_DRVN(8));
+ 	/* cancel timers */
+ 	del_timer_sync(&ndlc->t1_timer);
+ 	del_timer_sync(&ndlc->t2_timer);
+ 	ndlc->t2_active = false;
+ 	ndlc->t1_active = false;
++	/* cancel work */
++	cancel_work_sync(&ndlc->sm_work);
 +
-+		/* Disable MT7530 core and TRGMII Tx clocks */
-+		core_clear(priv, CORE_TRGMII_GSW_CLK_CG,
-+			   REG_GSWCK_EN | REG_TRGMIICK_EN);
-+
-+		/* Setup the MT7530 TRGMII Tx Clock */
-+		core_write(priv, CORE_PLL_GROUP5, RG_LCDDS_PCW_NCPO1(ncpo1));
-+		core_write(priv, CORE_PLL_GROUP6, RG_LCDDS_PCW_NCPO0(0));
-+		core_write(priv, CORE_PLL_GROUP10, RG_LCDDS_SSC_DELTA(ssc_delta));
-+		core_write(priv, CORE_PLL_GROUP11, RG_LCDDS_SSC_DELTA1(ssc_delta));
-+		core_write(priv, CORE_PLL_GROUP4,
-+			   RG_SYSPLL_DDSFBK_EN | RG_SYSPLL_BIAS_EN |
-+			   RG_SYSPLL_BIAS_LPF_EN);
-+		core_write(priv, CORE_PLL_GROUP2,
-+			   RG_SYSPLL_EN_NORMAL | RG_SYSPLL_VODEN |
-+			   RG_SYSPLL_POSDIV(1));
-+		core_write(priv, CORE_PLL_GROUP7,
-+			   RG_LCDDS_PCW_NCPO_CHG | RG_LCCDS_C(3) |
-+			   RG_LCDDS_PWDB | RG_LCDDS_ISO_EN);
-+
-+		/* Enable MT7530 core and TRGMII Tx clocks */
-+		core_set(priv, CORE_TRGMII_GSW_CLK_CG,
-+			 REG_GSWCK_EN | REG_TRGMIICK_EN);
-+	} else {
- 		for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
- 			mt7530_rmw(priv, MT7530_TRGMII_RD(i),
- 				   RD_TAP_MASK, RD_TAP(16));
-+	}
-+
- 	return 0;
- }
++	st_nci_remove(ndlc->ndev);
  
+ 	skb_queue_purge(&ndlc->rcv_q);
+ 	skb_queue_purge(&ndlc->send_q);
 -- 
 2.39.2
 
