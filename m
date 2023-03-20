@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C356C17CC
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 209776C17E5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:18:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232611AbjCTPR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:17:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
+        id S232489AbjCTPSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:18:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232413AbjCTPQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11AF734C02
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:58 -0700 (PDT)
+        with ESMTP id S232624AbjCTPRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:17:39 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FCB055BB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:12:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5008A61575
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAEBC433EF;
-        Mon, 20 Mar 2023 15:11:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 54FB7CE12EA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215A6C4339B;
+        Mon, 20 Mar 2023 15:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325116;
-        bh=WWndxHJZNTsrxIc+pwI5u+xjuselPuDq71AsgzwNHd0=;
+        s=korg; t=1679325130;
+        bh=MTswNkIjLREraB0TLEbO3iqOyfcrNeFswkEkeQwDcRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUE/Ne7RfHQqqmqgBZvr9s5sEkW4Piwn8YjR6WVox4Db//eKwE0T5/N3AMy6Ka8Zv
-         FJjgm8OexlYMg5G7mUqC1UGG8hE3X3ip+2SMpHLduMYjRaMgi7MLPQl6JpPONtc/zt
-         8yxKEurjGseRRZNVQfXgu83rx6JMMupWejA+TjIw=
+        b=NPsTkPC9Ducnj00JZ9ZQ9dVycEj3oqRMsLYqsHktoioYbGgSFgPCMJarc8emwdEQ/
+         OXa36yab50yXZJgj/qKDHVhilsFCYUd0Gz2AKiMSHR1ac50boEmt6yRDDvvbZlztby
+         sSo/Zo4554GRZvLJXS9ojYsKC1urC0vq5yKmRy4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        patches@lists.linux.dev, Mika Kahola <mika.kahola@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 043/198] PCI: s390: Fix use-after-free of PCI resources with per-function hotplug
-Date:   Mon, 20 Mar 2023 15:53:01 +0100
-Message-Id: <20230320145509.272008740@linuxfoundation.org>
+Subject: [PATCH 6.1 044/198] drm/i915/psr: Use calculated io and fast wake lines
+Date:   Mon, 20 Mar 2023 15:53:02 +0100
+Message-Id: <20230320145509.309131907@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
 References: <20230320145507.420176832@linuxfoundation.org>
@@ -55,194 +56,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Jouni Högander <jouni.hogander@intel.com>
 
-[ Upstream commit ab909509850b27fd39b8ba99e44cda39dbc3858c ]
+[ Upstream commit 71c602103c74b277bef3d20a308874a33ec8326d ]
 
-On s390 PCI functions may be hotplugged individually even when they
-belong to a multi-function device. In particular on an SR-IOV device VFs
-may be removed and later re-added.
+Currently we are using hardcoded 7 for io and fast wake lines.
 
-In commit a50297cf8235 ("s390/pci: separate zbus creation from
-scanning") it was missed however that struct pci_bus and struct
-zpci_bus's resource list retained a reference to the PCI functions MMIO
-resources even though those resources are released and freed on
-hot-unplug. These stale resources may subsequently be claimed when the
-PCI function re-appears resulting in use-after-free.
+According to Bspec io and fast wake times are both 42us for
+DISPLAY_VER >= 12 and 50us and 32us for older platforms.
 
-One idea of fixing this use-after-free in s390 specific code that was
-investigated was to simply keep resources around from the moment a PCI
-function first appeared until the whole virtual PCI bus created for
-a multi-function device disappears. The problem with this however is
-that due to the requirement of artificial MMIO addreesses (address
-cookies) extra logic is then needed to keep the address cookies
-compatible on re-plug. At the same time the MMIO resources semantically
-belong to the PCI function so tying their lifecycle to the function
-seems more logical.
+Calculate line counts for these and configure them into PSR2_CTL
+accordingly
 
-Instead a simpler approach is to remove the resources of an individually
-hot-unplugged PCI function from the PCI bus's resource list while
-keeping the resources of other PCI functions on the PCI bus untouched.
+Use 45 us for the fast wake calculation as 42 seems to be too
+tight based on testing.
 
-This is done by introducing pci_bus_remove_resource() to remove an
-individual resource. Similarly the resource also needs to be removed
-from the struct zpci_bus's resource list. It turns out however, that
-there is really no need to add the MMIO resources to the struct
-zpci_bus's resource list at all and instead we can simply use the
-zpci_bar_struct's resource pointer directly.
+Bspec: 49274, 4289
 
-Fixes: a50297cf8235 ("s390/pci: separate zbus creation from scanning")
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lore.kernel.org/r/20230306151014.60913-2-schnelle@linux.ibm.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Mika Kahola <mika.kahola@intel.com>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Fixes: 64cf40a125ff ("drm/i915/psr: Program default IO buffer Wake and Fast Wake")
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7725
+Signed-off-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230221085304.3382297-1-jouni.hogander@intel.com
+(cherry picked from commit cb42e8ede5b475c096e473b86c356b1158b4bc3b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/pci/pci.c     | 16 ++++++++++------
- arch/s390/pci/pci_bus.c | 12 +++++-------
- arch/s390/pci/pci_bus.h |  3 +--
- drivers/pci/bus.c       | 21 +++++++++++++++++++++
- include/linux/pci.h     |  1 +
- 5 files changed, 38 insertions(+), 15 deletions(-)
+ .../drm/i915/display/intel_display_types.h    |  2 +
+ drivers/gpu/drm/i915/display/intel_psr.c      | 78 +++++++++++++++----
+ 2 files changed, 63 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 73cdc55393847..2c99f9552b2f5 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -544,8 +544,7 @@ static struct resource *__alloc_res(struct zpci_dev *zdev, unsigned long start,
- 	return r;
+diff --git a/drivers/gpu/drm/i915/display/intel_display_types.h b/drivers/gpu/drm/i915/display/intel_display_types.h
+index 135dbcab62b28..63b7105e818a6 100644
+--- a/drivers/gpu/drm/i915/display/intel_display_types.h
++++ b/drivers/gpu/drm/i915/display/intel_display_types.h
+@@ -1604,6 +1604,8 @@ struct intel_psr {
+ 	bool psr2_sel_fetch_cff_enabled;
+ 	bool req_psr2_sdp_prior_scanline;
+ 	u8 sink_sync_latency;
++	u8 io_wake_lines;
++	u8 fast_wake_lines;
+ 	ktime_t last_entry_attempt;
+ 	ktime_t last_exit;
+ 	bool sink_not_reliable;
+diff --git a/drivers/gpu/drm/i915/display/intel_psr.c b/drivers/gpu/drm/i915/display/intel_psr.c
+index 15c3e448aa0e6..bf18423c7a005 100644
+--- a/drivers/gpu/drm/i915/display/intel_psr.c
++++ b/drivers/gpu/drm/i915/display/intel_psr.c
+@@ -542,6 +542,14 @@ static void hsw_activate_psr2(struct intel_dp *intel_dp)
+ 	val |= EDP_PSR2_FRAME_BEFORE_SU(max_t(u8, intel_dp->psr.sink_sync_latency + 1, 2));
+ 	val |= intel_psr2_get_tp_time(intel_dp);
+ 
++	if (DISPLAY_VER(dev_priv) >= 12) {
++		if (intel_dp->psr.io_wake_lines < 9 &&
++		    intel_dp->psr.fast_wake_lines < 9)
++			val |= TGL_EDP_PSR2_BLOCK_COUNT_NUM_2;
++		else
++			val |= TGL_EDP_PSR2_BLOCK_COUNT_NUM_3;
++	}
++
+ 	/* Wa_22012278275:adl-p */
+ 	if (IS_ADLP_DISPLAY_STEP(dev_priv, STEP_A0, STEP_E0)) {
+ 		static const u8 map[] = {
+@@ -558,31 +566,21 @@ static void hsw_activate_psr2(struct intel_dp *intel_dp)
+ 		 * Still using the default IO_BUFFER_WAKE and FAST_WAKE, see
+ 		 * comments bellow for more information
+ 		 */
+-		u32 tmp, lines = 7;
+-
+-		val |= TGL_EDP_PSR2_BLOCK_COUNT_NUM_2;
++		u32 tmp;
+ 
+-		tmp = map[lines - TGL_EDP_PSR2_IO_BUFFER_WAKE_MIN_LINES];
++		tmp = map[intel_dp->psr.io_wake_lines - TGL_EDP_PSR2_IO_BUFFER_WAKE_MIN_LINES];
+ 		tmp = tmp << TGL_EDP_PSR2_IO_BUFFER_WAKE_SHIFT;
+ 		val |= tmp;
+ 
+-		tmp = map[lines - TGL_EDP_PSR2_FAST_WAKE_MIN_LINES];
++		tmp = map[intel_dp->psr.fast_wake_lines - TGL_EDP_PSR2_FAST_WAKE_MIN_LINES];
+ 		tmp = tmp << TGL_EDP_PSR2_FAST_WAKE_MIN_SHIFT;
+ 		val |= tmp;
+ 	} else if (DISPLAY_VER(dev_priv) >= 12) {
+-		/*
+-		 * TODO: 7 lines of IO_BUFFER_WAKE and FAST_WAKE are default
+-		 * values from BSpec. In order to setting an optimal power
+-		 * consumption, lower than 4k resolution mode needs to decrease
+-		 * IO_BUFFER_WAKE and FAST_WAKE. And higher than 4K resolution
+-		 * mode needs to increase IO_BUFFER_WAKE and FAST_WAKE.
+-		 */
+-		val |= TGL_EDP_PSR2_BLOCK_COUNT_NUM_2;
+-		val |= TGL_EDP_PSR2_IO_BUFFER_WAKE(7);
+-		val |= TGL_EDP_PSR2_FAST_WAKE(7);
++		val |= TGL_EDP_PSR2_IO_BUFFER_WAKE(intel_dp->psr.io_wake_lines);
++		val |= TGL_EDP_PSR2_FAST_WAKE(intel_dp->psr.fast_wake_lines);
+ 	} else if (DISPLAY_VER(dev_priv) >= 9) {
+-		val |= EDP_PSR2_IO_BUFFER_WAKE(7);
+-		val |= EDP_PSR2_FAST_WAKE(7);
++		val |= EDP_PSR2_IO_BUFFER_WAKE(intel_dp->psr.io_wake_lines);
++		val |= EDP_PSR2_FAST_WAKE(intel_dp->psr.fast_wake_lines);
+ 	}
+ 
+ 	if (intel_dp->psr.req_psr2_sdp_prior_scanline)
+@@ -837,6 +835,46 @@ static bool _compute_psr2_sdp_prior_scanline_indication(struct intel_dp *intel_d
+ 	return true;
  }
  
--int zpci_setup_bus_resources(struct zpci_dev *zdev,
--			     struct list_head *resources)
-+int zpci_setup_bus_resources(struct zpci_dev *zdev)
- {
- 	unsigned long addr, size, flags;
- 	struct resource *res;
-@@ -581,7 +580,6 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
- 			return -ENOMEM;
- 		}
- 		zdev->bars[i].res = res;
--		pci_add_resource(resources, res);
- 	}
- 	zdev->has_resources = 1;
- 
-@@ -590,17 +588,23 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
- 
- static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
- {
-+	struct resource *res;
- 	int i;
- 
-+	pci_lock_rescan_remove();
- 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
--		if (!zdev->bars[i].size || !zdev->bars[i].res)
-+		res = zdev->bars[i].res;
-+		if (!res)
- 			continue;
- 
-+		release_resource(res);
-+		pci_bus_remove_resource(zdev->zbus->bus, res);
- 		zpci_free_iomap(zdev, zdev->bars[i].map_idx);
--		release_resource(zdev->bars[i].res);
--		kfree(zdev->bars[i].res);
-+		zdev->bars[i].res = NULL;
-+		kfree(res);
- 	}
- 	zdev->has_resources = 0;
-+	pci_unlock_rescan_remove();
- }
- 
- int pcibios_device_add(struct pci_dev *pdev)
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 6a8da1b742ae5..a99926af2b69a 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -41,9 +41,7 @@ static int zpci_nb_devices;
-  */
- static int zpci_bus_prepare_device(struct zpci_dev *zdev)
- {
--	struct resource_entry *window, *n;
--	struct resource *res;
--	int rc;
-+	int rc, i;
- 
- 	if (!zdev_enabled(zdev)) {
- 		rc = zpci_enable_device(zdev);
-@@ -57,10 +55,10 @@ static int zpci_bus_prepare_device(struct zpci_dev *zdev)
- 	}
- 
- 	if (!zdev->has_resources) {
--		zpci_setup_bus_resources(zdev, &zdev->zbus->resources);
--		resource_list_for_each_entry_safe(window, n, &zdev->zbus->resources) {
--			res = window->res;
--			pci_bus_add_resource(zdev->zbus->bus, res, 0);
-+		zpci_setup_bus_resources(zdev);
-+		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+			if (zdev->bars[i].res)
-+				pci_bus_add_resource(zdev->zbus->bus, zdev->bars[i].res, 0);
- 		}
- 	}
- 
-diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
-index e96c9860e0644..af9f0ac79a1b1 100644
---- a/arch/s390/pci/pci_bus.h
-+++ b/arch/s390/pci/pci_bus.h
-@@ -30,8 +30,7 @@ static inline void zpci_zdev_get(struct zpci_dev *zdev)
- 
- int zpci_alloc_domain(int domain);
- void zpci_free_domain(int domain);
--int zpci_setup_bus_resources(struct zpci_dev *zdev,
--			     struct list_head *resources);
-+int zpci_setup_bus_resources(struct zpci_dev *zdev);
- 
- static inline struct zpci_dev *zdev_from_bus(struct pci_bus *bus,
- 					     unsigned int devfn)
-diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
-index 3cef835b375fd..feafa378bf8ea 100644
---- a/drivers/pci/bus.c
-+++ b/drivers/pci/bus.c
-@@ -76,6 +76,27 @@ struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n)
- }
- EXPORT_SYMBOL_GPL(pci_bus_resource_n);
- 
-+void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res)
++static bool _compute_psr2_wake_times(struct intel_dp *intel_dp,
++				     struct intel_crtc_state *crtc_state)
 +{
-+	struct pci_bus_resource *bus_res, *tmp;
-+	int i;
++	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
++	int io_wake_lines, io_wake_time, fast_wake_lines, fast_wake_time;
++	u8 max_wake_lines;
 +
-+	for (i = 0; i < PCI_BRIDGE_RESOURCE_NUM; i++) {
-+		if (bus->resource[i] == res) {
-+			bus->resource[i] = NULL;
-+			return;
-+		}
++	if (DISPLAY_VER(i915) >= 12) {
++		io_wake_time = 42;
++		/*
++		 * According to Bspec it's 42us, but based on testing
++		 * it is not enough -> use 45 us.
++		 */
++		fast_wake_time = 45;
++		max_wake_lines = 12;
++	} else {
++		io_wake_time = 50;
++		fast_wake_time = 32;
++		max_wake_lines = 8;
 +	}
 +
-+	list_for_each_entry_safe(bus_res, tmp, &bus->resources, list) {
-+		if (bus_res->res == res) {
-+			list_del(&bus_res->list);
-+			kfree(bus_res);
-+			return;
-+		}
-+	}
++	io_wake_lines = intel_usecs_to_scanlines(
++		&crtc_state->uapi.adjusted_mode, io_wake_time);
++	fast_wake_lines = intel_usecs_to_scanlines(
++		&crtc_state->uapi.adjusted_mode, fast_wake_time);
++
++	if (io_wake_lines > max_wake_lines ||
++	    fast_wake_lines > max_wake_lines)
++		return false;
++
++	if (i915->params.psr_safest_params)
++		io_wake_lines = fast_wake_lines = max_wake_lines;
++
++	/* According to Bspec lower limit should be set as 7 lines. */
++	intel_dp->psr.io_wake_lines = max(io_wake_lines, 7);
++	intel_dp->psr.fast_wake_lines = max(fast_wake_lines, 7);
++
++	return true;
 +}
 +
- void pci_bus_remove_resources(struct pci_bus *bus)
+ static bool intel_psr2_config_valid(struct intel_dp *intel_dp,
+ 				    struct intel_crtc_state *crtc_state)
  {
- 	int i;
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index cb538bc579710..d20695184e0b9 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1417,6 +1417,7 @@ void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
- 			  unsigned int flags);
- struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n);
- void pci_bus_remove_resources(struct pci_bus *bus);
-+void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res);
- int devm_request_pci_bus_resources(struct device *dev,
- 				   struct list_head *resources);
+@@ -930,6 +968,12 @@ static bool intel_psr2_config_valid(struct intel_dp *intel_dp,
+ 		return false;
+ 	}
  
++	if (!_compute_psr2_wake_times(intel_dp, crtc_state)) {
++		drm_dbg_kms(&dev_priv->drm,
++			    "PSR2 not enabled, Unable to use long enough wake times\n");
++		return false;
++	}
++
+ 	if (HAS_PSR2_SEL_FETCH(dev_priv)) {
+ 		if (!intel_psr2_sel_fetch_config_valid(intel_dp, crtc_state) &&
+ 		    !HAS_PSR_HW_TRACKING(dev_priv)) {
 -- 
 2.39.2
 
