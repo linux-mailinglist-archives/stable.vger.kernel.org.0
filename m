@@ -2,172 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272F76C0FEC
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:58:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1055E6C1003
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:59:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbjCTK6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:58:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34418 "EHLO
+        id S230495AbjCTK7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:59:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229816AbjCTK5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:57:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D78E72B2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:54:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 078026144F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BE5CC433A7;
-        Mon, 20 Mar 2023 10:53:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679309620;
-        bh=xA8Zvf2s3/W61iQcPnNGXO0BF2P9JFQXiMEPxCHum4Q=;
-        h=Subject:To:Cc:From:Date:From;
-        b=cANwCpFDXwUdBLR04acR+hbH+0JFrsFkK5rkRxe3FuZT15JyHiuo43qnCfTtUh7Ng
-         wK93Bm8Ajbh0NOkzD0FGNISRavAxpDrmyG9p5Qqmy3vRXlc9lgsd7RG+FfPAV47x3i
-         EFWOzqWCj5v7pgpdVL+lmVnt0B5dW9taf4GdASbI=
-Subject: FAILED: patch "[PATCH] tracing: Do not let histogram values have some modifiers" failed to apply to 6.1-stable tree
-To:     rostedt@goodmis.org, akpm@linux-foundation.org,
-        mark.rutland@arm.com, mhiramat@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 11:53:37 +0100
-Message-ID: <167930961762110@kroah.com>
+        with ESMTP id S230002AbjCTK6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:58:38 -0400
+Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AD4B22916A;
+        Mon, 20 Mar 2023 03:55:07 -0700 (PDT)
+X-IronPort-AV: E=Sophos;i="5.98,274,1673881200"; 
+   d="scan'208";a="153188045"
+Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
+  by relmlie5.idc.renesas.com with ESMTP; 20 Mar 2023 19:53:55 +0900
+Received: from localhost.localdomain (unknown [10.226.92.205])
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id CE9474004BCF;
+        Mon, 20 Mar 2023 19:53:52 +0900 (JST)
+From:   Biju Das <biju.das.jz@bp.renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-serial@vger.kernel.org,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v3 3/5] tty: serial: sh-sci: Fix Tx on SCI IP
+Date:   Mon, 20 Mar 2023 10:53:37 +0000
+Message-Id: <20230320105339.236279-4-biju.das.jz@bp.renesas.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
+References: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+For SCI, the TE (transmit enable) must be set after setting TIE (transmit
+interrupt enable) or in the same instruction to start the transmission.
+Set TE bit in sci_start_tx() instead of set_termios() for SCI and clear
+TE bit, if circular buffer is empty in sci_transmit_chars().
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
-git checkout FETCH_HEAD
-git cherry-pick -x e0213434fe3e4a0d118923dc98d31e7ff1cd9e45
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930961762110@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
-
-Possible dependencies:
-
-e0213434fe3e ("tracing: Do not let histogram values have some modifiers")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From e0213434fe3e4a0d118923dc98d31e7ff1cd9e45 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Wed, 1 Mar 2023 20:00:52 -0500
-Subject: [PATCH] tracing: Do not let histogram values have some modifiers
-
-Histogram values can not be strings, stacktraces, graphs, symbols,
-syscalls, or grouped in buckets or log. Give an error if a value is set to
-do so.
-
-Note, the histogram code was not prepared to handle these modifiers for
-histograms and caused a bug.
-
-Mark Rutland reported:
-
- # echo 'p:copy_to_user __arch_copy_to_user n=$arg2' >> /sys/kernel/tracing/kprobe_events
- # echo 'hist:keys=n:vals=hitcount.buckets=8:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
- # cat /sys/kernel/tracing/events/kprobes/copy_to_user/hist
-[  143.694628] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  143.695190] Mem abort info:
-[  143.695362]   ESR = 0x0000000096000004
-[  143.695604]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  143.695889]   SET = 0, FnV = 0
-[  143.696077]   EA = 0, S1PTW = 0
-[  143.696302]   FSC = 0x04: level 0 translation fault
-[  143.702381] Data abort info:
-[  143.702614]   ISV = 0, ISS = 0x00000004
-[  143.702832]   CM = 0, WnR = 0
-[  143.703087] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000448f9000
-[  143.703407] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
-[  143.704137] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[  143.704714] Modules linked in:
-[  143.705273] CPU: 0 PID: 133 Comm: cat Not tainted 6.2.0-00003-g6fc512c10a7c #3
-[  143.706138] Hardware name: linux,dummy-virt (DT)
-[  143.706723] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  143.707120] pc : hist_field_name.part.0+0x14/0x140
-[  143.707504] lr : hist_field_name.part.0+0x104/0x140
-[  143.707774] sp : ffff800008333a30
-[  143.707952] x29: ffff800008333a30 x28: 0000000000000001 x27: 0000000000400cc0
-[  143.708429] x26: ffffd7a653b20260 x25: 0000000000000000 x24: ffff10d303ee5800
-[  143.708776] x23: ffffd7a6539b27b0 x22: ffff10d303fb8c00 x21: 0000000000000001
-[  143.709127] x20: ffff10d303ec2000 x19: 0000000000000000 x18: 0000000000000000
-[  143.709478] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
-[  143.709824] x14: 0000000000000000 x13: 203a6f666e692072 x12: 6567676972742023
-[  143.710179] x11: 0a230a6d6172676f x10: 000000000000002c x9 : ffffd7a6521e018c
-[  143.710584] x8 : 000000000000002c x7 : 7f7f7f7f7f7f7f7f x6 : 000000000000002c
-[  143.710915] x5 : ffff10d303b0103e x4 : ffffd7a653b20261 x3 : 000000000000003d
-[  143.711239] x2 : 0000000000020001 x1 : 0000000000000001 x0 : 0000000000000000
-[  143.711746] Call trace:
-[  143.712115]  hist_field_name.part.0+0x14/0x140
-[  143.712642]  hist_field_name.part.0+0x104/0x140
-[  143.712925]  hist_field_print+0x28/0x140
-[  143.713125]  event_hist_trigger_print+0x174/0x4d0
-[  143.713348]  hist_show+0xf8/0x980
-[  143.713521]  seq_read_iter+0x1bc/0x4b0
-[  143.713711]  seq_read+0x8c/0xc4
-[  143.713876]  vfs_read+0xc8/0x2a4
-[  143.714043]  ksys_read+0x70/0xfc
-[  143.714218]  __arm64_sys_read+0x24/0x30
-[  143.714400]  invoke_syscall+0x50/0x120
-[  143.714587]  el0_svc_common.constprop.0+0x4c/0x100
-[  143.714807]  do_el0_svc+0x44/0xd0
-[  143.714970]  el0_svc+0x2c/0x84
-[  143.715134]  el0t_64_sync_handler+0xbc/0x140
-[  143.715334]  el0t_64_sync+0x190/0x194
-[  143.715742] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (f9400000)
-[  143.716510] ---[ end trace 0000000000000000 ]---
-Segmentation fault
-
-Link: https://lkml.kernel.org/r/20230302020810.559462599@goodmis.org
-
+Fixes: f9a2adcc9e90 ("arm64: dts: renesas: r9a07g044: Add SCI[0-1] nodes")
 Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: c6afad49d127f ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+---
+v3:
+ * New patch
+---
+ drivers/tty/serial/sh-sci.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 89877a18f933..6e8ab726a7b5 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -4235,6 +4235,15 @@ static int __create_val_field(struct hist_trigger_data *hist_data,
- 		goto out;
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index b9cd27451f90..9079a8ea9132 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -597,6 +597,15 @@ static void sci_start_tx(struct uart_port *port)
+ 	if (!s->chan_tx || port->type == PORT_SCIFA || port->type == PORT_SCIFB) {
+ 		/* Set TIE (Transmit Interrupt Enable) bit in SCSCR */
+ 		ctrl = serial_port_in(port, SCSCR);
++
++		/*
++		 * For SCI, TE (transmit enable) must be set after setting TIE
++		 * (transmit interrupt enable) or in the same instruction to start
++		 * the transmit process.
++		 */
++		if (port->type == PORT_SCI)
++			ctrl |= SCSCR_TE;
++
+ 		serial_port_out(port, SCSCR, ctrl | SCSCR_TIE);
+ 	}
+ }
+@@ -835,6 +844,12 @@ static void sci_transmit_chars(struct uart_port *port)
+ 			c = xmit->buf[xmit->tail];
+ 			xmit->tail = (xmit->tail + 1) & (UART_XMIT_SIZE - 1);
+ 		} else {
++			if (port->type == PORT_SCI) {
++				ctrl = serial_port_in(port, SCSCR);
++				ctrl &= ~SCSCR_TE;
++				serial_port_out(port, SCSCR, ctrl);
++				return;
++			}
+ 			break;
+ 		}
+ 
+@@ -2581,8 +2596,14 @@ static void sci_set_termios(struct uart_port *port, struct ktermios *termios,
+ 		sci_set_mctrl(port, port->mctrl);
  	}
  
-+	/* Some types cannot be a value */
-+	if (hist_field->flags & (HIST_FIELD_FL_GRAPH | HIST_FIELD_FL_PERCENT |
-+				 HIST_FIELD_FL_BUCKET | HIST_FIELD_FL_LOG2 |
-+				 HIST_FIELD_FL_SYM | HIST_FIELD_FL_SYM_OFFSET |
-+				 HIST_FIELD_FL_SYSCALL | HIST_FIELD_FL_STACKTRACE)) {
-+		hist_err(file->tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(field_str));
-+		ret = -EINVAL;
-+	}
-+
- 	hist_data->fields[val_idx] = hist_field;
- 
- 	++hist_data->n_vals;
+-	scr_val |= SCSCR_RE | SCSCR_TE |
+-		   (s->cfg->scscr & ~(SCSCR_CKE1 | SCSCR_CKE0));
++	/*
++	 * For SCI, TE (transmit enable) must be set after setting TIE
++	 * (transmit interrupt enable) or in the same instruction to
++	 * start the transmitting process. So skip setting TE here for SCI.
++	 */
++	if (port->type != PORT_SCI)
++		scr_val |= SCSCR_TE;
++	scr_val |= SCSCR_RE | (s->cfg->scscr & ~(SCSCR_CKE1 | SCSCR_CKE0));
+ 	serial_port_out(port, SCSCR, scr_val | s->hscif_tot);
+ 	if ((srr + 1 == 5) &&
+ 	    (port->type == PORT_SCIFA || port->type == PORT_SCIFB)) {
+-- 
+2.25.1
 
