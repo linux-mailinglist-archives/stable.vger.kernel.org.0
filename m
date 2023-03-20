@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2EA06C19E8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1646C19E9
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbjCTPjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:39:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41406 "EHLO
+        id S233191AbjCTPjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:39:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233274AbjCTPjR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205E938B53
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:51 -0700 (PDT)
+        with ESMTP id S233195AbjCTPjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2204432E5E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B3136154E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ADFBC433D2;
-        Mon, 20 Mar 2023 15:30:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E913EB80EC4
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E62EC433EF;
+        Mon, 20 Mar 2023 15:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326239;
-        bh=JGoVHzgVWqTkRaEk8LYC+vjk6fqlImbqLIvIF5tP868=;
+        s=korg; t=1679326241;
+        bh=TyN5NO7EWyDXC/jJe/OBArE6iGCuFaNI5iV2RfuG0DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ee/hQtfXnVJZ98CzEb0ha8FhfPuIglIRwRrbpPdLtv4aC4uGMbVR3C4+4ofwL6jlV
-         A+fvnp4qggTWW5faPOn7AQ9D3IH18PbunJL0YNB2UQt+0cZelaVtF0BUVq8Rk7hdF3
-         MkMfhXwwapZ2F7jegG9rRxkCtcWrrytRAZk6B9to=
+        b=nVD2L/JXep12jeyBFA+nv0OOHjxR03M19H609fGmN4/qdN1BIym9nfvjPGpsFCK51
+         RSJsuQDgppqgu1JxqJPJpjKe76GVSVXtSorSTcEl4dJLZb+SQYb0K4ZLm1+L+H3bS+
+         NKrc9Qjsrcv59t8tENSfuu03dBgceg987uwj+7QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 6.2 204/211] powerpc: Pass correct CPU reference to assembler
-Date:   Mon, 20 Mar 2023 15:55:39 +0100
-Message-Id: <20230320145522.085152195@linuxfoundation.org>
+        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 6.2 205/211] virt/coco/sev-guest: Check SEV_SNP attribute at probe time
+Date:   Mon, 20 Mar 2023 15:55:40 +0100
+Message-Id: <20230320145522.125165448@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -54,74 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Borislav Petkov (AMD) <bp@alien8.de>
 
-commit bfb03af71a3798b5a88a945a9c19ad67e1c4986d upstream.
+commit d6fd48eff7506bb866a54e40369df8899f2078a9 upstream.
 
-Jan-Benedict reported issue with building ppc64e_defconfig
-with mainline GCC work:
+No need to check it on every ioctl. And yes, this is a common SEV driver
+but it does only SNP-specific operations currently. This can be
+revisited later, when more use cases appear.
 
-  powerpc64-linux-gcc -Wp,-MMD,arch/powerpc/kernel/vdso/.gettimeofday-64.o.d -nostdinc -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -D__KERNEL__ -I ./arch/powerpc -DHAVE_AS_ATHIGH=1 -fmacro-prefix-map=./= -D__ASSEMBLY__ -fno-PIE -m64 -Wl,-a64 -mabi=elfv1 -Wa,-me500 -Wa,-me500mc -mabi=elfv1 -mbig-endian    -Wl,-soname=linux-vdso64.so.1 -D__VDSO64__ -s -c -o arch/powerpc/kernel/vdso/gettimeofday-64.o arch/powerpc/kernel/vdso/gettimeofday.S
-	arch/powerpc/kernel/vdso/gettimeofday.S: Assembler messages:
-	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `stdu'
-	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `stdu'
-	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `std'
-	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `std'
-	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `ld'
-	arch/powerpc/kernel/vdso/gettimeofday.S:72: Error: unrecognized opcode: `ld'
-	...
-	make[1]: *** [arch/powerpc/kernel/vdso/Makefile:76: arch/powerpc/kernel/vdso/gettimeofday-64.o] Error 1
-	make: *** [arch/powerpc/Makefile:387: vdso_prepare] Error 2
+No functional changes.
 
-This is due to assembler being called with -me500mc which is
-a 32 bits target.
-
-The problem comes from the fact that CONFIG_PPC_E500MC is selected for
-both the e500mc (32 bits) and the e5500 (64 bits), and therefore the
-following makefile rule is wrong:
-
-  cpu-as-$(CONFIG_PPC_E500MC)    += $(call as-option,-Wa$(comma)-me500mc)
-
-Today we have CONFIG_TARGET_CPU which provides the identification of the
-expected CPU, it is used for GCC. Once GCC knows the target CPU, it adds
-the correct CPU option to assembler, no need to add it explicitly.
-
-With that change (And also commit 45f7091aac35 ("powerpc/64: Set default
-CPU in Kconfig")), it now is:
-
-  powerpc64-linux-gcc -Wp,-MMD,arch/powerpc/kernel/vdso/.gettimeofday-64.o.d -nostdinc -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -D__KERNEL__ -I ./arch/powerpc -DHAVE_AS_ATHIGH=1 -fmacro-prefix-map=./= -D__ASSEMBLY__ -fno-PIE -m64 -Wl,-a64 -mabi=elfv1 -mcpu=e500mc64 -mabi=elfv1 -mbig-endian    -Wl,-soname=linux-vdso64.so.1 -D__VDSO64__ -s -c -o arch/powerpc/kernel/vdso/gettimeofday-64.o arch/powerpc/kernel/vdso/gettimeofday.S
-
-Reported-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Pali Rohár <pali@kernel.org>
-[mpe: Retain -Wa,-mpower4 -Wa,-many for Book3S 64 builds for now]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/758ad54128fa9dd2fdedc4c511592111cbded900.1671475543.git.christophe.leroy@csgroup.eu
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lore.kernel.org/r/20230307192449.24732-3-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/Makefile |    4 ----
- 1 file changed, 4 deletions(-)
+ arch/x86/kernel/sev.c                   |    3 ---
+ drivers/virt/coco/sev-guest/sev-guest.c |    3 +++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -201,10 +201,7 @@ KBUILD_CFLAGS += -fno-asynchronous-unwin
- # often slow when they are implemented at all
- KBUILD_CFLAGS		+= $(call cc-option,-mno-string)
+--- a/arch/x86/kernel/sev.c
++++ b/arch/x86/kernel/sev.c
+@@ -2183,9 +2183,6 @@ int snp_issue_guest_request(u64 exit_cod
+ 	struct ghcb *ghcb;
+ 	int ret;
  
--cpu-as-$(CONFIG_40x)		+= -Wa,-m405
--cpu-as-$(CONFIG_44x)		+= -Wa,-m440
- cpu-as-$(CONFIG_ALTIVEC)	+= $(call as-option,-Wa$(comma)-maltivec)
--cpu-as-$(CONFIG_PPC_E500)		+= -Wa,-me500
+-	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
+-		return -ENODEV;
+-
+ 	if (!fw_err)
+ 		return -EINVAL;
  
- # When using '-many -mpower4' gas will first try and find a matching power4
- # mnemonic and failing that it will allow any valid mnemonic that GAS knows
-@@ -212,7 +209,6 @@ cpu-as-$(CONFIG_PPC_E500)		+= -Wa,-me500
- # LLVM IAS doesn't understand either flag: https://github.com/ClangBuiltLinux/linux/issues/675
- # but LLVM IAS only supports ISA >= 2.06 for Book3S 64 anyway...
- cpu-as-$(CONFIG_PPC_BOOK3S_64)	+= $(call as-option,-Wa$(comma)-mpower4) $(call as-option,-Wa$(comma)-many)
--cpu-as-$(CONFIG_PPC_E500MC)	+= $(call as-option,-Wa$(comma)-me500mc)
+--- a/drivers/virt/coco/sev-guest/sev-guest.c
++++ b/drivers/virt/coco/sev-guest/sev-guest.c
+@@ -703,6 +703,9 @@ static int __init sev_guest_probe(struct
+ 	void __iomem *mapping;
+ 	int ret;
  
- KBUILD_AFLAGS += $(cpu-as-y)
- KBUILD_CFLAGS += $(cpu-as-y)
++	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
++		return -ENODEV;
++
+ 	if (!dev->platform_data)
+ 		return -ENODEV;
+ 
 
 
