@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705186C0CD1
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 800C46C0CD4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230518AbjCTJMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
+        id S231193AbjCTJMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:12:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230483AbjCTJMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3631D12F3C
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:12 -0700 (PDT)
+        with ESMTP id S231128AbjCTJMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C6212F2A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6FE8612AB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D673CC433D2;
-        Mon, 20 Mar 2023 09:12:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF61D612AB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0196C433EF;
+        Mon, 20 Mar 2023 09:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303531;
-        bh=pNFDXKHw85Mp8evu8f6CD9IeEUFrxbbvI4m5XizQwo0=;
+        s=korg; t=1679303534;
+        bh=H0MY2KF0IkQ6/DPdjnXv5xs4do7f5be+R3EZNKHN/4g=;
         h=Subject:To:Cc:From:Date:From;
-        b=l1P2EN7ZCoaUySQfIS3dbtlyGRxsDZLugSw4g0mT0uSJAYrVjUkGKLhP0pQbIsiEO
-         8FPxgwtXQ1zDwT6VBD+EjnMlFPFrAXOgjBxYeIO859B61v+bxtOeSATyhSANgAi1M7
-         yRYpmiK0HGihUyaCreOpXyxm9y24FtnJ/rZ1upYA=
-Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 5.10-stable tree
+        b=0iP6r+nrs7HH0jAZyfVv3sHguIV+RARO0YHxOq/xg7W17WVZASIwLVo1waV5UWMQj
+         aqYe7tOHO2dpmH1ItQAdvz6qwbOF/Te7xyS0wKydBMw//05Tc/8/qva8VUdkVt5MqM
+         I6L09/1u3atLiQL1Aj3kzoOCMP2tN+FoXAM21c8E=
+Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 5.4-stable tree
 To:     alexander.sverdlin@siemens.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:11:54 +0100
-Message-ID: <1679303514245103@kroah.com>
+Date:   Mon, 20 Mar 2023 10:11:55 +0100
+Message-ID: <1679303515186114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1be6f2b15f902c02e055ae0b419ca789200473c9
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303514245103@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303515186114@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -68,6 +68,13 @@ Possible dependencies:
 8682ab0eea89 ("tty: serial: fsl_lpuart: switch to new dmaengine_terminate_* API")
 4f5cb8c5e915 ("tty: serial: fsl_lpuart: enable wakeup source for lpuart")
 374e01fa1304 ("serial: fsl_lpuart: Fix comment typo")
+b14109f302d0 ("tty: serial: fsl_lpuart: Use __maybe_unused instead of #if CONFIG_PM_SLEEP")
+810bc0a5fafb ("tty: serial: fsl_lpuart: make coverity happy")
+d0e7600b914c ("tty: serial: fsl_lpuart: move dma_request_chan()")
+c2f448cff22a ("tty: serial: fsl_lpuart: add LS1028A support")
+a092ab25fdaa ("tty: serial: fsl_lpuart: fix DMA mapping")
+159381df1442 ("tty: serial: fsl_lpuart: fix DMA operation when using IOMMU")
+487ee861de17 ("tty: serial: fsl_lpuart: use the sg count from dma_map_sg")
 
 thanks,
 
