@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CA56C0765
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:57:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79EA86C07C1
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbjCTA5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
+        id S230527AbjCTBBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230144AbjCTA4Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:56:16 -0400
+        with ESMTP id S231343AbjCTBA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:00:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4DC11ABC1;
-        Sun, 19 Mar 2023 17:55:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE1B22C99;
+        Sun, 19 Mar 2023 17:56:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB4CB61202;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 747A561204;
+        Mon, 20 Mar 2023 00:55:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65EFC4339C;
         Mon, 20 Mar 2023 00:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A4AC433A0;
-        Mon, 20 Mar 2023 00:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273700;
-        bh=AozSHlsXSmei3bB+3S+JzhkTVZ2fKjwGMDsLJuAKtts=;
+        s=k20201202; t=1679273701;
+        bh=jgqAc7iZHAa0GR2DPbVeeL1gHqNdIY3gDSJ9wzC7zxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2AbipoDt2MrbIJli3W5bDfREJSEEqElLtcqnTj4NGSSKtL5xlhavPVHoa6uUvTSZ
-         C5Lre/L5Hhhld7jOzzxaxIIm+SjDLvNHpqwjwo1ZgThpl5lTIr5CirOyPspklKfQWQ
-         OEZIL2++BXdRW3K3xCC8bmqrVLlOpNSsY4RCHOCZ91pXhMD9fUookbLKjSHSA0QTot
-         BS2rnIwpTxhsC6rm1MLwUe0uJ5Sg2R/mXxTRcAqToWfzK5+Y3w87HsT8fQtHoXNXv5
-         dasSk71tsxPnLi60FwBA/VtxuU3//FKZ4U0MTCnDdilGGvLqvGgF4Cddn/6nTFs7Yi
-         xFwp4TFBFVWNw==
+        b=Kk7f2wHLi4A1Qr2Qew/nxoVS+qxcXaubiYBwOeBXvqJ+kAdj3tOHLeN6XauJSBxJ7
+         eiEsn752TfSP/tJRAHAS33D1fK7mWlxVnHMZcXIIHT09k4Habd6ZP1lnmes1vElsNC
+         9GeS+NXRo/ahuKAdWOBwPLiCC6HWXyEGgXX0SSKC7IwwGe2hrX+8JMLCiFApSJXdf7
+         FkL7rot2sK+tlC22vlnZbjFrrPr8aQ0xWYLT55IHIvhQY6J+V7kOAGfqU7anpj8QoV
+         j1xZK66RcNqavjx0CYR1LxfTwXdPwgcUJumyaEh43WbVWxRfCxkfMeW07kbKCE1EhD
+         RTnXEDgvjBduw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, djrscally@gmail.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 23/29] platform/x86: int3472: Add GPIOs to Surface Go 3 Board data
-Date:   Sun, 19 Mar 2023 20:54:05 -0400
-Message-Id: <20230320005413.1428452-23-sashal@kernel.org>
+Cc:     Enrico Sau <enrico.sau@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, oliver@neukum.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 24/29] net: usb: cdc_mbim: avoid altsetting toggling for Telit FE990
+Date:   Sun, 19 Mar 2023 20:54:06 -0400
+Message-Id: <20230320005413.1428452-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -56,40 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-[ Upstream commit e8059d393158e927e36898aca89986a52025b9f3 ]
+[ Upstream commit 418383e6ed6b4624a54ec05c535f13d184fbf33b ]
 
-Add the INT347E GPIO lookup table to the board data for the Surface
-Go 3. This is necessary to allow the ov7251 IR camera to probe
-properly on that platform.
+Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit FE990
+0x1081 composition in order to avoid bind error.
 
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Link: https://lore.kernel.org/r/20230302102611.314341-1-dan.scally@ideasonboard.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Link: https://lore.kernel.org/r/20230306115933.198259-1-enrico.sau@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/int3472/tps68470_board_data.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/usb/cdc_mbim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/platform/x86/intel/int3472/tps68470_board_data.c b/drivers/platform/x86/intel/int3472/tps68470_board_data.c
-index 309eab9c05588..322237e056f32 100644
---- a/drivers/platform/x86/intel/int3472/tps68470_board_data.c
-+++ b/drivers/platform/x86/intel/int3472/tps68470_board_data.c
-@@ -159,9 +159,10 @@ static const struct int3472_tps68470_board_data surface_go_tps68470_board_data =
- static const struct int3472_tps68470_board_data surface_go3_tps68470_board_data = {
- 	.dev_name = "i2c-INT3472:01",
- 	.tps68470_regulator_pdata = &surface_go_tps68470_pdata,
--	.n_gpiod_lookups = 1,
-+	.n_gpiod_lookups = 2,
- 	.tps68470_gpio_lookup_tables = {
--		&surface_go_int347a_gpios
-+		&surface_go_int347a_gpios,
-+		&surface_go_int347e_gpios,
+diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
+index c89639381eca3..cd4083e0b3b9e 100644
+--- a/drivers/net/usb/cdc_mbim.c
++++ b/drivers/net/usb/cdc_mbim.c
+@@ -665,6 +665,11 @@ static const struct usb_device_id mbim_devs[] = {
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
  	},
- };
  
++	/* Telit FE990 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1081, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
++	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
++	},
++
+ 	/* default entry */
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
 -- 
 2.39.2
 
