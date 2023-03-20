@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF246C1973
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A03566C1790
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbjCTPdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55526 "EHLO
+        id S232417AbjCTPPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:15:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233104AbjCTPdX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:23 -0400
+        with ESMTP id S232512AbjCTPOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C398B2386F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE78B26594
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 620DB6154E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 706D9C433D2;
-        Mon, 20 Mar 2023 15:26:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F82E615A7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9109FC433EF;
+        Mon, 20 Mar 2023 15:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325972;
-        bh=GS3vC1HSyP509DsI5J5BgQArdPm/3fW+Px4gFqejFw0=;
+        s=korg; t=1679324983;
+        bh=Ed3pU383HVMS7+m2FVX1Tx39zViPKwp/B/wTTwKwH/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqBwvFbAL6Xp+g3ouLC3VxKZczs9f9s3/W/85ONmeWogQCpg1ML9JjGzBPCc+gFpa
-         5lDYuSh4ju1wWlw7Dw9D7gUHKQR3Os4G36Pir7zHLFDki8SCqyDZjG2A+AdHrT0lHg
-         PVtZj3JpAaagSK021O81LGi83Uqg9i2WUwkn8mkI=
+        b=LpQGJsNhJOsQZxEq7nQuF1H5CpzBZpZ8cmp0H1QPUWxhSRQEIzY+aLruNelkPhJuf
+         WTf2xxp21EQ6sNX761MLfnMVYI47TteJ6GiiXnYC1U9m8pHhvJEVFBtjls1mLbbPMm
+         VP6DB0gzp5oAIkt2F+/5XalKHnsyBMPY5p63cioY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.2 134/211] interconnect: qcom: osm-l3: fix registration race
+        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 057/115] hwmon: (ucd90320) Add minimum delay between bus accesses
 Date:   Mon, 20 Mar 2023 15:54:29 +0100
-Message-Id: <20230320145519.059138262@linuxfoundation.org>
+Message-Id: <20230320145451.817435133@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 174941ed28a3573db075da46d95b4dcf9d4c49c2 upstream.
+[ Upstream commit 8d655e65237643c48ada2c131b83679bf1105373 ]
 
-The current interconnect provider registration interface is inherently
-racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to fail:
+When probing the ucd90320 access to some of the registers randomly fails.
+Sometimes it NACKs a transfer, sometimes it returns just random data and
+the PEC check fails.
 
-	of_icc_xlate_onecell: invalid index 0
-	cpu cpu0: error -EINVAL: error finding src node
-	cpu cpu0: dev_pm_opp_of_find_icc_paths: Unable to get path0: -22
-	qcom-cpufreq-hw: probe of 18591000.cpufreq failed with error -22
+Experimentation shows that this seems to be triggered by a register access
+directly back to back with a previous register write. Experimentation also
+shows that inserting a small delay after register writes makes the issue go
+away.
 
-Switch to using the new API where the provider is not registered until
-after it has been fully initialised.
+Use a similar solution to what the max15301 driver does to solve the same
+problem. Create a custom set of bus read and write functions that make sure
+that the delay is added.
 
-Fixes: 5bc9900addaf ("interconnect: qcom: Add OSM L3 interconnect provider support")
-Cc: stable@vger.kernel.org      # 5.7
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-6-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a470f11c5ba2 ("hwmon: (pmbus/ucd9000) Add support for UCD90320 Power Sequencer")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20230312160312.2227405-1-lars@metafoo.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/osm-l3.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/hwmon/pmbus/ucd9000.c | 75 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
---- a/drivers/interconnect/qcom/osm-l3.c
-+++ b/drivers/interconnect/qcom/osm-l3.c
-@@ -158,8 +158,8 @@ static int qcom_osm_l3_remove(struct pla
- {
- 	struct qcom_osm_l3_icc_provider *qp = platform_get_drvdata(pdev);
+diff --git a/drivers/hwmon/pmbus/ucd9000.c b/drivers/hwmon/pmbus/ucd9000.c
+index 75fc770c9e403..3daaf22378322 100644
+--- a/drivers/hwmon/pmbus/ucd9000.c
++++ b/drivers/hwmon/pmbus/ucd9000.c
+@@ -7,6 +7,7 @@
+  */
  
-+	icc_provider_deregister(&qp->provider);
- 	icc_nodes_remove(&qp->provider);
--	icc_provider_del(&qp->provider);
+ #include <linux/debugfs.h>
++#include <linux/delay.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+@@ -16,6 +17,7 @@
+ #include <linux/i2c.h>
+ #include <linux/pmbus.h>
+ #include <linux/gpio/driver.h>
++#include <linux/timekeeping.h>
+ #include "pmbus.h"
  
- 	return 0;
- }
-@@ -245,14 +245,9 @@ static int qcom_osm_l3_probe(struct plat
- 	provider->set = qcom_osm_l3_set;
- 	provider->aggregate = icc_std_aggregate;
- 	provider->xlate = of_icc_xlate_onecell;
--	INIT_LIST_HEAD(&provider->nodes);
- 	provider->data = data;
+ enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd90320, ucd9090,
+@@ -65,6 +67,7 @@ struct ucd9000_data {
+ 	struct gpio_chip gpio;
+ #endif
+ 	struct dentry *debugfs;
++	ktime_t write_time;
+ };
+ #define to_ucd9000_data(_info) container_of(_info, struct ucd9000_data, info)
  
--	ret = icc_provider_add(provider);
--	if (ret) {
--		dev_err(&pdev->dev, "error adding interconnect provider\n");
--		return ret;
--	}
-+	icc_provider_init(provider);
+@@ -73,6 +76,73 @@ struct ucd9000_debugfs_entry {
+ 	u8 index;
+ };
  
- 	for (i = 0; i < num_nodes; i++) {
- 		size_t j;
-@@ -275,12 +270,15 @@ static int qcom_osm_l3_probe(struct plat
- 	}
- 	data->num_nodes = num_nodes;
- 
-+	ret = icc_provider_register(provider);
-+	if (ret)
-+		goto err;
++/*
++ * It has been observed that the UCD90320 randomly fails register access when
++ * doing another access right on the back of a register write. To mitigate this
++ * make sure that there is a minimum delay between a write access and the
++ * following access. The 250us is based on experimental data. At a delay of
++ * 200us the issue seems to go away. Add a bit of extra margin to allow for
++ * system to system differences.
++ */
++#define UCD90320_WAIT_DELAY_US 250
 +
- 	platform_set_drvdata(pdev, qp);
++static inline void ucd90320_wait(const struct ucd9000_data *data)
++{
++	s64 delta = ktime_us_delta(ktime_get(), data->write_time);
++
++	if (delta < UCD90320_WAIT_DELAY_US)
++		udelay(UCD90320_WAIT_DELAY_US - delta);
++}
++
++static int ucd90320_read_word_data(struct i2c_client *client, int page,
++				   int phase, int reg)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++
++	if (reg >= PMBUS_VIRT_BASE)
++		return -ENXIO;
++
++	ucd90320_wait(data);
++	return pmbus_read_word_data(client, page, phase, reg);
++}
++
++static int ucd90320_read_byte_data(struct i2c_client *client, int page, int reg)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++
++	ucd90320_wait(data);
++	return pmbus_read_byte_data(client, page, reg);
++}
++
++static int ucd90320_write_word_data(struct i2c_client *client, int page,
++				    int reg, u16 word)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++	int ret;
++
++	ucd90320_wait(data);
++	ret = pmbus_write_word_data(client, page, reg, word);
++	data->write_time = ktime_get();
++
++	return ret;
++}
++
++static int ucd90320_write_byte(struct i2c_client *client, int page, u8 value)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++	int ret;
++
++	ucd90320_wait(data);
++	ret = pmbus_write_byte(client, page, value);
++	data->write_time = ktime_get();
++
++	return ret;
++}
++
+ static int ucd9000_get_fan_config(struct i2c_client *client, int fan)
+ {
+ 	int fan_config = 0;
+@@ -598,6 +668,11 @@ static int ucd9000_probe(struct i2c_client *client)
+ 		info->read_byte_data = ucd9000_read_byte_data;
+ 		info->func[0] |= PMBUS_HAVE_FAN12 | PMBUS_HAVE_STATUS_FAN12
+ 		  | PMBUS_HAVE_FAN34 | PMBUS_HAVE_STATUS_FAN34;
++	} else if (mid->driver_data == ucd90320) {
++		info->read_byte_data = ucd90320_read_byte_data;
++		info->read_word_data = ucd90320_read_word_data;
++		info->write_byte = ucd90320_write_byte;
++		info->write_word_data = ucd90320_write_word_data;
+ 	}
  
- 	return 0;
- err:
- 	icc_nodes_remove(provider);
--	icc_provider_del(provider);
- 
- 	return ret;
- }
+ 	ucd9000_probe_gpio(client, mid, data);
+-- 
+2.39.2
+
 
 
