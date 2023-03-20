@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4E96C16FE
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C756C1669
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbjCTPKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
+        id S231967AbjCTPGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232336AbjCTPKZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:10:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF727EE4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:37 -0700 (PDT)
+        with ESMTP id S232285AbjCTPE6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844767EF6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FB4AB80EC9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3AC6C433EF;
-        Mon, 20 Mar 2023 15:05:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06FD061585
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12791C433EF;
+        Mon, 20 Mar 2023 15:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324714;
-        bh=lTz+5AFy/jELT6czLvUxdm6WsyIvvXg3gLGmy6nRE7o=;
+        s=korg; t=1679324412;
+        bh=VMSUrnKNdtZB+7VOB0rfiY8ZH4xxNqFTZxPKcMoqK4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTWkkvLjs/hL2p50pByXM6YXYu3Mu7umTXI5E8ssi5rXOWPdIRSVATwGAzKPXy1KY
-         zaCinGVIHaNe1bl+v+relvUNKHrHmZT2FPv+Z84bA9sUW0BhrfIbVdKVhWVPxScWL7
-         7OmNQ+61xzC4vynqwvWLcoILP1IZZVzRvBGUTuSo=
+        b=Opqs35yCaLYvu6gEKzTkxy1rTtcQ4mskrTWyYTGaiR0AR2lpbengCZqCFfLUpyXRD
+         ZflM7S2WrGEM11ipyx+qswpOPx3QlpPQH37fiZjVJ/rtxlIZbOExX08w0vEQfOU+pf
+         G6EulEeADW0db7vJGqT+HGjUUjnC8rKmIOyT2YI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Xiang Chen <chenxiang66@hisilicon.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/99] hwmon: tmp512: drop of_match_ptr for ID table
-Date:   Mon, 20 Mar 2023 15:54:23 +0100
-Message-Id: <20230320145445.266294906@linuxfoundation.org>
+Subject: [PATCH 5.4 15/60] scsi: core: Fix a comment in function scsi_host_dev_release()
+Date:   Mon, 20 Mar 2023 15:54:24 +0100
+Message-Id: <20230320145431.521587042@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit 00d85e81796b17a29a0e096c5a4735daa47adef8 ]
+[ Upstream commit 2dde5c8d912efea43be94d6a83ac9cb74879fa12 ]
 
-The driver will match mostly by DT table (even thought there is regular
-ID table) so there is little benefit in of_match_ptr (this also allows
-ACPI matching via PRP0001, even though it might not be relevant here).
-This also fixes !CONFIG_OF error:
+Commit 3be8828fc507 ("scsi: core: Avoid that ATA error handling can
+trigger a kernel hang or oops") moved rcu to scsi_cmnd instead of
+shost. Modify "shost->rcu" to "scmd->rcu" in a comment.
 
-  drivers/hwmon/tmp513.c:610:34: error: ‘tmp51x_of_match’ defined but not used [-Werror=unused-const-variable=]
-
-Fixes: 59dfa75e5d82 ("hwmon: Add driver for Texas Instruments TMP512/513 sensor chips.")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230312193723.478032-2-krzysztof.kozlowski@linaro.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/1620646526-193154-1-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Stable-dep-of: be03df3d4bfe ("scsi: core: Fix a procfs host directory removal regression")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tmp513.c | 2 +-
+ drivers/scsi/hosts.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/tmp513.c b/drivers/hwmon/tmp513.c
-index 47bbe47e062fd..7d5f7441aceb1 100644
---- a/drivers/hwmon/tmp513.c
-+++ b/drivers/hwmon/tmp513.c
-@@ -758,7 +758,7 @@ static int tmp51x_probe(struct i2c_client *client)
- static struct i2c_driver tmp51x_driver = {
- 	.driver = {
- 		.name	= "tmp51x",
--		.of_match_table = of_match_ptr(tmp51x_of_match),
-+		.of_match_table = tmp51x_of_match,
- 	},
- 	.probe_new	= tmp51x_probe,
- 	.id_table	= tmp51x_id,
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index b08d963013db6..d3a63961b98a9 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -322,7 +322,7 @@ static void scsi_host_dev_release(struct device *dev)
+ 	/* In case scsi_remove_host() has not been called. */
+ 	scsi_proc_hostdir_rm(shost->hostt);
+ 
+-	/* Wait for functions invoked through call_rcu(&shost->rcu, ...) */
++	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
+ 	rcu_barrier();
+ 
+ 	if (shost->tmf_work_q)
 -- 
 2.39.2
 
