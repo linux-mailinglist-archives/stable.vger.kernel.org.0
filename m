@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF6B6C1959
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1149C6C167D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233015AbjCTPcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:32:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48102 "EHLO
+        id S232037AbjCTPGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233053AbjCTPc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D203D199D5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:16 -0700 (PDT)
+        with ESMTP id S232024AbjCTPGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6A48697
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97ED261573
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8DBC433EF;
-        Mon, 20 Mar 2023 15:24:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4F2DB80ECF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB263C4339B;
+        Mon, 20 Mar 2023 15:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325896;
-        bh=SlaYFFlBBMBmoqmu8kQMPgqqmrCRkjjDtAaLp2obimA=;
+        s=korg; t=1679324467;
+        bh=kb0crfLerUGVXvK3C4Lww97xqDWy0FTI5W0aYXVpuB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9UyOAqrGC493k8btHWdv7B/re1C12Hj/F3UxwMsQVzGZ7jqQP5nYBWArAjGS4gCQ
-         2bShDpaTjR4qruzlsAiXYKf/EjFkjyv2qmS4Nmcb5falKuWGAt9NQZ6PCjBBast+F/
-         BCNBL0uZDyCTKJTDDuHzSJ6APXr2Z0EsUrBZs4TI=
+        b=0mWCI6AnSepRGf2/pR645UiAYssEghST5yfpO6ZC6oqHY+XnM0GdRzIjtLiqzhOEz
+         P20E8mP2epnCqW8Rf9+zlmud5yjgJP1zbR7ceKWflAUKMHd+1au/ncJkpLEuvxItpa
+         QiER4fXC1dX9TgjgwUV7SuAIyt/VDChHK6GzJrqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 6.2 121/211] serial: 8250_fsl: fix handle_irq locking
+        patches@lists.linux.dev,
+        Glenn Washburn <development@efficientek.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 07/60] docs: Correct missing "d_" prefix for dentry_operations member d_weak_revalidate
 Date:   Mon, 20 Mar 2023 15:54:16 +0100
-Message-Id: <20230320145518.417347973@linuxfoundation.org>
+Message-Id: <20230320145431.178626391@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Glenn Washburn <development@efficientek.com>
 
-commit 6e01f9a594ee0f69fb52cc8d11971612b4817f0b upstream.
+[ Upstream commit 74596085796fae0cfce3e42ee46bf4f8acbdac55 ]
 
-The 8250 handle_irq callback is not just called from the interrupt
-handler but also from a timer callback when polling (e.g. for ports
-without an interrupt line). Consequently the callback must explicitly
-disable interrupts to avoid a potential deadlock with another interrupt
-in polled mode.
+The details for struct dentry_operations member d_weak_revalidate is
+missing a "d_" prefix.
 
-Fix up the two paths in the freescale callback that failed to re-enable
-interrupts when polling.
-
-Fixes: 853a9ae29e97 ("serial: 8250: fix handle_irq locking")
-Cc: stable@vger.kernel.org	# 5.13
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/Y/xYzqp4ogmOF5t0@kili
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20230227085046.24282-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: af96c1e304f7 ("docs: filesystems: vfs: Convert vfs.txt to RST")
+Signed-off-by: Glenn Washburn <development@efficientek.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lore.kernel.org/r/20230227184042.2375235-1-development@efficientek.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_fsl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/filesystems/vfs.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
-index 8aad15622a2e..8adfaa183f77 100644
---- a/drivers/tty/serial/8250/8250_fsl.c
-+++ b/drivers/tty/serial/8250/8250_fsl.c
-@@ -34,7 +34,7 @@ int fsl8250_handle_irq(struct uart_port *port)
+diff --git a/Documentation/filesystems/vfs.rst b/Documentation/filesystems/vfs.rst
+index 7d4d09dd5e6de..241e312006434 100644
+--- a/Documentation/filesystems/vfs.rst
++++ b/Documentation/filesystems/vfs.rst
+@@ -1173,7 +1173,7 @@ defined:
+ 	return
+ 	-ECHILD and it will be called again in ref-walk mode.
  
- 	iir = port->serial_in(port, UART_IIR);
- 	if (iir & UART_IIR_NO_INT) {
--		spin_unlock(&up->port.lock);
-+		spin_unlock_irqrestore(&up->port.lock, flags);
- 		return 0;
- 	}
- 
-@@ -42,7 +42,7 @@ int fsl8250_handle_irq(struct uart_port *port)
- 	if (unlikely(up->lsr_saved_flags & UART_LSR_BI)) {
- 		up->lsr_saved_flags &= ~UART_LSR_BI;
- 		port->serial_in(port, UART_RX);
--		spin_unlock(&up->port.lock);
-+		spin_unlock_irqrestore(&up->port.lock, flags);
- 		return 1;
- 	}
- 
+-``_weak_revalidate``
++``d_weak_revalidate``
+ 	called when the VFS needs to revalidate a "jumped" dentry.  This
+ 	is called when a path-walk ends at dentry that was not acquired
+ 	by doing a lookup in the parent directory.  This includes "/",
 -- 
-2.40.0
+2.39.2
 
 
 
