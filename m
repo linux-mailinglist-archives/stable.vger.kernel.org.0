@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5013C6C1879
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 919FF6C16B9
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232651AbjCTPZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:25:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39516 "EHLO
+        id S232191AbjCTPIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:08:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232823AbjCTPY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF69734C36
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:40 -0700 (PDT)
+        with ESMTP id S232200AbjCTPIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC442270F;
+        Mon, 20 Mar 2023 08:03:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F8F9B80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6ED4C433D2;
-        Mon, 20 Mar 2023 15:17:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4816F6158B;
+        Mon, 20 Mar 2023 15:03:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF66C433EF;
+        Mon, 20 Mar 2023 15:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325441;
-        bh=tHYxFuyyBF0EusOg1uA7zaeTUEMIded575RY6dtTM7Q=;
+        s=korg; t=1679324593;
+        bh=f1RmTaChlATyRSUZ9EPL2SM6wu64SUGwnXYSCJtNH0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6kf9d3MntBzFLkYRRyAzAa9qJA8gm5/AFvV+x4drUnjuAB2UL1XVShkCMTkhIM/T
-         yDw22r+0DUBUUjoduL7Fiqkoi0Lra46lSsIz5Cs3XzsWAJt604ouTKjp84Ml3FOA2a
-         +/M/kEnyB5kVD+xWRtAbce4ck8j9R2diw4xhr4EQ=
+        b=xeBQYM/qZNB3KdFua5dBrh3RLUVYCdXECdWtMEkfKsRenSyEsOgWDB5hHoHiu+3Ew
+         cVoq+5IFlcseDP+AYmVy1fU7Ek1QxXcsF5q8PIxCqTrJxg7G9Np1TcZ10WL5i5b69o
+         tAf4VW1MggRrfZTEis5ct61kCjg+zUkJkOOXa3wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 085/198] net/iucv: Fix size of interrupt data
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Riku Voipio <riku.voipio@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        linux-clk@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 05/99] clk: HI655X: select REGMAP instead of depending on it
 Date:   Mon, 20 Mar 2023 15:53:43 +0100
-Message-Id: <20230320145511.104169794@linuxfoundation.org>
+Message-Id: <20230320145443.573814052@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,103 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 3d87debb8ed2649608ff432699e7c961c0c6f03b ]
+[ Upstream commit 0ffad67784a097beccf34d297ddd1b0773b3b8a3 ]
 
-iucv_irq_data needs to be 4 bytes larger.
-These bytes are not used by the iucv module, but written by
-the z/VM hypervisor in case a CPU is deconfigured.
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-Reported as:
-BUG dma-kmalloc-64 (Not tainted): kmalloc Redzone overwritten
------------------------------------------------------------------------------
-0x0000000000400564-0x0000000000400567 @offset=1380. First byte 0x80 instead of 0xcc
-Allocated in iucv_cpu_prepare+0x44/0xd0 age=167839 cpu=2 pid=1
-__kmem_cache_alloc_node+0x166/0x450
-kmalloc_node_trace+0x3a/0x70
-iucv_cpu_prepare+0x44/0xd0
-cpuhp_invoke_callback+0x156/0x2f0
-cpuhp_issue_call+0xf0/0x298
-__cpuhp_setup_state_cpuslocked+0x136/0x338
-__cpuhp_setup_state+0xf4/0x288
-iucv_init+0xf4/0x280
-do_one_initcall+0x78/0x390
-do_initcalls+0x11a/0x140
-kernel_init_freeable+0x25e/0x2a0
-kernel_init+0x2e/0x170
-__ret_from_fork+0x3c/0x58
-ret_from_fork+0xa/0x40
-Freed in iucv_init+0x92/0x280 age=167839 cpu=2 pid=1
-__kmem_cache_free+0x308/0x358
-iucv_init+0x92/0x280
-do_one_initcall+0x78/0x390
-do_initcalls+0x11a/0x140
-kernel_init_freeable+0x25e/0x2a0
-kernel_init+0x2e/0x170
-__ret_from_fork+0x3c/0x58
-ret_from_fork+0xa/0x40
-Slab 0x0000037200010000 objects=32 used=30 fp=0x0000000000400640 flags=0x1ffff00000010200(slab|head|node=0|zone=0|
-Object 0x0000000000400540 @offset=1344 fp=0x0000000000000000
-Redzone  0000000000400500: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
-Redzone  0000000000400510: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
-Redzone  0000000000400520: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
-Redzone  0000000000400530: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
-Object   0000000000400540: 00 01 00 03 00 00 00 00 00 00 00 00 00 00 00 00  ................
-Object   0000000000400550: f3 86 81 f2 f4 82 f8 82 f0 f0 f0 f0 f0 f0 f0 f2  ................
-Object   0000000000400560: 00 00 00 00 80 00 00 00 cc cc cc cc cc cc cc cc  ................
-Object   0000000000400570: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
-Redzone  0000000000400580: cc cc cc cc cc cc cc cc                          ........
-Padding  00000000004005d4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-Padding  00000000004005e4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-Padding  00000000004005f4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a              ZZZZZZZZZZZZ
-CPU: 6 PID: 121030 Comm: 116-pai-crypto. Not tainted 6.3.0-20230221.rc0.git4.99b8246b2d71.300.fc37.s390x+debug #1
-Hardware name: IBM 3931 A01 704 (z/VM 7.3.0)
-Call Trace:
-[<000000032aa034ec>] dump_stack_lvl+0xac/0x100
-[<0000000329f5a6cc>] check_bytes_and_report+0x104/0x140
-[<0000000329f5aa78>] check_object+0x370/0x3c0
-[<0000000329f5ede6>] free_debug_processing+0x15e/0x348
-[<0000000329f5f06a>] free_to_partial_list+0x9a/0x2f0
-[<0000000329f5f4a4>] __slab_free+0x1e4/0x3a8
-[<0000000329f61768>] __kmem_cache_free+0x308/0x358
-[<000000032a91465c>] iucv_cpu_dead+0x6c/0x88
-[<0000000329c2fc66>] cpuhp_invoke_callback+0x156/0x2f0
-[<000000032aa062da>] _cpu_down.constprop.0+0x22a/0x5e0
-[<0000000329c3243e>] cpu_device_down+0x4e/0x78
-[<000000032a61dee0>] device_offline+0xc8/0x118
-[<000000032a61e048>] online_store+0x60/0xe0
-[<000000032a08b6b0>] kernfs_fop_write_iter+0x150/0x1e8
-[<0000000329fab65c>] vfs_write+0x174/0x360
-[<0000000329fab9fc>] ksys_write+0x74/0x100
-[<000000032aa03a5a>] __do_syscall+0x1da/0x208
-[<000000032aa177b2>] system_call+0x82/0xb0
-INFO: lockdep is turned off.
-FIX dma-kmalloc-64: Restoring kmalloc Redzone 0x0000000000400564-0x0000000000400567=0xcc
-FIX dma-kmalloc-64: Object at 0x0000000000400540 not freed
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
 
-Fixes: 2356f4cb1911 ("[S390]: Rewrite of the IUCV base code, part 2")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230315131435.4113889-1-wintera@linux.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
+
+Fixes: 3a49afb84ca0 ("clk: enable hi655x common clk automatically")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Riku Voipio <riku.voipio@linaro.org>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Michael Turquette <mturquette@baylibre.com>
+Cc: linux-clk@vger.kernel.org
+Link: https://lore.kernel.org/r/20230226053953.4681-3-rdunlap@infradead.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/iucv/iucv.c | 2 +-
+ drivers/clk/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index eb0295d900395..fc3fddeb6f36d 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -83,7 +83,7 @@ struct iucv_irq_data {
- 	u16 ippathid;
- 	u8  ipflags1;
- 	u8  iptype;
--	u32 res2[8];
-+	u32 res2[9];
- };
- 
- struct iucv_irq_list {
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index c715d4681a0b8..4ae49eae45869 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -79,7 +79,7 @@ config COMMON_CLK_RK808
+ config COMMON_CLK_HI655X
+ 	tristate "Clock driver for Hi655x" if EXPERT
+ 	depends on (MFD_HI655X_PMIC || COMPILE_TEST)
+-	depends on REGMAP
++	select REGMAP
+ 	default MFD_HI655X_PMIC
+ 	help
+ 	  This driver supports the hi655x PMIC clock. This
 -- 
 2.39.2
 
