@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29ED76C178F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D635B6C194B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232397AbjCTPPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:15:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
+        id S233032AbjCTPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232410AbjCTPOg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04DED335
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:43 -0700 (PDT)
+        with ESMTP id S233035AbjCTPcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBA3136E0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA59F615A1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81CFC433A0;
-        Mon, 20 Mar 2023 15:09:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1DB3CE12C5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8CE1C433A0;
+        Mon, 20 Mar 2023 15:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324981;
-        bh=dPN4NDuHUJybMvzkSTkgEA0jocHVXO9EQNgBzNl2G9w=;
+        s=korg; t=1679325874;
+        bh=93dlYql7Kh6eCQFq4Q3yrSYnSk1VkiRXwVuihcj4z1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ltqMCO/zCTazv4HFz1JDSNqREm6oNCVttfieEzWoGJ496vuDlA5q2flBHjDg+pxqt
-         FUpQQoTRERDGawg3+UlKCc/NECwVQZ/yU30xZ+BY1vwQwNQYSDdqVE2YAshAoHxVbm
-         l44LG/S98mXTuIkmCoREm7CuYFaTnQg8LQD9e3lw=
+        b=FXGtbi/q8efl1SANFn55xunbg67uoV+NTFEadlgtcxYHVqlkagChuI6kHOaW/zel2
+         a6gLVDdvJX96AbmqmVR2V+enEI4xzwTmmsdZpLHcIy/CxC3uBaAxeBxNBewgvte/9z
+         bpCHJBs38yP2fnbQ7gegJ31MPtrMo+3ExfKUM0jI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 80/99] s390/ipl: add missing intersection check to ipl_report handling
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <mumei6102@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 160/198] drm/amd/pm: Fix sienna cichlid incorrect OD volage after resume
 Date:   Mon, 20 Mar 2023 15:54:58 +0100
-Message-Id: <20230320145446.764185324@linuxfoundation.org>
+Message-Id: <20230320145514.246047438@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +53,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Błażej Szczygieł <mumei6102@gmail.com>
 
-commit a52e5cdbe8016d4e3e6322fd93d71afddb9a5af9 upstream.
+commit a9386ee9681585794dbab95d4ce6826f73d19af6 upstream.
 
-The code which handles the ipl report is searching for a free location
-in memory where it could copy the component and certificate entries to.
-It checks for intersection between the sections required for the kernel
-and the component/certificate data area, but fails to check whether
-the data structures linking these data areas together intersect.
+Always setup overdrive tables after resume. Preserve only some
+user-defined settings in user_overdrive_table if they're set.
 
-This might cause the iplreport copy code to overwrite the iplreport
-itself. Fix this by adding two addtional intersection checks.
+Copy restored user_overdrive_table into od_table to get correct
+values.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 9641b8cc733f ("s390/ipl: read IPL report at early boot")
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+On cold boot, BTC was triggered and GfxVfCurve was calibrated. We
+got VfCurve settings (a). On resuming back, BTC will be triggered
+again and GfxVfCurve will be recalibrated. VfCurve settings (b)
+got may be different from those of cold boot.  So if we reuse
+those VfCurve settings (a) got on cold boot on suspend, we can
+run into discrepencies.
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1897
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2276
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Błażej Szczygieł <mumei6102@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/boot/ipl_report.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c |   43 ++++++++++++----
+ 1 file changed, 33 insertions(+), 10 deletions(-)
 
---- a/arch/s390/boot/ipl_report.c
-+++ b/arch/s390/boot/ipl_report.c
-@@ -57,11 +57,19 @@ repeat:
- 	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
- 	    intersects(INITRD_START, INITRD_SIZE, safe_addr, size))
- 		safe_addr = INITRD_START + INITRD_SIZE;
-+	if (intersects(safe_addr, size, (unsigned long)comps, comps->len)) {
-+		safe_addr = (unsigned long)comps + comps->len;
-+		goto repeat;
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -2143,16 +2143,9 @@ static int sienna_cichlid_set_default_od
+ 		(OverDriveTable_t *)smu->smu_table.boot_overdrive_table;
+ 	OverDriveTable_t *user_od_table =
+ 		(OverDriveTable_t *)smu->smu_table.user_overdrive_table;
++	OverDriveTable_t user_od_table_bak;
+ 	int ret = 0;
+ 
+-	/*
+-	 * For S3/S4/Runpm resume, no need to setup those overdrive tables again as
+-	 *   - either they already have the default OD settings got during cold bootup
+-	 *   - or they have some user customized OD settings which cannot be overwritten
+-	 */
+-	if (smu->adev->in_suspend)
+-		return 0;
+-
+ 	ret = smu_cmn_update_table(smu, SMU_TABLE_OVERDRIVE,
+ 				   0, (void *)boot_od_table, false);
+ 	if (ret) {
+@@ -2163,7 +2156,23 @@ static int sienna_cichlid_set_default_od
+ 	sienna_cichlid_dump_od_table(smu, boot_od_table);
+ 
+ 	memcpy(od_table, boot_od_table, sizeof(OverDriveTable_t));
+-	memcpy(user_od_table, boot_od_table, sizeof(OverDriveTable_t));
++
++	/*
++	 * For S3/S4/Runpm resume, we need to setup those overdrive tables again,
++	 * but we have to preserve user defined values in "user_od_table".
++	 */
++	if (!smu->adev->in_suspend) {
++		memcpy(user_od_table, boot_od_table, sizeof(OverDriveTable_t));
++		smu->user_dpm_profile.user_od = false;
++	} else if (smu->user_dpm_profile.user_od) {
++		memcpy(&user_od_table_bak, user_od_table, sizeof(OverDriveTable_t));
++		memcpy(user_od_table, boot_od_table, sizeof(OverDriveTable_t));
++		user_od_table->GfxclkFmin = user_od_table_bak.GfxclkFmin;
++		user_od_table->GfxclkFmax = user_od_table_bak.GfxclkFmax;
++		user_od_table->UclkFmin = user_od_table_bak.UclkFmin;
++		user_od_table->UclkFmax = user_od_table_bak.UclkFmax;
++		user_od_table->VddGfxOffset = user_od_table_bak.VddGfxOffset;
 +	}
- 	for_each_rb_entry(comp, comps)
- 		if (intersects(safe_addr, size, comp->addr, comp->len)) {
- 			safe_addr = comp->addr + comp->len;
- 			goto repeat;
- 		}
-+	if (intersects(safe_addr, size, (unsigned long)certs, certs->len)) {
-+		safe_addr = (unsigned long)certs + certs->len;
-+		goto repeat;
-+	}
- 	for_each_rb_entry(cert, certs)
- 		if (intersects(safe_addr, size, cert->addr, cert->len)) {
- 			safe_addr = cert->addr + cert->len;
+ 
+ 	return 0;
+ }
+@@ -2373,6 +2382,20 @@ static int sienna_cichlid_od_edit_dpm_ta
+ 	return ret;
+ }
+ 
++static int sienna_cichlid_restore_user_od_settings(struct smu_context *smu)
++{
++	struct smu_table_context *table_context = &smu->smu_table;
++	OverDriveTable_t *od_table = table_context->overdrive_table;
++	OverDriveTable_t *user_od_table = table_context->user_overdrive_table;
++	int res;
++
++	res = smu_v11_0_restore_user_od_settings(smu);
++	if (res == 0)
++		memcpy(od_table, user_od_table, sizeof(OverDriveTable_t));
++
++	return res;
++}
++
+ static int sienna_cichlid_run_btc(struct smu_context *smu)
+ {
+ 	int res;
+@@ -4400,7 +4423,7 @@ static const struct pptable_funcs sienna
+ 	.set_soft_freq_limited_range = smu_v11_0_set_soft_freq_limited_range,
+ 	.set_default_od_settings = sienna_cichlid_set_default_od_settings,
+ 	.od_edit_dpm_table = sienna_cichlid_od_edit_dpm_table,
+-	.restore_user_od_settings = smu_v11_0_restore_user_od_settings,
++	.restore_user_od_settings = sienna_cichlid_restore_user_od_settings,
+ 	.run_btc = sienna_cichlid_run_btc,
+ 	.set_power_source = smu_v11_0_set_power_source,
+ 	.get_pp_feature_mask = smu_cmn_get_pp_feature_mask,
 
 
