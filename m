@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 806846C18BD
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0F9D6C16D4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232877AbjCTP1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45302 "EHLO
+        id S232211AbjCTPJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:09:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232718AbjCTP0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:43 -0400
+        with ESMTP id S232274AbjCTPJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECCC433CC7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83831449B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32B4061575
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FDD6C433EF;
-        Mon, 20 Mar 2023 15:19:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1703A6154D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29641C433D2;
+        Mon, 20 Mar 2023 15:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325597;
-        bh=Hv7uNwv1335ZkhvGONfKBtSAlwto6F95Sx8jlnD/bHQ=;
+        s=korg; t=1679324670;
+        bh=r4AFh1Z5AoPzx34H47DldwJMaDSmt8xpIpyRrbvQ6so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQgFQH6Y7TgpCnXw5GH+BFDv7G6nJvAhhag56cEUCX0qxKz8De964afLZssdJwcSb
-         3JbWRm/xjESMqkQN1/jtwkqbT3nZUby7ozcXQUbhaKJqfAdQ/jGvLhybzD0UOyTk6v
-         ACtBj5akoBZf7YDVIdrHIsVzqQ52m1Ip/GwbZpZg=
+        b=YSpwD/SEQNp5/2e5DsSS7T9yasWsub2x4AGXLvH58tnBi8M1avfi2UkI2LEBxyfME
+         w1LF67qQ36KzkLsp/YHA5NWKbHHEVLoqUeEovgwnB2et7tWdBfIWo3XLT++kfoakM5
+         iO0rI5m/gE6t3wxPj1qYD0ykhIEAo4NzMSnWO1aY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 108/198] ext4: update s_journal_inum if it changes after journal replay
-Date:   Mon, 20 Mar 2023 15:54:06 +0100
-Message-Id: <20230320145512.113876752@linuxfoundation.org>
+        patches@lists.linux.dev, Ming Lei <ming.lei@redhat.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 29/99] nvme: fix handling single range discard request
+Date:   Mon, 20 Mar 2023 15:54:07 +0100
+Message-Id: <20230320145444.605564840@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 3039d8b8692408438a618fac2776b629852663c3 ]
+[ Upstream commit 37f0dc2ec78af0c3f35dd05578763de059f6fe77 ]
 
-When mounting a crafted ext4 image, s_journal_inum may change after journal
-replay, which is obviously unreasonable because we have successfully loaded
-and replayed the journal through the old s_journal_inum. And the new
-s_journal_inum bypasses some of the checks in ext4_get_journal(), which
-may trigger a null pointer dereference problem. So if s_journal_inum
-changes after the journal replay, we ignore the change, and rewrite the
-current journal_inum to the superblock.
+When investigating one customer report on warning in nvme_setup_discard,
+we observed the controller(nvme/tcp) actually exposes
+queue_max_discard_segments(req->q) == 1.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216541
-Reported-by: Luís Henriques <lhenriques@suse.de>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230107032126.4165860-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Obviously the current code can't handle this situation, since contiguity
+merge like normal RW request is taken.
+
+Fix the issue by building range from request sector/nr_sectors directly.
+
+Fixes: b35ba01ea697 ("nvme: support ranged discard requests")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 8011600999586..2528e8216c334 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5967,8 +5967,11 @@ static int ext4_load_journal(struct super_block *sb,
- 	if (!really_read_only && journal_devnum &&
- 	    journal_devnum != le32_to_cpu(es->s_journal_dev)) {
- 		es->s_journal_dev = cpu_to_le32(journal_devnum);
--
--		/* Make sure we flush the recovery flag to disk. */
-+		ext4_commit_super(sb);
-+	}
-+	if (!really_read_only && journal_inum &&
-+	    journal_inum != le32_to_cpu(es->s_journal_inum)) {
-+		es->s_journal_inum = cpu_to_le32(journal_inum);
- 		ext4_commit_super(sb);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index e162f1dfbafe9..a4b6aa932a8fe 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -723,16 +723,26 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
+ 		range = page_address(ns->ctrl->discard_page);
  	}
  
+-	__rq_for_each_bio(bio, req) {
+-		u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
+-		u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
+-
+-		if (n < segments) {
+-			range[n].cattr = cpu_to_le32(0);
+-			range[n].nlb = cpu_to_le32(nlb);
+-			range[n].slba = cpu_to_le64(slba);
++	if (queue_max_discard_segments(req->q) == 1) {
++		u64 slba = nvme_sect_to_lba(ns, blk_rq_pos(req));
++		u32 nlb = blk_rq_sectors(req) >> (ns->lba_shift - 9);
++
++		range[0].cattr = cpu_to_le32(0);
++		range[0].nlb = cpu_to_le32(nlb);
++		range[0].slba = cpu_to_le64(slba);
++		n = 1;
++	} else {
++		__rq_for_each_bio(bio, req) {
++			u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
++			u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
++
++			if (n < segments) {
++				range[n].cattr = cpu_to_le32(0);
++				range[n].nlb = cpu_to_le32(nlb);
++				range[n].slba = cpu_to_le64(slba);
++			}
++			n++;
+ 		}
+-		n++;
+ 	}
+ 
+ 	if (WARN_ON_ONCE(n != segments)) {
 -- 
 2.39.2
 
