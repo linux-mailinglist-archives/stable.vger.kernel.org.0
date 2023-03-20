@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 808986C18C9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC756C1811
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232921AbjCTP1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:27:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S232404AbjCTPUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232911AbjCTP1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDE7937547
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:27 -0700 (PDT)
+        with ESMTP id S232445AbjCTPTf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4AB2CFE9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B781461582
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C794AC433D2;
-        Mon, 20 Mar 2023 15:20:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A40DF615AF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AE4C4339B;
+        Mon, 20 Mar 2023 15:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325614;
-        bh=nWuzYXC0jiG5rXcW2RThazfi2ompjBxmahwxU6aSndo=;
+        s=korg; t=1679325208;
+        bh=r1HWeWs3tt9Qp8gcbLAB2F/pmP6xy0RSAWUsD8jirjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTLIo3zJ8tPr3AEMazY5AjtsIH/4ARBqUDRLI7bdg5/75lFNvKacFEzTpQ8aCnwQm
-         fMoDAEymAqaAo9+S4+gE+QClZW5sPbWgRTe3+87A0sIaeDbllBvhDOxckWOrLrphV0
-         xMeIkQwNEz2XACzA88BpN132FsySh9cXNHJoQS0g=
+        b=i5OlCfnzfmPEoTDZ7EKEbPVx24kqQ/QMZlhL/smE6uDJXEl1V1eM8+7xHPa4+LWvV
+         RVuBAm672F7YrR3oy1tHdaXLGOG4lfzZCmKTQz20prIcvsXJeDYq8hX8/ipifgOkiM
+         +z2ZVFEiuOelja1IN50DA8+ci/Cx2y/ZQSlWudlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paul Holzinger <pholzing@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Simon Horman <simon.horman@corigine.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 057/211] tcp: Fix bind() conflict check for dual-stack wildcard address.
-Date:   Mon, 20 Mar 2023 15:53:12 +0100
-Message-Id: <20230320145515.617954974@linuxfoundation.org>
+Subject: [PATCH 6.1 055/198] net: phy: smsc: bail out in lan87xx_read_status if genphy_read_status fails
+Date:   Mon, 20 Mar 2023 15:53:13 +0100
+Message-Id: <20230320145509.823389030@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,67 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit d9ba9934285514f1f95d96326a82398a22dc77f2 ]
+[ Upstream commit c22c3bbf351e4ce905f082649cffa1ff893ea8c1 ]
 
-Paul Holzinger reported [0] that commit 5456262d2baa ("net: Fix
-incorrect address comparison when searching for a bind2 bucket")
-introduced a bind() regression.  Paul also gave a nice repro that
-calls two types of bind() on the same port, both of which now
-succeed, but the second call should fail:
+If genphy_read_status fails then further access to the PHY may result
+in unpredictable behavior. To prevent this bail out immediately if
+genphy_read_status fails.
 
-  bind(fd1, ::, port) + bind(fd2, 127.0.0.1, port)
-
-The cited commit added address family tests in three functions to
-fix the uninit-value KMSAN report. [1]  However, the test added to
-inet_bind2_bucket_match_addr_any() removed a necessary conflict
-check; the dual-stack wildcard address no longer conflicts with
-an IPv4 non-wildcard address.
-
-If tb->family is AF_INET6 and sk->sk_family is AF_INET in
-inet_bind2_bucket_match_addr_any(), we still need to check
-if tb has the dual-stack wildcard address.
-
-Note that the IPv4 wildcard address does not conflict with
-IPv6 non-wildcard addresses.
-
-[0]: https://lore.kernel.org/netdev/e21bf153-80b0-9ec0-15ba-e04a4ad42c34@redhat.com/
-[1]: https://lore.kernel.org/netdev/CAG_fn=Ud3zSW7AZWXc+asfMhZVL5ETnvuY44Pmyv4NPv-ijN-A@mail.gmail.com/
-
-Fixes: 5456262d2baa ("net: Fix incorrect address comparison when searching for a bind2 bucket")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reported-by: Paul Holzinger <pholzing@redhat.com>
-Link: https://lore.kernel.org/netdev/CAG_fn=Ud3zSW7AZWXc+asfMhZVL5ETnvuY44Pmyv4NPv-ijN-A@mail.gmail.com/
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Tested-by: Paul Holzinger <pholzing@redhat.com>
-Reviewed-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: 4223dbffed9f ("net: phy: smsc: Re-enable EDPD mode for LAN87xx")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/026aa4f2-36f5-1c10-ab9f-cdb17dda6ac4@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/phy/smsc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 7a13dd7f546b6..7b05315264b0c 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -828,8 +828,14 @@ bool inet_bind2_bucket_match_addr_any(const struct inet_bind2_bucket *tb, const
- #if IS_ENABLED(CONFIG_IPV6)
- 	struct in6_addr addr_any = {};
+diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
+index 00d9eff91dcfa..df2c5435c5c49 100644
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -199,8 +199,11 @@ static int lan95xx_config_aneg_ext(struct phy_device *phydev)
+ static int lan87xx_read_status(struct phy_device *phydev)
+ {
+ 	struct smsc_phy_priv *priv = phydev->priv;
++	int err;
  
--	if (sk->sk_family != tb->family)
-+	if (sk->sk_family != tb->family) {
-+		if (sk->sk_family == AF_INET)
-+			return net_eq(ib2_net(tb), net) && tb->port == port &&
-+				tb->l3mdev == l3mdev &&
-+				ipv6_addr_equal(&tb->v6_rcv_saddr, &addr_any);
-+
- 		return false;
-+	}
+-	int err = genphy_read_status(phydev);
++	err = genphy_read_status(phydev);
++	if (err)
++		return err;
  
- 	if (sk->sk_family == AF_INET6)
- 		return net_eq(ib2_net(tb), net) && tb->port == port &&
+ 	if (!phydev->link && priv->energy_enable && phydev->irq == PHY_POLL) {
+ 		/* Disable EDPD to wake up PHY */
 -- 
 2.39.2
 
