@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EAC56C1979
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E68976C1651
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233096AbjCTPeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
+        id S232135AbjCTPEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:04:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233039AbjCTPdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F22C66D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:29 -0700 (PDT)
+        with ESMTP id S231955AbjCTPER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257A22942F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D36D3B80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E8EDC433D2;
-        Mon, 20 Mar 2023 15:26:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D2C3B80ED2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB176C433D2;
+        Mon, 20 Mar 2023 15:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325986;
-        bh=O1djjdNeVrIxkJtJm314G+XmCPCTgsiaGGv1SQJOA3I=;
+        s=korg; t=1679324404;
+        bh=ZVspxuvF/DvmYQ/eLQo1Su9bKKbWjvSX82cmBguc4Dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8503njEAxhA4NzV/DFn5SxOqFn4FVT43F14TSIJaZ9rhmziA5HyV21zSGGlsYYRL
-         tsSrjGJMvzGWQUzxVRDDmZRnE739DaFwocTI6hYypopnPszqnN78PjFUWkjW2XdBbS
-         sMp3MX03HCBIkrCss8jQC11kFVQzV3LyT1zEZHIk=
+        b=yBQvjt0muxgW3tHtbsGo3a4Y9jAQ8AwjXu4Z4llMJnO0PRNJ8SE0zsSAIkDCiNJlx
+         7RjDYIyurPhkUSOeYQJLjlTulEeRG0RMGL39RYOZIb8sFZmJ6MVGPnDwbGuxrMeIO0
+         kq3tFthl1zX+97gqp2DSuEltBlJmAlXIu9rWdjxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Jun Nie <jun.nie@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.2 136/211] interconnect: qcom: rpm: fix registration race
+        patches@lists.linux.dev,
+        syzbot+1e608ba4217c96d1952f@syzkaller.appspotmail.com,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/36] nfc: pn533: initialize struct pn533_out_arg properly
 Date:   Mon, 20 Mar 2023 15:54:31 +0100
-Message-Id: <20230320145519.137538212@linuxfoundation.org>
+Message-Id: <20230320145424.426252150@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,103 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 90ae93d8affc1061cd87ca8ddd9a838c7d31a158 upstream.
+[ Upstream commit 484b7059796e3bc1cb527caa61dfc60da649b4f6 ]
 
-The current interconnect provider registration interface is inherently
-racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to fail.
+struct pn533_out_arg used as a temporary context for out_urb is not
+initialized properly. Its uninitialized 'phy' field can be dereferenced in
+error cases inside pn533_out_complete() callback function. It causes the
+following failure:
 
-Switch to using the new API where the provider is not registered until
-after it has been fully initialised.
+general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 6.2.0-rc3-next-20230110-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:pn533_out_complete.cold+0x15/0x44 drivers/nfc/pn533/usb.c:441
+Call Trace:
+ <IRQ>
+ __usb_hcd_giveback_urb+0x2b6/0x5c0 drivers/usb/core/hcd.c:1671
+ usb_hcd_giveback_urb+0x384/0x430 drivers/usb/core/hcd.c:1754
+ dummy_timer+0x1203/0x32d0 drivers/usb/gadget/udc/dummy_hcd.c:1988
+ call_timer_fn+0x1da/0x800 kernel/time/timer.c:1700
+ expire_timers+0x234/0x330 kernel/time/timer.c:1751
+ __run_timers kernel/time/timer.c:2022 [inline]
+ __run_timers kernel/time/timer.c:1995 [inline]
+ run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
+ __do_softirq+0x1fb/0xaf6 kernel/softirq.c:571
+ invoke_softirq kernel/softirq.c:445 [inline]
+ __irq_exit_rcu+0x123/0x180 kernel/softirq.c:650
+ irq_exit_rcu+0x9/0x20 kernel/softirq.c:662
+ sysvec_apic_timer_interrupt+0x97/0xc0 arch/x86/kernel/apic/apic.c:1107
 
-Fixes: 62feb14ee8a3 ("interconnect: qcom: Consolidate interconnect RPM support")
-Fixes: 30c8fa3ec61a ("interconnect: qcom: Add MSM8916 interconnect provider driver")
-Cc: stable@vger.kernel.org	# 5.7
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Jun Nie <jun.nie@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-9-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Initialize the field with the pn533_usb_phy currently used.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Fixes: 9dab880d675b ("nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()")
+Reported-by: syzbot+1e608ba4217c96d1952f@syzkaller.appspotmail.com
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230309165050.207390-1-pchelkin@ispras.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/icc-rpm.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/nfc/pn533/usb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/interconnect/qcom/icc-rpm.c
-+++ b/drivers/interconnect/qcom/icc-rpm.c
-@@ -503,7 +503,6 @@ regmap_done:
- 	}
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index c7da364b63584..a2d61d8240246 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -187,6 +187,7 @@ static int pn533_usb_send_frame(struct pn533 *dev,
+ 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 			     out->data, out->len, false);
  
- 	provider = &qp->provider;
--	INIT_LIST_HEAD(&provider->nodes);
- 	provider->dev = dev;
- 	provider->set = qcom_icc_set;
- 	provider->pre_aggregate = qcom_icc_pre_bw_aggregate;
-@@ -511,12 +510,7 @@ regmap_done:
- 	provider->xlate_extended = qcom_icc_xlate_extended;
- 	provider->data = data;
- 
--	ret = icc_provider_add(provider);
--	if (ret) {
--		dev_err(dev, "error adding interconnect provider: %d\n", ret);
--		clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
--		return ret;
--	}
-+	icc_provider_init(provider);
- 
- 	for (i = 0; i < num_nodes; i++) {
- 		size_t j;
-@@ -524,7 +518,7 @@ regmap_done:
- 		node = icc_node_create(qnodes[i]->id);
- 		if (IS_ERR(node)) {
- 			ret = PTR_ERR(node);
--			goto err;
-+			goto err_remove_nodes;
- 		}
- 
- 		node->name = qnodes[i]->name;
-@@ -538,20 +532,26 @@ regmap_done:
- 	}
- 	data->num_nodes = num_nodes;
- 
-+	ret = icc_provider_register(provider);
-+	if (ret)
-+		goto err_remove_nodes;
-+
- 	platform_set_drvdata(pdev, qp);
- 
- 	/* Populate child NoC devices if any */
- 	if (of_get_child_count(dev->of_node) > 0) {
- 		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
- 		if (ret)
--			goto err;
-+			goto err_deregister_provider;
- 	}
- 
- 	return 0;
--err:
-+
-+err_deregister_provider:
-+	icc_provider_deregister(provider);
-+err_remove_nodes:
- 	icc_nodes_remove(provider);
- 	clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
--	icc_provider_del(provider);
- 
- 	return ret;
- }
-@@ -561,9 +561,9 @@ int qnoc_remove(struct platform_device *
- {
- 	struct qcom_icc_provider *qp = platform_get_drvdata(pdev);
- 
-+	icc_provider_deregister(&qp->provider);
- 	icc_nodes_remove(&qp->provider);
- 	clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
--	icc_provider_del(&qp->provider);
- 
- 	return 0;
- }
++	arg.phy = phy;
+ 	init_completion(&arg.done);
+ 	cntx = phy->out_urb->context;
+ 	phy->out_urb->context = &arg;
+-- 
+2.39.2
+
 
 
