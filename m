@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC756C1811
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C226C18E4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232404AbjCTPUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
+        id S232930AbjCTP2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:28:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232445AbjCTPTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4AB2CFE9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:04 -0700 (PDT)
+        with ESMTP id S232931AbjCTP2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE123800A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A40DF615AF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AE4C4339B;
-        Mon, 20 Mar 2023 15:13:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 731C5B80EC0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6FD2C433EF;
+        Mon, 20 Mar 2023 15:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325208;
-        bh=r1HWeWs3tt9Qp8gcbLAB2F/pmP6xy0RSAWUsD8jirjM=;
+        s=korg; t=1679325674;
+        bh=PXp5j+ALokzbLKBLLigXN3I/5ANpeeJQCz0iKoZ58nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5OlCfnzfmPEoTDZ7EKEbPVx24kqQ/QMZlhL/smE6uDJXEl1V1eM8+7xHPa4+LWvV
-         RVuBAm672F7YrR3oy1tHdaXLGOG4lfzZCmKTQz20prIcvsXJeDYq8hX8/ipifgOkiM
-         +z2ZVFEiuOelja1IN50DA8+ci/Cx2y/ZQSlWudlg=
+        b=1ICeQMGxxUOBabwWNaCwmxs8ILYxkZKkydRKBxuRAMBDMIqmuGRBGbsv9vsqr5XV1
+         6rhwZ03dJUP9gedxqCcYluvRcEwUnQlKiwbV5+drXzwVLIYToI9aINoIyEOI7YD9vB
+         VKQvWk7g1fgNiGTTFI2H96GbAru7ckkNMO1LVBb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        Simon Horman <simon.horman@corigine.com>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 055/198] net: phy: smsc: bail out in lan87xx_read_status if genphy_read_status fails
+Subject: [PATCH 6.2 058/211] nfc: st-nci: Fix use after free bug in ndlc_remove due to race condition
 Date:   Mon, 20 Mar 2023 15:53:13 +0100
-Message-Id: <20230320145509.823389030@linuxfoundation.org>
+Message-Id: <20230320145515.662782580@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit c22c3bbf351e4ce905f082649cffa1ff893ea8c1 ]
+[ Upstream commit 5000fe6c27827a61d8250a7e4a1d26c3298ef4f6 ]
 
-If genphy_read_status fails then further access to the PHY may result
-in unpredictable behavior. To prevent this bail out immediately if
-genphy_read_status fails.
+This bug influences both st_nci_i2c_remove and st_nci_spi_remove.
+Take st_nci_i2c_remove as an example.
 
-Fixes: 4223dbffed9f ("net: phy: smsc: Re-enable EDPD mode for LAN87xx")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/026aa4f2-36f5-1c10-ab9f-cdb17dda6ac4@gmail.com
+In st_nci_i2c_probe, it called ndlc_probe and bound &ndlc->sm_work
+with llt_ndlc_sm_work.
+
+When it calls ndlc_recv or timeout handler, it will finally call
+schedule_work to start the work.
+
+When we call st_nci_i2c_remove to remove the driver, there
+may be a sequence as follows:
+
+Fix it by finishing the work before cleanup in ndlc_remove
+
+CPU0                  CPU1
+
+                    |llt_ndlc_sm_work
+st_nci_i2c_remove   |
+  ndlc_remove       |
+     st_nci_remove  |
+     nci_free_device|
+     kfree(ndev)    |
+//free ndlc->ndev   |
+                    |llt_ndlc_rcv_queue
+                    |nci_recv_frame
+                    |//use ndlc->ndev
+
+Fixes: 35630df68d60 ("NFC: st21nfcb: Add driver for STMicroelectronics ST21NFCB NFC chip")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230312160837.2040857-1-zyytlz.wz@163.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/smsc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nfc/st-nci/ndlc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
-index 00d9eff91dcfa..df2c5435c5c49 100644
---- a/drivers/net/phy/smsc.c
-+++ b/drivers/net/phy/smsc.c
-@@ -199,8 +199,11 @@ static int lan95xx_config_aneg_ext(struct phy_device *phydev)
- static int lan87xx_read_status(struct phy_device *phydev)
+diff --git a/drivers/nfc/st-nci/ndlc.c b/drivers/nfc/st-nci/ndlc.c
+index 755460a73c0dc..d2aa9f766738e 100644
+--- a/drivers/nfc/st-nci/ndlc.c
++++ b/drivers/nfc/st-nci/ndlc.c
+@@ -282,13 +282,15 @@ EXPORT_SYMBOL(ndlc_probe);
+ 
+ void ndlc_remove(struct llt_ndlc *ndlc)
  {
- 	struct smsc_phy_priv *priv = phydev->priv;
-+	int err;
+-	st_nci_remove(ndlc->ndev);
+-
+ 	/* cancel timers */
+ 	del_timer_sync(&ndlc->t1_timer);
+ 	del_timer_sync(&ndlc->t2_timer);
+ 	ndlc->t2_active = false;
+ 	ndlc->t1_active = false;
++	/* cancel work */
++	cancel_work_sync(&ndlc->sm_work);
++
++	st_nci_remove(ndlc->ndev);
  
--	int err = genphy_read_status(phydev);
-+	err = genphy_read_status(phydev);
-+	if (err)
-+		return err;
- 
- 	if (!phydev->link && priv->energy_enable && phydev->irq == PHY_POLL) {
- 		/* Disable EDPD to wake up PHY */
+ 	skb_queue_purge(&ndlc->rcv_q);
+ 	skb_queue_purge(&ndlc->send_q);
 -- 
 2.39.2
 
