@@ -2,49 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7916C19A9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1E86C19DC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233209AbjCTPge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:36:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
+        id S232966AbjCTPi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233205AbjCTPgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B661EBF5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:02 -0700 (PDT)
+        with ESMTP id S233197AbjCTPie (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9B432CFE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A33D614CA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F932C433D2;
-        Mon, 20 Mar 2023 15:27:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3E3615B5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E133C433EF;
+        Mon, 20 Mar 2023 15:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326079;
-        bh=lWW/VY38AlwU6YHPeRlP42qLae9QEwTaW8/ZpqJFjeA=;
+        s=korg; t=1679326208;
+        bh=62G/6AdynoJAd7w+6OeKg/KOrFMUmBDePttx/yDqOL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z9kGKaCL9JhQeyZXdr6ArhwxbVeS+57QWXF7E8dkpTvVkm9ezGqXn3FUZHAwlVIrt
-         pItAbe8FRiyKE/PyYvJzqAMPjfV8fRKVUlprZkTEDao3b7eVOC+VW6qqatxciS4/3K
-         M6P/+8QK4AZk1EfU1z0yRzm7s/nMhBhoqH46MU0I=
+        b=lKN/zR+brQ5bTvnNIiS6mFCsJ+8Sse2cVex2Q3pHJaxZd11RMrlKk1ngv56iwsbUq
+         L5Nc2P6U8aGPxTJCpI0yIpI/mIU0iVwpJNQwNMkARb3EXwSHYAYnKdzAL7atOWiNWR
+         uB1sL/+XryLI6i0alvBLYOfj3+nxx5fZinAGPXFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 6.1 196/198] virt/coco/sev-guest: Convert the sw_exit_info_2 checking to a switch-case
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.2 199/211] ASoC: Intel: soc-acpi: fix copy-paste issue in topology names
 Date:   Mon, 20 Mar 2023 15:55:34 +0100
-Message-Id: <20230320145515.684303331@linuxfoundation.org>
+Message-Id: <20230320145521.877033758@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,54 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit fa4ae42cc60a7dea30e8f2db444b808d80862345 upstream.
+commit 858a438a6cf919e5727d2a0f5f3f0e68b2d5354e upstream.
 
-snp_issue_guest_request() checks the value returned by the hypervisor in
-sw_exit_info_2 and returns a different error depending on it.
+For some reason the convention for topology names was not followed and
+the name inspired by another unrelated hardware configuration. As a
+result, the kernel will request a non-existent topology file.
 
-Convert those checks into a switch-case to make it more readable when
-more error values are going to be checked in the future.
-
-No functional changes.
-
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20230307192449.24732-8-bp@alien8.de
+Link: https://github.com/thesofproject/sof/pull/6878
+Fixes: 2ec8b081d59f ("ASoC: Intel: soc-acpi: Add entry for sof_es8336 in ADL match table")
+Cc: stable@vger.kernel.org
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230307100733.15025-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/sev.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ sound/soc/intel/common/soc-acpi-intel-adl-match.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -2210,15 +2210,21 @@ int snp_issue_guest_request(u64 exit_cod
- 		goto e_put;
- 
- 	*fw_err = ghcb->save.sw_exit_info_2;
--	if (ghcb->save.sw_exit_info_2) {
-+	switch (*fw_err) {
-+	case 0:
-+		break;
-+
-+	case SNP_GUEST_REQ_INVALID_LEN:
- 		/* Number of expected pages are returned in RBX */
--		if (exit_code == SVM_VMGEXIT_EXT_GUEST_REQUEST &&
--		    ghcb->save.sw_exit_info_2 == SNP_GUEST_REQ_INVALID_LEN) {
-+		if (exit_code == SVM_VMGEXIT_EXT_GUEST_REQUEST) {
- 			input->data_npages = ghcb_get_rbx(ghcb);
- 			ret = -ENOSPC;
--		} else {
--			ret = -EIO;
-+			break;
- 		}
-+		fallthrough;
-+	default:
-+		ret = -EIO;
-+		break;
- 	}
- 
- e_put:
+--- a/sound/soc/intel/common/soc-acpi-intel-adl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-adl-match.c
+@@ -559,7 +559,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_in
+ 	{
+ 		.comp_ids = &essx_83x6,
+ 		.drv_name = "sof-essx8336",
+-		.sof_tplg_filename = "sof-adl-es83x6", /* the tplg suffix is added at run time */
++		.sof_tplg_filename = "sof-adl-es8336", /* the tplg suffix is added at run time */
+ 		.tplg_quirk_mask = SND_SOC_ACPI_TPLG_INTEL_SSP_NUMBER |
+ 					SND_SOC_ACPI_TPLG_INTEL_SSP_MSB |
+ 					SND_SOC_ACPI_TPLG_INTEL_DMIC_NUMBER,
 
 
