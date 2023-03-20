@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCF56C1937
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A39986C1755
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232744AbjCTPbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49290 "EHLO
+        id S232444AbjCTPM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233051AbjCTPbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E20399F2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:58 -0700 (PDT)
+        with ESMTP id S232394AbjCTPMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12BE02ED6A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2854615A7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1213AC433D2;
-        Mon, 20 Mar 2023 15:23:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 968C36158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EB1C433EF;
+        Mon, 20 Mar 2023 15:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325830;
-        bh=6BjCbJe3yeBFWIjm8HU9/LEHEJ3td8ALArsN78304o8=;
+        s=korg; t=1679324846;
+        bh=JUakg0GGiuLui7gLYUwgVh68GLOX17A89OvQbCKRmb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObQGrpqsFdWrrFD8ruNeMyes/R+WARkT1gx0oRmKE+N39YJMFPAHebeZgqSJMbXO6
-         iG4ZXv0mmoXWeBumjrZZALq4gvfi640oH3nIA8lnY/9yyyBgeM/8xn8GVunSx4FgDV
-         sZtsapasYOOgyGM4EdP1i7FtZJ+WmgZcgwkncvgQ=
+        b=MFQIz/SlfvDtGSlR9KjuDjYxdj4Z4E1MaLd2R8gSLf6g0ZDn56m5e3Svtob4zEku/
+         69jKVqi3cEMgSl9ubfF0j9Va1KRu5NlqtbXQNG4LMTL5OgDWWo3iZ5dKmDR2DesUDb
+         eewhBRyUsPYe2xaN+ZHDw092ps2O7fBHzx5jkzhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 108/211] ext4: update s_journal_inum if it changes after journal replay
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 031/115] net: tunnels: annotate lockless accesses to dev->needed_headroom
 Date:   Mon, 20 Mar 2023 15:54:03 +0100
-Message-Id: <20230320145517.808934590@linuxfoundation.org>
+Message-Id: <20230320145450.748567914@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,47 +54,250 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3039d8b8692408438a618fac2776b629852663c3 ]
+[ Upstream commit 4b397c06cb987935b1b097336532aa6b4210e091 ]
 
-When mounting a crafted ext4 image, s_journal_inum may change after journal
-replay, which is obviously unreasonable because we have successfully loaded
-and replayed the journal through the old s_journal_inum. And the new
-s_journal_inum bypasses some of the checks in ext4_get_journal(), which
-may trigger a null pointer dereference problem. So if s_journal_inum
-changes after the journal replay, we ignore the change, and rewrite the
-current journal_inum to the superblock.
+IP tunnels can apparently update dev->needed_headroom
+in their xmit path.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216541
-Reported-by: Luís Henriques <lhenriques@suse.de>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230107032126.4165860-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This patch takes care of three tunnels xmit, and also the
+core LL_RESERVED_SPACE() and LL_RESERVED_SPACE_EXTRA()
+helpers.
+
+More changes might be needed for completeness.
+
+BUG: KCSAN: data-race in ip_tunnel_xmit / ip_tunnel_xmit
+
+read to 0xffff88815b9da0ec of 2 bytes by task 888 on cpu 1:
+ip_tunnel_xmit+0x1270/0x1730 net/ipv4/ip_tunnel.c:803
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip_finish_output2+0x740/0x840 net/ipv4/ip_output.c:228
+ip_finish_output+0xf4/0x240 net/ipv4/ip_output.c:316
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip_output+0xe5/0x1b0 net/ipv4/ip_output.c:430
+dst_output include/net/dst.h:444 [inline]
+ip_local_out+0x64/0x80 net/ipv4/ip_output.c:126
+iptunnel_xmit+0x34a/0x4b0 net/ipv4/ip_tunnel_core.c:82
+ip_tunnel_xmit+0x1451/0x1730 net/ipv4/ip_tunnel.c:813
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip_finish_output2+0x740/0x840 net/ipv4/ip_output.c:228
+ip_finish_output+0xf4/0x240 net/ipv4/ip_output.c:316
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip_output+0xe5/0x1b0 net/ipv4/ip_output.c:430
+dst_output include/net/dst.h:444 [inline]
+ip_local_out+0x64/0x80 net/ipv4/ip_output.c:126
+iptunnel_xmit+0x34a/0x4b0 net/ipv4/ip_tunnel_core.c:82
+ip_tunnel_xmit+0x1451/0x1730 net/ipv4/ip_tunnel.c:813
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip_finish_output2+0x740/0x840 net/ipv4/ip_output.c:228
+ip_finish_output+0xf4/0x240 net/ipv4/ip_output.c:316
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip_output+0xe5/0x1b0 net/ipv4/ip_output.c:430
+dst_output include/net/dst.h:444 [inline]
+ip_local_out+0x64/0x80 net/ipv4/ip_output.c:126
+iptunnel_xmit+0x34a/0x4b0 net/ipv4/ip_tunnel_core.c:82
+ip_tunnel_xmit+0x1451/0x1730 net/ipv4/ip_tunnel.c:813
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip_finish_output2+0x740/0x840 net/ipv4/ip_output.c:228
+ip_finish_output+0xf4/0x240 net/ipv4/ip_output.c:316
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip_output+0xe5/0x1b0 net/ipv4/ip_output.c:430
+dst_output include/net/dst.h:444 [inline]
+ip_local_out+0x64/0x80 net/ipv4/ip_output.c:126
+iptunnel_xmit+0x34a/0x4b0 net/ipv4/ip_tunnel_core.c:82
+ip_tunnel_xmit+0x1451/0x1730 net/ipv4/ip_tunnel.c:813
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip_finish_output2+0x740/0x840 net/ipv4/ip_output.c:228
+ip_finish_output+0xf4/0x240 net/ipv4/ip_output.c:316
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip_output+0xe5/0x1b0 net/ipv4/ip_output.c:430
+dst_output include/net/dst.h:444 [inline]
+ip_local_out+0x64/0x80 net/ipv4/ip_output.c:126
+iptunnel_xmit+0x34a/0x4b0 net/ipv4/ip_tunnel_core.c:82
+ip_tunnel_xmit+0x1451/0x1730 net/ipv4/ip_tunnel.c:813
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip_finish_output2+0x740/0x840 net/ipv4/ip_output.c:228
+ip_finish_output+0xf4/0x240 net/ipv4/ip_output.c:316
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip_output+0xe5/0x1b0 net/ipv4/ip_output.c:430
+dst_output include/net/dst.h:444 [inline]
+ip_local_out+0x64/0x80 net/ipv4/ip_output.c:126
+iptunnel_xmit+0x34a/0x4b0 net/ipv4/ip_tunnel_core.c:82
+ip_tunnel_xmit+0x1451/0x1730 net/ipv4/ip_tunnel.c:813
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+
+write to 0xffff88815b9da0ec of 2 bytes by task 2379 on cpu 0:
+ip_tunnel_xmit+0x1294/0x1730 net/ipv4/ip_tunnel.c:804
+__gre_xmit net/ipv4/ip_gre.c:469 [inline]
+ipgre_xmit+0x516/0x570 net/ipv4/ip_gre.c:661
+__netdev_start_xmit include/linux/netdevice.h:4881 [inline]
+netdev_start_xmit include/linux/netdevice.h:4895 [inline]
+xmit_one net/core/dev.c:3580 [inline]
+dev_hard_start_xmit+0x127/0x400 net/core/dev.c:3596
+__dev_queue_xmit+0x1007/0x1eb0 net/core/dev.c:4246
+dev_queue_xmit include/linux/netdevice.h:3051 [inline]
+neigh_direct_output+0x17/0x20 net/core/neighbour.c:1623
+neigh_output include/net/neighbour.h:546 [inline]
+ip6_finish_output2+0x9bc/0xc50 net/ipv6/ip6_output.c:134
+__ip6_finish_output net/ipv6/ip6_output.c:195 [inline]
+ip6_finish_output+0x39a/0x4e0 net/ipv6/ip6_output.c:206
+NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ip6_output+0xeb/0x220 net/ipv6/ip6_output.c:227
+dst_output include/net/dst.h:444 [inline]
+NF_HOOK include/linux/netfilter.h:302 [inline]
+mld_sendpack+0x438/0x6a0 net/ipv6/mcast.c:1820
+mld_send_cr net/ipv6/mcast.c:2121 [inline]
+mld_ifc_work+0x519/0x7b0 net/ipv6/mcast.c:2653
+process_one_work+0x3e6/0x750 kernel/workqueue.c:2390
+worker_thread+0x5f2/0xa10 kernel/workqueue.c:2537
+kthread+0x1ac/0x1e0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
+
+value changed: 0x0dd4 -> 0x0e14
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 2379 Comm: kworker/0:0 Not tainted 6.3.0-rc1-syzkaller-00002-g8ca09d5fa354-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/02/2023
+Workqueue: mld mld_ifc_work
+
+Fixes: 8eb30be0352d ("ipv6: Create ip6_tnl_xmit")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230310191109.2384387-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ include/linux/netdevice.h |  6 ++++--
+ net/ipv4/ip_tunnel.c      | 12 ++++++------
+ net/ipv6/ip6_tunnel.c     |  4 ++--
+ 3 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index c81fa0fa9901a..e79ca9ef98316 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5967,8 +5967,11 @@ static int ext4_load_journal(struct super_block *sb,
- 	if (!really_read_only && journal_devnum &&
- 	    journal_devnum != le32_to_cpu(es->s_journal_dev)) {
- 		es->s_journal_dev = cpu_to_le32(journal_devnum);
--
--		/* Make sure we flush the recovery flag to disk. */
-+		ext4_commit_super(sb);
-+	}
-+	if (!really_read_only && journal_inum &&
-+	    journal_inum != le32_to_cpu(es->s_journal_inum)) {
-+		es->s_journal_inum = cpu_to_le32(journal_inum);
- 		ext4_commit_super(sb);
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 3a75d644a1204..5b6c38f748076 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -275,9 +275,11 @@ struct hh_cache {
+  * relationship HH alignment <= LL alignment.
+  */
+ #define LL_RESERVED_SPACE(dev) \
+-	((((dev)->hard_header_len+(dev)->needed_headroom)&~(HH_DATA_MOD - 1)) + HH_DATA_MOD)
++	((((dev)->hard_header_len + READ_ONCE((dev)->needed_headroom)) \
++	  & ~(HH_DATA_MOD - 1)) + HH_DATA_MOD)
+ #define LL_RESERVED_SPACE_EXTRA(dev,extra) \
+-	((((dev)->hard_header_len+(dev)->needed_headroom+(extra))&~(HH_DATA_MOD - 1)) + HH_DATA_MOD)
++	((((dev)->hard_header_len + READ_ONCE((dev)->needed_headroom) + (extra)) \
++	  & ~(HH_DATA_MOD - 1)) + HH_DATA_MOD)
+ 
+ struct header_ops {
+ 	int	(*create) (struct sk_buff *skb, struct net_device *dev,
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index fe9101d3d69e0..426dc910aaf87 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -613,10 +613,10 @@ void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
  	}
  
+ 	headroom += LL_RESERVED_SPACE(rt->dst.dev) + rt->dst.header_len;
+-	if (headroom > dev->needed_headroom)
+-		dev->needed_headroom = headroom;
++	if (headroom > READ_ONCE(dev->needed_headroom))
++		WRITE_ONCE(dev->needed_headroom, headroom);
+ 
+-	if (skb_cow_head(skb, dev->needed_headroom)) {
++	if (skb_cow_head(skb, READ_ONCE(dev->needed_headroom))) {
+ 		ip_rt_put(rt);
+ 		goto tx_dropped;
+ 	}
+@@ -797,10 +797,10 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 
+ 	max_headroom = LL_RESERVED_SPACE(rt->dst.dev) + sizeof(struct iphdr)
+ 			+ rt->dst.header_len + ip_encap_hlen(&tunnel->encap);
+-	if (max_headroom > dev->needed_headroom)
+-		dev->needed_headroom = max_headroom;
++	if (max_headroom > READ_ONCE(dev->needed_headroom))
++		WRITE_ONCE(dev->needed_headroom, max_headroom);
+ 
+-	if (skb_cow_head(skb, dev->needed_headroom)) {
++	if (skb_cow_head(skb, READ_ONCE(dev->needed_headroom))) {
+ 		ip_rt_put(rt);
+ 		dev->stats.tx_dropped++;
+ 		kfree_skb(skb);
+diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
+index ea50779428711..bc5d3188454d0 100644
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -1237,8 +1237,8 @@ int ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev, __u8 dsfield,
+ 	 */
+ 	max_headroom = LL_RESERVED_SPACE(dst->dev) + sizeof(struct ipv6hdr)
+ 			+ dst->header_len + t->hlen;
+-	if (max_headroom > dev->needed_headroom)
+-		dev->needed_headroom = max_headroom;
++	if (max_headroom > READ_ONCE(dev->needed_headroom))
++		WRITE_ONCE(dev->needed_headroom, max_headroom);
+ 
+ 	err = ip6_tnl_encap(skb, t, &proto, fl6);
+ 	if (err)
 -- 
 2.39.2
 
