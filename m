@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBABA6C1805
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1B16C180B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232317AbjCTPTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55402 "EHLO
+        id S232589AbjCTPTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232602AbjCTPTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:16 -0400
+        with ESMTP id S232596AbjCTPT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41F1E2724
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991BB25E12
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21B66615AB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF33C433D2;
-        Mon, 20 Mar 2023 15:13:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41A02615B0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 523F7C433EF;
+        Mon, 20 Mar 2023 15:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325224;
-        bh=PXp5j+ALokzbLKBLLigXN3I/5ANpeeJQCz0iKoZ58nQ=;
+        s=korg; t=1679325232;
+        bh=jh2dfid1ONh5OaZ03G+ZERFLYYsNXqd9iPxgNYkofz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s509FFfiiDweQ3fpPLIDG6HMbXLGovWpUt2/B/DmuPcCoYmpK/HyXDHjYF2QTjqsY
-         RMZk6I2B2IjdP2OfvA9yZBlTsCLV4SGOArBEW8tbPsyXvp+8zamVlKB9bFDiIOB3LH
-         x8r8i6rKvo2huvEAjU40sElyovtWCWTofkzdDA8U=
+        b=aRBjVQ9LLPKjaaJMa/5JmnfA61ZU5WaKAmpvToyEUbS2v6v3GpISEFaVsHvxIrRp4
+         A1YUHJjYyPku3tJqX74+JbWdzeycl2NXpUVNe9FhQqNyi462tWg6Q7cNG1BZQ1G19+
+         un0QfveV4DW3lOT7mkjkv4sQfYcbf0fkiyi+vzrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 057/198] nfc: st-nci: Fix use after free bug in ndlc_remove due to race condition
-Date:   Mon, 20 Mar 2023 15:53:15 +0100
-Message-Id: <20230320145509.911823241@linuxfoundation.org>
+Subject: [PATCH 6.1 058/198] mlxsw: spectrum: Fix incorrect parsing depth after reload
+Date:   Mon, 20 Mar 2023 15:53:16 +0100
+Message-Id: <20230320145509.959668473@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
 References: <20230320145507.420176832@linuxfoundation.org>
@@ -54,69 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 5000fe6c27827a61d8250a7e4a1d26c3298ef4f6 ]
+[ Upstream commit 35c356924fe3669dfbb1185607ce3b37f70bfa80 ]
 
-This bug influences both st_nci_i2c_remove and st_nci_spi_remove.
-Take st_nci_i2c_remove as an example.
+Spectrum ASICs have a configurable limit on how deep into the packet
+they parse. By default, the limit is 96 bytes.
 
-In st_nci_i2c_probe, it called ndlc_probe and bound &ndlc->sm_work
-with llt_ndlc_sm_work.
+There are several cases where this parsing depth is not enough and there
+is a need to increase it. For example, timestamping of PTP packets and a
+FIB multipath hash policy that requires hashing on inner fields. The
+driver therefore maintains a reference count that reflects the number of
+consumers that require an increased parsing depth.
 
-When it calls ndlc_recv or timeout handler, it will finally call
-schedule_work to start the work.
+During reload_down() the parsing depth reference count does not
+necessarily drop to zero, but the parsing depth itself is restored to
+the default during reload_up() when the firmware is reset. It is
+therefore possible to end up in situations where the driver thinks that
+the parsing depth was increased (reference count is non-zero), when it
+is not.
 
-When we call st_nci_i2c_remove to remove the driver, there
-may be a sequence as follows:
+Fix by making sure that all the consumers that increase the parsing
+depth reference count also decrease it during reload_down().
+Specifically, make sure that when the routing code is de-initialized it
+drops the reference count if it was increased because of a FIB multipath
+hash policy that requires hashing on inner fields.
 
-Fix it by finishing the work before cleanup in ndlc_remove
+Add a warning if the reference count is not zero after the driver was
+de-initialized and explicitly reset it to zero during initialization for
+good measures.
 
-CPU0                  CPU1
-
-                    |llt_ndlc_sm_work
-st_nci_i2c_remove   |
-  ndlc_remove       |
-     st_nci_remove  |
-     nci_free_device|
-     kfree(ndev)    |
-//free ndlc->ndev   |
-                    |llt_ndlc_rcv_queue
-                    |nci_recv_frame
-                    |//use ndlc->ndev
-
-Fixes: 35630df68d60 ("NFC: st21nfcb: Add driver for STMicroelectronics ST21NFCB NFC chip")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230312160837.2040857-1-zyytlz.wz@163.com
+Fixes: 2d91f0803b84 ("mlxsw: spectrum: Add infrastructure for parsing configuration")
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/9c35e1b3e6c1d8f319a2449d14e2b86373f3b3ba.1678727526.git.petrm@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/ndlc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c     |  2 ++
+ .../net/ethernet/mellanox/mlxsw/spectrum_router.c  | 14 ++++++++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/drivers/nfc/st-nci/ndlc.c b/drivers/nfc/st-nci/ndlc.c
-index 755460a73c0dc..d2aa9f766738e 100644
---- a/drivers/nfc/st-nci/ndlc.c
-+++ b/drivers/nfc/st-nci/ndlc.c
-@@ -282,13 +282,15 @@ EXPORT_SYMBOL(ndlc_probe);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index 5bcf5bceff710..67ecdb9e708f9 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -2931,6 +2931,7 @@ static int mlxsw_sp_netdevice_event(struct notifier_block *unused,
  
- void ndlc_remove(struct llt_ndlc *ndlc)
+ static void mlxsw_sp_parsing_init(struct mlxsw_sp *mlxsw_sp)
  {
--	st_nci_remove(ndlc->ndev);
--
- 	/* cancel timers */
- 	del_timer_sync(&ndlc->t1_timer);
- 	del_timer_sync(&ndlc->t2_timer);
- 	ndlc->t2_active = false;
- 	ndlc->t1_active = false;
-+	/* cancel work */
-+	cancel_work_sync(&ndlc->sm_work);
-+
-+	st_nci_remove(ndlc->ndev);
++	refcount_set(&mlxsw_sp->parsing.parsing_depth_ref, 0);
+ 	mlxsw_sp->parsing.parsing_depth = MLXSW_SP_DEFAULT_PARSING_DEPTH;
+ 	mlxsw_sp->parsing.vxlan_udp_dport = MLXSW_SP_DEFAULT_VXLAN_UDP_DPORT;
+ 	mutex_init(&mlxsw_sp->parsing.lock);
+@@ -2939,6 +2940,7 @@ static void mlxsw_sp_parsing_init(struct mlxsw_sp *mlxsw_sp)
+ static void mlxsw_sp_parsing_fini(struct mlxsw_sp *mlxsw_sp)
+ {
+ 	mutex_destroy(&mlxsw_sp->parsing.lock);
++	WARN_ON_ONCE(refcount_read(&mlxsw_sp->parsing.parsing_depth_ref));
+ }
  
- 	skb_queue_purge(&ndlc->rcv_q);
- 	skb_queue_purge(&ndlc->send_q);
+ struct mlxsw_sp_ipv6_addr_node {
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+index 48f1fa62a4fd4..ab0aa1a61d4aa 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -10313,11 +10313,23 @@ static int mlxsw_sp_mp_hash_init(struct mlxsw_sp *mlxsw_sp)
+ 					      old_inc_parsing_depth);
+ 	return err;
+ }
++
++static void mlxsw_sp_mp_hash_fini(struct mlxsw_sp *mlxsw_sp)
++{
++	bool old_inc_parsing_depth = mlxsw_sp->router->inc_parsing_depth;
++
++	mlxsw_sp_mp_hash_parsing_depth_adjust(mlxsw_sp, old_inc_parsing_depth,
++					      false);
++}
+ #else
+ static int mlxsw_sp_mp_hash_init(struct mlxsw_sp *mlxsw_sp)
+ {
+ 	return 0;
+ }
++
++static void mlxsw_sp_mp_hash_fini(struct mlxsw_sp *mlxsw_sp)
++{
++}
+ #endif
+ 
+ static int mlxsw_sp_dscp_init(struct mlxsw_sp *mlxsw_sp)
+@@ -10547,6 +10559,7 @@ int mlxsw_sp_router_init(struct mlxsw_sp *mlxsw_sp,
+ err_register_inetaddr_notifier:
+ 	mlxsw_core_flush_owq();
+ err_dscp_init:
++	mlxsw_sp_mp_hash_fini(mlxsw_sp);
+ err_mp_hash_init:
+ 	mlxsw_sp_neigh_fini(mlxsw_sp);
+ err_neigh_init:
+@@ -10587,6 +10600,7 @@ void mlxsw_sp_router_fini(struct mlxsw_sp *mlxsw_sp)
+ 	unregister_inet6addr_notifier(&mlxsw_sp->router->inet6addr_nb);
+ 	unregister_inetaddr_notifier(&mlxsw_sp->router->inetaddr_nb);
+ 	mlxsw_core_flush_owq();
++	mlxsw_sp_mp_hash_fini(mlxsw_sp);
+ 	mlxsw_sp_neigh_fini(mlxsw_sp);
+ 	mlxsw_sp_lb_rif_fini(mlxsw_sp);
+ 	mlxsw_sp_vrs_fini(mlxsw_sp);
 -- 
 2.39.2
 
