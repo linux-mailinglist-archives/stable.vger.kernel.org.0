@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C75E56C18F0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DCE96C1812
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbjCTP3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:29:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49094 "EHLO
+        id S232440AbjCTPUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232876AbjCTP2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:36 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB189CDF4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:39 -0700 (PDT)
+        with ESMTP id S232654AbjCTPTi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F83428231
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A9008CE12DA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B2DC4339B;
-        Mon, 20 Mar 2023 15:21:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5CBD6157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E679CC433A0;
+        Mon, 20 Mar 2023 15:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325696;
-        bh=RccOOqwkunwDRR3DGr9OHobdgCPvs3w8Vw0P7Ep71rc=;
+        s=korg; t=1679325216;
+        bh=BMLcc+mUHeTIoO5u5A7EYOK8rN40SjGFz855VtVqF6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwAcKRLp2IleKcx/aA1jzsqGAjhpQsbPUfYi5/WbgMkW7e4UEYuqsvyqlG0qVqfXu
-         qQfvoITP3Bm/ARjmO9C5YgsSnojgwsmZBBzLixU4HguDcTpfhhwDOoJR5yApsd2E3c
-         PpiKpTnb9Ffwc8UkxKdESKxd4kCN9WTkE6f65MMI=
+        b=ob6cWxezep5oQdpysGvTWo7o1ShJyOsR7CYVjAtdmYxYYiEbn/zlWoWUXV9/+F6/k
+         KL9QKQOBB2r0UIEjjyAbOGH4rgSZvFoNTnq+PwX7TQOVfwUHvpGUEjEAY1gUPy4im7
+         e9GkrvqZJDFjslpuSs/6HNQxzb3RuAOE/A4LXxcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paul Holzinger <pholzing@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 059/211] mlxsw: spectrum: Fix incorrect parsing depth after reload
+Subject: [PATCH 6.1 056/198] tcp: Fix bind() conflict check for dual-stack wildcard address.
 Date:   Mon, 20 Mar 2023 15:53:14 +0100
-Message-Id: <20230320145515.707530547@linuxfoundation.org>
+Message-Id: <20230320145509.871432969@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,112 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 35c356924fe3669dfbb1185607ce3b37f70bfa80 ]
+[ Upstream commit d9ba9934285514f1f95d96326a82398a22dc77f2 ]
 
-Spectrum ASICs have a configurable limit on how deep into the packet
-they parse. By default, the limit is 96 bytes.
+Paul Holzinger reported [0] that commit 5456262d2baa ("net: Fix
+incorrect address comparison when searching for a bind2 bucket")
+introduced a bind() regression.  Paul also gave a nice repro that
+calls two types of bind() on the same port, both of which now
+succeed, but the second call should fail:
 
-There are several cases where this parsing depth is not enough and there
-is a need to increase it. For example, timestamping of PTP packets and a
-FIB multipath hash policy that requires hashing on inner fields. The
-driver therefore maintains a reference count that reflects the number of
-consumers that require an increased parsing depth.
+  bind(fd1, ::, port) + bind(fd2, 127.0.0.1, port)
 
-During reload_down() the parsing depth reference count does not
-necessarily drop to zero, but the parsing depth itself is restored to
-the default during reload_up() when the firmware is reset. It is
-therefore possible to end up in situations where the driver thinks that
-the parsing depth was increased (reference count is non-zero), when it
-is not.
+The cited commit added address family tests in three functions to
+fix the uninit-value KMSAN report. [1]  However, the test added to
+inet_bind2_bucket_match_addr_any() removed a necessary conflict
+check; the dual-stack wildcard address no longer conflicts with
+an IPv4 non-wildcard address.
 
-Fix by making sure that all the consumers that increase the parsing
-depth reference count also decrease it during reload_down().
-Specifically, make sure that when the routing code is de-initialized it
-drops the reference count if it was increased because of a FIB multipath
-hash policy that requires hashing on inner fields.
+If tb->family is AF_INET6 and sk->sk_family is AF_INET in
+inet_bind2_bucket_match_addr_any(), we still need to check
+if tb has the dual-stack wildcard address.
 
-Add a warning if the reference count is not zero after the driver was
-de-initialized and explicitly reset it to zero during initialization for
-good measures.
+Note that the IPv4 wildcard address does not conflict with
+IPv6 non-wildcard addresses.
 
-Fixes: 2d91f0803b84 ("mlxsw: spectrum: Add infrastructure for parsing configuration")
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/9c35e1b3e6c1d8f319a2449d14e2b86373f3b3ba.1678727526.git.petrm@nvidia.com
+[0]: https://lore.kernel.org/netdev/e21bf153-80b0-9ec0-15ba-e04a4ad42c34@redhat.com/
+[1]: https://lore.kernel.org/netdev/CAG_fn=Ud3zSW7AZWXc+asfMhZVL5ETnvuY44Pmyv4NPv-ijN-A@mail.gmail.com/
+
+Fixes: 5456262d2baa ("net: Fix incorrect address comparison when searching for a bind2 bucket")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reported-by: Paul Holzinger <pholzing@redhat.com>
+Link: https://lore.kernel.org/netdev/CAG_fn=Ud3zSW7AZWXc+asfMhZVL5ETnvuY44Pmyv4NPv-ijN-A@mail.gmail.com/
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Tested-by: Paul Holzinger <pholzing@redhat.com>
+Reviewed-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c     |  2 ++
- .../net/ethernet/mellanox/mlxsw/spectrum_router.c  | 14 ++++++++++++++
- 2 files changed, 16 insertions(+)
+ net/ipv4/inet_hashtables.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index f5b2d965d476d..12540feb45088 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -2937,6 +2937,7 @@ static int mlxsw_sp_netdevice_event(struct notifier_block *unused,
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index cd8b2f7a8f341..f0750c06d5ffc 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -828,8 +828,14 @@ bool inet_bind2_bucket_match_addr_any(const struct inet_bind2_bucket *tb, const
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	struct in6_addr addr_any = {};
  
- static void mlxsw_sp_parsing_init(struct mlxsw_sp *mlxsw_sp)
- {
-+	refcount_set(&mlxsw_sp->parsing.parsing_depth_ref, 0);
- 	mlxsw_sp->parsing.parsing_depth = MLXSW_SP_DEFAULT_PARSING_DEPTH;
- 	mlxsw_sp->parsing.vxlan_udp_dport = MLXSW_SP_DEFAULT_VXLAN_UDP_DPORT;
- 	mutex_init(&mlxsw_sp->parsing.lock);
-@@ -2945,6 +2946,7 @@ static void mlxsw_sp_parsing_init(struct mlxsw_sp *mlxsw_sp)
- static void mlxsw_sp_parsing_fini(struct mlxsw_sp *mlxsw_sp)
- {
- 	mutex_destroy(&mlxsw_sp->parsing.lock);
-+	WARN_ON_ONCE(refcount_read(&mlxsw_sp->parsing.parsing_depth_ref));
- }
+-	if (sk->sk_family != tb->family)
++	if (sk->sk_family != tb->family) {
++		if (sk->sk_family == AF_INET)
++			return net_eq(ib2_net(tb), net) && tb->port == port &&
++				tb->l3mdev == l3mdev &&
++				ipv6_addr_equal(&tb->v6_rcv_saddr, &addr_any);
++
+ 		return false;
++	}
  
- struct mlxsw_sp_ipv6_addr_node {
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-index 09e32778b012d..4a73e2fe95ef9 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -10381,11 +10381,23 @@ static int mlxsw_sp_mp_hash_init(struct mlxsw_sp *mlxsw_sp)
- 					      old_inc_parsing_depth);
- 	return err;
- }
-+
-+static void mlxsw_sp_mp_hash_fini(struct mlxsw_sp *mlxsw_sp)
-+{
-+	bool old_inc_parsing_depth = mlxsw_sp->router->inc_parsing_depth;
-+
-+	mlxsw_sp_mp_hash_parsing_depth_adjust(mlxsw_sp, old_inc_parsing_depth,
-+					      false);
-+}
- #else
- static int mlxsw_sp_mp_hash_init(struct mlxsw_sp *mlxsw_sp)
- {
- 	return 0;
- }
-+
-+static void mlxsw_sp_mp_hash_fini(struct mlxsw_sp *mlxsw_sp)
-+{
-+}
- #endif
- 
- static int mlxsw_sp_dscp_init(struct mlxsw_sp *mlxsw_sp)
-@@ -10615,6 +10627,7 @@ int mlxsw_sp_router_init(struct mlxsw_sp *mlxsw_sp,
- err_register_inetaddr_notifier:
- 	mlxsw_core_flush_owq();
- err_dscp_init:
-+	mlxsw_sp_mp_hash_fini(mlxsw_sp);
- err_mp_hash_init:
- 	mlxsw_sp_neigh_fini(mlxsw_sp);
- err_neigh_init:
-@@ -10655,6 +10668,7 @@ void mlxsw_sp_router_fini(struct mlxsw_sp *mlxsw_sp)
- 	unregister_inet6addr_notifier(&mlxsw_sp->router->inet6addr_nb);
- 	unregister_inetaddr_notifier(&mlxsw_sp->router->inetaddr_nb);
- 	mlxsw_core_flush_owq();
-+	mlxsw_sp_mp_hash_fini(mlxsw_sp);
- 	mlxsw_sp_neigh_fini(mlxsw_sp);
- 	mlxsw_sp_lb_rif_fini(mlxsw_sp);
- 	mlxsw_sp_vrs_fini(mlxsw_sp);
+ 	if (sk->sk_family == AF_INET6)
+ 		return net_eq(ib2_net(tb), net) && tb->port == port &&
 -- 
 2.39.2
 
