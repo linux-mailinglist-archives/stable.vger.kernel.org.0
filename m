@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B605C6C1915
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB78A6C1995
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbjCTPaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:30:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S233040AbjCTPfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:35:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233050AbjCTP35 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:29:57 -0400
+        with ESMTP id S233193AbjCTPet (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:34:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F168C303D8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5220836FE8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D7BAB80EC4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEA89C433EF;
-        Mon, 20 Mar 2023 15:22:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47046B80EC8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0255C433EF;
+        Mon, 20 Mar 2023 15:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325759;
-        bh=op+ATlGITwr+eaPzzd4SHgYZEGMEJafQ3vBMJ5bUrSM=;
+        s=korg; t=1679326047;
+        bh=XXgsjh20dOOAVU9aBn8zTTQ9u5yTkBonbr3FD3pyifw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wijXPgWqXoMiosN9GhPP7Hb3F3EPGnGxmJGbyMS8rzhgk0rzhwaIcGZBLOL2Et7qe
-         NpsTtqzGyHnRSFErtrx+YZgsBuJAOa+TPUg9U8gkEwkeNycyT0RaSmln4R7Roka97k
-         Fse0As3nSedPiNMro2tfhCp9u5eZ39xqK5HdTxgE=
+        b=QVOMPooO4qd7uYn1guvQr8qd/L5ykr6iIidZ58h/QDnR5Nj7ihl+QjhZptHOtnGKW
+         uR2WQhgFx8fkTEOfWN4KLF9b8T10/tmQ4QfLhWKNWtGSTkHGM1AbCL9yetu7Ale77M
+         HwKbFRQml+8gTv2HlTbUu7pbXsKsTmU2CRhsAmxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Masney <bmasney@redhat.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        patches@lists.linux.dev,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Johan Hovold <johan+linaro@kernel.org>,
         Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.1 138/198] interconnect: qcom: msm8974: fix registration race
+Subject: [PATCH 6.2 141/211] interconnect: exynos: fix registration race
 Date:   Mon, 20 Mar 2023 15:54:36 +0100
-Message-Id: <20230320145513.336441908@linuxfoundation.org>
+Message-Id: <20230320145519.339447976@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,90 +57,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan+linaro@kernel.org>
 
-commit bfe7bcd2b9f5215de2144f097f39971180e7ea54 upstream.
+commit c9e46ca612cfbb0cf890f7ae7389b742e90efe64 upstream.
 
 The current interconnect provider registration interface is inherently
 racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to fail.
+can specifically cause racing DT lookups to trigger a NULL-pointer
+deference when either a NULL pointer or not fully initialised node is
+returned from exynos_generic_icc_xlate().
 
 Switch to using the new API where the provider is not registered until
 after it has been fully initialised.
 
-Fixes: 4e60a9568dc6 ("interconnect: qcom: add msm8974 driver")
-Cc: stable@vger.kernel.org      # 5.5
-Reviewed-by: Brian Masney <bmasney@redhat.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Fixes: 2f95b9d5cf0b ("interconnect: Add generic interconnect driver for Exynos SoCs")
+Cc: stable@vger.kernel.org      # 5.11
+Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-12-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/20230306075651.2449-16-johan+linaro@kernel.org
 Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/qcom/msm8974.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/interconnect/samsung/exynos.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/drivers/interconnect/qcom/msm8974.c
-+++ b/drivers/interconnect/qcom/msm8974.c
-@@ -692,7 +692,6 @@ static int msm8974_icc_probe(struct plat
- 		return ret;
+--- a/drivers/interconnect/samsung/exynos.c
++++ b/drivers/interconnect/samsung/exynos.c
+@@ -98,12 +98,13 @@ static int exynos_generic_icc_remove(str
+ 	struct exynos_icc_priv *priv = platform_get_drvdata(pdev);
+ 	struct icc_node *parent_node, *node = priv->node;
  
- 	provider = &qp->provider;
--	INIT_LIST_HEAD(&provider->nodes);
- 	provider->dev = dev;
- 	provider->set = msm8974_icc_set;
- 	provider->aggregate = icc_std_aggregate;
-@@ -700,11 +699,7 @@ static int msm8974_icc_probe(struct plat
- 	provider->data = data;
- 	provider->get_bw = msm8974_get_bw;
- 
--	ret = icc_provider_add(provider);
--	if (ret) {
--		dev_err(dev, "error adding interconnect provider: %d\n", ret);
--		goto err_disable_clks;
--	}
-+	icc_provider_init(provider);
- 
- 	for (i = 0; i < num_nodes; i++) {
- 		size_t j;
-@@ -712,7 +707,7 @@ static int msm8974_icc_probe(struct plat
- 		node = icc_node_create(qnodes[i]->id);
- 		if (IS_ERR(node)) {
- 			ret = PTR_ERR(node);
--			goto err_del_icc;
-+			goto err_remove_nodes;
- 		}
- 
- 		node->name = qnodes[i]->name;
-@@ -729,15 +724,16 @@ static int msm8974_icc_probe(struct plat
- 	}
- 	data->num_nodes = num_nodes;
- 
-+	ret = icc_provider_register(provider);
-+	if (ret)
-+		goto err_remove_nodes;
++	icc_provider_deregister(&priv->provider);
 +
- 	platform_set_drvdata(pdev, qp);
+ 	parent_node = exynos_icc_get_parent(priv->dev->parent->of_node);
+ 	if (parent_node && !IS_ERR(parent_node))
+ 		icc_link_destroy(node, parent_node);
  
- 	return 0;
- 
--err_del_icc:
-+err_remove_nodes:
- 	icc_nodes_remove(provider);
--	icc_provider_del(provider);
--
--err_disable_clks:
- 	clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
- 
- 	return ret;
-@@ -747,9 +743,9 @@ static int msm8974_icc_remove(struct pla
- {
- 	struct msm8974_icc_provider *qp = platform_get_drvdata(pdev);
- 
-+	icc_provider_deregister(&qp->provider);
- 	icc_nodes_remove(&qp->provider);
- 	clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
--	icc_provider_del(&qp->provider);
+ 	icc_nodes_remove(&priv->provider);
+-	icc_provider_del(&priv->provider);
  
  	return 0;
  }
+@@ -132,15 +133,11 @@ static int exynos_generic_icc_probe(stru
+ 	provider->inter_set = true;
+ 	provider->data = priv;
+ 
+-	ret = icc_provider_add(provider);
+-	if (ret < 0)
+-		return ret;
++	icc_provider_init(provider);
+ 
+ 	icc_node = icc_node_create(pdev->id);
+-	if (IS_ERR(icc_node)) {
+-		ret = PTR_ERR(icc_node);
+-		goto err_prov_del;
+-	}
++	if (IS_ERR(icc_node))
++		return PTR_ERR(icc_node);
+ 
+ 	priv->node = icc_node;
+ 	icc_node->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn",
+@@ -171,14 +168,17 @@ static int exynos_generic_icc_probe(stru
+ 			goto err_pmqos_del;
+ 	}
+ 
++	ret = icc_provider_register(provider);
++	if (ret < 0)
++		goto err_pmqos_del;
++
+ 	return 0;
+ 
+ err_pmqos_del:
+ 	dev_pm_qos_remove_request(&priv->qos_req);
+ err_node_del:
+ 	icc_nodes_remove(provider);
+-err_prov_del:
+-	icc_provider_del(provider);
++
+ 	return ret;
+ }
+ 
 
 
