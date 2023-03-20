@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44FD6C1798
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0071E6C1844
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232102AbjCTPPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:15:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42526 "EHLO
+        id S232692AbjCTPXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232360AbjCTPO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD87C126E8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:06 -0700 (PDT)
+        with ESMTP id S232734AbjCTPWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 367641FE1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61699615AA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71220C433A0;
-        Mon, 20 Mar 2023 15:10:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFCBCB80E95
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42079C433EF;
+        Mon, 20 Mar 2023 15:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325005;
-        bh=KybEv8xqTLeH2QWdnQbVpYQSe3+YI3q6mmf67zLEscQ=;
+        s=korg; t=1679325369;
+        bh=H96fpcwqJceqRaitYxcT5Jbq/71e4nWY0B1FohBm9rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUGD+gPOZNkTWYiduwZIy1UvjepPgTEyCL2Fsxhv79572vHbnHxwHS5JQ+V6tMAt4
-         Ev5BVvwIiSXj9b1NvviDRAB1P1pjzCfxZfQfE8IgUi16iV4KRtlSwbh5LLx7MZHr2z
-         si9Tg35uzIDXwZI1wlR8SpB0gr5coTkyk2yewAlo=
+        b=JHBFhwQRALh0Iki9zS3dZ3btl4YnKdQ+2rinkxMgJF7Ouslspht7jiCxFHODZVE+7
+         hALAlKqIyAhy2AK9ncW/8HUuIx2EJQh8r7pdG4Oq11Bn9owwzuxXzAS8J1M4HTaBto
+         Oy9o73G3hvSJNDqTdXeP1EwjMCs+rPXhe18qaPoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        Gregory Greenman <gregory.greenman@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 033/198] vdpa/mlx5: should not activate virtq object when suspended
+Subject: [PATCH 6.2 036/211] wifi: cfg80211: fix MLO connection ownership
 Date:   Mon, 20 Mar 2023 15:52:51 +0100
-Message-Id: <20230320145508.867430578@linuxfoundation.org>
+Message-Id: <20230320145514.756007627@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,81 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Si-Wei Liu <si-wei.liu@oracle.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 09e65ee9059d76b89cb713795748805efd3f50c6 ]
+[ Upstream commit 96c069508377547f913e7265a80fffe9355de592 ]
 
-Otherwise the virtqueue object to instate could point to invalid address
-that was unmapped from the MTT:
+When disconnecting from an MLO connection we need the AP
+MLD address, not an arbitrary BSSID. Fix the code to do
+that.
 
-  mlx5_core 0000:41:04.2: mlx5_cmd_out_err:782:(pid 8321):
-  CREATE_GENERAL_OBJECT(0xa00) op_mod(0xd) failed, status
-  bad parameter(0x3), syndrome (0x5fa1c), err(-22)
-
-Fixes: cae15c2ed8e6 ("vdpa/mlx5: Implement susupend virtqueue callback")
-Cc: Eli Cohen <elic@nvidia.com>
-Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-Reviewed-by: Eli Cohen <elic@nvidia.com>
-
-Message-Id: <1676424640-11673-1-git-send-email-si-wei.liu@oracle.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: 9ecff10e82a5 ("wifi: nl80211: refactor BSS lookup in nl80211_associate()")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Link: https://lore.kernel.org/r/20230301115906.4c1b3b18980e.I008f070c7f3b8e8bde9278101ef9e40706a82902@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/core/mlx5_vdpa.h | 1 +
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index 058fbe28107e9..25fc4120b618d 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -96,6 +96,7 @@ struct mlx5_vdpa_dev {
- 	struct mlx5_control_vq cvq;
- 	struct workqueue_struct *wq;
- 	unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
-+	bool suspended;
- };
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 326c6e50e9db5..e34491e63133d 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -10700,8 +10700,7 @@ static int nl80211_crypto_settings(struct cfg80211_registered_device *rdev,
  
- int mlx5_vdpa_alloc_pd(struct mlx5_vdpa_dev *dev, u32 *pdn, u16 uid);
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 3a6dbbc6440d4..daac3ab314785 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2411,7 +2411,7 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
- 	if (err)
- 		goto err_mr;
+ static struct cfg80211_bss *nl80211_assoc_bss(struct cfg80211_registered_device *rdev,
+ 					      const u8 *ssid, int ssid_len,
+-					      struct nlattr **attrs,
+-					      const u8 **bssid_out)
++					      struct nlattr **attrs)
+ {
+ 	struct ieee80211_channel *chan;
+ 	struct cfg80211_bss *bss;
+@@ -10728,7 +10727,6 @@ static struct cfg80211_bss *nl80211_assoc_bss(struct cfg80211_registered_device
+ 	if (!bss)
+ 		return ERR_PTR(-ENOENT);
  
--	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-+	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) || mvdev->suspended)
- 		goto err_mr;
- 
- 	restore_channels_info(ndev);
-@@ -2579,6 +2579,7 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
- 	clear_vqs_ready(ndev);
- 	mlx5_vdpa_destroy_mr(&ndev->mvdev);
- 	ndev->mvdev.status = 0;
-+	ndev->mvdev.suspended = false;
- 	ndev->cur_num_vqs = 0;
- 	ndev->mvdev.cvq.received_desc = 0;
- 	ndev->mvdev.cvq.completed_desc = 0;
-@@ -2815,6 +2816,8 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
- 	struct mlx5_vdpa_virtqueue *mvq;
- 	int i;
- 
-+	mlx5_vdpa_info(mvdev, "suspending device\n");
-+
- 	down_write(&ndev->reslock);
- 	ndev->nb_registered = false;
- 	mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
-@@ -2824,6 +2827,7 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
- 		suspend_vq(ndev, mvq);
- 	}
- 	mlx5_vdpa_cvq_suspend(mvdev);
-+	mvdev->suspended = true;
- 	up_write(&ndev->reslock);
- 	return 0;
+-	*bssid_out = bssid;
+ 	return bss;
  }
+ 
+@@ -10738,7 +10736,7 @@ static int nl80211_associate(struct sk_buff *skb, struct genl_info *info)
+ 	struct net_device *dev = info->user_ptr[1];
+ 	struct cfg80211_assoc_request req = {};
+ 	struct nlattr **attrs = NULL;
+-	const u8 *bssid, *ssid;
++	const u8 *ap_addr, *ssid;
+ 	unsigned int link_id;
+ 	int err, ssid_len;
+ 
+@@ -10875,6 +10873,7 @@ static int nl80211_associate(struct sk_buff *skb, struct genl_info *info)
+ 			return -EINVAL;
+ 
+ 		req.ap_mld_addr = nla_data(info->attrs[NL80211_ATTR_MLD_ADDR]);
++		ap_addr = req.ap_mld_addr;
+ 
+ 		attrs = kzalloc(attrsize, GFP_KERNEL);
+ 		if (!attrs)
+@@ -10900,8 +10899,7 @@ static int nl80211_associate(struct sk_buff *skb, struct genl_info *info)
+ 				goto free;
+ 			}
+ 			req.links[link_id].bss =
+-				nl80211_assoc_bss(rdev, ssid, ssid_len, attrs,
+-						  &bssid);
++				nl80211_assoc_bss(rdev, ssid, ssid_len, attrs);
+ 			if (IS_ERR(req.links[link_id].bss)) {
+ 				err = PTR_ERR(req.links[link_id].bss);
+ 				req.links[link_id].bss = NULL;
+@@ -10952,10 +10950,10 @@ static int nl80211_associate(struct sk_buff *skb, struct genl_info *info)
+ 		if (req.link_id >= 0)
+ 			return -EINVAL;
+ 
+-		req.bss = nl80211_assoc_bss(rdev, ssid, ssid_len, info->attrs,
+-					    &bssid);
++		req.bss = nl80211_assoc_bss(rdev, ssid, ssid_len, info->attrs);
+ 		if (IS_ERR(req.bss))
+ 			return PTR_ERR(req.bss);
++		ap_addr = req.bss->bssid;
+ 	}
+ 
+ 	err = nl80211_crypto_settings(rdev, info, &req.crypto, 1);
+@@ -10968,7 +10966,7 @@ static int nl80211_associate(struct sk_buff *skb, struct genl_info *info)
+ 			dev->ieee80211_ptr->conn_owner_nlportid =
+ 				info->snd_portid;
+ 			memcpy(dev->ieee80211_ptr->disconnect_bssid,
+-			       bssid, ETH_ALEN);
++			       ap_addr, ETH_ALEN);
+ 		}
+ 
+ 		wdev_unlock(dev->ieee80211_ptr);
 -- 
 2.39.2
 
