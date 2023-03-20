@@ -2,105 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 542E76C221E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F2B6C2241
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:09:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230495AbjCTUA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 16:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
+        id S229528AbjCTUJj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 16:09:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230415AbjCTUAu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:00:50 -0400
-Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E366025973;
-        Mon, 20 Mar 2023 13:00:36 -0700 (PDT)
-Received: by mail-qv1-xf30.google.com with SMTP id c26so2520477qvz.5;
-        Mon, 20 Mar 2023 13:00:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679342436;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Ncz9Qy4DSOSCtDPPMkaguFx8M2v82pbbx+KqBVH+Vb0=;
-        b=gAPOvuv09IB4axFEdbyMK3ydCNXCZXJtfNDpwG6dRc0HQr2dSuf305SgVyvjMnYc1R
-         YbaB8kQebWgxMOjcDa1aHm5yngb4QshND5iFZTzhsx9I3vxym2vxn3x9P75UQ7gTMlya
-         4y6ewvkqMy/pPKtgOhGEEV1S+BeNyEsle27jf76KrZyDV+4tfoX3jEIWtAP0LJHLbezh
-         jOnAArgxUw9M76LDMDHPuXtb12b8xK6jxb9lPxP6z9iZfTUyk+hUr9rM4mHwBGn1oQU5
-         KGN8BqEcoeFvdZR0rFG2TzTbvou6SPzgu3lkbb4NiXcF7z5s6TpUpP5tRAb82T6xhHae
-         t4lw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679342436;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ncz9Qy4DSOSCtDPPMkaguFx8M2v82pbbx+KqBVH+Vb0=;
-        b=oRMayfOpLBZBG6DooWeEnW/LQ/8dtdzQ9/lrIGzvtoyDtJIm4oGmMID268KgbRhbAh
-         00eAsgz5Rind2Tch0WPKSi0zL2nOxu/JkcXqA2x2UuwgAnZP8d6zQcNoQy3f8g0P06un
-         ZO2kSgpiZ/bGPNDTjdt/5t+Jm+LDVgda0XL4F5ZUrcUdEybKy3lTOVI9TUSlFnXU9hRW
-         HbggrXUVmDzyZKtNhMLI9BYGf41caPWAXqNEdyJ9iQSdBJaYCsLN90hIyLFOsYHbCImx
-         56q1v5ZXaUeftqXl+T4sMhKGyBmXFN71/cBm12a7f4eSqj6cZ6gv4/hnhvJXy2YG57mb
-         9t+Q==
-X-Gm-Message-State: AO0yUKVsEQUlVohjcB/FLtbZIZmdvvNPwQi5bmZZrVqyw++G7USv+oMh
-        ZAaKWBew6brLP2drbwQ7JOs=
-X-Google-Smtp-Source: AK7set8Q76Ke19mD1eHBAf6ZxetIGPmwhUCjXNxaGno2+4Ts2TcGIxYnSIxXmeU5A5fFxWpUoZSzVA==
-X-Received: by 2002:ad4:5bce:0:b0:5ab:c25f:9791 with SMTP id t14-20020ad45bce000000b005abc25f9791mr225772qvt.29.1679342435939;
-        Mon, 20 Mar 2023 13:00:35 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id bk12-20020a05620a1a0c00b0074357a6529asm7960294qkb.105.2023.03.20.13.00.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Mar 2023 13:00:35 -0700 (PDT)
-Message-ID: <f6679e32-3c77-dcfd-cf34-2b41a845d71c@gmail.com>
-Date:   Mon, 20 Mar 2023 13:00:27 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH 5.15 000/115] 5.15.104-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S229496AbjCTUJi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:09:38 -0400
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41AD29E07;
+        Mon, 20 Mar 2023 13:09:36 -0700 (PDT)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1peLoy-00081a-Cd; Mon, 20 Mar 2023 21:09:32 +0100
+Received: from p57bd9952.dip0.t-ipconnect.de ([87.189.153.82] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1peLoy-0034IP-3a; Mon, 20 Mar 2023 21:09:32 +0100
+Message-ID: <878d696a6f41e8179b023c114e33e414454afb6a.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH 7/7 v4] sh: mcount.S: fix build error when PRINTK is not
+ enabled
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc:     Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230320145449.336983711@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Date:   Mon, 20 Mar 2023 21:09:31 +0100
+In-Reply-To: <20230306040037.20350-8-rdunlap@infradead.org>
+References: <20230306040037.20350-1-rdunlap@infradead.org>
+         <20230306040037.20350-8-rdunlap@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.46.4 
+MIME-Version: 1.0
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 87.189.153.82
+X-ZEDAT-Hint: PO
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/20/23 07:53, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.104 release.
-> There are 115 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sun, 2023-03-05 at 20:00 -0800, Randy Dunlap wrote:
+> Fix a build error in mcount.S when CONFIG_PRINTK is not enabled.
+> Fixes this build error:
 > 
-> Responses should be made by Wed, 22 Mar 2023 14:54:26 +0000.
-> Anything received after that time might be too late.
+> sh2-linux-ld: arch/sh/lib/mcount.o: in function `stack_panic':
+> (.text+0xec): undefined reference to `dump_stack'
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.104-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
+> Fixes: e460ab27b6c3 ("sh: Fix up stack overflow check with ftrace disabled.")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: stable@vger.kernel.org
+> ---
+> v2: add PRINTK to STACK_DEBUG dependency (thanks, Geert)
+> v3: skipped
+> v4: refresh & resend
 > 
-> thanks,
+>  arch/sh/Kconfig.debug |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> greg k-h
+> diff -- a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
+> --- a/arch/sh/Kconfig.debug
+> +++ b/arch/sh/Kconfig.debug
+> @@ -15,7 +15,7 @@ config SH_STANDARD_BIOS
+>  
+>  config STACK_DEBUG
+>  	bool "Check for stack overflows"
+> -	depends on DEBUG_KERNEL
+> +	depends on DEBUG_KERNEL && PRINTK
+>  	help
+>  	  This option will cause messages to be printed if free stack space
+>  	  drops below a certain limit. Saying Y here will add overhead to
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Reviewed-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Florian
-
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
