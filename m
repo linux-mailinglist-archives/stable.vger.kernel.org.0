@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E5D6C168F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29ED76C178F
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232190AbjCTPHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
+        id S232397AbjCTPPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:15:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232159AbjCTPGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DC42F794
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:25 -0700 (PDT)
+        with ESMTP id S232410AbjCTPOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04DED335
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AD21B80ED2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A17C433D2;
-        Mon, 20 Mar 2023 15:02:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA59F615A1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81CFC433A0;
+        Mon, 20 Mar 2023 15:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324544;
-        bh=hGPIJGWUQFacJe58wfAXGeJZ2kBO+h6j/m4dN2KKEx8=;
+        s=korg; t=1679324981;
+        bh=dPN4NDuHUJybMvzkSTkgEA0jocHVXO9EQNgBzNl2G9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gp/X9/T57AzqGODNQOM6BUfU5djGpf1s1fdlWk2JaxdRkXdSG1tBiIvIlHVaVPpPC
-         OdXRk+syM0npdf+9RzUooLolVWl0pyH7yyUk1la1NcKAfU94Kj8KN9P0jkITFOpAV3
-         SgGtCrC8TOdWAB8pAuzDBuy7FaVii07q9yetN834=
+        b=ltqMCO/zCTazv4HFz1JDSNqREm6oNCVttfieEzWoGJ496vuDlA5q2flBHjDg+pxqt
+         FUpQQoTRERDGawg3+UlKCc/NECwVQZ/yU30xZ+BY1vwQwNQYSDdqVE2YAshAoHxVbm
+         l44LG/S98mXTuIkmCoREm7CuYFaTnQg8LQD9e3lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 49/60] KVM: nVMX: add missing consistency checks for CR0 and CR4
+        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.10 80/99] s390/ipl: add missing intersection check to ipl_report handling
 Date:   Mon, 20 Mar 2023 15:54:58 +0100
-Message-Id: <20230320145432.956767455@linuxfoundation.org>
+Message-Id: <20230320145446.764185324@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,57 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 112e66017bff7f2837030f34c2bc19501e9212d5 upstream.
+commit a52e5cdbe8016d4e3e6322fd93d71afddb9a5af9 upstream.
 
-The effective values of the guest CR0 and CR4 registers may differ from
-those included in the VMCS12.  In particular, disabling EPT forces
-CR4.PAE=1 and disabling unrestricted guest mode forces CR0.PG=CR0.PE=1.
+The code which handles the ipl report is searching for a free location
+in memory where it could copy the component and certificate entries to.
+It checks for intersection between the sections required for the kernel
+and the component/certificate data area, but fails to check whether
+the data structures linking these data areas together intersect.
 
-Therefore, checks on these bits cannot be delegated to the processor
-and must be performed by KVM.
+This might cause the iplreport copy code to overwrite the iplreport
+itself. Fix this by adding two addtional intersection checks.
 
-Reported-by: Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 9641b8cc733f ("s390/ipl: read IPL report at early boot")
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/boot/ipl_report.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2779,7 +2779,7 @@ static int nested_vmx_check_guest_state(
- 					struct vmcs12 *vmcs12,
- 					u32 *exit_qual)
- {
--	bool ia32e;
-+	bool ia32e = !!(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE);
- 
- 	*exit_qual = ENTRY_FAIL_DEFAULT;
- 
-@@ -2796,6 +2796,13 @@ static int nested_vmx_check_guest_state(
- 		return -EINVAL;
- 	}
- 
-+	if (CC((vmcs12->guest_cr0 & (X86_CR0_PG | X86_CR0_PE)) == X86_CR0_PG))
-+		return -EINVAL;
-+
-+	if (CC(ia32e && !(vmcs12->guest_cr4 & X86_CR4_PAE)) ||
-+	    CC(ia32e && !(vmcs12->guest_cr0 & X86_CR0_PG)))
-+		return -EINVAL;
-+
- 	/*
- 	 * If the load IA32_EFER VM-entry control is 1, the following checks
- 	 * are performed on the field for the IA32_EFER MSR:
-@@ -2807,7 +2814,6 @@ static int nested_vmx_check_guest_state(
- 	 */
- 	if (to_vmx(vcpu)->nested.nested_run_pending &&
- 	    (vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_EFER)) {
--		ia32e = (vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) != 0;
- 		if (CC(!kvm_valid_efer(vcpu, vmcs12->guest_ia32_efer)) ||
- 		    CC(ia32e != !!(vmcs12->guest_ia32_efer & EFER_LMA)) ||
- 		    CC(((vmcs12->guest_cr0 & X86_CR0_PG) &&
+--- a/arch/s390/boot/ipl_report.c
++++ b/arch/s390/boot/ipl_report.c
+@@ -57,11 +57,19 @@ repeat:
+ 	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
+ 	    intersects(INITRD_START, INITRD_SIZE, safe_addr, size))
+ 		safe_addr = INITRD_START + INITRD_SIZE;
++	if (intersects(safe_addr, size, (unsigned long)comps, comps->len)) {
++		safe_addr = (unsigned long)comps + comps->len;
++		goto repeat;
++	}
+ 	for_each_rb_entry(comp, comps)
+ 		if (intersects(safe_addr, size, comp->addr, comp->len)) {
+ 			safe_addr = comp->addr + comp->len;
+ 			goto repeat;
+ 		}
++	if (intersects(safe_addr, size, (unsigned long)certs, certs->len)) {
++		safe_addr = (unsigned long)certs + certs->len;
++		goto repeat;
++	}
+ 	for_each_rb_entry(cert, certs)
+ 		if (intersects(safe_addr, size, cert->addr, cert->len)) {
+ 			safe_addr = cert->addr + cert->len;
 
 
