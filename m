@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B01E76C19CB
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19FCC6C19B3
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:36:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233267AbjCTPiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:38:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40416 "EHLO
+        id S233196AbjCTPgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:36:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233264AbjCTPh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:37:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1414A3B640
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:28 -0700 (PDT)
+        with ESMTP id S232955AbjCTPge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3083029C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B1B761561
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332F3C433EF;
-        Mon, 20 Mar 2023 15:29:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCDDDB80ED9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27AA5C433EF;
+        Mon, 20 Mar 2023 15:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326167;
-        bh=Fc2LY8kg5erkMKI8YX4205Af+z97dWI42SPFrBSVEqE=;
+        s=korg; t=1679326107;
+        bh=Q26zjXntVdQ5OVkgc7P2mfcHN7gf0Ps0kpEz2Z3Ye6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtlwtlD6v059aCRbH0LlD1TJxxSTAPy6j/Lf+rGdIUWm02NOTS8jtYIMtBIn93UQM
-         0ZO7NiBZ4gaPvV0eJ7l0s9r9UfTKiNjqj6r0k8aHm7/+zKkZU9rhNwSOiRuwYS8Yj/
-         URQEB6dwIbW53aEGuT3I8MvGSQ7Dpu1CF0maBpiE=
+        b=Mpi0vVjjdQez/qCP4hbT9SoWvp4VoMzdr0H2wYTOfmmc2FOUDAA1jJT9wMDuqDFvt
+         JGjebUUuRpHd60KNdlGfwJmMxWJzObVR9Lhk4VAlnr7bZ73rMMyvEuv4QG9pgTZR5h
+         Oiz14dUYshUpNZpHA1qdGtr818NVXicVvkXRCmfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Houghton <jthoughton@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 186/211] mm: teach mincore_hugetlb about pte markers
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 6.1 183/198] fbdev: Fix incorrect page mapping clearance at fb_deferred_io_release()
 Date:   Mon, 20 Mar 2023 15:55:21 +0100
-Message-Id: <20230320145521.293151991@linuxfoundation.org>
+Message-Id: <20230320145515.155777427@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,42 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Houghton <jthoughton@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 63cf584203f3367c8b073d417c8e5cbbfc450506 upstream.
+commit fe9ae05cfbe587dda724fcf537c00bc2f287da62 upstream.
 
-By checking huge_pte_none(), we incorrectly classify PTE markers as
-"present".  Instead, check huge_pte_none_mostly(), classifying PTE markers
-the same as if the PTE were completely blank.
+The recent fix for the deferred I/O by the commit
+  3efc61d95259 ("fbdev: Fix invalid page access after closing deferred I/O devices")
+caused a regression when the same fb device is opened/closed while
+it's being used.  It resulted in a frozen screen even if something
+is redrawn there after the close.  The breakage is because the patch
+was made under a wrong assumption of a single open; in the current
+code, fb_deferred_io_release() cleans up the page mapping of the
+pageref list and it calls cancel_delayed_work_sync() unconditionally,
+where both are no correct behavior for multiple opens.
 
-PTE markers, unlike other kinds of swap entries, don't reference any
-physical page and don't indicate that a physical page was mapped
-previously.  As such, treat them as non-present for the sake of mincore().
+This patch adds a refcount for the opens of the device, and applies
+the cleanup only when all files get closed.
 
-Link: https://lkml.kernel.org/r/20230302222404.175303-1-jthoughton@google.com
-Fixes: 5c041f5d1f23 ("mm: teach core mm about pte markers")
-Signed-off-by: James Houghton <jthoughton@google.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: James Houghton <jthoughton@google.com>
+As both fb_deferred_io_open() and _close() are called always in the
+fb_info lock (mutex), it's safe to use the normal int for the
+refcounting.
+
+Also, a useless BUG_ON() is dropped.
+
+Fixes: 3efc61d95259 ("fbdev: Fix invalid page access after closing deferred I/O devices")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230308105012.1845-1-tiwai@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mincore.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/core/fb_defio.c | 17 +++++++++++++----
+ include/linux/fb.h                  |  1 +
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
---- a/mm/mincore.c
-+++ b/mm/mincore.c
-@@ -33,7 +33,7 @@ static int mincore_hugetlb(pte_t *pte, u
- 	 * Hugepages under user process are always in RAM and never
- 	 * swapped out, but theoretically it needs to be checked.
- 	 */
--	present = pte && !huge_pte_none(huge_ptep_get(pte));
-+	present = pte && !huge_pte_none_mostly(huge_ptep_get(pte));
- 	for (; addr != end; vec++, addr += PAGE_SIZE)
- 		*vec = present;
- 	walk->private = vec;
+diff --git a/drivers/video/fbdev/core/fb_defio.c b/drivers/video/fbdev/core/fb_defio.c
+index 583cbcf09446..a3cf1f764f29 100644
+--- a/drivers/video/fbdev/core/fb_defio.c
++++ b/drivers/video/fbdev/core/fb_defio.c
+@@ -309,17 +309,18 @@ void fb_deferred_io_open(struct fb_info *info,
+ 			 struct inode *inode,
+ 			 struct file *file)
+ {
++	struct fb_deferred_io *fbdefio = info->fbdefio;
++
+ 	file->f_mapping->a_ops = &fb_deferred_io_aops;
++	fbdefio->open_count++;
+ }
+ EXPORT_SYMBOL_GPL(fb_deferred_io_open);
+ 
+-void fb_deferred_io_release(struct fb_info *info)
++static void fb_deferred_io_lastclose(struct fb_info *info)
+ {
+-	struct fb_deferred_io *fbdefio = info->fbdefio;
+ 	struct page *page;
+ 	int i;
+ 
+-	BUG_ON(!fbdefio);
+ 	cancel_delayed_work_sync(&info->deferred_work);
+ 
+ 	/* clear out the mapping that we setup */
+@@ -328,13 +329,21 @@ void fb_deferred_io_release(struct fb_info *info)
+ 		page->mapping = NULL;
+ 	}
+ }
++
++void fb_deferred_io_release(struct fb_info *info)
++{
++	struct fb_deferred_io *fbdefio = info->fbdefio;
++
++	if (!--fbdefio->open_count)
++		fb_deferred_io_lastclose(info);
++}
+ EXPORT_SYMBOL_GPL(fb_deferred_io_release);
+ 
+ void fb_deferred_io_cleanup(struct fb_info *info)
+ {
+ 	struct fb_deferred_io *fbdefio = info->fbdefio;
+ 
+-	fb_deferred_io_release(info);
++	fb_deferred_io_lastclose(info);
+ 
+ 	kvfree(info->pagerefs);
+ 	mutex_destroy(&fbdefio->lock);
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 73eb1f85ea8e..05e40fcc7696 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -212,6 +212,7 @@ struct fb_deferred_io {
+ 	/* delay between mkwrite and deferred handler */
+ 	unsigned long delay;
+ 	bool sort_pagereflist; /* sort pagelist by offset */
++	int open_count; /* number of opened files; protected by fb_info lock */
+ 	struct mutex lock; /* mutex that protects the pageref list */
+ 	struct list_head pagereflist; /* list of pagerefs for touched pages */
+ 	/* callback */
+-- 
+2.40.0
+
 
 
