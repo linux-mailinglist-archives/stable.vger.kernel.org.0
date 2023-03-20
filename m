@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D6B6C15DD
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 15:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD586C15DF
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 15:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbjCTO6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 10:58:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46346 "EHLO
+        id S231659AbjCTO6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 10:58:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbjCTO56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 10:57:58 -0400
+        with ESMTP id S232020AbjCTO6A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 10:58:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B37A7EC1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:56:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1470810265
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:56:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B7FF6154D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:56:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA0EFC4339C;
-        Mon, 20 Mar 2023 14:56:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4F316158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:56:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84326C433D2;
+        Mon, 20 Mar 2023 14:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324179;
-        bh=bYeVvUG13s3jr7NqeOUFqJqKIOZFyxWtLvM5CY/z8i0=;
+        s=korg; t=1679324185;
+        bh=H0IG8z/hSnMcXEU0TgVUWEZOMKBbDpHAy1OGOwj/JY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F14VNZvhPXEXMvyXS0grwgA9hVFTxq6v4844DKeglL+d4sYI7ZhF3HipdnM5fkgFo
-         XgJUpdQsFePBZvNF8eBRBcdrlh+m7TFPe6phqhCKuMAE4wXdARMTuzfxq/GSJGXLj7
-         3qyMmWd2kisLxVg2H8j/lJLcZhcifF5ABEAZF/Bk=
+        b=LbViEjXsbzNxCdzrpacDqRKiSo/3T8bicps9DxKN2OFTwVvlSaVsPe36ldbv0in50
+         WiVsF8C8DK2QVmBweXNvBVNwVgOaponVDgedIi5a2vAeGm7VuyGeqy2XTyGbA+Fy5x
+         NpkWnzzAqchj7xXmyTk38TrjhcBZkwuwetcRoJiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David George <David.George@sophos.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        patches@lists.linux.dev, Steven Price <steven.price@arm.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 001/115] xfrm: Allow transport-mode states with AF_UNSPEC selector
-Date:   Mon, 20 Mar 2023 15:53:33 +0100
-Message-Id: <20230320145449.400163490@linuxfoundation.org>
+Subject: [PATCH 5.15 002/115] drm/panfrost: Dont sync rpm suspension after mmu flushing
+Date:   Mon, 20 Mar 2023 15:53:34 +0100
+Message-Id: <20230320145449.441004727@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
 References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,42 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-[ Upstream commit c276a706ea1f51cf9723ed8484feceaf961b8f89 ]
+[ Upstream commit ba3be66f11c3c49afaa9f49b99e21d88756229ef ]
 
-xfrm state selectors are matched against the inner-most flow
-which can be of any address family.  Therefore middle states
-in nested configurations need to carry a wildcard selector in
-order to work at all.
+Lockdep warns about potential circular locking dependency of devfreq
+with the fs_reclaim caused by immediate device suspension when mapping is
+released by shrinker. Fix it by doing the suspension asynchronously.
 
-However, this is currently forbidden for transport-mode states.
-
-Fix this by removing the unnecessary check.
-
-Fixes: 13996378e658 ("[IPSEC]: Rename mode to outer_mode and add inner_mode")
-Reported-by: David George <David.George@sophos.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Fixes: ec7eba47da86 ("drm/panfrost: Rework page table flushing and runtime PM interaction")
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://lore.kernel.org/all/20230108210445.3948344-3-dmitry.osipenko@collabora.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_state.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 15132b080614c..60f3ea5561ddf 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2643,9 +2643,6 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
- 		if (inner_mode == NULL)
- 			goto error;
+diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+index c3292a6bd1ae8..d6dda97e2591d 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -253,7 +253,7 @@ static void panfrost_mmu_flush_range(struct panfrost_device *pfdev,
+ 	if (pm_runtime_active(pfdev->dev))
+ 		mmu_hw_do_operation(pfdev, mmu, iova, size, AS_COMMAND_FLUSH_PT);
  
--		if (!(inner_mode->flags & XFRM_MODE_FLAG_TUNNEL))
--			goto error;
--
- 		x->inner_mode = *inner_mode;
+-	pm_runtime_put_sync_autosuspend(pfdev->dev);
++	pm_runtime_put_autosuspend(pfdev->dev);
+ }
  
- 		if (x->props.family == AF_INET)
+ static int mmu_map_sg(struct panfrost_device *pfdev, struct panfrost_mmu *mmu,
 -- 
 2.39.2
 
