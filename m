@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4EC6C18D7
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A066C194C
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232825AbjCTP15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:27:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47776 "EHLO
+        id S233035AbjCTPcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232882AbjCTP1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C9B2BEEB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:47 -0700 (PDT)
+        with ESMTP id S233068AbjCTPcQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C806D17CC2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A37761565
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5703EC433D2;
-        Mon, 20 Mar 2023 15:20:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C5556158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C708C433D2;
+        Mon, 20 Mar 2023 15:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325646;
-        bh=CrlgYa5+8GUkSasgpBUKSlDHJhu07CrQBRkPfPGcSoc=;
+        s=korg; t=1679325882;
+        bh=oBUdmKYObtJyuSm6fza8GS3Fwqfc1M/XxPOLO0UYD1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2DIFMd+QwWVE+UCTX9ZL3xdP1V+6JWuIkzljrKhe/CPzTZWI5LeRGAl9eUMQogJS
-         EQGvLy/BI604JAhjOfzCvs0plrNPUPtu8UJTf65Yz43bmy0qUcEWQikefpw7lrma5K
-         JOhVpjwR8Y2HV+pG02XUhIIKSwmkyL55rI3vhFyw=
+        b=uPX1aRBMWFWiO6BhTxoMBA2sE2YTvoh+pCxLXVBn6AZnMUZGsas3nsZrptN6ozqEo
+         ABoiTy+OMxcR4hxnbV0/3T88wzP6EtZpvPlabYLPKAtGahJ8Oeq8X+RlE+1X9FHxjN
+         0c1M4RyPm+mMlQ1Ri5hD7jmmTQ+VmtBRasJIPB3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        syzbot+0c73d1d8b952c5f3d714@syzkaller.appspotmail.com,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 116/198] ext4: fix possible double unlock when moving a directory
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 6.2 119/211] tty: serial: fsl_lpuart: skip waiting for transmission complete when UARTCTRL_SBK is asserted
 Date:   Mon, 20 Mar 2023 15:54:14 +0100
-Message-Id: <20230320145512.434945183@linuxfoundation.org>
+Message-Id: <20230320145518.327465053@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,33 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-commit 70e42feab2e20618ddd0cbfc4ab4b08628236ecd upstream.
+commit 2411fd94ceaa6e11326e95d6ebf876cbfed28d23 upstream.
 
-Fixes: 0813299c586b ("ext4: Fix possible corruption when moving a directory")
-Link: https://lore.kernel.org/r/5efbe1b9-ad8b-4a4f-b422-24824d2b775c@kili.mountain
-Reported-by: Dan Carpenter <error27@gmail.com>
-Reported-by: syzbot+0c73d1d8b952c5f3d714@syzkaller.appspotmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
+a break character by writing 1 to CTRL[SBK], so here need to skip
+waiting for transmission complete when UARTCTRL_SBK is asserted,
+otherwise the kernel may stuck here.
+And actually set_termios() adds transmission completion waiting to avoid
+data loss or data breakage when changing the baud rate, but we don't
+need to worry about this when queuing break characters.
+
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230223093941.31790-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3884,10 +3884,8 @@ static int ext4_rename(struct user_names
- 				goto end_rename;
- 		}
- 		retval = ext4_rename_dir_prepare(handle, &old);
--		if (retval) {
--			inode_unlock(old.inode);
-+		if (retval)
- 			goto end_rename;
--		}
- 	}
- 	/*
- 	 * If we're renaming a file within an inline_data dir and adding or
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2185,9 +2185,15 @@ lpuart32_set_termios(struct uart_port *p
+ 	/* update the per-port timeout */
+ 	uart_update_timeout(port, termios->c_cflag, baud);
+ 
+-	/* wait transmit engin complete */
+-	lpuart32_write(&sport->port, 0, UARTMODIR);
+-	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
++	/*
++	 * LPUART Transmission Complete Flag may never be set while queuing a break
++	 * character, so skip waiting for transmission complete when UARTCTRL_SBK is
++	 * asserted.
++	 */
++	if (!(old_ctrl & UARTCTRL_SBK)) {
++		lpuart32_write(&sport->port, 0, UARTMODIR);
++		lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
++	}
+ 
+ 	/* disable transmit and receive */
+ 	lpuart32_write(&sport->port, old_ctrl & ~(UARTCTRL_TE | UARTCTRL_RE),
 
 
