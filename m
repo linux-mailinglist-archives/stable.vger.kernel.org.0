@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE65E6C163F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2366C1833
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231715AbjCTPD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:03:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
+        id S232736AbjCTPVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231600AbjCTPD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:03:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D75AC2E802
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:59:29 -0700 (PDT)
+        with ESMTP id S232681AbjCTPVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C5132CD1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E4A5B80EC3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DA7CC433D2;
-        Mon, 20 Mar 2023 14:59:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16E3C6158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28176C4339B;
+        Mon, 20 Mar 2023 15:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324364;
-        bh=ATEnrQL5w3FWRq9chTFV0ZbIetkRdvanc1fVU8ygjNs=;
+        s=korg; t=1679325273;
+        bh=DxuNAsAhsPi84EKZwwBa3O3NPyV17ENS3kdwmD4AvF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G70AGPVzENljkskAw1LiQ+V315NIZLgtZ0VhXy2COK1jjHIhCgO9e0pKoDfvIG7ob
-         3CjEhBVxdsaltn1Zw1DODtenXAFo12mHVC23peG/3TXGHJCOxytgpbxpGHcSguIx9w
-         cDRMF4IbannCAGIZmqcmr+NJGLIuM22+nAYuHszQ=
+        b=SKL4UrZCMFWVaj6scWJMIAWCkd76WQ3i3oL0jfUOMy9yIEhCKiYb2e1Lwr0xgvGnT
+         8TBUkoZd/Xo497bL6XYIgXrWVq9gSOgQefcH/F03uxLRbLNR6jFuoqpQ0HTu1YMWR9
+         GYTi23+yLqlLU86ujGbndIbLvtzdodotpbyFfAXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 31/36] fbdev: stifb: Provide valid pixelclock and add fb_check_var() checks
+        patches@lists.linux.dev, Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 085/115] KVM: nVMX: add missing consistency checks for CR0 and CR4
 Date:   Mon, 20 Mar 2023 15:54:57 +0100
-Message-Id: <20230320145425.395937538@linuxfoundation.org>
+Message-Id: <20230320145452.988346384@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
-References: <20230320145424.191578432@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,77 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 203873a535d627c668f293be0cb73e26c30f9cc7 upstream.
+commit 112e66017bff7f2837030f34c2bc19501e9212d5 upstream.
 
-Find a valid modeline depending on the machine graphic card
-configuration and add the fb_check_var() function to validate
-Xorg provided graphics settings.
+The effective values of the guest CR0 and CR4 registers may differ from
+those included in the VMCS12.  In particular, disabling EPT forces
+CR4.PAE=1 and disabling unrestricted guest mode forces CR0.PG=CR0.PE=1.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+Therefore, checks on these bits cannot be delegated to the processor
+and must be performed by KVM.
+
+Reported-by: Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>
 Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/stifb.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ arch/x86/kvm/vmx/nested.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -922,6 +922,28 @@ SETUP_HCRX(struct stifb_info *fb)
- /* ------------------- driver specific functions --------------------------- */
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2991,7 +2991,7 @@ static int nested_vmx_check_guest_state(
+ 					struct vmcs12 *vmcs12,
+ 					enum vm_entry_failure_code *entry_failure_code)
+ {
+-	bool ia32e;
++	bool ia32e = !!(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE);
  
- static int
-+stifb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
-+{
-+	struct stifb_info *fb = container_of(info, struct stifb_info, info);
-+
-+	if (var->xres != fb->info.var.xres ||
-+	    var->yres != fb->info.var.yres ||
-+	    var->bits_per_pixel != fb->info.var.bits_per_pixel)
+ 	*entry_failure_code = ENTRY_FAIL_DEFAULT;
+ 
+@@ -3017,6 +3017,13 @@ static int nested_vmx_check_guest_state(
+ 					   vmcs12->guest_ia32_perf_global_ctrl)))
+ 		return -EINVAL;
+ 
++	if (CC((vmcs12->guest_cr0 & (X86_CR0_PG | X86_CR0_PE)) == X86_CR0_PG))
 +		return -EINVAL;
 +
-+	var->xres_virtual = var->xres;
-+	var->yres_virtual = var->yres;
-+	var->xoffset = 0;
-+	var->yoffset = 0;
-+	var->grayscale = fb->info.var.grayscale;
-+	var->red.length = fb->info.var.red.length;
-+	var->green.length = fb->info.var.green.length;
-+	var->blue.length = fb->info.var.blue.length;
++	if (CC(ia32e && !(vmcs12->guest_cr4 & X86_CR4_PAE)) ||
++	    CC(ia32e && !(vmcs12->guest_cr0 & X86_CR0_PG)))
++		return -EINVAL;
 +
-+	return 0;
-+}
-+
-+static int
- stifb_setcolreg(u_int regno, u_int red, u_int green,
- 	      u_int blue, u_int transp, struct fb_info *info)
- {
-@@ -1103,6 +1125,7 @@ stifb_init_display(struct stifb_info *fb
- 
- static struct fb_ops stifb_ops = {
- 	.owner		= THIS_MODULE,
-+	.fb_check_var	= stifb_check_var,
- 	.fb_setcolreg	= stifb_setcolreg,
- 	.fb_blank	= stifb_blank,
- 	.fb_fillrect	= cfb_fillrect,
-@@ -1122,6 +1145,7 @@ static int __init stifb_init_fb(struct s
- 	struct stifb_info *fb;
- 	struct fb_info *info;
- 	unsigned long sti_rom_address;
-+	char modestr[32];
- 	char *dev_name;
- 	int bpp, xres, yres;
- 
-@@ -1300,6 +1324,9 @@ static int __init stifb_init_fb(struct s
- 	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA;
- 	info->pseudo_palette = &fb->pseudo_palette;
- 
-+	scnprintf(modestr, sizeof(modestr), "%dx%d-%d", xres, yres, bpp);
-+	fb_find_mode(&info->var, info, modestr, NULL, 0, NULL, bpp);
-+
- 	/* This has to be done !!! */
- 	if (fb_alloc_cmap(&info->cmap, NR_PALETTE, 0))
- 		goto out_err1;
+ 	/*
+ 	 * If the load IA32_EFER VM-entry control is 1, the following checks
+ 	 * are performed on the field for the IA32_EFER MSR:
+@@ -3028,7 +3035,6 @@ static int nested_vmx_check_guest_state(
+ 	 */
+ 	if (to_vmx(vcpu)->nested.nested_run_pending &&
+ 	    (vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_EFER)) {
+-		ia32e = (vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) != 0;
+ 		if (CC(!kvm_valid_efer(vcpu, vmcs12->guest_ia32_efer)) ||
+ 		    CC(ia32e != !!(vmcs12->guest_ia32_efer & EFER_LMA)) ||
+ 		    CC(((vmcs12->guest_cr0 & X86_CR0_PG) &&
 
 
