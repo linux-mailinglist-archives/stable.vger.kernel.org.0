@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7F46C193C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD126C193B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233070AbjCTPb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
+        id S233022AbjCTPb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233067AbjCTPbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AB61F4A7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:14 -0700 (PDT)
+        with ESMTP id S233025AbjCTPbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD08D35EE8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0140461573
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEACC433EF;
-        Mon, 20 Mar 2023 15:24:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6924A614CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7606CC4339B;
+        Mon, 20 Mar 2023 15:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325841;
-        bh=W2xaRwu29lXGrWYplvesH7lPWne/wjmURsL1F3YUssQ=;
+        s=korg; t=1679325846;
+        bh=VCoUk9Py4cE0Vx0q2TgkNuGt9UilbNTVdSBJTBikMuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqdZbAKa+98jqM6dD9ZiOIw+MqWnvIPjuZqEp2XadVhKmn8cqhypkPu/6tyNdbA9r
-         HbdmwbdJdY7tSJPRwboVN39heEtXaX7KDKYR2u1hGu/mvKy5+MLEPkRE4AJZ7USOvk
-         pOvOoLavafrARlJtmnXsPujFnBGi4w16m03c6ln0=
+        b=xCNAXw9mbburMbj3SZ0Mm0PuDYUWmnCBOKGOEqSl4NAVSNltY2weHjELvqYmOepoV
+         Xe6j5NpqJrbj5CU3BJaXCFyq6k/B/HzIwS5VJQqY7HVGfHgEhL1fcHLlrfUJsn+hlc
+         4mCGwM1sc8ZLxMwevtOM3JecSQjMf1OaesmOsELM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qu Huang <qu.huang@linux.dev>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Eric Van Hensbergen <ericvh@kernel.org>,
+        Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 110/211] drm/amdkfd: Fix an illegal memory access
-Date:   Mon, 20 Mar 2023 15:54:05 +0100
-Message-Id: <20230320145517.902476631@linuxfoundation.org>
+Subject: [PATCH 6.2 111/211] net/9p: fix bug in client create for .L
+Date:   Mon, 20 Mar 2023 15:54:06 +0100
+Message-Id: <20230320145517.951415715@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,80 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Huang <qu.huang@linux.dev>
+From: Eric Van Hensbergen <ericvh@kernel.org>
 
-[ Upstream commit 4fc8fff378b2f2039f2a666d9f8c570f4e58352c ]
+[ Upstream commit 3866584a1c56a2bbc8c0981deb4476d0b801969e ]
 
-In the kfd_wait_on_events() function, the kfd_event_waiter structure is
-allocated by alloc_event_waiters(), but the event field of the waiter
-structure is not initialized; When copy_from_user() fails in the
-kfd_wait_on_events() function, it will enter exception handling to
-release the previously allocated memory of the waiter structure;
-Due to the event field of the waiters structure being accessed
-in the free_waiters() function, this results in illegal memory access
-and system crash, here is the crash log:
+We are supposed to set fid->mode to reflect the flags
+that were used to open the file.  We were actually setting
+it to the creation mode which is the default perms of the
+file not the flags the file was opened with.
 
-localhost kernel: RIP: 0010:native_queued_spin_lock_slowpath+0x185/0x1e0
-localhost kernel: RSP: 0018:ffffaa53c362bd60 EFLAGS: 00010082
-localhost kernel: RAX: ff3d3d6bff4007cb RBX: 0000000000000282 RCX: 00000000002c0000
-localhost kernel: RDX: ffff9e855eeacb80 RSI: 000000000000279c RDI: ffffe7088f6a21d0
-localhost kernel: RBP: ffffe7088f6a21d0 R08: 00000000002c0000 R09: ffffaa53c362be64
-localhost kernel: R10: ffffaa53c362bbd8 R11: 0000000000000001 R12: 0000000000000002
-localhost kernel: R13: ffff9e7ead15d600 R14: 0000000000000000 R15: ffff9e7ead15d698
-localhost kernel: FS:  0000152a3d111700(0000) GS:ffff9e855ee80000(0000) knlGS:0000000000000000
-localhost kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-localhost kernel: CR2: 0000152938000010 CR3: 000000044d7a4000 CR4: 00000000003506e0
-localhost kernel: Call Trace:
-localhost kernel: _raw_spin_lock_irqsave+0x30/0x40
-localhost kernel: remove_wait_queue+0x12/0x50
-localhost kernel: kfd_wait_on_events+0x1b6/0x490 [hydcu]
-localhost kernel: ? ftrace_graph_caller+0xa0/0xa0
-localhost kernel: kfd_ioctl+0x38c/0x4a0 [hydcu]
-localhost kernel: ? kfd_ioctl_set_trap_handler+0x70/0x70 [hydcu]
-localhost kernel: ? kfd_ioctl_create_queue+0x5a0/0x5a0 [hydcu]
-localhost kernel: ? ftrace_graph_caller+0xa0/0xa0
-localhost kernel: __x64_sys_ioctl+0x8e/0xd0
-localhost kernel: ? syscall_trace_enter.isra.18+0x143/0x1b0
-localhost kernel: do_syscall_64+0x33/0x80
-localhost kernel: entry_SYSCALL_64_after_hwframe+0x44/0xa9
-localhost kernel: RIP: 0033:0x152a4dff68d7
-
-Allocate the structure with kcalloc, and remove redundant 0-initialization
-and a redundant loop condition check.
-
-Signed-off-by: Qu Huang <qu.huang@linux.dev>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Reviewed-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_events.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/9p/client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-index 729d26d648af3..2880ed96ac2e3 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-@@ -778,16 +778,13 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
- 	struct kfd_event_waiter *event_waiters;
- 	uint32_t i;
+diff --git a/net/9p/client.c b/net/9p/client.c
+index 622ec6a586eea..00a6d1e348768 100644
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -1289,7 +1289,7 @@ int p9_client_create_dotl(struct p9_fid *ofid, const char *name, u32 flags,
+ 		 qid->type, qid->path, qid->version, iounit);
  
--	event_waiters = kmalloc_array(num_events,
--					sizeof(struct kfd_event_waiter),
--					GFP_KERNEL);
-+	event_waiters = kcalloc(num_events, sizeof(struct kfd_event_waiter),
-+				GFP_KERNEL);
- 	if (!event_waiters)
- 		return NULL;
+ 	memmove(&ofid->qid, qid, sizeof(struct p9_qid));
+-	ofid->mode = mode;
++	ofid->mode = flags;
+ 	ofid->iounit = iounit;
  
--	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
-+	for (i = 0; i < num_events; i++)
- 		init_wait(&event_waiters[i].wait);
--		event_waiters[i].activated = false;
--	}
- 
- 	return event_waiters;
- }
+ free_and_error:
 -- 
 2.39.2
 
