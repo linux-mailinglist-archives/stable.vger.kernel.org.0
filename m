@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76FC96C19A4
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:36:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5116C1646
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232580AbjCTPgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
+        id S231529AbjCTPEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:04:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232973AbjCTPfm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:35:42 -0400
+        with ESMTP id S230138AbjCTPDu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:03:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9910D3A871
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899112E80A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:59:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9B0DB80ED7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 198DAC4339E;
-        Mon, 20 Mar 2023 15:27:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 175C3B80EC2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DFB4C4339C;
+        Mon, 20 Mar 2023 14:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326074;
-        bh=z5JdMzoyqaviNtDUtWFGBzWOFoKTmwzxPP1F1otT6BY=;
+        s=korg; t=1679324339;
+        bh=EndodniU0xg5sVGX3JEzoYq0PX+ns28MPsaYpfO0T0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2TASm+UmQgMHKJFb0NjgH6qlCIm5E8MRhZEk0DOaQbrLmW+F73PKsPZTuGKdrnE2
-         EwQVuxmrpfLXYBNw/yIYCR8fxjH89PB2iPFJkTigxjwvnsReoG6pXKI9CmWh5yuQ1M
-         3+MWxCKA4gDjp17rOksTKqe42J102/6YqIZdaZJ4=
+        b=oSFm2LUt7utpEhgMUHH7r9GcC+xqHEmxXM9ZcJpm5IqtHwKng3Q8fMO1SNaCfNqhi
+         /n9Ima5urzrR5Q/B3Q8rtL32Samvqlo7BZstkvela/0P5sc+mwS0UTwwxrXJ2Ay2ZY
+         NiOIOo88HDmQgzhmH7iSRhkIvM2JQCNEfTq5hNEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.2 154/211] KVM: SVM: Modify AVIC GATag to support max number of 512 vCPUs
+        patches@lists.linux.dev, David Gow <davidgow@google.com>,
+        =?UTF-8?q?Sergio=20Gonz=C3=A1lez=20Collado?= 
+        <sergio.collado@gmail.com>, Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 23/36] rust: arch/um: Disable FP/SIMD instruction to match x86
 Date:   Mon, 20 Mar 2023 15:54:49 +0100
-Message-Id: <20230320145519.890900719@linuxfoundation.org>
+Message-Id: <20230320145425.108532649@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: David Gow <davidgow@google.com>
 
-commit 5999715922c5a3ede5d8fe2a6b17aba58a157d41 upstream.
+[ Upstream commit 8849818679478933dd1d9718741f4daa3f4e8b86 ]
 
-Define AVIC_VCPU_ID_MASK based on AVIC_PHYSICAL_MAX_INDEX, i.e. the mask
-that effectively controls the largest guest physical APIC ID supported by
-x2AVIC, instead of hardcoding the number of bits to 8 (and the number of
-VM bits to 24).
+The kernel disables all SSE and similar FP/SIMD instructions on
+x86-based architectures (partly because we shouldn't be using floats in
+the kernel, and partly to avoid the need for stack alignment, see:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53383 )
 
-The AVIC GATag is programmed into the AMD IOMMU IRTE to provide a
-reference back to KVM in case the IOMMU cannot inject an interrupt into a
-non-running vCPU.  In such a case, the IOMMU notifies software by creating
-a GALog entry with the corresponded GATag, and KVM then uses the GATag to
-find the correct VM+vCPU to kick.  Dropping bit 8 from the GATag results
-in kicking the wrong vCPU when targeting vCPUs with x2APIC ID > 255.
+UML does not do the same thing, which isn't in itself a problem, but
+does add to the list of differences between UML and "normal" x86 builds.
 
-Fixes: 4d1d7942e36a ("KVM: SVM: Introduce logic to (de)activate x2AVIC mode")
-Cc: stable@vger.kernel.org
-Reported-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Co-developed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Tested-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Message-Id: <20230207002156.521736-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In addition, there was a crash bug with LLVM < 15 / rustc < 1.65 when
+building with SSE, so disabling it fixes rust builds with earlier
+compiler versions, see:
+https://github.com/Rust-for-Linux/linux/pull/881
+
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Sergio González Collado <sergio.collado@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/avic.c |   26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ arch/x86/Makefile.um | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/kvm/svm/avic.c
-+++ b/arch/x86/kvm/svm/avic.c
-@@ -27,19 +27,29 @@
- #include "irq.h"
- #include "svm.h"
+diff --git a/arch/x86/Makefile.um b/arch/x86/Makefile.um
+index 91085a08de6cb..3694beda02c8a 100644
+--- a/arch/x86/Makefile.um
++++ b/arch/x86/Makefile.um
+@@ -1,6 +1,12 @@
+ # SPDX-License-Identifier: GPL-2.0
+ core-y += arch/x86/crypto/
  
--/* AVIC GATAG is encoded using VM and VCPU IDs */
--#define AVIC_VCPU_ID_BITS		8
--#define AVIC_VCPU_ID_MASK		((1 << AVIC_VCPU_ID_BITS) - 1)
-+/*
-+ * Encode the arbitrary VM ID and the vCPU's default APIC ID, i.e the vCPU ID,
-+ * into the GATag so that KVM can retrieve the correct vCPU from a GALog entry
-+ * if an interrupt can't be delivered, e.g. because the vCPU isn't running.
-+ *
-+ * For the vCPU ID, use however many bits are currently allowed for the max
-+ * guest physical APIC ID (limited by the size of the physical ID table), and
-+ * use whatever bits remain to assign arbitrary AVIC IDs to VMs.  Note, the
-+ * size of the GATag is defined by hardware (32 bits), but is an opaque value
-+ * as far as hardware is concerned.
-+ */
-+#define AVIC_VCPU_ID_MASK		AVIC_PHYSICAL_MAX_INDEX_MASK
- 
--#define AVIC_VM_ID_BITS			24
--#define AVIC_VM_ID_NR			(1 << AVIC_VM_ID_BITS)
--#define AVIC_VM_ID_MASK			((1 << AVIC_VM_ID_BITS) - 1)
-+#define AVIC_VM_ID_SHIFT		HWEIGHT32(AVIC_PHYSICAL_MAX_INDEX_MASK)
-+#define AVIC_VM_ID_MASK			(GENMASK(31, AVIC_VM_ID_SHIFT) >> AVIC_VM_ID_SHIFT)
- 
--#define AVIC_GATAG(x, y)		(((x & AVIC_VM_ID_MASK) << AVIC_VCPU_ID_BITS) | \
-+#define AVIC_GATAG(x, y)		(((x & AVIC_VM_ID_MASK) << AVIC_VM_ID_SHIFT) | \
- 						(y & AVIC_VCPU_ID_MASK))
--#define AVIC_GATAG_TO_VMID(x)		((x >> AVIC_VCPU_ID_BITS) & AVIC_VM_ID_MASK)
-+#define AVIC_GATAG_TO_VMID(x)		((x >> AVIC_VM_ID_SHIFT) & AVIC_VM_ID_MASK)
- #define AVIC_GATAG_TO_VCPUID(x)		(x & AVIC_VCPU_ID_MASK)
- 
-+static_assert(AVIC_GATAG(AVIC_VM_ID_MASK, AVIC_VCPU_ID_MASK) == -1u);
++#
++# Disable SSE and other FP/SIMD instructions to match normal x86
++#
++KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
++KBUILD_RUSTFLAGS += -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2
 +
- static bool force_avic;
- module_param_unsafe(force_avic, bool, 0444);
+ ifeq ($(CONFIG_X86_32),y)
+ START := 0x8048000
  
+-- 
+2.39.2
+
 
 
