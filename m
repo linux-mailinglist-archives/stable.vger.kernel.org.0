@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74B046C0E94
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2507C6C0E93
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:20:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230082AbjCTKUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57932 "EHLO
+        id S229890AbjCTKUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:20:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230060AbjCTKUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:20:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9027211157
+        with ESMTP id S229782AbjCTKUS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:20:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B6A12BE8
         for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:20:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9BCF9CE1130
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:20:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02253C433EF;
-        Mon, 20 Mar 2023 10:20:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD22761338
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:20:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0C0C433D2;
+        Mon, 20 Mar 2023 10:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679307605;
-        bh=96hStUWo/3BCaaA/8HO0rwhY+6LxQjYWi7CtfDvrjF8=;
+        s=korg; t=1679307608;
+        bh=Vuv4YwhSC4pYmsGc07QG0YK14bZXbSqZwb400MXRs5s=;
         h=Subject:To:Cc:From:Date:From;
-        b=JjYUkpL0MJU6uMB0mhrdvMctecVdc3rmpKrShiCdi/VHCFCl6blWHQwmSKlNMijaw
-         U9nCPtKCvk740K/8lZLF7U96YDCVdf5ESfcwM+S+4MUYmZAQ1XsqGBjxJ6B2AF/w2O
-         8UDh8Z+1OmtXD762zhtL5mnVOerypcNHWoOEQSBw=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Remove OTG DIV register write for Virtual" failed to apply to 6.2-stable tree
-To:     SyedSaaem.Rizvi@amd.com, Alvin.Lee2@amd.com, Samson.Tam@amd.com,
+        b=Vnf+Aw20ruzlqWEC+mUh4wNaKLyDVxXEjx9VCDNYx1NSwpLN2rRzfVMWmlOr1s6+5
+         z/+g019YTfP4PZjJpiBE/imABkEpGem7uXx6bw8agb/ADMyD6OXc9+RHqj18285PMZ
+         hsyr/dNBvTN9WAwPH/Ws3hIwmzmDeXoVBAAEBBFg=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix DP MST sinks removal issue" failed to apply to 6.1-stable tree
+To:     Cruise.Hung@amd.com, Wenjing.Liu@amd.com,
         alexander.deucher@amd.com, daniel.wheeler@amd.com,
         mario.limonciello@amd.com, qingqing.zhuo@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 11:19:54 +0100
-Message-ID: <16793075944778@kroah.com>
+Date:   Mon, 20 Mar 2023 11:20:04 +0100
+Message-ID: <1679307604218103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -49,24 +50,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x 709671ffb15dcd1b4f6afe2a9d8c67c7c4ead4a1
+git cherry-pick -x cbd6c1b17d3b42b7935526a86ad5f66838767d03
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16793075944778@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679307604218103@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-709671ffb15d ("drm/amd/display: Remove OTG DIV register write for Virtual signals.")
-3b214bb7185d ("drm/amd/display: fix k1 k2 divider programming for phantom streams")
+cbd6c1b17d3b ("drm/amd/display: Fix DP MST sinks removal issue")
+48e99fe4d3ba ("drm/amd/display: Remove the unused variable pre_connection_type")
+54618888d1ea ("drm/amd/display: break down dc_link.c")
+71d7e8904d54 ("drm/amd/display: Add HDMI manufacturer OUI and device id read")
+65a4cfb45e0e ("drm/amdgpu/display: remove duplicate include header in files")
+e322843e5e33 ("drm/amd/display: fix linux dp link lost handled only one time")
+0c2bfcc338eb ("drm/amd/display: Add Function declaration in dc_link")
+6ca7415f11af ("drm/amd/display: merge dc_link_dp into dc_link")
+de3fb390175b ("drm/amd/display: move dp cts functions from dc_link_dp to link_dp_cts")
+c5a31f178e35 ("drm/amd/display: move dp irq handler functions from dc_link_dp to link_dp_irq_handler")
+0078c924e733 ("drm/amd/display: move eDP panel control logic to link_edp_panel_control")
+bc33f5e5f05b ("drm/amd/display: create accessories, hwss and protocols sub folders in link")
+2daeb74b7d66 ("drm/amdgpu/display/mst: update mst_mgr relevant variable when long HPD")
+028c4ccfb812 ("drm/amd/display: force connector state when bpc changes during compliance")
+603a521ec279 ("drm/amd/display: remove duplicate included header files")
+bd3149014dff ("drm/amd/display: Decrease messaging about DP alt mode state to debug")
+d5a43956b73b ("drm/amd/display: move dp capability related logic to link_dp_capability")
+94dfeaa46925 ("drm/amd/display: move dp phy related logic to link_dp_phy")
+630168a97314 ("drm/amd/display: move dp link training logic to link_dp_training")
+d144b40a4833 ("drm/amd/display: move dc_link_dpia logic to link_dp_dpia")
 
 thanks,
 
@@ -74,43 +93,65 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 709671ffb15dcd1b4f6afe2a9d8c67c7c4ead4a1 Mon Sep 17 00:00:00 2001
-From: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
-Date: Mon, 27 Feb 2023 18:55:07 -0500
-Subject: [PATCH] drm/amd/display: Remove OTG DIV register write for Virtual
- signals.
+From cbd6c1b17d3b42b7935526a86ad5f66838767d03 Mon Sep 17 00:00:00 2001
+From: Cruise Hung <Cruise.Hung@amd.com>
+Date: Thu, 2 Mar 2023 10:33:51 +0800
+Subject: [PATCH] drm/amd/display: Fix DP MST sinks removal issue
 
-[WHY]
-Hot plugging and then hot unplugging leads to k1 and k2 values to
-change, as signal is detected as a virtual signal on hot unplug. Writing
-these values to OTG_PIXEL_RATE_DIV register might cause primary display
-to blank (known hw bug).
+[Why]
+In USB4 DP tunneling, it's possible to have this scenario that
+the path becomes unavailable and CM tears down the path a little bit late.
+So, in this case, the HPD is high but fails to read any DPCD register.
+That causes the link connection type to be set to sst.
+And not all sinks are removed behind the MST branch.
 
-[HOW]
-No longer write k1 and k2 values to register if signal is virtual, we
-have safe guards in place in the case that k1 and k2 is unassigned so
-that an unknown value is not written to the register either.
+[How]
+Restore the link connection type if it fails to read DPCD register.
 
 Cc: stable@vger.kernel.org
 Cc: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Samson Tam <Samson.Tam@amd.com>
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
 Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
+Signed-off-by: Cruise Hung <Cruise.Hung@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-index 16f892125b6f..9d14045cccd6 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-@@ -1104,7 +1104,7 @@ unsigned int dcn32_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsign
- 			*k2_div = PIXEL_RATE_DIV_BY_2;
- 		else
- 			*k2_div = PIXEL_RATE_DIV_BY_4;
--	} else if (dc_is_dp_signal(stream->signal) || dc_is_virtual_signal(stream->signal)) {
-+	} else if (dc_is_dp_signal(stream->signal)) {
- 		if (two_pix_per_container) {
- 			*k1_div = PIXEL_RATE_DIV_BY_1;
- 			*k2_div = PIXEL_RATE_DIV_BY_2;
+diff --git a/drivers/gpu/drm/amd/display/dc/link/link_detection.c b/drivers/gpu/drm/amd/display/dc/link/link_detection.c
+index 38216c789d77..f70025ef7b69 100644
+--- a/drivers/gpu/drm/amd/display/dc/link/link_detection.c
++++ b/drivers/gpu/drm/amd/display/dc/link/link_detection.c
+@@ -855,6 +855,7 @@ static bool detect_link_and_local_sink(struct dc_link *link,
+ 	struct dc_sink *prev_sink = NULL;
+ 	struct dpcd_caps prev_dpcd_caps;
+ 	enum dc_connection_type new_connection_type = dc_connection_none;
++	enum dc_connection_type pre_connection_type = link->type;
+ 	const uint32_t post_oui_delay = 30; // 30ms
+ 
+ 	DC_LOGGER_INIT(link->ctx->logger);
+@@ -957,6 +958,8 @@ static bool detect_link_and_local_sink(struct dc_link *link,
+ 			}
+ 
+ 			if (!detect_dp(link, &sink_caps, reason)) {
++				link->type = pre_connection_type;
++
+ 				if (prev_sink)
+ 					dc_sink_release(prev_sink);
+ 				return false;
+@@ -1244,11 +1247,16 @@ bool link_detect(struct dc_link *link, enum dc_detect_reason reason)
+ 	bool is_delegated_to_mst_top_mgr = false;
+ 	enum dc_connection_type pre_link_type = link->type;
+ 
++	DC_LOGGER_INIT(link->ctx->logger);
++
+ 	is_local_sink_detect_success = detect_link_and_local_sink(link, reason);
+ 
+ 	if (is_local_sink_detect_success && link->local_sink)
+ 		verify_link_capability(link, link->local_sink, reason);
+ 
++	DC_LOG_DC("%s: link_index=%d is_local_sink_detect_success=%d pre_link_type=%d link_type=%d\n", __func__,
++				link->link_index, is_local_sink_detect_success, pre_link_type, link->type);
++
+ 	if (is_local_sink_detect_success && link->local_sink &&
+ 			dc_is_dp_signal(link->local_sink->sink_signal) &&
+ 			link->dpcd_caps.is_mst_capable)
 
