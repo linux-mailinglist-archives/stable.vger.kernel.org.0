@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B85776C168E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B4E6C1897
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232237AbjCTPHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
+        id S232796AbjCTPZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:25:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232002AbjCTPGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D56F72A2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:23 -0700 (PDT)
+        with ESMTP id S232816AbjCTPZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579FB31E11
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF796B80ED0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 079E3C4339B;
-        Mon, 20 Mar 2023 15:02:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE0AAB80EC4
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D79C433EF;
+        Mon, 20 Mar 2023 15:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324541;
-        bh=St5Ji6FgxOU1wLkYWLknQwVHLTpACLHUrJhOa0TCgEQ=;
+        s=korg; t=1679325523;
+        bh=bRb6TR5KYwtr9MR7+KocAOUsZL7ovGjeYKku9GQ4Ra4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hTtX/HMAZpq/G8xIlvHDFaxoLoaj9mCduTdcUWlLDkwDnQ2WWNdp4EocYU6ZeljmX
-         aoIJzDnG5beiMp8hVY7SQzKsdhaK0sPQVUe42HZMrvPMiXJ6+66S4TEaoz1RY7uC0k
-         bjOpztIZWj18EeuE11YQ+1ONWjgPNRK7QbfjwZ+8=
+        b=msI87XZXeZWpaWieWYx4NOY5c49/9OCyoloMqyvdm0bKkSy+7ClXTwIMgq2OEIxV0
+         fG5y+QTfKRQlj1KVOvpUzxadX24ONceP8TgENf0T75ICkWYr2gb15htFnLGAJjMh7X
+         +oqltOmBa5WW4TCZYPhObbXlcOgBkX6A0y6Hw5v4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
-        syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/99] scsi: core: Fix a procfs host directory removal regression
+Subject: [PATCH 6.1 094/198] hwmon: (adt7475) Fix masking of hysteresis registers
 Date:   Mon, 20 Mar 2023 15:53:52 +0100
-Message-Id: <20230320145443.951985817@linuxfoundation.org>
+Message-Id: <20230320145511.496995149@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,44 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
 
-[ Upstream commit be03df3d4bfe7e8866d4aa43d62e648ffe884f5f ]
+[ Upstream commit 48e8186870d9d0902e712d601ccb7098cb220688 ]
 
-scsi_proc_hostdir_rm() decreases a reference counter and hence must only be
-called once per host that is removed. This change does not require a
-scsi_add_host_with_dma() change since scsi_add_host_with_dma() will return
-0 (success) if scsi_proc_host_add() is called.
+The wrong bits are masked in the hysteresis register; indices 0 and 2
+should zero bits [7:4] and preserve bits [3:0], and index 1 should zero
+bits [3:0] and preserve bits [7:4].
 
-Fixes: fc663711b944 ("scsi: core: Remove the /proc/scsi/${proc_name} directory earlier")
-Cc: John Garry <john.g.garry@oracle.com>
-Reported-by: John Garry <john.g.garry@oracle.com>
-Link: https://lore.kernel.org/all/ed6b8027-a9d9-1b45-be8e-df4e8c6c4605@oracle.com/
-Reported-by: syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-scsi/000000000000890fab05f65342b6@google.com/
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20230307214428.3703498-1-bvanassche@acm.org
-Tested-by: John Garry <john.g.garry@oracle.com>
-Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 1c301fc5394f ("hwmon: Add a driver for the ADT7475 hardware monitoring chip")
+Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20230222005228.158661-3-tony.obrien@alliedtelesis.co.nz
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/hwmon/adt7475.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 0fd2487203ff5..18321cf9db5d6 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -322,9 +322,6 @@ static void scsi_host_dev_release(struct device *dev)
- 	struct Scsi_Host *shost = dev_to_shost(dev);
- 	struct device *parent = dev->parent;
+diff --git a/drivers/hwmon/adt7475.c b/drivers/hwmon/adt7475.c
+index 77222c35a38ec..6e4c92b500b8e 100644
+--- a/drivers/hwmon/adt7475.c
++++ b/drivers/hwmon/adt7475.c
+@@ -488,10 +488,10 @@ static ssize_t temp_store(struct device *dev, struct device_attribute *attr,
+ 		val = (temp - val) / 1000;
  
--	/* In case scsi_remove_host() has not been called. */
--	scsi_proc_hostdir_rm(shost->hostt);
--
- 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
- 	rcu_barrier();
+ 		if (sattr->index != 1) {
+-			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
++			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
+ 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF) << 4;
+ 		} else {
+-			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
++			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
+ 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF);
+ 		}
  
 -- 
 2.39.2
