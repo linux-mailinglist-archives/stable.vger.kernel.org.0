@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4E846C184A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0DA56C183C
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbjCTPXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59432 "EHLO
+        id S232686AbjCTPWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:22:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232704AbjCTPWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E92EF88
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:16 -0700 (PDT)
+        with ESMTP id S232739AbjCTPWC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A49EE2ED57
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EEEE615AD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D41CC433EF;
-        Mon, 20 Mar 2023 15:15:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8188261593
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC23C433EF;
+        Mon, 20 Mar 2023 15:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325336;
-        bh=cu8KAXnHTm7sqjT7q12dH0X+OYUeQPqKJEzdCvHjg7g=;
+        s=korg; t=1679325344;
+        bh=xDcV1/srJoF5WCumscxvQSNTMwTYz8+Rs4NROu8Uv88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAMTODCLeD5YZ5hi9eYow7Mjis/GYvlN9ZOeBkEXJuhrVJ1o4ckU78cAMtr9byu7N
-         e4L42fCdft0W/XrOjL3DczKMDD4HDT3+wwEKBMj/3XhLYangoCY18KSs4j7Ni6ADT+
-         O98sD2cWqTdg/Galn2M7G6Vo2T75voi3ifHJH4TY=
+        b=2SC9e6p9jCQfqovfjwXy7kvMg2CR+3KRFJQHTH728217WFsjXGHsk5jQoew962sOm
+         pJzEKwEQinML0OjDDCOSkFJQwYo07Pirk12pvjjz/nL6cRawuC5aC1tyo1Eup6zAjk
+         Ag/w5bbwRqKRb3JDZUeYUJIld2eMdOGOm9TlIfSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <mumei6102@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 092/115] drm/amd/pm: Fix sienna cichlid incorrect OD volage after resume
-Date:   Mon, 20 Mar 2023 15:55:04 +0100
-Message-Id: <20230320145453.279827316@linuxfoundation.org>
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Christoph Paasch <cpaasch@apple.com>
+Subject: [PATCH 5.15 093/115] mptcp: fix possible deadlock in subflow_error_report
+Date:   Mon, 20 Mar 2023 15:55:05 +0100
+Message-Id: <20230320145453.329372024@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
 References: <20230320145449.336983711@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,108 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Błażej Szczygieł <mumei6102@gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit a9386ee9681585794dbab95d4ce6826f73d19af6 upstream.
+commit b7a679ba7c652587b85294f4953f33ac0b756d40 upstream.
 
-Always setup overdrive tables after resume. Preserve only some
-user-defined settings in user_overdrive_table if they're set.
+Christoph reported a possible deadlock while the TCP stack
+destroys an unaccepted subflow due to an incoming reset: the
+MPTCP socket error path tries to acquire the msk-level socket
+lock while TCP still owns the listener socket accept queue
+spinlock, and the reverse dependency already exists in the
+TCP stack.
 
-Copy restored user_overdrive_table into od_table to get correct
-values.
+Note that the above is actually a lockdep false positive, as
+the chain involves two separate sockets. A different per-socket
+lockdep key will address the issue, but such a change will be
+quite invasive.
 
-On cold boot, BTC was triggered and GfxVfCurve was calibrated. We
-got VfCurve settings (a). On resuming back, BTC will be triggered
-again and GfxVfCurve will be recalibrated. VfCurve settings (b)
-got may be different from those of cold boot.  So if we reuse
-those VfCurve settings (a) got on cold boot on suspend, we can
-run into discrepencies.
+Instead, we can simply stop earlier the socket error handling
+for orphaned or unaccepted subflows, breaking the critical
+lockdep chain. Error handling in such a scenario is a no-op.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1897
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2276
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Błażej Szczygieł <mumei6102@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-and-tested-by: Christoph Paasch <cpaasch@apple.com>
+Fixes: 15cc10453398 ("mptcp: deliver ssk errors to msk")
 Cc: stable@vger.kernel.org
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/355
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c |   43 ++++++++++++----
- 1 file changed, 33 insertions(+), 10 deletions(-)
+ net/mptcp/subflow.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -2013,16 +2013,9 @@ static int sienna_cichlid_set_default_od
- 		(OverDriveTable_t *)smu->smu_table.boot_overdrive_table;
- 	OverDriveTable_t *user_od_table =
- 		(OverDriveTable_t *)smu->smu_table.user_overdrive_table;
-+	OverDriveTable_t user_od_table_bak;
- 	int ret = 0;
- 
--	/*
--	 * For S3/S4/Runpm resume, no need to setup those overdrive tables again as
--	 *   - either they already have the default OD settings got during cold bootup
--	 *   - or they have some user customized OD settings which cannot be overwritten
--	 */
--	if (smu->adev->in_suspend)
--		return 0;
--
- 	ret = smu_cmn_update_table(smu, SMU_TABLE_OVERDRIVE,
- 				   0, (void *)boot_od_table, false);
- 	if (ret) {
-@@ -2033,7 +2026,23 @@ static int sienna_cichlid_set_default_od
- 	sienna_cichlid_dump_od_table(smu, boot_od_table);
- 
- 	memcpy(od_table, boot_od_table, sizeof(OverDriveTable_t));
--	memcpy(user_od_table, boot_od_table, sizeof(OverDriveTable_t));
-+
-+	/*
-+	 * For S3/S4/Runpm resume, we need to setup those overdrive tables again,
-+	 * but we have to preserve user defined values in "user_od_table".
-+	 */
-+	if (!smu->adev->in_suspend) {
-+		memcpy(user_od_table, boot_od_table, sizeof(OverDriveTable_t));
-+		smu->user_dpm_profile.user_od = false;
-+	} else if (smu->user_dpm_profile.user_od) {
-+		memcpy(&user_od_table_bak, user_od_table, sizeof(OverDriveTable_t));
-+		memcpy(user_od_table, boot_od_table, sizeof(OverDriveTable_t));
-+		user_od_table->GfxclkFmin = user_od_table_bak.GfxclkFmin;
-+		user_od_table->GfxclkFmax = user_od_table_bak.GfxclkFmax;
-+		user_od_table->UclkFmin = user_od_table_bak.UclkFmin;
-+		user_od_table->UclkFmax = user_od_table_bak.UclkFmax;
-+		user_od_table->VddGfxOffset = user_od_table_bak.VddGfxOffset;
-+	}
- 
- 	return 0;
- }
-@@ -2243,6 +2252,20 @@ static int sienna_cichlid_od_edit_dpm_ta
- 	return ret;
- }
- 
-+static int sienna_cichlid_restore_user_od_settings(struct smu_context *smu)
-+{
-+	struct smu_table_context *table_context = &smu->smu_table;
-+	OverDriveTable_t *od_table = table_context->overdrive_table;
-+	OverDriveTable_t *user_od_table = table_context->user_overdrive_table;
-+	int res;
-+
-+	res = smu_v11_0_restore_user_od_settings(smu);
-+	if (res == 0)
-+		memcpy(od_table, user_od_table, sizeof(OverDriveTable_t));
-+
-+	return res;
-+}
-+
- static int sienna_cichlid_run_btc(struct smu_context *smu)
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1316,6 +1316,13 @@ static void subflow_error_report(struct
  {
- 	return smu_cmn_send_smc_msg(smu, SMU_MSG_RunDcBtc, NULL);
-@@ -3980,7 +4003,7 @@ static const struct pptable_funcs sienna
- 	.set_soft_freq_limited_range = smu_v11_0_set_soft_freq_limited_range,
- 	.set_default_od_settings = sienna_cichlid_set_default_od_settings,
- 	.od_edit_dpm_table = sienna_cichlid_od_edit_dpm_table,
--	.restore_user_od_settings = smu_v11_0_restore_user_od_settings,
-+	.restore_user_od_settings = sienna_cichlid_restore_user_od_settings,
- 	.run_btc = sienna_cichlid_run_btc,
- 	.set_power_source = smu_v11_0_set_power_source,
- 	.get_pp_feature_mask = smu_cmn_get_pp_feature_mask,
+ 	struct sock *sk = mptcp_subflow_ctx(ssk)->conn;
+ 
++	/* bail early if this is a no-op, so that we avoid introducing a
++	 * problematic lockdep dependency between TCP accept queue lock
++	 * and msk socket spinlock
++	 */
++	if (!sk->sk_socket)
++		return;
++
+ 	mptcp_data_lock(sk);
+ 	if (!sock_owned_by_user(sk))
+ 		__mptcp_error_report(sk);
 
 
