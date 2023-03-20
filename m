@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB93E6C0D03
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:20:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6CD96C0D06
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230497AbjCTJUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:20:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
+        id S231168AbjCTJUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:20:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231247AbjCTJTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA8849D8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:52 -0700 (PDT)
+        with ESMTP id S231184AbjCTJUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:20:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14C461AE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:20:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59CB0B80C88
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5154C433EF;
-        Mon, 20 Mar 2023 09:19:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05C3B612CB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 179DFC433EF;
+        Mon, 20 Mar 2023 09:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303990;
-        bh=Fm8VmZjCOxEg5X7eYFUAUS560JFD/8LTLg5Z10A6vD8=;
+        s=korg; t=1679304012;
+        bh=UtB3l7NmRdbR2yDWv0SwcBekOhxInA/mQpOWUWNvo5M=;
         h=Subject:To:Cc:From:Date:From;
-        b=F/orMyj3GvAJA3nwFnjq8+aa68/QJv1fXGy3LjgqLBBRaLpV2RWz4wt3vPQpDKC9m
-         fxqLtCdwD/KvL2G/6zbvD9obydLByoyrfhNwfS3qRyE4RAAfT4pyfUAvrUgfzwTGbv
-         8QvIemijDZes+8/v2k04ZM4PgkpUaHQt2VnhNcXs=
-Subject: FAILED: patch "[PATCH] interconnect: imx: fix registration race" failed to apply to 5.10-stable tree
-To:     johan+linaro@kernel.org, abailon@baylibre.com, djakov@kernel.org,
-        konrad.dybcio@linaro.org, luca.ceresoli@bootlin.com
+        b=Qh3KErAad5FAc5pHe9QcoBoio6mgwW1+1FZUKq+9sYxoG7jIvJ6XiQkGoC471p4f8
+         MOsHmAxWcc3yYqEXyVAxQVVVcO2GDuPmjsujvJvfd/rF3dtnf6wMylcZkkin0bDlEr
+         BgJN0B6fUGdyxSKdZBELdToLFaot27tIMN74nrgU=
+Subject: FAILED: patch "[PATCH] interconnect: qcom: osm-l3: fix registration race" failed to apply to 5.15-stable tree
+To:     johan+linaro@kernel.org, djakov@kernel.org,
+        konrad.dybcio@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:19:39 +0100
-Message-ID: <167930397951185@kroah.com>
+Date:   Mon, 20 Mar 2023 10:20:09 +0100
+Message-ID: <167930400918528@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,28 +48,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
-git cherry-pick -x 9fbd35520f1f7f3cbe1873939a27ad9b009f21f9
+git cherry-pick -x 174941ed28a3573db075da46d95b4dcf9d4c49c2
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930397951185@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930400918528@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
-9fbd35520f1f ("interconnect: imx: fix registration race")
-f62e3f595c5f ("interconnect: imx: Make imx_icc_unregister() return void")
-7ec26b8dcc5c ("interconnect: imx: Ignore return value of icc_provider_del() in .remove()")
-c14ec5c93dc8 ("interconnect: imx: Add platform driver for imx8mp")
-7980d85a9443 ("interconnect: imx: configure NoC mode/prioriry/ext_control")
-12db59e8e0a2 ("interconnect: imx: introduce imx_icc_provider")
+174941ed28a3 ("interconnect: qcom: osm-l3: fix registration race")
+f221bd781f25 ("interconnect: osm-l3: Ignore return value of icc_provider_del() in .remove()")
 
 thanks,
 
@@ -77,77 +73,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9fbd35520f1f7f3cbe1873939a27ad9b009f21f9 Mon Sep 17 00:00:00 2001
+From 174941ed28a3573db075da46d95b4dcf9d4c49c2 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan+linaro@kernel.org>
-Date: Mon, 6 Mar 2023 08:56:32 +0100
-Subject: [PATCH] interconnect: imx: fix registration race
+Date: Mon, 6 Mar 2023 08:56:33 +0100
+Subject: [PATCH] interconnect: qcom: osm-l3: fix registration race
 
 The current interconnect provider registration interface is inherently
 racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to fail.
+can specifically cause racing DT lookups to fail:
+
+	of_icc_xlate_onecell: invalid index 0
+	cpu cpu0: error -EINVAL: error finding src node
+	cpu cpu0: dev_pm_opp_of_find_icc_paths: Unable to get path0: -22
+	qcom-cpufreq-hw: probe of 18591000.cpufreq failed with error -22
 
 Switch to using the new API where the provider is not registered until
 after it has been fully initialised.
 
-Fixes: f0d8048525d7 ("interconnect: Add imx core driver")
-Cc: stable@vger.kernel.org      # 5.8
-Cc: Alexandre Bailon <abailon@baylibre.com>
+Fixes: 5bc9900addaf ("interconnect: qcom: Add OSM L3 interconnect provider support")
+Cc: stable@vger.kernel.org      # 5.7
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
-Link: https://lore.kernel.org/r/20230306075651.2449-5-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/20230306075651.2449-6-johan+linaro@kernel.org
 Signed-off-by: Georgi Djakov <djakov@kernel.org>
 
-diff --git a/drivers/interconnect/imx/imx.c b/drivers/interconnect/imx/imx.c
-index 823d9be9771a..979ed610f704 100644
---- a/drivers/interconnect/imx/imx.c
-+++ b/drivers/interconnect/imx/imx.c
-@@ -295,6 +295,9 @@ int imx_icc_register(struct platform_device *pdev,
- 	provider->xlate = of_icc_xlate_onecell;
- 	provider->data = data;
- 	provider->dev = dev->parent;
-+
-+	icc_provider_init(provider);
-+
- 	platform_set_drvdata(pdev, imx_provider);
+diff --git a/drivers/interconnect/qcom/osm-l3.c b/drivers/interconnect/qcom/osm-l3.c
+index 1bc01ff6e02a..1bafb54f1432 100644
+--- a/drivers/interconnect/qcom/osm-l3.c
++++ b/drivers/interconnect/qcom/osm-l3.c
+@@ -158,8 +158,8 @@ static int qcom_osm_l3_remove(struct platform_device *pdev)
+ {
+ 	struct qcom_osm_l3_icc_provider *qp = platform_get_drvdata(pdev);
  
- 	if (settings) {
-@@ -306,20 +309,18 @@ int imx_icc_register(struct platform_device *pdev,
- 		}
- 	}
++	icc_provider_deregister(&qp->provider);
+ 	icc_nodes_remove(&qp->provider);
+-	icc_provider_del(&qp->provider);
+ 
+ 	return 0;
+ }
+@@ -245,14 +245,9 @@ static int qcom_osm_l3_probe(struct platform_device *pdev)
+ 	provider->set = qcom_osm_l3_set;
+ 	provider->aggregate = icc_std_aggregate;
+ 	provider->xlate = of_icc_xlate_onecell;
+-	INIT_LIST_HEAD(&provider->nodes);
+ 	provider->data = data;
  
 -	ret = icc_provider_add(provider);
 -	if (ret) {
--		dev_err(dev, "error adding interconnect provider: %d\n", ret);
-+	ret = imx_icc_register_nodes(imx_provider, nodes, nodes_count, settings);
-+	if (ret)
- 		return ret;
+-		dev_err(&pdev->dev, "error adding interconnect provider\n");
+-		return ret;
 -	}
++	icc_provider_init(provider);
  
--	ret = imx_icc_register_nodes(imx_provider, nodes, nodes_count, settings);
+ 	for (i = 0; i < num_nodes; i++) {
+ 		size_t j;
+@@ -275,12 +270,15 @@ static int qcom_osm_l3_probe(struct platform_device *pdev)
+ 	}
+ 	data->num_nodes = num_nodes;
+ 
 +	ret = icc_provider_register(provider);
- 	if (ret)
--		goto provider_del;
-+		goto err_unregister_nodes;
++	if (ret)
++		goto err;
++
+ 	platform_set_drvdata(pdev, qp);
  
  	return 0;
- 
--provider_del:
+ err:
+ 	icc_nodes_remove(provider);
 -	icc_provider_del(provider);
-+err_unregister_nodes:
-+	imx_icc_unregister_nodes(&imx_provider->provider);
+ 
  	return ret;
  }
- EXPORT_SYMBOL_GPL(imx_icc_register);
-@@ -328,9 +329,8 @@ void imx_icc_unregister(struct platform_device *pdev)
- {
- 	struct imx_icc_provider *imx_provider = platform_get_drvdata(pdev);
- 
-+	icc_provider_deregister(&imx_provider->provider);
- 	imx_icc_unregister_nodes(&imx_provider->provider);
--
--	icc_provider_del(&imx_provider->provider);
- }
- EXPORT_SYMBOL_GPL(imx_icc_unregister);
- 
 
