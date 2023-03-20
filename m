@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B12DC6C0D02
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:20:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB93E6C0D03
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:20:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230149AbjCTJUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53260 "EHLO
+        id S230497AbjCTJUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231207AbjCTJTu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2FE199E8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:44 -0700 (PDT)
+        with ESMTP id S231247AbjCTJTy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA8849D8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB724B80D84
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 025A9C433EF;
-        Mon, 20 Mar 2023 09:19:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59CB0B80C88
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5154C433EF;
+        Mon, 20 Mar 2023 09:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303981;
-        bh=04Eyj2bsOOtfxtOddp/B9Qzc+fxXweufEoGDqvfo3ys=;
+        s=korg; t=1679303990;
+        bh=Fm8VmZjCOxEg5X7eYFUAUS560JFD/8LTLg5Z10A6vD8=;
         h=Subject:To:Cc:From:Date:From;
-        b=cOJSHSKEz+h23+Iuqdv+0JIc5EmgTdXjFDkZfq67G+4CS+5GvUy3c7eWBUklXdF94
-         n59p/FQ3VwAZAi8eVBujlBHQT7iHnZ+5TkIfef4Ejc4H42LIdcakIYuCN0i8hu+eGA
-         5lCcgTTxDkrPSFVVFlgK1J4tOjw/RiXIQvhuA274=
-Subject: FAILED: patch "[PATCH] interconnect: imx: fix registration race" failed to apply to 5.15-stable tree
+        b=F/orMyj3GvAJA3nwFnjq8+aa68/QJv1fXGy3LjgqLBBRaLpV2RWz4wt3vPQpDKC9m
+         fxqLtCdwD/KvL2G/6zbvD9obydLByoyrfhNwfS3qRyE4RAAfT4pyfUAvrUgfzwTGbv
+         8QvIemijDZes+8/v2k04ZM4PgkpUaHQt2VnhNcXs=
+Subject: FAILED: patch "[PATCH] interconnect: imx: fix registration race" failed to apply to 5.10-stable tree
 To:     johan+linaro@kernel.org, abailon@baylibre.com, djakov@kernel.org,
         konrad.dybcio@linaro.org, luca.ceresoli@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:19:38 +0100
-Message-ID: <1679303978128132@kroah.com>
+Date:   Mon, 20 Mar 2023 10:19:39 +0100
+Message-ID: <167930397951185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 9fbd35520f1f7f3cbe1873939a27ad9b009f21f9
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303978128132@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930397951185@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
