@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2BA6C19C9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F07E46C197B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233179AbjCTPiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:38:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60514 "EHLO
+        id S232235AbjCTPeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233171AbjCTPhr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:37:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FDCA3B641
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:21 -0700 (PDT)
+        with ESMTP id S232469AbjCTPdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76EB72FCCD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 062EFB80ED7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5127CC433D2;
-        Mon, 20 Mar 2023 15:29:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAD236154E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7B8C433EF;
+        Mon, 20 Mar 2023 15:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326156;
-        bh=JwpjM/WD8Rnle4fVUJBLIFWdz8yMifu+okXcPrSI+zw=;
+        s=korg; t=1679325989;
+        bh=2H03kPlgVZ9UReKwuHr8cdjhGt7MIJ9YvOECSJbxdBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxvoBrNkDJG1KV+3e1mkhJaQ3RahEWnSgCFobK8kKUN/4euslyKYWRykyn2lsXfGo
-         0vkqVizoDeTaCX4JxiIYU7XGAVE29evUehsjY+/FM2b8r8em/T7jCFHJipR/jKdY76
-         wr/O6MqeOBYm4IXIan3hEJEdqJvYpQz479z7qkEM=
+        b=ea8pof2NkTVFqtzJB+2dkIHMO3haFh8YKNYuLvEnfJRvxZnu3LAGrt/5uDtoOJdSJ
+         W2+C3QpixrxAQ5vFrglyTIw/CE7RHY3CfXavwLpWFCwArXN4Y4yQaYHEDrvDpz1pmk
+         qsE/wtcDII4j1thPp6zpwlack3KrlYUEYmLUr368=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Elmer Miroslav Mosher Golovin <miroslav@mishamosher.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 6.2 182/211] nvme-pci: add NVME_QUIRK_BOGUS_NID for Netac NV3000
+        patches@lists.linux.dev, Tero Kristo <tero.kristo@linux.intel.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.1 179/198] trace/hwlat: Do not wipe the contents of per-cpu thread data
 Date:   Mon, 20 Mar 2023 15:55:17 +0100
-Message-Id: <20230320145521.116511826@linuxfoundation.org>
+Message-Id: <20230320145514.989427662@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,31 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elmer Miroslav Mosher Golovin <miroslav@mishamosher.com>
+From: Tero Kristo <tero.kristo@linux.intel.com>
 
-commit 9630d80655bfe7e62e4aff2889dc4eae7ceeb887 upstream.
+commit 4c42f5f0d1dd20bddd9f940beb1e6ccad60c4498 upstream.
 
-Added a quirk to fix the Netac NV3000 SSD reporting duplicate NGUIDs.
+Do not wipe the contents of the per-cpu kthread data when starting the
+tracer, as this will completely forget about already running instances
+and can later start new additional per-cpu threads.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Elmer Miroslav Mosher Golovin <miroslav@mishamosher.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/all/20230302113654.2984709-1-tero.kristo@linux.intel.com/
+Link: https://lkml.kernel.org/r/20230310100451.3948583-2-tero.kristo@linux.intel.com
+
+Cc: stable@vger.kernel.org
+Fixes: f46b16520a087 ("trace/hwlat: Implement the per-cpu mode")
+Signed-off-by: Tero Kristo <tero.kristo@linux.intel.com>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace_hwlat.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3468,6 +3468,8 @@ static const struct pci_device_id nvme_i
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
- 	{ PCI_DEVICE(0x2646, 0x501E),   /* KINGSTON OM3PGP4xxxxQ OS21011 NVMe SSD */
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x1f40, 0x1202),   /* Netac Technologies Co. NV3000 NVMe SSD */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1f40, 0x5236),   /* Netac Technologies Co. NV7000 NVMe SSD */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1e4B, 0x1001),   /* MAXIO MAP1001 */
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -584,9 +584,6 @@ static int start_per_cpu_kthreads(struct
+ 	 */
+ 	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
+ 
+-	for_each_online_cpu(cpu)
+-		per_cpu(hwlat_per_cpu_data, cpu).kthread = NULL;
+-
+ 	for_each_cpu(cpu, current_mask) {
+ 		retval = start_cpu_kthread(cpu);
+ 		if (retval)
 
 
