@@ -2,162 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12CE46C23B5
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 22:31:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2936C240E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 22:45:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230451AbjCTVbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 17:31:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S229668AbjCTVpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 17:45:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230366AbjCTVbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 17:31:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B28301BE;
-        Mon, 20 Mar 2023 14:30:54 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16CA8616B5;
-        Mon, 20 Mar 2023 21:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C89BC433D2;
-        Mon, 20 Mar 2023 21:30:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1679347800;
-        bh=v7CVZRNVtMzr2jazIMDrPdjA2KcXkTYMUdCdiyE0D9E=;
-        h=Date:To:From:Subject:From;
-        b=VFmdfJVZUBuwu+shdTc7Jwoe2USXN8c7pxddwRuuTEaDVDaNEbcBJI89r4bH72Qqo
-         zpJg+5HnSWxNvwZuZO+0HKVBahTzRfZNOQm5+GsNkmACSn7XRgR4rMBF/1vYxh39Wl
-         Q19v68rWlnxDU+0JhJlpSRGoVq8m2Hgt9WoYgtMQ=
-Date:   Mon, 20 Mar 2023 14:29:59 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        sjpark@amazon.de, roman.gushchin@linux.dev, jannh@google.com,
-        glider@google.com, elver@google.com, dvyukov@google.com,
-        songmuchun@bytedance.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230320213000.6C89BC433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S231135AbjCTVpH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 17:45:07 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88F5223C62
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:44:37 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id x15so3279777pjk.2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:44:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679348676;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=DcV7qOsLSp/hUNMnqF0syf5C0BHpwM6O/qIA4bJLMLE=;
+        b=Uo8Ofla0zpIm5fUlutwDdEf6Kd+9G92t36zHfe4xhDYVUm2uJcHOYiwFts0bxIpUOY
+         O5fzqWmSRcFzQlzGamvSJ5XD98E67sVuQCuE8bmOJ4X9DvCkcomYbfKPVvF1oIu4brnF
+         O/YneGvQMOr3JydhpHMet0I595Dpxjn+SsSJP5/tCLDsAZ5Wvxi6IkFYr1jBCATyzNaX
+         Ok48/jKJl+1bjkq6ptqYphsVI+NtzeSvc3lZgyscXYCoi/Nb+OS1hSjILEFtY2+OrCpG
+         wxfCDsoHHsy/MgFYPJByH5K+hqT3Fy+kwywL0MKG8+RlXvZLKTfHuhyrz5xPOtdlu/Kw
+         rXMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679348676;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DcV7qOsLSp/hUNMnqF0syf5C0BHpwM6O/qIA4bJLMLE=;
+        b=wf8qQ5D9jCmcixUOjc/G2qpqt0YxqSp96j4fHtFaNdgc4xXDwXh5dUZFsuUWqdAco3
+         0xYHhJ7xkn+wdUCpnks9s6BqLjo9+CrpWA5ZEmGlfdQHTEtYh3q2JOH0pno6fGyVmEtM
+         9HAZkwwM4wXuMq7wbXeKzc/2m7fniW/wjrWg+XCXQkwbUkL834PfPA+eqi470FYRFy7k
+         LaML6E2z/lps/WX3bscUe17ohmIar/mQczDQByrsMdLM9FP3MpnjYgwjzyUOiD4j4Zs0
+         8ACOR4+uKLwe2wDfXeEn2RnhIVSXzjut3KlsFF+KGroif0a0s/axhmlg81aoVTRpi01F
+         H9hw==
+X-Gm-Message-State: AO0yUKW0wX+r1g1exFjh+Bi9BuNCk7QgPbz4iQVoJug0aCPjk7ZyOqJe
+        hccPbpWmgqytbHL2xUZZlNRIi+kU9c+ilNmUV+4=
+X-Google-Smtp-Source: AK7set8tn+W8ENvW2DHceLJd/wTBUl0EFN/vObLu5iynHR4EjHVcc6hfLZ2DEmTUgn2A+VUTEJltqA==
+X-Received: by 2002:a17:903:2847:b0:1a1:a5e7:a7cd with SMTP id kq7-20020a170903284700b001a1a5e7a7cdmr13251414plb.5.1679348676561;
+        Mon, 20 Mar 2023 14:44:36 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 21-20020a170902c15500b0019f9fd10f62sm7226554plj.70.2023.03.20.14.44.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Mar 2023 14:44:36 -0700 (PDT)
+Message-ID: <6418d3c4.170a0220.f8919.c86c@mx.google.com>
+Date:   Mon, 20 Mar 2023 14:44:36 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.175-100-g1686e1df6521
+Subject: stable-rc/linux-5.10.y baseline: 178 runs,
+ 4 regressions (v5.10.175-100-g1686e1df6521)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.10.y baseline: 178 runs, 4 regressions (v5.10.175-100-g16=
+86e1df6521)
 
-The patch titled
-     Subject: mm: kfence: fix PG_slab and memcg_data clearing
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
+Regressions Summary
+-------------------
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+cubietruck       | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig   =
+      | 1          =
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+fsl-lx2160a-rdb  | arm64 | lab-nxp       | gcc-10   | defconfig            =
+      | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: kfence: fix PG_slab and memcg_data clearing
-Date: Mon, 20 Mar 2023 11:00:59 +0800
-
-It does not reset PG_slab and memcg_data when KFENCE fails to initialize
-kfence pool at runtime.  It is reporting a "Bad page state" message when
-kfence pool is freed to buddy.  The checking of whether it is a compound
-head page seems unnecessary sicne we already guarantee this when
-allocating kfence pool, removing the check to simplify the code.
-
-Link: https://lkml.kernel.org/r/20230320030059.20189-1-songmuchun@bytedance.com
-Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
-Fixes: 8f0b36497303 ("mm: kfence: fix objcgs vector allocation")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: SeongJae Park <sjpark@amazon.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 2          =
 
 
---- a/mm/kfence/core.c~mm-kfence-fix-pg_slab-and-memcg_data-clearing
-+++ a/mm/kfence/core.c
-@@ -561,10 +561,6 @@ static unsigned long kfence_init_pool(vo
- 		if (!i || (i % 2))
- 			continue;
- 
--		/* Verify we do not have a compound head page. */
--		if (WARN_ON(compound_head(&pages[i]) != &pages[i]))
--			return addr;
--
- 		__folio_set_slab(slab_folio(slab));
- #ifdef CONFIG_MEMCG
- 		slab->memcg_data = (unsigned long)&kfence_metadata[i / 2 - 1].objcg |
-@@ -597,12 +593,26 @@ static unsigned long kfence_init_pool(vo
- 
- 		/* Protect the right redzone. */
- 		if (unlikely(!kfence_protect(addr + PAGE_SIZE)))
--			return addr;
-+			goto reset_slab;
- 
- 		addr += 2 * PAGE_SIZE;
- 	}
- 
- 	return 0;
-+
-+reset_slab:
-+	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
-+		struct slab *slab = page_slab(&pages[i]);
-+
-+		if (!i || (i % 2))
-+			continue;
-+#ifdef CONFIG_MEMCG
-+		slab->memcg_data = 0;
-+#endif
-+		__folio_clear_slab(slab_folio(slab));
-+	}
-+
-+	return addr;
- }
- 
- static bool __init kfence_init_pool_early(void)
-@@ -632,16 +642,6 @@ static bool __init kfence_init_pool_earl
- 	 * fails for the first page, and therefore expect addr==__kfence_pool in
- 	 * most failure cases.
- 	 */
--	for (char *p = (char *)addr; p < __kfence_pool + KFENCE_POOL_SIZE; p += PAGE_SIZE) {
--		struct slab *slab = virt_to_slab(p);
--
--		if (!slab)
--			continue;
--#ifdef CONFIG_MEMCG
--		slab->memcg_data = 0;
--#endif
--		__folio_clear_slab(slab_folio(slab));
--	}
- 	memblock_free_late(__pa(addr), KFENCE_POOL_SIZE - (addr - (unsigned long)__kfence_pool));
- 	__kfence_pool = NULL;
- 	return false;
-_
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.175-100-g1686e1df6521/plan/baseline/
 
-Patches currently in -mm which might be from songmuchun@bytedance.com are
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.175-100-g1686e1df6521
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1686e1df652191033a9fc46dc7cf43cd169baa1a =
 
-mm-kfence-fix-using-kfence_metadata-without-initialization-in-show_object.patch
-mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
-mm-hugetlb_vmemmap-simplify-hugetlb_vmemmap_init-a-bit.patch
 
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+cubietruck       | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig   =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6418a0cfacd9e47b198c8638
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+75-100-g1686e1df6521/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+75-100-g1686e1df6521/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cu=
+bietruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6418a0cfacd9e47b198c8641
+        failing since 61 days (last pass: v5.10.158-107-gd2432186ff47, firs=
+t fail: v5.10.162-852-geeaac3cf2eb3)
+
+    2023-03-20T18:06:57.470139  + set +x<8>[   11.009871] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 3429789_1.5.2.4.1>
+    2023-03-20T18:06:57.470435  =
+
+    2023-03-20T18:06:57.577054  / # #
+    2023-03-20T18:06:57.678783  export SHELL=3D/bin/sh
+    2023-03-20T18:06:57.679151  #
+    2023-03-20T18:06:57.780128  / # export SHELL=3D/bin/sh. /lava-3429789/e=
+nvironment
+    2023-03-20T18:06:57.780514  =
+
+    2023-03-20T18:06:57.881766  / # . /lava-3429789/environment/lava-342978=
+9/bin/lava-test-runner /lava-3429789/1
+    2023-03-20T18:06:57.882457  =
+
+    2023-03-20T18:06:57.887099  / # /lava-3429789/bin/lava-test-runner /lav=
+a-3429789/1 =
+
+    ... (13 line(s) more)  =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+fsl-lx2160a-rdb  | arm64 | lab-nxp       | gcc-10   | defconfig            =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6418a34f9f9eec7a748c86e5
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+75-100-g1686e1df6521/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-rd=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+75-100-g1686e1df6521/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-lx2160a-rd=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6418a34f9f9eec7a748c86ec
+        failing since 16 days (last pass: v5.10.155, first fail: v5.10.172)
+
+    2023-03-20T18:17:24.555612  [    9.692375] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+1179474_1.5.2.4.1>
+    2023-03-20T18:17:24.661398  / # #
+    2023-03-20T18:17:24.763211  export SHELL=3D/bin/sh
+    2023-03-20T18:17:24.763793  #
+    2023-03-20T18:17:24.865274  / # export SHELL=3D/bin/sh. /lava-1179474/e=
+nvironment
+    2023-03-20T18:17:24.865807  =
+
+    2023-03-20T18:17:24.967324  / # . /lava-1179474/environment/lava-117947=
+4/bin/lava-test-runner /lava-1179474/1
+    2023-03-20T18:17:24.968228  =
+
+    2023-03-20T18:17:24.969878  / # /lava-1179474/bin/lava-test-runner /lav=
+a-1179474/1
+    2023-03-20T18:17:24.987251  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6418a1fdac0ce6c1f58c863a
+
+  Results:     84 PASS, 2 FAIL, 1 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+75-100-g1686e1df6521/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
+baseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+75-100-g1686e1df6521/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
+baseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-usb2phy1-probed: https://kernelci.org/test/cas=
+e/id/6418a1fdac0ce6c1f58c8644
+        failing since 6 days (last pass: v5.10.173, first fail: v5.10.173-4=
+-g955623617f2f)
+
+    2023-03-20T18:12:07.859492  <8>[   34.061649] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-usb2phy0-probed RESULT=3Dfail>
+
+    2023-03-20T18:12:08.885767  /lava-9703041/1/../bin/lava-test-case
+   =
+
+
+  * baseline.bootrr.rockchip-usb2phy0-probed: https://kernelci.org/test/cas=
+e/id/6418a1fdac0ce6c1f58c8645
+        failing since 6 days (last pass: v5.10.173, first fail: v5.10.173-4=
+-g955623617f2f)
+
+    2023-03-20T18:12:06.822446  <8>[   33.023897] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-usb2phy-driver-present RESULT=3Dpass>
+
+    2023-03-20T18:12:07.848822  /lava-9703041/1/../bin/lava-test-case
+   =
+
+ =20
