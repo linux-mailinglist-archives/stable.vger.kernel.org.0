@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0806C196D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62FFE6C19F2
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbjCTPdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
+        id S233044AbjCTPkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:40:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233016AbjCTPdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E6C34C05
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:59 -0700 (PDT)
+        with ESMTP id S233222AbjCTPjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B74472B8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:31:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61CB86158B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70EB5C433EF;
-        Mon, 20 Mar 2023 15:25:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06B75614CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A8FFC433D2;
+        Mon, 20 Mar 2023 15:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325958;
-        bh=dd5/yrhwsIMoVfvKzU7aoVMTKHaGgEjZFB+fVNJGZ5o=;
+        s=korg; t=1679326233;
+        bh=Pf2+Bs1sDNhP8gTIpToRaCRL2XpfbFMn3ho72QN7c14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abPxlzmf1UNMhq2NcMMdiJgMnRYt1Tv6xzy4IrOQ4hphSq6+aEuirMy3c/bqvHouj
-         DqySorcYa13rKUPmyAchN1srSKsgnlve1L1dOHHDpPj0BAxHw4B6u3bmqdxUJn5UD3
-         CSfiTe24Ofdsp9cW5G3o7yO0QQ2zYA+yVS7lziuM=
+        b=D+Gc5iMFljdZwdk9L7YGbqI2OXk4Eh6IFlScoWD4mggWPPw5qGeo8M3JpMciOkOSb
+         CKz8+lNWFg6OCeoBl99KNgWqO9CyA1nh76pTp5wIiQI00TMse5nla1jdka8dgFXgWu
+         2lckUr+QtTJhBEISPUsawDzGBfXwZq0paxx6UV9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Houghton <jthoughton@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 174/198] mm: teach mincore_hugetlb about pte markers
+        patches@lists.linux.dev, Geliang Tang <geliang.tang@suse.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 177/211] mptcp: add ro_after_init for tcp{,v6}_prot_override
 Date:   Mon, 20 Mar 2023 15:55:12 +0100
-Message-Id: <20230320145514.819200587@linuxfoundation.org>
+Message-Id: <20230320145520.880144454@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,47 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Houghton <jthoughton@google.com>
+From: Geliang Tang <geliang.tang@suse.com>
 
-commit 63cf584203f3367c8b073d417c8e5cbbfc450506 upstream.
+commit 822467a48e938e661965d09df5fcac66f7291050 upstream.
 
-By checking huge_pte_none(), we incorrectly classify PTE markers as
-"present".  Instead, check huge_pte_none_mostly(), classifying PTE markers
-the same as if the PTE were completely blank.
+Add __ro_after_init labels for the variables tcp_prot_override and
+tcpv6_prot_override, just like other variables adjacent to them, to
+indicate that they are initialised from the init hooks and no writes
+occur afterwards.
 
-PTE markers, unlike other kinds of swap entries, don't reference any
-physical page and don't indicate that a physical page was mapped
-previously.  As such, treat them as non-present for the sake of mincore().
-
-Link: https://lkml.kernel.org/r/20230302222404.175303-1-jthoughton@google.com
-Fixes: 5c041f5d1f23 ("mm: teach core mm about pte markers")
-Signed-off-by: James Houghton <jthoughton@google.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: James Houghton <jthoughton@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b19bc2945b40 ("mptcp: implement delegated actions")
+Cc: stable@vger.kernel.org
+Fixes: 51fa7f8ebf0e ("mptcp: mark ops structures as ro_after_init")
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mincore.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mptcp/subflow.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/mincore.c b/mm/mincore.c
-index cd69b9db0081..d359650b0f75 100644
---- a/mm/mincore.c
-+++ b/mm/mincore.c
-@@ -33,7 +33,7 @@ static int mincore_hugetlb(pte_t *pte, unsigned long hmask, unsigned long addr,
- 	 * Hugepages under user process are always in RAM and never
- 	 * swapped out, but theoretically it needs to be checked.
- 	 */
--	present = pte && !huge_pte_none(huge_ptep_get(pte));
-+	present = pte && !huge_pte_none_mostly(huge_ptep_get(pte));
- 	for (; addr != end; vec++, addr += PAGE_SIZE)
- 		*vec = present;
- 	walk->private = vec;
--- 
-2.40.0
-
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -627,7 +627,7 @@ static struct request_sock_ops mptcp_sub
+ static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops __ro_after_init;
+ static struct inet_connection_sock_af_ops subflow_v6_specific __ro_after_init;
+ static struct inet_connection_sock_af_ops subflow_v6m_specific __ro_after_init;
+-static struct proto tcpv6_prot_override;
++static struct proto tcpv6_prot_override __ro_after_init;
+ 
+ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
+ {
+@@ -925,7 +925,7 @@ dispose_child:
+ }
+ 
+ static struct inet_connection_sock_af_ops subflow_specific __ro_after_init;
+-static struct proto tcp_prot_override;
++static struct proto tcp_prot_override __ro_after_init;
+ 
+ enum mapping_status {
+ 	MAPPING_OK,
 
 
