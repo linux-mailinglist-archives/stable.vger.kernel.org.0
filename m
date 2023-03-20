@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D651E6C1664
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 759686C1912
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231889AbjCTPFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:05:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55170 "EHLO
+        id S232968AbjCTPaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232182AbjCTPEq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013D62B9DD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:46 -0700 (PDT)
+        with ESMTP id S232744AbjCTP3l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:29:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F64303FD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98584B80ECD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0361AC4339B;
-        Mon, 20 Mar 2023 15:00:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 603636157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE4CC433D2;
+        Mon, 20 Mar 2023 15:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324445;
-        bh=tFz0OmXFy/F5X3/97+Pjr0LL8IRvbKfgCWbsIC9jsbo=;
+        s=korg; t=1679325753;
+        bh=oinfXLo2mn+fp3UP3KORY6Jo907fJHxz+HjgO9B2WCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyPz9S/mwrAwdlF5+sM9PF8dJIrr3s0z1ncnU9Wp7L6izT76L4DVSpePL4AUyLKH4
-         2Lqzwr2+RfickwovFLus/5fwcChixaap7ZzUlhe9ZHUwbQXWu92qj8UD17iNYFO80l
-         TizVvSRu6xVIX3hE0UFAsWAK1zPYa6TZsVD9N1ic=
+        b=NZdV4+TQ4hJtK+REodj+aKa4781sFE7LRV+v9o9ojRNv42yhSPAie3v3IpihzKqAY
+         ec/5KLYysbNyZNwMeVZOUUAL+m+RgW28jBqtRKz48RjpInJ9JwlFWCtcNfY6gTp6D8
+         zfis1+DkkF26jhUk0yOZ4Q03ks1C3rJoeXY/3v48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/60] nvmet: avoid potential UAF in nvmet_req_complete()
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 6.1 137/198] interconnect: qcom: rpmh: fix registration race
 Date:   Mon, 20 Mar 2023 15:54:35 +0100
-Message-Id: <20230320145432.004209856@linuxfoundation.org>
+Message-Id: <20230320145513.298232510@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 6173a77b7e9d3e202bdb9897b23f2a8afe7bf286 ]
+commit 74240a5bebd48d8b843c6d0f1acfaa722a5abeb7 upstream.
 
-An nvme target ->queue_response() operation implementation may free the
-request passed as argument. Such implementation potentially could result
-in a use after free of the request pointer when percpu_ref_put() is
-called in nvmet_req_complete().
+The current interconnect provider registration interface is inherently
+racy as nodes are not added until the after adding the provider. This
+can specifically cause racing DT lookups to fail.
 
-Avoid such problem by using a local variable to save the sq pointer
-before calling __nvmet_req_complete(), thus avoiding dereferencing the
-req pointer after that function call.
+Switch to using the new API where the provider is not registered until
+after it has been fully initialised.
 
-Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
+Cc: stable@vger.kernel.org      # 5.7
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20230306075651.2449-11-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/interconnect/qcom/icc-rpmh.c |   25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index ff206faae775c..d109333b95b81 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -728,8 +728,10 @@ static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
+--- a/drivers/interconnect/qcom/icc-rpmh.c
++++ b/drivers/interconnect/qcom/icc-rpmh.c
+@@ -192,9 +192,10 @@ int qcom_icc_rpmh_probe(struct platform_
+ 	provider->pre_aggregate = qcom_icc_pre_aggregate;
+ 	provider->aggregate = qcom_icc_aggregate;
+ 	provider->xlate_extended = qcom_icc_xlate_extended;
+-	INIT_LIST_HEAD(&provider->nodes);
+ 	provider->data = data;
  
- void nvmet_req_complete(struct nvmet_req *req, u16 status)
- {
-+	struct nvmet_sq *sq = req->sq;
++	icc_provider_init(provider);
 +
- 	__nvmet_req_complete(req, status);
--	percpu_ref_put(&req->sq->ref);
-+	percpu_ref_put(&sq->ref);
- }
- EXPORT_SYMBOL_GPL(nvmet_req_complete);
+ 	qp->dev = dev;
+ 	qp->bcms = desc->bcms;
+ 	qp->num_bcms = desc->num_bcms;
+@@ -203,10 +204,6 @@ int qcom_icc_rpmh_probe(struct platform_
+ 	if (IS_ERR(qp->voter))
+ 		return PTR_ERR(qp->voter);
  
--- 
-2.39.2
-
+-	ret = icc_provider_add(provider);
+-	if (ret)
+-		return ret;
+-
+ 	for (i = 0; i < qp->num_bcms; i++)
+ 		qcom_icc_bcm_init(qp->bcms[i], dev);
+ 
+@@ -218,7 +215,7 @@ int qcom_icc_rpmh_probe(struct platform_
+ 		node = icc_node_create(qn->id);
+ 		if (IS_ERR(node)) {
+ 			ret = PTR_ERR(node);
+-			goto err;
++			goto err_remove_nodes;
+ 		}
+ 
+ 		node->name = qn->name;
+@@ -232,19 +229,27 @@ int qcom_icc_rpmh_probe(struct platform_
+ 	}
+ 
+ 	data->num_nodes = num_nodes;
++
++	ret = icc_provider_register(provider);
++	if (ret)
++		goto err_remove_nodes;
++
+ 	platform_set_drvdata(pdev, qp);
+ 
+ 	/* Populate child NoC devices if any */
+ 	if (of_get_child_count(dev->of_node) > 0) {
+ 		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
+ 		if (ret)
+-			goto err;
++			goto err_deregister_provider;
+ 	}
+ 
+ 	return 0;
+-err:
++
++err_deregister_provider:
++	icc_provider_deregister(provider);
++err_remove_nodes:
+ 	icc_nodes_remove(provider);
+-	icc_provider_del(provider);
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(qcom_icc_rpmh_probe);
+@@ -253,8 +258,8 @@ int qcom_icc_rpmh_remove(struct platform
+ {
+ 	struct qcom_icc_provider *qp = platform_get_drvdata(pdev);
+ 
++	icc_provider_deregister(&qp->provider);
+ 	icc_nodes_remove(&qp->provider);
+-	icc_provider_del(&qp->provider);
+ 
+ 	return 0;
+ }
 
 
