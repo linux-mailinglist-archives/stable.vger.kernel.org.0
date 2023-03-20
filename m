@@ -2,143 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6276C0CBA
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5856C0CD0
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbjCTJFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:05:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39036 "EHLO
+        id S230210AbjCTJME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:12:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbjCTJF3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:05:29 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E99B3E39E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:05:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679303128; x=1710839128;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=NZb3VNRVJpnNW2wJQ3sN6NAzhz13oTcKeDZDHxnUwd8=;
-  b=Y7GIdJ5HnIF/9LEwTM1RTrGdB5jOHzOds/7SUxNUiHSb2NVbNBOE/GKA
-   eGYo/MVUwjbL3Sx11REeaczikN0vjeWZMoCp4IFDa5SQadzeYxz9o4/47
-   w/QhOrMV9kuCaXrtj6/5MFEN7lgmus4wwwOX4CP2BBZRJZSIDfcWq5l9J
-   lD+CfR9ydktzd55swFsIaMkJ0i3N+mJpBa7Za2/dMLRITD1rIiJdwDbMy
-   qtVl0HvWCz54YxTwr4WO+7w+lq3OVpRIi9h6orltr8697wbphIBXl/hU0
-   8SP7+ftpRoppCqqeTpUEFoSji+0+shd49AYEG5zgBjoaBMmu8pWS+aTUg
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10654"; a="338637070"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="338637070"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 02:05:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10654"; a="745289409"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="745289409"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
-  by fmsmga008.fm.intel.com with SMTP; 20 Mar 2023 02:05:25 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 20 Mar 2023 11:05:25 +0200
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Imre Deak <imre.deak@intel.com>
-Subject: [PATCH 1/6] drm/i915/dpt: Treat the DPT BO as a framebuffer
-Date:   Mon, 20 Mar 2023 11:05:17 +0200
-Message-Id: <20230320090522.9909-2-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230320090522.9909-1-ville.syrjala@linux.intel.com>
-References: <20230320090522.9909-1-ville.syrjala@linux.intel.com>
+        with ESMTP id S229913AbjCTJMD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D982012F2A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:01 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E937B80DB2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF99FC433D2;
+        Mon, 20 Mar 2023 09:11:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1679303519;
+        bh=Kw2w5QKS/J731Xd0o1Szks+OGaocsvUKrUVvXkUJBnU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=BzI7ivTe/gRY5f1IXCmeZYDug8F2vGLjSPtCijI7H+LchcxqO60XRRsid8bhWsPFa
+         9w9xxN9TujAFCua5jeNd7xW/AZqs4uD2qkuyumecX3awIcuO70GTfo2rV18O9WfHRQ
+         iG5+qisykMtSo9noSzk9zyYiAUIXU50KL4Flg76w=
+Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 6.1-stable tree
+To:     alexander.sverdlin@siemens.com, gregkh@linuxfoundation.org,
+        stable@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Mar 2023 10:11:51 +0100
+Message-ID: <167930351118194@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Currently i915_gem_object_is_framebuffer() doesn't treat the
-BO containing the framebuffer's DPT as a framebuffer itself.
-This means eg. that the shrinker can evict the DPT BO while
-leaving the actual FB BO bound, when the DPT is allocated
-from regular shmem.
+The patch below does not apply to the 6.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-That causes an immediate oops during hibernate as we
-try to rewrite the PTEs inside the already evicted
-DPT obj.
+To reproduce the conflict and resubmit, you may use the following commands:
 
-TODO: presumably this might also be the reason for the
-DPT related display faults under heavy memory pressure,
-but I'm still not sure how that would happen as the object
-should be pinned by intel_dpt_pin() while in active use by
-the display engine...
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git checkout FETCH_HEAD
+git cherry-pick -x 1be6f2b15f902c02e055ae0b419ca789200473c9
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930351118194@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
-Cc: stable@vger.kernel.org
-Cc: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Fixes: 0dc987b699ce ("drm/i915/display: Add smem fallback allocation for dpt")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/intel_dpt.c         | 2 ++
- drivers/gpu/drm/i915/gem/i915_gem_object.h       | 2 +-
- drivers/gpu/drm/i915/gem/i915_gem_object_types.h | 3 +++
- 3 files changed, 6 insertions(+), 1 deletion(-)
+Possible dependencies:
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dpt.c b/drivers/gpu/drm/i915/display/intel_dpt.c
-index ad1a37b515fb..2a9f40a2b3ed 100644
---- a/drivers/gpu/drm/i915/display/intel_dpt.c
-+++ b/drivers/gpu/drm/i915/display/intel_dpt.c
-@@ -301,6 +301,7 @@ intel_dpt_create(struct intel_framebuffer *fb)
- 	vm->pte_encode = gen8_ggtt_pte_encode;
+1be6f2b15f90 ("tty: serial: fsl_lpuart: fix race on RX DMA shutdown")
+8682ab0eea89 ("tty: serial: fsl_lpuart: switch to new dmaengine_terminate_* API")
+4f5cb8c5e915 ("tty: serial: fsl_lpuart: enable wakeup source for lpuart")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1be6f2b15f902c02e055ae0b419ca789200473c9 Mon Sep 17 00:00:00 2001
+From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Date: Thu, 9 Mar 2023 14:43:02 +0100
+Subject: [PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown
+
+From time to time DMA completion can come in the middle of DMA shutdown:
+
+<process ctx>:				<IRQ>:
+lpuart32_shutdown()
+  lpuart_dma_shutdown()
+    del_timer_sync()
+					lpuart_dma_rx_complete()
+					  lpuart_copy_rx_to_tty()
+					    mod_timer()
+    lpuart_dma_rx_free()
+
+When the timer fires a bit later, sport->dma_rx_desc is NULL:
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
+pc : lpuart_copy_rx_to_tty+0xcc/0x5bc
+lr : lpuart_timer_func+0x1c/0x2c
+Call trace:
+ lpuart_copy_rx_to_tty
+ lpuart_timer_func
+ call_timer_fn
+ __run_timers.part.0
+ run_timer_softirq
+ __do_softirq
+ __irq_exit_rcu
+ irq_exit
+ handle_domain_irq
+ gic_handle_irq
+ call_on_irq_stack
+ do_interrupt_handler
+ ...
+
+To fix this fold del_timer_sync() into lpuart_dma_rx_free() after
+dmaengine_terminate_sync() to make sure timer will not be re-started in
+lpuart_copy_rx_to_tty() <= lpuart_dma_rx_complete().
+
+Fixes: 4a8588a1cf86 ("serial: fsl_lpuart: delete timer on shutdown")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Link: https://lore.kernel.org/r/20230309134302.74940-2-alexander.sverdlin@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index f9e164abf920..56e6ba3250cd 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1354,6 +1354,7 @@ static void lpuart_dma_rx_free(struct uart_port *port)
+ 	struct dma_chan *chan = sport->dma_rx_chan;
  
- 	dpt->obj = dpt_obj;
-+	dpt->obj->is_dpt = true;
- 
- 	return &dpt->vm;
- }
-@@ -309,5 +310,6 @@ void intel_dpt_destroy(struct i915_address_space *vm)
+ 	dmaengine_terminate_sync(chan);
++	del_timer_sync(&sport->lpuart_timer);
+ 	dma_unmap_sg(chan->device->dev, &sport->rx_sgl, 1, DMA_FROM_DEVICE);
+ 	kfree(sport->rx_ring.buf);
+ 	sport->rx_ring.tail = 0;
+@@ -1813,7 +1814,6 @@ static int lpuart32_startup(struct uart_port *port)
+ static void lpuart_dma_shutdown(struct lpuart_port *sport)
  {
- 	struct i915_dpt *dpt = i915_vm_to_dpt(vm);
- 
-+	dpt->obj->is_dpt = false;
- 	i915_vm_put(&dpt->vm);
- }
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
-index f9a8acbba715..885ccde9dc3c 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
-@@ -303,7 +303,7 @@ i915_gem_object_never_mmap(const struct drm_i915_gem_object *obj)
- static inline bool
- i915_gem_object_is_framebuffer(const struct drm_i915_gem_object *obj)
- {
--	return READ_ONCE(obj->frontbuffer);
-+	return READ_ONCE(obj->frontbuffer) || obj->is_dpt;
- }
- 
- static inline unsigned int
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-index 19c9bdd8f905..5dcbbef31d44 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-@@ -491,6 +491,9 @@ struct drm_i915_gem_object {
+ 	if (sport->lpuart_dma_rx_use) {
+-		del_timer_sync(&sport->lpuart_timer);
+ 		lpuart_dma_rx_free(&sport->port);
+ 		sport->lpuart_dma_rx_use = false;
+ 	}
+@@ -1973,10 +1973,8 @@ lpuart_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	 * Since timer function acqures sport->port.lock, need to stop before
+ 	 * acquring same lock because otherwise del_timer_sync() can deadlock.
  	 */
- 	unsigned int cache_dirty:1;
+-	if (old && sport->lpuart_dma_rx_use) {
+-		del_timer_sync(&sport->lpuart_timer);
++	if (old && sport->lpuart_dma_rx_use)
+ 		lpuart_dma_rx_free(&sport->port);
+-	}
  
-+	/* @is_dpt: Object houses a display page table (DPT) */
-+	unsigned int is_dpt:1;
-+
- 	/**
- 	 * @read_domains: Read memory domains.
- 	 *
--- 
-2.39.2
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+@@ -2210,10 +2208,8 @@ lpuart32_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	 * Since timer function acqures sport->port.lock, need to stop before
+ 	 * acquring same lock because otherwise del_timer_sync() can deadlock.
+ 	 */
+-	if (old && sport->lpuart_dma_rx_use) {
+-		del_timer_sync(&sport->lpuart_timer);
++	if (old && sport->lpuart_dma_rx_use)
+ 		lpuart_dma_rx_free(&sport->port);
+-	}
+ 
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+@@ -3020,7 +3016,6 @@ static int lpuart_suspend(struct device *dev)
+ 			 * cannot resume as expected, hence gracefully release the
+ 			 * Rx DMA path before suspend and start Rx DMA path on resume.
+ 			 */
+-			del_timer_sync(&sport->lpuart_timer);
+ 			lpuart_dma_rx_free(&sport->port);
+ 
+ 			/* Disable Rx DMA to use UART port as wakeup source */
 
