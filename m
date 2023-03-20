@@ -2,110 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E966C1864
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 321E36C19F9
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:40:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbjCTPXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39296 "EHLO
+        id S233200AbjCTPki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:40:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232784AbjCTPXd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:33 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B67F030E93
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679325417; x=1710861417;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=wEJa0GP3/V393lo37hu+c7/l6uvFaV1Uh+P3Q5auMJA=;
-  b=SZmyNwBgu/AOIQsZ5Q84UFGVWn6ifryosb4iKcnofywMpXMebG78HdIu
-   2HdhaUz74ja+0kPok9DrFYS/Cw29R24BpLYjGourp8J4kLw+4sPrQ1vA0
-   9QovqTVfjJ2QJzE/zD2OaHtBEAmtZzg97xmFSNQln0Jv9WS77sD1wVigc
-   dGVCfCgWWF5lhTYePRNF8zCnn16/+zaSxZjDpJ6TX6uS0UwVeDrm7N+XA
-   cakkVg+rwIgVBvaX8gepPn9D1Ppy8o/n40Od7ToX7g8+hi1xypaM+vHVZ
-   /GfhFtZ16gY2im/+zkfvYJTYgx7ImJMJSoU/vbFgFgRHLe9KthK4Uf4Ga
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10655"; a="322529500"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="322529500"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 08:14:32 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10655"; a="770231521"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="770231521"
-Received: from sbrieffi-mobl.ger.corp.intel.com (HELO localhost.localdomain) ([10.213.210.83])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 08:14:29 -0700
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-To:     Intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Fix context runtime accounting
-Date:   Mon, 20 Mar 2023 15:14:23 +0000
-Message-Id: <20230320151423.1708436-1-tvrtko.ursulin@linux.intel.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S233250AbjCTPkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:40:17 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB1FB86AF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:31:58 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id w9so48366196edc.3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:31:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isovalent.com; s=google; t=1679326314;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ONCoqAuPFAdxcHJlJkmwpKMX/MPlR6FkYHZLYnTGWGA=;
+        b=ZAG07fjd1pGdKzK6v1r6GnVVdTiwCGVdbZgvimV0oMBbMrtpEp7Vf5VtfChYznrOc6
+         H0M5oKF/oqkK+eiujHnj4RkGkHe1EGUWGTj5spGvroIRSc0RunHN0DZeywnFEy+ELW3g
+         I1IsObzaSbYO7aYSdtbhiiuZyLfr04luFU8Ju/hnMT9QRQjo3bnL3xU12gKF8bXKVocG
+         wPSKeMuXRncMIA08YpSBxkh35gUR42GYCP/ZSehhvMNiZVSOhSd24vgR4AsLaeCwcD26
+         mQChHP13oK+HLvVovVvuVvI/Re5PiAqBU2KoYz0eW9Tb3NAQLfevbE9pwLetC1J9bp4O
+         FRPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679326314;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ONCoqAuPFAdxcHJlJkmwpKMX/MPlR6FkYHZLYnTGWGA=;
+        b=iA8OXGiiHCWAjQnN+2EZqCH9JxnCbuqWI7Qz/u6WPLXhpXQQLRN/j/150o3kzTG+bZ
+         Q7GGwpOh4DK/Z56m7mLVdBsUJXwHhLdDdVJM6vMFv1rYrmY3MSOni0KAFpeV6+8h8Ufq
+         hYZ3aPZh1csdMnPzFvIQHljv/swTgMDySNWOjif7+LtKkhmW54cPl0UCx56bPp/MBqFA
+         V3NbMmDs7x2DR16NmpLneHPbxNSgmBm+XuqAeonVT29TFkMXCwIZxYeX+NUyOIW4RJJM
+         23gha5B3CCLBSQx5/wsW3B1/0YliFSSymEFRJWshcno3ZVFrVMGQNchSGzr+wHhJ/7HD
+         w2dQ==
+X-Gm-Message-State: AO0yUKX6+tNTxnut8FFNX7pGlYCdQqBZasMljXW/0k/rukHAE/nGmTcU
+        0nhAeiSUirSowZv/IUibJhdmmC3LXGSjGlbACYMEAA==
+X-Google-Smtp-Source: AK7set9zRda+HOBbyE1RH7U3Q5LdXAIFkGANo3ucDxxjiF5CtJ+awwn6fl76qqAqukfOF4oE95J6aFnk+XfPYhz4GPU=
+X-Received: by 2002:a17:906:cf8d:b0:930:310:abef with SMTP id
+ um13-20020a170906cf8d00b009300310abefmr4344539ejb.3.1679326313919; Mon, 20
+ Mar 2023 08:31:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        SPF_HELO_NONE,SPF_NONE autolearn=no autolearn_force=no version=3.4.6
+References: <20230320005258.1428043-1-sashal@kernel.org> <20230320005258.1428043-8-sashal@kernel.org>
+In-Reply-To: <20230320005258.1428043-8-sashal@kernel.org>
+From:   Lorenz Bauer <lmb@isovalent.com>
+Date:   Mon, 20 Mar 2023 15:31:42 +0000
+Message-ID: <CAN+4W8g6AcQQWe7rrBVOFYoqeQA-1VbUP_W7DPS3q0k-czOLfg@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 6.2 08/30] selftests/bpf: check that modifier
+ resolves after pointer
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Martin KaFai Lau <martin.lau@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, shuah@kernel.org,
+        yhs@fb.com, eddyz87@gmail.com, sdf@google.com, error27@gmail.com,
+        iii@linux.ibm.com, memxor@gmail.com, bpf@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+On Mon, Mar 20, 2023 at 12:53=E2=80=AFAM Sasha Levin <sashal@kernel.org> wr=
+ote:
+>
+> From: Lorenz Bauer <lorenz.bauer@isovalent.com>
+>
+> [ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
+>
+> Add a regression test that ensures that a VAR pointing at a
+> modifier which follows a PTR (or STRUCT or ARRAY) is resolved
+> correctly by the datasec validator.
+>
+> Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+> Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
+> Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-When considering whether to mark one context as stopped and another as
-started we need to look at whether the previous and new _contexts_ are
-different and not just requests. Otherwise the software tracked context
-start time was incorrectly updated to the most recent lite-restore time-
-stamp, which was in some cases resulting in active time going backward,
-until the context switch (typically the hearbeat pulse) would synchronise
-with the hardware tracked context runtime. Easiest use case to observe
-this behaviour was with a full screen clients with close to 100% engine
-load.
+Hi Sasha,
 
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Fixes: bb6287cb1886 ("drm/i915: Track context current active time")
-Cc: <stable@vger.kernel.org> # v5.19+
----
- drivers/gpu/drm/i915/gt/intel_execlists_submission.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+Can you explain why this patch was selected? I'd prefer to not
+backport the test, since it frequently leads to breakage when trying
+to build selftests/bpf on stable kernels.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-index 1bbe6708d0a7..750326434677 100644
---- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-+++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-@@ -2018,6 +2018,8 @@ process_csb(struct intel_engine_cs *engine, struct i915_request **inactive)
- 	 * inspecting the queue to see if we need to resumbit.
- 	 */
- 	if (*prev != *execlists->active) { /* elide lite-restores */
-+		struct intel_context *prev_ce = NULL, *active_ce = NULL;
-+
- 		/*
- 		 * Note the inherent discrepancy between the HW runtime,
- 		 * recorded as part of the context switch, and the CPU
-@@ -2029,9 +2031,15 @@ process_csb(struct intel_engine_cs *engine, struct i915_request **inactive)
- 		 * and correct overselves later when updating from HW.
- 		 */
- 		if (*prev)
--			lrc_runtime_stop((*prev)->context);
-+			prev_ce = (*prev)->context;
- 		if (*execlists->active)
--			lrc_runtime_start((*execlists->active)->context);
-+			active_ce = (*execlists->active)->context;
-+		if (prev_ce != active_ce) {
-+			if (prev_ce)
-+				lrc_runtime_stop(prev_ce);
-+			if (active_ce)
-+				lrc_runtime_start(active_ce);
-+		}
- 		new_timeslice(execlists);
- 	}
- 
--- 
-2.37.2
-
+Thanks
+Lorenz
