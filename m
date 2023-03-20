@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEDE6C17EC
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1576A6C173B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbjCTPST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:18:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50922 "EHLO
+        id S232241AbjCTPMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232445AbjCTPSA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 807FE31BFD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:12:40 -0700 (PDT)
+        with ESMTP id S232366AbjCTPLq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE812BF3D;
+        Mon, 20 Mar 2023 08:06:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA1F3615AC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8AE3C433A1;
-        Mon, 20 Mar 2023 15:12:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33FB76158A;
+        Mon, 20 Mar 2023 15:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F024C433EF;
+        Mon, 20 Mar 2023 15:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325158;
-        bh=u+UkYaVqcTZmdfg4R1UvRpaBvDMgQ8BB9FpaB0r6CsM=;
+        s=korg; t=1679324807;
+        bh=UeW1CQAAoSJChSLO401v/ThGrxNP3MJwVrLenSBvI1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkWfDvh3Wjcq1TTbDsJPoC+ym3HyAPEHfVxCTqyuZqQpEB+TASuXRl19ptg0HQbEs
-         fMBvkFUDVjJOpd1+ofsna/4AwZ45za7wEyhI8rhcXYtP3qnV8yIfXKtpRpso1hjBnT
-         K4pizp1hsWk71hHKK50L0XeqTOuZrf7vxuwKkNq4=
+        b=wSe0a56afta0j38V8Kx0QHTkqyo3RsXH5ni4fuIPKbTb90gVpv+gj5P1mW8mH6iFr
+         lZhxQC8APHGGEZe8uplUfjtwdKRbChzF3vOyN0y6i1C+QK/e2SqPrErqyPKWmk7DUH
+         MG58ZSSXfGvQExrhRRHBJ3YniAfNIj3DxIX33sPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 011/211] ASoC: SOF: Intel: HDA: Fix device description
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Riku Voipio <riku.voipio@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        linux-clk@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 008/198] clk: HI655X: select REGMAP instead of depending on it
 Date:   Mon, 20 Mar 2023 15:52:26 +0100
-Message-Id: <20230320145513.772639200@linuxfoundation.org>
+Message-Id: <20230320145507.814907681@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,116 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 9eb2b4cac223095d2079a6d52b8bbddc6e064288 ]
+[ Upstream commit 0ffad67784a097beccf34d297ddd1b0773b3b8a3 ]
 
-Add the missing ops_free callback for APL/CNL/CML/JSL/TGL/EHL platforms.
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-Fixes: 1da51943725f ("ASoC: SOF: Intel: hda: init NHLT for IPC4")
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
 
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307093914.25409-3-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
+
+Fixes: 3a49afb84ca0 ("clk: enable hi655x common clk automatically")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Riku Voipio <riku.voipio@linaro.org>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Michael Turquette <mturquette@baylibre.com>
+Cc: linux-clk@vger.kernel.org
+Link: https://lore.kernel.org/r/20230226053953.4681-3-rdunlap@infradead.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/pci-apl.c | 1 +
- sound/soc/sof/intel/pci-cnl.c | 2 ++
- sound/soc/sof/intel/pci-icl.c | 1 +
- sound/soc/sof/intel/pci-tgl.c | 5 +++++
- 4 files changed, 9 insertions(+)
+ drivers/clk/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/intel/pci-apl.c b/sound/soc/sof/intel/pci-apl.c
-index 69279dcc92dc1..aff6cb573c270 100644
---- a/sound/soc/sof/intel/pci-apl.c
-+++ b/sound/soc/sof/intel/pci-apl.c
-@@ -78,6 +78,7 @@ static const struct sof_dev_desc glk_desc = {
- 	.nocodec_tplg_filename = "sof-glk-nocodec.tplg",
- 	.ops = &sof_apl_ops,
- 	.ops_init = sof_apl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- /* PCI IDs */
-diff --git a/sound/soc/sof/intel/pci-cnl.c b/sound/soc/sof/intel/pci-cnl.c
-index 8db3f8d15b55e..4c0c1c369dcd8 100644
---- a/sound/soc/sof/intel/pci-cnl.c
-+++ b/sound/soc/sof/intel/pci-cnl.c
-@@ -48,6 +48,7 @@ static const struct sof_dev_desc cnl_desc = {
- 	.nocodec_tplg_filename = "sof-cnl-nocodec.tplg",
- 	.ops = &sof_cnl_ops,
- 	.ops_init = sof_cnl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- static const struct sof_dev_desc cfl_desc = {
-@@ -111,6 +112,7 @@ static const struct sof_dev_desc cml_desc = {
- 	.nocodec_tplg_filename = "sof-cnl-nocodec.tplg",
- 	.ops = &sof_cnl_ops,
- 	.ops_init = sof_cnl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- /* PCI IDs */
-diff --git a/sound/soc/sof/intel/pci-icl.c b/sound/soc/sof/intel/pci-icl.c
-index d6cf75e357dbf..6785669113b3c 100644
---- a/sound/soc/sof/intel/pci-icl.c
-+++ b/sound/soc/sof/intel/pci-icl.c
-@@ -79,6 +79,7 @@ static const struct sof_dev_desc jsl_desc = {
- 	.nocodec_tplg_filename = "sof-jsl-nocodec.tplg",
- 	.ops = &sof_cnl_ops,
- 	.ops_init = sof_cnl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- /* PCI IDs */
-diff --git a/sound/soc/sof/intel/pci-tgl.c b/sound/soc/sof/intel/pci-tgl.c
-index e80c4dfef85a5..adc7314a1b578 100644
---- a/sound/soc/sof/intel/pci-tgl.c
-+++ b/sound/soc/sof/intel/pci-tgl.c
-@@ -48,6 +48,7 @@ static const struct sof_dev_desc tgl_desc = {
- 	.nocodec_tplg_filename = "sof-tgl-nocodec.tplg",
- 	.ops = &sof_tgl_ops,
- 	.ops_init = sof_tgl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- static const struct sof_dev_desc tglh_desc = {
-@@ -110,6 +111,7 @@ static const struct sof_dev_desc ehl_desc = {
- 	.nocodec_tplg_filename = "sof-ehl-nocodec.tplg",
- 	.ops = &sof_tgl_ops,
- 	.ops_init = sof_tgl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- static const struct sof_dev_desc adls_desc = {
-@@ -141,6 +143,7 @@ static const struct sof_dev_desc adls_desc = {
- 	.nocodec_tplg_filename = "sof-adl-nocodec.tplg",
- 	.ops = &sof_tgl_ops,
- 	.ops_init = sof_tgl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- static const struct sof_dev_desc adl_desc = {
-@@ -172,6 +175,7 @@ static const struct sof_dev_desc adl_desc = {
- 	.nocodec_tplg_filename = "sof-adl-nocodec.tplg",
- 	.ops = &sof_tgl_ops,
- 	.ops_init = sof_tgl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- static const struct sof_dev_desc adl_n_desc = {
-@@ -203,6 +207,7 @@ static const struct sof_dev_desc adl_n_desc = {
- 	.nocodec_tplg_filename = "sof-adl-nocodec.tplg",
- 	.ops = &sof_tgl_ops,
- 	.ops_init = sof_tgl_ops_init,
-+	.ops_free = hda_ops_free,
- };
- 
- static const struct sof_dev_desc rpls_desc = {
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index d79905f3e1744..5da82f2bdd211 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -92,7 +92,7 @@ config COMMON_CLK_RK808
+ config COMMON_CLK_HI655X
+ 	tristate "Clock driver for Hi655x" if EXPERT
+ 	depends on (MFD_HI655X_PMIC || COMPILE_TEST)
+-	depends on REGMAP
++	select REGMAP
+ 	default MFD_HI655X_PMIC
+ 	help
+ 	  This driver supports the hi655x PMIC clock. This
 -- 
 2.39.2
 
