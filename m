@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 127F06C18A6
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F8A06C18A8
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232828AbjCTP0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:26:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
+        id S232909AbjCTP0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232831AbjCTPZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED41E10AB0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:19 -0700 (PDT)
+        with ESMTP id S232855AbjCTP0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA0A2A14F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C948C6158A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D96C433EF;
-        Mon, 20 Mar 2023 15:19:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4544B615B3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510CFC433D2;
+        Mon, 20 Mar 2023 15:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325559;
-        bh=l82DDHCb2EIipPemovtnXp3iydtOICGI14cAsTHFGEY=;
+        s=korg; t=1679325564;
+        bh=Eb5jnuG1Ekz+HQ+52zkkQu/88M0jhTAM6jLx6dtOlQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQ/H97uccmeLlF1Up5EWWkpf+h1rJUBy9PlZDmGxYH9UhluokguhAuHBrgdnFphb3
-         XdL/YV3BBcwFGHvrkuW7bYLcKtgsRhFwvKGT/Yspemb7TjqBRkIH3JPf3hCln4DOUC
-         0/JxH3fLOzHMwNshZpD9su5sPANAfdBMfj9SMBCc=
+        b=WTjRPTjNT4Dyb7ik4nC/X1grU5N3Upi/XH4/s4DYOnu+rvnuZepFvfHJ6qDyqzLJb
+         ndgd2JhFPL94zJUZezb08Ntiq4Ia9J3zl5KLlSwAkLB9JwOpqkmYTmZ0QJXcDpq0cv
+         FCBsmRlAp2XWaJxi2cuxq42Mq3/yo7oVBhMqX7jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Daniel Golle <daniel@makrotopia.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 061/211] net: usb: smsc75xx: Limit packet length to skb->len
-Date:   Mon, 20 Mar 2023 15:53:16 +0100
-Message-Id: <20230320145515.781033666@linuxfoundation.org>
+Subject: [PATCH 6.2 062/211] net: ethernet: mtk_eth_soc: reset PCS state
+Date:   Mon, 20 Mar 2023 15:53:17 +0100
+Message-Id: <20230320145515.828203504@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -45,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit d8b228318935044dafe3a5bc07ee71a1f1424b8d ]
+[ Upstream commit 611e2dabb4b3243d176739fd6a5a34d007fa3f86 ]
 
-Packet length retrieved from skb data may be larger than
-the actual socket buffer length (up to 9026 bytes). In such
-case the cloned skb passed up the network stack will leak
-kernel memory contents.
+Reset the internal PCS state machine when changing interface mode.
+This prevents confusing the state machine when changing interface
+modes, e.g. from SGMII to 2500Base-X or vice-versa.
 
-Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Fixes: 7e538372694b ("net: ethernet: mediatek: Re-add support SGMII")
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Tested-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc75xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 4 ++++
+ drivers/net/ethernet/mediatek/mtk_sgmii.c   | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
-index 95de452ff4dad..db34f8d1d6051 100644
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -2212,7 +2212,8 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 				dev->net->stats.rx_frame_errors++;
- 		} else {
- 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
--			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
-+			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
-+				     size > skb->len)) {
- 				netif_dbg(dev, rx_err, dev->net,
- 					  "size err rx_cmd_a=0x%08x\n",
- 					  rx_cmd_a);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index b481d0d46bb16..d4b4f9eaa4419 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -528,6 +528,10 @@
+ #define SGMII_SEND_AN_ERROR_EN		BIT(11)
+ #define SGMII_IF_MODE_MASK		GENMASK(5, 1)
+ 
++/* Register to reset SGMII design */
++#define SGMII_RESERVED_0	0x34
++#define SGMII_SW_RESET		BIT(0)
++
+ /* Register to set SGMII speed, ANA RG_ Control Signals III*/
+ #define SGMSYS_ANA_RG_CS3	0x2028
+ #define RG_PHY_SPEED_MASK	(BIT(2) | BIT(3))
+diff --git a/drivers/net/ethernet/mediatek/mtk_sgmii.c b/drivers/net/ethernet/mediatek/mtk_sgmii.c
+index bb00de1003ac4..612f65bb03454 100644
+--- a/drivers/net/ethernet/mediatek/mtk_sgmii.c
++++ b/drivers/net/ethernet/mediatek/mtk_sgmii.c
+@@ -88,6 +88,10 @@ static int mtk_pcs_config(struct phylink_pcs *pcs, unsigned int mode,
+ 		regmap_update_bits(mpcs->regmap, SGMSYS_QPHY_PWR_STATE_CTRL,
+ 				   SGMII_PHYA_PWD, SGMII_PHYA_PWD);
+ 
++		/* Reset SGMII PCS state */
++		regmap_update_bits(mpcs->regmap, SGMII_RESERVED_0,
++				   SGMII_SW_RESET, SGMII_SW_RESET);
++
+ 		if (interface == PHY_INTERFACE_MODE_2500BASEX)
+ 			rgc3 = RG_PHY_SPEED_3_125G;
+ 		else
 -- 
 2.39.2
 
