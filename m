@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C20346C18E3
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2DD6C18A1
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232898AbjCTP23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:28:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45796 "EHLO
+        id S232738AbjCTP0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232852AbjCTP2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:00 -0400
+        with ESMTP id S232677AbjCTPZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A4310AA3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30F8D315
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C75661582
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A874C433EF;
-        Mon, 20 Mar 2023 15:21:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DFE0615AB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F1DC433D2;
+        Mon, 20 Mar 2023 15:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325665;
-        bh=nNHxAANhW+DmQdqD4W034zKTxtRduEQ7Yi/JUx3JNgg=;
+        s=korg; t=1679325545;
+        bh=XzxFXngiEyRS06HrEJRP0XS6TiiorwjnsD3CHnbrW+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCCmMn0Sl2TrGxXO3FPmVFpxce/oD7RcLCIFcdLVtQnlYRwQnhGjF9TjS8kMPNi/K
-         s6oHcMFkUZYiDb0Ofs0gn3GZpAbRJTyBlEdPui1nP795yKSbgIUaKGHfSsKnXhzq8v
-         v5SVX7HAENMWqXGoxBL2mL/AutyoLKwYy1s0DdCU=
+        b=GatB/1DBKcs2hYrsIQA0wZlZ47rcnIn44rvx48C/Wzk7RF96MsJHXCigbb9OqNUeN
+         deuMTtRHu+gnUlEh8QgK84RHsQhdhnvpRjbdJNc/35qMMgYrS35VQRPpfFACC/dr1Z
+         CeY4cA32dDgtWEotRx8XihZV3V7WwJW5d5VEzhyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,20 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 079/211] veth: Fix use after free in XDP_REDIRECT
+Subject: [PATCH 6.1 076/198] veth: Fix use after free in XDP_REDIRECT
 Date:   Mon, 20 Mar 2023 15:53:34 +0100
-Message-Id: <20230320145516.590851636@linuxfoundation.org>
+Message-Id: <20230320145510.712995846@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -167,7 +166,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index dfc7d87fad59f..30ae6695f8643 100644
+index bd385ccd0d18d..a71786b3e7ba7 100644
 --- a/drivers/net/veth.c
 +++ b/drivers/net/veth.c
 @@ -701,7 +701,8 @@ static int veth_convert_skb_to_xdp_buff(struct veth_rq *rq,
