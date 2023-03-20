@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1003B6C1895
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8506C1826
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232747AbjCTPZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38692 "EHLO
+        id S232712AbjCTPVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:21:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232744AbjCTPZb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E0F367C6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:43 -0700 (PDT)
+        with ESMTP id S232808AbjCTPUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:20:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB376265A1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60EF261575
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70876C433EF;
-        Mon, 20 Mar 2023 15:18:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED5E261593
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D191C433D2;
+        Mon, 20 Mar 2023 15:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325520;
-        bh=pt+NkFuX8/a4q7hUsBkx1I3oXIoC3ZeJEGymosVjHN8=;
+        s=korg; t=1679325235;
+        bh=aBz53KNkuPNqog/SGXOFC04tKlTlyKoUxKA9iFAt+vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YNDJ1G+i/D0P/b3QQnb3DY5QYeivTzQbSl/4BnRfshI+RZIKd29+hdhy2zB9g1bEK
-         0GWliGvN3A7VpHlJKZksxYKCZsmQz1HIXSN0LjVEi+v7bttK86ref7+p0lUIbHlWO1
-         KKPOvQWeYdLuydWolPsC1QCsrtgRIyxX5phC4ee0=
+        b=XzZbu4xXiJG6sxxrWiguGOA/RVKa1A7f0lK+4y07WLaR63HQHm5Fax5q9NJV/ggV1
+         McEyXH2e00+7+MGK2dYU4wqFYayPa3kdAjam+D5iSCdh8BpEJjsDUe+cf4wjwDeXPo
+         4hJy7sl2gaPdJHiDyHx/JLEQgdkcbby3Bfo8B9hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
         Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 052/211] block: do not reverse request order when flushing plug list
-Date:   Mon, 20 Mar 2023 15:53:07 +0100
-Message-Id: <20230320145515.429110598@linuxfoundation.org>
+Subject: [PATCH 6.1 050/198] block: do not reverse request order when flushing plug list
+Date:   Mon, 20 Mar 2023 15:53:08 +0100
+Message-Id: <20230320145509.597858914@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -86,10 +86,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/block/blk-mq.c b/block/blk-mq.c
-index b9e3b558367f1..c021fb05161b9 100644
+index fe0a3a882f465..aa67a52c5a069 100644
 --- a/block/blk-mq.c
 +++ b/block/blk-mq.c
-@@ -2743,6 +2743,7 @@ static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
+@@ -2711,6 +2711,7 @@ static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
  	struct blk_mq_hw_ctx *this_hctx = NULL;
  	struct blk_mq_ctx *this_ctx = NULL;
  	struct request *requeue_list = NULL;
@@ -97,7 +97,7 @@ index b9e3b558367f1..c021fb05161b9 100644
  	unsigned int depth = 0;
  	LIST_HEAD(list);
  
-@@ -2753,10 +2754,10 @@ static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
+@@ -2721,10 +2722,10 @@ static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
  			this_hctx = rq->mq_hctx;
  			this_ctx = rq->mq_ctx;
  		} else if (this_hctx != rq->mq_hctx || this_ctx != rq->mq_ctx) {
@@ -111,7 +111,7 @@ index b9e3b558367f1..c021fb05161b9 100644
  	} while (!rq_list_empty(plug->mq_list));
  
 diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index 779fba613bd09..19ae71f3fb97d 100644
+index d6119c5d1069b..a9764cbf7f8d2 100644
 --- a/include/linux/blk-mq.h
 +++ b/include/linux/blk-mq.h
 @@ -228,6 +228,12 @@ static inline unsigned short req_get_ioprio(struct request *req)
