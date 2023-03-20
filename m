@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75AEF6C16A8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D85A6C1696
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbjCTPII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
+        id S231371AbjCTPHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232235AbjCTPHj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BF91205A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:03:10 -0700 (PDT)
+        with ESMTP id S232229AbjCTPHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D51C163
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B49EB80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E57BC433D2;
-        Mon, 20 Mar 2023 15:02:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC1E56158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A96C433D2;
+        Mon, 20 Mar 2023 15:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324557;
-        bh=SFBggJYkVHnCEZcZfLMB/8VKkg2NrKqNkLzN9FgAHNk=;
+        s=korg; t=1679324566;
+        bh=rN1a6SmrLTTvkwni0jD+ZckFk5a2H3psA3mGeVa+tws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HqsumxbZCbinR39ALTNewXEYvMpPR427CfTLWKSAn2D4ZQFIsMcF79vLE2cYygEas
-         APPNCXZpDOcuVr+NMCwqeHbkjRDRg73Mt32+pDs4lhB4Y8zMkgZzchqepNSVr1BLS2
-         bgKDT3XTXkT2K4n+5/WtbdwmgKYQj9xams4z/pbs=
+        b=E2UtTksOR0cN5vT2mkGvRwzKDO6NVb14zfK7zvxkM7IJDeMt/WpRjdPS2DIuXHMx5
+         KzkcoSBWp5Y6KBENM2kEWxPpHBNiIu3lsrlCmkwo3zWm4QXa7y+6/Hgycdychhm+Sp
+         1XUSd+QTRBfkX0MCHHlHfP3mDC1SIilIDyOTuH40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/99] ipvlan: Make skb->skb_iif track skb->dev for l3s mode
-Date:   Mon, 20 Mar 2023 15:53:55 +0100
-Message-Id: <20230320145444.087576263@linuxfoundation.org>
+        patches@lists.linux.dev, Ivan Vecera <ivecera@redhat.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 5.10 18/99] i40e: Fix kernel crash during reboot when adapter is in recovery mode
+Date:   Mon, 20 Mar 2023 15:53:56 +0100
+Message-Id: <20230320145444.139862819@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
 References: <20230320145443.333824603@linuxfoundation.org>
@@ -53,47 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Ivan Vecera <ivecera@redhat.com>
 
-[ Upstream commit 59a0b022aa249e3f5735d93de0849341722c4754 ]
+[ Upstream commit 7e4f8a0c495413a50413e8c9f1032ce1bc633bae ]
 
-For l3s mode, skb->dev is set to ipvlan interface in ipvlan_nf_input():
-  skb->dev = addr->master->dev
-but, skb->skb_iif remain unchanged, this will cause socket lookup failed
-if a target socket is bound to a interface, like the following example:
+If the driver detects during probe that firmware is in recovery
+mode then i40e_init_recovery_mode() is called and the rest of
+probe function is skipped including pci_set_drvdata(). Subsequent
+i40e_shutdown() called during shutdown/reboot dereferences NULL
+pointer as pci_get_drvdata() returns NULL.
 
-  ip link add ipvlan0 link eth0 type ipvlan mode l3s
-  ip addr add dev ipvlan0 192.168.124.111/24
-  ip link set ipvlan0 up
+To fix call pci_set_drvdata() also during entering to recovery mode.
 
-  ping -c 1 -I ipvlan0 8.8.8.8
-  100% packet loss
+Reproducer:
+1) Lets have i40e NIC with firmware in recovery mode
+2) Run reboot
 
-This is because there is no match sk in __raw_v4_lookup() as sk->sk_bound_dev_if != dif(skb->skb_iif).
-Fix this by make skb->skb_iif track skb->dev in ipvlan_nf_input().
+Result:
+[  139.084698] i40e: Intel(R) Ethernet Connection XL710 Network Driver
+[  139.090959] i40e: Copyright (c) 2013 - 2019 Intel Corporation.
+[  139.108438] i40e 0000:02:00.0: Firmware recovery mode detected. Limiting functionality.
+[  139.116439] i40e 0000:02:00.0: Refer to the Intel(R) Ethernet Adapters and Devices User Guide for details on firmware recovery mode.
+[  139.129499] i40e 0000:02:00.0: fw 8.3.64775 api 1.13 nvm 8.30 0x8000b78d 1.3106.0 [8086:1583] [15d9:084a]
+[  139.215932] i40e 0000:02:00.0 enp2s0f0: renamed from eth0
+[  139.223292] i40e 0000:02:00.1: Firmware recovery mode detected. Limiting functionality.
+[  139.231292] i40e 0000:02:00.1: Refer to the Intel(R) Ethernet Adapters and Devices User Guide for details on firmware recovery mode.
+[  139.244406] i40e 0000:02:00.1: fw 8.3.64775 api 1.13 nvm 8.30 0x8000b78d 1.3106.0 [8086:1583] [15d9:084a]
+[  139.329209] i40e 0000:02:00.1 enp2s0f1: renamed from eth0
+...
+[  156.311376] BUG: kernel NULL pointer dereference, address: 00000000000006c2
+[  156.318330] #PF: supervisor write access in kernel mode
+[  156.323546] #PF: error_code(0x0002) - not-present page
+[  156.328679] PGD 0 P4D 0
+[  156.331210] Oops: 0002 [#1] PREEMPT SMP NOPTI
+[  156.335567] CPU: 26 PID: 15119 Comm: reboot Tainted: G            E      6.2.0+ #1
+[  156.343126] Hardware name: Abacus electric, s.r.o. - servis@abacus.cz Super Server/H12SSW-iN, BIOS 2.4 04/13/2022
+[  156.353369] RIP: 0010:i40e_shutdown+0x15/0x130 [i40e]
+[  156.358430] Code: c1 fc ff ff 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 55 48 89 fd 53 48 8b 9f 48 01 00 00 <f0> 80 8b c2 06 00 00 04 f0 80 8b c0 06 00 00 08 48 8d bb 08 08 00
+[  156.377168] RSP: 0018:ffffb223c8447d90 EFLAGS: 00010282
+[  156.382384] RAX: ffffffffc073ee70 RBX: 0000000000000000 RCX: 0000000000000001
+[  156.389510] RDX: 0000000080000001 RSI: 0000000000000246 RDI: ffff95db49988000
+[  156.396634] RBP: ffff95db49988000 R08: ffffffffffffffff R09: ffffffff8bd17d40
+[  156.403759] R10: 0000000000000001 R11: ffffffff8a5e3d28 R12: ffff95db49988000
+[  156.410882] R13: ffffffff89a6fe17 R14: ffff95db49988150 R15: 0000000000000000
+[  156.418007] FS:  00007fe7c0cc3980(0000) GS:ffff95ea8ee80000(0000) knlGS:0000000000000000
+[  156.426083] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  156.431819] CR2: 00000000000006c2 CR3: 00000003092fc005 CR4: 0000000000770ee0
+[  156.438944] PKRU: 55555554
+[  156.441647] Call Trace:
+[  156.444096]  <TASK>
+[  156.446199]  pci_device_shutdown+0x38/0x60
+[  156.450297]  device_shutdown+0x163/0x210
+[  156.454215]  kernel_restart+0x12/0x70
+[  156.457872]  __do_sys_reboot+0x1ab/0x230
+[  156.461789]  ? vfs_writev+0xa6/0x1a0
+[  156.465362]  ? __pfx_file_free_rcu+0x10/0x10
+[  156.469635]  ? __call_rcu_common.constprop.85+0x109/0x5a0
+[  156.475034]  do_syscall_64+0x3e/0x90
+[  156.478611]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+[  156.483658] RIP: 0033:0x7fe7bff37ab7
 
-Fixes: c675e06a98a4 ("ipvlan: decouple l3s mode dependencies from other modes")
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/29865b1f-6db7-c07a-de89-949d3721ea30@163.com
+Fixes: 4ff0ee1af016 ("i40e: Introduce recovery mode support")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20230309184509.984639-1-anthony.l.nguyen@intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipvlan/ipvlan_l3s.c | 1 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ipvlan/ipvlan_l3s.c b/drivers/net/ipvlan/ipvlan_l3s.c
-index 943d26cbf39f5..71712ea25403d 100644
---- a/drivers/net/ipvlan/ipvlan_l3s.c
-+++ b/drivers/net/ipvlan/ipvlan_l3s.c
-@@ -101,6 +101,7 @@ static unsigned int ipvlan_nf_input(void *priv, struct sk_buff *skb,
- 		goto out;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 9e8a20a94862f..76481ff7074ba 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -14851,6 +14851,7 @@ static int i40e_init_recovery_mode(struct i40e_pf *pf, struct i40e_hw *hw)
+ 	int err;
+ 	int v_idx;
  
- 	skb->dev = addr->master->dev;
-+	skb->skb_iif = skb->dev->ifindex;
- 	len = skb->len + ETH_HLEN;
- 	ipvlan_count_rx(addr->master, len, true, false);
- out:
++	pci_set_drvdata(pf->pdev, pf);
+ 	pci_save_state(pf->pdev);
+ 
+ 	/* set up periodic task facility */
 -- 
 2.39.2
 
