@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC076C18F2
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:29:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE3F6C169A
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232975AbjCTP3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:29:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
+        id S232192AbjCTPHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232956AbjCTP2i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6DD32CD2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:48 -0700 (PDT)
+        with ESMTP id S232231AbjCTPH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E332FCDE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 461A4CE12F9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81956C4339B;
-        Mon, 20 Mar 2023 15:21:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB1AC61570
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89F7C433D2;
+        Mon, 20 Mar 2023 15:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325698;
-        bh=XhpReMj36BlNDK3+s+oxR1RtENo0vBcfeNHemoNRg9o=;
+        s=korg; t=1679324577;
+        bh=wID0rw8uelrUBAZElXJplUR8J6/9RLxjOfoZd2rHKTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0zLioNT3cG6jY/zC42Vg/onLbvFl5xFtfD+WbcQN+WXVq81Xsap0/TZZySBv8oLo
-         xPeAOQWrJqLy/dRrQjB+354hVguxAr6lTqkz+5hBycLAs8lG6HDT739pvZl8a6hWzu
-         dw4lOYAtWVzXoWK4PgvqcxnrwLDsqn2iRJvqRNVE=
+        b=Dxsn0ldDyGkQebwbW5oAsA4oKS0W/rIPpdAtjNdNAYkeHK0LVndOGGqGEazSBZr7J
+         AqXz4uqCgTC4EULQXyhWMoXMRnI9154Nd7ucAmhf+NsQ/2HCvuaa9IKAh1puyGBYDA
+         ksOoKJCIjH2AtKIJfa3Wpbr0AoqZZjhySgl7tzt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 100/198] hwmon: (adm1266) Set `can_sleep` flag for GPIO chip
+Subject: [PATCH 5.10 20/99] qed/qed_dev: guard against a possible division by zero
 Date:   Mon, 20 Mar 2023 15:53:58 +0100
-Message-Id: <20230320145511.763737760@linuxfoundation.org>
+Message-Id: <20230320145444.219735336@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit a5bb73b3f5db1a4e91402ad132b59b13d2651ed9 ]
+[ Upstream commit 1a9dc5610ef89d807acdcfbff93a558f341a44da ]
 
-The adm1266 driver uses I2C bus access in its GPIO chip `set` and `get`
-implementation. This means these functions can sleep and the GPIO chip
-should set the `can_sleep` property to true.
+Previously we would divide total_left_rate by zero if num_vports
+happened to be 1 because non_requested_count is calculated as
+num_vports - req_count. Guard against this by validating num_vports at
+the beginning and returning an error otherwise.
 
-This will ensure that a warning is printed when trying to set or get the
-GPIO value from a context that potentially can't sleep.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-Fixes: d98dfad35c38 ("hwmon: (pmbus/adm1266) Add support for GPIOs")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20230314093146.2443845-1-lars@metafoo.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: bcd197c81f63 ("qed: Add vport WFQ configuration APIs")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230309201556.191392-1-d-tatianin@yandex-team.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/adm1266.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hwmon/pmbus/adm1266.c b/drivers/hwmon/pmbus/adm1266.c
-index ec5f932fc6f0f..1ac2b2f4c5705 100644
---- a/drivers/hwmon/pmbus/adm1266.c
-+++ b/drivers/hwmon/pmbus/adm1266.c
-@@ -301,6 +301,7 @@ static int adm1266_config_gpio(struct adm1266_data *data)
- 	data->gc.label = name;
- 	data->gc.parent = &data->client->dev;
- 	data->gc.owner = THIS_MODULE;
-+	data->gc.can_sleep = true;
- 	data->gc.base = -1;
- 	data->gc.names = data->gpio_names;
- 	data->gc.ngpio = ARRAY_SIZE(data->gpio_names);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index d2f5855b2ea79..895b6f0a39841 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -4986,6 +4986,11 @@ static int qed_init_wfq_param(struct qed_hwfn *p_hwfn,
+ 
+ 	num_vports = p_hwfn->qm_info.num_vports;
+ 
++	if (num_vports < 2) {
++		DP_NOTICE(p_hwfn, "Unexpected num_vports: %d\n", num_vports);
++		return -EINVAL;
++	}
++
+ 	/* Accounting for the vports which are configured for WFQ explicitly */
+ 	for (i = 0; i < num_vports; i++) {
+ 		u32 tmp_speed;
 -- 
 2.39.2
 
