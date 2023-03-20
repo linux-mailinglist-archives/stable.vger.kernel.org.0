@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0566C190C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C1D6C1660
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:05:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbjCTPaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:30:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49194 "EHLO
+        id S231569AbjCTPFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:05:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232994AbjCTP3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:29:09 -0400
+        with ESMTP id S232024AbjCTPEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6953F973
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D8926C28
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EF766158F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A039C433EF;
-        Mon, 20 Mar 2023 15:22:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E293C61573
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0CDAC433EF;
+        Mon, 20 Mar 2023 15:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325734;
-        bh=Rdp0lPLgZfuXrqNugPBx0+te+ciYiE3AY757693/yxE=;
+        s=korg; t=1679324434;
+        bh=EDzdYQV2/m8xlKz3HjALn17QRG5oKLZUvH5HUpZ3O8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlQ/SvNRhSTwijgqyls5KkzjhPd+J0W1KD4yv9oYOgf2TN54+Zny8MDHnsYq+oA6q
-         WdIoNr75ZzAlFU0zU5Zr6dDvh+Cjz4L/7T4Z6c7B1NhHglkYRcfiaWBPTwGepdFjIq
-         oUvqVFwjI20BrQyEEeY5gvBm79ClC103DmVux/u8=
+        b=oIiQ2VFl/y9GRJ8V0euDEaLDeilzpmGq6XkRxFMUmRDelIxhkzLzVuoq0fes15kRb
+         1LmN+y791d8jOaU4sqRCEv8pbvwn+d4MgzEF+Ein5GZ09HALL3lr7Cnsm1KxzHiVtY
+         Bi1FYhsRfDVJow5bkEJcL4A9WVWw8l9xXEFOMbeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.1 134/198] interconnect: qcom: rpm: fix probe child-node error handling
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 23/60] net: phy: smsc: bail out in lan87xx_read_status if genphy_read_status fails
 Date:   Mon, 20 Mar 2023 15:54:32 +0100
-Message-Id: <20230320145513.161517290@linuxfoundation.org>
+Message-Id: <20230320145431.876894686@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit bc463201f60803fa6bf2741d59441031cd0910e4 upstream.
+[ Upstream commit c22c3bbf351e4ce905f082649cffa1ff893ea8c1 ]
 
-Make sure to clean up and release resources properly also in case probe
-fails when populating child devices.
+If genphy_read_status fails then further access to the PHY may result
+in unpredictable behavior. To prevent this bail out immediately if
+genphy_read_status fails.
 
-Fixes: e39bf2972c6e ("interconnect: icc-rpm: Support child NoC device probe")
-Cc: stable@vger.kernel.org      # 5.17
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-7-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4223dbffed9f ("net: phy: smsc: Re-enable EDPD mode for LAN87xx")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/026aa4f2-36f5-1c10-ab9f-cdb17dda6ac4@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/icc-rpm.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/phy/smsc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/interconnect/qcom/icc-rpm.c
-+++ b/drivers/interconnect/qcom/icc-rpm.c
-@@ -544,8 +544,11 @@ regmap_done:
- 	platform_set_drvdata(pdev, qp);
+diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
+index b732982507939..e387c219f17d2 100644
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -108,8 +108,11 @@ static int lan911x_config_init(struct phy_device *phydev)
+ static int lan87xx_read_status(struct phy_device *phydev)
+ {
+ 	struct smsc_phy_priv *priv = phydev->priv;
++	int err;
  
- 	/* Populate child NoC devices if any */
--	if (of_get_child_count(dev->of_node) > 0)
--		return of_platform_populate(dev->of_node, NULL, NULL, dev);
-+	if (of_get_child_count(dev->of_node) > 0) {
-+		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
-+		if (ret)
-+			goto err;
-+	}
+-	int err = genphy_read_status(phydev);
++	err = genphy_read_status(phydev);
++	if (err)
++		return err;
  
- 	return 0;
- err:
+ 	if (!phydev->link && priv->energy_enable) {
+ 		int i;
+-- 
+2.39.2
+
 
 
