@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C496C171D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FDD6C17E6
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:18:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232306AbjCTPL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41922 "EHLO
+        id S232501AbjCTPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:18:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232371AbjCTPLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70D42F062
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:32 -0700 (PDT)
+        with ESMTP id S232364AbjCTPRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:17:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA487EEB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:12:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8F536159D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4153C433D2;
-        Mon, 20 Mar 2023 15:06:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8DAAB80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 061D2C433D2;
+        Mon, 20 Mar 2023 15:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324791;
-        bh=YfOucrZJZAdAFK0SRVWq7To0DrxSk/BHLnV7C8c6PLg=;
+        s=korg; t=1679325133;
+        bh=OQzblPpPsKs2I7b2Fr4Fe9jN73W2mnjDF9LAtJj41zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxYNsKmzkKhJFJCWSKo5I/NNd5I5IDAGA2NiQ4LPMhdHErUT1m9I2I2HVzuZzesA+
-         tQ+ivj9S0AeOoW/QqCGVo9OZi+SoMIa1HYibBXwuxBsMDkJC/+TNZP9tLewCvfpE00
-         5CboBuPlsi1X16hbP/65MYPoqfvYJtLPgkoOByzA=
+        b=TLxBnw8t8RWFrrVi1jXcTThADi2EgHj7aXvcI0W0GyNMRJjjw2Wh+V8oYZbqvqHZQ
+         tr0oM73vIxsJVVWcOM7WmDqjLvAAnnCHA7D160e37k6tjiC6QnFRpYub/Zz29atlZY
+         ChuG9ikZRZsLuvIvuEdcRjbgn1tC5QIO284qqPIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        Huang Rui <ray.huang@amd.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 006/198] cifs: Move the in_send statistic to __smb_send_rqst()
+Subject: [PATCH 6.2 009/211] selftests: amd-pstate: fix TEST_FILES
 Date:   Mon, 20 Mar 2023 15:52:24 +0100
-Message-Id: <20230320145507.722649900@linuxfoundation.org>
+Message-Id: <20230320145513.696272943@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,115 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-[ Upstream commit d0dc41119905f740e8d5594adce277f7c0de8c92 ]
+[ Upstream commit 2da789cda462bda93679f53ee38f9aa2309d47e8 ]
 
-When send SMB_COM_NT_CANCEL and RFC1002_SESSION_REQUEST, the
-in_send statistic was lost.
+Bring back the Python scripts that were initially added with
+TEST_GEN_FILES but now with TEST_FILES to avoid having them deleted
+when doing a clean.  Also fix the way the architecture is being
+determined as they should also be installed when ARCH=x86_64 is
+provided explicitly.  Then also append extra files to TEST_FILES and
+TEST_PROGS with += so they don't get discarded.
 
-Let's move the in_send statistic to the send function to avoid
-this scenario.
-
-Fixes: 7ee1af765dfa ("[CIFS]")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: ba2d788aa873 ("selftests: amd-pstate: Trigger tbench benchmark and test cpus")
+Fixes: a49fb7218ed8 ("selftests: amd-pstate: Don't delete source files via Makefile")
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Acked-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/transport.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ tools/testing/selftests/amd-pstate/Makefile | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 3851d0aaa2886..c961b90f92b9f 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -297,7 +297,7 @@ static int
- __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 		struct smb_rqst *rqst)
- {
--	int rc = 0;
-+	int rc;
- 	struct kvec *iov;
- 	int n_vec;
- 	unsigned int send_length = 0;
-@@ -308,6 +308,7 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	struct msghdr smb_msg = {};
- 	__be32 rfc1002_marker;
+diff --git a/tools/testing/selftests/amd-pstate/Makefile b/tools/testing/selftests/amd-pstate/Makefile
+index 5fd1424db37d8..c382f579fe94a 100644
+--- a/tools/testing/selftests/amd-pstate/Makefile
++++ b/tools/testing/selftests/amd-pstate/Makefile
+@@ -4,10 +4,15 @@
+ # No binaries, but make sure arg-less "make" doesn't trigger "run_tests"
+ all:
  
-+	cifs_in_send_inc(server);
- 	if (cifs_rdma_enabled(server)) {
- 		/* return -EAGAIN when connecting or reconnecting */
- 		rc = -EAGAIN;
-@@ -316,14 +317,17 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 		goto smbd_done;
- 	}
+-uname_M := $(shell uname -m 2>/dev/null || echo not)
+-ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
++ARCH ?= $(shell uname -m 2>/dev/null || echo not)
++ARCH := $(shell echo $(ARCH) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
  
-+	rc = -EAGAIN;
- 	if (ssocket == NULL)
--		return -EAGAIN;
-+		goto out;
+-TEST_PROGS := run.sh
+-TEST_FILES := basic.sh tbench.sh gitsource.sh
++ifeq (x86,$(ARCH))
++TEST_FILES += ../../../power/x86/amd_pstate_tracer/amd_pstate_trace.py
++TEST_FILES += ../../../power/x86/intel_pstate_tracer/intel_pstate_tracer.py
++endif
++
++TEST_PROGS += run.sh
++TEST_FILES += basic.sh tbench.sh gitsource.sh
  
-+	rc = -ERESTARTSYS;
- 	if (fatal_signal_pending(current)) {
- 		cifs_dbg(FYI, "signal pending before send request\n");
--		return -ERESTARTSYS;
-+		goto out;
- 	}
- 
-+	rc = 0;
- 	/* cork the socket */
- 	tcp_sock_set_cork(ssocket->sk, true);
- 
-@@ -434,7 +438,8 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 			 rc);
- 	else if (rc > 0)
- 		rc = 0;
--
-+out:
-+	cifs_in_send_dec(server);
- 	return rc;
- }
- 
-@@ -853,9 +858,7 @@ cifs_call_async(struct TCP_Server_Info *server, struct smb_rqst *rqst,
- 	 * I/O response may come back and free the mid entry on another thread.
- 	 */
- 	cifs_save_when_sent(mid);
--	cifs_in_send_inc(server);
- 	rc = smb_send_rqst(server, 1, rqst, flags);
--	cifs_in_send_dec(server);
- 
- 	if (rc < 0) {
- 		revert_current_mid(server, mid->credits);
-@@ -1146,9 +1149,7 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
- 		else
- 			midQ[i]->callback = cifs_compound_last_callback;
- 	}
--	cifs_in_send_inc(server);
- 	rc = smb_send_rqst(server, num_rqst, rqst, flags);
--	cifs_in_send_dec(server);
- 
- 	for (i = 0; i < num_rqst; i++)
- 		cifs_save_when_sent(midQ[i]);
-@@ -1398,9 +1399,7 @@ SendReceive(const unsigned int xid, struct cifs_ses *ses,
- 
- 	midQ->mid_state = MID_REQUEST_SUBMITTED;
- 
--	cifs_in_send_inc(server);
- 	rc = smb_send(server, in_buf, len);
--	cifs_in_send_dec(server);
- 	cifs_save_when_sent(midQ);
- 
- 	if (rc < 0)
-@@ -1541,9 +1540,7 @@ SendReceiveBlockingLock(const unsigned int xid, struct cifs_tcon *tcon,
- 	}
- 
- 	midQ->mid_state = MID_REQUEST_SUBMITTED;
--	cifs_in_send_inc(server);
- 	rc = smb_send(server, in_buf, len);
--	cifs_in_send_dec(server);
- 	cifs_save_when_sent(midQ);
- 
- 	if (rc < 0)
+ include ../lib.mk
 -- 
 2.39.2
 
