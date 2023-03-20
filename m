@@ -2,170 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 203666C1848
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FEE96C18EC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbjCTPXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
+        id S231271AbjCTP2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:28:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232695AbjCTPWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6518512861
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:13 -0700 (PDT)
+        with ESMTP id S232864AbjCTP2c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C45432502
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB0CC61582
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083F6C4339C;
-        Mon, 20 Mar 2023 15:16:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7ED3B80EAC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E27EC433D2;
+        Mon, 20 Mar 2023 15:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325372;
-        bh=W9fLHoHuLWUaINGzPkF6RNt5x4mzbUfgMbFQ41cEGic=;
+        s=korg; t=1679325679;
+        bh=wnXLSYdOtPwWTzOW70MLofEFjxHN6DtpqNqEXo76lb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhro8WQVbo9VYv5uyp75DyI4r2eYMnNS5RCti6t3taHPgmU/fWx45nm7IjlWOD792
-         6+92bPAEz5farZOQzEhRdNk1aRN1my6GzylSWDUtuHYFAM5lDD5uKMIXIkBKVgGep9
-         ANWbNjHzsinvirWnxU3V8cJTA2wH/XSVoK/zcZik=
+        b=pwaGA04+yRgbZPE/qO0JnViQA6nJvyisNoJvYRjIfckxuzcY2pRFMNE0HuNS+gvHw
+         NC9DyPJ1tNbS3flR6y+DOt1PmKj9EAmpIxzpQUt1PJfOZuVt036bIDcoUhDoHe4GuT
+         tbTwJ0JuBfXJUDerqncEYsokx7vtx8nHk1J3WT54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 6.1 077/198] ice: xsk: disable txq irq before flushing hw
-Date:   Mon, 20 Mar 2023 15:53:35 +0100
-Message-Id: <20230320145510.752625263@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 081/211] net: dsa: dont error out when drivers return ETH_DATA_LEN in .port_max_mtu()
+Date:   Mon, 20 Mar 2023 15:53:36 +0100
+Message-Id: <20230320145516.687581662@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit b830c9642386867863ac64295185f896ff2928ac ]
+[ Upstream commit 636e8adf7878eab3614250234341bde45537f47a ]
 
-ice_qp_dis() intends to stop a given queue pair that is a target of xsk
-pool attach/detach. One of the steps is to disable interrupts on these
-queues. It currently is broken in a way that txq irq is turned off
-*after* HW flush which in turn takes no effect.
+Currently, when dsa_slave_change_mtu() is called on a user port where
+dev->max_mtu is 1500 (as returned by ds->ops->port_max_mtu()), the code
+will stumble upon this check:
 
-ice_qp_dis():
--> ice_qvec_dis_irq()
---> disable rxq irq
---> flush hw
--> ice_vsi_stop_tx_ring()
--->disable txq irq
+	if (new_master_mtu > mtu_limit)
+		return -ERANGE;
 
-Below splat can be triggered by following steps:
-- start xdpsock WITHOUT loading xdp prog
-- run xdp_rxq_info with XDP_TX action on this interface
-- start traffic
-- terminate xdpsock
+because new_master_mtu is adjusted for the tagger overhead but mtu_limit
+is not.
 
-[  256.312485] BUG: kernel NULL pointer dereference, address: 0000000000000018
-[  256.319560] #PF: supervisor read access in kernel mode
-[  256.324775] #PF: error_code(0x0000) - not-present page
-[  256.329994] PGD 0 P4D 0
-[  256.332574] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  256.337006] CPU: 3 PID: 32 Comm: ksoftirqd/3 Tainted: G           OE      6.2.0-rc5+ #51
-[  256.345218] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
-[  256.355807] RIP: 0010:ice_clean_rx_irq_zc+0x9c/0x7d0 [ice]
-[  256.361423] Code: b7 8f 8a 00 00 00 66 39 ca 0f 84 f1 04 00 00 49 8b 47 40 4c 8b 24 d0 41 0f b7 45 04 66 25 ff 3f 66 89 04 24 0f 84 85 02 00 00 <49> 8b 44 24 18 0f b7 14 24 48 05 00 01 00 00 49 89 04 24 49 89 44
-[  256.380463] RSP: 0018:ffffc900088bfd20 EFLAGS: 00010206
-[  256.385765] RAX: 000000000000003c RBX: 0000000000000035 RCX: 000000000000067f
-[  256.393012] RDX: 0000000000000775 RSI: 0000000000000000 RDI: ffff8881deb3ac80
-[  256.400256] RBP: 000000000000003c R08: ffff889847982710 R09: 0000000000010000
-[  256.407500] R10: ffffffff82c060c0 R11: 0000000000000004 R12: 0000000000000000
-[  256.414746] R13: ffff88811165eea0 R14: ffffc9000d255000 R15: ffff888119b37600
-[  256.421990] FS:  0000000000000000(0000) GS:ffff8897e0cc0000(0000) knlGS:0000000000000000
-[  256.430207] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  256.436036] CR2: 0000000000000018 CR3: 0000000005c0a006 CR4: 00000000007706e0
-[  256.443283] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  256.450527] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  256.457770] PKRU: 55555554
-[  256.460529] Call Trace:
-[  256.463015]  <TASK>
-[  256.465157]  ? ice_xmit_zc+0x6e/0x150 [ice]
-[  256.469437]  ice_napi_poll+0x46d/0x680 [ice]
-[  256.473815]  ? _raw_spin_unlock_irqrestore+0x1b/0x40
-[  256.478863]  __napi_poll+0x29/0x160
-[  256.482409]  net_rx_action+0x136/0x260
-[  256.486222]  __do_softirq+0xe8/0x2e5
-[  256.489853]  ? smpboot_thread_fn+0x2c/0x270
-[  256.494108]  run_ksoftirqd+0x2a/0x50
-[  256.497747]  smpboot_thread_fn+0x1c1/0x270
-[  256.501907]  ? __pfx_smpboot_thread_fn+0x10/0x10
-[  256.506594]  kthread+0xea/0x120
-[  256.509785]  ? __pfx_kthread+0x10/0x10
-[  256.513597]  ret_from_fork+0x29/0x50
-[  256.517238]  </TASK>
+But it would be good if the logic went through, for example if the DSA
+master really depends on an MTU adjustment to accept DSA-tagged frames.
 
-In fact, irqs were not disabled and napi managed to be scheduled and run
-while xsk_pool pointer was still valid, but SW ring of xdp_buff pointers
-was already freed.
+To make the code pass through the check, we need to adjust mtu_limit for
+the overhead as well, if the minimum restriction was caused by the DSA
+user port's MTU (dev->max_mtu). A DSA user port MTU and a DSA master MTU
+are always offset by the protocol overhead.
 
-To fix this, call ice_qvec_dis_irq() after ice_vsi_stop_tx_ring(). Also
-while at it, remove redundant ice_clean_rx_ring() call - this is handled
-in ice_qp_clean_rings().
+Currently no drivers return 1500 .port_max_mtu(), but this is only
+temporary and a bug in itself - mv88e6xxx should have done that, but
+since commit b9c587fed61c ("dsa: mv88e6xxx: Include tagger overhead when
+setting MTU for DSA and CPU ports") it no longer does. This is a
+preparation for fixing that.
 
-Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: bfcb813203e6 ("net: dsa: configure the MTU for switch ports")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/dsa/slave.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 65468cdc25870..41ee081eb8875 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -173,8 +173,6 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
- 	}
- 	netif_tx_stop_queue(netdev_get_tx_queue(vsi->netdev, q_idx));
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index aab79c3552249..6711ddc0a3c7d 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -1899,6 +1899,7 @@ int dsa_slave_change_mtu(struct net_device *dev, int new_mtu)
+ 	int new_master_mtu;
+ 	int old_master_mtu;
+ 	int mtu_limit;
++	int overhead;
+ 	int cpu_mtu;
+ 	int err;
  
--	ice_qvec_dis_irq(vsi, rx_ring, q_vector);
--
- 	ice_fill_txq_meta(vsi, tx_ring, &txq_meta);
- 	err = ice_vsi_stop_tx_ring(vsi, ICE_NO_RESET, 0, tx_ring, &txq_meta);
- 	if (err)
-@@ -189,10 +187,11 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
- 		if (err)
- 			return err;
+@@ -1927,9 +1928,10 @@ int dsa_slave_change_mtu(struct net_device *dev, int new_mtu)
+ 			largest_mtu = slave_mtu;
  	}
-+	ice_qvec_dis_irq(vsi, rx_ring, q_vector);
-+
- 	err = ice_vsi_ctrl_one_rx_ring(vsi, false, q_idx, true);
- 	if (err)
- 		return err;
--	ice_clean_rx_ring(rx_ring);
  
- 	ice_qvec_toggle_napi(vsi, q_vector, false);
- 	ice_qp_clean_rings(vsi, q_idx);
+-	mtu_limit = min_t(int, master->max_mtu, dev->max_mtu);
++	overhead = dsa_tag_protocol_overhead(cpu_dp->tag_ops);
++	mtu_limit = min_t(int, master->max_mtu, dev->max_mtu + overhead);
+ 	old_master_mtu = master->mtu;
+-	new_master_mtu = largest_mtu + dsa_tag_protocol_overhead(cpu_dp->tag_ops);
++	new_master_mtu = largest_mtu + overhead;
+ 	if (new_master_mtu > mtu_limit)
+ 		return -ERANGE;
+ 
+@@ -1964,8 +1966,7 @@ int dsa_slave_change_mtu(struct net_device *dev, int new_mtu)
+ 
+ out_port_failed:
+ 	if (new_master_mtu != old_master_mtu)
+-		dsa_port_mtu_change(cpu_dp, old_master_mtu -
+-				    dsa_tag_protocol_overhead(cpu_dp->tag_ops));
++		dsa_port_mtu_change(cpu_dp, old_master_mtu - overhead);
+ out_cpu_failed:
+ 	if (new_master_mtu != old_master_mtu)
+ 		dev_set_mtu(master, old_master_mtu);
 -- 
 2.39.2
 
