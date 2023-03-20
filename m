@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E9F76C1929
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DB66C1680
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbjCTPbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48658 "EHLO
+        id S232139AbjCTPGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233026AbjCTPbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:03 -0400
+        with ESMTP id S232141AbjCTPG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 189BC39294
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998542C644
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5EBD6158B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CEAC433EF;
-        Mon, 20 Mar 2023 15:23:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A13036158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFB3CC433EF;
+        Mon, 20 Mar 2023 15:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325803;
-        bh=ItwEZepMiMsvKIPT7E7ZzxgPotXPPqHnsHfZmPbNf5U=;
+        s=korg; t=1679324470;
+        bh=2cIBWWk+UGGa8Ddj2f57odbXM2mb/Idb5klosJIgAYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9q+2KIrclFJf4gRoeZW/+XvqSp/jYW65OCz2LMG3/9uWUiwwUWCaZzBxnHyYfZiE
-         iisxUn+9JI3MPLRmtyQR09Q8gY9n9Bee8hYSYR1ymBBHrOraC4zGjWpZJVMmUVemcl
-         aywtEefxgjppT84jSztupzqcWXrhpLmvOfr5plfI=
+        b=drN3SRJJEJ4W3c0My20UkUZVnIjqphUY4bpqJCZMHSUkMOBw1uuMu9jhIZF46/jJZ
+         slg7yHVXpzPS5kyIpObBOA5T/rtwkHYaPblzBEwQCvO8URtN6WV0hgvyG/NKoG++hq
+         V0u9eJmY/NbPbYzuoW8/0Hb+ViTRC6vGT94QMaLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 145/198] tracing: Make tracepoint lockdep check actually test something
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 34/60] hwmon: (xgene) Fix use after free bug in xgene_hwmon_remove due to race condition
 Date:   Mon, 20 Mar 2023 15:54:43 +0100
-Message-Id: <20230320145513.631340397@linuxfoundation.org>
+Message-Id: <20230320145432.358331119@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,86 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-commit c2679254b9c9980d9045f0f722cf093a2b1f7590 upstream.
+[ Upstream commit cb090e64cf25602b9adaf32d5dfc9c8bec493cd1 ]
 
-A while ago where the trace events had the following:
+In xgene_hwmon_probe, &ctx->workq is bound with xgene_hwmon_evt_work.
+Then it will be started.
 
-   rcu_read_lock_sched_notrace();
-   rcu_dereference_sched(...);
-   rcu_read_unlock_sched_notrace();
+If we remove the driver which will call xgene_hwmon_remove to clean up,
+there may be unfinished work.
 
-If the tracepoint is enabled, it could trigger RCU issues if called in
-the wrong place. And this warning was only triggered if lockdep was
-enabled. If the tracepoint was never enabled with lockdep, the bug would
-not be caught. To handle this, the above sequence was done when lockdep
-was enabled regardless if the tracepoint was enabled or not (although the
-always enabled code really didn't do anything, it would still trigger a
-warning).
+The possible sequence is as follows:
 
-But a lot has changed since that lockdep code was added. One is, that
-sequence no longer triggers any warning. Another is, the tracepoint when
-enabled doesn't even do that sequence anymore.
+Fix it by finishing the work before cleanup in xgene_hwmon_remove.
 
-The main check we care about today is whether RCU is "watching" or not.
-So if lockdep is enabled, always check if rcu_is_watching() which will
-trigger a warning if it is not (tracepoints require RCU to be watching).
+CPU0                  CPU1
 
-Note, that old sequence did add a bit of overhead when lockdep was enabled,
-and with the latest kernel updates, would cause the system to slow down
-enough to trigger kernel "stalled" warnings.
-
-Link: http://lore.kernel.org/lkml/20140806181801.GA4605@redhat.com
-Link: http://lore.kernel.org/lkml/20140807175204.C257CAC5@viggo.jf.intel.com
-Link: https://lore.kernel.org/lkml/20230307184645.521db5c9@gandalf.local.home/
-Link: https://lore.kernel.org/linux-trace-kernel/20230310172856.77406446@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Fixes: e6753f23d961 ("tracepoint: Make rcuidle tracepoint callers use SRCU")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+                    |xgene_hwmon_evt_work
+xgene_hwmon_remove   |
+kfifo_free(&ctx->async_msg_fifo);|
+                    |
+                    |kfifo_out_spinlocked
+                    |//use &ctx->async_msg_fifo
+Fixes: 2ca492e22cb7 ("hwmon: (xgene) Fix crash when alarm occurs before driver probe")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Link: https://lore.kernel.org/r/20230310084007.1403388-1-zyytlz.wz@163.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/tracepoint.h |   15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ drivers/hwmon/xgene-hwmon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/tracepoint.h
-+++ b/include/linux/tracepoint.h
-@@ -231,12 +231,11 @@ static inline struct tracepoint *tracepo
-  * not add unwanted padding between the beginning of the section and the
-  * structure. Force alignment to the same alignment as the section start.
-  *
-- * When lockdep is enabled, we make sure to always do the RCU portions of
-- * the tracepoint code, regardless of whether tracing is on. However,
-- * don't check if the condition is false, due to interaction with idle
-- * instrumentation. This lets us find RCU issues triggered with tracepoints
-- * even when this tracepoint is off. This code has no purpose other than
-- * poking RCU a bit.
-+ * When lockdep is enabled, we make sure to always test if RCU is
-+ * "watching" regardless if the tracepoint is enabled or not. Tracepoints
-+ * require RCU to be active, and it should always warn at the tracepoint
-+ * site if it is not watching, as it will need to be active when the
-+ * tracepoint is enabled.
-  */
- #define __DECLARE_TRACE(name, proto, args, cond, data_proto)		\
- 	extern int __traceiter_##name(data_proto);			\
-@@ -249,9 +248,7 @@ static inline struct tracepoint *tracepo
- 				TP_ARGS(args),				\
- 				TP_CONDITION(cond), 0);			\
- 		if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {		\
--			rcu_read_lock_sched_notrace();			\
--			rcu_dereference_sched(__tracepoint_##name.funcs);\
--			rcu_read_unlock_sched_notrace();		\
-+			WARN_ON_ONCE(!rcu_is_watching());		\
- 		}							\
- 	}								\
- 	__DECLARE_TRACE_RCU(name, PARAMS(proto), PARAMS(args),		\
+diff --git a/drivers/hwmon/xgene-hwmon.c b/drivers/hwmon/xgene-hwmon.c
+index f2a5af239c956..f5d3cf86753f7 100644
+--- a/drivers/hwmon/xgene-hwmon.c
++++ b/drivers/hwmon/xgene-hwmon.c
+@@ -768,6 +768,7 @@ static int xgene_hwmon_remove(struct platform_device *pdev)
+ {
+ 	struct xgene_hwmon_dev *ctx = platform_get_drvdata(pdev);
+ 
++	cancel_work_sync(&ctx->workq);
+ 	hwmon_device_unregister(ctx->hwmon_dev);
+ 	kfifo_free(&ctx->async_msg_fifo);
+ 	if (acpi_disabled)
+-- 
+2.39.2
+
 
 
