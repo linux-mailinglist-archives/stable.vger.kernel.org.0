@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4AC6C17FB
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 805C66C1770
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232606AbjCTPTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55420 "EHLO
+        id S232488AbjCTPNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232502AbjCTPSy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D6B2A17B;
-        Mon, 20 Mar 2023 08:13:21 -0700 (PDT)
+        with ESMTP id S232502AbjCTPNf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE8B2CFED
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42A7961593;
-        Mon, 20 Mar 2023 15:13:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B71C433D2;
-        Mon, 20 Mar 2023 15:13:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3616BB80EC2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8439BC433D2;
+        Mon, 20 Mar 2023 15:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325199;
-        bh=FGhj+Dsz92X2+5UcnDsbRDcofJC7lWDEjheT5sM0jms=;
+        s=korg; t=1679324903;
+        bh=q7cKzBeow0OTK15nGb8yLbZsXyaUiWG8LYsBO+NMrNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEtAbaL2IBvqirZKS9WY+ZLEkbejz2bggfy22GCl+t8hgN8YyeChP3ERsU/hkxl+7
-         thL4eKw/GkI4LfRwWAoYMDeau+FPSW1qz53sR07NUTJXucFl09MhtOPPvbLeeFZifK
-         UHLIJ8e2TgI3SDUj8DUcreedXUDFrD2LknfxnqHs=
+        b=Kidvft5d4aqn/oRA7UL09P1h5iDZ1nVTUBxlMQvsdc7e+JdMTWmEY5zsenyGmz3XE
+         ebeufRMVk2IqyLufT+C9N/YHb3E9HQ7zRuVozKkQXEC0HyUKb1O2CY1FVf2kbI4jCR
+         o5JthXw9sHewBR86P6CSTHYmCpTOabrewmuXPbyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Amit Sunil Dhamne <amit.sunil.dhamne@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5.15 077/115] firmware: xilinx: dont make a sleepable memory allocation from an atomic context
+        patches@lists.linux.dev, David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Jerome Glisse <jglisse@redhat.com>, Shaohua Li <shli@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 71/99] mm/userfaultfd: propagate uffd-wp bit when PTE-mapping the huge zeropage
 Date:   Mon, 20 Mar 2023 15:54:49 +0100
-Message-Id: <20230320145452.650514228@linuxfoundation.org>
+Message-Id: <20230320145446.360890387@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,89 +56,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <roman.gushchin@linux.dev>
+From: David Hildenbrand <david@redhat.com>
 
-commit 38ed310c22e7a0fc978b1f8292136a4a4a8b3051 upstream.
+commit 42b2af2c9b7eede8ef21d0943f84d135e21a32a3 upstream.
 
-The following issue was discovered using lockdep:
-[    6.691371] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:209
-[    6.694602] in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 1, name: swapper/0
-[    6.702431] 2 locks held by swapper/0/1:
-[    6.706300]  #0: ffffff8800f6f188 (&dev->mutex){....}-{3:3}, at: __device_driver_lock+0x4c/0x90
-[    6.714900]  #1: ffffffc009a2abb8 (enable_lock){....}-{2:2}, at: clk_enable_lock+0x4c/0x140
-[    6.723156] irq event stamp: 304030
-[    6.726596] hardirqs last  enabled at (304029): [<ffffffc008d17ee0>] _raw_spin_unlock_irqrestore+0xc0/0xd0
-[    6.736142] hardirqs last disabled at (304030): [<ffffffc00876bc5c>] clk_enable_lock+0xfc/0x140
-[    6.744742] softirqs last  enabled at (303958): [<ffffffc0080904f0>] _stext+0x4f0/0x894
-[    6.752655] softirqs last disabled at (303951): [<ffffffc0080e53b8>] irq_exit+0x238/0x280
-[    6.760744] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G     U            5.15.36 #2
-[    6.768048] Hardware name: xlnx,zynqmp (DT)
-[    6.772179] Call trace:
-[    6.774584]  dump_backtrace+0x0/0x300
-[    6.778197]  show_stack+0x18/0x30
-[    6.781465]  dump_stack_lvl+0xb8/0xec
-[    6.785077]  dump_stack+0x1c/0x38
-[    6.788345]  ___might_sleep+0x1a8/0x2a0
-[    6.792129]  __might_sleep+0x6c/0xd0
-[    6.795655]  kmem_cache_alloc_trace+0x270/0x3d0
-[    6.800127]  do_feature_check_call+0x100/0x220
-[    6.804513]  zynqmp_pm_invoke_fn+0x8c/0xb0
-[    6.808555]  zynqmp_pm_clock_getstate+0x90/0xe0
-[    6.813027]  zynqmp_pll_is_enabled+0x8c/0x120
-[    6.817327]  zynqmp_pll_enable+0x38/0xc0
-[    6.821197]  clk_core_enable+0x144/0x400
-[    6.825067]  clk_core_enable+0xd4/0x400
-[    6.828851]  clk_core_enable+0xd4/0x400
-[    6.832635]  clk_core_enable+0xd4/0x400
-[    6.836419]  clk_core_enable+0xd4/0x400
-[    6.840203]  clk_core_enable+0xd4/0x400
-[    6.843987]  clk_core_enable+0xd4/0x400
-[    6.847771]  clk_core_enable+0xd4/0x400
-[    6.851555]  clk_core_enable_lock+0x24/0x50
-[    6.855683]  clk_enable+0x24/0x40
-[    6.858952]  fclk_probe+0x84/0xf0
-[    6.862220]  platform_probe+0x8c/0x110
-[    6.865918]  really_probe+0x110/0x5f0
-[    6.869530]  __driver_probe_device+0xcc/0x210
-[    6.873830]  driver_probe_device+0x64/0x140
-[    6.877958]  __driver_attach+0x114/0x1f0
-[    6.881828]  bus_for_each_dev+0xe8/0x160
-[    6.885698]  driver_attach+0x34/0x50
-[    6.889224]  bus_add_driver+0x228/0x300
-[    6.893008]  driver_register+0xc0/0x1e0
-[    6.896792]  __platform_driver_register+0x44/0x60
-[    6.901436]  fclk_driver_init+0x1c/0x28
-[    6.905220]  do_one_initcall+0x104/0x590
-[    6.909091]  kernel_init_freeable+0x254/0x2bc
-[    6.913390]  kernel_init+0x24/0x130
-[    6.916831]  ret_from_fork+0x10/0x20
+Currently, we'd lose the userfaultfd-wp marker when PTE-mapping a huge
+zeropage, resulting in the next write faults in the PMD range not
+triggering uffd-wp events.
 
-Fix it by passing the GFP_ATOMIC gfp flag for the corresponding
-memory allocation.
+Various actions (partial MADV_DONTNEED, partial mremap, partial munmap,
+partial mprotect) could trigger this.  However, most importantly,
+un-protecting a single sub-page from the userfaultfd-wp handler when
+processing a uffd-wp event will PTE-map the shared huge zeropage and lose
+the uffd-wp bit for the remainder of the PMD.
 
-Fixes: acfdd18591ea ("firmware: xilinx: Use hash-table for api feature check")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: Amit Sunil Dhamne <amit.sunil.dhamne@xilinx.com>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/20230308222602.123866-1-roman.gushchin@linux.dev
+Let's properly propagate the uffd-wp bit to the PMDs.
+
+ #define _GNU_SOURCE
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
+ #include <stdbool.h>
+ #include <inttypes.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <poll.h>
+ #include <pthread.h>
+ #include <sys/mman.h>
+ #include <sys/syscall.h>
+ #include <sys/ioctl.h>
+ #include <linux/userfaultfd.h>
+
+ static size_t pagesize;
+ static int uffd;
+ static volatile bool uffd_triggered;
+
+ #define barrier() __asm__ __volatile__("": : :"memory")
+
+ static void uffd_wp_range(char *start, size_t size, bool wp)
+ {
+ 	struct uffdio_writeprotect uffd_writeprotect;
+
+ 	uffd_writeprotect.range.start = (unsigned long) start;
+ 	uffd_writeprotect.range.len = size;
+ 	if (wp) {
+ 		uffd_writeprotect.mode = UFFDIO_WRITEPROTECT_MODE_WP;
+ 	} else {
+ 		uffd_writeprotect.mode = 0;
+ 	}
+ 	if (ioctl(uffd, UFFDIO_WRITEPROTECT, &uffd_writeprotect)) {
+ 		fprintf(stderr, "UFFDIO_WRITEPROTECT failed: %d\n", errno);
+ 		exit(1);
+ 	}
+ }
+
+ static void *uffd_thread_fn(void *arg)
+ {
+ 	static struct uffd_msg msg;
+ 	ssize_t nread;
+
+ 	while (1) {
+ 		struct pollfd pollfd;
+ 		int nready;
+
+ 		pollfd.fd = uffd;
+ 		pollfd.events = POLLIN;
+ 		nready = poll(&pollfd, 1, -1);
+ 		if (nready == -1) {
+ 			fprintf(stderr, "poll() failed: %d\n", errno);
+ 			exit(1);
+ 		}
+
+ 		nread = read(uffd, &msg, sizeof(msg));
+ 		if (nread <= 0)
+ 			continue;
+
+ 		if (msg.event != UFFD_EVENT_PAGEFAULT ||
+ 		    !(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WP)) {
+ 			printf("FAIL: wrong uffd-wp event fired\n");
+ 			exit(1);
+ 		}
+
+ 		/* un-protect the single page. */
+ 		uffd_triggered = true;
+ 		uffd_wp_range((char *)(uintptr_t)msg.arg.pagefault.address,
+ 			      pagesize, false);
+ 	}
+ 	return arg;
+ }
+
+ static int setup_uffd(char *map, size_t size)
+ {
+ 	struct uffdio_api uffdio_api;
+ 	struct uffdio_register uffdio_register;
+ 	pthread_t thread;
+
+ 	uffd = syscall(__NR_userfaultfd,
+ 		       O_CLOEXEC | O_NONBLOCK | UFFD_USER_MODE_ONLY);
+ 	if (uffd < 0) {
+ 		fprintf(stderr, "syscall() failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	uffdio_api.api = UFFD_API;
+ 	uffdio_api.features = UFFD_FEATURE_PAGEFAULT_FLAG_WP;
+ 	if (ioctl(uffd, UFFDIO_API, &uffdio_api) < 0) {
+ 		fprintf(stderr, "UFFDIO_API failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	if (!(uffdio_api.features & UFFD_FEATURE_PAGEFAULT_FLAG_WP)) {
+ 		fprintf(stderr, "UFFD_FEATURE_WRITEPROTECT missing\n");
+ 		return -ENOSYS;
+ 	}
+
+ 	uffdio_register.range.start = (unsigned long) map;
+ 	uffdio_register.range.len = size;
+ 	uffdio_register.mode = UFFDIO_REGISTER_MODE_WP;
+ 	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) < 0) {
+ 		fprintf(stderr, "UFFDIO_REGISTER failed: %d\n", errno);
+ 		return -errno;
+ 	}
+
+ 	pthread_create(&thread, NULL, uffd_thread_fn, NULL);
+
+ 	return 0;
+ }
+
+ int main(void)
+ {
+ 	const size_t size = 4 * 1024 * 1024ull;
+ 	char *map, *cur;
+
+ 	pagesize = getpagesize();
+
+ 	map = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
+ 	if (map == MAP_FAILED) {
+ 		fprintf(stderr, "mmap() failed\n");
+ 		return -errno;
+ 	}
+
+ 	if (madvise(map, size, MADV_HUGEPAGE)) {
+ 		fprintf(stderr, "MADV_HUGEPAGE failed\n");
+ 		return -errno;
+ 	}
+
+ 	if (setup_uffd(map, size))
+ 		return 1;
+
+ 	/* Read the whole range, populating zeropages. */
+ 	madvise(map, size, MADV_POPULATE_READ);
+
+ 	/* Write-protect the whole range. */
+ 	uffd_wp_range(map, size, true);
+
+ 	/* Make sure uffd-wp triggers on each page. */
+ 	for (cur = map; cur < map + size; cur += pagesize) {
+ 		uffd_triggered = false;
+
+ 		barrier();
+ 		/* Trigger a write fault. */
+ 		*cur = 1;
+ 		barrier();
+
+ 		if (!uffd_triggered) {
+ 			printf("FAIL: uffd-wp did not trigger\n");
+ 			return 1;
+ 		}
+ 	}
+
+ 	printf("PASS: uffd-wp triggered\n");
+ 	return 0;
+ }
+
+Link: https://lkml.kernel.org/r/20230302175423.589164-1-david@redhat.com
+Fixes: e06f1e1dd499 ("userfaultfd: wp: enabled write protection in userfaultfd API")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Shaohua Li <shli@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/xilinx/zynqmp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/huge_memory.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/firmware/xilinx/zynqmp.c
-+++ b/drivers/firmware/xilinx/zynqmp.c
-@@ -171,7 +171,7 @@ static int zynqmp_pm_feature(u32 api_id)
- 	}
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1994,7 +1994,7 @@ static void __split_huge_zero_page_pmd(s
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	pgtable_t pgtable;
+-	pmd_t _pmd;
++	pmd_t _pmd, old_pmd;
+ 	int i;
  
- 	/* Add new entry if not present */
--	feature_data = kmalloc(sizeof(*feature_data), GFP_KERNEL);
-+	feature_data = kmalloc(sizeof(*feature_data), GFP_ATOMIC);
- 	if (!feature_data)
- 		return -ENOMEM;
+ 	/*
+@@ -2005,7 +2005,7 @@ static void __split_huge_zero_page_pmd(s
+ 	 *
+ 	 * See Documentation/vm/mmu_notifier.rst
+ 	 */
+-	pmdp_huge_clear_flush(vma, haddr, pmd);
++	old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
  
+ 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
+ 	pmd_populate(mm, &_pmd, pgtable);
+@@ -2014,6 +2014,8 @@ static void __split_huge_zero_page_pmd(s
+ 		pte_t *pte, entry;
+ 		entry = pfn_pte(my_zero_pfn(haddr), vma->vm_page_prot);
+ 		entry = pte_mkspecial(entry);
++		if (pmd_uffd_wp(old_pmd))
++			entry = pte_mkuffd_wp(entry);
+ 		pte = pte_offset_map(&_pmd, haddr);
+ 		VM_BUG_ON(!pte_none(*pte));
+ 		set_pte_at(mm, haddr, pte, entry);
 
 
