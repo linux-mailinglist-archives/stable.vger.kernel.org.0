@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B076C1885
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8088F6C17FC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232834AbjCTPZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:25:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39078 "EHLO
+        id S232661AbjCTPTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232907AbjCTPYy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:54 -0400
+        with ESMTP id S232619AbjCTPS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7757366A6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F7C62C64E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C95CAB80E95
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36689C433EF;
-        Mon, 20 Mar 2023 15:18:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDCD7B80EDB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C00C433EF;
+        Mon, 20 Mar 2023 15:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325482;
+        s=korg; t=1679325155;
         bh=XlyKjxvn52nhRum6llsWjb1HNdixuZsp/9PSZT/mEJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udv/VgdNK8TD+W0HqVUasWt/fTKEMxEzFF243/Aca3ljYIy3czdb8m4ELbRZ5nh2E
-         AH8SFYBc6ikYvTZ7UCzZejLw45BoRddDslyWrpnF9923TzeWHpV7Ngerlruo1waeCy
-         BPFAvfaksIJ2r9jgkP+C6OWPSH4GDOuaQjbY3kjc=
+        b=BUxoLzQaPXU9AmNaftgrSICJtrNAi4s4qGLX+CADZZPP2b0EWw8o/ehkbAOjS7xD7
+         KSx9QtdpEV3blpkF7B13NMptUbUWHvv33c0Rj4ARAwyEhsNt53L0q+fa9YHBUffQcZ
+         7nnfsm6rrTyLY4ShcPuh6hNSxC+cWxBv9eV77jLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Wenjia Zhang <wenjia@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 048/211] net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()
-Date:   Mon, 20 Mar 2023 15:53:03 +0100
-Message-Id: <20230320145515.238270436@linuxfoundation.org>
+Subject: [PATCH 6.1 046/198] net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()
+Date:   Mon, 20 Mar 2023 15:53:04 +0100
+Message-Id: <20230320145509.400064647@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
