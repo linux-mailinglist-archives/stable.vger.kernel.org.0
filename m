@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D80806C17A8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B82056C17AC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:16:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbjCTPQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:16:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45044 "EHLO
+        id S232543AbjCTPQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:16:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232317AbjCTPPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:15:47 -0400
+        with ESMTP id S232557AbjCTPQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCFD27989
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A66BD1422E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64035615A6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70765C433D2;
-        Mon, 20 Mar 2023 15:10:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E3F5615A7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47DBEC433EF;
+        Mon, 20 Mar 2023 15:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325044;
-        bh=WoHtjj8OLiwyM8WH0skVJldRCid1d/QYTnhjXPDK7Dg=;
+        s=korg; t=1679325061;
+        bh=0F/Q+SMEWFXuaBlr+iU1Saimzq5MFwcZETJcObmyn3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5BFenT+Zghejlc951OKjc3CgAUtSPUdHglK6FgUyXGalK1qUqDjuttwG7fGFRO4w
-         dkE69w+Pg1nwZV9226Gz3DH5wrfMLhIEnlABbJcFANZc8+qfi8l8NuCjQ8LyHwAV7t
-         GqokRbj7sQlceg/e4h2YncJ+H52bvN9dzQNKSL/M=
+        b=qE3vTg3tAC0t6g8eXp5KcoNxMrp3b1YGDlcuNHnzRNl0o9LjbR4xoO+jHacGDxcIp
+         jcUzNUqo+Er41mjURXWbELvlzcKHdySUVGDCp2Q2NbCWjWQFLvfiTpHhfxmEFQGfth
+         C7mhFKKby5/pA1/VuXtdEjT4FFj5c5KU8qUhhbmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        patches@lists.linux.dev, Rob Clark <robdclark@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Dmitry Osipenko <dmitry.osipenko@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 002/211] drm/virtio: Pass correct device to dma_sync_sgtable_for_device()
-Date:   Mon, 20 Mar 2023 15:52:17 +0100
-Message-Id: <20230320145513.400639300@linuxfoundation.org>
+Subject: [PATCH 6.2 003/211] drm/msm/gem: Prevent blocking within shrinker loop
+Date:   Mon, 20 Mar 2023 15:52:18 +0100
+Message-Id: <20230320145513.441904224@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -54,54 +54,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-[ Upstream commit a54bace095d00e9222161495649688bc43de4dde ]
+[ Upstream commit 9630b585b607bd26f505d34620b14d75b9a5af7d ]
 
-The "vdev->dev.parent" should be used instead of "vdev->dev" as a device
-for which to perform the DMA operation in both
-virtio_gpu_cmd_transfer_to_host_2d(3d).
+Consider this scenario:
 
-Because the virtio-gpu device "vdev->dev" doesn't really have DMA OPS
-assigned to it, but parent (virtio-pci or virtio-mmio) device
-"vdev->dev.parent" has. The more, the sgtable in question the code is
-trying to sync here was mapped for the parent device (by using its DMA OPS)
-previously at:
-virtio_gpu_object_shmem_init()->drm_gem_shmem_get_pages_sgt()->
-dma_map_sgtable(), so should be synced here for the same parent device.
+1. APP1 continuously creates lots of small GEMs
+2. APP2 triggers `drop_caches`
+3. Shrinker starts to evict APP1 GEMs, while APP1 produces new purgeable
+   GEMs
+4. msm_gem_shrinker_scan() returns non-zero number of freed pages
+   and causes shrinker to try shrink more
+5. msm_gem_shrinker_scan() returns non-zero number of freed pages again,
+   goto 4
+6. The APP2 is blocked in `drop_caches` until APP1 stops producing
+   purgeable GEMs
 
-Fixes: b5c9ed70d1a9 ("drm/virtio: Improve DMA API usage for shmem BOs")
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To prevent this blocking scenario, check number of remaining pages
+that GPU shrinker couldn't release due to a GEM locking contention
+or shrinking rejection. If there are no remaining pages left to shrink,
+then there is no need to free up more pages and shrinker may break out
+from the loop.
+
+This problem was found during shrinker/madvise IOCTL testing of
+virtio-gpu driver. The MSM driver is affected in the same way.
+
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: b352ba54a820 ("drm/msm/gem: Convert to using drm_gem_lru")
 Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230224153450.526222-1-olekstysh@gmail.com
+Link: https://lore.kernel.org/all/20230108210445.3948344-2-dmitry.osipenko@collabora.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_gem.c              |  9 +++++++--
+ drivers/gpu/drm/msm/msm_gem_shrinker.c | 11 +++++++++--
+ include/drm/drm_gem.h                  |  4 +++-
+ 3 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 9ff8660b50ade..208e9434cb28d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -597,7 +597,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+index b8db675e7fb5e..b0246a8480068 100644
+--- a/drivers/gpu/drm/drm_gem.c
++++ b/drivers/gpu/drm/drm_gem.c
+@@ -1375,10 +1375,13 @@ EXPORT_SYMBOL(drm_gem_lru_move_tail);
+  *
+  * @lru: The LRU to scan
+  * @nr_to_scan: The number of pages to try to reclaim
++ * @remaining: The number of pages left to reclaim, should be initialized by caller
+  * @shrink: Callback to try to shrink/reclaim the object.
+  */
+ unsigned long
+-drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
++drm_gem_lru_scan(struct drm_gem_lru *lru,
++		 unsigned int nr_to_scan,
++		 unsigned long *remaining,
+ 		 bool (*shrink)(struct drm_gem_object *obj))
+ {
+ 	struct drm_gem_lru still_in_lru;
+@@ -1417,8 +1420,10 @@ drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
+ 		 * hit shrinker in response to trying to get backing pages
+ 		 * for this obj (ie. while it's lock is already held)
+ 		 */
+-		if (!dma_resv_trylock(obj->resv))
++		if (!dma_resv_trylock(obj->resv)) {
++			*remaining += obj->size >> PAGE_SHIFT;
+ 			goto tail;
++		}
  
- 	if (virtio_gpu_is_shmem(bo) && use_dma_api)
--		dma_sync_sgtable_for_device(&vgdev->vdev->dev,
-+		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
+ 		if (shrink(obj)) {
+ 			freed += obj->size >> PAGE_SHIFT;
+diff --git a/drivers/gpu/drm/msm/msm_gem_shrinker.c b/drivers/gpu/drm/msm/msm_gem_shrinker.c
+index 051bdbc093cf9..f38296ad87434 100644
+--- a/drivers/gpu/drm/msm/msm_gem_shrinker.c
++++ b/drivers/gpu/drm/msm/msm_gem_shrinker.c
+@@ -107,6 +107,7 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+ 		bool (*shrink)(struct drm_gem_object *obj);
+ 		bool cond;
+ 		unsigned long freed;
++		unsigned long remaining;
+ 	} stages[] = {
+ 		/* Stages of progressively more aggressive/expensive reclaim: */
+ 		{ &priv->lru.dontneed, purge,        true },
+@@ -116,14 +117,18 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+ 	};
+ 	long nr = sc->nr_to_scan;
+ 	unsigned long freed = 0;
++	unsigned long remaining = 0;
  
- 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
-@@ -1019,7 +1019,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+ 	for (unsigned i = 0; (nr > 0) && (i < ARRAY_SIZE(stages)); i++) {
+ 		if (!stages[i].cond)
+ 			continue;
+ 		stages[i].freed =
+-			drm_gem_lru_scan(stages[i].lru, nr, stages[i].shrink);
++			drm_gem_lru_scan(stages[i].lru, nr,
++					&stages[i].remaining,
++					 stages[i].shrink);
+ 		nr -= stages[i].freed;
+ 		freed += stages[i].freed;
++		remaining += stages[i].remaining;
+ 	}
  
- 	if (virtio_gpu_is_shmem(bo) && use_dma_api)
--		dma_sync_sgtable_for_device(&vgdev->vdev->dev,
-+		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
+ 	if (freed) {
+@@ -132,7 +137,7 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+ 				     stages[3].freed);
+ 	}
  
- 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+-	return (freed > 0) ? freed : SHRINK_STOP;
++	return (freed > 0 && remaining > 0) ? freed : SHRINK_STOP;
+ }
+ 
+ #ifdef CONFIG_DEBUG_FS
+@@ -182,10 +187,12 @@ msm_gem_shrinker_vmap(struct notifier_block *nb, unsigned long event, void *ptr)
+ 		NULL,
+ 	};
+ 	unsigned idx, unmapped = 0;
++	unsigned long remaining = 0;
+ 
+ 	for (idx = 0; lrus[idx] && unmapped < vmap_shrink_limit; idx++) {
+ 		unmapped += drm_gem_lru_scan(lrus[idx],
+ 					     vmap_shrink_limit - unmapped,
++					     &remaining,
+ 					     vmap_shrink);
+ 	}
+ 
+diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
+index a17c2f903f81e..b46ade8124436 100644
+--- a/include/drm/drm_gem.h
++++ b/include/drm/drm_gem.h
+@@ -475,7 +475,9 @@ int drm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
+ void drm_gem_lru_init(struct drm_gem_lru *lru, struct mutex *lock);
+ void drm_gem_lru_remove(struct drm_gem_object *obj);
+ void drm_gem_lru_move_tail(struct drm_gem_lru *lru, struct drm_gem_object *obj);
+-unsigned long drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
++unsigned long drm_gem_lru_scan(struct drm_gem_lru *lru,
++			       unsigned int nr_to_scan,
++			       unsigned long *remaining,
+ 			       bool (*shrink)(struct drm_gem_object *obj));
+ 
+ #endif /* __DRM_GEM_H__ */
 -- 
 2.39.2
 
