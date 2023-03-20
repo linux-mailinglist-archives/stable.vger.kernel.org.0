@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 959F66C1938
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4AC6C17FB
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbjCTPbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47774 "EHLO
+        id S232606AbjCTPTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:19:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232966AbjCTPbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:34 -0400
+        with ESMTP id S232502AbjCTPSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B2D39B8A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D6B2A17B;
+        Mon, 20 Mar 2023 08:13:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 544EC615BF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ED1AC4339B;
-        Mon, 20 Mar 2023 15:23:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42A7961593;
+        Mon, 20 Mar 2023 15:13:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B71C433D2;
+        Mon, 20 Mar 2023 15:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325838;
-        bh=AKZ64z1DHk/P+g5xaCqoYHPUbKaNLJFromCKoONOZgw=;
+        s=korg; t=1679325199;
+        bh=FGhj+Dsz92X2+5UcnDsbRDcofJC7lWDEjheT5sM0jms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ng9YVqpgFz2N8Mk9dmFL83GVRfyjCMt9uSlKSEltEHMcwy7lWaxRyAIqXXSFF4FXg
-         NNOB03tPjOcO9O8ZRShta/bAp9VGJ35h8l6hed71vdnhz7lCz8VZppzA7c4DbcH1ll
-         /xFk4m+61uDR+k0NqgFSfSjQ4zrmpUqYRSPVayw8=
+        b=rEtAbaL2IBvqirZKS9WY+ZLEkbejz2bggfy22GCl+t8hgN8YyeChP3ERsU/hkxl+7
+         thL4eKw/GkI4LfRwWAoYMDeau+FPSW1qz53sR07NUTJXucFl09MhtOPPvbLeeFZifK
+         UHLIJ8e2TgI3SDUj8DUcreedXUDFrD2LknfxnqHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Hamidreza H. Fard" <nitocris@posteo.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 151/198] ALSA: hda/realtek: Fix the speaker output on Samsung Galaxy Book2 Pro
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Amit Sunil Dhamne <amit.sunil.dhamne@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 5.15 077/115] firmware: xilinx: dont make a sleepable memory allocation from an atomic context
 Date:   Mon, 20 Mar 2023 15:54:49 +0100
-Message-Id: <20230320145513.864734552@linuxfoundation.org>
+Message-Id: <20230320145452.650514228@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamidreza H. Fard <nitocris@posteo.net>
+From: Roman Gushchin <roman.gushchin@linux.dev>
 
-commit a86e79e3015f5dd8e1b01ccfa49bd5c6e41047a1 upstream.
+commit 38ed310c22e7a0fc978b1f8292136a4a4a8b3051 upstream.
 
-Samsung Galaxy Book2 Pro (13" 2022 NP930XED-KA1DE) with codec SSID
-144d:c868 requires the same workaround for enabling the speaker amp
-like other Samsung models with ALC298 code.
+The following issue was discovered using lockdep:
+[    6.691371] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:209
+[    6.694602] in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 1, name: swapper/0
+[    6.702431] 2 locks held by swapper/0/1:
+[    6.706300]  #0: ffffff8800f6f188 (&dev->mutex){....}-{3:3}, at: __device_driver_lock+0x4c/0x90
+[    6.714900]  #1: ffffffc009a2abb8 (enable_lock){....}-{2:2}, at: clk_enable_lock+0x4c/0x140
+[    6.723156] irq event stamp: 304030
+[    6.726596] hardirqs last  enabled at (304029): [<ffffffc008d17ee0>] _raw_spin_unlock_irqrestore+0xc0/0xd0
+[    6.736142] hardirqs last disabled at (304030): [<ffffffc00876bc5c>] clk_enable_lock+0xfc/0x140
+[    6.744742] softirqs last  enabled at (303958): [<ffffffc0080904f0>] _stext+0x4f0/0x894
+[    6.752655] softirqs last disabled at (303951): [<ffffffc0080e53b8>] irq_exit+0x238/0x280
+[    6.760744] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G     U            5.15.36 #2
+[    6.768048] Hardware name: xlnx,zynqmp (DT)
+[    6.772179] Call trace:
+[    6.774584]  dump_backtrace+0x0/0x300
+[    6.778197]  show_stack+0x18/0x30
+[    6.781465]  dump_stack_lvl+0xb8/0xec
+[    6.785077]  dump_stack+0x1c/0x38
+[    6.788345]  ___might_sleep+0x1a8/0x2a0
+[    6.792129]  __might_sleep+0x6c/0xd0
+[    6.795655]  kmem_cache_alloc_trace+0x270/0x3d0
+[    6.800127]  do_feature_check_call+0x100/0x220
+[    6.804513]  zynqmp_pm_invoke_fn+0x8c/0xb0
+[    6.808555]  zynqmp_pm_clock_getstate+0x90/0xe0
+[    6.813027]  zynqmp_pll_is_enabled+0x8c/0x120
+[    6.817327]  zynqmp_pll_enable+0x38/0xc0
+[    6.821197]  clk_core_enable+0x144/0x400
+[    6.825067]  clk_core_enable+0xd4/0x400
+[    6.828851]  clk_core_enable+0xd4/0x400
+[    6.832635]  clk_core_enable+0xd4/0x400
+[    6.836419]  clk_core_enable+0xd4/0x400
+[    6.840203]  clk_core_enable+0xd4/0x400
+[    6.843987]  clk_core_enable+0xd4/0x400
+[    6.847771]  clk_core_enable+0xd4/0x400
+[    6.851555]  clk_core_enable_lock+0x24/0x50
+[    6.855683]  clk_enable+0x24/0x40
+[    6.858952]  fclk_probe+0x84/0xf0
+[    6.862220]  platform_probe+0x8c/0x110
+[    6.865918]  really_probe+0x110/0x5f0
+[    6.869530]  __driver_probe_device+0xcc/0x210
+[    6.873830]  driver_probe_device+0x64/0x140
+[    6.877958]  __driver_attach+0x114/0x1f0
+[    6.881828]  bus_for_each_dev+0xe8/0x160
+[    6.885698]  driver_attach+0x34/0x50
+[    6.889224]  bus_add_driver+0x228/0x300
+[    6.893008]  driver_register+0xc0/0x1e0
+[    6.896792]  __platform_driver_register+0x44/0x60
+[    6.901436]  fclk_driver_init+0x1c/0x28
+[    6.905220]  do_one_initcall+0x104/0x590
+[    6.909091]  kernel_init_freeable+0x254/0x2bc
+[    6.913390]  kernel_init+0x24/0x130
+[    6.916831]  ret_from_fork+0x10/0x20
 
-Signed-off-by: Hamidreza H. Fard <nitocris@posteo.net>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230307163741.3878-1-nitocris@posteo.net
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix it by passing the GFP_ATOMIC gfp flag for the corresponding
+memory allocation.
+
+Fixes: acfdd18591ea ("firmware: xilinx: Use hash-table for api feature check")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Amit Sunil Dhamne <amit.sunil.dhamne@xilinx.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20230308222602.123866-1-roman.gushchin@linux.dev
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/xilinx/zynqmp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9538,6 +9538,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xca03, "Samsung Galaxy Book2 Pro 360 (NP930QED)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc868, "Samsung Galaxy Book2 Pro (NP930XED)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
+--- a/drivers/firmware/xilinx/zynqmp.c
++++ b/drivers/firmware/xilinx/zynqmp.c
+@@ -171,7 +171,7 @@ static int zynqmp_pm_feature(u32 api_id)
+ 	}
+ 
+ 	/* Add new entry if not present */
+-	feature_data = kmalloc(sizeof(*feature_data), GFP_KERNEL);
++	feature_data = kmalloc(sizeof(*feature_data), GFP_ATOMIC);
+ 	if (!feature_data)
+ 		return -ENOMEM;
+ 
 
 
