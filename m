@@ -2,39 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D19776C161B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BCA6C1610
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:01:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231236AbjCTPCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
+        id S231959AbjCTPB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231966AbjCTPBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:01:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A296B45D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:58:16 -0700 (PDT)
+        with ESMTP id S232000AbjCTPB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:01:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4142BF29
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:58:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69955B80EC2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:57:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4891C4339B;
-        Mon, 20 Mar 2023 14:57:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82D5B6157C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B586C4339B;
+        Mon, 20 Mar 2023 14:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324268;
-        bh=ge5S/gFeLs5vNRiDCXDYMZgsJMU8YlV31gCko+pwR3s=;
+        s=korg; t=1679324271;
+        bh=Cf59l1IgW7fja5Gr2YvK74jHZ3rqehXnTdjiyxwmEVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cYE+5fUR2y2ib4raej5QGkjKKRmLOUmNx8klAKYi9dQ42T6IGaOR7YZTkCnYyESTW
-         6Znp454+vikXFe1KS3dL64Fn5T06oCaMPZ+ZUsbVUJrDtSCmk5D9JeRIo4VdX1RdBV
-         gzYzIUYG3U7gnyAdWzdWwuNGGiuFQ7ABUoZY4aLg=
+        b=kilNxVrD/uqgqizw6NHrRzGE2EtGlDbv1egOVtDAARUbAsAEL/ZMTWXeYH7LYXFkj
+         Rio3L3gpg/2rt9viaff+jxLaMNFoQA5SOAuX+TO4dwj19aPbihyZJGsgvNgFXLzUxq
+         PgGvugoDXDIi50TnS0JOv3Um6XCivKF9irerXqYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 26/30] fbdev: stifb: Provide valid pixelclock and add fb_check_var() checks
-Date:   Mon, 20 Mar 2023 15:54:50 +0100
-Message-Id: <20230320145421.220366114@linuxfoundation.org>
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 4.14 27/30] drm/i915: Dont use stolen memory for ring buffers with LLC
+Date:   Mon, 20 Mar 2023 15:54:51 +0100
+Message-Id: <20230320145421.261418118@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145420.204894191@linuxfoundation.org>
 References: <20230320145420.204894191@linuxfoundation.org>
@@ -42,8 +51,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,77 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-commit 203873a535d627c668f293be0cb73e26c30f9cc7 upstream.
+commit 690e0ec8e63da9a29b39fedc6ed5da09c7c82651 upstream.
 
-Find a valid modeline depending on the machine graphic card
-configuration and add the fb_check_var() function to validate
-Xorg provided graphics settings.
+Direction from hardware is that stolen memory should never be used for
+ring buffer allocations on platforms with LLC. There are too many
+caching pitfalls due to the way stolen memory accesses are routed. So
+it is safest to just not use it.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: c58b735fc762 ("drm/i915: Allocate rings from stolen")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-2-John.C.Harrison@Intel.com
+(cherry picked from commit f54c1f6c697c4297f7ed94283c184acc338a5cf8)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/stifb.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/gpu/drm/i915/intel_ringbuffer.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -922,6 +922,28 @@ SETUP_HCRX(struct stifb_info *fb)
- /* ------------------- driver specific functions --------------------------- */
- 
- static int
-+stifb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
-+{
-+	struct stifb_info *fb = container_of(info, struct stifb_info, info);
-+
-+	if (var->xres != fb->info.var.xres ||
-+	    var->yres != fb->info.var.yres ||
-+	    var->bits_per_pixel != fb->info.var.bits_per_pixel)
-+		return -EINVAL;
-+
-+	var->xres_virtual = var->xres;
-+	var->yres_virtual = var->yres;
-+	var->xoffset = 0;
-+	var->yoffset = 0;
-+	var->grayscale = fb->info.var.grayscale;
-+	var->red.length = fb->info.var.red.length;
-+	var->green.length = fb->info.var.green.length;
-+	var->blue.length = fb->info.var.blue.length;
-+
-+	return 0;
-+}
-+
-+static int
- stifb_setcolreg(u_int regno, u_int red, u_int green,
- 	      u_int blue, u_int transp, struct fb_info *info)
+--- a/drivers/gpu/drm/i915/intel_ringbuffer.c
++++ b/drivers/gpu/drm/i915/intel_ringbuffer.c
+@@ -1359,10 +1359,11 @@ static struct i915_vma *
+ intel_ring_create_vma(struct drm_i915_private *dev_priv, int size)
  {
-@@ -1103,6 +1125,7 @@ stifb_init_display(struct stifb_info *fb
+ 	struct i915_address_space *vm = &dev_priv->ggtt.base;
+-	struct drm_i915_gem_object *obj;
++	struct drm_i915_gem_object *obj = NULL;
+ 	struct i915_vma *vma;
  
- static struct fb_ops stifb_ops = {
- 	.owner		= THIS_MODULE,
-+	.fb_check_var	= stifb_check_var,
- 	.fb_setcolreg	= stifb_setcolreg,
- 	.fb_blank	= stifb_blank,
- 	.fb_fillrect	= cfb_fillrect,
-@@ -1122,6 +1145,7 @@ static int __init stifb_init_fb(struct s
- 	struct stifb_info *fb;
- 	struct fb_info *info;
- 	unsigned long sti_rom_address;
-+	char modestr[32];
- 	char *dev_name;
- 	int bpp, xres, yres;
- 
-@@ -1302,6 +1326,9 @@ static int __init stifb_init_fb(struct s
- 	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA;
- 	info->pseudo_palette = &fb->pseudo_palette;
- 
-+	scnprintf(modestr, sizeof(modestr), "%dx%d-%d", xres, yres, bpp);
-+	fb_find_mode(&info->var, info, modestr, NULL, 0, NULL, bpp);
-+
- 	/* This has to be done !!! */
- 	if (fb_alloc_cmap(&info->cmap, NR_PALETTE, 0))
- 		goto out_err1;
+-	obj = i915_gem_object_create_stolen(dev_priv, size);
++	if (!HAS_LLC(dev_priv))
++		obj = i915_gem_object_create_stolen(dev_priv, size);
+ 	if (!obj)
+ 		obj = i915_gem_object_create_internal(dev_priv, size);
+ 	if (IS_ERR(obj))
 
 
