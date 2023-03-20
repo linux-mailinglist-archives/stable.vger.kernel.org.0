@@ -2,68 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CF26C09AC
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 05:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B56EB6C09C5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 05:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229737AbjCTEbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 00:31:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
+        id S229486AbjCTEnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 00:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbjCTEbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 00:31:16 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA7915CAC
-        for <stable@vger.kernel.org>; Sun, 19 Mar 2023 21:31:15 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id u5so11176543plq.7
-        for <stable@vger.kernel.org>; Sun, 19 Mar 2023 21:31:15 -0700 (PDT)
+        with ESMTP id S229458AbjCTEnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 00:43:19 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A23546BF;
+        Sun, 19 Mar 2023 21:43:17 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id fy10-20020a17090b020a00b0023b4bcf0727so11105475pjb.0;
+        Sun, 19 Mar 2023 21:43:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679286674;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=qG4GyHhvXfKn6mL7EcfVFLHYoEl45V1ey0V+w0eX8sw=;
-        b=hKpsvmQTGiiMrAmz94i+96jzL1DjoekZRuu/bWK6XNsu/xKqv4d7EnIQOefIyuElS7
-         FymCftpN5f1N+9jXK8PVwnnnjzsmnuXqUO2gFYPvEqn328HtCENhc8dRp3X3FyEXEPKI
-         c7y7DeKTDtqaUm9646gQezBsDQXVBeW9eqdbfUGBrLavS9jEFlwpex26n/agRYns5H3P
-         i/OksbW2ZKGRlK9Aq5JbayYOaawb2CyAuoYomewY7pcFhrSz3d5VYMTCmfhBMFp4djbu
-         6nrbQ4u6WuBL3Cf3HPDtFbr5mDk6SNLvREV7yCEzvAKsZnPqdzDd/U6XT3oKUGVANBlf
-         f0zg==
+        d=gmail.com; s=20210112; t=1679287396;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=XvWHoe4oka91PRMJ82kMIgYEdl3/ETSadVO88206sUA=;
+        b=CCdq9rHl9h5ultsOwA2hAWww/6tT1QFPz+kpyfKvfgFpp5Tu3dfmuRJlUe3SbX5gLH
+         jLa6Rj4SAJ4K37w8uCw7FVGv3BzNIrBEDVqMxpACRgh/5N3ZqouGe0T93ZsKBIQ0ayKz
+         6aG2UVYdNCs6+Q/TDYUqSAfqPB/sg5tKibI3plMnIdRoIHLRyvxUmtjIFTNpz/c4MjDB
+         iJzOfuVdBqU75lNrZ7WZiOspjQwyJCMJSUZ9tu4kCm9e9qq6RQQLj1ryMZwu8NTDBgLh
+         JfCEBcWkSrG15Rdapzy88TTq3R83lbyXrXiF+Dv8XZOgkRmnz6CnWp1W3Xhj2uwzILb3
+         Yodg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679286674;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qG4GyHhvXfKn6mL7EcfVFLHYoEl45V1ey0V+w0eX8sw=;
-        b=4JN+j3/8nefl0jrIr+/a2pWLtGWmRMFPUviHnMa94swFUQP7el9NZz/f0Y5dSHuGOh
-         ZIvzrXtjJGcLq9SjX/vKxRZHRcXITpjkTt1lGwRnFQbMqheA8+Yua0ayIhtMvEdbQdXo
-         Z3LWEupMROQb+2Ll6lJb1VTgNztmQWOOcs4uolsbe9ViDqtRS9P2SsBLZNEV0EHGpVyQ
-         i4OhSlLpu19tieqrkf+d3B2/Tedu2WIe1TQKEq3jLpWSf54lYd5c5hjZ56+1s7CNJSq6
-         Jvy0//janjHcjNaBvbDUhk21hknCn2XeR/Hm+4Pno7BegTYhHgcmyW2IhNN6fp7zImIE
-         CLsA==
-X-Gm-Message-State: AO0yUKXHyui+yuoZp5fRA2dr/ySkX9E7OObPOXRurms82xF/LPNiCKdZ
-        wG7xDfhAC4QqK6I5N1IFe/GTvWQ9NlXNW7YL1wU=
-X-Google-Smtp-Source: AK7set9RdEy8SW343Z9S1uO4wTG1M30wxDA+KPVCfcoImTjxqWMRNU1qFBoVbAQQiT461TtMjj8Hsg==
-X-Received: by 2002:a17:902:ce92:b0:19a:9dab:3438 with SMTP id f18-20020a170902ce9200b0019a9dab3438mr11619377plg.2.1679286674665;
-        Sun, 19 Mar 2023 21:31:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c13-20020a170902c1cd00b0019aa8149cc9sm5526777plc.35.2023.03.19.21.31.14
+        d=1e100.net; s=20210112; t=1679287396;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XvWHoe4oka91PRMJ82kMIgYEdl3/ETSadVO88206sUA=;
+        b=OXBdTH+fV2nVRYNZKarMiiPFd4/XF0MexSia082DngpNYs/ig92e84SNDvhu1r0202
+         yHlfwIb2Tbo9cfwjiHavJYYBxEkKRvH73RCPZGrYIjb6Cyc5uox011K02InivIypNVJ7
+         ZWCIjY7b+xF+K25UjRModXg04vPMEMFQwXzAe/Z6iBFqwCqwPzSBifJnsQplI/E9JFTv
+         OAgDif4L7/ZYwU75IjMCRSjEMC+0Q00BNZje1uF+KAA4Y4D3nTmjNIHdsdh7r/yqItL1
+         2Sgjn53lHmSSrSy7Nui1aUiB0ItegudVvWrPFtVRwX6FvmuGKNtX9oOBOGisOoevdpIt
+         tFRQ==
+X-Gm-Message-State: AO0yUKW6T/9OVBSpGqjXebBAch1A1x88NACf2SsVEeADtOYOtH13ZCGa
+        bX5ZGxIV5b68wnsHql44OeQ=
+X-Google-Smtp-Source: AK7set96QRyUOxY1uSoFxs/xmLDiRsjHIy1wl/Y4P5b8GeqQx801IawR2/wB+IfidC6bI1/d/D0AZQ==
+X-Received: by 2002:a17:902:f685:b0:1a1:a727:a802 with SMTP id l5-20020a170902f68500b001a1a727a802mr11720931plg.19.1679287396541;
+        Sun, 19 Mar 2023 21:43:16 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:687c:5175:b0b1:a145])
+        by smtp.gmail.com with ESMTPSA id y9-20020a17090a154900b002372106a5casm4971744pja.44.2023.03.19.21.43.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Mar 2023 21:31:14 -0700 (PDT)
-Message-ID: <6417e192.170a0220.a4152.955d@mx.google.com>
-Date:   Sun, 19 Mar 2023 21:31:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Sun, 19 Mar 2023 21:43:15 -0700 (PDT)
+Date:   Sun, 19 Mar 2023 21:43:12 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     msizanoen <msizanoen@qtmlabs.xyz>
+Cc:     hdegoede@redhat.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, pali@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] input: alps: fix compatibility with -funsigned-char
+Message-ID: <ZBfkYEe0LfITyiUh@google.com>
+References: <20230318144206.14309-1-msizanoen@qtmlabs.xyz>
+ <20230320001731.175969-1-msizanoen@qtmlabs.xyz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.103-72-ga6fd6a418659
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 170 runs,
- 1 regressions (v5.15.103-72-ga6fd6a418659)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230320001731.175969-1-msizanoen@qtmlabs.xyz>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,85 +72,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 170 runs, 1 regressions (v5.15.103-72-ga6fd6=
-a418659)
+Hi,
 
-Regressions Summary
--------------------
+On Mon, Mar 20, 2023 at 01:17:31AM +0100, msizanoen wrote:
+> The AlpsPS/2 code previously relied on the assumption that `char` is a
+> signed type, which was true on x86 platforms (the only place where this
+> driver is used) before kernel 6.2. However, on 6.2 and later, this
+> assumption is broken due to the introduction of -funsigned-char as a new
+> global compiler flag.
+> 
+> Fix this by explicitly specifying the signedness of `char` when sign
+> extending the values received from the device.
+> 
+> v2:
+> 	Add explicit signedness to more places
+> 
+> Fixes: f3f33c677699 ("Input: alps - Rushmore and v7 resolution support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: msizanoen <msizanoen@qtmlabs.xyz>
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+Please use s8 instead of signed char. Also, could you please tell me if
+"msizanoen" is your real name? It is required in the DCO. Apologies if
+it really is.
 
+Thanks.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.103-72-ga6fd6a418659/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.103-72-ga6fd6a418659
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a6fd6a41865928f824c6c70cc89d3d5d858e6795 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6417ad37ef351345fc8c875a
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.103=
--72-ga6fd6a418659/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.103=
--72-ga6fd6a418659/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/6417ad37ef351345fc8c8763
-        failing since 61 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
- fail: v5.15.87-100-ge215d5ead661)
-
-    2023-03-20T00:47:40.052602  <8>[   10.044572] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3426880_1.5.2.4.1>
-    2023-03-20T00:47:40.159239  / # #
-    2023-03-20T00:47:40.260635  export SHELL=3D/bin/sh
-    2023-03-20T00:47:40.261010  #
-    2023-03-20T00:47:40.362162  / # export SHELL=3D/bin/sh. /lava-3426880/e=
-nvironment
-    2023-03-20T00:47:40.362531  =
-
-    2023-03-20T00:47:40.463782  / # . /lava-3426880/environment/lava-342688=
-0/bin/lava-test-runner /lava-3426880/1
-    2023-03-20T00:47:40.464344  =
-
-    2023-03-20T00:47:40.469500  / # /lava-3426880/bin/lava-test-runner /lav=
-a-3426880/1
-    2023-03-20T00:47:40.559589  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =20
+-- 
+Dmitry
