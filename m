@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7DC6C16B2
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9EA6C19E3
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232253AbjCTPIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36808 "EHLO
+        id S233258AbjCTPj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbjCTPHu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:50 -0400
+        with ESMTP id S233217AbjCTPjD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CA5422E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:03:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 722A8303D5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BEEB61573
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7E2C433D2;
-        Mon, 20 Mar 2023 15:03:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4213615C0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E35EFC4339C;
+        Mon, 20 Mar 2023 15:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324601;
-        bh=je3jEpuUDfWuHy3kdIJipJ3SBjkS+AB+Lpd8j4yLdeg=;
+        s=korg; t=1679326225;
+        bh=QGsbkLhb89YvLy4hDjzoDeig+7yhipWhb45h0SBcCNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESyWcQjMEN9rGLQsYVR6R2pWKKy32Vix3GQILgCymdJ2nCrBjFIEJdNKHDW6ldYLp
-         cCZgD3zA/nQKwWbTGfuITe4a9FIWXocRirihDyizK2oMIrrRKrfc7iDnGH0E/RnL8n
-         Yb9Sj8bDU6BnXhppKvZQQa/wuMuO/wP5GOIB3rmY=
+        b=Cd4OoI8dabuoSwTJ/XrmNobETqMOTglBq/lE68h3m2FfKwwBnncVaBhrlV8P4mi5K
+         cnKKJK/vVFUXB+JLkSWpztNaBdOQaPvcyu23iauPdLzL3McziBwLHRk+NhlzUKcRZb
+         5+/Ekwl9cf3XyIcRF0pJhZd9Q8nkU3HikOLzQ87U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org, lee@kernel.org
+To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 59/60] HID: core: Provide new max_buffer_size attribute to over-ride the default
-Date:   Mon, 20 Mar 2023 15:55:08 +0100
-Message-Id: <20230320145433.381698416@linuxfoundation.org>
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Christoph Paasch <cpaasch@apple.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 174/211] mptcp: refactor passive socket initialization
+Date:   Mon, 20 Mar 2023 15:55:09 +0100
+Message-Id: <20230320145520.743734782@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,107 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee@kernel.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit b1a37ed00d7908a991c1d0f18a8cba3c2aa99bdc upstream.
+commit 3a236aef280ed5122b2d47087eb514d0921ae033 upstream.
 
-Presently, when a report is processed, its proposed size, provided by
-the user of the API (as Report Size * Report Count) is compared against
-the subsystem default HID_MAX_BUFFER_SIZE (16k).  However, some
-low-level HID drivers allocate a reduced amount of memory to their
-buffers (e.g. UHID only allocates UHID_DATA_MAX (4k) buffers), rending
-this check inadequate in some cases.
+After commit 30e51b923e43 ("mptcp: fix unreleased socket in accept queue")
+unaccepted msk sockets go throu complete shutdown, we don't need anymore
+to delay inserting the first subflow into the subflow lists.
 
-In these circumstances, if the received report ends up being smaller
-than the proposed report size, the remainder of the buffer is zeroed.
-That is, the space between sizeof(csize) (size of the current report)
-and the rsize (size proposed i.e. Report Size * Report Count), which can
-be handled up to HID_MAX_BUFFER_SIZE (16k).  Meaning that memset()
-shoots straight past the end of the buffer boundary and starts zeroing
-out in-use values, often resulting in calamity.
+The reference counting deserve some extra care, as __mptcp_close() is
+unaware of the request socket linkage to the first subflow.
 
-This patch introduces a new variable into 'struct hid_ll_driver' where
-individual low-level drivers can over-ride the default maximum value of
-HID_MAX_BUFFER_SIZE (16k) with something more sympathetic to the
-interface.
+Please note that this is more a refactoring than a fix but because this
+modification is needed to include other corrections, see the following
+commits. Then a Fixes tag has been added here to help the stable team.
 
-Signed-off-by: Lee Jones <lee@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-[Lee: Backported to v5.10.y]
-Signed-off-by: Lee Jones <lee@kernel.org>
+Fixes: 30e51b923e43 ("mptcp: fix unreleased socket in accept queue")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Tested-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-core.c |   18 +++++++++++++-----
- include/linux/hid.h    |    3 +++
- 2 files changed, 16 insertions(+), 5 deletions(-)
+ net/mptcp/protocol.c |   17 -----------------
+ net/mptcp/subflow.c  |   27 +++++++++++++++++++++------
+ 2 files changed, 21 insertions(+), 23 deletions(-)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -258,6 +258,7 @@ static int hid_add_field(struct hid_pars
- {
- 	struct hid_report *report;
- 	struct hid_field *field;
-+	unsigned int max_buffer_size = HID_MAX_BUFFER_SIZE;
- 	unsigned int usages;
- 	unsigned int offset;
- 	unsigned int i;
-@@ -288,8 +289,11 @@ static int hid_add_field(struct hid_pars
- 	offset = report->size;
- 	report->size += parser->global.report_size * parser->global.report_count;
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -825,7 +825,6 @@ static bool __mptcp_finish_join(struct m
+ 	if (sk->sk_socket && !ssk->sk_socket)
+ 		mptcp_sock_graft(ssk, sk->sk_socket);
  
-+	if (parser->device->ll_driver->max_buffer_size)
-+		max_buffer_size = parser->device->ll_driver->max_buffer_size;
+-	mptcp_propagate_sndbuf((struct sock *)msk, ssk);
+ 	mptcp_sockopt_sync_locked(msk, ssk);
+ 	return true;
+ }
+@@ -3699,22 +3698,6 @@ static int mptcp_stream_accept(struct so
+ 
+ 		lock_sock(newsk);
+ 
+-		/* PM/worker can now acquire the first subflow socket
+-		 * lock without racing with listener queue cleanup,
+-		 * we can notify it, if needed.
+-		 *
+-		 * Even if remote has reset the initial subflow by now
+-		 * the refcnt is still at least one.
+-		 */
+-		subflow = mptcp_subflow_ctx(msk->first);
+-		list_add(&subflow->node, &msk->conn_list);
+-		sock_hold(msk->first);
+-		if (mptcp_is_fully_established(newsk))
+-			mptcp_pm_fully_established(msk, msk->first, GFP_KERNEL);
+-
+-		mptcp_rcv_space_init(msk, msk->first);
+-		mptcp_propagate_sndbuf(newsk, msk->first);
+-
+ 		/* set ssk->sk_socket of accept()ed flows to mptcp socket.
+ 		 * This is needed so NOSPACE flag can be set from tcp stack.
+ 		 */
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -396,6 +396,12 @@ void mptcp_subflow_reset(struct sock *ss
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
+ 	struct sock *sk = subflow->conn;
+ 
++	/* mptcp_mp_fail_no_response() can reach here on an already closed
++	 * socket
++	 */
++	if (ssk->sk_state == TCP_CLOSE)
++		return;
 +
- 	/* Total size check: Allow for possible report index byte */
--	if (report->size > (HID_MAX_BUFFER_SIZE - 1) << 3) {
-+	if (report->size > (max_buffer_size - 1) << 3) {
- 		hid_err(parser->device, "report is too long\n");
- 		return -1;
- 	}
-@@ -1745,6 +1749,7 @@ int hid_report_raw_event(struct hid_devi
- 	struct hid_report_enum *report_enum = hid->report_enum + type;
- 	struct hid_report *report;
- 	struct hid_driver *hdrv;
-+	int max_buffer_size = HID_MAX_BUFFER_SIZE;
- 	unsigned int a;
- 	u32 rsize, csize = size;
- 	u8 *cdata = data;
-@@ -1761,10 +1766,13 @@ int hid_report_raw_event(struct hid_devi
+ 	/* must hold: tcp_done() could drop last reference on parent */
+ 	sock_hold(sk);
  
- 	rsize = hid_compute_report_size(report);
+@@ -749,6 +755,7 @@ static struct sock *subflow_syn_recv_soc
+ 	struct mptcp_options_received mp_opt;
+ 	bool fallback, fallback_is_fatal;
+ 	struct sock *new_msk = NULL;
++	struct mptcp_sock *owner;
+ 	struct sock *child;
  
--	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
--		rsize = HID_MAX_BUFFER_SIZE - 1;
--	else if (rsize > HID_MAX_BUFFER_SIZE)
--		rsize = HID_MAX_BUFFER_SIZE;
-+	if (hid->ll_driver->max_buffer_size)
-+		max_buffer_size = hid->ll_driver->max_buffer_size;
+ 	pr_debug("listener=%p, req=%p, conn=%p", listener, req, listener->conn);
+@@ -823,6 +830,8 @@ create_child:
+ 		ctx->setsockopt_seq = listener->setsockopt_seq;
+ 
+ 		if (ctx->mp_capable) {
++			owner = mptcp_sk(new_msk);
 +
-+	if (report_enum->numbered && rsize >= max_buffer_size)
-+		rsize = max_buffer_size - 1;
-+	else if (rsize > max_buffer_size)
-+		rsize = max_buffer_size;
+ 			/* this can't race with mptcp_close(), as the msk is
+ 			 * not yet exposted to user-space
+ 			 */
+@@ -831,14 +840,14 @@ create_child:
+ 			/* record the newly created socket as the first msk
+ 			 * subflow, but don't link it yet into conn_list
+ 			 */
+-			WRITE_ONCE(mptcp_sk(new_msk)->first, child);
++			WRITE_ONCE(owner->first, child);
  
- 	if (csize < rsize) {
- 		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -796,6 +796,7 @@ struct hid_driver {
-  * @raw_request: send raw report request to device (e.g. feature report)
-  * @output_report: send output report to device
-  * @idle: send idle request to device
-+ * @max_buffer_size: over-ride maximum data buffer size (default: HID_MAX_BUFFER_SIZE)
-  */
- struct hid_ll_driver {
- 	int (*start)(struct hid_device *hdev);
-@@ -820,6 +821,8 @@ struct hid_ll_driver {
- 	int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len);
+ 			/* new mpc subflow takes ownership of the newly
+ 			 * created mptcp socket
+ 			 */
+ 			mptcp_sk(new_msk)->setsockopt_seq = ctx->setsockopt_seq;
+-			mptcp_pm_new_connection(mptcp_sk(new_msk), child, 1);
+-			mptcp_token_accept(subflow_req, mptcp_sk(new_msk));
++			mptcp_pm_new_connection(owner, child, 1);
++			mptcp_token_accept(subflow_req, owner);
+ 			ctx->conn = new_msk;
+ 			new_msk = NULL;
  
- 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+@@ -846,15 +855,21 @@ create_child:
+ 			 * uses the correct data
+ 			 */
+ 			mptcp_copy_inaddrs(ctx->conn, child);
++			mptcp_propagate_sndbuf(ctx->conn, child);
 +
-+	unsigned int max_buffer_size;
- };
++			mptcp_rcv_space_init(owner, child);
++			list_add(&ctx->node, &owner->conn_list);
++			sock_hold(child);
  
- extern struct hid_ll_driver i2c_hid_ll_driver;
+ 			/* with OoO packets we can reach here without ingress
+ 			 * mpc option
+ 			 */
+-			if (mp_opt.suboptions & OPTION_MPTCP_MPC_ACK)
++			if (mp_opt.suboptions & OPTION_MPTCP_MPC_ACK) {
+ 				mptcp_subflow_fully_established(ctx, &mp_opt);
++				mptcp_pm_fully_established(owner, child, GFP_ATOMIC);
++				ctx->pm_notified = 1;
++			}
+ 		} else if (ctx->mp_join) {
+-			struct mptcp_sock *owner;
+-
+ 			owner = subflow_req->msk;
+ 			if (!owner) {
+ 				subflow_add_reset_reason(skb, MPTCP_RST_EPROHIBIT);
 
 
