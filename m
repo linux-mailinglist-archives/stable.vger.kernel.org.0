@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 046E36C187C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 127646C19CD
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232644AbjCTPZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41952 "EHLO
+        id S233237AbjCTPiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:38:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232786AbjCTPYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50FD530EB9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:35 -0700 (PDT)
+        with ESMTP id S233222AbjCTPiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E612D16334
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5060AB80E95
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB7D9C4339B;
-        Mon, 20 Mar 2023 15:17:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58EC4B80EC8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBDAC4339B;
+        Mon, 20 Mar 2023 15:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325452;
-        bh=LLiWEOUkYUYRTm6ZLjjs3aJqoFG7cXAvMuSPN5uqyNQ=;
+        s=korg; t=1679326162;
+        bh=vNX8cc03471dvGzEoUt0XmVGJ3eBespMMB7YHWhm400=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqqMH4i0EyQWtH3tx01Djea5en/876m4kAwCxeeMVcklC/uS4e0l7rCgGTkQOygTk
-         A1+y7ckVkg29i+l9IP1haPQZEYeok5Fg3RklQGRhLLPBKuqtYhAzdP51W7zza7iSgi
-         uTTqNAnsDB4IWzJkqSRsaB1EH45Iu+67kK2WABKs=
+        b=e6BI+hwRT03EdJHWGJz5S9umvveD+Nf/jj5JVIBIlYxn580UuhYpp4L5HRAg1SV50
+         1EHAtwFMrxJq5l7frtUmDpNAzIxjzc0y5d/cbxP04BTYO4tnCOS05xDuNFFa+bG7Cu
+         yaTf2F7uSv9y9FbsZhKsHj5WhnV+4MoAoL5/Wv/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yazen Ghannam <yazen.ghannam@amd.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 5.15 106/115] x86/mce: Make sure logged MCEs are processed after sysfs update
-Date:   Mon, 20 Mar 2023 15:55:18 +0100
-Message-Id: <20230320145453.881082477@linuxfoundation.org>
+        patches@lists.linux.dev, Lei Yang <leiyang@redhat.com>,
+        Cindy Lu <lulu@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 6.2 184/211] vp_vdpa: fix the crash in hot unplug with vp_vdpa
+Date:   Mon, 20 Mar 2023 15:55:19 +0100
+Message-Id: <20230320145521.204356512@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,44 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Cindy Lu <lulu@redhat.com>
 
-commit 4783b9cb374af02d49740e00e2da19fd4ed6dec4 upstream.
+commit aed8efddd39b3434c96718d39009285c52b1cafc upstream.
 
-A recent change introduced a flag to queue up errors found during
-boot-time polling. These errors will be processed during late init once
-the MCE subsystem is fully set up.
+While unplugging the vp_vdpa device, it triggers a kernel panic
+The root cause is: vdpa_mgmtdev_unregister() will accesses modern
+devices which will cause a use after free.
+So need to change the sequence in vp_vdpa_remove
 
-A number of sysfs updates call mce_restart() which goes through a subset
-of the CPU init flow. This includes polling MCA banks and logging any
-errors found. Since the same function is used as boot-time polling,
-errors will be queued. However, the system is now past late init, so the
-errors will remain queued until another error is found and the workqueue
-is triggered.
+[  195.003359] BUG: unable to handle page fault for address: ff4e8beb80199014
+[  195.004012] #PF: supervisor read access in kernel mode
+[  195.004486] #PF: error_code(0x0000) - not-present page
+[  195.004960] PGD 100000067 P4D 1001b6067 PUD 1001b7067 PMD 1001b8067 PTE 0
+[  195.005578] Oops: 0000 1 PREEMPT SMP PTI
+[  195.005968] CPU: 13 PID: 164 Comm: kworker/u56:10 Kdump: loaded Not tainted 5.14.0-252.el9.x86_64 #1
+[  195.006792] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20221207gitfff6d81270b5-2.el9 unknown
+[  195.007556] Workqueue: kacpi_hotplug acpi_hotplug_work_fn
+[  195.008059] RIP: 0010:ioread8+0x31/0x80
+[  195.008418] Code: 77 28 48 81 ff 00 00 01 00 76 0b 89 fa ec 0f b6 c0 c3 cc cc cc cc 8b 15 ad 72 93 01 b8 ff 00 00 00 85 d2 75 0f c3 cc cc cc cc <8a> 07 0f b6 c0 c3 cc cc cc cc 83 ea 01 48 83 ec 08 48 89 fe 48 c7
+[  195.010104] RSP: 0018:ff4e8beb8067bab8 EFLAGS: 00010292
+[  195.010584] RAX: ffffffffc05834a0 RBX: ffffffffc05843c0 RCX: ff4e8beb8067bae0
+[  195.011233] RDX: ff1bcbd580f88000 RSI: 0000000000000246 RDI: ff4e8beb80199014
+[  195.011881] RBP: ff1bcbd587e39000 R08: ffffffff916fa2d0 R09: ff4e8beb8067ba68
+[  195.012527] R10: 000000000000001c R11: 0000000000000000 R12: ff1bcbd5a3de9120
+[  195.013179] R13: ffffffffc062d000 R14: 0000000000000080 R15: ff1bcbe402bc7805
+[  195.013826] FS:  0000000000000000(0000) GS:ff1bcbe402740000(0000) knlGS:0000000000000000
+[  195.014564] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  195.015093] CR2: ff4e8beb80199014 CR3: 0000000107dea002 CR4: 0000000000771ee0
+[  195.015741] PKRU: 55555554
+[  195.016001] Call Trace:
+[  195.016233]  <TASK>
+[  195.016434]  vp_modern_get_status+0x12/0x20
+[  195.016823]  vp_vdpa_reset+0x1b/0x50 [vp_vdpa]
+[  195.017238]  virtio_vdpa_reset+0x3c/0x48 [virtio_vdpa]
+[  195.017709]  remove_vq_common+0x1f/0x3a0 [virtio_net]
+[  195.018178]  virtnet_remove+0x5d/0x70 [virtio_net]
+[  195.018618]  virtio_dev_remove+0x3d/0x90
+[  195.018986]  device_release_driver_internal+0x1aa/0x230
+[  195.019466]  bus_remove_device+0xd8/0x150
+[  195.019841]  device_del+0x18b/0x3f0
+[  195.020167]  ? kernfs_find_ns+0x35/0xd0
+[  195.020526]  device_unregister+0x13/0x60
+[  195.020894]  unregister_virtio_device+0x11/0x20
+[  195.021311]  device_release_driver_internal+0x1aa/0x230
+[  195.021790]  bus_remove_device+0xd8/0x150
+[  195.022162]  device_del+0x18b/0x3f0
+[  195.022487]  device_unregister+0x13/0x60
+[  195.022852]  ? vdpa_dev_remove+0x30/0x30 [vdpa]
+[  195.023270]  vp_vdpa_dev_del+0x12/0x20 [vp_vdpa]
+[  195.023694]  vdpa_match_remove+0x2b/0x40 [vdpa]
+[  195.024115]  bus_for_each_dev+0x78/0xc0
+[  195.024471]  vdpa_mgmtdev_unregister+0x65/0x80 [vdpa]
+[  195.024937]  vp_vdpa_remove+0x23/0x40 [vp_vdpa]
+[  195.025353]  pci_device_remove+0x36/0xa0
+[  195.025719]  device_release_driver_internal+0x1aa/0x230
+[  195.026201]  pci_stop_bus_device+0x6c/0x90
+[  195.026580]  pci_stop_and_remove_bus_device+0xe/0x20
+[  195.027039]  disable_slot+0x49/0x90
+[  195.027366]  acpiphp_disable_and_eject_slot+0x15/0x90
+[  195.027832]  hotplug_event+0xea/0x210
+[  195.028171]  ? hotplug_event+0x210/0x210
+[  195.028535]  acpiphp_hotplug_notify+0x22/0x80
+[  195.028942]  ? hotplug_event+0x210/0x210
+[  195.029303]  acpi_device_hotplug+0x8a/0x1d0
+[  195.029690]  acpi_hotplug_work_fn+0x1a/0x30
+[  195.030077]  process_one_work+0x1e8/0x3c0
+[  195.030451]  worker_thread+0x50/0x3b0
+[  195.030791]  ? rescuer_thread+0x3a0/0x3a0
+[  195.031165]  kthread+0xd9/0x100
+[  195.031459]  ? kthread_complete_and_exit+0x20/0x20
+[  195.031899]  ret_from_fork+0x22/0x30
+[  195.032233]  </TASK>
 
-Call mce_schedule_work() at the end of mce_restart() so that queued
-errors are processed.
-
-Fixes: 3bff147b187d ("x86/mce: Defer processing of early errors")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
+Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
+Tested-by: Lei Yang <leiyang@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230301221420.2203184-1-yazen.ghannam@amd.com
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+Message-Id: <20230214080924.131462-1-lulu@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/mce/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/vdpa/virtio_pci/vp_vdpa.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -2302,6 +2302,7 @@ static void mce_restart(void)
- {
- 	mce_timer_delete_all();
- 	on_each_cpu(mce_cpu_restart, NULL, 1);
-+	mce_schedule_work();
- }
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -645,8 +645,8 @@ static void vp_vdpa_remove(struct pci_de
+ 	struct virtio_pci_modern_device *mdev = NULL;
  
- /* Toggle features for corrected errors */
+ 	mdev = vp_vdpa_mgtdev->mdev;
+-	vp_modern_remove(mdev);
+ 	vdpa_mgmtdev_unregister(&vp_vdpa_mgtdev->mgtdev);
++	vp_modern_remove(mdev);
+ 	kfree(vp_vdpa_mgtdev->mgtdev.id_table);
+ 	kfree(mdev);
+ 	kfree(vp_vdpa_mgtdev);
 
 
