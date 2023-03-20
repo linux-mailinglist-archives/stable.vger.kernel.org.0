@@ -2,171 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 667F26C1121
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 12:48:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6D26C1122
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 12:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229527AbjCTLsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 07:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59078 "EHLO
+        id S229493AbjCTLsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 07:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229493AbjCTLsW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 07:48:22 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F4BDD510
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 04:48:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679312900; x=1710848900;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=rUKfaQ1CwhO2oDUj3ylBKL/ohPP9zlJZx4DvnUjHSUI=;
-  b=C5FC8igEtu5qy6szJ0Iu5pZoEwOUudrBkwHA1V2lk0F2t7p4hiMTlbAd
-   Z7rolEkik26v005tMf4+8pPm1tFxaW0JdYfB0cCsVnautuj3wgXCFikS2
-   U0BBFgl86U5NOPChwqg+tkiZdxXOOOSeLRlVSXC5uToyMfrJY4I+gdcmm
-   3YH9LeJvLowWCrgMafQ/hQRuda/rHtkvDJScqy7zgGDHj0gINYamCDy+9
-   m9aEumZNxO0kkXEuqb1FS9xP7249S2/EbDSI9uLhhxGSzCODUkHc1BcF1
-   f0CBGkF5+UHsr4Vtd6FyYXXNv8Hli6QbrYg+npszDgQ2ejwvkNXgB+n68
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10654"; a="338665046"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="338665046"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 04:48:19 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10654"; a="926935368"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="926935368"
-Received: from pkotynia-desk.ger.corp.intel.com (HELO jkrzyszt-mobl1.ger.corp.intel.com) ([10.213.5.235])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 04:48:18 -0700
-From:   Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Subject: [PATCH 5.15.y] drm/i915/active: Fix misuse of non-idle barriers as fence trackers
-Date:   Mon, 20 Mar 2023 12:47:52 +0100
-Message-Id: <20230320114752.169004-1-janusz.krzysztofik@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <1679307444199182@kroah.com>
-References: <1679307444199182@kroah.com>
+        with ESMTP id S230251AbjCTLso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 07:48:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC6C91588F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 04:48:43 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 580C86148A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 11:48:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CDBC433EF;
+        Mon, 20 Mar 2023 11:48:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1679312922;
+        bh=wYeP0xRZaYl0VrjJghbv7YIjc//kQmN/mc5R4CD+8To=;
+        h=Subject:To:Cc:From:Date:From;
+        b=N1i26ci5zZkVr+RHJAizEjxGtwcny7J+K1RN5bHKbAgDulSfvOQt2HbB9jbqP15Is
+         7YAEfTwIwim1t/m/f/Tyf0zKKCU8u51uC52edhxd/qZ9ulibD6OkFZ3l51Buko1WQ4
+         MVT/ssBmTbDg19MisTIJRA4y7zSAYDz1zXmNjMsU=
+Subject: FAILED: patch "[PATCH] trace/hwlat: Do not start per-cpu thread if it is already" failed to apply to 5.15-stable tree
+To:     tero.kristo@linux.intel.com, bristot@kernel.org,
+        rostedt@goodmis.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Mar 2023 12:48:39 +0100
+Message-ID: <167931291995243@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Users reported oopses on list corruptions when using i915 perf with a
-number of concurrently running graphics applications.  Root cause analysis
-pointed at an issue in barrier processing code -- a race among perf open /
-close replacing active barriers with perf requests on kernel context and
-concurrent barrier preallocate / acquire operations performed during user
-context first pin / last unpin.
 
-When adding a request to a composite tracker, we try to reuse an existing
-fence tracker, already allocated and registered with that composite.  The
-tracker we obtain may already track another fence, may be an idle barrier,
-or an active barrier.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-If the tracker we get occurs a non-idle barrier then we try to delete that
-barrier from a list of barrier tasks it belongs to.  However, while doing
-that we don't respect return value from a function that performs the
-barrier deletion.  Should the deletion ever fail, we would end up reusing
-the tracker still registered as a barrier task.  Since the same structure
-field is reused with both fence callback lists and barrier tasks list,
-list corruptions would likely occur.
+To reproduce the conflict and resubmit, you may use the following commands:
 
-Barriers are now deleted from a barrier tasks list by temporarily removing
-the list content, traversing that content with skip over the node to be
-deleted, then populating the list back with the modified content.  Should
-that intentionally racy concurrent deletion attempts be not serialized,
-one or more of those may fail because of the list being temporary empty.
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git checkout FETCH_HEAD
+git cherry-pick -x 08697bca9bbba15f2058fdbd9f970bd5f6a8a2e8
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167931291995243@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
-Related code that ignores the results of barrier deletion was initially
-introduced in v5.4 by commit d8af05ff38ae ("drm/i915: Allow sharing the
-idle-barrier from other kernel requests").  However, all users of the
-barrier deletion routine were apparently serialized at that time, then the
-issue didn't exhibit itself.  Results of git bisect with help of a newly
-developed igt@gem_barrier_race@remote-request IGT test indicate that list
-corruptions might start to appear after commit 311770173fac ("drm/i915/gt:
-Schedule request retirement when timeline idles"), introduced in v5.5.
+Possible dependencies:
 
-Respect results of barrier deletion attempts -- mark the barrier as idle
-only if successfully deleted from the list.  Then, before proceeding with
-setting our fence as the one currently tracked, make sure that the tracker
-we've got is not a non-idle barrier.  If that check fails then don't use
-that tracker but go back and try to acquire a new, usable one.
+08697bca9bbb ("trace/hwlat: Do not start per-cpu thread if it is already running")
+ff78f6679d2e ("trace/hwlat: make use of the helper function kthread_run_on_cpu()")
 
-v3: use unlikely() to document what outcome we expect (Andi),
-  - fix bad grammar in commit description.
-v2: no code changes,
-  - blame commit 311770173fac ("drm/i915/gt: Schedule request retirement
-    when timeline idles"), v5.5, not commit d8af05ff38ae ("drm/i915: Allow
-    sharing the idle-barrier from other kernel requests"), v5.4,
-  - reword commit description.
+thanks,
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6333
-Fixes: 311770173fac ("drm/i915/gt: Schedule request retirement when timeline idles")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org # v5.5
-Cc: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230302120820.48740-1-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit 506006055769b10d1b2b4e22f636f3b45e0e9fc7)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit e0e6b416b25ee14716f3549e0cbec1011b193809)
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
----
- drivers/gpu/drm/i915/i915_active.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+greg k-h
 
-diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
-index 3103c1e1fd148..283c5091005ec 100644
---- a/drivers/gpu/drm/i915/i915_active.c
-+++ b/drivers/gpu/drm/i915/i915_active.c
-@@ -422,8 +422,7 @@ replace_barrier(struct i915_active *ref, struct i915_active_fence *active)
- 	 * we can use it to substitute for the pending idle-barrer
- 	 * request that we want to emit on the kernel_context.
- 	 */
--	__active_del_barrier(ref, node_from_active(active));
--	return true;
-+	return __active_del_barrier(ref, node_from_active(active));
- }
+------------------ original commit in Linus's tree ------------------
+
+From 08697bca9bbba15f2058fdbd9f970bd5f6a8a2e8 Mon Sep 17 00:00:00 2001
+From: Tero Kristo <tero.kristo@linux.intel.com>
+Date: Fri, 10 Mar 2023 12:04:51 +0200
+Subject: [PATCH] trace/hwlat: Do not start per-cpu thread if it is already
+ running
+
+The hwlatd tracer will end up starting multiple per-cpu threads with
+the following script:
+
+    #!/bin/sh
+    cd /sys/kernel/debug/tracing
+    echo 0 > tracing_on
+    echo hwlat > current_tracer
+    echo per-cpu > hwlat_detector/mode
+    echo 100000 > hwlat_detector/width
+    echo 200000 > hwlat_detector/window
+    echo 1 > tracing_on
+
+To fix the issue, check if the hwlatd thread for the cpu is already
+running, before starting a new one. Along with the previous patch, this
+avoids running multiple instances of the same CPU thread on the system.
+
+Link: https://lore.kernel.org/all/20230302113654.2984709-1-tero.kristo@linux.intel.com/
+Link: https://lkml.kernel.org/r/20230310100451.3948583-3-tero.kristo@linux.intel.com
+
+Cc: stable@vger.kernel.org
+Fixes: f46b16520a087 ("trace/hwlat: Implement the per-cpu mode")
+Signed-off-by: Tero Kristo <tero.kristo@linux.intel.com>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace_hwlat.c b/kernel/trace/trace_hwlat.c
+index edc26dc22c3f..c4945f8adc11 100644
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -492,6 +492,10 @@ static int start_cpu_kthread(unsigned int cpu)
+ {
+ 	struct task_struct *kthread;
  
- int i915_active_ref(struct i915_active *ref, u64 idx, struct dma_fence *fence)
-@@ -436,16 +435,19 @@ int i915_active_ref(struct i915_active *ref, u64 idx, struct dma_fence *fence)
- 	if (err)
- 		return err;
- 
--	active = active_instance(ref, idx);
--	if (!active) {
--		err = -ENOMEM;
--		goto out;
--	}
-+	do {
-+		active = active_instance(ref, idx);
-+		if (!active) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
++	/* Do not start a new hwlatd thread if it is already running */
++	if (per_cpu(hwlat_per_cpu_data, cpu).kthread)
++		return 0;
 +
-+		if (replace_barrier(ref, active)) {
-+			RCU_INIT_POINTER(active->fence, NULL);
-+			atomic_dec(&ref->count);
-+		}
-+	} while (unlikely(is_barrier(active)));
- 
--	if (replace_barrier(ref, active)) {
--		RCU_INIT_POINTER(active->fence, NULL);
--		atomic_dec(&ref->count);
--	}
- 	if (!__i915_active_fence_set(active, fence))
- 		__i915_active_acquire(ref);
- 
--- 
-2.25.1
+ 	kthread = kthread_run_on_cpu(kthread_fn, NULL, cpu, "hwlatd/%u");
+ 	if (IS_ERR(kthread)) {
+ 		pr_err(BANNER "could not start sampling thread\n");
 
