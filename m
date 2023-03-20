@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63F236C1776
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6126C18EB
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232347AbjCTPOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:14:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42778 "EHLO
+        id S232856AbjCTP2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232464AbjCTPNv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925E712CCD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:41 -0700 (PDT)
+        with ESMTP id S232469AbjCTP23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F27E9768
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCAD66157F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF66C433EF;
-        Mon, 20 Mar 2023 15:08:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A0C26CE12F6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69820C433EF;
+        Mon, 20 Mar 2023 15:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324920;
-        bh=sXo8mBoKZYZFAHqbPaF7n1eHMzEnof++Sw1JW5lceJI=;
+        s=korg; t=1679325687;
+        bh=yJ+vsaZMKxn5vdwyAOZuPKPz0Uww03nMVYoFS4Qa8RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocvup/XL9OXNe561ZS0YkKGpdjRThSUfl415l6MUQdx0AiDtcLhl0Jj/tonegrzY4
-         YCYSvBCLmOBrtYWjo/zZKvFrw5HIRVseKnJInz1zUH3ERck1VBVF/pVGjx1SMJTH8G
-         8nS5KhnoJpSgZ7tjvRoYmdt9Dpfr1t1CbGfW1wdM=
+        b=AEG7hPCu/lsCaieb11NOWb5vJzWfQdxTDhjn0neX3jBqL59/UQNGfcYpM+i2DV7Aa
+         DjU2tg3Ng+VGjY2ctWbsWkg5AVa3d6MgG4a9MPKtGTrT3x87e6fLDyP9vRnjkrzfI9
+         Yy2Z6UHIo67TDBBH0e5GapiNcF+RBemECzPbrCqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/115] selftests: net: devlink_port_split.py: skip test if no suitable device available
-Date:   Mon, 20 Mar 2023 15:54:20 +0100
-Message-Id: <20230320145451.423831209@linuxfoundation.org>
+        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 6.1 123/198] memory: tegra: fix interconnect registration race
+Date:   Mon, 20 Mar 2023 15:54:21 +0100
+Message-Id: <20230320145512.711634116@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,119 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 24994513ad13ff2c47ba91d2b5df82c3d496c370 ]
+commit 5553055c62683ce339f9ef5fb2a26c8331485d68 upstream.
 
-The `devlink -j port show` command output may not contain the "flavour"
-key, an example from Ubuntu 22.10 s390x LPAR(5.19.0-37-generic), with
-mlx4 driver and iproute2-5.15.0:
-  {"port":{"pci/0001:00:00.0/1":{"type":"eth","netdev":"ens301"},
-           "pci/0001:00:00.0/2":{"type":"eth","netdev":"ens301d1"},
-           "pci/0002:00:00.0/1":{"type":"eth","netdev":"ens317"},
-           "pci/0002:00:00.0/2":{"type":"eth","netdev":"ens317d1"}}}
+The current interconnect provider registration interface is inherently
+racy as nodes are not added until the after adding the provider. This
+can specifically cause racing DT lookups to fail.
 
-This will cause a KeyError exception.
+Switch to using the new API where the provider is not registered until
+after it has been fully initialised.
 
-Create a validate_devlink_output() to check for this "flavour" from
-devlink command output to avoid this KeyError exception. Also let
-it handle the check for `devlink -j dev show` output in main().
-
-Apart from this, if the test was not started because the max lanes of
-the designated device is 0. The script will still return 0 and thus
-causing a false-negative test result.
-
-Use a found_max_lanes flag to determine if these tests were skipped
-due to this reason and return KSFT_SKIP to make it more clear.
-
-Link: https://bugs.launchpad.net/bugs/1937133
-Fixes: f3348a82e727 ("selftests: net: Add port split test")
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Link: https://lore.kernel.org/r/20230315165353.229590-1-po-hsu.lin@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 06f079816d4c ("memory: tegra-mc: Add interconnect framework")
+Cc: stable@vger.kernel.org      # 5.11
+Cc: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20230306075651.2449-18-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../selftests/net/devlink_port_split.py       | 36 ++++++++++++++++---
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ drivers/memory/tegra/mc.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/net/devlink_port_split.py b/tools/testing/selftests/net/devlink_port_split.py
-index 2b5d6ff873738..2d84c7a0be6b2 100755
---- a/tools/testing/selftests/net/devlink_port_split.py
-+++ b/tools/testing/selftests/net/devlink_port_split.py
-@@ -59,6 +59,8 @@ class devlink_ports(object):
-         assert stderr == ""
-         ports = json.loads(stdout)['port']
+--- a/drivers/memory/tegra/mc.c
++++ b/drivers/memory/tegra/mc.c
+@@ -769,16 +769,12 @@ static int tegra_mc_interconnect_setup(s
+ 	mc->provider.aggregate = mc->soc->icc_ops->aggregate;
+ 	mc->provider.xlate_extended = mc->soc->icc_ops->xlate_extended;
  
-+        validate_devlink_output(ports, 'flavour')
+-	err = icc_provider_add(&mc->provider);
+-	if (err)
+-		return err;
++	icc_provider_init(&mc->provider);
+ 
+ 	/* create Memory Controller node */
+ 	node = icc_node_create(TEGRA_ICC_MC);
+-	if (IS_ERR(node)) {
+-		err = PTR_ERR(node);
+-		goto del_provider;
+-	}
++	if (IS_ERR(node))
++		return PTR_ERR(node);
+ 
+ 	node->name = "Memory Controller";
+ 	icc_node_add(node, &mc->provider);
+@@ -805,12 +801,14 @@ static int tegra_mc_interconnect_setup(s
+ 			goto remove_nodes;
+ 	}
+ 
++	err = icc_provider_register(&mc->provider);
++	if (err)
++		goto remove_nodes;
 +
-         for port in ports:
-             if dev in port:
-                 if ports[port]['flavour'] == 'physical':
-@@ -220,6 +222,27 @@ def split_splittable_port(port, k, lanes, dev):
-     unsplit(port.bus_info)
+ 	return 0;
  
+ remove_nodes:
+ 	icc_nodes_remove(&mc->provider);
+-del_provider:
+-	icc_provider_del(&mc->provider);
  
-+def validate_devlink_output(devlink_data, target_property=None):
-+    """
-+    Determine if test should be skipped by checking:
-+      1. devlink_data contains values
-+      2. The target_property exist in devlink_data
-+    """
-+    skip_reason = None
-+    if any(devlink_data.values()):
-+        if target_property:
-+            skip_reason = "{} not found in devlink output, test skipped".format(target_property)
-+            for key in devlink_data:
-+                if target_property in devlink_data[key]:
-+                    skip_reason = None
-+    else:
-+        skip_reason = 'devlink output is empty, test skipped'
-+
-+    if skip_reason:
-+        print(skip_reason)
-+        sys.exit(KSFT_SKIP)
-+
-+
- def make_parser():
-     parser = argparse.ArgumentParser(description='A test for port splitting.')
-     parser.add_argument('--dev',
-@@ -240,12 +263,9 @@ def main(cmdline=None):
-         stdout, stderr = run_command(cmd)
-         assert stderr == ""
- 
-+        validate_devlink_output(json.loads(stdout))
-         devs = json.loads(stdout)['dev']
--        if devs:
--            dev = list(devs.keys())[0]
--        else:
--            print("no devlink device was found, test skipped")
--            sys.exit(KSFT_SKIP)
-+        dev = list(devs.keys())[0]
- 
-     cmd = "devlink dev show %s" % dev
-     stdout, stderr = run_command(cmd)
-@@ -255,6 +275,7 @@ def main(cmdline=None):
- 
-     ports = devlink_ports(dev)
- 
-+    found_max_lanes = False
-     for port in ports.if_names:
-         max_lanes = get_max_lanes(port.name)
- 
-@@ -277,6 +298,11 @@ def main(cmdline=None):
-                 split_splittable_port(port, lane, max_lanes, dev)
- 
-                 lane //= 2
-+        found_max_lanes = True
-+
-+    if not found_max_lanes:
-+        print(f"Test not started, no port of device {dev} reports max_lanes")
-+        sys.exit(KSFT_SKIP)
- 
- 
- if __name__ == "__main__":
--- 
-2.39.2
-
+ 	return err;
+ }
 
 
