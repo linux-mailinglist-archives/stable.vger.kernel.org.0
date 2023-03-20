@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FD46C0E7D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D44A6C0E7E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:17:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230042AbjCTKRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:17:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54636 "EHLO
+        id S230028AbjCTKRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:17:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbjCTKRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:17:10 -0400
+        with ESMTP id S229958AbjCTKRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:17:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44E51114B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:17:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3336A125BF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:17:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E536B80DE0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:17:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98D06C433D2;
-        Mon, 20 Mar 2023 10:17:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2DB6B80DDE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42E9DC433D2;
+        Mon, 20 Mar 2023 10:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679307424;
-        bh=9xDneswuB60sDfy6KNv9puAc90MjHDIu6L4qTI+1zHU=;
+        s=korg; t=1679307432;
+        bh=YAATm3A2dlecKDKuP/TWbL0eYcLR3IMjJ36cvstXYzA=;
         h=Subject:To:Cc:From:Date:From;
-        b=iNPghetG4WXTK3h8VBU35y7yGdmGZnfOAGLaQ+T9bNhZ9XAfcy7hGYoKmXiT0tFib
-         2tS7N63MIAF3xoll01+o1T3M6xSicH8WWh/OZXmmOKlcUOUgwJGBzok8G1uyFYixRR
-         Lx3asA526yaZA0mmPMJqHoYDkOY9AG56LxPPADd4=
-Subject: FAILED: patch "[PATCH] drm/sun4i: fix missing component unbind on bind errors" failed to apply to 5.10-stable tree
+        b=HMGPYAu0UYeQaYDAKArG+brHLvilR/cYt5jXIosGxAy3kh+skTHXGIheF4T+FR5Yv
+         ObSRGT1BrMP/d2WugAU9rx4457F1bAC68MEtc9TLo7szAxM1etyAYaC/H+MGz115T8
+         Fb8QqfO6fED8MDY6WEOGLlsV5sEJvJMwZkzZI6qs=
+Subject: FAILED: patch "[PATCH] drm/sun4i: fix missing component unbind on bind errors" failed to apply to 5.4-stable tree
 To:     johan+linaro@kernel.org, maxime@cerno.tech, mripard@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 20 Mar 2023 11:17:01 +0100
-Message-ID: <167930742148207@kroah.com>
+Message-ID: <167930742135205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x c22f2ff8724b49dce2ae797e9fbf4bc0fa91112f
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930742148207@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930742135205@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -69,6 +69,20 @@ dc739820ff90 ("drm/ast: fix memory leak when unload the driver")
 31856c8c1ce4 ("drm/vmwgfx: Remove stealth mode")
 840462e6872d ("drm/vmwgfx: Remove references to struct drm_device.pdev")
 5bbacc2e7ab1 ("drm/virtgpu: Remove references to struct drm_device.pdev")
+cff0adca1edd ("drm/ast: Managed device release")
+4bc85b82c8ba ("drm/ast: Manage release of firmware backup memory")
+2c0b6566d621 ("drm/ast: Managed release of ast firmware")
+e0f5a738cfe5 ("drm/ast: Embed struct drm_device in struct ast_private")
+fbe01716ed4a ("drm/ast: Replace driver load/unload functions with device create/destroy")
+d50ace1e72f0 ("drm/ast: Separate DRM driver from PCI code")
+03ba7e00f805 ("drm/ast: Use managed MM initialization")
+0149e7805b3c ("drm/ast: Move VRAM size detection to ast_mm.c")
+8e46dc585389 ("drm/ast: Use managed VRAM-helper initialization")
+e6949ff3ca85 ("drm/ast: Initialize mode setting in ast_mode_config_init()")
+1728bf6402c3 ("drm/ast: Use managed mode-config init")
+6bb18c9be6d2 ("drm/ast: Init cursors before creating modesetting structures")
+3e9d787371ea ("drm/ast: Managed cursor release")
+0d384eec10ea ("drm/ast: Keep cursor HW BOs mapped")
 
 thanks,
 
