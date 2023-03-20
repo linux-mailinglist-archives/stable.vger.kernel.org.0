@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E31686C199C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B418A6C19D5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbjCTPfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:35:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60436 "EHLO
+        id S233268AbjCTPiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233282AbjCTPfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:35:06 -0400
+        with ESMTP id S233188AbjCTPi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5763755B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2252AD537
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D3726157F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC54C433D2;
-        Mon, 20 Mar 2023 15:27:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0220B6158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13AD2C433EF;
+        Mon, 20 Mar 2023 15:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326060;
-        bh=eEwF0uM4bPuWTbQ3sUXqIEGd3w/9TO8UXIJXC8VSXZA=;
+        s=korg; t=1679326197;
+        bh=VJo3hoM7rw25fjMR1e/8yeqq6uNK7j+UmmrgwfD1feE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nw9b0AFz9BZZ72+VuGdxUMM6mxtpaNf/Vv/9M4b56vIvoN0bTdNMcLduFWKYQ9nm6
-         P23a1ES2ex4b1fm6YrVp/YupLYtmU9aJnXBf4dA/UWIQYBd6Q1Cy3ZYOUuC2rRimBV
-         XMt/Q9XBexHVJswZavfM5pJlklwaz+dlvJ1i84hI=
+        b=kFJ6/Te8TDVJrWANxjEWAwwAjwab5isuxlvSCrFUp0t+jGLmhF8H4ZQK6MQam7vk6
+         +XMbHvQQ2wz8Kw2wwsx7T0sQNPHngUq1uyb4FUvUY86Rj46NvkvHok/7tBS0vVwPdJ
+         syunOWGqlFwX6mBpn5wUfqjOlQtbWCv60jevFrlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 6.1 193/198] virt/coco/sev-guest: Remove the disable_vmpck label in handle_guest_request()
+        patches@lists.linux.dev, Dylan Jhong <dylan@andestech.com>,
+        Alexandre Ghiti <alexghiti@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.2 196/211] RISC-V: mm: Support huge page in vmalloc_fault()
 Date:   Mon, 20 Mar 2023 15:55:31 +0100
-Message-Id: <20230320145515.566127164@linuxfoundation.org>
+Message-Id: <20230320145521.748427474@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,50 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Dylan Jhong <dylan@andestech.com>
 
-commit c5a338274bdb894f088767bea856be344d0ccaef upstream.
+commit 47dd902aaee9b9341808a3a994793199e7eddb88 upstream.
 
-Call the function directly instead.
+Since RISC-V supports ioremap() with huge page (pud/pmd) mapping,
+However, vmalloc_fault() assumes that the vmalloc range is limited
+to pte mappings. To complete the vmalloc_fault() function by adding
+huge page support.
 
-No functional changes.
-
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20230307192449.24732-5-bp@alien8.de
+Fixes: 310f541a027b ("riscv: Enable HAVE_ARCH_HUGE_VMAP for 64BIT")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dylan Jhong <dylan@andestech.com>
+Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+Link: https://lore.kernel.org/r/20230310075021.3919290-1-dylan@andestech.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virt/coco/sev-guest/sev-guest.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/riscv/mm/fault.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/virt/coco/sev-guest/sev-guest.c
-+++ b/drivers/virt/coco/sev-guest/sev-guest.c
-@@ -407,7 +407,8 @@ retry_request:
- 		dev_alert(snp_dev->dev,
- 			  "Detected error from ASP request. rc: %d, fw_err: %llu\n",
- 			  rc, *fw_err);
--		goto disable_vmpck;
-+		snp_disable_vmpck(snp_dev);
-+		return rc;
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 460f785f6e09..d5f3e501dffb 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -143,6 +143,8 @@ static inline void vmalloc_fault(struct pt_regs *regs, int code, unsigned long a
+ 		no_context(regs, addr);
+ 		return;
  	}
++	if (pud_leaf(*pud_k))
++		goto flush_tlb;
  
- 	rc = verify_and_dec_payload(snp_dev, resp_buf, resp_sz);
-@@ -415,14 +416,11 @@ retry_request:
- 		dev_alert(snp_dev->dev,
- 			  "Detected unexpected decode failure from ASP. rc: %d\n",
- 			  rc);
--		goto disable_vmpck;
-+		snp_disable_vmpck(snp_dev);
-+		return rc;
+ 	/*
+ 	 * Since the vmalloc area is global, it is unnecessary
+@@ -153,6 +155,8 @@ static inline void vmalloc_fault(struct pt_regs *regs, int code, unsigned long a
+ 		no_context(regs, addr);
+ 		return;
  	}
++	if (pmd_leaf(*pmd_k))
++		goto flush_tlb;
  
- 	return 0;
--
--disable_vmpck:
--	snp_disable_vmpck(snp_dev);
--	return rc;
+ 	/*
+ 	 * Make sure the actual PTE exists as well to
+@@ -172,6 +176,7 @@ static inline void vmalloc_fault(struct pt_regs *regs, int code, unsigned long a
+ 	 * ordering constraint, not a cache flush; it is
+ 	 * necessary even after writing invalid entries.
+ 	 */
++flush_tlb:
+ 	local_flush_tlb_page(addr);
  }
  
- static int get_report(struct snp_guest_dev *snp_dev, struct snp_guest_request_ioctl *arg)
+-- 
+2.40.0
+
 
 
