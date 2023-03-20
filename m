@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B336C0876
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:28:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E14D6C0895
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbjCTB2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 21:28:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33860 "EHLO
+        id S229772AbjCTBf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbjCTB1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:27:51 -0400
+        with ESMTP id S229765AbjCTBfl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:35:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C61425294;
-        Sun, 19 Mar 2023 18:20:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84E176B3;
+        Sun, 19 Mar 2023 18:29:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45588B80D44;
-        Mon, 20 Mar 2023 00:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78F13C4339B;
-        Mon, 20 Mar 2023 00:54:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18CADB80D4F;
+        Mon, 20 Mar 2023 00:54:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDDCAC433EF;
+        Mon, 20 Mar 2023 00:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273673;
-        bh=CDjeeZ1RdIAASgt1N4rP5Uw1t49BKchPFbEVdT+waE4=;
+        s=k20201202; t=1679273686;
+        bh=S92CcyWhvxH5rDjNGNtndcNeQr7FnAOumVDxLSX/x6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5y4CKs3V+8WgmqXqAe/I0++CZp4cSyz2Re4sPQoMItV71RNuNCNAhegk2/G/HmhC
-         aim2RP3+H9pPCL+6ZIGBovnEyrIL0JXIhmp3OZPMH574U1CW0cFzJqglFo39bt6gdv
-         Q1LVtSlSZO7bRj/FLITcRmnRMkRMWY6a9NmM1kqzQYVE25Ds58H08wDQyldnIBZAOn
-         GOicYer4OV3I1UryzRV+6ETArIv1Y0+pUkCJOEbyWUqM92Cpx6e13yp3d+bpWVoK1Z
-         f0+E1VrQ1ueZSZb03SbHA51SvdV9jnkOoNaj5as1jtBrZM57xTIrOP4MuXgeqg22Zy
-         OfkSY1OVQkHVQ==
+        b=cqKd6T9ZOdxacCNLCOxiZ+pjpfT3U7+dxUqS1gcI4mcevx+vooeTbIUDiPaVvXmUN
+         EfpDqcQ2KS19xrQwZehR39/rwhj8253kGUjQST9ziBHmREpgaOL+rKNqSJrIwH0h0G
+         NmYR2doIY4Tk1/VonvC4YBFPR+J03bK9pM+juRY6hqIS7H3eutfl3FjByUQHHfdF0v
+         T12z/JbRv4Bm9TX1aajBZp7TKl6CFAdHBjvUOAbs69CSUWh6D3BpnfsHg1DPOK113S
+         Lu0Fn0SYVDULQ2YuJTuOxXq5NABz92q7Wh9Qv1D612VAu/QHFzMZ8sxJeyuWykiqN6
+         6sxjkWTugc3rA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenz Bauer <lorenz.bauer@isovalent.com>,
-        Lorenz Bauer <lmb@isovalent.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, andrii@kernel.org,
-        ast@kernel.org, daniel@iogearbox.net, shuah@kernel.org, yhs@fb.com,
-        eddyz87@gmail.com, sdf@google.com, iii@linux.ibm.com,
-        memxor@gmail.com, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 08/29] selftests/bpf: check that modifier resolves after pointer
-Date:   Sun, 19 Mar 2023 20:53:50 -0400
-Message-Id: <20230320005413.1428452-8-sashal@kernel.org>
+Cc:     Jakob Koschel <jkl820.git@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 14/29] scsi: lpfc: Avoid usage of list iterator variable after loop
+Date:   Sun, 19 Mar 2023 20:53:56 -0400
+Message-Id: <20230320005413.1428452-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -60,61 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lorenz.bauer@isovalent.com>
+From: Jakob Koschel <jkl820.git@gmail.com>
 
-[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
+[ Upstream commit 2850b23e9f9ae3696e472d2883ea1b43aafa884e ]
 
-Add a regression test that ensures that a VAR pointing at a
-modifier which follows a PTR (or STRUCT or ARRAY) is resolved
-correctly by the datasec validator.
+If the &epd_pool->list is empty when executing
+lpfc_get_io_buf_from_expedite_pool() the function would return an invalid
+pointer. Even in the case if the list is guaranteed to be populated, the
+iterator variable should not be used after the loop to be more robust for
+future changes.
 
-Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
-Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Linus proposed to avoid any use of the list iterator variable after the
+loop, in the attempt to move the list iterator variable declaration into
+the macro to avoid any potential misuse after the loop [1].
+
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
+Link: https://lore.kernel.org/r/20230301-scsi-lpfc-avoid-list-iterator-after-loop-v1-1-325578ae7561@gmail.com
+Reviewed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/btf.c | 28 ++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/scsi/lpfc/lpfc_sli.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index 24dd6214394e0..d711f4bea98ea 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -879,6 +879,34 @@ static struct btf_raw_test raw_tests[] = {
- 	.btf_load_err = true,
- 	.err_str = "Invalid elem",
- },
-+{
-+	.descr = "var after datasec, ptr followed by modifier",
-+	.raw_types = {
-+		/* .bss section */				/* [1] */
-+		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
-+			sizeof(void*)+4),
-+		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
-+		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
-+		/* int */					/* [2] */
-+		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
-+		/* int* */					/* [3] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
-+		/* const int */					/* [5] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
-+		BTF_END_RAW,
-+	},
-+	.str_sec = "\0a\0b\0c\0",
-+	.str_sec_size = sizeof("\0a\0b\0c\0"),
-+	.map_type = BPF_MAP_TYPE_ARRAY,
-+	.map_name = ".bss",
-+	.key_size = sizeof(int),
-+	.value_size = sizeof(void*)+4,
-+	.key_type_id = 0,
-+	.value_type_id = 1,
-+	.max_entries = 1,
-+},
- /* Test member exceeds the size of struct.
-  *
-  * struct A {
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 43e06bb917e77..b44bb3ae22ad9 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -21886,20 +21886,20 @@ lpfc_get_io_buf_from_private_pool(struct lpfc_hba *phba,
+ static struct lpfc_io_buf *
+ lpfc_get_io_buf_from_expedite_pool(struct lpfc_hba *phba)
+ {
+-	struct lpfc_io_buf *lpfc_ncmd;
++	struct lpfc_io_buf *lpfc_ncmd = NULL, *iter;
+ 	struct lpfc_io_buf *lpfc_ncmd_next;
+ 	unsigned long iflag;
+ 	struct lpfc_epd_pool *epd_pool;
+ 
+ 	epd_pool = &phba->epd_pool;
+-	lpfc_ncmd = NULL;
+ 
+ 	spin_lock_irqsave(&epd_pool->lock, iflag);
+ 	if (epd_pool->count > 0) {
+-		list_for_each_entry_safe(lpfc_ncmd, lpfc_ncmd_next,
++		list_for_each_entry_safe(iter, lpfc_ncmd_next,
+ 					 &epd_pool->list, list) {
+-			list_del(&lpfc_ncmd->list);
++			list_del(&iter->list);
+ 			epd_pool->count--;
++			lpfc_ncmd = iter;
+ 			break;
+ 		}
+ 	}
 -- 
 2.39.2
 
