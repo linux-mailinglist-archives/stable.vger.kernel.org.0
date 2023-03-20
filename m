@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7906E6C165F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FBE46C191B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231510AbjCTPFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53098 "EHLO
+        id S233042AbjCTPam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbjCTPEk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B498F40D9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:35 -0700 (PDT)
+        with ESMTP id S233115AbjCTPaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:30:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2112E3253B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04EC0B80EC3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70944C433EF;
-        Mon, 20 Mar 2023 14:59:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 655E7CE12E9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F42FC433EF;
+        Mon, 20 Mar 2023 15:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324394;
-        bh=utcI07NSYk/VChAJ9f8B0ug29705//maxDCts0fopGo=;
+        s=korg; t=1679325772;
+        bh=XXgsjh20dOOAVU9aBn8zTTQ9u5yTkBonbr3FD3pyifw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvs3x/Uc5DkV+0hsv6T7szFJ8LUij6gr66RuiY5F7gkGKrVwkEiYaUviXGiQrNxH5
-         CZq0030lO6BdP8Uv7bQgiXuTmMnbl1UL8M1nHOblTFpOYc0z5f02g0fuEagx5WaayV
-         rkYZZ96fT77Qp1p2sU1rpUNYKXIrHMHER4zmRxf0=
+        b=k5j+xx4cm1ajRcnGMykDyGzdTkldQfLAbV4VfO3M2QuZ0Ox48kYskd4VYlbgPMCJA
+         P8U7Vnqxk+CYBvyW/RUKnSQduanOGC8WejWICYGugBk2nsxbOlaMji+1ugYn6mT0wL
+         5LE0zr0tFXKGhrKM5u+Ss5/Z+gAaJFcLO+mDECWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/36] block: sunvdc: add check for mdesc_grab() returning NULL
+        patches@lists.linux.dev,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 6.1 140/198] interconnect: exynos: fix registration race
 Date:   Mon, 20 Mar 2023 15:54:38 +0100
-Message-Id: <20230320145424.712171883@linuxfoundation.org>
+Message-Id: <20230320145513.418422689@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
-References: <20230320145424.191578432@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,38 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 6030363199e3a6341afb467ddddbed56640cbf6a ]
+commit c9e46ca612cfbb0cf890f7ae7389b742e90efe64 upstream.
 
-In vdc_port_probe(), we should check the return value of mdesc_grab() as
-it may return NULL, which can cause potential NPD bug.
+The current interconnect provider registration interface is inherently
+racy as nodes are not added until the after adding the provider. This
+can specifically cause racing DT lookups to trigger a NULL-pointer
+deference when either a NULL pointer or not fully initialised node is
+returned from exynos_generic_icc_xlate().
 
-Fixes: 43fdf27470b2 ("[SPARC64]: Abstract out mdesc accesses for better MD update handling.")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20230315062032.1741692-1-windhl@126.com
-[axboe: style cleanup]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Switch to using the new API where the provider is not registered until
+after it has been fully initialised.
+
+Fixes: 2f95b9d5cf0b ("interconnect: Add generic interconnect driver for Exynos SoCs")
+Cc: stable@vger.kernel.org      # 5.11
+Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20230306075651.2449-16-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/sunvdc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/interconnect/samsung/exynos.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/block/sunvdc.c b/drivers/block/sunvdc.c
-index 6b7b0d8a2acbc..d2e9ffd2255f4 100644
---- a/drivers/block/sunvdc.c
-+++ b/drivers/block/sunvdc.c
-@@ -947,6 +947,8 @@ static int vdc_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 	print_version();
+--- a/drivers/interconnect/samsung/exynos.c
++++ b/drivers/interconnect/samsung/exynos.c
+@@ -98,12 +98,13 @@ static int exynos_generic_icc_remove(str
+ 	struct exynos_icc_priv *priv = platform_get_drvdata(pdev);
+ 	struct icc_node *parent_node, *node = priv->node;
  
- 	hp = mdesc_grab();
-+	if (!hp)
-+		return -ENODEV;
++	icc_provider_deregister(&priv->provider);
++
+ 	parent_node = exynos_icc_get_parent(priv->dev->parent->of_node);
+ 	if (parent_node && !IS_ERR(parent_node))
+ 		icc_link_destroy(node, parent_node);
  
- 	err = -ENODEV;
- 	if ((vdev->dev_no << PARTITION_SHIFT) & ~(u64)MINORMASK) {
--- 
-2.39.2
-
+ 	icc_nodes_remove(&priv->provider);
+-	icc_provider_del(&priv->provider);
+ 
+ 	return 0;
+ }
+@@ -132,15 +133,11 @@ static int exynos_generic_icc_probe(stru
+ 	provider->inter_set = true;
+ 	provider->data = priv;
+ 
+-	ret = icc_provider_add(provider);
+-	if (ret < 0)
+-		return ret;
++	icc_provider_init(provider);
+ 
+ 	icc_node = icc_node_create(pdev->id);
+-	if (IS_ERR(icc_node)) {
+-		ret = PTR_ERR(icc_node);
+-		goto err_prov_del;
+-	}
++	if (IS_ERR(icc_node))
++		return PTR_ERR(icc_node);
+ 
+ 	priv->node = icc_node;
+ 	icc_node->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn",
+@@ -171,14 +168,17 @@ static int exynos_generic_icc_probe(stru
+ 			goto err_pmqos_del;
+ 	}
+ 
++	ret = icc_provider_register(provider);
++	if (ret < 0)
++		goto err_pmqos_del;
++
+ 	return 0;
+ 
+ err_pmqos_del:
+ 	dev_pm_qos_remove_request(&priv->qos_req);
+ err_node_del:
+ 	icc_nodes_remove(provider);
+-err_prov_del:
+-	icc_provider_del(provider);
++
+ 	return ret;
+ }
+ 
 
 
