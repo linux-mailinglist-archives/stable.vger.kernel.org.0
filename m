@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39AD76C1920
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDAB6C198C
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233056AbjCTPaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:30:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S232912AbjCTPeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232964AbjCTPaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:30:18 -0400
+        with ESMTP id S233167AbjCTPeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:34:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 797DB38EA6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C6AAD0D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48606B80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B618C433EF;
-        Mon, 20 Mar 2023 15:23:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D07D5B80EDD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A11C4339B;
+        Mon, 20 Mar 2023 15:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325783;
-        bh=+VEgy72F1QjY0tuJ8WiJJbx7PTnp3rXHxyhXYZZhz+g=;
+        s=korg; t=1679326022;
+        bh=v0gKB4mxq+Ayf8geC68mDsLpZBgCLZU6xIqIqVHRyyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PlCeEzUfhdmrVuJS3LNKzcvf3KpTFodOOCIPIC3pEVgmgCPqu3bt+6br8+n7WDeXi
-         bbYytOHnACSnHXuyjhX1kx56i3U9HWPkBMBq9VIs5fr0EW4fi48c2ZxMR8Rwr/Uww5
-         bwb+jQtnirc6ChKG6E8uKSjgtZaIiACw9ejsP2Kk=
+        b=a/vLXM7+eAx30Eh9msIwbOn8HGXMQ6EblE8cXuSnaJYxG6qOb+FbXR7QNTnL4gFp7
+         S3rkg3N0NahJ15xQquuoDPG6gHeWGFtTnO5T+RcjyIBNpdY2DOHZu0/LVRMliEWsA8
+         cJJG33kJwxZqVENmXaQYELD2bzLHV5VMqFEVwqrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 142/198] cifs: generate signkey for the channel thats reconnecting
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.2 145/211] tracing: Do not let histogram values have some modifiers
 Date:   Mon, 20 Mar 2023 15:54:40 +0100
-Message-Id: <20230320145513.505263213@linuxfoundation.org>
+Message-Id: <20230320145519.506284378@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 05ce0448c3f36febd8db0ee0e9e16557f3ab5ee8 upstream.
+commit e0213434fe3e4a0d118923dc98d31e7ff1cd9e45 upstream.
 
-Before my changes to how multichannel reconnects work, the
-primary channel was always used to do a non-binding session
-setup. With my changes, that is not the case anymore.
-Missed this place where channel at index 0 was forcibly
-updated with the signing key.
+Histogram values can not be strings, stacktraces, graphs, symbols,
+syscalls, or grouped in buckets or log. Give an error if a value is set to
+do so.
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Note, the histogram code was not prepared to handle these modifiers for
+histograms and caused a bug.
+
+Mark Rutland reported:
+
+ # echo 'p:copy_to_user __arch_copy_to_user n=$arg2' >> /sys/kernel/tracing/kprobe_events
+ # echo 'hist:keys=n:vals=hitcount.buckets=8:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
+ # cat /sys/kernel/tracing/events/kprobes/copy_to_user/hist
+[  143.694628] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  143.695190] Mem abort info:
+[  143.695362]   ESR = 0x0000000096000004
+[  143.695604]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  143.695889]   SET = 0, FnV = 0
+[  143.696077]   EA = 0, S1PTW = 0
+[  143.696302]   FSC = 0x04: level 0 translation fault
+[  143.702381] Data abort info:
+[  143.702614]   ISV = 0, ISS = 0x00000004
+[  143.702832]   CM = 0, WnR = 0
+[  143.703087] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000448f9000
+[  143.703407] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  143.704137] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+[  143.704714] Modules linked in:
+[  143.705273] CPU: 0 PID: 133 Comm: cat Not tainted 6.2.0-00003-g6fc512c10a7c #3
+[  143.706138] Hardware name: linux,dummy-virt (DT)
+[  143.706723] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  143.707120] pc : hist_field_name.part.0+0x14/0x140
+[  143.707504] lr : hist_field_name.part.0+0x104/0x140
+[  143.707774] sp : ffff800008333a30
+[  143.707952] x29: ffff800008333a30 x28: 0000000000000001 x27: 0000000000400cc0
+[  143.708429] x26: ffffd7a653b20260 x25: 0000000000000000 x24: ffff10d303ee5800
+[  143.708776] x23: ffffd7a6539b27b0 x22: ffff10d303fb8c00 x21: 0000000000000001
+[  143.709127] x20: ffff10d303ec2000 x19: 0000000000000000 x18: 0000000000000000
+[  143.709478] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[  143.709824] x14: 0000000000000000 x13: 203a6f666e692072 x12: 6567676972742023
+[  143.710179] x11: 0a230a6d6172676f x10: 000000000000002c x9 : ffffd7a6521e018c
+[  143.710584] x8 : 000000000000002c x7 : 7f7f7f7f7f7f7f7f x6 : 000000000000002c
+[  143.710915] x5 : ffff10d303b0103e x4 : ffffd7a653b20261 x3 : 000000000000003d
+[  143.711239] x2 : 0000000000020001 x1 : 0000000000000001 x0 : 0000000000000000
+[  143.711746] Call trace:
+[  143.712115]  hist_field_name.part.0+0x14/0x140
+[  143.712642]  hist_field_name.part.0+0x104/0x140
+[  143.712925]  hist_field_print+0x28/0x140
+[  143.713125]  event_hist_trigger_print+0x174/0x4d0
+[  143.713348]  hist_show+0xf8/0x980
+[  143.713521]  seq_read_iter+0x1bc/0x4b0
+[  143.713711]  seq_read+0x8c/0xc4
+[  143.713876]  vfs_read+0xc8/0x2a4
+[  143.714043]  ksys_read+0x70/0xfc
+[  143.714218]  __arm64_sys_read+0x24/0x30
+[  143.714400]  invoke_syscall+0x50/0x120
+[  143.714587]  el0_svc_common.constprop.0+0x4c/0x100
+[  143.714807]  do_el0_svc+0x44/0xd0
+[  143.714970]  el0_svc+0x2c/0x84
+[  143.715134]  el0t_64_sync_handler+0xbc/0x140
+[  143.715334]  el0t_64_sync+0x190/0x194
+[  143.715742] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (f9400000)
+[  143.716510] ---[ end trace 0000000000000000 ]---
+Segmentation fault
+
+Link: https://lkml.kernel.org/r/20230302020810.559462599@goodmis.org
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: c6afad49d127f ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2transport.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/cifs/smb2transport.c
-+++ b/fs/cifs/smb2transport.c
-@@ -425,7 +425,7 @@ generate_smb3signingkey(struct cifs_ses
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -4199,6 +4199,15 @@ static int __create_val_field(struct his
+ 		goto out;
+ 	}
  
- 		/* safe to access primary channel, since it will never go away */
- 		spin_lock(&ses->chan_lock);
--		memcpy(ses->chans[0].signkey, ses->smb3signingkey,
-+		memcpy(ses->chans[chan_index].signkey, ses->smb3signingkey,
- 		       SMB3_SIGN_KEY_SIZE);
- 		spin_unlock(&ses->chan_lock);
++	/* Some types cannot be a value */
++	if (hist_field->flags & (HIST_FIELD_FL_GRAPH | HIST_FIELD_FL_PERCENT |
++				 HIST_FIELD_FL_BUCKET | HIST_FIELD_FL_LOG2 |
++				 HIST_FIELD_FL_SYM | HIST_FIELD_FL_SYM_OFFSET |
++				 HIST_FIELD_FL_SYSCALL | HIST_FIELD_FL_STACKTRACE)) {
++		hist_err(file->tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(field_str));
++		ret = -EINVAL;
++	}
++
+ 	hist_data->fields[val_idx] = hist_field;
  
+ 	++hist_data->n_vals;
 
 
