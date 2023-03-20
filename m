@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BCD6C1853
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 602166C18E7
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232694AbjCTPXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
+        id S232943AbjCTP2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232775AbjCTPXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:05 -0400
+        with ESMTP id S232827AbjCTP2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9C733476
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9E838031
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED579B80EDE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62080C433D2;
-        Mon, 20 Mar 2023 15:16:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E458B80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B948AC433EF;
+        Mon, 20 Mar 2023 15:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325388;
-        bh=ij8wE66wOzWGu0eJhDtWevI3AIN/bFrpnKNCX88YudE=;
+        s=korg; t=1679325685;
+        bh=rOnMlt3lGbyUCtWHclXGEyhSOGuB3yssdcQSllhdhAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTgzTkPhrAodqSefkutFmo7zdYjzmSnDdV4/eCUjqXq7oCjn0bwGnMqeq+GuFmMPU
-         mc3zBpfbB8T0h+26ljt/0CsRbd8bGQ6jetz3Gflwp2ioaL3xXzT5VkdVbQwtRxZ4ay
-         H7sjQ0x5TO3ihXXhe6o55T6ouBdzH6SSlKJYhS2w=
+        b=qjomvw1ZyPr1J8QT+LVwkUTlZgxCTe4WGX/+4IDeKneos32YgLoAJ5biFKLrZ5wnX
+         ZYUS5zMyv3Lt7zSiICEiPpLe+AFYhNpKCLoWom1dttMo4FSZQ6p0ZyXHfsGBJyFXO8
+         oM9l77rm/oNAHrMO1REokP9pIyIG3W2X5RpsB8eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 079/198] net: dsa: mv88e6xxx: fix max_mtu of 1492 on 6165, 6191, 6220, 6250, 6290
+Subject: [PATCH 6.2 082/211] net: dsa: mv88e6xxx: fix max_mtu of 1492 on 6165, 6191, 6220, 6250, 6290
 Date:   Mon, 20 Mar 2023 15:53:37 +0100
-Message-Id: <20230320145510.849454438@linuxfoundation.org>
+Message-Id: <20230320145516.729164203@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -116,7 +117,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 3b8b2d0fbafaf..3a6db36574ad7 100644
+index 242b8b325504a..89829e0ca8e8f 100644
 --- a/drivers/net/dsa/mv88e6xxx/chip.c
 +++ b/drivers/net/dsa/mv88e6xxx/chip.c
 @@ -3549,7 +3549,7 @@ static int mv88e6xxx_get_max_mtu(struct dsa_switch *ds, int port)
