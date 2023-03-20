@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F2B6C2241
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:09:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7226C224A
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229528AbjCTUJj convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 16:09:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49230 "EHLO
+        id S230475AbjCTUMM convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 16:12:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbjCTUJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:09:38 -0400
+        with ESMTP id S230032AbjCTUMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:12:09 -0400
 Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41AD29E07;
-        Mon, 20 Mar 2023 13:09:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CBA2E0F2;
+        Mon, 20 Mar 2023 13:12:06 -0700 (PDT)
 Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
           by outpost.zedat.fu-berlin.de (Exim 4.95)
           with esmtps (TLS1.3)
           tls TLS_AES_256_GCM_SHA384
           (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1peLoy-00081a-Cd; Mon, 20 Mar 2023 21:09:32 +0100
+          id 1peLrQ-0008Tg-U0; Mon, 20 Mar 2023 21:12:04 +0100
 Received: from p57bd9952.dip0.t-ipconnect.de ([87.189.153.82] helo=[192.168.178.81])
           by inpost2.zedat.fu-berlin.de (Exim 4.95)
           with esmtpsa (TLS1.3)
           tls TLS_AES_256_GCM_SHA384
           (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1peLoy-0034IP-3a; Mon, 20 Mar 2023 21:09:32 +0100
+          id 1peLrQ-0036lf-N4; Mon, 20 Mar 2023 21:12:04 +0100
 Message-ID: <878d696a6f41e8179b023c114e33e414454afb6a.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH 7/7 v4] sh: mcount.S: fix build error when PRINTK is not
- enabled
+Subject: Re: [PATCH 7/7 v4] sh: mcount.S: fix build error when PRINTK is
+ not enabled
 From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
 Cc:     Yoshinori Sato <ysato@users.sourceforge.jp>,
@@ -48,7 +48,7 @@ X-Originating-IP: 87.189.153.82
 X-ZEDAT-Hint: PO
 X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
         RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
