@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 342B26C197E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F936C1668
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232734AbjCTPeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:34:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
+        id S231955AbjCTPGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233158AbjCTPdl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:41 -0400
+        with ESMTP id S232279AbjCTPE5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B442FCD6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D05CC29E3F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAA90B80ED6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39504C433EF;
-        Mon, 20 Mar 2023 15:26:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFCB9B80EC2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E8E2C433D2;
+        Mon, 20 Mar 2023 15:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325997;
-        bh=oinfXLo2mn+fp3UP3KORY6Jo907fJHxz+HjgO9B2WCg=;
+        s=korg; t=1679324442;
+        bh=fSNPGaO9G6SKEj6KTrGd/NYKQOgHOuba4TYZZFTQS18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+uL1+wQ0JzAOieEuBjxwvfZr/Uy0fe7VtNrbEwrQjOSkpHpW2hbaRATPR2PxMWJy
-         PTr5xvBGMPmWCOj7/9Rb4oT7OdA8kJKKnSmEETkx+a6BhWhhTIGO/y67bHBUGyOF0M
-         r+YT8xl4Jo/7oVLkQWpGyjWPEA44cijVw4cNVgZg=
+        b=moUHnRpTa3Y8jNa5rEGctVB1d4zW1JbRZviqAtiJ25/WCTNGOj2TTJQ5U9chKmEb5
+         K17jYX0Ihn6xTyOdvJHQ82tv/hQdNPXu13x8JkiED7KFkBcdTHV+fqX0BVn2KTUqN2
+         LtrkJvCXSRTFf13juArXIOjcfjAjqI2433bCPRXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.2 138/211] interconnect: qcom: rpmh: fix registration race
-Date:   Mon, 20 Mar 2023 15:54:33 +0100
-Message-Id: <20230320145519.211532787@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 25/60] net: usb: smsc75xx: Limit packet length to skb->len
+Date:   Mon, 20 Mar 2023 15:54:34 +0100
+Message-Id: <20230320145431.963932245@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,102 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-commit 74240a5bebd48d8b843c6d0f1acfaa722a5abeb7 upstream.
+[ Upstream commit d8b228318935044dafe3a5bc07ee71a1f1424b8d ]
 
-The current interconnect provider registration interface is inherently
-racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to fail.
+Packet length retrieved from skb data may be larger than
+the actual socket buffer length (up to 9026 bytes). In such
+case the cloned skb passed up the network stack will leak
+kernel memory contents.
 
-Switch to using the new API where the provider is not registered until
-after it has been fully initialised.
-
-Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
-Cc: stable@vger.kernel.org      # 5.7
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-11-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/icc-rpmh.c |   25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/net/usb/smsc75xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/interconnect/qcom/icc-rpmh.c
-+++ b/drivers/interconnect/qcom/icc-rpmh.c
-@@ -192,9 +192,10 @@ int qcom_icc_rpmh_probe(struct platform_
- 	provider->pre_aggregate = qcom_icc_pre_aggregate;
- 	provider->aggregate = qcom_icc_aggregate;
- 	provider->xlate_extended = qcom_icc_xlate_extended;
--	INIT_LIST_HEAD(&provider->nodes);
- 	provider->data = data;
- 
-+	icc_provider_init(provider);
-+
- 	qp->dev = dev;
- 	qp->bcms = desc->bcms;
- 	qp->num_bcms = desc->num_bcms;
-@@ -203,10 +204,6 @@ int qcom_icc_rpmh_probe(struct platform_
- 	if (IS_ERR(qp->voter))
- 		return PTR_ERR(qp->voter);
- 
--	ret = icc_provider_add(provider);
--	if (ret)
--		return ret;
--
- 	for (i = 0; i < qp->num_bcms; i++)
- 		qcom_icc_bcm_init(qp->bcms[i], dev);
- 
-@@ -218,7 +215,7 @@ int qcom_icc_rpmh_probe(struct platform_
- 		node = icc_node_create(qn->id);
- 		if (IS_ERR(node)) {
- 			ret = PTR_ERR(node);
--			goto err;
-+			goto err_remove_nodes;
- 		}
- 
- 		node->name = qn->name;
-@@ -232,19 +229,27 @@ int qcom_icc_rpmh_probe(struct platform_
- 	}
- 
- 	data->num_nodes = num_nodes;
-+
-+	ret = icc_provider_register(provider);
-+	if (ret)
-+		goto err_remove_nodes;
-+
- 	platform_set_drvdata(pdev, qp);
- 
- 	/* Populate child NoC devices if any */
- 	if (of_get_child_count(dev->of_node) > 0) {
- 		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
- 		if (ret)
--			goto err;
-+			goto err_deregister_provider;
- 	}
- 
- 	return 0;
--err:
-+
-+err_deregister_provider:
-+	icc_provider_deregister(provider);
-+err_remove_nodes:
- 	icc_nodes_remove(provider);
--	icc_provider_del(provider);
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(qcom_icc_rpmh_probe);
-@@ -253,8 +258,8 @@ int qcom_icc_rpmh_remove(struct platform
- {
- 	struct qcom_icc_provider *qp = platform_get_drvdata(pdev);
- 
-+	icc_provider_deregister(&qp->provider);
- 	icc_nodes_remove(&qp->provider);
--	icc_provider_del(&qp->provider);
- 
- 	return 0;
- }
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index aa848be459ec7..229ff92e41cd9 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -2210,7 +2210,8 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 				dev->net->stats.rx_frame_errors++;
+ 		} else {
+ 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
+-			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
++			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
++				     size > skb->len)) {
+ 				netif_dbg(dev, rx_err, dev->net,
+ 					  "size err rx_cmd_a=0x%08x\n",
+ 					  rx_cmd_a);
+-- 
+2.39.2
+
 
 
