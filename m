@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A95566C1698
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD8F6C183E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232172AbjCTPHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36544 "EHLO
+        id S232740AbjCTPWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232251AbjCTPHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E74F2CFE7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:53 -0700 (PDT)
+        with ESMTP id S232512AbjCTPWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56ACD2A6C5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39F69B80EAC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99DEBC433D2;
-        Mon, 20 Mar 2023 15:02:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D2EC6157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A052C433D2;
+        Mon, 20 Mar 2023 15:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324569;
-        bh=7IJsnC8ZpEYjPVuan+Epj5W3Tc7ulAqc/g1KojAPAng=;
+        s=korg; t=1679325317;
+        bh=dTqqnBtIoFk9VceyZ0w0v7RtRo8JyQSF6PysbcSkc5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqX7y8y5GW0pxm+byym9pVdxIgxQnAAJhSO181OTCP6pgPxta6A5rvNZC1nWMMn1y
-         ic18FWBankK2Hj4rABpB3bp4pgNgcpJQUtrUyGVUjZrNLLHVOYqojesNb/vP8lduyd
-         UvCyssiomiGd8fn+FrX7NOezyMfE3XSOFHGPivmQ=
+        b=yvGenS9oKjUDT+pcAT5vWyA84RIZoR4ixfk5tolwsklmyzXh/Z2VTmHdXcDR5sfmG
+         iS1/Dn7yrv8sBCslsAVDkje4H+zJXYFAKYgAYvWQN3YG4fkreS8+e8eWxNLgDmSLZh
+         saME0CoZiFmWuwyt5XlARBGNMj8XKGOfBst0W0VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.4 53/60] Revert "treewide: Replace DECLARE_TASKLET() with DECLARE_TASKLET_OLD()"
+        patches@lists.linux.dev,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Rob Clark <robdclark@gmail.com>
+Subject: [PATCH 5.15 090/115] drm/shmem-helper: Remove another errant put in error path
 Date:   Mon, 20 Mar 2023 15:55:02 +0100
-Message-Id: <20230320145433.121204141@linuxfoundation.org>
+Message-Id: <20230320145453.189399602@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,233 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Saeger <tom.saeger@oracle.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-This reverts commit 5de7a4254eb2d501cbb59918a152665b29c02109 which
-caused mips build failures.
+commit ee9adb7a45516cfa536ca92253d7ae59d56db9e4 upstream.
 
-kernelci.org bot reports:
+drm_gem_shmem_mmap() doesn't own reference in error code path, resulting
+in the dma-buf shmem GEM object getting prematurely freed leading to a
+later use-after-free.
 
-arch/mips/lasat/picvue_proc.c:87:20: error: ‘pvc_display_tasklet’ undeclared
-(first use in this function)
-arch/mips/lasat/picvue_proc.c:42:44: error: expected ‘)’ before ‘&’ token
-arch/mips/lasat/picvue_proc.c:33:13: error: ‘pvc_display’ defined but not used
-[-Werror=unused-function]
-
-Link: https://lore.kernel.org/stable/64041dda.170a0220.8cc25.79c9@mx.google.com/
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+Fixes: f49a51bfdc8e ("drm/shme-helpers: Fix dma_buf_mmap forwarding bug")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230108211311.3950107-1-dmitry.osipenko@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/keyboard/omap-keypad.c   |    2 +-
- drivers/input/serio/hil_mlc.c          |    2 +-
- drivers/net/wan/farsync.c              |    4 ++--
- drivers/s390/crypto/ap_bus.c           |    2 +-
- drivers/staging/most/dim2/dim2.c       |    2 +-
- drivers/staging/octeon/ethernet-tx.c   |    2 +-
- drivers/tty/vt/keyboard.c              |    2 +-
- drivers/usb/gadget/udc/snps_udc_core.c |    2 +-
- drivers/usb/host/fhci-sched.c          |    2 +-
- include/linux/interrupt.h              |   15 +++++----------
- kernel/backtracetest.c                 |    2 +-
- kernel/debug/debug_core.c              |    2 +-
- kernel/irq/resend.c                    |    2 +-
- net/atm/pppoatm.c                      |    2 +-
- net/iucv/iucv.c                        |    2 +-
- sound/drivers/pcsp/pcsp_lib.c          |    2 +-
- 16 files changed, 21 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/input/keyboard/omap-keypad.c
-+++ b/drivers/input/keyboard/omap-keypad.c
-@@ -46,7 +46,7 @@ struct omap_kp {
- 	unsigned short keymap[];
- };
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -591,11 +591,14 @@ int drm_gem_shmem_mmap(struct drm_gem_sh
+ 	int ret;
  
--static DECLARE_TASKLET_DISABLED_OLD(kp_tasklet, omap_kp_tasklet);
-+static DECLARE_TASKLET_DISABLED(kp_tasklet, omap_kp_tasklet, 0);
- 
- static unsigned int *row_gpios;
- static unsigned int *col_gpios;
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -77,7 +77,7 @@ static struct timer_list	hil_mlcs_kicker
- static int			hil_mlcs_probe, hil_mlc_stop;
- 
- static void hil_mlcs_process(unsigned long unused);
--static DECLARE_TASKLET_DISABLED_OLD(hil_mlcs_tasklet, hil_mlcs_process);
-+static DECLARE_TASKLET_DISABLED(hil_mlcs_tasklet, hil_mlcs_process, 0);
- 
- 
- /* #define HIL_MLC_DEBUG */
---- a/drivers/net/wan/farsync.c
-+++ b/drivers/net/wan/farsync.c
-@@ -569,8 +569,8 @@ static void do_bottom_half_rx(struct fst
- static void fst_process_tx_work_q(unsigned long work_q);
- static void fst_process_int_work_q(unsigned long work_q);
- 
--static DECLARE_TASKLET_OLD(fst_tx_task, fst_process_tx_work_q);
--static DECLARE_TASKLET_OLD(fst_int_task, fst_process_int_work_q);
-+static DECLARE_TASKLET(fst_tx_task, fst_process_tx_work_q, 0);
-+static DECLARE_TASKLET(fst_int_task, fst_process_int_work_q, 0);
- 
- static struct fst_card_info *fst_card_array[FST_MAX_CARDS];
- static spinlock_t fst_work_q_lock;
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -91,7 +91,7 @@ static DECLARE_WORK(ap_scan_work, ap_sca
-  * Tasklet & timer for AP request polling and interrupts
-  */
- static void ap_tasklet_fn(unsigned long);
--static DECLARE_TASKLET_OLD(ap_tasklet, ap_tasklet_fn);
-+static DECLARE_TASKLET(ap_tasklet, ap_tasklet_fn, 0);
- static DECLARE_WAIT_QUEUE_HEAD(ap_poll_wait);
- static struct task_struct *ap_poll_kthread;
- static DEFINE_MUTEX(ap_poll_thread_mutex);
---- a/drivers/staging/most/dim2/dim2.c
-+++ b/drivers/staging/most/dim2/dim2.c
-@@ -47,7 +47,7 @@ MODULE_PARM_DESC(fcnt, "Num of frames pe
- static DEFINE_SPINLOCK(dim_lock);
- 
- static void dim2_tasklet_fn(unsigned long data);
--static DECLARE_TASKLET_OLD(dim2_tasklet, dim2_tasklet_fn);
-+static DECLARE_TASKLET(dim2_tasklet, dim2_tasklet_fn, 0);
- 
- /**
-  * struct hdm_channel - private structure to keep channel specific data
---- a/drivers/staging/octeon/ethernet-tx.c
-+++ b/drivers/staging/octeon/ethernet-tx.c
-@@ -41,7 +41,7 @@
- #endif
- 
- static void cvm_oct_tx_do_cleanup(unsigned long arg);
--static DECLARE_TASKLET_OLD(cvm_oct_tx_cleanup_tasklet, cvm_oct_tx_do_cleanup);
-+static DECLARE_TASKLET(cvm_oct_tx_cleanup_tasklet, cvm_oct_tx_do_cleanup, 0);
- 
- /* Maximum number of SKBs to try to free per xmit packet. */
- #define MAX_SKB_TO_FREE (MAX_OUT_QUEUE_DEPTH * 2)
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -1241,7 +1241,7 @@ static void kbd_bh(unsigned long dummy)
- 	}
- }
- 
--DECLARE_TASKLET_DISABLED_OLD(keyboard_tasklet, kbd_bh);
-+DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
- 
- #if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(CONFIG_ALPHA) ||\
-     defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_SPARC) ||\
---- a/drivers/usb/gadget/udc/snps_udc_core.c
-+++ b/drivers/usb/gadget/udc/snps_udc_core.c
-@@ -96,7 +96,7 @@ static int stop_pollstall_timer;
- static DECLARE_COMPLETION(on_pollstall_exit);
- 
- /* tasklet for usb disconnect */
--static DECLARE_TASKLET_OLD(disconnect_tasklet, udc_tasklet_disconnect);
-+static DECLARE_TASKLET(disconnect_tasklet, udc_tasklet_disconnect, 0);
- 
- /* endpoint names used for print */
- static const char ep0_string[] = "ep0in";
---- a/drivers/usb/host/fhci-sched.c
-+++ b/drivers/usb/host/fhci-sched.c
-@@ -677,7 +677,7 @@ static void process_done_list(unsigned l
- 	enable_irq(fhci_to_hcd(fhci)->irq);
- }
- 
--DECLARE_TASKLET_OLD(fhci_tasklet, process_done_list);
-+DECLARE_TASKLET(fhci_tasklet, process_done_list, 0);
- 
- /* transfer complted callback */
- u32 fhci_transfer_confirm_callback(struct fhci_hcd *fhci)
---- a/include/linux/interrupt.h
-+++ b/include/linux/interrupt.h
-@@ -598,17 +598,12 @@ struct tasklet_struct
- 	unsigned long data;
- };
- 
--#define DECLARE_TASKLET_OLD(name, _func)		\
--struct tasklet_struct name = {				\
--	.count = ATOMIC_INIT(0),			\
--	.func = _func,					\
--}
-+#define DECLARE_TASKLET(name, func, data) \
-+struct tasklet_struct name = { NULL, 0, ATOMIC_INIT(0), func, data }
+ 	if (obj->import_attach) {
+-		/* Drop the reference drm_gem_mmap_obj() acquired.*/
+-		drm_gem_object_put(obj);
+ 		vma->vm_private_data = NULL;
++		ret = dma_buf_mmap(obj->dma_buf, vma, 0);
 +
-+#define DECLARE_TASKLET_DISABLED(name, func, data) \
-+struct tasklet_struct name = { NULL, 0, ATOMIC_INIT(1), func, data }
++		/* Drop the reference drm_gem_mmap_obj() acquired.*/
++		if (!ret)
++			drm_gem_object_put(obj);
  
--#define DECLARE_TASKLET_DISABLED_OLD(name, _func)	\
--struct tasklet_struct name = {				\
--	.count = ATOMIC_INIT(1),			\
--	.func = _func,					\
--}
- 
- enum
- {
---- a/kernel/backtracetest.c
-+++ b/kernel/backtracetest.c
-@@ -29,7 +29,7 @@ static void backtrace_test_irq_callback(
- 	complete(&backtrace_work);
- }
- 
--static DECLARE_TASKLET_OLD(backtrace_tasklet, &backtrace_test_irq_callback);
-+static DECLARE_TASKLET(backtrace_tasklet, &backtrace_test_irq_callback, 0);
- 
- static void backtrace_test_irq(void)
- {
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -1043,7 +1043,7 @@ static void kgdb_tasklet_bpt(unsigned lo
- 	atomic_set(&kgdb_break_tasklet_var, 0);
- }
- 
--static DECLARE_TASKLET_OLD(kgdb_tasklet_breakpoint, kgdb_tasklet_bpt);
-+static DECLARE_TASKLET(kgdb_tasklet_breakpoint, kgdb_tasklet_bpt, 0);
- 
- void kgdb_schedule_breakpoint(void)
- {
---- a/kernel/irq/resend.c
-+++ b/kernel/irq/resend.c
-@@ -45,7 +45,7 @@ static void resend_irqs(unsigned long ar
- }
- 
- /* Tasklet to handle resend: */
--static DECLARE_TASKLET_OLD(resend_tasklet, resend_irqs);
-+static DECLARE_TASKLET(resend_tasklet, resend_irqs, 0);
- 
- #endif
- 
---- a/net/atm/pppoatm.c
-+++ b/net/atm/pppoatm.c
-@@ -393,7 +393,7 @@ static int pppoatm_assign_vcc(struct atm
- 	 * Each PPPoATM instance has its own tasklet - this is just a
- 	 * prototypical one used to initialize them
- 	 */
--	static const DECLARE_TASKLET_OLD(tasklet_proto, pppoatm_wakeup_sender);
-+	static const DECLARE_TASKLET(tasklet_proto, pppoatm_wakeup_sender, 0);
- 	if (copy_from_user(&be, arg, sizeof be))
- 		return -EFAULT;
- 	if (be.encaps != PPPOATM_ENCAPS_AUTODETECT &&
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -128,7 +128,7 @@ static LIST_HEAD(iucv_task_queue);
-  * The tasklet for fast delivery of iucv interrupts.
-  */
- static void iucv_tasklet_fn(unsigned long);
--static DECLARE_TASKLET_OLD(iucv_tasklet, iucv_tasklet_fn);
-+static DECLARE_TASKLET(iucv_tasklet, iucv_tasklet_fn,0);
- 
- /*
-  * Queue of interrupt buffers for delivery via a work queue
---- a/sound/drivers/pcsp/pcsp_lib.c
-+++ b/sound/drivers/pcsp/pcsp_lib.c
-@@ -36,7 +36,7 @@ static void pcsp_call_pcm_elapsed(unsign
+-		return dma_buf_mmap(obj->dma_buf, vma, 0);
++		return ret;
  	}
- }
  
--static DECLARE_TASKLET_OLD(pcsp_pcm_tasklet, pcsp_call_pcm_elapsed);
-+static DECLARE_TASKLET(pcsp_pcm_tasklet, pcsp_call_pcm_elapsed, 0);
- 
- /* write the port and returns the next expire time in ns;
-  * called at the trigger-start and in hrtimer callback
+ 	ret = drm_gem_shmem_get_pages(shmem);
 
 
