@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DE866C1667
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3BC46C193F
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbjCTPGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51376 "EHLO
+        id S233049AbjCTPcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232251AbjCTPEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7992ED59
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:01 -0700 (PDT)
+        with ESMTP id S233089AbjCTPbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CE634034
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D38B8CE12DB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89460C433EF;
-        Mon, 20 Mar 2023 15:00:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5274B6158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66A5DC433EF;
+        Mon, 20 Mar 2023 15:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324417;
-        bh=NAfC+89Fccylu2Jlb+unKngKAY1JsXQtXNOwi25qIC8=;
+        s=korg; t=1679325857;
+        bh=7NBaoj5epw2EWaCt3Ia8FlZOBg2J+aRdzIyMQe5D3gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpMGhNveIAOjFZZwj/srKbhPO4wwwz79LXnTuwmXsdjFX4pDHyF9XR5tQlzPCf+kG
-         2wvmhViUGdEDOh0E6NGVStJHgEas6WWzMd7g3z32MO9k9TysW0pDneJyCUT1EQ5TP0
-         1wxTDA/d2KCQ+AUK/DNIibqM4cd7A9Al1UxPtppY=
+        b=wptD1muYyVqxYpTtkQ6R6fQWEYC0xjjaa4pygaZrdQk/KPS/heIPTj0xzhyle/pcJ
+         JYW7wg4k5+CBj1b9bqCPrJO8FxPj2GU9fr/XFhx2lIlsh1O0qd8a0soCpdY6TeDDhh
+         4FCyplIFxGsfpv01p7wgn3K1XS3WtZTH8UAxoo2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Breno Leitao <leitao@debian.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/60] tcp: tcp_make_synack() can be called from process context
-Date:   Mon, 20 Mar 2023 15:54:26 +0100
-Message-Id: <20230320145431.599599464@linuxfoundation.org>
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>
+Subject: [PATCH 6.1 129/198] interconnect: fix icc_provider_del() error handling
+Date:   Mon, 20 Mar 2023 15:54:27 +0100
+Message-Id: <20230320145512.962147006@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,64 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit bced3f7db95ff2e6ca29dc4d1c9751ab5e736a09 ]
+commit e0e7089bf9a87bc5e3997422e4e24563424f9018 upstream.
 
-tcp_rtx_synack() now could be called in process context as explained in
-0a375c822497 ("tcp: tcp_rtx_synack() can be called from process
-context").
+The interconnect framework currently expects that providers are only
+removed when there are no users and after all nodes have been removed.
 
-tcp_rtx_synack() might call tcp_make_synack(), which will touch per-CPU
-variables with preemption enabled. This causes the following BUG:
+There is currently nothing that guarantees this to be the case and the
+framework does not do any reference counting, but refusing to remove the
+provider is never correct as that would leave a dangling pointer to a
+resource that is about to be released in the global provider list (e.g.
+accessible through debugfs).
 
-    BUG: using __this_cpu_add() in preemptible [00000000] code: ThriftIO1/5464
-    caller is tcp_make_synack+0x841/0xac0
-    Call Trace:
-     <TASK>
-     dump_stack_lvl+0x10d/0x1a0
-     check_preemption_disabled+0x104/0x110
-     tcp_make_synack+0x841/0xac0
-     tcp_v6_send_synack+0x5c/0x450
-     tcp_rtx_synack+0xeb/0x1f0
-     inet_rtx_syn_ack+0x34/0x60
-     tcp_check_req+0x3af/0x9e0
-     tcp_rcv_state_process+0x59b/0x2030
-     tcp_v6_do_rcv+0x5f5/0x700
-     release_sock+0x3a/0xf0
-     tcp_sendmsg+0x33/0x40
-     ____sys_sendmsg+0x2f2/0x490
-     __sys_sendmsg+0x184/0x230
-     do_syscall_64+0x3d/0x90
+Replace the current sanity checks with WARN_ON() so that the provider is
+always removed.
 
-Avoid calling __TCP_INC_STATS() with will touch per-cpu variables. Use
-TCP_INC_STATS() which is safe to be called from context switch.
-
-Fixes: 8336886f786f ("tcp: TCP Fast Open Server - support TFO listeners")
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230308190745.780221-1-leitao@debian.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
+Cc: stable@vger.kernel.org      # 5.1: 680f8666baf6: interconnect: Make icc_provider_del() return void
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
+Link: https://lore.kernel.org/r/20230306075651.2449-3-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/interconnect/core.c |   14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index b4a9f6948cb52..6ac84b273ffbb 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3374,7 +3374,7 @@ struct sk_buff *tcp_make_synack(const struct sock *sk, struct dst_entry *dst,
- 	th->window = htons(min(req->rsk_rcv_wnd, 65535U));
- 	tcp_options_write((__be32 *)(th + 1), NULL, &opts);
- 	th->doff = (tcp_header_size >> 2);
--	__TCP_INC_STATS(sock_net(sk), TCP_MIB_OUTSEGS);
-+	TCP_INC_STATS(sock_net(sk), TCP_MIB_OUTSEGS);
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -1061,18 +1061,8 @@ EXPORT_SYMBOL_GPL(icc_provider_add);
+ void icc_provider_del(struct icc_provider *provider)
+ {
+ 	mutex_lock(&icc_lock);
+-	if (provider->users) {
+-		pr_warn("interconnect provider still has %d users\n",
+-			provider->users);
+-		mutex_unlock(&icc_lock);
+-		return;
+-	}
+-
+-	if (!list_empty(&provider->nodes)) {
+-		pr_warn("interconnect provider still has nodes\n");
+-		mutex_unlock(&icc_lock);
+-		return;
+-	}
++	WARN_ON(provider->users);
++	WARN_ON(!list_empty(&provider->nodes));
  
- #ifdef CONFIG_TCP_MD5SIG
- 	/* Okay, we have all we need - do the md5 hash if needed */
--- 
-2.39.2
-
+ 	list_del(&provider->provider_list);
+ 	mutex_unlock(&icc_lock);
 
 
