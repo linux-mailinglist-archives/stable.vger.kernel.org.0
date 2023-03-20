@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FECA6C1827
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D7C6C1640
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232716AbjCTPVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35036 "EHLO
+        id S231600AbjCTPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232815AbjCTPUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:20:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C60F328E60
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:53 -0700 (PDT)
+        with ESMTP id S231966AbjCTPD1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:03:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF649ECE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:59:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AA93B80E55
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C696C433D2;
-        Mon, 20 Mar 2023 15:14:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2B8961570
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C429FC4339B;
+        Mon, 20 Mar 2023 14:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325289;
-        bh=VKA86dxSzIfz3MBzpKSbFC0jz6kRo8lrjVkHsBRpjpY=;
+        s=korg; t=1679324370;
+        bh=BD/Ng5cDpqjoIJaJKIHVfJ5nPNhywPh+VsgFggzHdVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QptYMLOrWNjEbdWUaRoMMYc45n/i8fu4kvLqewNquW0IOdOI5ADh1pB5KQSDRpivj
-         mVJ2RCayi7kBJCEyrwXAfrzni+0nncdo7gzCf+kaNPSsMjFGVaVn+WcuhWKMO/dhKc
-         5N/8MQKqG8qrhVdr0B7w9dBszQqZUkogsp7cehno=
+        b=J97KuUf/jxRuAhIfZyH4R2ouHbTY9zMPL8/V5tFuVhu49Jq1nPpnDeOG0L3mFd7/w
+         xKNjLr+uP3Br/TZ199n2IvUR8dedMAjb5i+y2HGqFUuW9pgEDRefOAiUlT3C+qpo5D
+         5WQrwzVC3UTLIBxuTxHRi+GlHjlK+eaPy1/C2gEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Hamidreza H. Fard" <nitocris@posteo.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 087/115] ALSA: hda/realtek: Fix the speaker output on Samsung Galaxy Book2 Pro
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 4.19 33/36] drm/i915: Dont use stolen memory for ring buffers with LLC
 Date:   Mon, 20 Mar 2023 15:54:59 +0100
-Message-Id: <20230320145453.061859781@linuxfoundation.org>
+Message-Id: <20230320145425.482482362@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamidreza H. Fard <nitocris@posteo.net>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-commit a86e79e3015f5dd8e1b01ccfa49bd5c6e41047a1 upstream.
+commit 690e0ec8e63da9a29b39fedc6ed5da09c7c82651 upstream.
 
-Samsung Galaxy Book2 Pro (13" 2022 NP930XED-KA1DE) with codec SSID
-144d:c868 requires the same workaround for enabling the speaker amp
-like other Samsung models with ALC298 code.
+Direction from hardware is that stolen memory should never be used for
+ring buffer allocations on platforms with LLC. There are too many
+caching pitfalls due to the way stolen memory accesses are routed. So
+it is safest to just not use it.
 
-Signed-off-by: Hamidreza H. Fard <nitocris@posteo.net>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230307163741.3878-1-nitocris@posteo.net
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: c58b735fc762 ("drm/i915: Allocate rings from stolen")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-2-John.C.Harrison@Intel.com
+(cherry picked from commit f54c1f6c697c4297f7ed94283c184acc338a5cf8)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/intel_ringbuffer.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9166,6 +9166,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xca03, "Samsung Galaxy Book2 Pro 360 (NP930QED)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc868, "Samsung Galaxy Book2 Pro (NP930XED)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
+--- a/drivers/gpu/drm/i915/intel_ringbuffer.c
++++ b/drivers/gpu/drm/i915/intel_ringbuffer.c
+@@ -1132,10 +1132,11 @@ static struct i915_vma *
+ intel_ring_create_vma(struct drm_i915_private *dev_priv, int size)
+ {
+ 	struct i915_address_space *vm = &dev_priv->ggtt.vm;
+-	struct drm_i915_gem_object *obj;
++	struct drm_i915_gem_object *obj = NULL;
+ 	struct i915_vma *vma;
+ 
+-	obj = i915_gem_object_create_stolen(dev_priv, size);
++	if (!HAS_LLC(dev_priv))
++		obj = i915_gem_object_create_stolen(dev_priv, size);
+ 	if (!obj)
+ 		obj = i915_gem_object_create_internal(dev_priv, size);
+ 	if (IS_ERR(obj))
 
 
