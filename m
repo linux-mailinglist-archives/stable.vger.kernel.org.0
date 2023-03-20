@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C942F6C19DA
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F033F6C199E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbjCTPiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40236 "EHLO
+        id S233076AbjCTPfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:35:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232827AbjCTPia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:30 -0400
+        with ESMTP id S233079AbjCTPfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:35:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4956A1F5DF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190443771A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63744B80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3E3FC433EF;
-        Mon, 20 Mar 2023 15:29:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89DF9B80ED6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E32BEC433D2;
+        Mon, 20 Mar 2023 15:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326200;
-        bh=quSTZp71LXUAnBVrfWKSEfJuYTcsibE94qPn8B9SIAY=;
+        s=korg; t=1679326066;
+        bh=aLBPc62EUGrfm+zdiGzEGNhJPt/AFl4fkmdkKFpQSDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+QfLiVnkjYqp1YQpa0s/A6HYu0AGcXpKZfta7EwB33MUwTdq6jrJFj7IhUZYU9r1
-         C1bwELnBss+z3l6HEMhOKf/XtVZMAlSuwQwu2+7UJmxu4XGYgOh6zpzsCjh1+iLdYr
-         Xf8NrWO+yX9OGu0lDMGsgsBva2UVTU/59CGnD1ss=
+        b=SzsmMJNv2hTXJ+FZ0V1zwN/X51VlyYr9q1PHsn8ZISGMMfX7KJFPn5XRss1YZpf+M
+         34jcItxj7PPLO3mSr7BbpsRvs6moWlFfW9t+uVYGUk79vz3hB0wM4hdhuAL0ASSxVR
+         bU1Mp0v2EJ//lLcPLG4LP5w1QWYxBV600fQu2OT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.2 197/211] io_uring/msg_ring: let target know allocated index
+        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 6.1 194/198] virt/coco/sev-guest: Carve out the request issuing logic into a helper
 Date:   Mon, 20 Mar 2023 15:55:32 +0100
-Message-Id: <20230320145521.794026664@linuxfoundation.org>
+Message-Id: <20230320145515.613758018@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +52,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Borislav Petkov (AMD) <bp@alien8.de>
 
-commit 5da28edd7bd5518f97175ecea77615bb729a7a28 upstream.
+commit 0fdb6cc7c89cb5e0cbc45dbdbafb8e3fb92ddc95 upstream.
 
-msg_ring requests transferring files support auto index selection via
-IORING_FILE_INDEX_ALLOC, however they don't return the selected index
-to the target ring and there is no other good way for the userspace to
-know where is the receieved file.
+This makes the code flow a lot easier to follow.
 
-Return the index for allocated slots and 0 otherwise, which is
-consistent with other fixed file installing requests.
+No functional changes.
 
-Cc: stable@vger.kernel.org # v6.0+
-Fixes: e6130eba8a848 ("io_uring: add support for passing fixed file descriptors")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://github.com/axboe/liburing/issues/809
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  [ Tom: touchups. ]
+
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/20230307192449.24732-6-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/msg_ring.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/virt/coco/sev-guest/sev-guest.c |   44 +++++++++++++++++++-------------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
 
---- a/io_uring/msg_ring.c
-+++ b/io_uring/msg_ring.c
-@@ -183,7 +183,7 @@ static int io_msg_install_complete(struc
- 	 * completes with -EOVERFLOW, then the sender must ensure that a
- 	 * later IORING_OP_MSG_RING delivers the message.
- 	 */
--	if (!io_post_aux_cqe(target_ctx, msg->user_data, msg->len, 0))
-+	if (!io_post_aux_cqe(target_ctx, msg->user_data, ret, 0))
- 		ret = -EOVERFLOW;
- out_unlock:
- 	io_double_unlock_ctx(target_ctx);
-@@ -210,6 +210,8 @@ static int io_msg_send_fd(struct io_kioc
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct file *src_file = msg->src_file;
+--- a/drivers/virt/coco/sev-guest/sev-guest.c
++++ b/drivers/virt/coco/sev-guest/sev-guest.c
+@@ -320,27 +320,12 @@ static int enc_payload(struct snp_guest_
+ 	return __enc_payload(snp_dev, req, payload, sz);
+ }
  
-+	if (msg->len)
-+		return -EINVAL;
- 	if (target_ctx == ctx)
- 		return -EINVAL;
- 	if (target_ctx->flags & IORING_SETUP_R_DISABLED)
+-static int handle_guest_request(struct snp_guest_dev *snp_dev, u64 exit_code, int msg_ver,
+-				u8 type, void *req_buf, size_t req_sz, void *resp_buf,
+-				u32 resp_sz, __u64 *fw_err)
++static int __handle_guest_request(struct snp_guest_dev *snp_dev, u64 exit_code, __u64 *fw_err)
+ {
+ 	unsigned long err, override_err = 0;
+ 	unsigned int override_npages = 0;
+-	u64 seqno;
+ 	int rc;
+ 
+-	/* Get message sequence and verify that its a non-zero */
+-	seqno = snp_get_msg_seqno(snp_dev);
+-	if (!seqno)
+-		return -EIO;
+-
+-	memset(snp_dev->response, 0, sizeof(struct snp_guest_msg));
+-
+-	/* Encrypt the userspace provided payload */
+-	rc = enc_payload(snp_dev, seqno, msg_ver, type, req_buf, req_sz);
+-	if (rc)
+-		return rc;
+-
+ retry_request:
+ 	/*
+ 	 * Call firmware to process the request. In this function the encrypted
+@@ -349,7 +334,6 @@ retry_request:
+ 	 * prevent reuse of the IV.
+ 	 */
+ 	rc = snp_issue_guest_request(exit_code, &snp_dev->input, &err);
+-
+ 	switch (rc) {
+ 	case -ENOSPC:
+ 		/*
+@@ -403,7 +387,33 @@ retry_request:
+ 	if (!rc && override_err == SNP_GUEST_REQ_INVALID_LEN)
+ 		return -EIO;
+ 
++	return rc;
++}
++
++static int handle_guest_request(struct snp_guest_dev *snp_dev, u64 exit_code, int msg_ver,
++				u8 type, void *req_buf, size_t req_sz, void *resp_buf,
++				u32 resp_sz, __u64 *fw_err)
++{
++	u64 seqno;
++	int rc;
++
++	/* Get message sequence and verify that its a non-zero */
++	seqno = snp_get_msg_seqno(snp_dev);
++	if (!seqno)
++		return -EIO;
++
++	memset(snp_dev->response, 0, sizeof(struct snp_guest_msg));
++
++	/* Encrypt the userspace provided payload */
++	rc = enc_payload(snp_dev, seqno, msg_ver, type, req_buf, req_sz);
++	if (rc)
++		return rc;
++
++	rc = __handle_guest_request(snp_dev, exit_code, fw_err);
+ 	if (rc) {
++		if (rc == -EIO && *fw_err == SNP_GUEST_REQ_INVALID_LEN)
++			return rc;
++
+ 		dev_alert(snp_dev->dev,
+ 			  "Detected error from ASP request. rc: %d, fw_err: %llu\n",
+ 			  rc, *fw_err);
 
 
