@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE586C18FF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:29:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 389666C1797
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232894AbjCTP3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
+        id S232002AbjCTPPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:15:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232960AbjCTP2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA2B38469
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:04 -0700 (PDT)
+        with ESMTP id S232604AbjCTPO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA6C49EA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B78D6158B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38039C433D2;
-        Mon, 20 Mar 2023 15:22:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 483FEB80EC0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFFC4C4339B;
+        Mon, 20 Mar 2023 15:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325723;
-        bh=0YqCqh+Qg+2o7MkvMn8iGQ1yHulaS9ofUuDEMfWzGW0=;
+        s=korg; t=1679325003;
+        bh=KU6C0BViPI5LkPsInh07pVx/7bCkN7O27OXrX0iH5WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zf9/O9BchGC+cldX31+/wnVZ+N1wsrGX9uW6S8mA6Ga0/yIFO5cFw//apeKdCOwpo
-         CRpJNjwHu12J8hrPbLgpUkqzFlyVCwzY1gM6kObY/o4+tueYcdTF9xqqZfgCSxaevB
-         kCtaJX0QM3c9RHvDPJqe2FN0IpogEcs9UgDl2HVs=
+        b=VHuQWtOyfbDtTS7rpPt8Z3ydTCN7OApsqbYr7wqVLV5o0em/yLRcy8hE49+Tr7+vU
+         wQ1MaHNfFrjm12R0HawuuT6m+uEzGhMuh/m3MGd/GuZb7wdKidDGbAARobVOu+jemg
+         K8lfNIA77xCZsw3YXFgN6y5eSWwNY+ZZeeJ99W0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>
-Subject: [PATCH 6.1 132/198] interconnect: fix mem leak when freeing nodes
-Date:   Mon, 20 Mar 2023 15:54:30 +0100
-Message-Id: <20230320145513.082513285@linuxfoundation.org>
+        patches@lists.linux.dev, Jurica Vukadin <jura@vukad.in>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 059/115] kconfig: Update config changed flag before calling callback
+Date:   Mon, 20 Mar 2023 15:54:31 +0100
+Message-Id: <20230320145451.889982368@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Jurica Vukadin <jura@vukad.in>
 
-commit a5904f415e1af72fa8fe6665aa4f554dc2099a95 upstream.
+[ Upstream commit ee06a3ef7e3cddb62b90ac40aa661d3c12f7cabc ]
 
-The node link array is allocated when adding links to a node but is not
-deallocated when nodes are destroyed.
+Prior to commit 5ee546594025 ("kconfig: change sym_change_count to a
+boolean flag"), the conf_updated flag was set to the new value *before*
+calling the callback. xconfig's save action depends on this behaviour,
+because xconfig calls conf_get_changed() directly from the callback and
+now sees the old value, thus never enabling the save button or the
+shortcut.
 
-Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
-Cc: stable@vger.kernel.org      # 5.1
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
-Link: https://lore.kernel.org/r/20230306075651.2449-2-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Restore the previous behaviour.
+
+Fixes: 5ee546594025 ("kconfig: change sym_change_count to a boolean flag")
+Signed-off-by: Jurica Vukadin <jura@vukad.in>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ scripts/kconfig/confdata.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/interconnect/core.c
-+++ b/drivers/interconnect/core.c
-@@ -850,6 +850,10 @@ void icc_node_destroy(int id)
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index 4a828bca071e8..797c8bad3837a 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -1124,10 +1124,12 @@ static void (*conf_changed_callback)(void);
  
- 	mutex_unlock(&icc_lock);
+ void conf_set_changed(bool val)
+ {
+-	if (conf_changed_callback && conf_changed != val)
+-		conf_changed_callback();
++	bool changed = conf_changed != val;
  
-+	if (!node)
-+		return;
+ 	conf_changed = val;
 +
-+	kfree(node->links);
- 	kfree(node);
++	if (conf_changed_callback && changed)
++		conf_changed_callback();
  }
- EXPORT_SYMBOL_GPL(icc_node_destroy);
+ 
+ bool conf_get_changed(void)
+-- 
+2.39.2
+
 
 
