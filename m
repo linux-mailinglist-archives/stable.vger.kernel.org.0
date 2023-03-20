@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9826C16E9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 328786C1946
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbjCTPKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59876 "EHLO
+        id S232808AbjCTPcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232330AbjCTPJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38FB303EB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:09 -0700 (PDT)
+        with ESMTP id S232839AbjCTPcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E781D36099
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44FAB6158A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56EB7C433EF;
-        Mon, 20 Mar 2023 15:05:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23C7D615AF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3022DC433EF;
+        Mon, 20 Mar 2023 15:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324708;
-        bh=V6o0mKdEE6DP4puFvbACNC1IySZkWdo0PgIygbXeUnI=;
+        s=korg; t=1679325860;
+        bh=D6EkapIyWhW4x39keVUwiNunYJGLru/48kj7qxejMvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqUEDbh7mucdMlyXry0mioCnpTOoSv8i6jY6Us0TgUYlrAHV7x1fa1sGtCqdG2Ggn
-         HrB+CtkgNcq7iuNF+5Zd+nlW5QizvRaLP8OIBhhyRStsQI+j+vzEYmbrYX/v+nVrt7
-         05b9XhKKVcL3V+incl8iuMRqoXKmf39uTC4J3LI4=
+        b=K0Oav7Dw8eqSf1kBSG1/1vAzFFGZAl0J2eyIJFCKFGCwlOz4ILgjp0Tudw/AyqH5+
+         wNOMRejhfNcyxqJZOb8hGKSLgyGdgR5wRE9ImO1QiOTHq4T4ngSJr6cFP4IEA2PcsK
+         Hxj3/2bHVmqih7fUtOaQZPtyWqnKcWQKX/Sghx1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 44/99] hwmon: (ucd90320) Add minimum delay between bus accesses
+        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 6.1 124/198] memory: tegra20-emc: fix interconnect registration race
 Date:   Mon, 20 Mar 2023 15:54:22 +0100
-Message-Id: <20230320145445.218226317@linuxfoundation.org>
+Message-Id: <20230320145512.749434238@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,148 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 8d655e65237643c48ada2c131b83679bf1105373 ]
+commit c5587f61ec050f7e9ebb3e2da29d12af63e833d3 upstream.
 
-When probing the ucd90320 access to some of the registers randomly fails.
-Sometimes it NACKs a transfer, sometimes it returns just random data and
-the PEC check fails.
+The current interconnect provider registration interface is inherently
+racy as nodes are not added until the after adding the provider. This
+can specifically cause racing DT lookups to fail.
 
-Experimentation shows that this seems to be triggered by a register access
-directly back to back with a previous register write. Experimentation also
-shows that inserting a small delay after register writes makes the issue go
-away.
+Switch to using the new API where the provider is not registered until
+after it has been fully initialised.
 
-Use a similar solution to what the max15301 driver does to solve the same
-problem. Create a custom set of bus read and write functions that make sure
-that the delay is added.
-
-Fixes: a470f11c5ba2 ("hwmon: (pmbus/ucd9000) Add support for UCD90320 Power Sequencer")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20230312160312.2227405-1-lars@metafoo.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d5ef16ba5fbe ("memory: tegra20: Support interconnect framework")
+Cc: stable@vger.kernel.org      # 5.11
+Cc: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20230306075651.2449-20-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/pmbus/ucd9000.c | 75 +++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ drivers/memory/tegra/tegra20-emc.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hwmon/pmbus/ucd9000.c b/drivers/hwmon/pmbus/ucd9000.c
-index f8017993e2b4d..9e26cc084a176 100644
---- a/drivers/hwmon/pmbus/ucd9000.c
-+++ b/drivers/hwmon/pmbus/ucd9000.c
-@@ -7,6 +7,7 @@
-  */
+--- a/drivers/memory/tegra/tegra20-emc.c
++++ b/drivers/memory/tegra/tegra20-emc.c
+@@ -1034,15 +1034,13 @@ static int tegra_emc_interconnect_init(s
+ 	emc->provider.aggregate = soc->icc_ops->aggregate;
+ 	emc->provider.xlate_extended = emc_of_icc_xlate_extended;
  
- #include <linux/debugfs.h>
-+#include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of_device.h>
-@@ -16,6 +17,7 @@
- #include <linux/i2c.h>
- #include <linux/pmbus.h>
- #include <linux/gpio/driver.h>
-+#include <linux/timekeeping.h>
- #include "pmbus.h"
+-	err = icc_provider_add(&emc->provider);
+-	if (err)
+-		goto err_msg;
++	icc_provider_init(&emc->provider);
  
- enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd90320, ucd9090,
-@@ -65,6 +67,7 @@ struct ucd9000_data {
- 	struct gpio_chip gpio;
- #endif
- 	struct dentry *debugfs;
-+	ktime_t write_time;
- };
- #define to_ucd9000_data(_info) container_of(_info, struct ucd9000_data, info)
- 
-@@ -73,6 +76,73 @@ struct ucd9000_debugfs_entry {
- 	u8 index;
- };
- 
-+/*
-+ * It has been observed that the UCD90320 randomly fails register access when
-+ * doing another access right on the back of a register write. To mitigate this
-+ * make sure that there is a minimum delay between a write access and the
-+ * following access. The 250us is based on experimental data. At a delay of
-+ * 200us the issue seems to go away. Add a bit of extra margin to allow for
-+ * system to system differences.
-+ */
-+#define UCD90320_WAIT_DELAY_US 250
-+
-+static inline void ucd90320_wait(const struct ucd9000_data *data)
-+{
-+	s64 delta = ktime_us_delta(ktime_get(), data->write_time);
-+
-+	if (delta < UCD90320_WAIT_DELAY_US)
-+		udelay(UCD90320_WAIT_DELAY_US - delta);
-+}
-+
-+static int ucd90320_read_word_data(struct i2c_client *client, int page,
-+				   int phase, int reg)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+
-+	if (reg >= PMBUS_VIRT_BASE)
-+		return -ENXIO;
-+
-+	ucd90320_wait(data);
-+	return pmbus_read_word_data(client, page, phase, reg);
-+}
-+
-+static int ucd90320_read_byte_data(struct i2c_client *client, int page, int reg)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+
-+	ucd90320_wait(data);
-+	return pmbus_read_byte_data(client, page, reg);
-+}
-+
-+static int ucd90320_write_word_data(struct i2c_client *client, int page,
-+				    int reg, u16 word)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+	int ret;
-+
-+	ucd90320_wait(data);
-+	ret = pmbus_write_word_data(client, page, reg, word);
-+	data->write_time = ktime_get();
-+
-+	return ret;
-+}
-+
-+static int ucd90320_write_byte(struct i2c_client *client, int page, u8 value)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+	int ret;
-+
-+	ucd90320_wait(data);
-+	ret = pmbus_write_byte(client, page, value);
-+	data->write_time = ktime_get();
-+
-+	return ret;
-+}
-+
- static int ucd9000_get_fan_config(struct i2c_client *client, int fan)
- {
- 	int fan_config = 0;
-@@ -598,6 +668,11 @@ static int ucd9000_probe(struct i2c_client *client)
- 		info->read_byte_data = ucd9000_read_byte_data;
- 		info->func[0] |= PMBUS_HAVE_FAN12 | PMBUS_HAVE_STATUS_FAN12
- 		  | PMBUS_HAVE_FAN34 | PMBUS_HAVE_STATUS_FAN34;
-+	} else if (mid->driver_data == ucd90320) {
-+		info->read_byte_data = ucd90320_read_byte_data;
-+		info->read_word_data = ucd90320_read_word_data;
-+		info->write_byte = ucd90320_write_byte;
-+		info->write_word_data = ucd90320_write_word_data;
+ 	/* create External Memory Controller node */
+ 	node = icc_node_create(TEGRA_ICC_EMC);
+ 	if (IS_ERR(node)) {
+ 		err = PTR_ERR(node);
+-		goto del_provider;
++		goto err_msg;
  	}
  
- 	ucd9000_probe_gpio(client, mid, data);
--- 
-2.39.2
-
+ 	node->name = "External Memory Controller";
+@@ -1063,12 +1061,14 @@ static int tegra_emc_interconnect_init(s
+ 	node->name = "External Memory (DRAM)";
+ 	icc_node_add(node, &emc->provider);
+ 
++	err = icc_provider_register(&emc->provider);
++	if (err)
++		goto remove_nodes;
++
+ 	return 0;
+ 
+ remove_nodes:
+ 	icc_nodes_remove(&emc->provider);
+-del_provider:
+-	icc_provider_del(&emc->provider);
+ err_msg:
+ 	dev_err(emc->dev, "failed to initialize ICC: %d\n", err);
+ 
 
 
