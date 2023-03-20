@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA636C18D1
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8431F6C1980
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232874AbjCTP1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39074 "EHLO
+        id S232951AbjCTPeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:34:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232744AbjCTP1V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9B33757C
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:33 -0700 (PDT)
+        with ESMTP id S233050AbjCTPdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DE2115568
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B6BDCCE12F1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75529C433D2;
-        Mon, 20 Mar 2023 15:20:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BECE26157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD95C433EF;
+        Mon, 20 Mar 2023 15:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325616;
-        bh=+c45SjTlnq+NXIqIkShpUo9G/Gb3Q2yw0iHlcuh/bBw=;
+        s=korg; t=1679326003;
+        bh=QvcSXIXmzvexRS2Gq4ddVraMPszs0S4VB18ZYyuUotU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOVcA0PFskUM33g4pzanVHsmSA6lilFqeWLii1Cka2JMYr4n7yePLChtoXlLRr6UY
-         Cu7cPRNcJoGVLOK+PrQzOqPESSFAuuERt9rLfArL2GbfH2b761gOv2WFEVWBSvF+Qs
-         mkjrk7+jhzH5o0VwiRDtrKN/1KK7jyA/MRGjnqKw=
+        b=YG5Lp8MlqSEKqduDRet14IxIoF0wXFceBYGr5lLpsFrE4sK6GG8Ojo2ENxLT2Vflh
+         cEQpuHqv0LlQsbhes80hZQ5iei5pmTy8k//IWPxNmBqyzTKeyaPkwolRo4U95U/6ai
+         tmiTz36+xBs7x4wdeWZrciZ7IWk9D6mU2BX6Km7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Van Hensbergen <ericvh@kernel.org>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
+        longlyao <Longlong.Yao@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 111/198] net/9p: fix bug in client create for .L
+Subject: [PATCH 6.2 114/211] drm/amdgpu: fix ttm_bo calltrace warning in psp_hw_fini
 Date:   Mon, 20 Mar 2023 15:54:09 +0100
-Message-Id: <20230320145512.229499168@linuxfoundation.org>
+Message-Id: <20230320145518.088107355@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,35 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Van Hensbergen <ericvh@kernel.org>
+From: Horatio Zhang <Hongkun.Zhang@amd.com>
 
-[ Upstream commit 3866584a1c56a2bbc8c0981deb4476d0b801969e ]
+[ Upstream commit 23f4a2d29ba57bf88095f817de5809d427fcbe7e ]
 
-We are supposed to set fid->mode to reflect the flags
-that were used to open the file.  We were actually setting
-it to the creation mode which is the default perms of the
-file not the flags the file was opened with.
+The call trace occurs when the amdgpu is removed after
+the mode1 reset. During mode1 reset, from suspend to resume,
+there is no need to reinitialize the ta firmware buffer
+which caused the bo pin_count increase redundantly.
 
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Reviewed-by: Dominique Martinet <asmadeus@codewreck.org>
+[  489.885525] Call Trace:
+[  489.885525]  <TASK>
+[  489.885526]  amdttm_bo_put+0x34/0x50 [amdttm]
+[  489.885529]  amdgpu_bo_free_kernel+0xe8/0x130 [amdgpu]
+[  489.885620]  psp_free_shared_bufs+0xb7/0x150 [amdgpu]
+[  489.885720]  psp_hw_fini+0xce/0x170 [amdgpu]
+[  489.885815]  amdgpu_device_fini_hw+0x2ff/0x413 [amdgpu]
+[  489.885960]  ? blocking_notifier_chain_unregister+0x56/0xb0
+[  489.885962]  amdgpu_driver_unload_kms+0x51/0x60 [amdgpu]
+[  489.886049]  amdgpu_pci_remove+0x5a/0x140 [amdgpu]
+[  489.886132]  ? __pm_runtime_resume+0x60/0x90
+[  489.886134]  pci_device_remove+0x3e/0xb0
+[  489.886135]  __device_release_driver+0x1ab/0x2a0
+[  489.886137]  driver_detach+0xf3/0x140
+[  489.886138]  bus_remove_driver+0x6c/0xf0
+[  489.886140]  driver_unregister+0x31/0x60
+[  489.886141]  pci_unregister_driver+0x40/0x90
+[  489.886142]  amdgpu_exit+0x15/0x451 [amdgpu]
+
+Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
+Signed-off-by: longlyao <Longlong.Yao@amd.com>
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/client.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/9p/client.c b/net/9p/client.c
-index 554a4b11f4fec..af59c3f2ec2e7 100644
---- a/net/9p/client.c
-+++ b/net/9p/client.c
-@@ -1284,7 +1284,7 @@ int p9_client_create_dotl(struct p9_fid *ofid, const char *name, u32 flags,
- 		 qid->type, qid->path, qid->version, iounit);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index ba092072308fa..1b4105110f398 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -1685,7 +1685,7 @@ static int psp_hdcp_initialize(struct psp_context *psp)
+ 	psp->hdcp_context.context.mem_context.shared_mem_size = PSP_HDCP_SHARED_MEM_SIZE;
+ 	psp->hdcp_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
  
- 	memmove(&ofid->qid, qid, sizeof(struct p9_qid));
--	ofid->mode = mode;
-+	ofid->mode = flags;
- 	ofid->iounit = iounit;
+-	if (!psp->hdcp_context.context.initialized) {
++	if (!psp->hdcp_context.context.mem_context.shared_buf) {
+ 		ret = psp_ta_init_shared_buf(psp, &psp->hdcp_context.context.mem_context);
+ 		if (ret)
+ 			return ret;
+@@ -1752,7 +1752,7 @@ static int psp_dtm_initialize(struct psp_context *psp)
+ 	psp->dtm_context.context.mem_context.shared_mem_size = PSP_DTM_SHARED_MEM_SIZE;
+ 	psp->dtm_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
  
- free_and_error:
+-	if (!psp->dtm_context.context.initialized) {
++	if (!psp->dtm_context.context.mem_context.shared_buf) {
+ 		ret = psp_ta_init_shared_buf(psp, &psp->dtm_context.context.mem_context);
+ 		if (ret)
+ 			return ret;
+@@ -1820,7 +1820,7 @@ static int psp_rap_initialize(struct psp_context *psp)
+ 	psp->rap_context.context.mem_context.shared_mem_size = PSP_RAP_SHARED_MEM_SIZE;
+ 	psp->rap_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
+ 
+-	if (!psp->rap_context.context.initialized) {
++	if (!psp->rap_context.context.mem_context.shared_buf) {
+ 		ret = psp_ta_init_shared_buf(psp, &psp->rap_context.context.mem_context);
+ 		if (ret)
+ 			return ret;
 -- 
 2.39.2
 
