@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B5DB6C17A7
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:16:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 883446C186A
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232446AbjCTPQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:16:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S232829AbjCTPYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:24:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbjCTPPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:15:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7DC2ED56
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:47 -0700 (PDT)
+        with ESMTP id S232541AbjCTPXi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B6634029
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44ACCB80ED6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0558C433EF;
-        Mon, 20 Mar 2023 15:10:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97FB3B80E6F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F77CC433A0;
+        Mon, 20 Mar 2023 15:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325042;
-        bh=PdDc1Hv3nbqGwkbM4vBctW45/i+X5IwF5iipD1i2uAU=;
+        s=korg; t=1679325416;
+        bh=fKwRQx3/9sCFxAbi+E9QknKmOWeqSWL9Rq9UYTcIkNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SsbuR0XIYDKdvUuNlh/UPDINK88rrUoeIM42AEpQlWRUn60bGlOQ08ox9konWX6L8
-         kS2uZVXkLiHLjRKZEUYV12BDqbt6hQRVE+5upBtYTIDPFZfgmekN8wi1fUhz13qv7t
-         XGLbr4YmV/PPMMoDwAOGkSP6y0tdJd1Bck7nrQuw=
+        b=DHpU0X6wG9IPVAjucNPlcqDrjv6pdCaNEd+xJqD7xq1zdxe2nIEhEwxOp+rcF0YAY
+         Z7U3CdFs+hBtbc/T0cCY9nWsybBFU6PU9wT1cpyz8U0wZJZtaNRcurAgyo3lc+Ku0v
+         hsMMdjgYbgqxfiVQf5H5Xh5fXgEcl7bBx4PCOv7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+1e608ba4217c96d1952f@syzkaller.appspotmail.com,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Gautam Dawar <gautam.dawar@amd.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 037/198] nfc: pn533: initialize struct pn533_out_arg properly
-Date:   Mon, 20 Mar 2023 15:52:55 +0100
-Message-Id: <20230320145509.026788938@linuxfoundation.org>
+Subject: [PATCH 6.2 041/211] vhost-vdpa: free iommu domain after last use during cleanup
+Date:   Mon, 20 Mar 2023 15:52:56 +0100
+Message-Id: <20230320145514.955523740@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,63 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Gautam Dawar <gautam.dawar@amd.com>
 
-[ Upstream commit 484b7059796e3bc1cb527caa61dfc60da649b4f6 ]
+[ Upstream commit 5a522150093a0eabae9470a70a37a6e436bfad08 ]
 
-struct pn533_out_arg used as a temporary context for out_urb is not
-initialized properly. Its uninitialized 'phy' field can be dereferenced in
-error cases inside pn533_out_complete() callback function. It causes the
-following failure:
+Currently vhost_vdpa_cleanup() unmaps the DMA mappings by calling
+`iommu_unmap(v->domain, map->start, map->size);`
+from vhost_vdpa_general_unmap() when the parent vDPA driver doesn't
+provide DMA config operations.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 1 PID: 0 Comm: swapper/1 Not tainted 6.2.0-rc3-next-20230110-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:pn533_out_complete.cold+0x15/0x44 drivers/nfc/pn533/usb.c:441
-Call Trace:
- <IRQ>
- __usb_hcd_giveback_urb+0x2b6/0x5c0 drivers/usb/core/hcd.c:1671
- usb_hcd_giveback_urb+0x384/0x430 drivers/usb/core/hcd.c:1754
- dummy_timer+0x1203/0x32d0 drivers/usb/gadget/udc/dummy_hcd.c:1988
- call_timer_fn+0x1da/0x800 kernel/time/timer.c:1700
- expire_timers+0x234/0x330 kernel/time/timer.c:1751
- __run_timers kernel/time/timer.c:2022 [inline]
- __run_timers kernel/time/timer.c:1995 [inline]
- run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
- __do_softirq+0x1fb/0xaf6 kernel/softirq.c:571
- invoke_softirq kernel/softirq.c:445 [inline]
- __irq_exit_rcu+0x123/0x180 kernel/softirq.c:650
- irq_exit_rcu+0x9/0x20 kernel/softirq.c:662
- sysvec_apic_timer_interrupt+0x97/0xc0 arch/x86/kernel/apic/apic.c:1107
+However, the IOMMU domain referred to by `v->domain` is freed in
+vhost_vdpa_free_domain() before vhost_vdpa_cleanup() in
+vhost_vdpa_release() which results in NULL pointer de-reference.
+Accordingly, moving the call to vhost_vdpa_free_domain() in
+vhost_vdpa_cleanup() would makes sense. This will also help
+detaching the dma device in error handling of vhost_vdpa_alloc_domain().
 
-Initialize the field with the pn533_usb_phy currently used.
+This issue was observed on terminating QEMU with SIGQUIT.
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 9dab880d675b ("nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()")
-Reported-by: syzbot+1e608ba4217c96d1952f@syzkaller.appspotmail.com
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230309165050.207390-1-pchelkin@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 037d4305569a ("vhost-vdpa: call vhost_vdpa_cleanup during the release")
+Signed-off-by: Gautam Dawar <gautam.dawar@amd.com>
+Message-Id: <20230301163203.29883-1-gautam.dawar@amd.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/usb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vhost/vdpa.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
-index ed9c5e2cf3ad4..a187f0e0b0f7d 100644
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -175,6 +175,7 @@ static int pn533_usb_send_frame(struct pn533 *dev,
- 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
- 			     out->data, out->len, false);
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ec32f785dfdec..b7657984dd8df 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -1134,6 +1134,7 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
  
-+	arg.phy = phy;
- 	init_completion(&arg.done);
- 	cntx = phy->out_urb->context;
- 	phy->out_urb->context = &arg;
+ err_attach:
+ 	iommu_domain_free(v->domain);
++	v->domain = NULL;
+ 	return ret;
+ }
+ 
+@@ -1178,6 +1179,7 @@ static void vhost_vdpa_cleanup(struct vhost_vdpa *v)
+ 			vhost_vdpa_remove_as(v, asid);
+ 	}
+ 
++	vhost_vdpa_free_domain(v);
+ 	vhost_dev_cleanup(&v->vdev);
+ 	kfree(v->vdev.vqs);
+ }
+@@ -1250,7 +1252,6 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
+ 	vhost_vdpa_clean_irq(v);
+ 	vhost_vdpa_reset(v);
+ 	vhost_dev_stop(&v->vdev);
+-	vhost_vdpa_free_domain(v);
+ 	vhost_vdpa_config_put(v);
+ 	vhost_vdpa_cleanup(v);
+ 	mutex_unlock(&d->mutex);
 -- 
 2.39.2
 
