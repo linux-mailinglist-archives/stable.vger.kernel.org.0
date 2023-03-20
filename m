@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCAE96C192B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2866C1707
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233071AbjCTPbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49602 "EHLO
+        id S232370AbjCTPLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:11:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233037AbjCTPbF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:05 -0400
+        with ESMTP id S232353AbjCTPKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:10:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1853033CC2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E35965252
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AC1AB80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F192C4339B;
-        Mon, 20 Mar 2023 15:23:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B41CB80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F16D4C433D2;
+        Mon, 20 Mar 2023 15:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325805;
-        bh=YBvbrQJEaEy8jM6jUSRjD/yFZkav/5OEu3lkUQKcoHk=;
+        s=korg; t=1679324747;
+        bh=ERsc99xAh4cxNfhLGd0MSLhrJQwmE+3XfHiZEDwNR1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnqNVTfatwgcjjxnm13v0IGSLqTVZGaRj3sQmuNRsoTNyU0jf3KyljBR5n+vVQfaE
-         d9wwRhlWTI4bgi3q7yoR/7NOsrKD9ZhKNE3NIe/01GCClhVSEoGFRRiVxPSHiEiNfl
-         6Gz0DujzRqBn7jCKR3F945vBfxig0inrilwKez6E=
+        b=urHbDjxTKyjlaVfwrSgWmSODm7/zEooo7y9jjgGlqjenR2t9I7fc+ITerY/SR+wL+
+         /iSM8qUyq4o9K+gsEr5mjxDzphitnurfbk+jtIo+Y+B7hbJwOHOJCliEpQYqKdX4TY
+         BTEqgfoKLK91mkqtdrFokPGJFRhAE1LwV+DmuGhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jurica Vukadin <jura@vukad.in>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 104/211] kconfig: Update config changed flag before calling callback
+Subject: [PATCH 5.15 027/115] qed/qed_dev: guard against a possible division by zero
 Date:   Mon, 20 Mar 2023 15:53:59 +0100
-Message-Id: <20230320145517.641381074@linuxfoundation.org>
+Message-Id: <20230320145450.569555432@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jurica Vukadin <jura@vukad.in>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit ee06a3ef7e3cddb62b90ac40aa661d3c12f7cabc ]
+[ Upstream commit 1a9dc5610ef89d807acdcfbff93a558f341a44da ]
 
-Prior to commit 5ee546594025 ("kconfig: change sym_change_count to a
-boolean flag"), the conf_updated flag was set to the new value *before*
-calling the callback. xconfig's save action depends on this behaviour,
-because xconfig calls conf_get_changed() directly from the callback and
-now sees the old value, thus never enabling the save button or the
-shortcut.
+Previously we would divide total_left_rate by zero if num_vports
+happened to be 1 because non_requested_count is calculated as
+num_vports - req_count. Guard against this by validating num_vports at
+the beginning and returning an error otherwise.
 
-Restore the previous behaviour.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-Fixes: 5ee546594025 ("kconfig: change sym_change_count to a boolean flag")
-Signed-off-by: Jurica Vukadin <jura@vukad.in>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: bcd197c81f63 ("qed: Add vport WFQ configuration APIs")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230309201556.191392-1-d-tatianin@yandex-team.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/confdata.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
-index b7c9f1dd5e422..992575f1e9769 100644
---- a/scripts/kconfig/confdata.c
-+++ b/scripts/kconfig/confdata.c
-@@ -1226,10 +1226,12 @@ static void (*conf_changed_callback)(void);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index 0410c3604abdb..ba445724ee65e 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -5022,6 +5022,11 @@ static int qed_init_wfq_param(struct qed_hwfn *p_hwfn,
  
- void conf_set_changed(bool val)
- {
--	if (conf_changed_callback && conf_changed != val)
--		conf_changed_callback();
-+	bool changed = conf_changed != val;
+ 	num_vports = p_hwfn->qm_info.num_vports;
  
- 	conf_changed = val;
++	if (num_vports < 2) {
++		DP_NOTICE(p_hwfn, "Unexpected num_vports: %d\n", num_vports);
++		return -EINVAL;
++	}
 +
-+	if (conf_changed_callback && changed)
-+		conf_changed_callback();
- }
- 
- bool conf_get_changed(void)
+ 	/* Accounting for the vports which are configured for WFQ explicitly */
+ 	for (i = 0; i < num_vports; i++) {
+ 		u32 tmp_speed;
 -- 
 2.39.2
 
