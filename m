@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 262116C1842
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FFB6C18B4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232649AbjCTPW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39076 "EHLO
+        id S232906AbjCTP0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232657AbjCTPWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D328E1449F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:08 -0700 (PDT)
+        with ESMTP id S232785AbjCTP0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B8C31E20
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 753AECE12EA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 695D2C4339C;
-        Mon, 20 Mar 2023 15:15:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91E7EB80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D473DC433D2;
+        Mon, 20 Mar 2023 15:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325325;
-        bh=TZUSyvWItKApnQfXQq/1IEbfEQGnXfY9WUpEYtHi5Uc=;
+        s=korg; t=1679325537;
+        bh=K/d7B1d5nJmC3yZ09eO/+KaCt5Sa6DnyLc22sCCMx/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOsZsgMzDZm7ObmrBVLOA0dVzToLxEQ/hpvK4vm1+sLSWSBN6F8eSDc6ySfLS1wIE
-         rGtQq3pRSssSJmWBzPCVcakTb5ZWFBozkNM86lJaBOF28geNrGjvU9UeMmJrw3fVSc
-         VKLXJFuTuJ4EiClk4YLMB45mNfFnTMNgUh7cTULE=
+        b=Db06j/f1s+4BfE1tDMgqpLJdqBM9+4hc9hIUlaiyICVOHDeLGc30ZHEgazSZDixTm
+         pn8RaLlinVazwVPYTNrRjKcCbwngtkBocF+VNrhGcOJJ84wZgYZZHSJ2huOBCQui0E
+         QiLP6VenKNQ9NmvLUrOrcGs7s/9xUsaVefOfuWJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>, Jan Kara <jack@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Dan Schatzberg <schatzberg.dan@gmail.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 051/198] loop: Fix use-after-free issues
+        patches@lists.linux.dev, Marco Patalano <mpatalan@redhat.com>,
+        Chris Leech <cleech@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 054/211] blk-mq: fix "bad unlock balance detected" on q->srcu in __blk_mq_run_dispatch_ops
 Date:   Mon, 20 Mar 2023 15:53:09 +0100
-Message-Id: <20230320145509.646719436@linuxfoundation.org>
+Message-Id: <20230320145515.504413292@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,99 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Chris Leech <cleech@redhat.com>
 
-[ Upstream commit 9b0cb770f5d7b1ff40bea7ca385438ee94570eec ]
+[ Upstream commit 00e885efcfbb8712d3e1bfc1ae30639c15ca1d3b ]
 
-do_req_filebacked() calls blk_mq_complete_request() synchronously or
-asynchronously when using asynchronous I/O unless memory allocation fails.
-Hence, modify loop_handle_cmd() such that it does not dereference 'cmd' nor
-'rq' after do_req_filebacked() finished unless we are sure that the request
-has not yet been completed. This patch fixes the following kernel crash:
+The 'q' parameter of the macro __blk_mq_run_dispatch_ops may not be one
+local variable, such as, it is rq->q, then request queue pointed by
+this variable could be changed to another queue in case of
+BLK_MQ_F_TAG_QUEUE_SHARED after 'dispatch_ops' returns, then
+'bad unlock balance' is triggered.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000054
-Call trace:
- css_put.42938+0x1c/0x1ac
- loop_process_work+0xc8c/0xfd4
- loop_rootcg_workfn+0x24/0x34
- process_one_work+0x244/0x558
- worker_thread+0x400/0x8fc
- kthread+0x16c/0x1e0
- ret_from_fork+0x10/0x20
+Fixes the issue by adding one local variable for doing srcu lock/unlock.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Dan Schatzberg <schatzberg.dan@gmail.com>
-Fixes: c74d40e8b5e2 ("loop: charge i/o to mem and blk cg")
-Fixes: bc07c10a3603 ("block: loop: support DIO & AIO")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20230314182155.80625-1-bvanassche@acm.org
+Fixes: 2a904d00855f ("blk-mq: remove hctx_lock and hctx_unlock")
+Cc: Marco Patalano <mpatalan@redhat.com>
+Signed-off-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20230310010913.1014789-1-ming.lei@redhat.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ block/blk-mq.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 981464e561df1..793ae876918ce 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1853,35 +1853,44 @@ static blk_status_t loop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 
- static void loop_handle_cmd(struct loop_cmd *cmd)
- {
-+	struct cgroup_subsys_state *cmd_blkcg_css = cmd->blkcg_css;
-+	struct cgroup_subsys_state *cmd_memcg_css = cmd->memcg_css;
- 	struct request *rq = blk_mq_rq_from_pdu(cmd);
- 	const bool write = op_is_write(req_op(rq));
- 	struct loop_device *lo = rq->q->queuedata;
- 	int ret = 0;
- 	struct mem_cgroup *old_memcg = NULL;
-+	const bool use_aio = cmd->use_aio;
- 
- 	if (write && (lo->lo_flags & LO_FLAGS_READ_ONLY)) {
- 		ret = -EIO;
- 		goto failed;
- 	}
- 
--	if (cmd->blkcg_css)
--		kthread_associate_blkcg(cmd->blkcg_css);
--	if (cmd->memcg_css)
-+	if (cmd_blkcg_css)
-+		kthread_associate_blkcg(cmd_blkcg_css);
-+	if (cmd_memcg_css)
- 		old_memcg = set_active_memcg(
--			mem_cgroup_from_css(cmd->memcg_css));
-+			mem_cgroup_from_css(cmd_memcg_css));
- 
-+	/*
-+	 * do_req_filebacked() may call blk_mq_complete_request() synchronously
-+	 * or asynchronously if using aio. Hence, do not touch 'cmd' after
-+	 * do_req_filebacked() has returned unless we are sure that 'cmd' has
-+	 * not yet been completed.
-+	 */
- 	ret = do_req_filebacked(lo, rq);
- 
--	if (cmd->blkcg_css)
-+	if (cmd_blkcg_css)
- 		kthread_associate_blkcg(NULL);
- 
--	if (cmd->memcg_css) {
-+	if (cmd_memcg_css) {
- 		set_active_memcg(old_memcg);
--		css_put(cmd->memcg_css);
-+		css_put(cmd_memcg_css);
- 	}
-  failed:
- 	/* complete non-aio request */
--	if (!cmd->use_aio || ret) {
-+	if (!use_aio || ret) {
- 		if (ret == -EOPNOTSUPP)
- 			cmd->ret = ret;
- 		else
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index ef59fee62780d..a7482d2cc82e7 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -378,12 +378,13 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
+ #define __blk_mq_run_dispatch_ops(q, check_sleep, dispatch_ops)	\
+ do {								\
+ 	if ((q)->tag_set->flags & BLK_MQ_F_BLOCKING) {		\
++		struct blk_mq_tag_set *__tag_set = (q)->tag_set; \
+ 		int srcu_idx;					\
+ 								\
+ 		might_sleep_if(check_sleep);			\
+-		srcu_idx = srcu_read_lock((q)->tag_set->srcu);	\
++		srcu_idx = srcu_read_lock(__tag_set->srcu);	\
+ 		(dispatch_ops);					\
+-		srcu_read_unlock((q)->tag_set->srcu, srcu_idx);	\
++		srcu_read_unlock(__tag_set->srcu, srcu_idx);	\
+ 	} else {						\
+ 		rcu_read_lock();				\
+ 		(dispatch_ops);					\
 -- 
 2.39.2
 
