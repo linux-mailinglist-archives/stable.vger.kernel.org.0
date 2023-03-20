@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D5F26C1970
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 675376C166A
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233109AbjCTPdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
+        id S231995AbjCTPGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233139AbjCTPdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C228B775
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:09 -0700 (PDT)
+        with ESMTP id S232296AbjCTPE7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3BB2A6C3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1855B80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F066DC433EF;
-        Mon, 20 Mar 2023 15:26:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4D3A61589
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04846C4339B;
+        Mon, 20 Mar 2023 15:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325967;
-        bh=0YqCqh+Qg+2o7MkvMn8iGQ1yHulaS9ofUuDEMfWzGW0=;
+        s=korg; t=1679324423;
+        bh=SFBggJYkVHnCEZcZfLMB/8VKkg2NrKqNkLzN9FgAHNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIE5XFXf6bigRQHMr/kDcUjBU+TBT5+ndyiX9lPvksIWtFEXRF3CQemWPHXNjFeQh
-         bAC+p/O55e1jd7v1kVXeB60bPTvT9LBx7PbLkhOE6XKl6LkI75eU6r5Fth8bGCpZG1
-         6mMcff8wbFabgkceAC+HhfOXd7d4Iv3ke4r9YRu8=
+        b=GzjRc7ZQ42Kgrhv+cY7yxouDtQXP2pkIm0bKvIuk6ktqh091MT2smE5VRnnBx4+oe
+         utqzKad3crRlgVKiWBVmd4qLWFc2JBsWnERgwesyGpNgitZzRP9OhV4YhdUYRx92dX
+         HMqjgsSrAhK0du0ac0ZaGH+F9U3XTYkO11eI/lpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>
-Subject: [PATCH 6.2 133/211] interconnect: fix mem leak when freeing nodes
+        patches@lists.linux.dev, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 19/60] ipvlan: Make skb->skb_iif track skb->dev for l3s mode
 Date:   Mon, 20 Mar 2023 15:54:28 +0100
-Message-Id: <20230320145519.008590481@linuxfoundation.org>
+Message-Id: <20230320145431.684534461@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-commit a5904f415e1af72fa8fe6665aa4f554dc2099a95 upstream.
+[ Upstream commit 59a0b022aa249e3f5735d93de0849341722c4754 ]
 
-The node link array is allocated when adding links to a node but is not
-deallocated when nodes are destroyed.
+For l3s mode, skb->dev is set to ipvlan interface in ipvlan_nf_input():
+  skb->dev = addr->master->dev
+but, skb->skb_iif remain unchanged, this will cause socket lookup failed
+if a target socket is bound to a interface, like the following example:
 
-Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
-Cc: stable@vger.kernel.org      # 5.1
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
-Link: https://lore.kernel.org/r/20230306075651.2449-2-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  ip link add ipvlan0 link eth0 type ipvlan mode l3s
+  ip addr add dev ipvlan0 192.168.124.111/24
+  ip link set ipvlan0 up
+
+  ping -c 1 -I ipvlan0 8.8.8.8
+  100% packet loss
+
+This is because there is no match sk in __raw_v4_lookup() as sk->sk_bound_dev_if != dif(skb->skb_iif).
+Fix this by make skb->skb_iif track skb->dev in ipvlan_nf_input().
+
+Fixes: c675e06a98a4 ("ipvlan: decouple l3s mode dependencies from other modes")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/29865b1f-6db7-c07a-de89-949d3721ea30@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ipvlan/ipvlan_l3s.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/interconnect/core.c
-+++ b/drivers/interconnect/core.c
-@@ -850,6 +850,10 @@ void icc_node_destroy(int id)
+diff --git a/drivers/net/ipvlan/ipvlan_l3s.c b/drivers/net/ipvlan/ipvlan_l3s.c
+index 943d26cbf39f5..71712ea25403d 100644
+--- a/drivers/net/ipvlan/ipvlan_l3s.c
++++ b/drivers/net/ipvlan/ipvlan_l3s.c
+@@ -101,6 +101,7 @@ static unsigned int ipvlan_nf_input(void *priv, struct sk_buff *skb,
+ 		goto out;
  
- 	mutex_unlock(&icc_lock);
- 
-+	if (!node)
-+		return;
-+
-+	kfree(node->links);
- 	kfree(node);
- }
- EXPORT_SYMBOL_GPL(icc_node_destroy);
+ 	skb->dev = addr->master->dev;
++	skb->skb_iif = skb->dev->ifindex;
+ 	len = skb->len + ETH_HLEN;
+ 	ipvlan_count_rx(addr->master, len, true, false);
+ out:
+-- 
+2.39.2
+
 
 
