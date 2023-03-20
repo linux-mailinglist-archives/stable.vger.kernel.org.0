@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49ADB6C18BF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 024176C1825
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232879AbjCTP1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:27:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
+        id S232706AbjCTPVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232900AbjCTP0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC60E2F7BA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:59 -0700 (PDT)
+        with ESMTP id S232803AbjCTPUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:20:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE0B1207A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24042B80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77732C433D2;
-        Mon, 20 Mar 2023 15:19:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1926C6158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26930C433EF;
+        Mon, 20 Mar 2023 15:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325594;
-        bh=+psffvvgRpplZzvH+ZTHSdvUD3tVH+sIXJ2aiFUMSAM=;
+        s=korg; t=1679325292;
+        bh=OzvNW4S1KwZRsXLZnbiglbmKZgeCzF+FFZcVZ4p/7B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e64sKC523lyvNl4kejLWxClDKMG61KPJxrT6ZrVf1M7iXA3gt6NwwhIGxikroZCMA
-         wDXQypSMsjKf4N9nC0h7yXCrBCpU9dPcHh4TWkBvSuPthGYqQJ6yuhlqacxQibsXgZ
-         vxattp+iJBkvGSfwcO48eFv2jJQmOnbcc42IC3+k=
+        b=Nannr6D8byQIuFkgDFIO+1eTiGYd92+sG/Sa2x4VGd290pm2GVW4lx6uyqMz/jAgm
+         +LuexskzQ2MRYy7tVFfAYHAwhkECH4iffeF5SWzYtNbuxgoEVb/KMgx/ZFOXKmBWdq
+         LBv2U6gP1AOl70AvBqV69+C6JQ9PvsCrf1D4G4+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Lei <ming.lei@redhat.com>,
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Chaitanya Kulkarni <kch@nvidia.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 067/211] nvme: fix handling single range discard request
-Date:   Mon, 20 Mar 2023 15:53:22 +0100
-Message-Id: <20230320145516.033095504@linuxfoundation.org>
+Subject: [PATCH 6.1 065/198] nvmet: avoid potential UAF in nvmet_req_complete()
+Date:   Mon, 20 Mar 2023 15:53:23 +0100
+Message-Id: <20230320145510.269761251@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 37f0dc2ec78af0c3f35dd05578763de059f6fe77 ]
+[ Upstream commit 6173a77b7e9d3e202bdb9897b23f2a8afe7bf286 ]
 
-When investigating one customer report on warning in nvme_setup_discard,
-we observed the controller(nvme/tcp) actually exposes
-queue_max_discard_segments(req->q) == 1.
+An nvme target ->queue_response() operation implementation may free the
+request passed as argument. Such implementation potentially could result
+in a use after free of the request pointer when percpu_ref_put() is
+called in nvmet_req_complete().
 
-Obviously the current code can't handle this situation, since contiguity
-merge like normal RW request is taken.
+Avoid such problem by using a local variable to save the sq pointer
+before calling __nvmet_req_complete(), thus avoiding dereferencing the
+req pointer after that function call.
 
-Fix the issue by building range from request sector/nr_sectors directly.
-
-Fixes: b35ba01ea697 ("nvme: support ranged discard requests")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/nvme/target/core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index fbed8d1a02ef4..70b5e891f6b3b 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -781,16 +781,26 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
- 		range = page_address(ns->ctrl->discard_page);
- 	}
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 683b75a992b3d..3235baf7cc6b1 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -755,8 +755,10 @@ static void __nvmet_req_complete(struct nvmet_req *req, u16 status)
  
--	__rq_for_each_bio(bio, req) {
--		u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
--		u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
--
--		if (n < segments) {
--			range[n].cattr = cpu_to_le32(0);
--			range[n].nlb = cpu_to_le32(nlb);
--			range[n].slba = cpu_to_le64(slba);
-+	if (queue_max_discard_segments(req->q) == 1) {
-+		u64 slba = nvme_sect_to_lba(ns, blk_rq_pos(req));
-+		u32 nlb = blk_rq_sectors(req) >> (ns->lba_shift - 9);
+ void nvmet_req_complete(struct nvmet_req *req, u16 status)
+ {
++	struct nvmet_sq *sq = req->sq;
 +
-+		range[0].cattr = cpu_to_le32(0);
-+		range[0].nlb = cpu_to_le32(nlb);
-+		range[0].slba = cpu_to_le64(slba);
-+		n = 1;
-+	} else {
-+		__rq_for_each_bio(bio, req) {
-+			u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
-+			u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
-+
-+			if (n < segments) {
-+				range[n].cattr = cpu_to_le32(0);
-+				range[n].nlb = cpu_to_le32(nlb);
-+				range[n].slba = cpu_to_le64(slba);
-+			}
-+			n++;
- 		}
--		n++;
- 	}
+ 	__nvmet_req_complete(req, status);
+-	percpu_ref_put(&req->sq->ref);
++	percpu_ref_put(&sq->ref);
+ }
+ EXPORT_SYMBOL_GPL(nvmet_req_complete);
  
- 	if (WARN_ON_ONCE(n != segments)) {
 -- 
 2.39.2
 
