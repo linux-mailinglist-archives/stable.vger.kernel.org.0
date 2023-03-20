@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5EB56C164E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C98226C1665
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232201AbjCTPEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:04:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53078 "EHLO
+        id S231440AbjCTPFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232180AbjCTPEL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:11 -0400
+        with ESMTP id S232207AbjCTPEs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8026B2B618
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C82644C0D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E537B80EC8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1758C433EF;
-        Mon, 20 Mar 2023 14:59:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 671C8B80ED0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB2D4C433EF;
+        Mon, 20 Mar 2023 15:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324389;
-        bh=LPTqG6PJB4W/JqXy0gnQJ4ohULvRZavu9EKEHp+2QRA=;
+        s=korg; t=1679324448;
+        bh=p/eMCVIC2JaQ3xgBMzOwPzRuLev4oq6rs3D8rJzDF54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ex63RgoR/JGAqjsGjTpDpW1O3JIyJM2h19xlCW4iRGzPI9uLK60vqNFy5sAO0aI/3
-         iQr+hh+d82VRHFfA1yUfNSVPNX1TuUAaFRV8B9CQGyJDmGfx+rEERAGTMOsJ2gSbYE
-         gBGfa+rQwZ+stAawW7Ue1ckA/x2+WQPzV6rQNiys=
+        b=WENjbeHscnmFSqBjamad1JcDoRxReui+FksYVALjTqdEcMxGGU/VINoJjovUDLu6n
+         pHhxByaQlJqYkGD6MxWr4Du7WTei7UWsMOetn7bTsBxpIs0fJ7tb9n+A2/8+iWruo9
+         TG9HqW9vJ7DQlIwZ3UHp0IsxT1MTuXAHksZyrjfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/36] net: usb: smsc75xx: Limit packet length to skb->len
+        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/60] block: sunvdc: add check for mdesc_grab() returning NULL
 Date:   Mon, 20 Mar 2023 15:54:36 +0100
-Message-Id: <20230320145424.630143213@linuxfoundation.org>
+Message-Id: <20230320145432.044014920@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
-References: <20230320145424.191578432@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit d8b228318935044dafe3a5bc07ee71a1f1424b8d ]
+[ Upstream commit 6030363199e3a6341afb467ddddbed56640cbf6a ]
 
-Packet length retrieved from skb data may be larger than
-the actual socket buffer length (up to 9026 bytes). In such
-case the cloned skb passed up the network stack will leak
-kernel memory contents.
+In vdc_port_probe(), we should check the return value of mdesc_grab() as
+it may return NULL, which can cause potential NPD bug.
 
-Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 43fdf27470b2 ("[SPARC64]: Abstract out mdesc accesses for better MD update handling.")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20230315062032.1741692-1-windhl@126.com
+[axboe: style cleanup]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc75xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/sunvdc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
-index 8b9fd4e071f3d..b4705dee2b751 100644
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -2225,7 +2225,8 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 				dev->net->stats.rx_frame_errors++;
- 		} else {
- 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
--			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
-+			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
-+				     size > skb->len)) {
- 				netif_dbg(dev, rx_err, dev->net,
- 					  "size err rx_cmd_a=0x%08x\n",
- 					  rx_cmd_a);
+diff --git a/drivers/block/sunvdc.c b/drivers/block/sunvdc.c
+index 6b2fd630de852..6622dd1aa07b2 100644
+--- a/drivers/block/sunvdc.c
++++ b/drivers/block/sunvdc.c
+@@ -983,6 +983,8 @@ static int vdc_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ 	print_version();
+ 
+ 	hp = mdesc_grab();
++	if (!hp)
++		return -ENODEV;
+ 
+ 	err = -ENODEV;
+ 	if ((vdev->dev_no << PARTITION_SHIFT) & ~(u64)MINORMASK) {
 -- 
 2.39.2
 
