@@ -2,173 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C476C1981
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC976C1819
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbjCTPeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:34:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
+        id S232091AbjCTPU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:20:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233110AbjCTPdp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:45 -0400
+        with ESMTP id S232433AbjCTPTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E3739BB2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EEC301A3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B4266154E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893D2C433D2;
-        Mon, 20 Mar 2023 15:26:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F25F615B1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E8EC433EF;
+        Mon, 20 Mar 2023 15:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326005;
-        bh=Lp+Eg4VK8rObcKndcZEw48ieVuAJl9AgoRCjAquKAxs=;
+        s=korg; t=1679325254;
+        bh=ItwEZepMiMsvKIPT7E7ZzxgPotXPPqHnsHfZmPbNf5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yE5lHblRORZaSCXky4pkcRfXczAGA7wDjfz7dlwv0KxBYNpWzvRTuBwKqxA2K9ofp
-         87QBgzcldcRl/J7wZ1QPLi/21PYVtxbtP73D7rNKboeRLM5fqkqF00PLPOL1BUoCHr
-         HtNJzjuLC2zIo2gB3HUuv/U4lx4cY6kf5Dp2fcBA=
+        b=Fbo7ZMUJUGJXMqXWcSH2t/NvfuraM4Zzwbia3RPQEadtaohBiHCVh/zHHwdDaMnwB
+         08OdDIr3SPMohVcLk7N+3NHHzlTB5j6Mu7lNknwYCaAFefTZwr8oNLzK/ZuccK9+r5
+         4cjcnhXxzsxwxF3oxx8AEDCbg41KFytoO+oAlmeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.1 157/198] drm/i915/active: Fix misuse of non-idle barriers as fence trackers
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 083/115] tracing: Make tracepoint lockdep check actually test something
 Date:   Mon, 20 Mar 2023 15:54:55 +0100
-Message-Id: <20230320145514.109343938@linuxfoundation.org>
+Message-Id: <20230320145452.909636097@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit e0e6b416b25ee14716f3549e0cbec1011b193809 upstream.
+commit c2679254b9c9980d9045f0f722cf093a2b1f7590 upstream.
 
-Users reported oopses on list corruptions when using i915 perf with a
-number of concurrently running graphics applications.  Root cause analysis
-pointed at an issue in barrier processing code -- a race among perf open /
-close replacing active barriers with perf requests on kernel context and
-concurrent barrier preallocate / acquire operations performed during user
-context first pin / last unpin.
+A while ago where the trace events had the following:
 
-When adding a request to a composite tracker, we try to reuse an existing
-fence tracker, already allocated and registered with that composite.  The
-tracker we obtain may already track another fence, may be an idle barrier,
-or an active barrier.
+   rcu_read_lock_sched_notrace();
+   rcu_dereference_sched(...);
+   rcu_read_unlock_sched_notrace();
 
-If the tracker we get occurs a non-idle barrier then we try to delete that
-barrier from a list of barrier tasks it belongs to.  However, while doing
-that we don't respect return value from a function that performs the
-barrier deletion.  Should the deletion ever fail, we would end up reusing
-the tracker still registered as a barrier task.  Since the same structure
-field is reused with both fence callback lists and barrier tasks list,
-list corruptions would likely occur.
+If the tracepoint is enabled, it could trigger RCU issues if called in
+the wrong place. And this warning was only triggered if lockdep was
+enabled. If the tracepoint was never enabled with lockdep, the bug would
+not be caught. To handle this, the above sequence was done when lockdep
+was enabled regardless if the tracepoint was enabled or not (although the
+always enabled code really didn't do anything, it would still trigger a
+warning).
 
-Barriers are now deleted from a barrier tasks list by temporarily removing
-the list content, traversing that content with skip over the node to be
-deleted, then populating the list back with the modified content.  Should
-that intentionally racy concurrent deletion attempts be not serialized,
-one or more of those may fail because of the list being temporary empty.
+But a lot has changed since that lockdep code was added. One is, that
+sequence no longer triggers any warning. Another is, the tracepoint when
+enabled doesn't even do that sequence anymore.
 
-Related code that ignores the results of barrier deletion was initially
-introduced in v5.4 by commit d8af05ff38ae ("drm/i915: Allow sharing the
-idle-barrier from other kernel requests").  However, all users of the
-barrier deletion routine were apparently serialized at that time, then the
-issue didn't exhibit itself.  Results of git bisect with help of a newly
-developed igt@gem_barrier_race@remote-request IGT test indicate that list
-corruptions might start to appear after commit 311770173fac ("drm/i915/gt:
-Schedule request retirement when timeline idles"), introduced in v5.5.
+The main check we care about today is whether RCU is "watching" or not.
+So if lockdep is enabled, always check if rcu_is_watching() which will
+trigger a warning if it is not (tracepoints require RCU to be watching).
 
-Respect results of barrier deletion attempts -- mark the barrier as idle
-only if successfully deleted from the list.  Then, before proceeding with
-setting our fence as the one currently tracked, make sure that the tracker
-we've got is not a non-idle barrier.  If that check fails then don't use
-that tracker but go back and try to acquire a new, usable one.
+Note, that old sequence did add a bit of overhead when lockdep was enabled,
+and with the latest kernel updates, would cause the system to slow down
+enough to trigger kernel "stalled" warnings.
 
-v3: use unlikely() to document what outcome we expect (Andi),
-  - fix bad grammar in commit description.
-v2: no code changes,
-  - blame commit 311770173fac ("drm/i915/gt: Schedule request retirement
-    when timeline idles"), v5.5, not commit d8af05ff38ae ("drm/i915: Allow
-    sharing the idle-barrier from other kernel requests"), v5.4,
-  - reword commit description.
+Link: http://lore.kernel.org/lkml/20140806181801.GA4605@redhat.com
+Link: http://lore.kernel.org/lkml/20140807175204.C257CAC5@viggo.jf.intel.com
+Link: https://lore.kernel.org/lkml/20230307184645.521db5c9@gandalf.local.home/
+Link: https://lore.kernel.org/linux-trace-kernel/20230310172856.77406446@gandalf.local.home
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6333
-Fixes: 311770173fac ("drm/i915/gt: Schedule request retirement when timeline idles")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org # v5.5
-Cc: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230302120820.48740-1-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit 506006055769b10d1b2b4e22f636f3b45e0e9fc7)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: e6753f23d961 ("tracepoint: Make rcuidle tracepoint callers use SRCU")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_active.c |   27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ include/linux/tracepoint.h |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_active.c
-+++ b/drivers/gpu/drm/i915/i915_active.c
-@@ -422,12 +422,12 @@ replace_barrier(struct i915_active *ref,
- 	 * we can use it to substitute for the pending idle-barrer
- 	 * request that we want to emit on the kernel_context.
- 	 */
--	__active_del_barrier(ref, node_from_active(active));
--	return true;
-+	return __active_del_barrier(ref, node_from_active(active));
- }
- 
- int i915_active_add_request(struct i915_active *ref, struct i915_request *rq)
- {
-+	u64 idx = i915_request_timeline(rq)->fence_context;
- 	struct dma_fence *fence = &rq->fence;
- 	struct i915_active_fence *active;
- 	int err;
-@@ -437,16 +437,19 @@ int i915_active_add_request(struct i915_
- 	if (err)
- 		return err;
- 
--	active = active_instance(ref, i915_request_timeline(rq)->fence_context);
--	if (!active) {
--		err = -ENOMEM;
--		goto out;
--	}
--
--	if (replace_barrier(ref, active)) {
--		RCU_INIT_POINTER(active->fence, NULL);
--		atomic_dec(&ref->count);
--	}
-+	do {
-+		active = active_instance(ref, idx);
-+		if (!active) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+
-+		if (replace_barrier(ref, active)) {
-+			RCU_INIT_POINTER(active->fence, NULL);
-+			atomic_dec(&ref->count);
-+		}
-+	} while (unlikely(is_barrier(active)));
-+
- 	if (!__i915_active_fence_set(active, fence))
- 		__i915_active_acquire(ref);
- 
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -231,12 +231,11 @@ static inline struct tracepoint *tracepo
+  * not add unwanted padding between the beginning of the section and the
+  * structure. Force alignment to the same alignment as the section start.
+  *
+- * When lockdep is enabled, we make sure to always do the RCU portions of
+- * the tracepoint code, regardless of whether tracing is on. However,
+- * don't check if the condition is false, due to interaction with idle
+- * instrumentation. This lets us find RCU issues triggered with tracepoints
+- * even when this tracepoint is off. This code has no purpose other than
+- * poking RCU a bit.
++ * When lockdep is enabled, we make sure to always test if RCU is
++ * "watching" regardless if the tracepoint is enabled or not. Tracepoints
++ * require RCU to be active, and it should always warn at the tracepoint
++ * site if it is not watching, as it will need to be active when the
++ * tracepoint is enabled.
+  */
+ #define __DECLARE_TRACE(name, proto, args, cond, data_proto)		\
+ 	extern int __traceiter_##name(data_proto);			\
+@@ -249,9 +248,7 @@ static inline struct tracepoint *tracepo
+ 				TP_ARGS(args),				\
+ 				TP_CONDITION(cond), 0);			\
+ 		if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {		\
+-			rcu_read_lock_sched_notrace();			\
+-			rcu_dereference_sched(__tracepoint_##name.funcs);\
+-			rcu_read_unlock_sched_notrace();		\
++			WARN_ON_ONCE(!rcu_is_watching());		\
+ 		}							\
+ 	}								\
+ 	__DECLARE_TRACE_RCU(name, PARAMS(proto), PARAMS(args),		\
 
 
