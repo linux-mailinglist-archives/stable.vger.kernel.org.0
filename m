@@ -2,105 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CADC6C23AF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 22:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CE46C23B5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 22:31:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230248AbjCTVaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 17:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
+        id S230451AbjCTVbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 17:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230382AbjCTVao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 17:30:44 -0400
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 675243A4D0;
-        Mon, 20 Mar 2023 14:30:07 -0700 (PDT)
-Received: by mail-qt1-x82d.google.com with SMTP id i24so14939197qtm.6;
-        Mon, 20 Mar 2023 14:30:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679347746;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=X93KBQButTn/UqXt/hbJcsk9R9gKpKY/fTpIsiX1hTM=;
-        b=HwbAEz6acm8IVBY/IESRBoXatSQDEglMeeYGw+dzBihhMkJMu39LQJDbk2Y4EBL8d/
-         rycDDMvisOpn1DgKOmmgzSaC0Gi8U2B7BQ0qT9g8AOcJMzyR1c0Q3bBcicmt00d9UT1s
-         o6Vjf361XY+YdsVUhBnjQ+YJF6OI5QPo4dXrFjgcoLfdw1jzTJ37yCluGS6Fk4t8tw8X
-         MMnY32m7Z5IhqOo9ndhuHsFvnLnYKCE+MhoXVWgk+AIDMiLOhq7yD1aYQOydEuse72vt
-         QZvzBBb8IhCI3nUqGNLs7680oKI1R6g/wWM/Q+vxuD9F8NWEm4FEajLTmKfBm9Ebz6nm
-         SwlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679347746;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=X93KBQButTn/UqXt/hbJcsk9R9gKpKY/fTpIsiX1hTM=;
-        b=XCn+voDACxntP08s50u/F0qC7pbKyu5cvaahyD6pb/EYHT1LX2Nc3zxGzxdVrhLDeH
-         e4YmIs91cvOGIvAXM/1fPTEWSI/BLeDXrydlEcL/+n50hmZ2TyeO2cGLhBRJP67UHXfK
-         h+7VqwXaDrYnKZE7zHNAXFJX0TOsp0ekcI5gAAALmJEYE5DAR3KMeEPJaMCs0qWBpgXt
-         xEG7D5OSlrRNwLZKv4nVH1pFx1iKqpRPJSy15L+JIDqCtjFIHv+5S9qo1r+ASwg1daFX
-         b+k9lGDMyLUwFgYuan0p90prhZs3w22QUGRCJRwLvVx+cpt97WqJ7WiQLptCVGY9YWnN
-         diCw==
-X-Gm-Message-State: AO0yUKVOZ7dYXEcAAH8Ls9+FtB8ZO9weLTTg7/xzGhYCHGNe4U6cF0nN
-        3WA/PdsbMf2+X0tA6vqw6Zs=
-X-Google-Smtp-Source: AK7set8rJ9Onu3EI1D6eakF/aDbRe3xLFMDE+q7Gy7ZuIhHQ/R+8MqaVQGxn39OUHHZiVMX5vwzvOQ==
-X-Received: by 2002:a05:622a:86:b0:3bd:140c:91f7 with SMTP id o6-20020a05622a008600b003bd140c91f7mr944095qtw.40.1679347746060;
-        Mon, 20 Mar 2023 14:29:06 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id b6-20020ac87546000000b003d29e23e214sm7074186qtr.82.2023.03.20.14.29.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Mar 2023 14:29:05 -0700 (PDT)
-Message-ID: <1946b64b-23a6-7357-0125-2986abd6f84b@gmail.com>
-Date:   Mon, 20 Mar 2023 14:28:57 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH 6.2 000/211] 6.2.8-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230320145513.305686421@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S230366AbjCTVbe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 17:31:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B28301BE;
+        Mon, 20 Mar 2023 14:30:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16CA8616B5;
+        Mon, 20 Mar 2023 21:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C89BC433D2;
+        Mon, 20 Mar 2023 21:30:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1679347800;
+        bh=v7CVZRNVtMzr2jazIMDrPdjA2KcXkTYMUdCdiyE0D9E=;
+        h=Date:To:From:Subject:From;
+        b=VFmdfJVZUBuwu+shdTc7Jwoe2USXN8c7pxddwRuuTEaDVDaNEbcBJI89r4bH72Qqo
+         zpJg+5HnSWxNvwZuZO+0HKVBahTzRfZNOQm5+GsNkmACSn7XRgR4rMBF/1vYxh39Wl
+         Q19v68rWlnxDU+0JhJlpSRGoVq8m2Hgt9WoYgtMQ=
+Date:   Mon, 20 Mar 2023 14:29:59 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        sjpark@amazon.de, roman.gushchin@linux.dev, jannh@google.com,
+        glider@google.com, elver@google.com, dvyukov@google.com,
+        songmuchun@bytedance.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230320213000.6C89BC433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/20/23 07:52, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.8 release.
-> There are 211 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 22 Mar 2023 14:54:32 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+The patch titled
+     Subject: mm: kfence: fix PG_slab and memcg_data clearing
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Muchun Song <songmuchun@bytedance.com>
+Subject: mm: kfence: fix PG_slab and memcg_data clearing
+Date: Mon, 20 Mar 2023 11:00:59 +0800
+
+It does not reset PG_slab and memcg_data when KFENCE fails to initialize
+kfence pool at runtime.  It is reporting a "Bad page state" message when
+kfence pool is freed to buddy.  The checking of whether it is a compound
+head page seems unnecessary sicne we already guarantee this when
+allocating kfence pool, removing the check to simplify the code.
+
+Link: https://lkml.kernel.org/r/20230320030059.20189-1-songmuchun@bytedance.com
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Fixes: 8f0b36497303 ("mm: kfence: fix objcgs vector allocation")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: SeongJae Park <sjpark@amazon.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+
+--- a/mm/kfence/core.c~mm-kfence-fix-pg_slab-and-memcg_data-clearing
++++ a/mm/kfence/core.c
+@@ -561,10 +561,6 @@ static unsigned long kfence_init_pool(vo
+ 		if (!i || (i % 2))
+ 			continue;
+ 
+-		/* Verify we do not have a compound head page. */
+-		if (WARN_ON(compound_head(&pages[i]) != &pages[i]))
+-			return addr;
+-
+ 		__folio_set_slab(slab_folio(slab));
+ #ifdef CONFIG_MEMCG
+ 		slab->memcg_data = (unsigned long)&kfence_metadata[i / 2 - 1].objcg |
+@@ -597,12 +593,26 @@ static unsigned long kfence_init_pool(vo
+ 
+ 		/* Protect the right redzone. */
+ 		if (unlikely(!kfence_protect(addr + PAGE_SIZE)))
+-			return addr;
++			goto reset_slab;
+ 
+ 		addr += 2 * PAGE_SIZE;
+ 	}
+ 
+ 	return 0;
++
++reset_slab:
++	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
++		struct slab *slab = page_slab(&pages[i]);
++
++		if (!i || (i % 2))
++			continue;
++#ifdef CONFIG_MEMCG
++		slab->memcg_data = 0;
++#endif
++		__folio_clear_slab(slab_folio(slab));
++	}
++
++	return addr;
+ }
+ 
+ static bool __init kfence_init_pool_early(void)
+@@ -632,16 +642,6 @@ static bool __init kfence_init_pool_earl
+ 	 * fails for the first page, and therefore expect addr==__kfence_pool in
+ 	 * most failure cases.
+ 	 */
+-	for (char *p = (char *)addr; p < __kfence_pool + KFENCE_POOL_SIZE; p += PAGE_SIZE) {
+-		struct slab *slab = virt_to_slab(p);
+-
+-		if (!slab)
+-			continue;
+-#ifdef CONFIG_MEMCG
+-		slab->memcg_data = 0;
+-#endif
+-		__folio_clear_slab(slab_folio(slab));
+-	}
+ 	memblock_free_late(__pa(addr), KFENCE_POOL_SIZE - (addr - (unsigned long)__kfence_pool));
+ 	__kfence_pool = NULL;
+ 	return false;
+_
+
+Patches currently in -mm which might be from songmuchun@bytedance.com are
+
+mm-kfence-fix-using-kfence_metadata-without-initialization-in-show_object.patch
+mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
+mm-hugetlb_vmemmap-simplify-hugetlb_vmemmap_init-a-bit.patch
 
