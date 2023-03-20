@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC0616C16E5
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF6B6C1959
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232105AbjCTPKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37758 "EHLO
+        id S233015AbjCTPcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232260AbjCTPJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:40 -0400
+        with ESMTP id S233053AbjCTPc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD02F25E08
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D203D199D5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7D8A61582
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC769C433EF;
-        Mon, 20 Mar 2023 15:04:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97ED261573
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8DBC433EF;
+        Mon, 20 Mar 2023 15:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324673;
-        bh=X4h6yHXiON1m6XydHEdwYWNbckRAwVJpL1BE2uPA6jU=;
+        s=korg; t=1679325896;
+        bh=SlaYFFlBBMBmoqmu8kQMPgqqmrCRkjjDtAaLp2obimA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMbkDcC57K7egHfEDPfXTWA2w6nkT9OAAuN3sDZHTuq7F0UkTtTn4EQUODWpk/KLy
-         Qmmanm5Q0WJYA2SFoDklLCKqZ9ExfXUDNnF0J4IGyq/Bj2I/6GVrL9hVxltCyX/pSg
-         /EgwCThwirHHtRyovwBEq1btSfoRyuS4ApfCCv5E=
+        b=D9UyOAqrGC493k8btHWdv7B/re1C12Hj/F3UxwMsQVzGZ7jqQP5nYBWArAjGS4gCQ
+         2bShDpaTjR4qruzlsAiXYKf/EjFkjyv2qmS4Nmcb5falKuWGAt9NQZ6PCjBBast+F/
+         BCNBL0uZDyCTKJTDDuHzSJ6APXr2Z0EsUrBZs4TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/99] qed/qed_mng_tlv: correctly zero out ->min instead of ->hour
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Johan Hovold <johan@kernel.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 6.2 121/211] serial: 8250_fsl: fix handle_irq locking
 Date:   Mon, 20 Mar 2023 15:54:16 +0100
-Message-Id: <20230320145444.970250061@linuxfoundation.org>
+Message-Id: <20230320145518.417347973@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 470efd68a4653d9819d391489886432cd31bcd0b ]
+commit 6e01f9a594ee0f69fb52cc8d11971612b4817f0b upstream.
 
-This fixes an issue where ->hour would erroneously get zeroed out
-instead of ->min because of a bad copy paste.
+The 8250 handle_irq callback is not just called from the interrupt
+handler but also from a timer callback when polling (e.g. for ports
+without an interrupt line). Consequently the callback must explicitly
+disable interrupts to avoid a potential deadlock with another interrupt
+in polled mode.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+Fix up the two paths in the freescale callback that failed to re-enable
+interrupts when polling.
 
-Fixes: f240b6882211 ("qed: Add support for processing fcoe tlv request.")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Link: https://lore.kernel.org/r/20230315194618.579286-1-d-tatianin@yandex-team.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 853a9ae29e97 ("serial: 8250: fix handle_irq locking")
+Cc: stable@vger.kernel.org	# 5.13
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://lore.kernel.org/r/Y/xYzqp4ogmOF5t0@kili
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20230227085046.24282-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_fsl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c b/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c
-index 3e3192a3ad9b7..fdbd5f07a1857 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c
-@@ -422,7 +422,7 @@ qed_mfw_get_tlv_time_value(struct qed_mfw_tlv_time *p_time,
- 	if (p_time->hour > 23)
- 		p_time->hour = 0;
- 	if (p_time->min > 59)
--		p_time->hour = 0;
-+		p_time->min = 0;
- 	if (p_time->msec > 999)
- 		p_time->msec = 0;
- 	if (p_time->usec > 999)
+diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
+index 8aad15622a2e..8adfaa183f77 100644
+--- a/drivers/tty/serial/8250/8250_fsl.c
++++ b/drivers/tty/serial/8250/8250_fsl.c
+@@ -34,7 +34,7 @@ int fsl8250_handle_irq(struct uart_port *port)
+ 
+ 	iir = port->serial_in(port, UART_IIR);
+ 	if (iir & UART_IIR_NO_INT) {
+-		spin_unlock(&up->port.lock);
++		spin_unlock_irqrestore(&up->port.lock, flags);
+ 		return 0;
+ 	}
+ 
+@@ -42,7 +42,7 @@ int fsl8250_handle_irq(struct uart_port *port)
+ 	if (unlikely(up->lsr_saved_flags & UART_LSR_BI)) {
+ 		up->lsr_saved_flags &= ~UART_LSR_BI;
+ 		port->serial_in(port, UART_RX);
+-		spin_unlock(&up->port.lock);
++		spin_unlock_irqrestore(&up->port.lock, flags);
+ 		return 1;
+ 	}
+ 
 -- 
-2.39.2
+2.40.0
 
 
 
