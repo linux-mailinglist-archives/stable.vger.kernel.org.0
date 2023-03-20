@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CECF46C0821
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67F3C6C08AE
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbjCTBGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 21:06:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56170 "EHLO
+        id S229524AbjCTBmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:42:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230163AbjCTBEk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:04:40 -0400
+        with ESMTP id S229565AbjCTBmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:42:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821B624113;
-        Sun, 19 Mar 2023 17:57:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E26A59DB;
+        Sun, 19 Mar 2023 18:42:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF36D611FE;
-        Mon, 20 Mar 2023 00:56:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E19C4339B;
-        Mon, 20 Mar 2023 00:56:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 965B3611E1;
+        Mon, 20 Mar 2023 00:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5665FC4339B;
+        Mon, 20 Mar 2023 00:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273816;
-        bh=75h4lD0mk5zmLz+UDOKXhH8iMe3itMJ/s4s7lr3PM7E=;
+        s=k20201202; t=1679273819;
+        bh=DU88Tx7IDZFMgSmR12ipeKxhrIxiH9XLYaW7YR7z40A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmCF66oi6qWSoyOED/IZ5/c0QH9Ryhxo1/71rHTv0EUC4TCjUhgD0FOBwa8i2qwql
-         GXPAFKpgcU8FKWET0ZDAkYjJ9Bzrh9rHylEwMrd5ltUAep6HXzn0yKicTonexGqvMI
-         8cr0LgHrgj1MIAX2JUDd7nPiHkJ3XtAekenOmjHlIuhyTv98kXWGVkEIKfjXSotaL2
-         xzl+dNBnchsBzuYEPJLHwmfK/pjpAIR/xV60+GlAkrWEysFk0CU98DtWMYyjHt+nZU
-         ksfiKIzxyv7fnqGnlIbIUQywqwvNnBIDJ7dVBpsSSRDwSwK0/Mvnxx00iDkX7peNmf
-         uOK97CqhkV+2g==
+        b=kGcgko74zF2lma5Pfr0SfIcaDdmv5r62AhoWHVeOsQtbjcltNihUgPTZcd0yCk/Lp
+         1Bo7Tm97cIRE/yzVw/A1fM1shmfJwFK5FC+VUDpPYjtauqrYJUdsvGk8yzMbBZZdAF
+         0KNXGAfqFbOIyA4aSKcM5ro3NDUbLbcsXjloL0StbjPoZJBj8ARLm1I71V+awjf/qc
+         6QQUw+CI1pxVqPqjo96JQiIJZ0KvhG4zqVTw5KlGfC+35jTL1JkFwm3y6ceIhAlbkW
+         0e1JzhKskpV5mUF6ABxzfw7VGaZfilzkHsjcDDgKV29c0LR7dgBJlJ3H7J/XoLXIrC
+         hpyayKyUqVBoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakob Koschel <jkl820.git@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
-        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/12] scsi: lpfc: Avoid usage of list iterator variable after loop
-Date:   Sun, 19 Mar 2023 20:56:31 -0400
-Message-Id: <20230320005636.1429242-8-sashal@kernel.org>
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/12] platform/x86: ISST: Increase range of valid mail box commands
+Date:   Sun, 19 Mar 2023 20:56:32 -0400
+Message-Id: <20230320005636.1429242-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005636.1429242-1-sashal@kernel.org>
 References: <20230320005636.1429242-1-sashal@kernel.org>
@@ -58,59 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jkl820.git@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 2850b23e9f9ae3696e472d2883ea1b43aafa884e ]
+[ Upstream commit 95ecf90158522269749f1b7ce98b1eed66ca087b ]
 
-If the &epd_pool->list is empty when executing
-lpfc_get_io_buf_from_expedite_pool() the function would return an invalid
-pointer. Even in the case if the list is guaranteed to be populated, the
-iterator variable should not be used after the loop to be more robust for
-future changes.
+A new command CONFIG_TDP_GET_RATIO_INFO is added, with sub command type
+of 0x0C. The previous range of valid sub commands was from 0x00 to 0x0B.
+Change the valid range from 0x00 to 0x0C.
 
-Linus proposed to avoid any use of the list iterator variable after the
-loop, in the attempt to move the list iterator variable declaration into
-the macro to avoid any potential misuse after the loop [1].
-
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
-Link: https://lore.kernel.org/r/20230301-scsi-lpfc-avoid-list-iterator-after-loop-v1-1-325578ae7561@gmail.com
-Reviewed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20230227053504.2734214-1-srinivas.pandruvada@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/platform/x86/intel_speed_select_if/isst_if_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index bd908dd273078..e489c68cfb631 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -20407,20 +20407,20 @@ lpfc_get_io_buf_from_private_pool(struct lpfc_hba *phba,
- static struct lpfc_io_buf *
- lpfc_get_io_buf_from_expedite_pool(struct lpfc_hba *phba)
- {
--	struct lpfc_io_buf *lpfc_ncmd;
-+	struct lpfc_io_buf *lpfc_ncmd = NULL, *iter;
- 	struct lpfc_io_buf *lpfc_ncmd_next;
- 	unsigned long iflag;
- 	struct lpfc_epd_pool *epd_pool;
+diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
+index cf7b6dee82191..13735d7ae6387 100644
+--- a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
++++ b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
+@@ -47,7 +47,7 @@ struct isst_cmd_set_req_type {
  
- 	epd_pool = &phba->epd_pool;
--	lpfc_ncmd = NULL;
- 
- 	spin_lock_irqsave(&epd_pool->lock, iflag);
- 	if (epd_pool->count > 0) {
--		list_for_each_entry_safe(lpfc_ncmd, lpfc_ncmd_next,
-+		list_for_each_entry_safe(iter, lpfc_ncmd_next,
- 					 &epd_pool->list, list) {
--			list_del(&lpfc_ncmd->list);
-+			list_del(&iter->list);
- 			epd_pool->count--;
-+			lpfc_ncmd = iter;
- 			break;
- 		}
- 	}
+ static const struct isst_valid_cmd_ranges isst_valid_cmds[] = {
+ 	{0xD0, 0x00, 0x03},
+-	{0x7F, 0x00, 0x0B},
++	{0x7F, 0x00, 0x0C},
+ 	{0x7F, 0x10, 0x12},
+ 	{0x7F, 0x20, 0x23},
+ };
 -- 
 2.39.2
 
