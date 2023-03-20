@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AF46C18A2
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FFA06C18D3
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232677AbjCTP0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:26:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36460 "EHLO
+        id S232824AbjCTP1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232885AbjCTPZw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0F8A5D9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:11 -0700 (PDT)
+        with ESMTP id S232827AbjCTP12 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3153773F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92E7161565
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8076C433D2;
-        Mon, 20 Mar 2023 15:19:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B43FB80EC1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E30FEC433EF;
+        Mon, 20 Mar 2023 15:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325551;
-        bh=B/Nq4yNU67MUXuh/eMTQSL9JA8LYtvX+XgNMNeWo3F8=;
+        s=korg; t=1679325641;
+        bh=I5jKldDth/iDO4Vt3M+thx8228uhQrke/1U5IOLJRaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IfOjRqoANM1BFha4ND+ODjwEDvk3R/oOYESdX82nb1stUh53nU1t69f54iJEQyPbB
-         Fs6zCqQdTX5bESW6EeEMqstO0eLknCz2pBRgji0X3IoSAqWLpmL9GOr+3OUVTSpq7D
-         mN6MeHpbqS+mOBiBQUEZmwJqbgvEFX7O5VZZMlEM=
+        b=huAKB5XbtVKDphBbDKgLya9mx1ig9vrlH9AcaGFIY+hYnwGbnF81ZBXT+dyUWPWeY
+         gZqapVSJ8csATAsLFreqI3R1WvxD45ckm5QP+8Yfu782bL9twi9G33PRcYqYJwLqBB
+         EUZ62Blq4Rv72OoQjadJgn+IeGwYRABxFSnNah0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Roi Dayan <roid@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 072/198] net/mlx5: E-switch, Fix wrong usage of source port rewrite in split rules
+Subject: [PATCH 6.2 075/211] net/mlx5: E-switch, Fix wrong usage of source port rewrite in split rules
 Date:   Mon, 20 Mar 2023 15:53:30 +0100
-Message-Id: <20230320145510.564970687@linuxfoundation.org>
+Message-Id: <20230320145516.402043048@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -81,15 +82,15 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index 5b6c54bde97a2..34790a82a0976 100644
+index f3b74cb67b71c..3992bf6337ca0 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -696,11 +696,11 @@ mlx5_eswitch_add_fwd_rule(struct mlx5_eswitch *esw,
+@@ -726,11 +726,11 @@ mlx5_eswitch_add_fwd_rule(struct mlx5_eswitch *esw,
  
  	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
  	for (i = 0; i < esw_attr->split_count; i++) {
 -		if (esw_is_indir_table(esw, attr))
--			err = esw_setup_indir_table(dest, &flow_act, esw, attr, false, &i);
+-			err = esw_setup_indir_table(dest, &flow_act, esw, attr, spec, false, &i);
 -		else if (esw_is_chain_src_port_rewrite(esw, esw_attr))
 -			err = esw_setup_chain_src_port_rewrite(dest, &flow_act, esw, chains, attr,
 -							       &i);
