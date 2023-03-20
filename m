@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7FD6C1747
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA636C18D1
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232375AbjCTPMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S232874AbjCTP1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:27:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232376AbjCTPMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD00831E09
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:02 -0700 (PDT)
+        with ESMTP id S232744AbjCTP1V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9B33757C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82BA6B80D34
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7664C4339B;
-        Mon, 20 Mar 2023 15:07:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B6BDCCE12F1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75529C433D2;
+        Mon, 20 Mar 2023 15:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324821;
-        bh=Ru9OrefBeYiQzfwkMRNWxppRwyJ89LS6QaMGy4Pqwz0=;
+        s=korg; t=1679325616;
+        bh=+c45SjTlnq+NXIqIkShpUo9G/Gb3Q2yw0iHlcuh/bBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kxx+7uqEoE5SEo/tYv0lYZlSliEdlUsDenTzePjHCNZuFnXMKEW8NG4B+5lie5XG5
-         7rouWR1p+4Ib9JVj+iaTcTusLc7sZe632WHkBlfkK1CjtletZxftmGjEcgxBaBE32s
-         GqEW22EowmhU+kpzYN2u0GUchJjRdvYaQvG7g2uA=
+        b=VOVcA0PFskUM33g4pzanVHsmSA6lilFqeWLii1Cka2JMYr4n7yePLChtoXlLRr6UY
+         Cu7cPRNcJoGVLOK+PrQzOqPESSFAuuERt9rLfArL2GbfH2b761gOv2WFEVWBSvF+Qs
+         mkjrk7+jhzH5o0VwiRDtrKN/1KK7jyA/MRGjnqKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/115] block: null_blk: Fix handling of fake timeout request
+        patches@lists.linux.dev, Eric Van Hensbergen <ericvh@kernel.org>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 111/198] net/9p: fix bug in client create for .L
 Date:   Mon, 20 Mar 2023 15:54:09 +0100
-Message-Id: <20230320145451.023379029@linuxfoundation.org>
+Message-Id: <20230320145512.229499168@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Eric Van Hensbergen <ericvh@kernel.org>
 
-[ Upstream commit 63f886597085f346276e3b3c8974de0100d65f32 ]
+[ Upstream commit 3866584a1c56a2bbc8c0981deb4476d0b801969e ]
 
-When injecting a fake timeout into the null_blk driver using
-fail_io_timeout, the request timeout handler does not execute
-blk_mq_complete_request(), so the complete callback is never executed
-for a timedout request.
+We are supposed to set fid->mode to reflect the flags
+that were used to open the file.  We were actually setting
+it to the creation mode which is the default perms of the
+file not the flags the file was opened with.
 
-The null_blk driver also has a driver-specific fake timeout mechanism
-which does not have this problem. Fix the problem with fail_io_timeout
-by using the same meachanism as null_blk internal timeout feature, using
-the fake_timeout field of null_blk commands.
-
-Reported-by: Akinobu Mita <akinobu.mita@gmail.com>
-Fixes: de3510e52b0a ("null_blk: fix command timeout completion handling")
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20230314041106.19173-2-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Reviewed-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk/main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/9p/client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index 4c8b4101516c3..033b0f64f2b9b 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -1314,8 +1314,7 @@ static inline void nullb_complete_cmd(struct nullb_cmd *cmd)
- 	case NULL_IRQ_SOFTIRQ:
- 		switch (cmd->nq->dev->queue_mode) {
- 		case NULL_Q_MQ:
--			if (likely(!blk_should_fake_timeout(cmd->rq->q)))
--				blk_mq_complete_request(cmd->rq);
-+			blk_mq_complete_request(cmd->rq);
- 			break;
- 		case NULL_Q_BIO:
- 			/*
-@@ -1491,7 +1490,8 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	cmd->rq = bd->rq;
- 	cmd->error = BLK_STS_OK;
- 	cmd->nq = nq;
--	cmd->fake_timeout = should_timeout_request(bd->rq);
-+	cmd->fake_timeout = should_timeout_request(bd->rq) ||
-+		blk_should_fake_timeout(bd->rq->q);
+diff --git a/net/9p/client.c b/net/9p/client.c
+index 554a4b11f4fec..af59c3f2ec2e7 100644
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -1284,7 +1284,7 @@ int p9_client_create_dotl(struct p9_fid *ofid, const char *name, u32 flags,
+ 		 qid->type, qid->path, qid->version, iounit);
  
- 	blk_mq_start_request(bd->rq);
+ 	memmove(&ofid->qid, qid, sizeof(struct p9_qid));
+-	ofid->mode = mode;
++	ofid->mode = flags;
+ 	ofid->iounit = iounit;
  
+ free_and_error:
 -- 
 2.39.2
 
