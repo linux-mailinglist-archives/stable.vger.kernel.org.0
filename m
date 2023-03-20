@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD39F6C167E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D76BA6C177A
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232108AbjCTPGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55166 "EHLO
+        id S232292AbjCTPOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232091AbjCTPGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1765625E32
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:56 -0700 (PDT)
+        with ESMTP id S232414AbjCTPN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD2711154
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5A78B80ECD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B2A0C433EF;
-        Mon, 20 Mar 2023 15:01:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC2596154D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCA5C433EF;
+        Mon, 20 Mar 2023 15:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324508;
-        bh=AY/Ig6/D6B8kAit4w8uSAEvPz3sYAX7+kRJBXfUowsI=;
+        s=korg; t=1679324931;
+        bh=cNQZ9ftb0SQWKViY9vleiOOLSisslUlS21d/t6KwPJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXroi1zxUjppi2sGkr8PSa7fVdV+v1BSnNtYcAKTLPH/puOBFeNdtA4dSxTh/Fy2Z
-         0QU4o/TAWkjvDcrVxsZr921kMMB+OiQjavNmmT6ULKimqvcAZMbI5J6EYATX1+1W91
-         q2Gt9+t+J8NS1RymqkH8eM+71AxF6Scq5Nta3+LQ=
+        b=DHA8CYg2jyiKhzmkqowEnedBz2lkViGZOz/op1A92syv0dfLsGejnRNlRV/ED4Cph
+         1PSZ9QRK4nYfOHcuyk9srZzKrJ/kNyjZDJUi8aDei/njlT5v8srC1YJMxUTDmvVt16
+         YtGpx+5w7lj5n2AEq/avisQ5DVxTXVkXdCbyPLYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.4 43/60] sh: intc: Avoid spurious sizeof-pointer-div warning
+        patches@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Shawn Guo <shawn.guo@linaro.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: [PATCH 5.10 74/99] cpuidle: psci: Iterate backwards over list in psci_pd_remove()
 Date:   Mon, 20 Mar 2023 15:54:52 +0100
-Message-Id: <20230320145432.699009109@linuxfoundation.org>
+Message-Id: <20230320145446.506652483@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,51 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit 250870824c1cf199b032b1ef889c8e8d69d9123a ]
+commit 6b0313c2fa3d2cf991c9ffef6fae6e7ef592ce6d upstream.
 
-GCC warns about the pattern sizeof(void*)/sizeof(void), as it looks like
-the abuse of a pattern to calculate the array size. This pattern appears
-in the unevaluated part of the ternary operator in _INTC_ARRAY if the
-parameter is NULL.
+In case that psci_pd_init_topology() fails for some reason,
+psci_pd_remove() will be responsible for deleting provider and removing
+genpd from psci_pd_providers list.  There will be a failure when removing
+the cluster PD, because the cpu (child) PDs haven't been removed.
 
-The replacement uses an alternate approach to return 0 in case of NULL
-which does not generate the pattern sizeof(void*)/sizeof(void), but still
-emits the warning if _INTC_ARRAY is called with a nonarray parameter.
+[    0.050232] CPUidle PSCI: init PM domain cpu0
+[    0.050278] CPUidle PSCI: init PM domain cpu1
+[    0.050329] CPUidle PSCI: init PM domain cpu2
+[    0.050370] CPUidle PSCI: init PM domain cpu3
+[    0.050422] CPUidle PSCI: init PM domain cpu-cluster0
+[    0.050475] PM: genpd_remove: unable to remove cpu-cluster0
+[    0.051412] PM: genpd_remove: removed cpu3
+[    0.051449] PM: genpd_remove: removed cpu2
+[    0.051499] PM: genpd_remove: removed cpu1
+[    0.051546] PM: genpd_remove: removed cpu0
 
-This patch is required for successful compilation with -Werror enabled.
+Fix the problem by iterating the provider list reversely, so that parent
+PD gets removed after child's PDs like below.
 
-The idea to use _Generic for type distinction is taken from Comment #7
-in https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108483 by Jakub Jelinek
+[    0.029052] CPUidle PSCI: init PM domain cpu0
+[    0.029076] CPUidle PSCI: init PM domain cpu1
+[    0.029103] CPUidle PSCI: init PM domain cpu2
+[    0.029124] CPUidle PSCI: init PM domain cpu3
+[    0.029151] CPUidle PSCI: init PM domain cpu-cluster0
+[    0.029647] PM: genpd_remove: removed cpu0
+[    0.029666] PM: genpd_remove: removed cpu1
+[    0.029690] PM: genpd_remove: removed cpu2
+[    0.029714] PM: genpd_remove: removed cpu3
+[    0.029738] PM: genpd_remove: removed cpu-cluster0
 
-Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Link: https://lore.kernel.org/r/619fa552-c988-35e5-b1d7-fe256c46a272@mkarcher.dialup.fu-berlin.de
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a65a397f2451 ("cpuidle: psci: Add support for PM domains by using genpd")
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Rafael J. Wysocki <rjw@rjwysocki.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sh_intc.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/cpuidle/cpuidle-psci-domain.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/sh_intc.h b/include/linux/sh_intc.h
-index c255273b02810..37ad81058d6ae 100644
---- a/include/linux/sh_intc.h
-+++ b/include/linux/sh_intc.h
-@@ -97,7 +97,10 @@ struct intc_hw_desc {
- 	unsigned int nr_subgroups;
- };
+--- a/drivers/cpuidle/cpuidle-psci-domain.c
++++ b/drivers/cpuidle/cpuidle-psci-domain.c
+@@ -182,7 +182,8 @@ static void psci_pd_remove(void)
+ 	struct psci_pd_provider *pd_provider, *it;
+ 	struct generic_pm_domain *genpd;
  
--#define _INTC_ARRAY(a) a, __same_type(a, NULL) ? 0 : sizeof(a)/sizeof(*a)
-+#define _INTC_SIZEOF_OR_ZERO(a) (_Generic(a,                 \
-+                                 typeof(NULL):  0,           \
-+                                 default:       sizeof(a)))
-+#define _INTC_ARRAY(a) a, _INTC_SIZEOF_OR_ZERO(a)/sizeof(*a)
+-	list_for_each_entry_safe(pd_provider, it, &psci_pd_providers, link) {
++	list_for_each_entry_safe_reverse(pd_provider, it,
++					 &psci_pd_providers, link) {
+ 		of_genpd_del_provider(pd_provider->node);
  
- #define INTC_HW_DESC(vectors, groups, mask_regs,	\
- 		     prio_regs,	sense_regs, ack_regs)	\
--- 
-2.39.2
-
+ 		genpd = of_genpd_remove_last(pd_provider->node);
 
 
