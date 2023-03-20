@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C5C6C1942
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A73576C16D8
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233065AbjCTPcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:32:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48890 "EHLO
+        id S232288AbjCTPJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:09:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233032AbjCTPb6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63DA92A163
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:32 -0700 (PDT)
+        with ESMTP id S232262AbjCTPJI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3866CD335
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BEDC614CA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3A7C433D2;
-        Mon, 20 Mar 2023 15:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F30FE61585
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ADCFC433EF;
+        Mon, 20 Mar 2023 15:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325871;
-        bh=4dgyGaiHkVLcwecfj5mvgWM9vlM+Ly+omg4kwrWyhgQ=;
+        s=korg; t=1679324648;
+        bh=wkZ4z5a0KAt7b9grUGZh1w+J324kLMryXMdJuUEh4SM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWxhsbH9NxPPkDB3Uq9/x+QBrVax4h+eNXQ73xGQx+bf3d6JwZXiIUWHRFn7VxoJ9
-         p1LFDENB57TmIfq8PulmCR0e7SZDo7KtOhrAMOxquBdYj4TZdV95djZqA69QUHaSJr
-         ufLO4231ICB/J2DzTMajOGkIGcZAHkZv9NFi+psQ=
+        b=aFJYmXmnb2VdBSiukeIbk6Gir9k3xX+InKj37pYDaHtryUTafoADtJ9rIIcbNV6+X
+         RqkKSG5JrZX5L5rm8nNi+A8dVQc/TY9UlwCTySsgwAPbLi0B1pmozCvYN6rJx/6l1f
+         eaYv5T7LwVrZxwdbMxsCiNLxJIPY0+jJc+F3mbak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Tom Rix <trix@redhat.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 6.2 117/211] Revert "tty: serial: fsl_lpuart: adjust SERIAL_FSL_LPUART_CONSOLE config dependency"
+        patches@lists.linux.dev, gaoxingwang <gaoxingwang1@huawei.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 34/99] ipv4: Fix incorrect table ID in IOCTL path
 Date:   Mon, 20 Mar 2023 15:54:12 +0100
-Message-Id: <20230320145518.236894579@linuxfoundation.org>
+Message-Id: <20230320145444.807906297@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,46 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 2d638be71155b2e036aca1966b6129e2d661e91f upstream.
+[ Upstream commit 8a2618e14f81604a9b6ad305d57e0c8da939cd65 ]
 
-This reverts commit 5779a072c248db7a40cfd0f5ea958097fd1d9a30.
+Commit f96a3d74554d ("ipv4: Fix incorrect route flushing when source
+address is deleted") started to take the table ID field in the FIB info
+structure into account when determining if two structures are identical
+or not. This field is initialized using the 'fc_table' field in the
+route configuration structure, which is not set when adding a route via
+IOCTL.
 
-This results in a link error of
+The above can result in user space being able to install two identical
+routes that only differ in the table ID field of their associated FIB
+info.
 
-ld: drivers/tty/serial/earlycon.o: in function `parse_options':
-drivers/tty/serial/earlycon.c:99: undefined reference to `uart_parse_earlycon'
+Fix by initializing the table ID field in the route configuration
+structure in the IOCTL path.
 
-When the config is in this state
+Before the fix:
 
-CONFIG_SERIAL_CORE=m
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_SERIAL_EARLYCON=y
-CONFIG_SERIAL_FSL_LPUART=m
-CONFIG_SERIAL_FSL_LPUART_CONSOLE=y
+ # ip route add default via 192.0.2.2
+ # route add default gw 192.0.2.2
+ # ip -4 r show default
+ # default via 192.0.2.2 dev dummy10
+ # default via 192.0.2.2 dev dummy10
 
-Fixes: 5779a072c248 ("tty: serial: fsl_lpuart: adjust SERIAL_FSL_LPUART_CONSOLE config dependency")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20230226173846.236691-1-trix@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After the fix:
+
+ # ip route add default via 192.0.2.2
+ # route add default gw 192.0.2.2
+ SIOCADDRT: File exists
+ # ip -4 r show default
+ default via 192.0.2.2 dev dummy10
+
+Audited the code paths to ensure there are no other paths that do not
+properly initialize the route configuration structure when installing a
+route.
+
+Fixes: 5a56a0b3a45d ("net: Don't delete routes in different VRFs")
+Fixes: f96a3d74554d ("ipv4: Fix incorrect route flushing when source address is deleted")
+Reported-by: gaoxingwang <gaoxingwang1@huawei.com>
+Link: https://lore.kernel.org/netdev/20230314144159.2354729-1-gaoxingwang1@huawei.com/
+Tested-by: gaoxingwang <gaoxingwang1@huawei.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20230315124009.4015212-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/fib_frontend.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tty/serial/Kconfig
-+++ b/drivers/tty/serial/Kconfig
-@@ -1313,7 +1313,7 @@ config SERIAL_FSL_LPUART
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index 5f786ef662ead..41f890bf9d4c4 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -573,6 +573,9 @@ static int rtentry_to_fib_config(struct net *net, int cmd, struct rtentry *rt,
+ 			cfg->fc_scope = RT_SCOPE_UNIVERSE;
+ 	}
  
- config SERIAL_FSL_LPUART_CONSOLE
- 	bool "Console on Freescale lpuart serial port"
--	depends on SERIAL_FSL_LPUART
-+	depends on SERIAL_FSL_LPUART=y
- 	select SERIAL_CORE_CONSOLE
- 	select SERIAL_EARLYCON
- 	help
++	if (!cfg->fc_table)
++		cfg->fc_table = RT_TABLE_MAIN;
++
+ 	if (cmd == SIOCDELRT)
+ 		return 0;
+ 
+-- 
+2.39.2
+
 
 
