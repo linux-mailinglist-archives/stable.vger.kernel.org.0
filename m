@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D72C46C1604
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD8F86C1618
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbjCTPB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:01:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
+        id S231341AbjCTPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:02:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232035AbjCTPBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:01:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3801F10415
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:57:48 -0700 (PDT)
+        with ESMTP id S232046AbjCTPBa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:01:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251722C67E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:58:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEE0261590
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:57:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC19C4339B;
-        Mon, 20 Mar 2023 14:57:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FC1A61588
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:57:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D99FC433D2;
+        Mon, 20 Mar 2023 14:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324257;
-        bh=XVQb3GCtL9WcTCREQXfRXuQiz93AO+9Y6RIyXBEBDvk=;
+        s=korg; t=1679324259;
+        bh=+DRKf0o185VjUzWEiIxaXzaMHtzHGeVlsTgIkYYWgPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Oej9pVPO3Y0RBdKnyz75fOzYnnqvQ3fk0Df1wzw4Wn1DEhH33sy1J5SyTWduEfrk
-         6IXwrM1psT+s9otTm+dHSmUs9TU9MblxsN/5YL2GlC2QedEyGKljEolqWSxKtkVS0T
-         ONUs/2pkNNBo5FnPanBSPuj4Yxk1SqgbJXbr5LxQ=
+        b=U/MC1heFOEH2eX06C4ryVbaLZ0NdNukXLDzQVudnWJnH3JcYGKQmylq91LyhrjXmG
+         8hCr6Z4W8u1fjuLuNN/uhYSLeUPtck4F3+mOLF+GRuH9OzoZGne/CnVwTUDFDB1Y8c
+         oytURTRiXeOxITC1N6zhblp6bPr9yIzBzrT0Lwaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Theodore Tso <tytso@mit.edu>, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/30] ext4: fail ext4_iget if special inode unallocated
-Date:   Mon, 20 Mar 2023 15:54:46 +0100
-Message-Id: <20230320145421.060901579@linuxfoundation.org>
+        syzbot+77d6fcc37bbb92f26048@syzkaller.appspotmail.com,
+        Baokun Li <libaokun1@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 23/30] ext4: fix task hung in ext4_xattr_delete_inode
+Date:   Mon, 20 Mar 2023 15:54:47 +0100
+Message-Id: <20230320145421.110126069@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145420.204894191@linuxfoundation.org>
 References: <20230320145420.204894191@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,69 +56,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 5cd740287ae5e3f9d1c46f5bfe8778972fd6d3fe ]
+[ Upstream commit 0f7bfd6f8164be32dbbdf36aa1e5d00485c53cd7 ]
 
-In ext4_fill_super(), EXT4_ORPHAN_FS flag is cleared after
-ext4_orphan_cleanup() is executed. Therefore, when __ext4_iget() is
-called to get an inode whose i_nlink is 0 when the flag exists, no error
-is returned. If the inode is a special inode, a null pointer dereference
-may occur. If the value of i_nlink is 0 for any inodes (except boot loader
-inodes) got by using the EXT4_IGET_SPECIAL flag, the current file system
-is corrupted. Therefore, make the ext4_iget() function return an error if
-it gets such an abnormal special inode.
+Syzbot reported a hung task problem:
+==================================================================
+INFO: task syz-executor232:5073 blocked for more than 143 seconds.
+      Not tainted 6.2.0-rc2-syzkaller-00024-g512dee0c00ad #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-exec232 state:D stack:21024 pid:5073 ppid:5072 flags:0x00004004
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5244 [inline]
+ __schedule+0x995/0xe20 kernel/sched/core.c:6555
+ schedule+0xcb/0x190 kernel/sched/core.c:6631
+ __wait_on_freeing_inode fs/inode.c:2196 [inline]
+ find_inode_fast+0x35a/0x4c0 fs/inode.c:950
+ iget_locked+0xb1/0x830 fs/inode.c:1273
+ __ext4_iget+0x22e/0x3ed0 fs/ext4/inode.c:4861
+ ext4_xattr_inode_iget+0x68/0x4e0 fs/ext4/xattr.c:389
+ ext4_xattr_inode_dec_ref_all+0x1a7/0xe50 fs/ext4/xattr.c:1148
+ ext4_xattr_delete_inode+0xb04/0xcd0 fs/ext4/xattr.c:2880
+ ext4_evict_inode+0xd7c/0x10b0 fs/ext4/inode.c:296
+ evict+0x2a4/0x620 fs/inode.c:664
+ ext4_orphan_cleanup+0xb60/0x1340 fs/ext4/orphan.c:474
+ __ext4_fill_super fs/ext4/super.c:5516 [inline]
+ ext4_fill_super+0x81cd/0x8700 fs/ext4/super.c:5644
+ get_tree_bdev+0x400/0x620 fs/super.c:1282
+ vfs_get_tree+0x88/0x270 fs/super.c:1489
+ do_new_mount+0x289/0xad0 fs/namespace.c:3145
+ do_mount fs/namespace.c:3488 [inline]
+ __do_sys_mount fs/namespace.c:3697 [inline]
+ __se_sys_mount+0x2d3/0x3c0 fs/namespace.c:3674
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fa5406fd5ea
+RSP: 002b:00007ffc7232f968 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007fa5406fd5ea
+RDX: 0000000020000440 RSI: 0000000020000000 RDI: 00007ffc7232f970
+RBP: 00007ffc7232f970 R08: 00007ffc7232f9b0 R09: 0000000000000432
+R10: 0000000000804a03 R11: 0000000000000202 R12: 0000000000000004
+R13: 0000555556a7a2c0 R14: 00007ffc7232f9b0 R15: 0000000000000000
+ </TASK>
+==================================================================
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=199179
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216541
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216539
-Reported-by: Luís Henriques <lhenriques@suse.de>
-Suggested-by: Theodore Ts'o <tytso@mit.edu>
+The problem is that the inode contains an xattr entry with ea_inum of 15
+when cleaning up an orphan inode <15>. When evict inode <15>, the reference
+counting of the corresponding EA inode is decreased. When EA inode <15> is
+found by find_inode_fast() in __ext4_iget(), it is found that the EA inode
+holds the I_FREEING flag and waits for the EA inode to complete deletion.
+As a result, when inode <15> is being deleted, we wait for inode <15> to
+complete the deletion, resulting in an infinite loop and triggering Hung
+Task. To solve this problem, we only need to check whether the ino of EA
+inode and parent is the same before getting EA inode.
+
+Link: https://syzkaller.appspot.com/bug?extid=77d6fcc37bbb92f26048
+Reported-by: syzbot+77d6fcc37bbb92f26048@syzkaller.appspotmail.com
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230107032126.4165860-2-libaokun1@huawei.com
+Link: https://lore.kernel.org/r/20230110133436.996350-1-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ fs/ext4/xattr.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 9d6d3cb515140..69360b08db736 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4814,13 +4814,6 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 		goto bad_inode;
- 	raw_inode = ext4_raw_inode(&iloc);
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index e1b40bd2f4cf2..3ee3e382015ff 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -383,6 +383,17 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
+ 	struct inode *inode;
+ 	int err;
  
--	if ((ino == EXT4_ROOT_INO) && (raw_inode->i_links_count == 0)) {
--		ext4_error_inode(inode, function, line, 0,
--				 "iget: root inode unallocated");
--		ret = -EFSCORRUPTED;
--		goto bad_inode;
--	}
--
- 	if ((flags & EXT4_IGET_HANDLE) &&
- 	    (raw_inode->i_links_count == 0) && (raw_inode->i_mode == 0)) {
- 		ret = -ESTALE;
-@@ -4891,11 +4884,16 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 	 * NeilBrown 1999oct15
- 	 */
- 	if (inode->i_nlink == 0) {
--		if ((inode->i_mode == 0 ||
-+		if ((inode->i_mode == 0 || flags & EXT4_IGET_SPECIAL ||
- 		     !(EXT4_SB(inode->i_sb)->s_mount_state & EXT4_ORPHAN_FS)) &&
- 		    ino != EXT4_BOOT_LOADER_INO) {
--			/* this inode is deleted */
--			ret = -ESTALE;
-+			/* this inode is deleted or unallocated */
-+			if (flags & EXT4_IGET_SPECIAL) {
-+				ext4_error_inode(inode, function, line, 0,
-+						 "iget: special inode unallocated");
-+				ret = -EFSCORRUPTED;
-+			} else
-+				ret = -ESTALE;
- 			goto bad_inode;
- 		}
- 		/* The only unlinked inodes we let through here have
++	/*
++	 * We have to check for this corruption early as otherwise
++	 * iget_locked() could wait indefinitely for the state of our
++	 * parent inode.
++	 */
++	if (parent->i_ino == ea_ino) {
++		ext4_error(parent->i_sb,
++			   "Parent and EA inode have the same ino %lu", ea_ino);
++		return -EFSCORRUPTED;
++	}
++
+ 	inode = ext4_iget(parent->i_sb, ea_ino, EXT4_IGET_NORMAL);
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
 -- 
 2.39.2
 
