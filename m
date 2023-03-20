@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A7B6C186E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC7C6C16D7
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232743AbjCTPYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:24:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39712 "EHLO
+        id S232304AbjCTPJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbjCTPXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C80311CB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:09 -0700 (PDT)
+        with ESMTP id S231947AbjCTPJF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBFB302A7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 247FCB80E95
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B52FC433EF;
-        Mon, 20 Mar 2023 15:17:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3252B61573
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42468C433EF;
+        Mon, 20 Mar 2023 15:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325421;
-        bh=HpZJ47UX+ovf6LOUN69eXK9nALO4gmgXQIvFY1b7F1w=;
+        s=korg; t=1679324645;
+        bh=pJHkMxkbcS/EwUEWHq2d0pwxMVfEWBl7/k9vY2s5nKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGuso+16hhbhMf1h4nnnGQaEeGgFkfoI77dxepGsOy/lhZHGyEi4q1gArHHHqj2hY
-         uv8k3ikJTfdvds+jNUYLXi6NDyEFOIBYag4POywctGYJ8xwa+1zp3AFMOWSuJ7/tHc
-         r+Glim9hjq6SJGUjR5j5k7PHGhyHOCnhxSfKEeGI=
+        b=Uf0lmqG48D/HJChds2Ln1kdH1XQF+ihDDO0bOxNzO8PJACvPzR7LhcBFfWx3+a1v5
+         hftUyMzfxCJlOIL/qAN84DQTyWaRdVwYV+O2WNv2C5NxGNao09UDDdli370oTvgt2u
+         8ozb3bDZ9WLKtcMxSLyAV3gFcMO15rkkYs84nJto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jeremy Sowden <jeremy@azazel.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 083/198] net: usb: smsc75xx: Move packet length check to prevent kernel panic in skb_pull
-Date:   Mon, 20 Mar 2023 15:53:41 +0100
-Message-Id: <20230320145511.010308646@linuxfoundation.org>
+Subject: [PATCH 5.15 010/115] netfilter: nft_masq: correct length for loading protocol registers
+Date:   Mon, 20 Mar 2023 15:53:42 +0100
+Message-Id: <20230320145449.797244197@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit 43ffe6caccc7a1bb9d7442fbab521efbf6c1378c ]
+[ Upstream commit ec2c5917eb858428b2083d1c74f445aabbe8316b ]
 
-Packet length check needs to be located after size and align_count
-calculation to prevent kernel panic in skb_pull() in case
-rx_cmd_a & RX_CMD_A_RED evaluates to true.
+The values in the protocol registers are two bytes wide.  However, when
+parsing the register loads, the code currently uses the larger 16-byte
+size of a `union nf_inet_addr`.  Change it to use the (correct) size of
+a `union nf_conntrack_man_proto` instead.
 
-Fixes: d8b228318935 ("net: usb: smsc75xx: Limit packet length to skb->len")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Link: https://lore.kernel.org/r/20230316110540.77531-1-szymon.heidrich@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8a6bf5da1aef ("netfilter: nft_masq: support port range")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc75xx.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/netfilter/nft_masq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
-index db34f8d1d6051..5d6454fedb3f1 100644
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -2200,6 +2200,13 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		size = (rx_cmd_a & RX_CMD_A_LEN) - RXW_PADDING;
- 		align_count = (4 - ((size + RXW_PADDING) % 4)) % 4;
+diff --git a/net/netfilter/nft_masq.c b/net/netfilter/nft_masq.c
+index 9953e80537536..1818dbf089cad 100644
+--- a/net/netfilter/nft_masq.c
++++ b/net/netfilter/nft_masq.c
+@@ -43,7 +43,7 @@ static int nft_masq_init(const struct nft_ctx *ctx,
+ 			 const struct nft_expr *expr,
+ 			 const struct nlattr * const tb[])
+ {
+-	u32 plen = sizeof_field(struct nf_nat_range, min_addr.all);
++	u32 plen = sizeof_field(struct nf_nat_range, min_proto.all);
+ 	struct nft_masq *priv = nft_expr_priv(expr);
+ 	int err;
  
-+		if (unlikely(size > skb->len)) {
-+			netif_dbg(dev, rx_err, dev->net,
-+				  "size err rx_cmd_a=0x%08x\n",
-+				  rx_cmd_a);
-+			return 0;
-+		}
-+
- 		if (unlikely(rx_cmd_a & RX_CMD_A_RED)) {
- 			netif_dbg(dev, rx_err, dev->net,
- 				  "Error rx_cmd_a=0x%08x\n", rx_cmd_a);
-@@ -2212,8 +2219,7 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 				dev->net->stats.rx_frame_errors++;
- 		} else {
- 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
--			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
--				     size > skb->len)) {
-+			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
- 				netif_dbg(dev, rx_err, dev->net,
- 					  "size err rx_cmd_a=0x%08x\n",
- 					  rx_cmd_a);
 -- 
 2.39.2
 
