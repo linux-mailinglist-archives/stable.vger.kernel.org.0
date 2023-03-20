@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 981C26C06F1
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:53:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2346C06FB
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229632AbjCTAxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59956 "EHLO
+        id S229700AbjCTAxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:53:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbjCTAxH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:53:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C121A48A;
-        Sun, 19 Mar 2023 17:53:07 -0700 (PDT)
+        with ESMTP id S229738AbjCTAxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:53:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D46EC1C58E;
+        Sun, 19 Mar 2023 17:53:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83FC46114C;
-        Mon, 20 Mar 2023 00:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BAC5C433D2;
-        Mon, 20 Mar 2023 00:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67E61B80D3D;
+        Mon, 20 Mar 2023 00:53:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D61C433AC;
+        Mon, 20 Mar 2023 00:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273585;
-        bh=Xsolz83rCXsNcwOTYnTFqWA0Fsn4iBJ44RuNqsIKNGU=;
+        s=k20201202; t=1679273589;
+        bh=Bnhu3uAZwJlCimmYXMQJu4knoTcdvlXJCCfOl0ez2L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oh802y01hz7cdtawNpGBDo4l5PSi25cYkabpxKUHHXoQjAWUZw0Ko9jFI7lqMnQBj
-         voQOKhfgkBju5jWA7PmGX27Fum62syS/N9qWXGjMoGr0n7n5EvLdcKTulIUP7TN/dP
-         2E87Fiufsw+jU9rvuQmh/a/749wgfaycC1oK60aG2+g6iIZeyM2a8s3p+HbaRPdt6V
-         r7+hOJpwLIeFZ0W/iTnRrV/bwC6WunIo3gD4EipBvkQDbjh4rpsVVNKl1XQfDZmkke
-         j9cfbzQsfWKgXtJ9pD2vrfRwtyscluZXRWVNE4n5AaUHVo1WSyRREvTJMQptBbWhLp
-         llaO5heUxeAtw==
+        b=binXoWlhotdZu7glE3BeIuhnodTTVa5H8c2dvK2x0D9xxHjVT7jIwXDGIso+EK16V
+         W4NDCCJRENRqo1x7NVxwLZlW4TW8wwmX6Y7ptfIuaeSa2QIlEu1HYz1YvTrfvLeBvh
+         HMrrQq1WGqTEMh7WJfY8DfVaavTQVp8yf1XPuyQDNodbPOPLWw05OOsDmK1gEudED4
+         T6icVkB38KvS1lZbKovGQ4km5YVPj1OQId2zQad6YzO/6MSU3eGiz0Xq8Y0oIOas7E
+         B88Qbg2VWsXZC+ysM2zlefVBc005RJM4Lo5ZkYYr+csYxvHJqzCCnuZ+CED/7gwZY0
+         U5WlfRqfJh7rw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Rafa=C5=82=20Szalecki?= <perexist7@gmail.com>,
-        Bastien Nocera <hadess@hadess.net>,
+Cc:     Reka Norman <rekanorman@chromium.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 04/30] HID: logitech-hidpp: Add support for Logitech MX Master 3S mouse
-Date:   Sun, 19 Mar 2023 20:52:29 -0400
-Message-Id: <20230320005258.1428043-4-sashal@kernel.org>
+        liqiong@nfschina.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 05/30] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
+Date:   Sun, 19 Mar 2023 20:52:30 -0400
+Message-Id: <20230320005258.1428043-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005258.1428043-1-sashal@kernel.org>
 References: <20230320005258.1428043-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,33 +57,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Szalecki <perexist7@gmail.com>
+From: Reka Norman <rekanorman@chromium.org>
 
-[ Upstream commit db50f7a3983f0154e730f1147ef729e0c5c2f90c ]
+[ Upstream commit 8ae2f2b0a28416ed2f6d8478ac8b9f7862f36785 ]
 
-Add signature for the Logitech MX Master 3S mouse over Bluetooth.
+When a reset notify IPC message is received, the ISR schedules a work
+function and passes the ISHTP device to it via a global pointer
+ishtp_dev. If ish_probe() fails, the devm-managed device resources
+including ishtp_dev are freed, but the work is not cancelled, causing a
+use-after-free when the work function tries to access ishtp_dev. Use
+devm_work_autocancel() instead, so that the work is automatically
+cancelled if probe fails.
 
-Signed-off-by: Rafał Szalecki <perexist7@gmail.com>
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Reka Norman <rekanorman@chromium.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 5efc591a02a03..3c00e6ac8e76a 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4378,6 +4378,8 @@ static const struct hid_device_id hidpp_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e) },
- 	{ /* MX Master 3 mouse over Bluetooth */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023) },
-+	{ /* MX Master 3S mouse over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb034) },
- 	{}
- };
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 15e14239af829..a49c6affd7c4c 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2014-2016, Intel Corporation.
+  */
  
++#include <linux/devm-helpers.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/delay.h>
+@@ -621,7 +622,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
+ 	case MNG_RESET_NOTIFY:
+ 		if (!ishtp_dev) {
+ 			ishtp_dev = dev;
+-			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
+ 		}
+ 		schedule_work(&fw_reset_work);
+ 		break;
+@@ -940,6 +940,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ {
+ 	struct ishtp_device *dev;
+ 	int	i;
++	int	ret;
+ 
+ 	dev = devm_kzalloc(&pdev->dev,
+ 			   sizeof(struct ishtp_device) + sizeof(struct ish_hw),
+@@ -975,6 +976,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 		list_add_tail(&tx_buf->link, &dev->wr_free_list);
+ 	}
+ 
++	ret = devm_work_autocancel(&pdev->dev, &fw_reset_work, fw_reset_work_fn);
++	if (ret) {
++		dev_err(dev->devc, "Failed to initialise FW reset work\n");
++		return NULL;
++	}
++
+ 	dev->ops = &ish_hw_ops;
+ 	dev->devc = &pdev->dev;
+ 	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
 -- 
 2.39.2
 
