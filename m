@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA936C1692
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C07566C18B6
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbjCTPH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54990 "EHLO
+        id S232816AbjCTP0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232212AbjCTPGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A394225
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:33 -0700 (PDT)
+        with ESMTP id S232827AbjCTP0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6F4166ED
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 989E1B80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0030CC433EF;
-        Mon, 20 Mar 2023 15:02:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7CF61565
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89FB4C433EF;
+        Mon, 20 Mar 2023 15:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324552;
-        bh=QJLwVuDNErX7k56DIxan2XhlAD5BDmmyo3Y0i6Ns834=;
+        s=korg; t=1679325583;
+        bh=Ed3pU383HVMS7+m2FVX1Tx39zViPKwp/B/wTTwKwH/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4Ylwph/uYQFaeRnpqOpERDbGLkArVlNksaf909zEIDoB85I/qqsoNMibNPWmapWf
-         DjdgRZmiKi53kf6dR6gcC7Lvtm/7LIkp58xPuaDAVXqHseKiKV8MrIEU0eo6xjLqn9
-         1NF9Iw5dImE37lLOE4U5dO0XZuvwpp1es3EBz0oE=
+        b=wO2Mrs37YHTuOQOofY6539+Z+3QM4k4p5Vy9nUPNuI8nQJs/qhI9RNk1IGzuNDieo
+         2UD+4HCkVTpj6ya4VWmxSg6mEa6cpaUXOSJVPFBlas+SduId2j6/VayzIh1haeNSK3
+         DZmlnJSWxrW2Ry6sAFAjQzulq3i4OlR/VPtuZmqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+1e608ba4217c96d1952f@syzkaller.appspotmail.com,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/99] nfc: pn533: initialize struct pn533_out_arg properly
-Date:   Mon, 20 Mar 2023 15:53:54 +0100
-Message-Id: <20230320145444.049514714@linuxfoundation.org>
+Subject: [PATCH 6.1 097/198] hwmon: (ucd90320) Add minimum delay between bus accesses
+Date:   Mon, 20 Mar 2023 15:53:55 +0100
+Message-Id: <20230320145511.640090287@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 484b7059796e3bc1cb527caa61dfc60da649b4f6 ]
+[ Upstream commit 8d655e65237643c48ada2c131b83679bf1105373 ]
 
-struct pn533_out_arg used as a temporary context for out_urb is not
-initialized properly. Its uninitialized 'phy' field can be dereferenced in
-error cases inside pn533_out_complete() callback function. It causes the
-following failure:
+When probing the ucd90320 access to some of the registers randomly fails.
+Sometimes it NACKs a transfer, sometimes it returns just random data and
+the PEC check fails.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 1 PID: 0 Comm: swapper/1 Not tainted 6.2.0-rc3-next-20230110-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:pn533_out_complete.cold+0x15/0x44 drivers/nfc/pn533/usb.c:441
-Call Trace:
- <IRQ>
- __usb_hcd_giveback_urb+0x2b6/0x5c0 drivers/usb/core/hcd.c:1671
- usb_hcd_giveback_urb+0x384/0x430 drivers/usb/core/hcd.c:1754
- dummy_timer+0x1203/0x32d0 drivers/usb/gadget/udc/dummy_hcd.c:1988
- call_timer_fn+0x1da/0x800 kernel/time/timer.c:1700
- expire_timers+0x234/0x330 kernel/time/timer.c:1751
- __run_timers kernel/time/timer.c:2022 [inline]
- __run_timers kernel/time/timer.c:1995 [inline]
- run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
- __do_softirq+0x1fb/0xaf6 kernel/softirq.c:571
- invoke_softirq kernel/softirq.c:445 [inline]
- __irq_exit_rcu+0x123/0x180 kernel/softirq.c:650
- irq_exit_rcu+0x9/0x20 kernel/softirq.c:662
- sysvec_apic_timer_interrupt+0x97/0xc0 arch/x86/kernel/apic/apic.c:1107
+Experimentation shows that this seems to be triggered by a register access
+directly back to back with a previous register write. Experimentation also
+shows that inserting a small delay after register writes makes the issue go
+away.
 
-Initialize the field with the pn533_usb_phy currently used.
+Use a similar solution to what the max15301 driver does to solve the same
+problem. Create a custom set of bus read and write functions that make sure
+that the delay is added.
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 9dab880d675b ("nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()")
-Reported-by: syzbot+1e608ba4217c96d1952f@syzkaller.appspotmail.com
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230309165050.207390-1-pchelkin@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a470f11c5ba2 ("hwmon: (pmbus/ucd9000) Add support for UCD90320 Power Sequencer")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20230312160312.2227405-1-lars@metafoo.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/usb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/pmbus/ucd9000.c | 75 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
 
-diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
-index 57b07446bb768..68eb1253f888f 100644
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -175,6 +175,7 @@ static int pn533_usb_send_frame(struct pn533 *dev,
- 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
- 			     out->data, out->len, false);
+diff --git a/drivers/hwmon/pmbus/ucd9000.c b/drivers/hwmon/pmbus/ucd9000.c
+index 75fc770c9e403..3daaf22378322 100644
+--- a/drivers/hwmon/pmbus/ucd9000.c
++++ b/drivers/hwmon/pmbus/ucd9000.c
+@@ -7,6 +7,7 @@
+  */
  
-+	arg.phy = phy;
- 	init_completion(&arg.done);
- 	cntx = phy->out_urb->context;
- 	phy->out_urb->context = &arg;
+ #include <linux/debugfs.h>
++#include <linux/delay.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+@@ -16,6 +17,7 @@
+ #include <linux/i2c.h>
+ #include <linux/pmbus.h>
+ #include <linux/gpio/driver.h>
++#include <linux/timekeeping.h>
+ #include "pmbus.h"
+ 
+ enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd90320, ucd9090,
+@@ -65,6 +67,7 @@ struct ucd9000_data {
+ 	struct gpio_chip gpio;
+ #endif
+ 	struct dentry *debugfs;
++	ktime_t write_time;
+ };
+ #define to_ucd9000_data(_info) container_of(_info, struct ucd9000_data, info)
+ 
+@@ -73,6 +76,73 @@ struct ucd9000_debugfs_entry {
+ 	u8 index;
+ };
+ 
++/*
++ * It has been observed that the UCD90320 randomly fails register access when
++ * doing another access right on the back of a register write. To mitigate this
++ * make sure that there is a minimum delay between a write access and the
++ * following access. The 250us is based on experimental data. At a delay of
++ * 200us the issue seems to go away. Add a bit of extra margin to allow for
++ * system to system differences.
++ */
++#define UCD90320_WAIT_DELAY_US 250
++
++static inline void ucd90320_wait(const struct ucd9000_data *data)
++{
++	s64 delta = ktime_us_delta(ktime_get(), data->write_time);
++
++	if (delta < UCD90320_WAIT_DELAY_US)
++		udelay(UCD90320_WAIT_DELAY_US - delta);
++}
++
++static int ucd90320_read_word_data(struct i2c_client *client, int page,
++				   int phase, int reg)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++
++	if (reg >= PMBUS_VIRT_BASE)
++		return -ENXIO;
++
++	ucd90320_wait(data);
++	return pmbus_read_word_data(client, page, phase, reg);
++}
++
++static int ucd90320_read_byte_data(struct i2c_client *client, int page, int reg)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++
++	ucd90320_wait(data);
++	return pmbus_read_byte_data(client, page, reg);
++}
++
++static int ucd90320_write_word_data(struct i2c_client *client, int page,
++				    int reg, u16 word)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++	int ret;
++
++	ucd90320_wait(data);
++	ret = pmbus_write_word_data(client, page, reg, word);
++	data->write_time = ktime_get();
++
++	return ret;
++}
++
++static int ucd90320_write_byte(struct i2c_client *client, int page, u8 value)
++{
++	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
++	struct ucd9000_data *data = to_ucd9000_data(info);
++	int ret;
++
++	ucd90320_wait(data);
++	ret = pmbus_write_byte(client, page, value);
++	data->write_time = ktime_get();
++
++	return ret;
++}
++
+ static int ucd9000_get_fan_config(struct i2c_client *client, int fan)
+ {
+ 	int fan_config = 0;
+@@ -598,6 +668,11 @@ static int ucd9000_probe(struct i2c_client *client)
+ 		info->read_byte_data = ucd9000_read_byte_data;
+ 		info->func[0] |= PMBUS_HAVE_FAN12 | PMBUS_HAVE_STATUS_FAN12
+ 		  | PMBUS_HAVE_FAN34 | PMBUS_HAVE_STATUS_FAN34;
++	} else if (mid->driver_data == ucd90320) {
++		info->read_byte_data = ucd90320_read_byte_data;
++		info->read_word_data = ucd90320_read_word_data;
++		info->write_byte = ucd90320_write_byte;
++		info->write_word_data = ucd90320_write_word_data;
+ 	}
+ 
+ 	ucd9000_probe_gpio(client, mid, data);
 -- 
 2.39.2
 
