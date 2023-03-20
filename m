@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0170E6C183B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30CF36C17F9
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232671AbjCTPWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
+        id S232113AbjCTPTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232644AbjCTPVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8862303F9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:43 -0700 (PDT)
+        with ESMTP id S232546AbjCTPSm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1F82FCD6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8686AB80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56FEC4339B;
-        Mon, 20 Mar 2023 15:15:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C658615AB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19176C433EF;
+        Mon, 20 Mar 2023 15:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325342;
-        bh=OZlJusg9GtHkazQGENwIZTrqCk4r8FHDTY9X5M6MXpc=;
+        s=korg; t=1679325166;
+        bh=ZemQgRVVysq2nAzoPbiwRns+Dlk/fzU8maTMni9HQqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkZopT79s82JlKCPwDOWPUZ+Is4CxXd4Y4M7k6Njtndpy9e4y/r1QBvPLjPRCgakt
-         i7HFerznYK9m9Y7sExB/fwhpidgdGVk0+jmd5QKidIYVPaRkd40FGmdaQAxqcnP42c
-         Z24Tx9nVdRwfwh0QqYNftky5xgTRGVDh5ALLwXMI=
+        b=Edw/snxfByjAU+tgql7ei/xUJI6U2JGsE1UTYc7pBCYfmQReDh6YwnD0h9YvSV0Jm
+         6IhOwFyONwFWelQluKwqYWp5kw4lEBvjJS2jTkIbmwAgCJxTNJ+1cCISm5Hmlus7N0
+         36koUV9LK3ng+4GqSSJeDIUh/Oq0Dn6pc0PMCnAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
-        syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Jeremy Sowden <jeremy@azazel.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 031/211] scsi: core: Fix a procfs host directory removal regression
+Subject: [PATCH 6.1 028/198] netfilter: nft_redir: correct value of inet type `.maxattrs`
 Date:   Mon, 20 Mar 2023 15:52:46 +0100
-Message-Id: <20230320145514.570166406@linuxfoundation.org>
+Message-Id: <20230320145508.675409857@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit be03df3d4bfe7e8866d4aa43d62e648ffe884f5f ]
+[ Upstream commit 493924519b1fe3faab13ee621a43b0d0939abab1 ]
 
-scsi_proc_hostdir_rm() decreases a reference counter and hence must only be
-called once per host that is removed. This change does not require a
-scsi_add_host_with_dma() change since scsi_add_host_with_dma() will return
-0 (success) if scsi_proc_host_add() is called.
+`nft_redir_inet_type.maxattrs` was being set, presumably because of a
+cut-and-paste error, to `NFTA_MASQ_MAX`, instead of `NFTA_REDIR_MAX`.
 
-Fixes: fc663711b944 ("scsi: core: Remove the /proc/scsi/${proc_name} directory earlier")
-Cc: John Garry <john.g.garry@oracle.com>
-Reported-by: John Garry <john.g.garry@oracle.com>
-Link: https://lore.kernel.org/all/ed6b8027-a9d9-1b45-be8e-df4e8c6c4605@oracle.com/
-Reported-by: syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-scsi/000000000000890fab05f65342b6@google.com/
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20230307214428.3703498-1-bvanassche@acm.org
-Tested-by: John Garry <john.g.garry@oracle.com>
-Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 63ce3940f3ab ("netfilter: nft_redir: add inet support")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 3 ---
- 1 file changed, 3 deletions(-)
+ net/netfilter/nft_redir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 8e34bbf44d1f5..2bf8612fa55dd 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -341,9 +341,6 @@ static void scsi_host_dev_release(struct device *dev)
- 	struct Scsi_Host *shost = dev_to_shost(dev);
- 	struct device *parent = dev->parent;
- 
--	/* In case scsi_remove_host() has not been called. */
--	scsi_proc_hostdir_rm(shost->hostt);
--
- 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
- 	rcu_barrier();
+diff --git a/net/netfilter/nft_redir.c b/net/netfilter/nft_redir.c
+index 7ae330d75ac7b..5ed64b2bd15e8 100644
+--- a/net/netfilter/nft_redir.c
++++ b/net/netfilter/nft_redir.c
+@@ -235,7 +235,7 @@ static struct nft_expr_type nft_redir_inet_type __read_mostly = {
+ 	.name		= "redir",
+ 	.ops		= &nft_redir_inet_ops,
+ 	.policy		= nft_redir_policy,
+-	.maxattr	= NFTA_MASQ_MAX,
++	.maxattr	= NFTA_REDIR_MAX,
+ 	.owner		= THIS_MODULE,
+ };
  
 -- 
 2.39.2
