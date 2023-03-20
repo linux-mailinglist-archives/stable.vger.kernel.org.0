@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC72B6C189C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44FD6C1798
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232867AbjCTP0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:26:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38608 "EHLO
+        id S232102AbjCTPPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232871AbjCTPZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6256EEFA1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:03 -0700 (PDT)
+        with ESMTP id S232360AbjCTPO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD87C126E8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 433956158B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5100CC433D2;
-        Mon, 20 Mar 2023 15:19:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61699615AA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71220C433A0;
+        Mon, 20 Mar 2023 15:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325542;
-        bh=ReNAFS40A9VoRE5YPx0RxiBs/b7/Ht6LJvTbjr69eKc=;
+        s=korg; t=1679325005;
+        bh=KybEv8xqTLeH2QWdnQbVpYQSe3+YI3q6mmf67zLEscQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bw5YTGssb8z/Rx4DgBnlwCiVw7CH9pXw+xRvv+9AHPSTAHOiw2WSeotVxQw9HT9hT
-         XyFFKLQwJs+92bjeQqbuxQt40qr5RAz2hkgHXbXWdErJsA1KZ/uU7NpHNluTuLUCuw
-         S1SrSWaUlwML9MsmPcKu6cq4BEBqYbSE0cMw6Spw=
+        b=JUGD+gPOZNkTWYiduwZIy1UvjepPgTEyCL2Fsxhv79572vHbnHxwHS5JQ+V6tMAt4
+         Ev5BVvwIiSXj9b1NvviDRAB1P1pjzCfxZfQfE8IgUi16iV4KRtlSwbh5LLx7MZHr2z
+         si9Tg35uzIDXwZI1wlR8SpB0gr5coTkyk2yewAlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
+        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
+        Si-Wei Liu <si-wei.liu@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 035/211] wifi: nl80211: fix NULL-ptr deref in offchan check
-Date:   Mon, 20 Mar 2023 15:52:50 +0100
-Message-Id: <20230320145514.717132325@linuxfoundation.org>
+Subject: [PATCH 6.1 033/198] vdpa/mlx5: should not activate virtq object when suspended
+Date:   Mon, 20 Mar 2023 15:52:51 +0100
+Message-Id: <20230320145508.867430578@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,37 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
 
-[ Upstream commit f624bb6fad23df3270580b4fcef415c6e7bf7705 ]
+[ Upstream commit 09e65ee9059d76b89cb713795748805efd3f50c6 ]
 
-If, e.g. in AP mode, the link was already created by userspace
-but not activated yet, it has a chandef but the chandef isn't
-valid and has no channel. Check for this and ignore this link.
+Otherwise the virtqueue object to instate could point to invalid address
+that was unmapped from the MTT:
 
-Fixes: 7b0a0e3c3a88 ("wifi: cfg80211: do some rework towards MLO link APIs")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
-Link: https://lore.kernel.org/r/20230301115906.71bd4803fbb9.Iee39c0f6c2d3a59a8227674dc55d52e38b1090cf@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  mlx5_core 0000:41:04.2: mlx5_cmd_out_err:782:(pid 8321):
+  CREATE_GENERAL_OBJECT(0xa00) op_mod(0xd) failed, status
+  bad parameter(0x3), syndrome (0x5fa1c), err(-22)
+
+Fixes: cae15c2ed8e6 ("vdpa/mlx5: Implement susupend virtqueue callback")
+Cc: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+
+Message-Id: <1676424640-11673-1-git-send-email-si-wei.liu@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h | 1 +
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 02b9a0280896c..326c6e50e9db5 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -8816,7 +8816,7 @@ static bool cfg80211_off_channel_oper_allowed(struct wireless_dev *wdev,
- 		struct cfg80211_chan_def *chandef;
+diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+index 058fbe28107e9..25fc4120b618d 100644
+--- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
++++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+@@ -96,6 +96,7 @@ struct mlx5_vdpa_dev {
+ 	struct mlx5_control_vq cvq;
+ 	struct workqueue_struct *wq;
+ 	unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
++	bool suspended;
+ };
  
- 		chandef = wdev_chandef(wdev, link_id);
--		if (!chandef)
-+		if (!chandef || !chandef->chan)
- 			continue;
+ int mlx5_vdpa_alloc_pd(struct mlx5_vdpa_dev *dev, u32 *pdn, u16 uid);
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 3a6dbbc6440d4..daac3ab314785 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -2411,7 +2411,7 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
+ 	if (err)
+ 		goto err_mr;
  
- 		/*
+-	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK))
++	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) || mvdev->suspended)
+ 		goto err_mr;
+ 
+ 	restore_channels_info(ndev);
+@@ -2579,6 +2579,7 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
+ 	clear_vqs_ready(ndev);
+ 	mlx5_vdpa_destroy_mr(&ndev->mvdev);
+ 	ndev->mvdev.status = 0;
++	ndev->mvdev.suspended = false;
+ 	ndev->cur_num_vqs = 0;
+ 	ndev->mvdev.cvq.received_desc = 0;
+ 	ndev->mvdev.cvq.completed_desc = 0;
+@@ -2815,6 +2816,8 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
+ 	struct mlx5_vdpa_virtqueue *mvq;
+ 	int i;
+ 
++	mlx5_vdpa_info(mvdev, "suspending device\n");
++
+ 	down_write(&ndev->reslock);
+ 	ndev->nb_registered = false;
+ 	mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+@@ -2824,6 +2827,7 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
+ 		suspend_vq(ndev, mvq);
+ 	}
+ 	mlx5_vdpa_cvq_suspend(mvdev);
++	mvdev->suspended = true;
+ 	up_write(&ndev->reslock);
+ 	return 0;
+ }
 -- 
 2.39.2
 
