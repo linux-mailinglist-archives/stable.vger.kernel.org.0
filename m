@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4816C2244
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC3A66C224E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 21:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229497AbjCTUKw convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 16:10:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50472 "EHLO
+        id S229561AbjCTUNk convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 16:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbjCTUKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:10:51 -0400
+        with ESMTP id S229865AbjCTUNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 16:13:40 -0400
 Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCA683F3;
-        Mon, 20 Mar 2023 13:10:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DCE14230;
+        Mon, 20 Mar 2023 13:13:39 -0700 (PDT)
 Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
           by outpost.zedat.fu-berlin.de (Exim 4.95)
           with esmtps (TLS1.3)
           tls TLS_AES_256_GCM_SHA384
           (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1peLqA-0008E3-Qi; Mon, 20 Mar 2023 21:10:46 +0100
+          id 1peLsv-0008lQ-JN; Mon, 20 Mar 2023 21:13:37 +0100
 Received: from p57bd9952.dip0.t-ipconnect.de ([87.189.153.82] helo=[192.168.178.81])
           by inpost2.zedat.fu-berlin.de (Exim 4.95)
           with esmtpsa (TLS1.3)
           tls TLS_AES_256_GCM_SHA384
           (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1peLqA-0035Z5-JM; Mon, 20 Mar 2023 21:10:46 +0100
-Message-ID: <dc74919a4a0c683ce23666cdd09c2f7b78f902c7.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH 7/7 v4] sh: mcount.S: fix build error when PRINTK is not
- enabled
+          id 1peLsv-0038P7-Bz; Mon, 20 Mar 2023 21:13:37 +0100
+Message-ID: <c9a748cb2ee6145a3ffe85ca55a28b990f6be68c.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH 6/7 v4] sh: fix Kconfig entry for NUMA => SMP
 From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
         Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, stable@vger.kernel.org
-Date:   Mon, 20 Mar 2023 21:10:45 +0100
-In-Reply-To: <CAMuHMdVR78EXTVd7ThUEv6rxL8aHSyAoC_5z8KyAPmiTyww85w@mail.gmail.com>
+        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Mon, 20 Mar 2023 21:13:36 +0100
+In-Reply-To: <2186c0e97e6747e71ebceade317f88a7cc016772.camel@physik.fu-berlin.de>
 References: <20230306040037.20350-1-rdunlap@infradead.org>
-         <20230306040037.20350-8-rdunlap@infradead.org>
-         <056df6d548ad0e4f7f4ccb2782744b165ce20578.camel@physik.fu-berlin.de>
-         <CAMuHMdU+tsKuONm9iPqqTFSnRT2zaV3zogYgc-+vCp6x-ruQ_w@mail.gmail.com>
-         <01f84314b2499b6859a4826ecf7363635e66a4fc.camel@physik.fu-berlin.de>
-         <CAMuHMdVR78EXTVd7ThUEv6rxL8aHSyAoC_5z8KyAPmiTyww85w@mail.gmail.com>
+         <20230306040037.20350-7-rdunlap@infradead.org>
+         <2186c0e97e6747e71ebceade317f88a7cc016772.camel@physik.fu-berlin.de>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 User-Agent: Evolution 3.46.4 
@@ -58,166 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Geert!
+Hi Randy!
 
-On Mon, 2023-03-20 at 13:42 +0100, Geert Uytterhoeven wrote:
-> Hi Adrian,
-> 
-> On Mon, Mar 20, 2023 at 10:13 AM John Paul Adrian Glaubitz
-> <glaubitz@physik.fu-berlin.de> wrote:
-> > On Mon, 2023-03-20 at 09:16 +0100, Geert Uytterhoeven wrote:
-> > > On Sun, Mar 19, 2023 at 9:49 PM John Paul Adrian Glaubitz
-> > > <glaubitz@physik.fu-berlin.de> wrote:
-> > > > On Sun, 2023-03-05 at 20:00 -0800, Randy Dunlap wrote:
-> > > > > Fix a build error in mcount.S when CONFIG_PRINTK is not enabled.
-> > > > > Fixes this build error:
-> > > > > 
-> > > > > sh2-linux-ld: arch/sh/lib/mcount.o: in function `stack_panic':
-> > > > > (.text+0xec): undefined reference to `dump_stack'
-> > > > > 
-> > > > > Fixes: e460ab27b6c3 ("sh: Fix up stack overflow check with ftrace disabled.")
-> > > > > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> > > > > Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> > > > > Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> > > > > Cc: Rich Felker <dalias@libc.org>
-> > > > > Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> > > > > Cc: stable@vger.kernel.org
-> > > > > ---
-> > > > > v2: add PRINTK to STACK_DEBUG dependency (thanks, Geert)
-> > > > > v3: skipped
-> > > > > v4: refresh & resend
-> > > > > 
-> > > > >  arch/sh/Kconfig.debug |    2 +-
-> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > 
-> > > > > diff -- a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
-> > > > > --- a/arch/sh/Kconfig.debug
-> > > > > +++ b/arch/sh/Kconfig.debug
-> > > > > @@ -15,7 +15,7 @@ config SH_STANDARD_BIOS
-> > > > > 
-> > > > >  config STACK_DEBUG
-> > > > >       bool "Check for stack overflows"
-> > > > > -     depends on DEBUG_KERNEL
-> > > > > +     depends on DEBUG_KERNEL && PRINTK
-> > > > >       help
-> > > > >         This option will cause messages to be printed if free stack space
-> > > > >         drops below a certain limit. Saying Y here will add overhead to
-> > > > 
-> > > > I can't really test this change as the moment I am enabling CONFIG_STACK_DEBUG,
-> > > > the build fails with:
-> > > > 
-> > > >   CC      scripts/mod/devicetable-offsets.s
-> > > > sh4-linux-gcc: error: -pg and -fomit-frame-pointer are incompatible
-> > > > make[1]: *** [scripts/Makefile.build:252: scripts/mod/empty.o] Error 1
-> > > > make[1]: *** Waiting for unfinished jobs....
-> > > > sh4-linux-gcc: error: -pg and -fomit-frame-pointer are incompatible
-> > > > make[1]: *** [scripts/Makefile.build:114: scripts/mod/devicetable-offsets.s] Error 1
-> > > > make: *** [Makefile:1286: prepare0] Error 2
-> > > > 
-> > > > So, I assume we need to strip -fomit-frame-pointer from KBUILD_CFLAGS, correct?
-> > > > 
-> > > > I tried this change, but that doesn't fix it for me:
-> > > > 
-> > > > diff --git a/arch/sh/Makefile b/arch/sh/Makefile
-> > > > index 5c8776482530..83f535b73835 100644
-> > > > --- a/arch/sh/Makefile
-> > > > +++ b/arch/sh/Makefile
-> > > > @@ -173,6 +173,7 @@ KBUILD_AFLAGS               += $(cflags-y)
-> > > > 
-> > > >  ifeq ($(CONFIG_MCOUNT),y)
-> > > >    KBUILD_CFLAGS += -pg
-> > > > +  KBUILD_CFLAGS := $(subst -fomit-frame-pointer,,$(KBUILD_CFLAGS))
-> > > >  endif
-> > > > 
-> > > >  ifeq ($(CONFIG_DWARF_UNWINDER),y)
-> > > > 
-> > > > Any ideas?
-> > > 
-> > > Please try with "+=" instead of ":=".
+On Sun, 2023-03-19 at 21:20 +0100, John Paul Adrian Glaubitz wrote:
+> On Sun, 2023-03-05 at 20:00 -0800, Randy Dunlap wrote:
+> > Fix SUPERH builds that select SYS_SUPPORTS_NUMA but do not select
+> > SYS_SUPPORTS_SMP and SMP.
 > > 
-> > That doesn't work either. I tried the following, but that didn't strip -fomit-frame-pointer:
+> > kernel/sched/topology.c is only built for CONFIG_SMP and then the NUMA
+> > code + data inside topology.c is only built when CONFIG_NUMA is
+> > set/enabled, so these arch/sh/ configs need to select SMP and
+> > SYS_SUPPORTS_SMP to build the NUMA support.
+> > 
+> > Fixes this build error in multiple SUPERH configs:
+> > 
+> > mm/page_alloc.o: In function `get_page_from_freelist':
+> > page_alloc.c:(.text+0x2ca8): undefined reference to `node_reclaim_distance'
+> > 
+> > Fixes: 357d59469c11 ("sh: Tidy up dependencies for SH-2 build.")
+> > Fixes: 9109a30e5a54 ("sh: add support for sh7366 processor")
+> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> > Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> > Cc: Rich Felker <dalias@libc.org>
+> > Cc: linux-sh@vger.kernel.org
+> > Cc: stable@vger.kernel.org
+> > ---
+> > v2: skipped
+> > v3: skipped
+> > v4: refresh & resend
+> > 
+> >  arch/sh/Kconfig |    4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff -- a/arch/sh/Kconfig b/arch/sh/Kconfig
+> > --- a/arch/sh/Kconfig
+> > +++ b/arch/sh/Kconfig
+> > @@ -477,6 +477,8 @@ config CPU_SUBTYPE_SH7722
+> >  	select CPU_SHX2
+> >  	select ARCH_SHMOBILE
+> >  	select ARCH_SPARSEMEM_ENABLE
+> > +	select SYS_SUPPORTS_SMP
+> > +	select SMP
+> >  	select SYS_SUPPORTS_NUMA
+> >  	select SYS_SUPPORTS_SH_CMT
+> >  	select PINCTRL
+> > @@ -487,6 +489,8 @@ config CPU_SUBTYPE_SH7366
+> >  	select CPU_SHX2
+> >  	select ARCH_SHMOBILE
+> >  	select ARCH_SPARSEMEM_ENABLE
+> > +	select SYS_SUPPORTS_SMP
+> > +	select SMP
+> >  	select SYS_SUPPORTS_NUMA
+> >  	select SYS_SUPPORTS_SH_CMT
+> >  
 > 
-> Oops, obviously all of that happened before my morning coffee ;-)
+> It seems that we need this change for these configurations as well:
 > 
-> Makefile has:
+> - config CPU_SHX3
+> - config CPU_SUBTYPE_SH7785
 > 
->     ifdef CONFIG_FRAME_POINTER
->     KBUILD_CFLAGS   += -fno-omit-frame-pointer -fno-optimize-sibling-calls
->     KBUILD_RUSTFLAGS += -Cforce-frame-pointers=y
->     else
->     # Some targets (ARM with Thumb2, for example), can't be built with frame
->     # pointers.  For those, we don't have FUNCTION_TRACER automatically
->     # select FRAME_POINTER.  However, FUNCTION_TRACER adds -pg, and this is
->     # incompatible with -fomit-frame-pointer with current GCC, so we don't use
->     # -fomit-frame-pointer with FUNCTION_TRACER.
->     # In the Rust target specification, "frame-pointer" is set explicitly
->     # to "may-omit".
->     ifndef CONFIG_FUNCTION_TRACER
->     KBUILD_CFLAGS   += -fomit-frame-pointer
->     endif
->     endif
+> Although I can trigger a build failure for CPU_SUBTYPE_SH7785 only when
+> setting CONFIG_NUMA=y:
 > 
-> Your config probably has CONFIG_FRAME_POINTER set?
+>   CC      net/ipv6/addrconf_core.o
+> mm/slab.c: In function 'slab_memory_callback':
+> mm/slab.c:1127:23: error: implicit declaration of function 'init_cache_node_node'; did you mean 'drain_cache_node_node'? [-Werror=implicit-function-declaration]
+>  1127 |                 ret = init_cache_node_node(nid);
+>       |                       ^~~~~~~~~~~~~~~~~~~~
+>       |                       drain_cache_node_node
 > 
->     arch/sh/Kconfig.debug=config DWARF_UNWINDER
->     arch/sh/Kconfig.debug-  bool "Enable the DWARF unwinder for stacktraces"
->     arch/sh/Kconfig.debug-  depends on DEBUG_KERNEL
->     arch/sh/Kconfig.debug:  select FRAME_POINTER
-> 
-> You should make sure that cannot happen when CONFIG_FUNCTION_TRACER
-> is enabled. I.e. make DWARF_UNWINDER depend on !FUNCTION_TRACER?
-> 
-> Other architectures do something similar:
-> 
->     arch/sparc/Kconfig.debug:config FRAME_POINTER
->     arch/sparc/Kconfig.debug-       bool
->     arch/sparc/Kconfig.debug-       depends on MCOUNT
-> 
->     arch/x86/Kconfig.debug:config FRAME_POINTER
->     arch/x86/Kconfig.debug- depends on !UNWINDER_ORC && !UNWINDER_GUESS
->     arch/x86/Kconfig.debug- bool
-> 
-> Probably you need to adjust the following, too:
-> 
->     lib/Kconfig.debug:config FRAME_POINTER
->     lib/Kconfig.debug-      bool "Compile the kernel with frame pointers"
->     lib/Kconfig.debug-      depends on DEBUG_KERNEL && (M68K || UML ||
-> SUPERH) || ARCH_WANT_FRAME_POINTERS
->     lib/Kconfig.debug-      default y if (DEBUG_INFO && UML) ||
-> ARCH_WANT_FRAME_POINTERS
-> 
-> i.e. drop SUPERH from the list above, and select ARCH_WANT_FRAME_POINTERS
-> if !FUNCTION_TRACER.
+> I would expect this error to be reproducible for CPU_SHX3 as well when
+> CONFIG_NUMA=y but CONFIG_SMP=n. But for some reason, I am not seeing
+> the error then.
 
-This change fixed it for me:
+Can you make this change for config CPU_SUBTYPE_SH7785 as well?
 
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index 98e43a537826..04d310ee7384 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -55,6 +55,7 @@ config SUPERH
-        select HAVE_SOFTIRQ_ON_OWN_STACK if IRQSTACKS
-        select HAVE_STACKPROTECTOR
-        select HAVE_SYSCALL_TRACEPOINTS
-+       select ARCH_WANT_FRAME_POINTERS
-        select IRQ_FORCED_THREADING
-        select MODULES_USE_ELF_RELA
-        select NEED_SG_DMA_LENGTH
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index c8b379e2e9ad..3cf45d8edace 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -523,7 +523,7 @@ config ARCH_WANT_FRAME_POINTERS
- 
- config FRAME_POINTER
-        bool "Compile the kernel with frame pointers"
--       depends on DEBUG_KERNEL && (M68K || UML || SUPERH) || ARCH_WANT_FRAME_POINTERS
-+       depends on DEBUG_KERNEL && (M68K || UML) || ARCH_WANT_FRAME_POINTERS
-        default y if (DEBUG_INFO && UML) || ARCH_WANT_FRAME_POINTERS
-        help
-          If you say Y here the resulting kernel image will be slightly
-
-It seems this is also what the other architectures do it seems.
+Then the change should be fine.
 
 Adrian
 
