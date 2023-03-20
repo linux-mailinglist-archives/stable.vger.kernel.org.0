@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833E66C19B9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:37:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7DF6C1955
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233156AbjCTPhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:37:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
+        id S232837AbjCTPcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233159AbjCTPgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:48 -0400
+        with ESMTP id S233094AbjCTPc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97FF73B0E7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D7D199D8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7812B615B5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87910C433EF;
-        Mon, 20 Mar 2023 15:28:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 357D56158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42165C433EF;
+        Mon, 20 Mar 2023 15:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326120;
-        bh=4XAeS5PnLLJmS01mRlXTESvH5s233f4+GfvSxYBTRTE=;
+        s=korg; t=1679325890;
+        bh=IvoQRO8aJSiilef6YAwJXeLVKe9kE3tn576/sb9v0Dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4BvjJIJpPICpJ3u5MJ+Hu24PfC5i3RrlgQjcrA/8tB8Ju/h96Slmvti+VVGKH16a
-         Sb4a8KEikWK1TVyHAlPKrXlmdsrNeUa7SbInDJiW/Nj2yLj7P2O1qluURM6LLUezt6
-         X3Yc5xrBE8wOtlHH5+oOZBMbXttn7KvgJ18SaMAQ=
+        b=zKIz/H+JaU3sEK/IGHIoUJZGdU+Lv3Jx/ZS02RoBfYB9uBozBrwX3zjLF9Wi8niCo
+         qxZkEUIDfYVHdPv89b0pTlGXYBpfxYBtu8xisK1AG8+do8b+F5ngowhKIggCeqY8y4
+         3lsgVMQtOOGmR5rCAhIwG6ldsx9pNDeYeg6ke0d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Fagnani <matt.fagnani@bell.net>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alvin Lee <Alvin.Lee2@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Ayush Gupta <ayugupta@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.2 166/211] drm/amdgpu: Dont resume IOMMU after incomplete init
+Subject: [PATCH 6.1 163/198] drm/amd/display: disconnect MPCC only on OTG change
 Date:   Mon, 20 Mar 2023 15:55:01 +0100
-Message-Id: <20230320145520.387313678@linuxfoundation.org>
+Message-Id: <20230320145514.377165421@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Ayush Gupta <ayugupta@amd.com>
 
-commit f3921a9a641483784448fb982b2eb738b383d9b9 upstream.
+commit 7304ee979b6b6422f41a1312391a5e505fc29ccd upstream.
 
-Check kfd->init_complete in kgd2kfd_iommu_resume, consistent with other
-kgd2kfd calls. This should fix IOMMU errors on resume from suspend when
-KFD IOMMU initialization failed.
+[Why]
+Framedrops are observed while playing Vp9 and Av1 10 bit
+video on 8k resolution using VSR while playback controls
+are disappeared/appeared
 
-Reported-by: Matt Fagnani <matt.fagnani@bell.net>
-Link: https://lore.kernel.org/r/4a3b225c-2ffd-e758-4de1-447375e34cad@bell.net/
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217170
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2454
-Cc: Vasant Hegde <vasant.hegde@amd.com>
-Cc: Linux regression tracking (Thorsten Leemhuis) <regressions@leemhuis.info>
+[How]
+Now ODM 2 to 1 is disabled for 5k or greater resolutions on VSR.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Tested-by: Matt Fagnani <matt.fagnani@bell.net>
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Ayush Gupta <ayugupta@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_device.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-@@ -59,6 +59,7 @@ static int kfd_gtt_sa_init(struct kfd_de
- 				unsigned int chunk_size);
- static void kfd_gtt_sa_fini(struct kfd_dev *kfd);
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
+@@ -1883,6 +1883,7 @@ int dcn32_populate_dml_pipes_from_contex
+ 	bool subvp_in_use = false;
+ 	uint8_t is_pipe_split_expected[MAX_PIPES] = {0};
+ 	struct dc_crtc_timing *timing;
++	bool vsr_odm_support = false;
  
-+static int kfd_resume_iommu(struct kfd_dev *kfd);
- static int kfd_resume(struct kfd_dev *kfd);
+ 	dcn20_populate_dml_pipes_from_context(dc, context, pipes, fast_validate);
  
- static void kfd_device_info_set_sdma_info(struct kfd_dev *kfd)
-@@ -635,7 +636,7 @@ bool kgd2kfd_device_init(struct kfd_dev
+@@ -1900,12 +1901,15 @@ int dcn32_populate_dml_pipes_from_contex
+ 		timing = &pipe->stream->timing;
  
- 	svm_migrate_init(kfd->adev);
- 
--	if (kgd2kfd_resume_iommu(kfd))
-+	if (kfd_resume_iommu(kfd))
- 		goto device_iommu_error;
- 
- 	if (kfd_resume(kfd))
-@@ -784,6 +785,14 @@ int kgd2kfd_resume(struct kfd_dev *kfd,
- 
- int kgd2kfd_resume_iommu(struct kfd_dev *kfd)
- {
-+	if (!kfd->init_complete)
-+		return 0;
-+
-+	return kfd_resume_iommu(kfd);
-+}
-+
-+static int kfd_resume_iommu(struct kfd_dev *kfd)
-+{
- 	int err = 0;
- 
- 	err = kfd_iommu_resume(kfd);
+ 		pipes[pipe_cnt].pipe.dest.odm_combine_policy = dm_odm_combine_policy_dal;
++		vsr_odm_support = (res_ctx->pipe_ctx[i].stream->src.width >= 5120 &&
++				res_ctx->pipe_ctx[i].stream->src.width > res_ctx->pipe_ctx[i].stream->dst.width);
+ 		if (context->stream_count == 1 &&
+ 				context->stream_status[0].plane_count == 1 &&
+ 				!dc_is_hdmi_signal(res_ctx->pipe_ctx[i].stream->signal) &&
+ 				is_h_timing_divisible_by_2(res_ctx->pipe_ctx[i].stream) &&
+ 				pipe->stream->timing.pix_clk_100hz * 100 > DCN3_2_VMIN_DISPCLK_HZ &&
+-				dc->debug.enable_single_display_2to1_odm_policy) {
++				dc->debug.enable_single_display_2to1_odm_policy &&
++				!vsr_odm_support) { //excluding 2to1 ODM combine on >= 5k vsr
+ 			pipes[pipe_cnt].pipe.dest.odm_combine_policy = dm_odm_combine_policy_2to1;
+ 		}
+ 		pipe_cnt++;
 
 
