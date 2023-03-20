@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D73C6C1932
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F10746C18B0
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbjCTPbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49602 "EHLO
+        id S232571AbjCTP0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233068AbjCTPbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20BF2BF00
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:45 -0700 (PDT)
+        with ESMTP id S232394AbjCTP0F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A84B2FCE7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67F0BB80ED7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7620C433EF;
-        Mon, 20 Mar 2023 15:23:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 643B8615AE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750A4C433EF;
+        Mon, 20 Mar 2023 15:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325822;
-        bh=RTQqVSWx6IE27E7U9ID+JWsW+NdwyRMaZL3l3SDcBLI=;
+        s=korg; t=1679325572;
+        bh=VqcU0kjoPpaodik/tmc2o/BUXU32GcZs2CiF6oE5zjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ycq+nFw9RW9LOTX1EH3vtWzNXFuXDxfhTJyY9cChiS6J5YxSc3TIzKZr3ZHYJ5qch
-         vvII/0+TayJuFNMnwLi1ShAzsaCUzXO1EPncSgizy3dBB6BJyDw0SCoYzpMg5UCowB
-         /nSu5Af5DezetGonhVqdTJBFlfBTQFGtWS3tZ3bE=
+        b=fivB+CTQ+WPOvSbaPPbBSrYy00p+A/JmIWgfdYowHrCTw5SsaDdeS+ejKv2UwQWsU
+         bDX4cD3AwqlCcxdid0E5sehjDesW36sAnjUqlXQqO4nYehaHtAJKalIpIvRCpqfDfh
+         g6dSP3kNujLII26yvfh7/wziC+oZNP1vIcPtpY7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        "HeungJun, Kim" <riverful.kim@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Mauro Carvalho Chehab <mchehab@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        HeungJun@vger.kernel.org
-Subject: [PATCH 6.2 107/211] media: m5mols: fix off-by-one loop termination error
+        patches@lists.linux.dev, Roger Lu <roger.lu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 104/198] soc: mediatek: mtk-svs: keep svs alive if CONFIG_DEBUG_FS not supported
 Date:   Mon, 20 Mar 2023 15:54:02 +0100
-Message-Id: <20230320145517.767465808@linuxfoundation.org>
+Message-Id: <20230320145511.939152502@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,60 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Roger Lu <roger.lu@mediatek.com>
 
-[ Upstream commit efbcbb12ee99f750c9f25c873b55ad774871de2a ]
+[ Upstream commit 8bf305087629a98224aa97769587434ea4016767 ]
 
-The __find_restype() function loops over the m5mols_default_ffmt[]
-array, and the termination condition ends up being wrong: instead of
-stopping when the iterator becomes the size of the array it traverses,
-it stops after it has already overshot the array.
+Some projects might not support CONFIG_DEBUG_FS but still needs svs to be
+alive. Therefore, enclose debug cmd codes with CONFIG_DEBUG_FS to make sure
+svs can be alive when CONFIG_DEBUG_FS not supported.
 
-Now, in practice this doesn't likely matter, because the code will
-always find the entry it looks for, and will thus return early and never
-hit that last extra iteration.
-
-But it turns out that clang will unroll the loop fully, because it has
-only two iterations (well, three due to the off-by-one bug), and then
-clang will end up just giving up in the middle of the loop unrolling
-when it notices that the code walks past the end of the array.
-
-And that made 'objtool' very unhappy indeed, because the generated code
-just falls off the edge of the universe, and ends up falling through to
-the next function, causing this warning:
-
-   drivers/media/i2c/m5mols/m5mols.o: warning: objtool: m5mols_set_fmt() falls through to next function m5mols_get_frame_desc()
-
-Fix the loop ending condition.
-
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Analyzed-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Analyzed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/linux-block/CAHk-=wgTSdKYbmB1JYM5vmHMcD9J9UZr0mn7BOYM_LudrP+Xvw@mail.gmail.com/
-Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
-Cc: HeungJun, Kim <riverful.kim@samsung.com>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Roger Lu <roger.lu@mediatek.com>
+Link: https://lore.kernel.org/r/20230111074528.29354-8-roger.lu@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/m5mols/m5mols_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/mediatek/mtk-svs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
-index 2b01873ba0db5..5c2336f318d9a 100644
---- a/drivers/media/i2c/m5mols/m5mols_core.c
-+++ b/drivers/media/i2c/m5mols/m5mols_core.c
-@@ -488,7 +488,7 @@ static enum m5mols_restype __find_restype(u32 code)
- 	do {
- 		if (code == m5mols_default_ffmt[type].code)
- 			return type;
--	} while (type++ != SIZE_DEFAULT_FFMT);
-+	} while (++type != SIZE_DEFAULT_FFMT);
+diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
+index 00526fd37d7b8..e55fb16fdc5ac 100644
+--- a/drivers/soc/mediatek/mtk-svs.c
++++ b/drivers/soc/mediatek/mtk-svs.c
+@@ -138,6 +138,7 @@
+ 
+ static DEFINE_SPINLOCK(svs_lock);
+ 
++#ifdef CONFIG_DEBUG_FS
+ #define debug_fops_ro(name)						\
+ 	static int svs_##name##_debug_open(struct inode *inode,		\
+ 					   struct file *filp)		\
+@@ -170,6 +171,7 @@ static DEFINE_SPINLOCK(svs_lock);
+ 	}
+ 
+ #define svs_dentry_data(name)	{__stringify(name), &svs_##name##_debug_fops}
++#endif
+ 
+ /**
+  * enum svsb_phase - svs bank phase enumeration
+@@ -628,6 +630,7 @@ static int svs_adjust_pm_opp_volts(struct svs_bank *svsb)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_DEBUG_FS
+ static int svs_dump_debug_show(struct seq_file *m, void *p)
+ {
+ 	struct svs_platform *svsp = (struct svs_platform *)m->private;
+@@ -843,6 +846,7 @@ static int svs_create_debug_cmds(struct svs_platform *svsp)
  
  	return 0;
  }
++#endif /* CONFIG_DEBUG_FS */
+ 
+ static u32 interpolate(u32 f0, u32 f1, u32 v0, u32 v1, u32 fx)
+ {
+@@ -2444,11 +2448,13 @@ static int svs_probe(struct platform_device *pdev)
+ 		goto svs_probe_iounmap;
+ 	}
+ 
++#ifdef CONFIG_DEBUG_FS
+ 	ret = svs_create_debug_cmds(svsp);
+ 	if (ret) {
+ 		dev_err(svsp->dev, "svs create debug cmds fail: %d\n", ret);
+ 		goto svs_probe_iounmap;
+ 	}
++#endif
+ 
+ 	return 0;
+ 
 -- 
 2.39.2
 
