@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0AD56C1708
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF456C18FC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232286AbjCTPLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34550 "EHLO
+        id S232394AbjCTP3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:29:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232354AbjCTPKj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:10:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFE5B459
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:50 -0700 (PDT)
+        with ESMTP id S232731AbjCTP2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C65C14212
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5F03614CA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE93C4339B;
-        Mon, 20 Mar 2023 15:05:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CEDB615B8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC8CC4339B;
+        Mon, 20 Mar 2023 15:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324750;
-        bh=b1cBRilY8meb1jiuE+62OGNw2dHYBAVSdXbDVX1nFAU=;
+        s=korg; t=1679325718;
+        bh=FwEafGK3MCe9FJYti0DvSQD0dVjCiZOHkwLeXBPnFSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmr/qouY/TGQBQPbY8JthpGipAGsjno0qPdsiUAL28zxjI1Wpu3tYFMYfu1WCO6lT
-         Ty6Ca+vcNOdugVtp90dOcKOK5rM2eePr92t+t2YK+/oL9NP4nRCV++ITschcuDaYkZ
-         2av5gl+PiEE6hlI648PuED10R58uQaMMvStl6w0c=
+        b=xCmxo2drslNnMQT+A5hiMAjDGz2qu4tHSeM2mzTH93Bz+4LNmqj6LwvA/8XqsLzBW
+         sOkns+yYCM70anquHDr1oE1sGGH6onKE5ylsd3aSYUpWT4WdCtdkocYZsEgi4pu1Ub
+         kCOo7LKNICfu0D8q/MQJQdVzYHIo3jXsXWvpk+Lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Theodore Tso <tytso@mit.edu>, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 51/99] ext4: fail ext4_iget if special inode unallocated
+        patches@lists.linux.dev, Alexandre Bailon <abailon@baylibre.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>
+Subject: [PATCH 6.1 131/198] interconnect: imx: fix registration race
 Date:   Mon, 20 Mar 2023 15:54:29 +0100
-Message-Id: <20230320145445.527526287@linuxfoundation.org>
+Message-Id: <20230320145513.033777620@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,73 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 5cd740287ae5e3f9d1c46f5bfe8778972fd6d3fe ]
+commit 9fbd35520f1f7f3cbe1873939a27ad9b009f21f9 upstream.
 
-In ext4_fill_super(), EXT4_ORPHAN_FS flag is cleared after
-ext4_orphan_cleanup() is executed. Therefore, when __ext4_iget() is
-called to get an inode whose i_nlink is 0 when the flag exists, no error
-is returned. If the inode is a special inode, a null pointer dereference
-may occur. If the value of i_nlink is 0 for any inodes (except boot loader
-inodes) got by using the EXT4_IGET_SPECIAL flag, the current file system
-is corrupted. Therefore, make the ext4_iget() function return an error if
-it gets such an abnormal special inode.
+The current interconnect provider registration interface is inherently
+racy as nodes are not added until the after adding the provider. This
+can specifically cause racing DT lookups to fail.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=199179
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216541
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216539
-Reported-by: Luís Henriques <lhenriques@suse.de>
-Suggested-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230107032126.4165860-2-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Switch to using the new API where the provider is not registered until
+after it has been fully initialised.
+
+Fixes: f0d8048525d7 ("interconnect: Add imx core driver")
+Cc: stable@vger.kernel.org      # 5.8
+Cc: Alexandre Bailon <abailon@baylibre.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
+Link: https://lore.kernel.org/r/20230306075651.2449-5-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/interconnect/imx/imx.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 1a654a1f3f46b..6ba185b46ba39 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4721,13 +4721,6 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 		goto bad_inode;
- 	raw_inode = ext4_raw_inode(&iloc);
+--- a/drivers/interconnect/imx/imx.c
++++ b/drivers/interconnect/imx/imx.c
+@@ -295,6 +295,9 @@ int imx_icc_register(struct platform_dev
+ 	provider->xlate = of_icc_xlate_onecell;
+ 	provider->data = data;
+ 	provider->dev = dev->parent;
++
++	icc_provider_init(provider);
++
+ 	platform_set_drvdata(pdev, imx_provider);
  
--	if ((ino == EXT4_ROOT_INO) && (raw_inode->i_links_count == 0)) {
--		ext4_error_inode(inode, function, line, 0,
--				 "iget: root inode unallocated");
--		ret = -EFSCORRUPTED;
--		goto bad_inode;
--	}
--
- 	if ((flags & EXT4_IGET_HANDLE) &&
- 	    (raw_inode->i_links_count == 0) && (raw_inode->i_mode == 0)) {
- 		ret = -ESTALE;
-@@ -4800,11 +4793,16 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 	 * NeilBrown 1999oct15
- 	 */
- 	if (inode->i_nlink == 0) {
--		if ((inode->i_mode == 0 ||
-+		if ((inode->i_mode == 0 || flags & EXT4_IGET_SPECIAL ||
- 		     !(EXT4_SB(inode->i_sb)->s_mount_state & EXT4_ORPHAN_FS)) &&
- 		    ino != EXT4_BOOT_LOADER_INO) {
--			/* this inode is deleted */
--			ret = -ESTALE;
-+			/* this inode is deleted or unallocated */
-+			if (flags & EXT4_IGET_SPECIAL) {
-+				ext4_error_inode(inode, function, line, 0,
-+						 "iget: special inode unallocated");
-+				ret = -EFSCORRUPTED;
-+			} else
-+				ret = -ESTALE;
- 			goto bad_inode;
+ 	if (settings) {
+@@ -306,20 +309,18 @@ int imx_icc_register(struct platform_dev
  		}
- 		/* The only unlinked inodes we let through here have
--- 
-2.39.2
-
+ 	}
+ 
+-	ret = icc_provider_add(provider);
+-	if (ret) {
+-		dev_err(dev, "error adding interconnect provider: %d\n", ret);
++	ret = imx_icc_register_nodes(imx_provider, nodes, nodes_count, settings);
++	if (ret)
+ 		return ret;
+-	}
+ 
+-	ret = imx_icc_register_nodes(imx_provider, nodes, nodes_count, settings);
++	ret = icc_provider_register(provider);
+ 	if (ret)
+-		goto provider_del;
++		goto err_unregister_nodes;
+ 
+ 	return 0;
+ 
+-provider_del:
+-	icc_provider_del(provider);
++err_unregister_nodes:
++	imx_icc_unregister_nodes(&imx_provider->provider);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(imx_icc_register);
+@@ -328,9 +329,8 @@ void imx_icc_unregister(struct platform_
+ {
+ 	struct imx_icc_provider *imx_provider = platform_get_drvdata(pdev);
+ 
++	icc_provider_deregister(&imx_provider->provider);
+ 	imx_icc_unregister_nodes(&imx_provider->provider);
+-
+-	icc_provider_del(&imx_provider->provider);
+ }
+ EXPORT_SYMBOL_GPL(imx_icc_unregister);
+ 
 
 
