@@ -2,45 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4C76C177D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5406C1966
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232533AbjCTPOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:14:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42526 "EHLO
+        id S233142AbjCTPdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232380AbjCTPOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:01 -0400
+        with ESMTP id S232916AbjCTPdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5482E5586
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9695132E59
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E50B96157F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F237CC433EF;
-        Mon, 20 Mar 2023 15:08:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A28826158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82EB7C4339B;
+        Mon, 20 Mar 2023 15:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324939;
-        bh=WKWGOh7P8dwbtyzqCjRU4JbokhqyWKBW6VLePktxMuI=;
+        s=korg; t=1679325937;
+        bh=6DntsOsD5o9L4KQWCR+51YyGazQ+SlIpyTP/7rWUeKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPiki6vqwxxDIAUXaG7gP720tvZMEXG/vcC3f/QJ8IWeL2M/9RSLF1UBh5Jw9Mgct
-         ojT3neVRqJCYArKQfSLqosjoMGL0G240cY32YVVvxkqYwuuSCUsta7zT2wzb5SWY+F
-         lg02Qd+6lqR40S13iJKyr/ZjbQ+NeaveQbVGVJQs=
+        b=I9RsKRI3vdwdhQp2S455m/2InKNOxWaWQDmxjSxP5Fs7zbu1aHuwDcTsGhpY5zZab
+         bTL+lzkLRsuybdXNmIsNSL85PAqR4k5d9Fe7oiEPl47Is0lpfHC2Izoy01t0fE0QaH
+         qqUBRg5aFXnoAPkyq7VVQucxbhSQAkN6zqeVFv44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Piotr Raczynski <piotr.raczynski@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/115] ethernet: sun: add check for the mdesc_grab()
-Date:   Mon, 20 Mar 2023 15:54:22 +0100
-Message-Id: <20230320145451.503282399@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Huang Rui <ray.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Philip Yang <Philip.Yang@amd.com>, Qiang Yu <qiang.yu@amd.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Nirmoy Das <nirmoy.das@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Anshuman Gupta <anshuman.gupta@intel.com>,
+        Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 6.2 128/211] drm/ttm: Fix a NULL pointer dereference
+Date:   Mon, 20 Mar 2023 15:54:23 +0100
+Message-Id: <20230320145518.756840440@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +65,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 
-[ Upstream commit 90de546d9a0b3c771667af18bb3f80567eabb89b ]
+commit 9a9a8fe26751334b7739193a94eba741073b8a55 upstream.
 
-In vnet_port_probe() and vsw_port_probe(), we should
-check the return value of mdesc_grab() as it may
-return NULL which can caused NPD bugs.
+The LRU mechanism may look up a resource in the process of being removed
+from an object. The locking rules here are a bit unclear but it looks
+currently like res->bo assignment is protected by the LRU lock, whereas
+bo->resource is protected by the object lock, while *clearing* of
+bo->resource is also protected by the LRU lock. This means that if
+we check that bo->resource points to the LRU resource under the LRU
+lock we should be safe.
+So perform that check before deciding to swap out a bo. That avoids
+dereferencing a NULL bo->resource in ttm_bo_swapout().
 
-Fixes: 5d01fa0c6bd8 ("ldmvsw: Add ldmvsw.c driver code")
-Fixes: 43fdf27470b2 ("[SPARC64]: Abstract out mdesc accesses for better MD update handling.")
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6a9b02899402 ("drm/ttm: move the LRU into resource handling v4")
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Christian Koenig <christian.koenig@amd.com>
+Cc: Huang Rui <ray.huang@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Philip Yang <Philip.Yang@amd.com>
+Cc: Qiang Yu <qiang.yu@amd.com>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Nirmoy Das <nirmoy.das@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
+Cc: Anshuman Gupta <anshuman.gupta@intel.com>
+Cc: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.19+
+Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230307144621.10748-2-thomas.hellstrom@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/ldmvsw.c  | 3 +++
- drivers/net/ethernet/sun/sunvnet.c | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/gpu/drm/ttm/ttm_device.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sun/ldmvsw.c b/drivers/net/ethernet/sun/ldmvsw.c
-index 50bd4e3b0af9d..cde65f76e5cef 100644
---- a/drivers/net/ethernet/sun/ldmvsw.c
-+++ b/drivers/net/ethernet/sun/ldmvsw.c
-@@ -290,6 +290,9 @@ static int vsw_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+--- a/drivers/gpu/drm/ttm/ttm_device.c
++++ b/drivers/gpu/drm/ttm/ttm_device.c
+@@ -158,7 +158,7 @@ int ttm_device_swapout(struct ttm_device
+ 			struct ttm_buffer_object *bo = res->bo;
+ 			uint32_t num_pages;
  
- 	hp = mdesc_grab();
+-			if (!bo)
++			if (!bo || bo->resource != res)
+ 				continue;
  
-+	if (!hp)
-+		return -ENODEV;
-+
- 	rmac = mdesc_get_property(hp, vdev->mp, remote_macaddr_prop, &len);
- 	err = -ENODEV;
- 	if (!rmac) {
-diff --git a/drivers/net/ethernet/sun/sunvnet.c b/drivers/net/ethernet/sun/sunvnet.c
-index 58ee89223951e..dcdfc1fd3d2ca 100644
---- a/drivers/net/ethernet/sun/sunvnet.c
-+++ b/drivers/net/ethernet/sun/sunvnet.c
-@@ -431,6 +431,9 @@ static int vnet_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 
- 	hp = mdesc_grab();
- 
-+	if (!hp)
-+		return -ENODEV;
-+
- 	vp = vnet_find_parent(hp, vdev->mp, vdev);
- 	if (IS_ERR(vp)) {
- 		pr_err("Cannot find port parent vnet\n");
--- 
-2.39.2
-
+ 			num_pages = PFN_UP(bo->base.size);
 
 
