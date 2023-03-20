@@ -2,52 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D0E6C19A8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 168C66C1777
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233192AbjCTPgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59148 "EHLO
+        id S232527AbjCTPOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbjCTPgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E981E9DC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:11 -0700 (PDT)
+        with ESMTP id S232319AbjCTPNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75AE9F94B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97199615A7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A54F8C433D2;
-        Mon, 20 Mar 2023 15:28:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 245DFB80D34
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862EDC433D2;
+        Mon, 20 Mar 2023 15:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326088;
-        bh=N7eoYudBbjL6k7958QC2rfm95vzjkqFZEI3efbhH/C8=;
+        s=korg; t=1679324922;
+        bh=v81g5Ju93yPkz3l72tZo5MVgoURquqy4Asl0YshQPVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjfPk0sHBU4dDcS26Nq52WkKSxXtORpkxc82JPF6Gz3WWDMoJ3aNwmpz6okYh3Rqf
-         A38dl+gGxyh0FScPU0CGWM1Ix2iI6ZCPTSj+Y8kDNIgImy4UEIKzHMLhfkFJ4Uoxue
-         XPxAymYspKkwxE8xPLymXfHFiuxK+A+QkFR3X2/Y=
+        b=GSHcD0VVv3uwp7yqUarDTYB91lNfz/zcUYxfWNLPWfWWK1a1oi64gNHb2gk06PZjY
+         Kxjtn9zvYLs9th/9xaZi5jKWHFZ+y3t4yCW0IClsI2ci8w6h1JbicVdlNyiBygZR4V
+         uAViMaSHlYg8S8f8E7246lcdN1U7id99IPr3H6NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Gongjun Song <gongjun.song@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.2 156/211] ALSA: hda: intel-dsp-config: add MTL PCI id
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 73/99] fbdev: stifb: Provide valid pixelclock and add fb_check_var() checks
 Date:   Mon, 20 Mar 2023 15:54:51 +0100
-Message-Id: <20230320145519.968681825@linuxfoundation.org>
+Message-Id: <20230320145446.460445749@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,40 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Helge Deller <deller@gmx.de>
 
-commit bbdf904b13a62bb8b1272d92a7dde082dff86fbb upstream.
+commit 203873a535d627c668f293be0cb73e26c30f9cc7 upstream.
 
-Use SOF as default audio driver.
+Find a valid modeline depending on the machine graphic card
+configuration and add the fb_check_var() function to validate
+Xorg provided graphics settings.
 
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Gongjun Song <gongjun.song@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230306074101.3906707-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/hda/intel-dsp-config.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/video/fbdev/stifb.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
---- a/sound/hda/intel-dsp-config.c
-+++ b/sound/hda/intel-dsp-config.c
-@@ -472,6 +472,15 @@ static const struct config_entry config_
- 	},
- #endif
+--- a/drivers/video/fbdev/stifb.c
++++ b/drivers/video/fbdev/stifb.c
+@@ -922,6 +922,28 @@ SETUP_HCRX(struct stifb_info *fb)
+ /* ------------------- driver specific functions --------------------------- */
  
-+/* Meteor Lake */
-+#if IS_ENABLED(CONFIG_SND_SOC_SOF_METEORLAKE)
-+	/* Meteorlake-P */
-+	{
-+		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
-+		.device = 0x7e28,
-+	},
-+#endif
+ static int
++stifb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
++{
++	struct stifb_info *fb = container_of(info, struct stifb_info, info);
 +
- };
++	if (var->xres != fb->info.var.xres ||
++	    var->yres != fb->info.var.yres ||
++	    var->bits_per_pixel != fb->info.var.bits_per_pixel)
++		return -EINVAL;
++
++	var->xres_virtual = var->xres;
++	var->yres_virtual = var->yres;
++	var->xoffset = 0;
++	var->yoffset = 0;
++	var->grayscale = fb->info.var.grayscale;
++	var->red.length = fb->info.var.red.length;
++	var->green.length = fb->info.var.green.length;
++	var->blue.length = fb->info.var.blue.length;
++
++	return 0;
++}
++
++static int
+ stifb_setcolreg(u_int regno, u_int red, u_int green,
+ 	      u_int blue, u_int transp, struct fb_info *info)
+ {
+@@ -1145,6 +1167,7 @@ stifb_init_display(struct stifb_info *fb
  
- static const struct config_entry *snd_intel_dsp_find_config
+ static const struct fb_ops stifb_ops = {
+ 	.owner		= THIS_MODULE,
++	.fb_check_var	= stifb_check_var,
+ 	.fb_setcolreg	= stifb_setcolreg,
+ 	.fb_blank	= stifb_blank,
+ 	.fb_fillrect	= stifb_fillrect,
+@@ -1164,6 +1187,7 @@ static int __init stifb_init_fb(struct s
+ 	struct stifb_info *fb;
+ 	struct fb_info *info;
+ 	unsigned long sti_rom_address;
++	char modestr[32];
+ 	char *dev_name;
+ 	int bpp, xres, yres;
+ 
+@@ -1342,6 +1366,9 @@ static int __init stifb_init_fb(struct s
+ 	info->flags = FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
+ 	info->pseudo_palette = &fb->pseudo_palette;
+ 
++	scnprintf(modestr, sizeof(modestr), "%dx%d-%d", xres, yres, bpp);
++	fb_find_mode(&info->var, info, modestr, NULL, 0, NULL, bpp);
++
+ 	/* This has to be done !!! */
+ 	if (fb_alloc_cmap(&info->cmap, NR_PALETTE, 0))
+ 		goto out_err1;
 
 
