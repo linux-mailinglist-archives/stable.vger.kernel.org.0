@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 712636C1953
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC0616C16E5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232989AbjCTPco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:32:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48000 "EHLO
+        id S232105AbjCTPKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232994AbjCTPcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB95199ED
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:13 -0700 (PDT)
+        with ESMTP id S232260AbjCTPJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD02F25E08
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B4590CE12EA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0610C433D2;
-        Mon, 20 Mar 2023 15:24:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7D8A61582
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC769C433EF;
+        Mon, 20 Mar 2023 15:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325888;
-        bh=v3WmhsKYQj2brYwY24PrxhsCZptd76ru0komQ8l7e8k=;
+        s=korg; t=1679324673;
+        bh=X4h6yHXiON1m6XydHEdwYWNbckRAwVJpL1BE2uPA6jU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFjZf7NTi8IFZWSsPTKTwI7qvcN3MVmesbY/Ms+fx5QNph9rGTLGaYA1nGg5yRut0
-         Ls8hEW5JyEN9xiWeyy/PPkLYVhGejnlgU+jKAe51wwV6n0bBkAxVcHa0nC/FBUzTEX
-         rRiRkLd33G3fIS+zLCWO4aSZe6QZjJIu/X2Um9t8=
+        b=UMbkDcC57K7egHfEDPfXTWA2w6nkT9OAAuN3sDZHTuq7F0UkTtTn4EQUODWpk/KLy
+         Qmmanm5Q0WJYA2SFoDklLCKqZ9ExfXUDNnF0J4IGyq/Bj2I/6GVrL9hVxltCyX/pSg
+         /EgwCThwirHHtRyovwBEq1btSfoRyuS4ApfCCv5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH 6.2 120/211] serial: 8250_em: Fix UART port type
-Date:   Mon, 20 Mar 2023 15:54:15 +0100
-Message-Id: <20230320145518.371477185@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 38/99] qed/qed_mng_tlv: correctly zero out ->min instead of ->hour
+Date:   Mon, 20 Mar 2023 15:54:16 +0100
+Message-Id: <20230320145444.970250061@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,36 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-commit 32e293be736b853f168cd065d9cbc1b0c69f545d upstream.
+[ Upstream commit 470efd68a4653d9819d391489886432cd31bcd0b ]
 
-As per HW manual for  EMEV2 "R19UH0040EJ0400 Rev.4.00", the UART
-IP found on EMMA mobile SoC is Register-compatible with the
-general-purpose 16750 UART chip. Fix UART port type as 16750 and
-enable 64-bytes fifo support.
+This fixes an issue where ->hour would erroneously get zeroed out
+instead of ->min because of a bad copy paste.
 
-Fixes: 22886ee96895 ("serial8250-em: Emma Mobile UART driver V2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20230227114152.22265-2-biju.das.jz@bp.renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
+
+Fixes: f240b6882211 ("qed: Add support for processing fcoe tlv request.")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Link: https://lore.kernel.org/r/20230315194618.579286-1-d-tatianin@yandex-team.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_em.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_em.c
-+++ b/drivers/tty/serial/8250/8250_em.c
-@@ -106,8 +106,8 @@ static int serial8250_em_probe(struct pl
- 	memset(&up, 0, sizeof(up));
- 	up.port.mapbase = regs->start;
- 	up.port.irq = irq;
--	up.port.type = PORT_UNKNOWN;
--	up.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT | UPF_IOREMAP;
-+	up.port.type = PORT_16750;
-+	up.port.flags = UPF_FIXED_PORT | UPF_IOREMAP | UPF_FIXED_TYPE;
- 	up.port.dev = &pdev->dev;
- 	up.port.private_data = priv;
- 
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c b/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c
+index 3e3192a3ad9b7..fdbd5f07a1857 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_mng_tlv.c
+@@ -422,7 +422,7 @@ qed_mfw_get_tlv_time_value(struct qed_mfw_tlv_time *p_time,
+ 	if (p_time->hour > 23)
+ 		p_time->hour = 0;
+ 	if (p_time->min > 59)
+-		p_time->hour = 0;
++		p_time->min = 0;
+ 	if (p_time->msec > 999)
+ 		p_time->msec = 0;
+ 	if (p_time->usec > 999)
+-- 
+2.39.2
+
 
 
