@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7F7F6C0746
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DFB26C077F
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230175AbjCTA4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:56:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60364 "EHLO
+        id S230107AbjCTA6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbjCTAzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:55:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88A4A15CB0;
-        Sun, 19 Mar 2023 17:54:41 -0700 (PDT)
+        with ESMTP id S230310AbjCTA52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:57:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE26420551;
+        Sun, 19 Mar 2023 17:55:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B563611DE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DABCB80D4A;
+        Mon, 20 Mar 2023 00:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B95C4339C;
         Mon, 20 Mar 2023 00:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 992EAC433EF;
-        Mon, 20 Mar 2023 00:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273657;
-        bh=sDkruBFyfQL22Bvsy8QT47HOFCYwklASkPBiGar2oVc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Bhd1zqjUyMXNL7ioQMLEGny2XENYp2upRHxgO7KqOIluFG8EAPqLTlqfUzK1Dyae9
-         E350AKRkcX0bsScJzlwbTECRS7XR3Uc4AgFoLrgiGXlrUfcOiy99O5yaeRdc3Ok5hN
-         fwEIWAX3NH4d+BnIdJOba5KdA7TYGObHLYbvlu1wLpJImlYtGazsX7kK+1ex6g71GL
-         0Z1tCdG2sG2OPm1Rx+rJxG6uB6Oj5xLsS2PXVsVXARKe1P13617XmyIGcJ/9SiP7q/
-         d4pL3zrOgUuXwoWOD1/a08kdJv2NUDlCojQIyHCyqLOjk+bif7NNt9OzEYS7rxakyv
-         QQfhn/vio0rRA==
+        s=k20201202; t=1679273658;
+        bh=58zc0AzHfesSx+M9pKNJIvOAgE7ILLowXaKun9ELkcg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=D4m/TC/4wWhp4S4p/ZLZlVj/fvQ/PCI0DYZt6NqDVjyH3/LrGF7f5Fndd6R9bxrGi
+         E9Sl9Pf0CHsJxqmqKja9R58IxI83sh1KdQuBMRpyFDpJmJ8VC4fvJY9DrMMgCEZugU
+         kaa93qTs99ou+juVPw8DZgnciU4g0DECsjYDG72Xe4Z2L/1hWpFaV7/PE7gQ+YIho3
+         krOUnzjmfhcl+8MjtrZXKjGBh07Mcwz1CPiDar8oVi6rtkSmN19l5ap6SfOljhcnKr
+         1+jDAzG/68BBGW333J2QGrQk2WUk3gU8mxHPjatTfCZ+Y3TQUk1gP+DiMjQvbsMK2A
+         fNYch7P+TTxfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandr Sapozhnikov <alsp705@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>, airlied@redhat.com,
-        kraxel@redhat.com, airlied@gmail.com, daniel@ffwll.ch,
-        sam@ravnborg.org, jani.nikula@intel.com, javierm@redhat.com,
-        ville.syrjala@linux.intel.com,
-        virtualization@lists.linux-foundation.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 01/29] drm/cirrus: NULL-check pipe->plane.state->fb in cirrus_pipe_update()
-Date:   Sun, 19 Mar 2023 20:53:43 -0400
-Message-Id: <20230320005413.1428452-1-sashal@kernel.org>
+Cc:     Danny Kaehn <kaehndan@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 02/29] HID: cp2112: Fix driver not registering GPIO IRQ chip as threaded
+Date:   Sun, 19 Mar 2023 20:53:44 -0400
+Message-Id: <20230320005413.1428452-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
+References: <20230320005413.1428452-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,42 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandr Sapozhnikov <alsp705@gmail.com>
+From: Danny Kaehn <kaehndan@gmail.com>
 
-[ Upstream commit 7245e629dcaaf308f1868aeffa218e9849c77893 ]
+[ Upstream commit 37f5b858a66543b2b67c0288280af623985abc29 ]
 
-After having been compared to NULL value at cirrus.c:455, pointer
-'pipe->plane.state->fb' is passed as 1st parameter in call to function
-'cirrus_fb_blit_rect' at cirrus.c:461, where it is dereferenced at
-cirrus.c:316.
+The CP2112 generates interrupts from a polling routine on a thread,
+and can only support threaded interrupts. This patch configures the
+gpiochip irq chip with this flag, disallowing consumers to request
+a hard IRQ from this driver, which resulted in a segfault previously.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-v2:
-	* aligned commit message to line-length limits
-
-Signed-off-by: Alexandr Sapozhnikov <alsp705@gmail.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230215171549.16305-1-alsp705@gmail.com
+Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
+Link: https://lore.kernel.org/r/20230210170044.11835-1-kaehndan@gmail.com
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tiny/cirrus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-cp2112.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-index 354d5e854a6f0..b27e469e90217 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus.c
-@@ -455,7 +455,7 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
- 	if (state->fb && cirrus->cpp != cirrus_cpp(state->fb))
- 		cirrus_mode_set(cirrus, &crtc->mode, state->fb);
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 1e16b0fa310d1..27cadadda7c9d 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1354,6 +1354,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	girq->parents = NULL;
+ 	girq->default_type = IRQ_TYPE_NONE;
+ 	girq->handler = handle_simple_irq;
++	girq->threaded = true;
  
--	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
-+	if (state->fb && drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		cirrus_fb_blit_rect(state->fb, &shadow_plane_state->data[0], &rect);
- }
- 
+ 	ret = gpiochip_add_data(&dev->gc, dev);
+ 	if (ret < 0) {
 -- 
 2.39.2
 
