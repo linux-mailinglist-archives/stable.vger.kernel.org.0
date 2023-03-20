@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE836C1831
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 048AF6C179E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232653AbjCTPVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59198 "EHLO
+        id S232373AbjCTPPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:15:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232655AbjCTPV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:27 -0400
+        with ESMTP id S232374AbjCTPPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:15:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0BC11E8B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513562CC55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9549561593
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A03E7C433EF;
-        Mon, 20 Mar 2023 15:15:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6395615A1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B162DC433EF;
+        Mon, 20 Mar 2023 15:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325323;
-        bh=sWTMJm0R4WO14S6UjAeluv9V4ay9gPwwX0MN8T/YVA8=;
+        s=korg; t=1679325025;
+        bh=9GAwBgvf3WQf/+27mvDYiZpbjGFD1ES/2tLRn/VvdKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dVarIw1CW6WLzFcdXjV/xcjQBMoRHkAOlg4+kknUTm36JMKhsAG5NaRdvW7AEQ60
-         rPBhq0M5G6iKHwn6JGiXT1/AVfmJN5iZOMqXeKmH6ORB+6mI8H23DCzCRR3U9F14PK
-         1LOh/3EDO7sAXDvWA8v7Sa3qo7PMOyIiwUUgZrv8=
+        b=jjj0NYvycwFSqGEnyDNLe4AYnFLp1FnslnY2mxIslVao3nUvy50P04t0aPfCYMR5u
+         XzNO3id7dY80hXmlCRGt/9wBB10shv+aJYKeKpENxTfalX40BBFLGh8+EaWzGwbxaG
+         r+QugX3Ls3Z5g91691ldUFFu/esxnhLZqnm5rNM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 029/211] netfilter: nft_redir: correct value of inet type `.maxattrs`
+Subject: [PATCH 6.1 026/198] netfilter: nft_masq: correct length for loading protocol registers
 Date:   Mon, 20 Mar 2023 15:52:44 +0100
-Message-Id: <20230320145514.485563444@linuxfoundation.org>
+Message-Id: <20230320145508.603917002@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,32 +56,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit 493924519b1fe3faab13ee621a43b0d0939abab1 ]
+[ Upstream commit ec2c5917eb858428b2083d1c74f445aabbe8316b ]
 
-`nft_redir_inet_type.maxattrs` was being set, presumably because of a
-cut-and-paste error, to `NFTA_MASQ_MAX`, instead of `NFTA_REDIR_MAX`.
+The values in the protocol registers are two bytes wide.  However, when
+parsing the register loads, the code currently uses the larger 16-byte
+size of a `union nf_inet_addr`.  Change it to use the (correct) size of
+a `union nf_conntrack_man_proto` instead.
 
-Fixes: 63ce3940f3ab ("netfilter: nft_redir: add inet support")
+Fixes: 8a6bf5da1aef ("netfilter: nft_masq: support port range")
 Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
 Reviewed-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_redir.c | 2 +-
+ net/netfilter/nft_masq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_redir.c b/net/netfilter/nft_redir.c
-index dbc642f5d32a3..67cec56bc84a3 100644
---- a/net/netfilter/nft_redir.c
-+++ b/net/netfilter/nft_redir.c
-@@ -236,7 +236,7 @@ static struct nft_expr_type nft_redir_inet_type __read_mostly = {
- 	.name		= "redir",
- 	.ops		= &nft_redir_inet_ops,
- 	.policy		= nft_redir_policy,
--	.maxattr	= NFTA_MASQ_MAX,
-+	.maxattr	= NFTA_REDIR_MAX,
- 	.owner		= THIS_MODULE,
- };
+diff --git a/net/netfilter/nft_masq.c b/net/netfilter/nft_masq.c
+index 2a0adc497bbb4..026b4f87d96cc 100644
+--- a/net/netfilter/nft_masq.c
++++ b/net/netfilter/nft_masq.c
+@@ -43,7 +43,7 @@ static int nft_masq_init(const struct nft_ctx *ctx,
+ 			 const struct nft_expr *expr,
+ 			 const struct nlattr * const tb[])
+ {
+-	u32 plen = sizeof_field(struct nf_nat_range, min_addr.all);
++	u32 plen = sizeof_field(struct nf_nat_range, min_proto.all);
+ 	struct nft_masq *priv = nft_expr_priv(expr);
+ 	int err;
  
 -- 
 2.39.2
