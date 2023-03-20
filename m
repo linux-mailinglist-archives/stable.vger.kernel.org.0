@@ -2,131 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A483A6C0FC6
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D3A6C0FF0
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:58:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230090AbjCTKyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:54:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52550 "EHLO
+        id S229735AbjCTK62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:58:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229772AbjCTKxu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:53:50 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F6812F17
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:50:27 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32KAXXFr024220
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:49:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=tVKP/OOcKh9BI0Zq7OkJFhEuLzZhfwIjYB8j4HYfsiQ=;
- b=PiIZxXDaeNk2gQWeiAQmuDjz8SCG40I9MzjkbZr5TFG7O8H20JWK5h6ZhPcpRX2ftJYC
- YOZGUfpsZECRZ48iXFlshjflvHxKdGK7ac0b0AZiuMV5VJEOxhyzcEhrK54N+1RzszVm
- c4DW6+9C1frAP6fyw1bLq/f1r2+9AqqanXIN+ckWaa3ohB0hSZopOSaRCiWGq0/GG2xX
- mg/KJzLowDkaSrVUjWd2SGPRgLWpA9/abVkAqNXO8yxPJZoCFvsX79F1D75b1Ln5XOOm
- Po4uiFRnY9OKTFdpkhfehNr5q0aTKMxsVt9FORLsdpqdf+9DqDVdWPA9CrXatTs9EQl5 Vw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pdprjdtp8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:49:30 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32K4SrZV015046
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:49:27 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3pd4jfb44r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:49:27 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32KAnOSx25494036
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Mar 2023 10:49:24 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0EF1F2004B;
-        Mon, 20 Mar 2023 10:49:24 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F342D2004D;
-        Mon, 20 Mar 2023 10:49:23 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon, 20 Mar 2023 10:49:23 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
-        id B4198E038D; Mon, 20 Mar 2023 11:49:23 +0100 (CET)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     gor@linux.ibm.com
-Subject: [PATCH 5.4.y] s390/ipl: add missing intersection check to ipl_report handling
-Date:   Mon, 20 Mar 2023 11:49:18 +0100
-Message-Id: <20230320104918.421601-1-svens@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <1679303913560@kroah.com>
-References: <1679303913560@kroah.com>
+        with ESMTP id S229792AbjCTK5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:57:50 -0400
+Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EF3066EAE;
+        Mon, 20 Mar 2023 03:54:38 -0700 (PDT)
+X-IronPort-AV: E=Sophos;i="5.98,274,1673881200"; 
+   d="scan'208";a="156562966"
+Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
+  by relmlie6.idc.renesas.com with ESMTP; 20 Mar 2023 19:53:49 +0900
+Received: from localhost.localdomain (unknown [10.226.92.205])
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 2A7E54004937;
+        Mon, 20 Mar 2023 19:53:45 +0900 (JST)
+From:   Biju Das <biju.das.jz@bp.renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-serial@vger.kernel.org,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v3 1/5] tty: serial: sh-sci: Fix transmit end interrupt handler
+Date:   Mon, 20 Mar 2023 10:53:35 +0000
+Message-Id: <20230320105339.236279-2-biju.das.jz@bp.renesas.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
+References: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NCb9MQrgIb8WUL-21mm90uNe_UkHhNam
-X-Proofpoint-GUID: NCb9MQrgIb8WUL-21mm90uNe_UkHhNam
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-20_06,2023-03-20_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 lowpriorityscore=0 clxscore=1015 mlxscore=0 bulkscore=0
- adultscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303150002 definitions=main-2303200089
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The code which handles the ipl report is searching for a free location
-in memory where it could copy the component and certificate entries to.
-It checks for intersection between the sections required for the kernel
-and the component/certificate data area, but fails to check whether
-the data structures linking these data areas together intersect.
+The fourth interrupt on SCI port is transmit end interrupt compared to
+the break interrupt on other port types. So, shuffle the interrupts to fix
+the transmit end interrupt handler.
 
-This might cause the iplreport copy code to overwrite the iplreport
-itself. Fix this by adding two addtional intersection checks.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 9641b8cc733f ("s390/ipl: read IPL report at early boot")
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-(cherry picked from commit a52e5cdbe8016d4e3e6322fd93d71afddb9a5af9)
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Cc: stable@vger.kernel.org
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 ---
- arch/s390/boot/ipl_report.c | 8 ++++++++
+v2->v3:
+ * Cced stable@vger.kernel.org
+v1->v2:
+ * Replaced the wrong fixes tag
+ * Added a simpler check in sci_init_single() and added a check in
+   probe to catch invalid interrupt count.
+Tested the SCI0 interface on RZ/G2UL by connecting to PMOD USBUART.
+ 39:          0     GICv3 437 Level     1004d000.serial:rx err
+ 40:         12     GICv3 438 Edge      1004d000.serial:rx full
+ 41:         70     GICv3 439 Edge      1004d000.serial:tx empty
+ 42:         18     GICv3 440 Level     1004d000.serial:tx end
+---
+ drivers/tty/serial/sh-sci.c | 8 ++++++++
  1 file changed, 8 insertions(+)
 
-diff --git a/arch/s390/boot/ipl_report.c b/arch/s390/boot/ipl_report.c
-index 0b4965573656..88bacf4999c4 100644
---- a/arch/s390/boot/ipl_report.c
-+++ b/arch/s390/boot/ipl_report.c
-@@ -57,11 +57,19 @@ static unsigned long find_bootdata_space(struct ipl_rb_components *comps,
- 	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
- 	    intersects(INITRD_START, INITRD_SIZE, safe_addr, size))
- 		safe_addr = INITRD_START + INITRD_SIZE;
-+	if (intersects(safe_addr, size, (unsigned long)comps, comps->len)) {
-+		safe_addr = (unsigned long)comps + comps->len;
-+		goto repeat;
-+	}
- 	for_each_rb_entry(comp, comps)
- 		if (intersects(safe_addr, size, comp->addr, comp->len)) {
- 			safe_addr = comp->addr + comp->len;
- 			goto repeat;
- 		}
-+	if (intersects(safe_addr, size, (unsigned long)certs, certs->len)) {
-+		safe_addr = (unsigned long)certs + certs->len;
-+		goto repeat;
-+	}
- 	for_each_rb_entry(cert, certs)
- 		if (intersects(safe_addr, size, cert->addr, cert->len)) {
- 			safe_addr = cert->addr + cert->len;
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index af4a7a865764..616041faab55 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -31,6 +31,7 @@
+ #include <linux/ioport.h>
+ #include <linux/ktime.h>
+ #include <linux/major.h>
++#include <linux/minmax.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/of.h>
+@@ -2864,6 +2865,13 @@ static int sci_init_single(struct platform_device *dev,
+ 			sci_port->irqs[i] = platform_get_irq(dev, i);
+ 	}
+ 
++	/*
++	 * The fourth interrupt on SCI port is transmit end interrupt, so
++	 * shuffle the interrupts.
++	 */
++	if (p->type == PORT_SCI)
++		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
++
+ 	/* The SCI generates several interrupts. They can be muxed together or
+ 	 * connected to different interrupt lines. In the muxed case only one
+ 	 * interrupt resource is specified as there is only one interrupt ID.
 -- 
-2.37.2
+2.25.1
 
