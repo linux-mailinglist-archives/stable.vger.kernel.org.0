@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FD646C16C9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA526C18B2
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232224AbjCTPJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:09:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36896 "EHLO
+        id S232903AbjCTP0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232220AbjCTPIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3939C2596A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:14 -0700 (PDT)
+        with ESMTP id S232884AbjCTP0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886E01284A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6455BB80ED2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C32DEC433EF;
-        Mon, 20 Mar 2023 15:03:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 129BE6158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D036C433D2;
+        Mon, 20 Mar 2023 15:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324610;
-        bh=HDwxe8wJ9xTAiwu1kJCMrpSyJIcbUhvheKmkOmS50YU=;
+        s=korg; t=1679325578;
+        bh=xAJv3dvpOU7NVoRdTyls/Nrdb8fz5MdGxiW/Rt9jAno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2HLMQ3CKEnNY3+7VRYpKc750u8HWjxbnNwowDKwquWLiNy2fwmL4WtCKrGyl1MRV
-         5scjnyCEOZ/kOGW3A/UD6NJx26Lz3YkENNA+gancP4fzywXbKmwH2ygtG8mz9wyEzI
-         zeQwmJxbsztLnWlBJU79qCUDD1xabv1QxQRuZVyQ=
+        b=MlNjYQlMcXxxJCmIplVMnj7Hej29AM9zU4DgCWZ6BoUwWHd5J3bmVB1ilP0c4AGdO
+         ZSRctyzgDxPiMKXBNISKSdBQMg2kipFUAnXH3QzNG4N7C7ioUr/P5ZP4fA108sYToJ
+         FVJaTBLTWPfkq6/ADuaeGOtLu9qHmELNKZdjCk8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yifei Liu <yifeliu@cs.stonybrook.edu>,
+        Erez Zadok <ezk@cs.stonybrook.edu>,
+        Manish Adkar <madkar@cs.stonybrook.edu>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/99] net: usb: smsc75xx: Limit packet length to skb->len
+Subject: [PATCH 6.1 105/198] jffs2: correct logic when creating a hole in jffs2_write_begin
 Date:   Mon, 20 Mar 2023 15:54:03 +0100
-Message-Id: <20230320145444.439266497@linuxfoundation.org>
+Message-Id: <20230320145511.988759401@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +55,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Yifei Liu <yifeliu@cs.stonybrook.edu>
 
-[ Upstream commit d8b228318935044dafe3a5bc07ee71a1f1424b8d ]
+[ Upstream commit 23892d383bee15b64f5463bd7195615734bb2415 ]
 
-Packet length retrieved from skb data may be larger than
-the actual socket buffer length (up to 9026 bytes). In such
-case the cloned skb passed up the network stack will leak
-kernel memory contents.
+Bug description and fix:
 
-Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+1. Write data to a file, say all 1s from offset 0 to 16.
+
+2. Truncate the file to a smaller size, say 8 bytes.
+
+3. Write new bytes (say 2s) from an offset past the original size of the
+file, say at offset 20, for 4 bytes.  This is supposed to create a "hole"
+in the file, meaning that the bytes from offset 8 (where it was truncated
+above) up to the new write at offset 20, should all be 0s (zeros).
+
+4. Flush all caches using "echo 3 > /proc/sys/vm/drop_caches" (or unmount
+and remount) the f/s.
+
+5. Check the content of the file.  It is wrong.  The 1s that used to be
+between bytes 9 and 16, before the truncation, have REAPPEARED (they should
+be 0s).
+
+We wrote a script and helper C program to reproduce the bug
+(reproduce_jffs2_write_begin_issue.sh, write_file.c, and Makefile).  We can
+make them available to anyone.
+
+The above example is shown when writing a small file within the same first
+page.  But the bug happens for larger files, as long as steps 1, 2, and 3
+above all happen within the same page.
+
+The problem was traced to the jffs2_write_begin code, where it goes into an
+'if' statement intended to handle writes past the current EOF (i.e., writes
+that may create a hole).  The code computes a 'pageofs' that is the floor
+of the write position (pos), aligned to the page size boundary.  In other
+words, 'pageofs' will never be larger than 'pos'.  The code then sets the
+internal jffs2_raw_inode->isize to the size of max(current inode size,
+pageofs) but that is wrong: the new file size should be the 'pos', which is
+larger than both the current inode size and pageofs.
+
+Similarly, the code incorrectly sets the internal jffs2_raw_inode->dsize to
+the difference between the pageofs minus current inode size; instead it
+should be the current pos minus the current inode size.  Finally,
+inode->i_size was also set incorrectly.
+
+The patch below fixes this bug.  The bug was discovered using a new tool
+for finding f/s bugs using model checking, called MCFS (Model Checking File
+Systems).
+
+Signed-off-by: Yifei Liu <yifeliu@cs.stonybrook.edu>
+Signed-off-by: Erez Zadok <ezk@cs.stonybrook.edu>
+Signed-off-by: Manish Adkar <madkar@cs.stonybrook.edu>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc75xx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/jffs2/file.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
-index 378a12ae2d957..0b3d11e28faa7 100644
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -2211,7 +2211,8 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 				dev->net->stats.rx_frame_errors++;
- 		} else {
- 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
--			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
-+			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
-+				     size > skb->len)) {
- 				netif_dbg(dev, rx_err, dev->net,
- 					  "size err rx_cmd_a=0x%08x\n",
- 					  rx_cmd_a);
+diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
+index ba86acbe12d3f..0479096b96e4c 100644
+--- a/fs/jffs2/file.c
++++ b/fs/jffs2/file.c
+@@ -137,19 +137,18 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
+ 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+-	uint32_t pageofs = index << PAGE_SHIFT;
+ 	int ret = 0;
+ 
+ 	jffs2_dbg(1, "%s()\n", __func__);
+ 
+-	if (pageofs > inode->i_size) {
+-		/* Make new hole frag from old EOF to new page */
++	if (pos > inode->i_size) {
++		/* Make new hole frag from old EOF to new position */
+ 		struct jffs2_raw_inode ri;
+ 		struct jffs2_full_dnode *fn;
+ 		uint32_t alloc_len;
+ 
+-		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new page\n",
+-			  (unsigned int)inode->i_size, pageofs);
++		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new position\n",
++			  (unsigned int)inode->i_size, (uint32_t)pos);
+ 
+ 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
+ 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+@@ -169,10 +168,10 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		ri.mode = cpu_to_jemode(inode->i_mode);
+ 		ri.uid = cpu_to_je16(i_uid_read(inode));
+ 		ri.gid = cpu_to_je16(i_gid_read(inode));
+-		ri.isize = cpu_to_je32(max((uint32_t)inode->i_size, pageofs));
++		ri.isize = cpu_to_je32((uint32_t)pos);
+ 		ri.atime = ri.ctime = ri.mtime = cpu_to_je32(JFFS2_NOW());
+ 		ri.offset = cpu_to_je32(inode->i_size);
+-		ri.dsize = cpu_to_je32(pageofs - inode->i_size);
++		ri.dsize = cpu_to_je32((uint32_t)pos - inode->i_size);
+ 		ri.csize = cpu_to_je32(0);
+ 		ri.compr = JFFS2_COMPR_ZERO;
+ 		ri.node_crc = cpu_to_je32(crc32(0, &ri, sizeof(ri)-8));
+@@ -202,7 +201,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			goto out_err;
+ 		}
+ 		jffs2_complete_reservation(c);
+-		inode->i_size = pageofs;
++		inode->i_size = pos;
+ 		mutex_unlock(&f->sem);
+ 	}
+ 
 -- 
 2.39.2
 
