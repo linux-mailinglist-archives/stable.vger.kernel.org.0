@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 082206C1967
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A55906C17C8
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233144AbjCTPdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
+        id S232584AbjCTPRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:17:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232871AbjCTPdE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03FC631E12
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:45 -0700 (PDT)
+        with ESMTP id S232523AbjCTPQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D54F30EB7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C28CF6154E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D482BC433EF;
-        Mon, 20 Mar 2023 15:25:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EBE5B80EDA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B43C433A0;
+        Mon, 20 Mar 2023 15:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325945;
-        bh=vNX8cc03471dvGzEoUt0XmVGJ3eBespMMB7YHWhm400=;
+        s=korg; t=1679325111;
+        bh=7/l21qbPvL/uLOnO4QYZxpja9Gy/MCZCG6dCrpk+nFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytbCDJxFfYCIbPNqLMXXfRJlOBOT6TThry6OOTimeGIK4MrYWYipVC1PVaR7SlqHO
-         Q773G0oFiZMQBUz+wtXIgcKeSxUfycveuX6uHoYHrvWMLMx9uJqcdBQfcTQ1jPmcYb
-         wOtlJ7+cL3JqE4DqWILe/ALKxMqUEej9OXqo3Gts=
+        b=RO8d4oLS6Zb+ygVXQxchyRlAht2PECyQWgQWPZDvBFH2auXMk/8hmUoX+nDirpySV
+         at0GkQoStmfyfQjkg8whLcYrWoWkAsbQodSe4tYgENbxYBVVA709WPEruNTxSSo09H
+         MNLl+iWCsTc0ZDveF56vDAgZ/CwteuyK/XhAqxcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lei Yang <leiyang@redhat.com>,
-        Cindy Lu <lulu@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 6.1 172/198] vp_vdpa: fix the crash in hot unplug with vp_vdpa
+        patches@lists.linux.dev, Amir Goldstein <amir73il@gmail.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>
+Subject: [PATCH 5.10 92/99] attr: add in_group_or_capable()
 Date:   Mon, 20 Mar 2023 15:55:10 +0100
-Message-Id: <20230320145514.736895458@linuxfoundation.org>
+Message-Id: <20230320145447.267143971@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,102 +52,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cindy Lu <lulu@redhat.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit aed8efddd39b3434c96718d39009285c52b1cafc upstream.
+commit 11c2a8700cdcabf9b639b7204a1e38e2a0b6798e upstream.
 
-While unplugging the vp_vdpa device, it triggers a kernel panic
-The root cause is: vdpa_mgmtdev_unregister() will accesses modern
-devices which will cause a use after free.
-So need to change the sequence in vp_vdpa_remove
+[backported to 5.10.y, prior to idmapped mounts]
 
-[  195.003359] BUG: unable to handle page fault for address: ff4e8beb80199014
-[  195.004012] #PF: supervisor read access in kernel mode
-[  195.004486] #PF: error_code(0x0000) - not-present page
-[  195.004960] PGD 100000067 P4D 1001b6067 PUD 1001b7067 PMD 1001b8067 PTE 0
-[  195.005578] Oops: 0000 1 PREEMPT SMP PTI
-[  195.005968] CPU: 13 PID: 164 Comm: kworker/u56:10 Kdump: loaded Not tainted 5.14.0-252.el9.x86_64 #1
-[  195.006792] Hardware name: Red Hat KVM/RHEL, BIOS edk2-20221207gitfff6d81270b5-2.el9 unknown
-[  195.007556] Workqueue: kacpi_hotplug acpi_hotplug_work_fn
-[  195.008059] RIP: 0010:ioread8+0x31/0x80
-[  195.008418] Code: 77 28 48 81 ff 00 00 01 00 76 0b 89 fa ec 0f b6 c0 c3 cc cc cc cc 8b 15 ad 72 93 01 b8 ff 00 00 00 85 d2 75 0f c3 cc cc cc cc <8a> 07 0f b6 c0 c3 cc cc cc cc 83 ea 01 48 83 ec 08 48 89 fe 48 c7
-[  195.010104] RSP: 0018:ff4e8beb8067bab8 EFLAGS: 00010292
-[  195.010584] RAX: ffffffffc05834a0 RBX: ffffffffc05843c0 RCX: ff4e8beb8067bae0
-[  195.011233] RDX: ff1bcbd580f88000 RSI: 0000000000000246 RDI: ff4e8beb80199014
-[  195.011881] RBP: ff1bcbd587e39000 R08: ffffffff916fa2d0 R09: ff4e8beb8067ba68
-[  195.012527] R10: 000000000000001c R11: 0000000000000000 R12: ff1bcbd5a3de9120
-[  195.013179] R13: ffffffffc062d000 R14: 0000000000000080 R15: ff1bcbe402bc7805
-[  195.013826] FS:  0000000000000000(0000) GS:ff1bcbe402740000(0000) knlGS:0000000000000000
-[  195.014564] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  195.015093] CR2: ff4e8beb80199014 CR3: 0000000107dea002 CR4: 0000000000771ee0
-[  195.015741] PKRU: 55555554
-[  195.016001] Call Trace:
-[  195.016233]  <TASK>
-[  195.016434]  vp_modern_get_status+0x12/0x20
-[  195.016823]  vp_vdpa_reset+0x1b/0x50 [vp_vdpa]
-[  195.017238]  virtio_vdpa_reset+0x3c/0x48 [virtio_vdpa]
-[  195.017709]  remove_vq_common+0x1f/0x3a0 [virtio_net]
-[  195.018178]  virtnet_remove+0x5d/0x70 [virtio_net]
-[  195.018618]  virtio_dev_remove+0x3d/0x90
-[  195.018986]  device_release_driver_internal+0x1aa/0x230
-[  195.019466]  bus_remove_device+0xd8/0x150
-[  195.019841]  device_del+0x18b/0x3f0
-[  195.020167]  ? kernfs_find_ns+0x35/0xd0
-[  195.020526]  device_unregister+0x13/0x60
-[  195.020894]  unregister_virtio_device+0x11/0x20
-[  195.021311]  device_release_driver_internal+0x1aa/0x230
-[  195.021790]  bus_remove_device+0xd8/0x150
-[  195.022162]  device_del+0x18b/0x3f0
-[  195.022487]  device_unregister+0x13/0x60
-[  195.022852]  ? vdpa_dev_remove+0x30/0x30 [vdpa]
-[  195.023270]  vp_vdpa_dev_del+0x12/0x20 [vp_vdpa]
-[  195.023694]  vdpa_match_remove+0x2b/0x40 [vdpa]
-[  195.024115]  bus_for_each_dev+0x78/0xc0
-[  195.024471]  vdpa_mgmtdev_unregister+0x65/0x80 [vdpa]
-[  195.024937]  vp_vdpa_remove+0x23/0x40 [vp_vdpa]
-[  195.025353]  pci_device_remove+0x36/0xa0
-[  195.025719]  device_release_driver_internal+0x1aa/0x230
-[  195.026201]  pci_stop_bus_device+0x6c/0x90
-[  195.026580]  pci_stop_and_remove_bus_device+0xe/0x20
-[  195.027039]  disable_slot+0x49/0x90
-[  195.027366]  acpiphp_disable_and_eject_slot+0x15/0x90
-[  195.027832]  hotplug_event+0xea/0x210
-[  195.028171]  ? hotplug_event+0x210/0x210
-[  195.028535]  acpiphp_hotplug_notify+0x22/0x80
-[  195.028942]  ? hotplug_event+0x210/0x210
-[  195.029303]  acpi_device_hotplug+0x8a/0x1d0
-[  195.029690]  acpi_hotplug_work_fn+0x1a/0x30
-[  195.030077]  process_one_work+0x1e8/0x3c0
-[  195.030451]  worker_thread+0x50/0x3b0
-[  195.030791]  ? rescuer_thread+0x3a0/0x3a0
-[  195.031165]  kthread+0xd9/0x100
-[  195.031459]  ? kthread_complete_and_exit+0x20/0x20
-[  195.031899]  ret_from_fork+0x22/0x30
-[  195.032233]  </TASK>
+In setattr_{copy,prepare}() we need to perform the same permission
+checks to determine whether we need to drop the setgid bit or not.
+Instead of open-coding it twice add a simple helper the encapsulates the
+logic. We will reuse this helpers to make dropping the setgid bit during
+write operations more consistent in a follow up patch.
 
-Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
-Tested-by: Lei Yang <leiyang@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Cindy Lu <lulu@redhat.com>
-Message-Id: <20230214080924.131462-1-lulu@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/virtio_pci/vp_vdpa.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/attr.c     |   11 +++++------
+ fs/inode.c    |   25 +++++++++++++++++++++----
+ fs/internal.h |    1 +
+ 3 files changed, 27 insertions(+), 10 deletions(-)
 
---- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-+++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-@@ -645,8 +645,8 @@ static void vp_vdpa_remove(struct pci_de
- 	struct virtio_pci_modern_device *mdev = NULL;
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -18,6 +18,8 @@
+ #include <linux/evm.h>
+ #include <linux/ima.h>
  
- 	mdev = vp_vdpa_mgtdev->mdev;
--	vp_modern_remove(mdev);
- 	vdpa_mgmtdev_unregister(&vp_vdpa_mgtdev->mgtdev);
-+	vp_modern_remove(mdev);
- 	kfree(vp_vdpa_mgtdev->mgtdev.id_table);
- 	kfree(mdev);
- 	kfree(vp_vdpa_mgtdev);
++#include "internal.h"
++
+ static bool chown_ok(const struct inode *inode, kuid_t uid)
+ {
+ 	if (uid_eq(current_fsuid(), inode->i_uid) &&
+@@ -90,9 +92,8 @@ int setattr_prepare(struct dentry *dentr
+ 		if (!inode_owner_or_capable(inode))
+ 			return -EPERM;
+ 		/* Also check the setgid bit! */
+-		if (!in_group_p((ia_valid & ATTR_GID) ? attr->ia_gid :
+-				inode->i_gid) &&
+-		    !capable_wrt_inode_uidgid(inode, CAP_FSETID))
++		if (!in_group_or_capable(inode, (ia_valid & ATTR_GID) ?
++						attr->ia_gid : inode->i_gid))
+ 			attr->ia_mode &= ~S_ISGID;
+ 	}
+ 
+@@ -193,9 +194,7 @@ void setattr_copy(struct inode *inode, c
+ 		inode->i_ctime = attr->ia_ctime;
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
+-
+-		if (!in_group_p(inode->i_gid) &&
+-		    !capable_wrt_inode_uidgid(inode, CAP_FSETID))
++		if (!in_group_or_capable(inode, inode->i_gid))
+ 			mode &= ~S_ISGID;
+ 		inode->i_mode = mode;
+ 	}
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -2380,6 +2380,26 @@ int vfs_ioc_fssetxattr_check(struct inod
+ EXPORT_SYMBOL(vfs_ioc_fssetxattr_check);
+ 
+ /**
++ * in_group_or_capable - check whether caller is CAP_FSETID privileged
++ * @inode:	inode to check
++ * @gid:	the new/current gid of @inode
++ *
++ * Check wether @gid is in the caller's group list or if the caller is
++ * privileged with CAP_FSETID over @inode. This can be used to determine
++ * whether the setgid bit can be kept or must be dropped.
++ *
++ * Return: true if the caller is sufficiently privileged, false if not.
++ */
++bool in_group_or_capable(const struct inode *inode, kgid_t gid)
++{
++	if (in_group_p(gid))
++		return true;
++	if (capable_wrt_inode_uidgid(inode, CAP_FSETID))
++		return true;
++	return false;
++}
++
++/**
+  * mode_strip_sgid - handle the sgid bit for non-directories
+  * @dir: parent directory inode
+  * @mode: mode of the file to be created in @dir
+@@ -2398,11 +2418,8 @@ umode_t mode_strip_sgid(const struct ino
+ 		return mode;
+ 	if (S_ISDIR(mode) || !dir || !(dir->i_mode & S_ISGID))
+ 		return mode;
+-	if (in_group_p(dir->i_gid))
++	if (in_group_or_capable(dir, dir->i_gid))
+ 		return mode;
+-	if (capable_wrt_inode_uidgid(dir, CAP_FSETID))
+-		return mode;
+-
+ 	return mode & ~S_ISGID;
+ }
+ EXPORT_SYMBOL(mode_strip_sgid);
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -149,6 +149,7 @@ extern int vfs_open(const struct path *,
+ extern long prune_icache_sb(struct super_block *sb, struct shrink_control *sc);
+ extern void inode_add_lru(struct inode *inode);
+ extern int dentry_needs_remove_privs(struct dentry *dentry);
++bool in_group_or_capable(const struct inode *inode, kgid_t gid);
+ 
+ /*
+  * fs-writeback.c
 
 
