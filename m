@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D9A6C0DEB
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:58:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECC8E6C0E58
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjCTJ6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:58:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52010 "EHLO
+        id S229497AbjCTKL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229672AbjCTJ6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:58:30 -0400
+        with ESMTP id S229878AbjCTKLw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:11:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72E5902D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:58:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96ABE11175
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:11:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F36661311
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22E6EC433D2;
-        Mon, 20 Mar 2023 09:57:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2062F61267
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:11:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F39C7C433A8;
+        Mon, 20 Mar 2023 10:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679306277;
-        bh=JlRaqKoxvsNgUFQdmb8f/nyfS3dKxEOs2+eXUYa74y0=;
+        s=korg; t=1679307100;
+        bh=vbu43Eny+LH5TJfISgjDd2h30Ag8xjCfpaY7ke4MzWM=;
         h=Subject:To:Cc:From:Date:From;
-        b=GAdvcAWiqV9B/jNK1JbwiWRzHGq5cRkqEtPuRKUnEu+QU3ItkIBjtkVVOaOhIxmgp
-         5X7kI82+Dzw/dqbjlw3pibWIEHjM73bOrUNkvEMZu1MNZsiSkTlFshuvnf3UdfYBB1
-         frMo5QsfaQGXKcDOMqkAoh/CXVw4lfuXgwTSew2w=
-Subject: FAILED: patch "[PATCH] interconnect: exynos: fix registration race" failed to apply to 5.15-stable tree
-To:     johan+linaro@kernel.org, djakov@kernel.org,
-        krzysztof.kozlowski@linaro.org, s.nawrocki@samsung.com
+        b=uPwZ/YX79j2omf7R3ojlhCQMHgL1OdhR2Rg12n29Zwd6Yf+BBr0SFD9PgosVZnsYy
+         NX/hD0UXrmlqFc4/6c0YUzQWDC54yhnTUbl01TCaVdONXv/tgT2Mb3IsTL58cirW+A
+         PUvRo39G27WKVMPgXygGYa5e7fFryRtnGCsW9PVE=
+Subject: FAILED: patch "[PATCH] tracing: Do not let histogram values have some modifiers" failed to apply to 4.14-stable tree
+To:     rostedt@goodmis.org, akpm@linux-foundation.org,
+        mark.rutland@arm.com, mhiramat@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:57:54 +0100
-Message-ID: <1679306274128133@kroah.com>
+Date:   Mon, 20 Mar 2023 11:11:37 +0100
+Message-ID: <167930709719987@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,23 +48,39 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
-git cherry-pick -x c9e46ca612cfbb0cf890f7ae7389b742e90efe64
+git cherry-pick -x e0213434fe3e4a0d118923dc98d31e7ff1cd9e45
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679306274128133@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930709719987@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
-c9e46ca612cf ("interconnect: exynos: fix registration race")
+e0213434fe3e ("tracing: Do not let histogram values have some modifiers")
+100719dcef44 ("tracing: Add simple expression support to hist triggers")
+2ece94fbd25c ("tracing: Move get_hist_field_flags()")
+30350d65ac56 ("tracing: Add variable support to hist triggers")
+860f9f6b02e9 ("tracing: Add usecs modifier for hist trigger timestamps")
+b559d003a226 ("tracing: Add hist_data member to hist_field")
+ad42febe51ae ("tracing: Add hist trigger timestamp support")
+9b1ae035c930 ("tracing: Break out hist trigger assignment parsing")
+fbd302cbebe9 ("tracing: Add ring buffer event param to hist field functions")
+1ac4f51c0eb5 ("tracing: Give event triggers access to ring_buffer_event")
+00b4145298ae ("ring-buffer: Add interface for setting absolute time stamps")
+442c94846190 ("tracing: Add Documentation for log2 modifier")
+b8df4a3634e0 ("tracing: Move hist trigger Documentation to histogram.txt")
+5819eaddf35b ("tracing: Reimplement log2")
+85013256cf01 ("tracing: Add hist_field_name() accessor")
+0d7a8325bf33 ("tracing: Clean up hist_field_flags enum")
+a15f7fc20389 ("tracing: Exclude 'generic fields' from histograms")
 
 thanks,
 
@@ -72,84 +88,102 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c9e46ca612cfbb0cf890f7ae7389b742e90efe64 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan+linaro@kernel.org>
-Date: Mon, 6 Mar 2023 08:56:43 +0100
-Subject: [PATCH] interconnect: exynos: fix registration race
+From e0213434fe3e4a0d118923dc98d31e7ff1cd9e45 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Wed, 1 Mar 2023 20:00:52 -0500
+Subject: [PATCH] tracing: Do not let histogram values have some modifiers
 
-The current interconnect provider registration interface is inherently
-racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to trigger a NULL-pointer
-deference when either a NULL pointer or not fully initialised node is
-returned from exynos_generic_icc_xlate().
+Histogram values can not be strings, stacktraces, graphs, symbols,
+syscalls, or grouped in buckets or log. Give an error if a value is set to
+do so.
 
-Switch to using the new API where the provider is not registered until
-after it has been fully initialised.
+Note, the histogram code was not prepared to handle these modifiers for
+histograms and caused a bug.
 
-Fixes: 2f95b9d5cf0b ("interconnect: Add generic interconnect driver for Exynos SoCs")
-Cc: stable@vger.kernel.org      # 5.11
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-16-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Mark Rutland reported:
 
-diff --git a/drivers/interconnect/samsung/exynos.c b/drivers/interconnect/samsung/exynos.c
-index e70665899482..72e42603823b 100644
---- a/drivers/interconnect/samsung/exynos.c
-+++ b/drivers/interconnect/samsung/exynos.c
-@@ -98,12 +98,13 @@ static int exynos_generic_icc_remove(struct platform_device *pdev)
- 	struct exynos_icc_priv *priv = platform_get_drvdata(pdev);
- 	struct icc_node *parent_node, *node = priv->node;
- 
-+	icc_provider_deregister(&priv->provider);
-+
- 	parent_node = exynos_icc_get_parent(priv->dev->parent->of_node);
- 	if (parent_node && !IS_ERR(parent_node))
- 		icc_link_destroy(node, parent_node);
- 
- 	icc_nodes_remove(&priv->provider);
--	icc_provider_del(&priv->provider);
- 
- 	return 0;
- }
-@@ -132,15 +133,11 @@ static int exynos_generic_icc_probe(struct platform_device *pdev)
- 	provider->inter_set = true;
- 	provider->data = priv;
- 
--	ret = icc_provider_add(provider);
--	if (ret < 0)
--		return ret;
-+	icc_provider_init(provider);
- 
- 	icc_node = icc_node_create(pdev->id);
--	if (IS_ERR(icc_node)) {
--		ret = PTR_ERR(icc_node);
--		goto err_prov_del;
--	}
-+	if (IS_ERR(icc_node))
-+		return PTR_ERR(icc_node);
- 
- 	priv->node = icc_node;
- 	icc_node->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn",
-@@ -171,14 +168,17 @@ static int exynos_generic_icc_probe(struct platform_device *pdev)
- 			goto err_pmqos_del;
+ # echo 'p:copy_to_user __arch_copy_to_user n=$arg2' >> /sys/kernel/tracing/kprobe_events
+ # echo 'hist:keys=n:vals=hitcount.buckets=8:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
+ # cat /sys/kernel/tracing/events/kprobes/copy_to_user/hist
+[  143.694628] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  143.695190] Mem abort info:
+[  143.695362]   ESR = 0x0000000096000004
+[  143.695604]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  143.695889]   SET = 0, FnV = 0
+[  143.696077]   EA = 0, S1PTW = 0
+[  143.696302]   FSC = 0x04: level 0 translation fault
+[  143.702381] Data abort info:
+[  143.702614]   ISV = 0, ISS = 0x00000004
+[  143.702832]   CM = 0, WnR = 0
+[  143.703087] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000448f9000
+[  143.703407] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  143.704137] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+[  143.704714] Modules linked in:
+[  143.705273] CPU: 0 PID: 133 Comm: cat Not tainted 6.2.0-00003-g6fc512c10a7c #3
+[  143.706138] Hardware name: linux,dummy-virt (DT)
+[  143.706723] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  143.707120] pc : hist_field_name.part.0+0x14/0x140
+[  143.707504] lr : hist_field_name.part.0+0x104/0x140
+[  143.707774] sp : ffff800008333a30
+[  143.707952] x29: ffff800008333a30 x28: 0000000000000001 x27: 0000000000400cc0
+[  143.708429] x26: ffffd7a653b20260 x25: 0000000000000000 x24: ffff10d303ee5800
+[  143.708776] x23: ffffd7a6539b27b0 x22: ffff10d303fb8c00 x21: 0000000000000001
+[  143.709127] x20: ffff10d303ec2000 x19: 0000000000000000 x18: 0000000000000000
+[  143.709478] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[  143.709824] x14: 0000000000000000 x13: 203a6f666e692072 x12: 6567676972742023
+[  143.710179] x11: 0a230a6d6172676f x10: 000000000000002c x9 : ffffd7a6521e018c
+[  143.710584] x8 : 000000000000002c x7 : 7f7f7f7f7f7f7f7f x6 : 000000000000002c
+[  143.710915] x5 : ffff10d303b0103e x4 : ffffd7a653b20261 x3 : 000000000000003d
+[  143.711239] x2 : 0000000000020001 x1 : 0000000000000001 x0 : 0000000000000000
+[  143.711746] Call trace:
+[  143.712115]  hist_field_name.part.0+0x14/0x140
+[  143.712642]  hist_field_name.part.0+0x104/0x140
+[  143.712925]  hist_field_print+0x28/0x140
+[  143.713125]  event_hist_trigger_print+0x174/0x4d0
+[  143.713348]  hist_show+0xf8/0x980
+[  143.713521]  seq_read_iter+0x1bc/0x4b0
+[  143.713711]  seq_read+0x8c/0xc4
+[  143.713876]  vfs_read+0xc8/0x2a4
+[  143.714043]  ksys_read+0x70/0xfc
+[  143.714218]  __arm64_sys_read+0x24/0x30
+[  143.714400]  invoke_syscall+0x50/0x120
+[  143.714587]  el0_svc_common.constprop.0+0x4c/0x100
+[  143.714807]  do_el0_svc+0x44/0xd0
+[  143.714970]  el0_svc+0x2c/0x84
+[  143.715134]  el0t_64_sync_handler+0xbc/0x140
+[  143.715334]  el0t_64_sync+0x190/0x194
+[  143.715742] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (f9400000)
+[  143.716510] ---[ end trace 0000000000000000 ]---
+Segmentation fault
+
+Link: https://lkml.kernel.org/r/20230302020810.559462599@goodmis.org
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: c6afad49d127f ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 89877a18f933..6e8ab726a7b5 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -4235,6 +4235,15 @@ static int __create_val_field(struct hist_trigger_data *hist_data,
+ 		goto out;
  	}
  
-+	ret = icc_provider_register(provider);
-+	if (ret < 0)
-+		goto err_pmqos_del;
++	/* Some types cannot be a value */
++	if (hist_field->flags & (HIST_FIELD_FL_GRAPH | HIST_FIELD_FL_PERCENT |
++				 HIST_FIELD_FL_BUCKET | HIST_FIELD_FL_LOG2 |
++				 HIST_FIELD_FL_SYM | HIST_FIELD_FL_SYM_OFFSET |
++				 HIST_FIELD_FL_SYSCALL | HIST_FIELD_FL_STACKTRACE)) {
++		hist_err(file->tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(field_str));
++		ret = -EINVAL;
++	}
 +
- 	return 0;
+ 	hist_data->fields[val_idx] = hist_field;
  
- err_pmqos_del:
- 	dev_pm_qos_remove_request(&priv->qos_req);
- err_node_del:
- 	icc_nodes_remove(provider);
--err_prov_del:
--	icc_provider_del(provider);
-+
- 	return ret;
- }
- 
+ 	++hist_data->n_vals;
 
