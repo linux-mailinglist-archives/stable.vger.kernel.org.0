@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07BB26C187F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C356C17CC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231730AbjCTPZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:25:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38532 "EHLO
+        id S232611AbjCTPR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:17:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232750AbjCTPYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC53034C18
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:51 -0700 (PDT)
+        with ESMTP id S232413AbjCTPQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11AF734C02
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50407B80D34
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F38C433EF;
-        Mon, 20 Mar 2023 15:17:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5008A61575
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAEBC433EF;
+        Mon, 20 Mar 2023 15:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325466;
-        bh=7P+Qk8UVbePONM+ocqLe5OYH4QQA7VaeuOo7lQH6DQU=;
+        s=korg; t=1679325116;
+        bh=WWndxHJZNTsrxIc+pwI5u+xjuselPuDq71AsgzwNHd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jU+q6Onj1uu6gPLh24DvM6nMjIx/VmrTUj5nVIRPMmlWGdbgc8JPqtZp/cLhRKQyM
-         Fh1kTv1oRf0XjaxzNQ7Pl2TmgihYexZlINJxrObsfbhc3f2udrYoeLX84v+Ia5VQNt
-         YabfReT0Ar8wqL1WdfYbr8wNS0azTdmPOsI7it70=
+        b=gUE/Ne7RfHQqqmqgBZvr9s5sEkW4Piwn8YjR6WVox4Db//eKwE0T5/N3AMy6Ka8Zv
+         FJjgm8OexlYMg5G7mUqC1UGG8hE3X3ip+2SMpHLduMYjRaMgi7MLPQl6JpPONtc/zt
+         8yxKEurjGseRRZNVQfXgu83rx6JMMupWejA+TjIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Andrea Righi <andrea.righi@canonical.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 046/211] drm/i915/sseu: fix max_subslices array-index-out-of-bounds access
+Subject: [PATCH 6.1 043/198] PCI: s390: Fix use-after-free of PCI resources with per-function hotplug
 Date:   Mon, 20 Mar 2023 15:53:01 +0100
-Message-Id: <20230320145515.170154194@linuxfoundation.org>
+Message-Id: <20230320145509.272008740@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,71 +55,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 193c41926d152761764894f46e23b53c00186a82 ]
+[ Upstream commit ab909509850b27fd39b8ba99e44cda39dbc3858c ]
 
-It seems that commit bc3c5e0809ae ("drm/i915/sseu: Don't try to store EU
-mask internally in UAPI format") exposed a potential out-of-bounds
-access, reported by UBSAN as following on a laptop with a gen 11 i915
-card:
+On s390 PCI functions may be hotplugged individually even when they
+belong to a multi-function device. In particular on an SR-IOV device VFs
+may be removed and later re-added.
 
-  UBSAN: array-index-out-of-bounds in drivers/gpu/drm/i915/gt/intel_sseu.c:65:27
-  index 6 is out of range for type 'u16 [6]'
-  CPU: 2 PID: 165 Comm: systemd-udevd Not tainted 6.2.0-9-generic #9-Ubuntu
-  Hardware name: Dell Inc. XPS 13 9300/077Y9N, BIOS 1.11.0 03/22/2022
-  Call Trace:
-   <TASK>
-   show_stack+0x4e/0x61
-   dump_stack_lvl+0x4a/0x6f
-   dump_stack+0x10/0x18
-   ubsan_epilogue+0x9/0x3a
-   __ubsan_handle_out_of_bounds.cold+0x42/0x47
-   gen11_compute_sseu_info+0x121/0x130 [i915]
-   intel_sseu_info_init+0x15d/0x2b0 [i915]
-   intel_gt_init_mmio+0x23/0x40 [i915]
-   i915_driver_mmio_probe+0x129/0x400 [i915]
-   ? intel_gt_probe_all+0x91/0x2e0 [i915]
-   i915_driver_probe+0xe1/0x3f0 [i915]
-   ? drm_privacy_screen_get+0x16d/0x190 [drm]
-   ? acpi_dev_found+0x64/0x80
-   i915_pci_probe+0xac/0x1b0 [i915]
-   ...
+In commit a50297cf8235 ("s390/pci: separate zbus creation from
+scanning") it was missed however that struct pci_bus and struct
+zpci_bus's resource list retained a reference to the PCI functions MMIO
+resources even though those resources are released and freed on
+hot-unplug. These stale resources may subsequently be claimed when the
+PCI function re-appears resulting in use-after-free.
 
-According to the definition of sseu_dev_info, eu_mask->hsw is limited to
-a maximum of GEN_MAX_SS_PER_HSW_SLICE (6) sub-slices, but
-gen11_sseu_info_init() can potentially set 8 sub-slices, in the
-!IS_JSL_EHL(gt->i915) case.
+One idea of fixing this use-after-free in s390 specific code that was
+investigated was to simply keep resources around from the moment a PCI
+function first appeared until the whole virtual PCI bus created for
+a multi-function device disappears. The problem with this however is
+that due to the requirement of artificial MMIO addreesses (address
+cookies) extra logic is then needed to keep the address cookies
+compatible on re-plug. At the same time the MMIO resources semantically
+belong to the PCI function so tying their lifecycle to the function
+seems more logical.
 
-Fix this by reserving up to 8 slots for max_subslices in the eu_mask
-struct.
+Instead a simpler approach is to remove the resources of an individually
+hot-unplugged PCI function from the PCI bus's resource list while
+keeping the resources of other PCI functions on the PCI bus untouched.
 
-Reported-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Fixes: bc3c5e0809ae ("drm/i915/sseu: Don't try to store EU mask internally in UAPI format")
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230220171858.131416-1-andrea.righi@canonical.com
-(cherry picked from commit 3cba09a6ac86ea1d456909626eb2685596c07822)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+This is done by introducing pci_bus_remove_resource() to remove an
+individual resource. Similarly the resource also needs to be removed
+from the struct zpci_bus's resource list. It turns out however, that
+there is really no need to add the MMIO resources to the struct
+zpci_bus's resource list at all and instead we can simply use the
+zpci_bar_struct's resource pointer directly.
+
+Fixes: a50297cf8235 ("s390/pci: separate zbus creation from scanning")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20230306151014.60913-2-schnelle@linux.ibm.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_sseu.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/pci/pci.c     | 16 ++++++++++------
+ arch/s390/pci/pci_bus.c | 12 +++++-------
+ arch/s390/pci/pci_bus.h |  3 +--
+ drivers/pci/bus.c       | 21 +++++++++++++++++++++
+ include/linux/pci.h     |  1 +
+ 5 files changed, 38 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_sseu.h b/drivers/gpu/drm/i915/gt/intel_sseu.h
-index aa87d3832d60d..d7e8c374f153e 100644
---- a/drivers/gpu/drm/i915/gt/intel_sseu.h
-+++ b/drivers/gpu/drm/i915/gt/intel_sseu.h
-@@ -27,7 +27,7 @@ struct drm_printer;
-  * is only relevant to pre-Xe_HP platforms (Xe_HP and beyond use the
-  * I915_MAX_SS_FUSE_BITS value below).
-  */
--#define GEN_MAX_SS_PER_HSW_SLICE	6
-+#define GEN_MAX_SS_PER_HSW_SLICE	8
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 73cdc55393847..2c99f9552b2f5 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -544,8 +544,7 @@ static struct resource *__alloc_res(struct zpci_dev *zdev, unsigned long start,
+ 	return r;
+ }
  
- /*
-  * Maximum number of 32-bit registers used by hardware to express the
+-int zpci_setup_bus_resources(struct zpci_dev *zdev,
+-			     struct list_head *resources)
++int zpci_setup_bus_resources(struct zpci_dev *zdev)
+ {
+ 	unsigned long addr, size, flags;
+ 	struct resource *res;
+@@ -581,7 +580,6 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
+ 			return -ENOMEM;
+ 		}
+ 		zdev->bars[i].res = res;
+-		pci_add_resource(resources, res);
+ 	}
+ 	zdev->has_resources = 1;
+ 
+@@ -590,17 +588,23 @@ int zpci_setup_bus_resources(struct zpci_dev *zdev,
+ 
+ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
+ {
++	struct resource *res;
+ 	int i;
+ 
++	pci_lock_rescan_remove();
+ 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+-		if (!zdev->bars[i].size || !zdev->bars[i].res)
++		res = zdev->bars[i].res;
++		if (!res)
+ 			continue;
+ 
++		release_resource(res);
++		pci_bus_remove_resource(zdev->zbus->bus, res);
+ 		zpci_free_iomap(zdev, zdev->bars[i].map_idx);
+-		release_resource(zdev->bars[i].res);
+-		kfree(zdev->bars[i].res);
++		zdev->bars[i].res = NULL;
++		kfree(res);
+ 	}
+ 	zdev->has_resources = 0;
++	pci_unlock_rescan_remove();
+ }
+ 
+ int pcibios_device_add(struct pci_dev *pdev)
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index 6a8da1b742ae5..a99926af2b69a 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -41,9 +41,7 @@ static int zpci_nb_devices;
+  */
+ static int zpci_bus_prepare_device(struct zpci_dev *zdev)
+ {
+-	struct resource_entry *window, *n;
+-	struct resource *res;
+-	int rc;
++	int rc, i;
+ 
+ 	if (!zdev_enabled(zdev)) {
+ 		rc = zpci_enable_device(zdev);
+@@ -57,10 +55,10 @@ static int zpci_bus_prepare_device(struct zpci_dev *zdev)
+ 	}
+ 
+ 	if (!zdev->has_resources) {
+-		zpci_setup_bus_resources(zdev, &zdev->zbus->resources);
+-		resource_list_for_each_entry_safe(window, n, &zdev->zbus->resources) {
+-			res = window->res;
+-			pci_bus_add_resource(zdev->zbus->bus, res, 0);
++		zpci_setup_bus_resources(zdev);
++		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
++			if (zdev->bars[i].res)
++				pci_bus_add_resource(zdev->zbus->bus, zdev->bars[i].res, 0);
+ 		}
+ 	}
+ 
+diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
+index e96c9860e0644..af9f0ac79a1b1 100644
+--- a/arch/s390/pci/pci_bus.h
++++ b/arch/s390/pci/pci_bus.h
+@@ -30,8 +30,7 @@ static inline void zpci_zdev_get(struct zpci_dev *zdev)
+ 
+ int zpci_alloc_domain(int domain);
+ void zpci_free_domain(int domain);
+-int zpci_setup_bus_resources(struct zpci_dev *zdev,
+-			     struct list_head *resources);
++int zpci_setup_bus_resources(struct zpci_dev *zdev);
+ 
+ static inline struct zpci_dev *zdev_from_bus(struct pci_bus *bus,
+ 					     unsigned int devfn)
+diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
+index 3cef835b375fd..feafa378bf8ea 100644
+--- a/drivers/pci/bus.c
++++ b/drivers/pci/bus.c
+@@ -76,6 +76,27 @@ struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n)
+ }
+ EXPORT_SYMBOL_GPL(pci_bus_resource_n);
+ 
++void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res)
++{
++	struct pci_bus_resource *bus_res, *tmp;
++	int i;
++
++	for (i = 0; i < PCI_BRIDGE_RESOURCE_NUM; i++) {
++		if (bus->resource[i] == res) {
++			bus->resource[i] = NULL;
++			return;
++		}
++	}
++
++	list_for_each_entry_safe(bus_res, tmp, &bus->resources, list) {
++		if (bus_res->res == res) {
++			list_del(&bus_res->list);
++			kfree(bus_res);
++			return;
++		}
++	}
++}
++
+ void pci_bus_remove_resources(struct pci_bus *bus)
+ {
+ 	int i;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index cb538bc579710..d20695184e0b9 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -1417,6 +1417,7 @@ void pci_bus_add_resource(struct pci_bus *bus, struct resource *res,
+ 			  unsigned int flags);
+ struct resource *pci_bus_resource_n(const struct pci_bus *bus, int n);
+ void pci_bus_remove_resources(struct pci_bus *bus);
++void pci_bus_remove_resource(struct pci_bus *bus, struct resource *res);
+ int devm_request_pci_bus_resources(struct device *dev,
+ 				   struct list_head *resources);
+ 
 -- 
 2.39.2
 
