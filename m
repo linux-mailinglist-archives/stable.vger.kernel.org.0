@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E55E6C07BD
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:01:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39ACF6C07AD
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:00:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbjCTBBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 21:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
+        id S230290AbjCTBAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231142AbjCTA7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:59:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38D992200E;
-        Sun, 19 Mar 2023 17:56:15 -0700 (PDT)
+        with ESMTP id S231175AbjCTA77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:59:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100E32202F;
+        Sun, 19 Mar 2023 17:56:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA9B3611F8;
-        Mon, 20 Mar 2023 00:56:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8716BC433D2;
-        Mon, 20 Mar 2023 00:56:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9393DB80D42;
+        Mon, 20 Mar 2023 00:56:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2A1C4339B;
+        Mon, 20 Mar 2023 00:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273774;
-        bh=x3kzMz32e+WMSIugB4PjBa5dkR3f0MBTkoGHz9n+y4A=;
+        s=k20201202; t=1679273777;
+        bh=K+V39EeKe6iCTrbQd/BlGo1gjFZe4Ik03rVWVFz+ysk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyI5YMepEUVl47d0BZV7Mmiv0jxEp6x7ZZi4eP1oxCJiK+LKA1LhW21xEWqLPDx3E
-         zNmAQJkcweaFqOS6MHpJI1adYKXpdvfwhDqp/MuhOsAtJ4UmqpKHswgsj/5Lp8RnMi
-         cO9HkNMF4fird+Gxv3FyTUphbOivHARRGmwo9h07bgMkqTrUUjDUd3ID8zAoUeU2R9
-         yPcqv+ONxwDkvrjhu1dLnqmwXt4s0tu1pZKGwF3vcnAOIaeL3QN0FPXCRP7XX/QFbW
-         vJIl5WIvRBw+b73pNZeOoi4XKGxG4L0McgCMJAjmy48A4zHNyryG+HFcWoANAG3F0D
-         xus16FmLBZdwg==
+        b=blKawkgHnlLdegv9icv8CDXZTHQGJDmxAWL0YqrBDAhkyD/PPCsYEKNDZGAk8XeBs
+         K+8vZQH3B2OyTp8egm/fXDSVRdu2F/IeiFqVhGVd1WEUguk1hw62WOSJjOdRIRa0KL
+         44xyk9RBICjR//3PX++VO39cfD+Yl789s7CliwqVFSiZQYx66Dfa3vXSbICrQ7f4sS
+         S9Den69IDDjmYVI/XGrfcEOYK4zvMz1lLYRvJEtF9iaaNonyrurnskHd/YjjXb4uwb
+         PigvlKpwXlx4nU492GAMRj6jX+N/EO0UMUd/h3SmbERSQYSznYo+XLGqLqBt8S3ar2
+         gV9goXNpjIZ0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenz Bauer <lorenz.bauer@isovalent.com>,
-        Lorenz Bauer <lmb@isovalent.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, shuah@kernel.org,
-        yhs@fb.com, eddyz87@gmail.com, sdf@google.com, iii@linux.ibm.com,
-        laoar.shao@gmail.com, memxor@gmail.com, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 06/15] selftests/bpf: check that modifier resolves after pointer
-Date:   Sun, 19 Mar 2023 20:55:50 -0400
-Message-Id: <20230320005559.1429040-6-sashal@kernel.org>
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, mgurtovoy@nvidia.com,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 07/15] scsi: target: iscsi: Fix an error message in iscsi_check_key()
+Date:   Sun, 19 Mar 2023 20:55:51 -0400
+Message-Id: <20230320005559.1429040-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005559.1429040-1-sashal@kernel.org>
 References: <20230320005559.1429040-1-sashal@kernel.org>
@@ -51,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,61 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lorenz.bauer@isovalent.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
+[ Upstream commit 6cc55c969b7ce8d85e09a636693d4126c3676c11 ]
 
-Add a regression test that ensures that a VAR pointing at a
-modifier which follows a PTR (or STRUCT or ARRAY) is resolved
-correctly by the datasec validator.
+The first half of the error message is printed by pr_err(), the second half
+is printed by pr_debug(). The user will therefore see only the first part
+of the message and will miss some useful information.
 
-Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
-Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/r/20230214141556.762047-1-mlombard@redhat.com
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/btf.c | 28 ++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/target/iscsi/iscsi_target_parameters.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index 48b01150e703f..28d22265b8253 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -882,6 +882,34 @@ static struct btf_raw_test raw_tests[] = {
- 	.btf_load_err = true,
- 	.err_str = "Invalid elem",
- },
-+{
-+	.descr = "var after datasec, ptr followed by modifier",
-+	.raw_types = {
-+		/* .bss section */				/* [1] */
-+		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
-+			sizeof(void*)+4),
-+		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
-+		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
-+		/* int */					/* [2] */
-+		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
-+		/* int* */					/* [3] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
-+		/* const int */					/* [5] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
-+		BTF_END_RAW,
-+	},
-+	.str_sec = "\0a\0b\0c\0",
-+	.str_sec_size = sizeof("\0a\0b\0c\0"),
-+	.map_type = BPF_MAP_TYPE_ARRAY,
-+	.map_name = ".bss",
-+	.key_size = sizeof(int),
-+	.value_size = sizeof(void*)+4,
-+	.key_type_id = 0,
-+	.value_type_id = 1,
-+	.max_entries = 1,
-+},
- /* Test member exceeds the size of struct.
-  *
-  * struct A {
+diff --git a/drivers/target/iscsi/iscsi_target_parameters.c b/drivers/target/iscsi/iscsi_target_parameters.c
+index 7a461fbb15668..31cd3c02e5176 100644
+--- a/drivers/target/iscsi/iscsi_target_parameters.c
++++ b/drivers/target/iscsi/iscsi_target_parameters.c
+@@ -1262,18 +1262,20 @@ static struct iscsi_param *iscsi_check_key(
+ 		return param;
+ 
+ 	if (!(param->phase & phase)) {
+-		pr_err("Key \"%s\" may not be negotiated during ",
+-				param->name);
++		char *phase_name;
++
+ 		switch (phase) {
+ 		case PHASE_SECURITY:
+-			pr_debug("Security phase.\n");
++			phase_name = "Security";
+ 			break;
+ 		case PHASE_OPERATIONAL:
+-			pr_debug("Operational phase.\n");
++			phase_name = "Operational";
+ 			break;
+ 		default:
+-			pr_debug("Unknown phase.\n");
++			phase_name = "Unknown";
+ 		}
++		pr_err("Key \"%s\" may not be negotiated during %s phase.\n",
++				param->name, phase_name);
+ 		return NULL;
+ 	}
+ 
 -- 
 2.39.2
 
