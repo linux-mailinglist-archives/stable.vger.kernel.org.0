@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29FEE6C076F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 575776C0774
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:58:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbjCTA56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60168 "EHLO
+        id S229869AbjCTA6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230057AbjCTA4n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:56:43 -0400
+        with ESMTP id S230234AbjCTA4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:56:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6272C1F4BF;
-        Sun, 19 Mar 2023 17:55:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5770C1F91B;
+        Sun, 19 Mar 2023 17:55:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DA44611C9;
-        Mon, 20 Mar 2023 00:55:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B16C433D2;
-        Mon, 20 Mar 2023 00:55:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2283611F4;
+        Mon, 20 Mar 2023 00:55:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF4E1C4339B;
+        Mon, 20 Mar 2023 00:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273711;
-        bh=wIMMwK89KStOb42+4eP014hy8v2pJD2GJYpw7okucq8=;
+        s=k20201202; t=1679273715;
+        bh=f9FdH9zwOoW1vm4Ust8+KYJDSMeinCSbsWbTMuDnivI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6YXJK4wkZnBhgdl6UsEBaqUuo5LR9sM/FV14b1BJCWlfQiumuiAEgM1Rw//t+dIg
-         YkuizMHangHJzg9J3sGJgcNLe+F6WbNXYXPy/CgLiatJjQyudPOC4Ft1EZiBKbnEZk
-         Od16vCw5UezKGf61Vh63c6oBnCZT3T7jnVTFD9EQQF/xBTYh/3N2KYSm7iNrG3Sij+
-         h+3ZRYp18tkUHsXYFI7Qzfk88LS2N6wsIdZmaEBkZOAI21NJdGxnxPdrXXLlebe4xn
-         I327gphF9zoAtjBZ170QaerXMmNPjpKI8kADRtnjJjLkN4omYb1dUq5abvDbcVnhmr
-         6PmVDylYJ7xVw==
+        b=an9VXBi0X9g1lmmouXq0wNZ5W9ene9ftnwuzbBh96bQHIA9qB5kSgZQLXO5ursC4q
+         whEF0YH9zKFJfamA0PtuszOELqp/oiHdfO7AXShbFG8CYGpPMK+JHfIJXFyVPg3r1U
+         hCDmCvFkG03hMC8GVtwX28OADw91eYICa4dps8ju20gFxgUejM39eTHKgi2TO6utkT
+         L8cYaWJ6seeefu9h2M0Kc4DvAseKFG6C5jiZsXbdbvUTxqdOgN9ptaP7dimRYM2MTG
+         oNuFWY52qP9nDmke+jXm8A+sCPa0JPGJGlE7nq4Dcnm0GF3ZeVk45k7wJTMuNUwNcK
+         ZYrrxRfulANqQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Rich Felker <dalias@libc.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ysato@users.sourceforge.jp,
-        akpm@linux-foundation.org, rmk+kernel@armlinux.org.uk,
-        wangkefeng.wang@huawei.com, catalin.marinas@arm.com,
-        bcain@quicinc.com, linux-sh@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 27/29] sh: sanitize the flags on sigreturn
-Date:   Sun, 19 Mar 2023 20:54:09 -0400
-Message-Id: <20230320005413.1428452-27-sashal@kernel.org>
+Cc:     lyndonli <Lyndon.Li@amd.com>, Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
+        airlied@gmail.com, daniel@ffwll.ch, luben.tuikov@amd.com,
+        sunpeng.li@amd.com, Philip.Yang@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 28/29] drm/amdgpu: Fix call trace warning and hang when removing amdgpu device
+Date:   Sun, 19 Mar 2023 20:54:10 -0400
+Message-Id: <20230320005413.1428452-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,56 +60,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: lyndonli <Lyndon.Li@amd.com>
 
-[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
+[ Upstream commit 93bb18d2a873d2fa9625c8ea927723660a868b95 ]
 
-We fetch %SR value from sigframe; it might have been modified by signal
-handler, so we can't trust it with any bits that are not modifiable in
-user mode.
+On GPUs with RAS enabled, below call trace and hang are observed when
+shutting down device.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+v2: use DRM device unplugged flag instead of shutdown flag as the check to
+prevent memory wipe in shutdown stage.
+
+[ +0.000000] RIP: 0010:amdgpu_vram_mgr_fini+0x18d/0x1c0 [amdgpu]
+[ +0.000001] PKRU: 55555554
+[ +0.000001] Call Trace:
+[ +0.000001] <TASK>
+[ +0.000002] amdgpu_ttm_fini+0x140/0x1c0 [amdgpu]
+[ +0.000183] amdgpu_bo_fini+0x27/0xa0 [amdgpu]
+[ +0.000184] gmc_v11_0_sw_fini+0x2b/0x40 [amdgpu]
+[ +0.000163] amdgpu_device_fini_sw+0xb6/0x510 [amdgpu]
+[ +0.000152] amdgpu_driver_release_kms+0x16/0x30 [amdgpu]
+[ +0.000090] drm_dev_release+0x28/0x50 [drm]
+[ +0.000016] devm_drm_dev_init_release+0x38/0x60 [drm]
+[ +0.000011] devm_action_release+0x15/0x20
+[ +0.000003] release_nodes+0x40/0xc0
+[ +0.000001] devres_release_all+0x9e/0xe0
+[ +0.000001] device_unbind_cleanup+0x12/0x80
+[ +0.000003] device_release_driver_internal+0xff/0x160
+[ +0.000001] driver_detach+0x4a/0x90
+[ +0.000001] bus_remove_driver+0x6c/0xf0
+[ +0.000001] driver_unregister+0x31/0x50
+[ +0.000001] pci_unregister_driver+0x40/0x90
+[ +0.000003] amdgpu_exit+0x15/0x120 [amdgpu]
+
+Signed-off-by: lyndonli <Lyndon.Li@amd.com>
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/processor_32.h | 1 +
- arch/sh/kernel/signal_32.c         | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sh/include/asm/processor_32.h b/arch/sh/include/asm/processor_32.h
-index 27aebf1e75a20..3ef7adf739c83 100644
---- a/arch/sh/include/asm/processor_32.h
-+++ b/arch/sh/include/asm/processor_32.h
-@@ -50,6 +50,7 @@
- #define SR_FD		0x00008000
- #define SR_MD		0x40000000
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+index cfd78c4a45baa..4feedf518a191 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -1312,7 +1312,7 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
  
-+#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
- /*
-  * DSP structure and data
-  */
-diff --git a/arch/sh/kernel/signal_32.c b/arch/sh/kernel/signal_32.c
-index 90f495d35db29..a6bfc6f374911 100644
---- a/arch/sh/kernel/signal_32.c
-+++ b/arch/sh/kernel/signal_32.c
-@@ -115,6 +115,7 @@ static int
- restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
- {
- 	unsigned int err = 0;
-+	unsigned int sr = regs->sr & ~SR_USER_MASK;
+ 	if (!bo->resource || bo->resource->mem_type != TTM_PL_VRAM ||
+ 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE) ||
+-	    adev->in_suspend || adev->shutdown)
++	    adev->in_suspend || drm_dev_is_unplugged(adev_to_drm(adev)))
+ 		return;
  
- #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
- 			COPY(regs[1]);
-@@ -130,6 +131,8 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p
- 	COPY(sr);	COPY(pc);
- #undef COPY
- 
-+	regs->sr = (regs->sr & SR_USER_MASK) | sr;
-+
- #ifdef CONFIG_SH_FPU
- 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
- 		int owned_fp;
+ 	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
 -- 
 2.39.2
 
