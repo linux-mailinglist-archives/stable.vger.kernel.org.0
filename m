@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1576A6C173B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CF46C1745
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbjCTPMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:12:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        id S232314AbjCTPMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232366AbjCTPLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE812BF3D;
-        Mon, 20 Mar 2023 08:06:51 -0700 (PDT)
+        with ESMTP id S232320AbjCTPL7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248C031E05
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33FB76158A;
-        Mon, 20 Mar 2023 15:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F024C433EF;
-        Mon, 20 Mar 2023 15:06:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB78CB80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D9B6C433EF;
+        Mon, 20 Mar 2023 15:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324807;
-        bh=UeW1CQAAoSJChSLO401v/ThGrxNP3MJwVrLenSBvI1U=;
+        s=korg; t=1679324818;
+        bh=6CY8/h/BtKhLqmiRAwAyxq2h3595MxNwyEdjotDUwDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSe0a56afta0j38V8Kx0QHTkqyo3RsXH5ni4fuIPKbTb90gVpv+gj5P1mW8mH6iFr
-         lZhxQC8APHGGEZe8uplUfjtwdKRbChzF3vOyN0y6i1C+QK/e2SqPrErqyPKWmk7DUH
-         MG58ZSSXfGvQExrhRRHBJ3YniAfNIj3DxIX33sPU=
+        b=G89Tqj8BQjOOuO+tzps16JnRYHTHBV1DRsyesTG475gWl/RfP66DQf7T/Ud/sfv3t
+         L1uT3c0V48yGB0TtwSxzxHGMny0/DwxAHeZ1t27ubAdYCSnBTglIUOiT+zGIrw6kqI
+         MK4fMs1AwEZUPze3eAQKl1QHsCgGrWEL3LOFusFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Riku Voipio <riku.voipio@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-clk@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 008/198] clk: HI655X: select REGMAP instead of depending on it
-Date:   Mon, 20 Mar 2023 15:52:26 +0100
-Message-Id: <20230320145507.814907681@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 009/198] ASoC: SOF: Intel: MTL: Fix the device description
+Date:   Mon, 20 Mar 2023 15:52:27 +0100
+Message-Id: <20230320145507.864466139@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
 References: <20230320145507.420176832@linuxfoundation.org>
@@ -55,45 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-[ Upstream commit 0ffad67784a097beccf34d297ddd1b0773b3b8a3 ]
+[ Upstream commit a659e35ca0af2765f567bdfdccfa247eff0cdab8 ]
 
-REGMAP is a hidden (not user visible) symbol. Users cannot set it
-directly thru "make *config", so drivers should select it instead of
-depending on it if they need it.
+Add the missing ops_free callback.
 
-Consistently using "select" or "depends on" can also help reduce
-Kconfig circular dependency issues.
+Fixes: 064520e8aeaa ("ASoC: SOF: Intel: Add support for MeteorLake (MTL)")
 
-Therefore, change the use of "depends on REGMAP" to "select REGMAP".
-
-Fixes: 3a49afb84ca0 ("clk: enable hi655x common clk automatically")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Riku Voipio <riku.voipio@linaro.org>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: linux-clk@vger.kernel.org
-Link: https://lore.kernel.org/r/20230226053953.4681-3-rdunlap@infradead.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230307093914.25409-2-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sof/intel/pci-mtl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index d79905f3e1744..5da82f2bdd211 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -92,7 +92,7 @@ config COMMON_CLK_RK808
- config COMMON_CLK_HI655X
- 	tristate "Clock driver for Hi655x" if EXPERT
- 	depends on (MFD_HI655X_PMIC || COMPILE_TEST)
--	depends on REGMAP
-+	select REGMAP
- 	default MFD_HI655X_PMIC
- 	help
- 	  This driver supports the hi655x PMIC clock. This
+diff --git a/sound/soc/sof/intel/pci-mtl.c b/sound/soc/sof/intel/pci-mtl.c
+index 9f39da984e9fa..4dae256536bf4 100644
+--- a/sound/soc/sof/intel/pci-mtl.c
++++ b/sound/soc/sof/intel/pci-mtl.c
+@@ -43,6 +43,7 @@ static const struct sof_dev_desc mtl_desc = {
+ 	.nocodec_tplg_filename = "sof-mtl-nocodec.tplg",
+ 	.ops = &sof_mtl_ops,
+ 	.ops_init = sof_mtl_ops_init,
++	.ops_free = hda_ops_free,
+ };
+ 
+ /* PCI IDs */
 -- 
 2.39.2
 
