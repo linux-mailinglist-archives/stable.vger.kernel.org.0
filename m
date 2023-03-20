@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF6D6C168C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C226C16E4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232048AbjCTPHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55166 "EHLO
+        id S232212AbjCTPKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:10:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232234AbjCTPGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:41 -0400
+        with ESMTP id S232228AbjCTPJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1099F2F790
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC1A26C28
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60DD561590
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF05C433D2;
-        Mon, 20 Mar 2023 15:02:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 564A261585
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 663AEC433EF;
+        Mon, 20 Mar 2023 15:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324535;
-        bh=EPAj6tAL9XcSP9tF/z7nCqol0AJV74AxyaxeCqMBx50=;
+        s=korg; t=1679324697;
+        bh=FMbUqgL0lq5swos4No6ff30OTTxdiyKWbGJBYOaTgj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Uzo0iHoXyafykE/uToYDD9qmF9fTmb2KVFJU5kpJvbkllo4JZCaYAutXbTIqQB5Z
-         kGQIwK35m3fIdxgzeeXzYUh6U2cCCuUtv1Cajws8XSraPSg7BiOrexCRYXXYDkIqeP
-         5VTm2MCbOQJp+oZMAtyX95vZKJMCaZ/iKr1P0sEY=
+        b=H8gKb0xkspu7PVJHGgsQZOV6m6Emk3ynfzR3Q2wroNjFS0wAEg2H2+KGUaoZqibtM
+         eLJFyQGXbxpbVoLcBf5IZVEze+2mawm/z54PyiMRuxkedVya9RglFuey9CMMWCxyt9
+         hdtUKz0FzOtZW6JmqgaWIRRQm9OqDsvTF0A0OJ90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Stefano Garzarella <sgarzare@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/99] scsi: core: Fix a comment in function scsi_host_dev_release()
+Subject: [PATCH 5.15 019/115] vdpa_sim: set last_used_idx as last_avail_idx in vdpasim_queue_ready
 Date:   Mon, 20 Mar 2023 15:53:51 +0100
-Message-Id: <20230320145443.904151235@linuxfoundation.org>
+Message-Id: <20230320145450.214072736@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Eugenio Pérez <eperezma@redhat.com>
 
-[ Upstream commit 2dde5c8d912efea43be94d6a83ac9cb74879fa12 ]
+[ Upstream commit b4cca6d48eb3fa6f0d9caba4329b1a2b0ff67a77 ]
 
-Commit 3be8828fc507 ("scsi: core: Avoid that ATA error handling can
-trigger a kernel hang or oops") moved rcu to scsi_cmnd instead of
-shost. Modify "shost->rcu" to "scmd->rcu" in a comment.
+Starting from an used_idx different than 0 is needed in use cases like
+virtual machine migration.  Not doing so and letting the caller set an
+avail idx different than 0 causes destination device to try to use old
+buffers that source driver already recover and are not available
+anymore.
 
-Link: https://lore.kernel.org/r/1620646526-193154-1-git-send-email-chenxiang66@hisilicon.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Stable-dep-of: be03df3d4bfe ("scsi: core: Fix a procfs host directory removal regression")
+Since vdpa_sim does not support receive inflight descriptors as a
+destination of a migration, let's set both avail_idx and used_idx the
+same at vq start.  This is how vhost-user works in a
+VHOST_SET_VRING_BASE call.
+
+Although the simple fix is to set last_used_idx at vdpasim_set_vq_state,
+it would be reset at vdpasim_queue_ready.  The last_avail_idx case is
+fixed with commit 0e84f918fac8 ("vdpa_sim: not reset state in
+vdpasim_queue_ready").  Since the only option is to make it equal to
+last_avail_idx, adding the only change needed here.
+
+This was discovered and tested live migrating the vdpa_sim_net device.
+
+Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+Message-Id: <20230302181857.925374-1-eperezma@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index fae0323242103..0fd2487203ff5 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -325,7 +325,7 @@ static void scsi_host_dev_release(struct device *dev)
- 	/* In case scsi_remove_host() has not been called. */
- 	scsi_proc_hostdir_rm(shost->hostt);
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index eeda45fbba258..3ccefa58e405c 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -75,6 +75,17 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
+ 			  (uintptr_t)vq->device_addr);
  
--	/* Wait for functions invoked through call_rcu(&shost->rcu, ...) */
-+	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
- 	rcu_barrier();
+ 	vq->vring.last_avail_idx = last_avail_idx;
++
++	/*
++	 * Since vdpa_sim does not support receive inflight descriptors as a
++	 * destination of a migration, let's set both avail_idx and used_idx
++	 * the same at vq start.  This is how vhost-user works in a
++	 * VHOST_SET_VRING_BASE call.
++	 *
++	 * Although the simple fix is to set last_used_idx at
++	 * vdpasim_set_vq_state, it would be reset at vdpasim_queue_ready.
++	 */
++	vq->vring.last_used_idx = last_avail_idx;
+ 	vq->vring.notify = vdpasim_vq_notify;
+ }
  
- 	if (shost->tmf_work_q)
 -- 
 2.39.2
 
