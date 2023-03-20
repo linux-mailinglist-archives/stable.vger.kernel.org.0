@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA4A6C075E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4CD6C0789
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:59:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230284AbjCTA5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
+        id S230432AbjCTA7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229967AbjCTA4F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:56:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D85E196A0;
-        Sun, 19 Mar 2023 17:54:57 -0700 (PDT)
+        with ESMTP id S230351AbjCTA6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:58:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A58F20A13;
+        Sun, 19 Mar 2023 17:55:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 418EDB80D40;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 245D4611EC;
+        Mon, 20 Mar 2023 00:54:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C281BC433D2;
         Mon, 20 Mar 2023 00:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFFEC433D2;
-        Mon, 20 Mar 2023 00:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273667;
-        bh=CWlBYcUlEtV2WK9oxcnRHyaRYGfQvTSR1XBD+I+3xUE=;
+        s=k20201202; t=1679273669;
+        bh=F0ukMBHO/kPpbe6k3DjTflDUCcbuGBOy15vOvYd6NWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=slK1VFBhgzX9O96kXtDgJDg/35yXtglu1lWngEcFD4Qhv6sGpr0J96KHnK1ppkTmD
-         VVNfx81v1fz4MJXvmrY0WaBkGdUIW7aA8QTI3b5hfjF00J9y9jwuaay822pEZ7zhQS
-         ftcFeIY3MqdwkWCmMerxQeHIWtxDwgjXqm2iUz/Yps3tOnpnk6QitDvQw7Fj353gEx
-         B/kewpzLYIwTSYlWujSw3qDOVRIwi9x5lTJZHvlDLUMMdSdkbqa2tmx3rkd3nVC+Mk
-         wBO3ZxQyWgSnsGZYraeMqYL0BfvYQKUqkIKytZ/9FAhXEuE4lUIR1PJee5mQZIlqlI
-         5oWCDyNZQiBxQ==
+        b=kguM7QE64zXE9tcfmWaneUgfbO9MdCSL9LpXDch9SFedpdQBI0pWNgWsIbQObPK06
+         ic0ldhNqyQi74ouTFKlMb1ej99Y8OIHNJiuXyRb/sizlPjUZk6kF9InyISL00upwda
+         GrXb3+XQX8dFFDkz+FJesrVdErrWO/1GWHGzi1futLDe2gaFf/oFZvbuzKytAaAp2N
+         3Ruyl1LZIHa+0xHW4s41CYwMl+OdgaAqrq0w/rfLimC45tqvx72cRBQWP1wYV65xLj
+         w9ZgRiGEDpeT6wJubq4juyBzKVJye+Bnw4MW8oSCYEDWCKnFxYLgj9iWYWGqSf5F/L
+         0Be4fHt6Lg0ow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kars de Jong <jongk@linux-m68k.org>,
+Cc:     Michael Schmitz <schmitzmic@gmail.com>,
+        Eero Tamminen <oak@helsinkinet.fi>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>, gerg@linux-m68k.org,
-        tiwai@suse.de, arnd@arndb.de, akpm@linux-foundation.org,
-        anshuman.khandual@arm.com, linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 6.1 06/29] m68k: mm: Fix systems with memory at end of 32-bit address space
-Date:   Sun, 19 Mar 2023 20:53:48 -0400
-Message-Id: <20230320005413.1428452-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, laurent@vivier.eu,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 6.1 07/29] m68k: Only force 030 bus error if PC not in exception table
+Date:   Sun, 19 Mar 2023 20:53:49 -0400
+Message-Id: <20230320005413.1428452-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -48,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,63 +58,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 0d9fad91abfd723ea5070a46d98a9f4496c93ba9 ]
+[ Upstream commit e36a82bebbf7da814530d5a179bef9df5934b717 ]
 
-The calculation of end addresses of memory chunks overflowed to 0 when
-a memory chunk is located at the end of 32-bit address space.
-This is the case for the HP300 architecture.
+__get_kernel_nofault() does copy data in supervisor mode when
+forcing a task backtrace log through /proc/sysrq_trigger.
+This is expected cause a bus error exception on e.g. NULL
+pointer dereferencing when logging a kernel task has no
+workqueue associated. This bus error ought to be ignored.
 
-Link: https://lore.kernel.org/linux-m68k/CACz-3rhUo5pgNwdWHaPWmz+30Qo9xCg70wNxdf7o5x-6tXq8QQ@mail.gmail.com/
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
+Our 030 bus error handler is ill equipped to deal with this:
+
+Whenever ssw indicates a kernel mode access on a data fault,
+we don't even attempt to handle the fault and instead always
+send a SEGV signal (or panic). As a result, the check
+for exception handling at the fault PC (buried in
+send_sig_fault() which gets called from do_page_fault()
+eventually) is never used.
+
+In contrast, both 040 and 060 access error handlers do not
+care whether a fault happened on supervisor mode access,
+and will call do_page_fault() on those, ultimately honoring
+the exception table.
+
+Add a check in bus_error030 to call do_page_fault() in case
+we do have an entry for the fault PC in our exception table.
+
+I had attempted a fix for this earlier in 2019 that did rely
+on testing pagefault_disabled() (see link below) to achieve
+the same thing, but this patch should be more generic.
+
+Tested on 030 Atari Falcon.
+
+Reported-by: Eero Tamminen <oak@helsinkinet.fi>
+Link: https://lore.kernel.org/r/alpine.LNX.2.21.1904091023540.25@nippy.intranet
+Link: https://lore.kernel.org/r/63130691-1984-c423-c1f2-73bfd8d3dcd3@gmail.com
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
 Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230223112349.26675-1-jongk@linux-m68k.org
+Link: https://lore.kernel.org/r/20230301021107.26307-1-schmitzmic@gmail.com
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mm/motorola.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/m68k/kernel/traps.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/m68k/mm/motorola.c b/arch/m68k/mm/motorola.c
-index 2a375637e0077..9113012240789 100644
---- a/arch/m68k/mm/motorola.c
-+++ b/arch/m68k/mm/motorola.c
-@@ -437,7 +437,7 @@ void __init paging_init(void)
- 	}
+diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
+index 5c8cba0efc63e..a700807c9b6d9 100644
+--- a/arch/m68k/kernel/traps.c
++++ b/arch/m68k/kernel/traps.c
+@@ -30,6 +30,7 @@
+ #include <linux/init.h>
+ #include <linux/ptrace.h>
+ #include <linux/kallsyms.h>
++#include <linux/extable.h>
  
- 	min_addr = m68k_memory[0].addr;
--	max_addr = min_addr + m68k_memory[0].size;
-+	max_addr = min_addr + m68k_memory[0].size - 1;
- 	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0,
- 			  MEMBLOCK_NONE);
- 	for (i = 1; i < m68k_num_memory;) {
-@@ -452,21 +452,21 @@ void __init paging_init(void)
- 		}
- 		memblock_add_node(m68k_memory[i].addr, m68k_memory[i].size, i,
- 				  MEMBLOCK_NONE);
--		addr = m68k_memory[i].addr + m68k_memory[i].size;
-+		addr = m68k_memory[i].addr + m68k_memory[i].size - 1;
- 		if (addr > max_addr)
- 			max_addr = addr;
- 		i++;
- 	}
- 	m68k_memoffset = min_addr - PAGE_OFFSET;
--	m68k_virt_to_node_shift = fls(max_addr - min_addr - 1) - 6;
-+	m68k_virt_to_node_shift = fls(max_addr - min_addr) - 6;
+ #include <asm/setup.h>
+ #include <asm/fpu.h>
+@@ -545,7 +546,8 @@ static inline void bus_error030 (struct frame *fp)
+ 			errorcode |= 2;
  
- 	module_fixup(NULL, __start_fixup, __stop_fixup);
- 	flush_icache();
- 
--	high_memory = phys_to_virt(max_addr);
-+	high_memory = phys_to_virt(max_addr) + 1;
- 
- 	min_low_pfn = availmem >> PAGE_SHIFT;
--	max_pfn = max_low_pfn = max_addr >> PAGE_SHIFT;
-+	max_pfn = max_low_pfn = (max_addr >> PAGE_SHIFT) + 1;
- 
- 	/* Reserve kernel text/data/bss and the memory allocated in head.S */
- 	memblock_reserve(m68k_memory[0].addr, availmem - m68k_memory[0].addr);
+ 		if (mmusr & (MMU_I | MMU_WP)) {
+-			if (ssw & 4) {
++			/* We might have an exception table for this PC */
++			if (ssw & 4 && !search_exception_tables(fp->ptregs.pc)) {
+ 				pr_err("Data %s fault at %#010lx in %s (pc=%#lx)\n",
+ 				       ssw & RW ? "read" : "write",
+ 				       fp->un.fmtb.daddr,
 -- 
 2.39.2
 
