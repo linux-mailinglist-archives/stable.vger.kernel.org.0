@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AECB6C18D9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE206C1731
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232859AbjCTP2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:28:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39494 "EHLO
+        id S232427AbjCTPMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232667AbjCTP1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63454166EE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:49 -0700 (PDT)
+        with ESMTP id S232226AbjCTPLo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0C82A17D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACB9561575
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB844C433D2;
-        Mon, 20 Mar 2023 15:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 980CFB80ECC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E202DC433D2;
+        Mon, 20 Mar 2023 15:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325633;
-        bh=yjNMJTJ0RO3C3iNpdBJYuDltmk9wej9BzuKPkT0X7wc=;
+        s=korg; t=1679324500;
+        bh=Hno1DLqX4JwKi+VHSkCA1FMVyyBG6qsTWWn4gSb+15Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pm6GahdLGVlR/WeL8/Cz9/s1Cq3Mvq+cbjI3D0M4dOYOE/HNCoYooJdm7uXTlsTQf
-         cROIqf+VIYsCvqENbzilSlUMCsP10Xs2lnRIwsndPdVA43cbxTNtC0dhzQ86AQwioL
-         xcdg9Lrt44Lc9knU7JT8y9YlDLkPnJ6ntV+lwHxM=
+        b=obp39yxB4FKL5qfhAT+OQUa1WgB9EBUvhEubiXnMeTDmrpIOq+VIGZznritH879Pw
+         rvrp9a1BMM5IvTJGtXIwIPmuwFm1/k7cty5+6n8Mc5mbTtP+VRDaVNJlllG80RBBrf
+         5k3tw3lFAPFRxzkyvGCD9f2tg6TDDTF7bFayk0B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Horatio Zhang <Hongkun.Zhang@amd.com>,
-        longlyao <Longlong.Yao@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 114/198] drm/amdgpu: fix ttm_bo calltrace warning in psp_hw_fini
-Date:   Mon, 20 Mar 2023 15:54:12 +0100
-Message-Id: <20230320145512.348148570@linuxfoundation.org>
+Subject: [PATCH 5.4 04/60] cifs: Move the in_send statistic to __smb_send_rqst()
+Date:   Mon, 20 Mar 2023 15:54:13 +0100
+Message-Id: <20230320145431.056374081@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,74 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatio Zhang <Hongkun.Zhang@amd.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 23f4a2d29ba57bf88095f817de5809d427fcbe7e ]
+[ Upstream commit d0dc41119905f740e8d5594adce277f7c0de8c92 ]
 
-The call trace occurs when the amdgpu is removed after
-the mode1 reset. During mode1 reset, from suspend to resume,
-there is no need to reinitialize the ta firmware buffer
-which caused the bo pin_count increase redundantly.
+When send SMB_COM_NT_CANCEL and RFC1002_SESSION_REQUEST, the
+in_send statistic was lost.
 
-[  489.885525] Call Trace:
-[  489.885525]  <TASK>
-[  489.885526]  amdttm_bo_put+0x34/0x50 [amdttm]
-[  489.885529]  amdgpu_bo_free_kernel+0xe8/0x130 [amdgpu]
-[  489.885620]  psp_free_shared_bufs+0xb7/0x150 [amdgpu]
-[  489.885720]  psp_hw_fini+0xce/0x170 [amdgpu]
-[  489.885815]  amdgpu_device_fini_hw+0x2ff/0x413 [amdgpu]
-[  489.885960]  ? blocking_notifier_chain_unregister+0x56/0xb0
-[  489.885962]  amdgpu_driver_unload_kms+0x51/0x60 [amdgpu]
-[  489.886049]  amdgpu_pci_remove+0x5a/0x140 [amdgpu]
-[  489.886132]  ? __pm_runtime_resume+0x60/0x90
-[  489.886134]  pci_device_remove+0x3e/0xb0
-[  489.886135]  __device_release_driver+0x1ab/0x2a0
-[  489.886137]  driver_detach+0xf3/0x140
-[  489.886138]  bus_remove_driver+0x6c/0xf0
-[  489.886140]  driver_unregister+0x31/0x60
-[  489.886141]  pci_unregister_driver+0x40/0x90
-[  489.886142]  amdgpu_exit+0x15/0x451 [amdgpu]
+Let's move the in_send statistic to the send function to avoid
+this scenario.
 
-Signed-off-by: Horatio Zhang <Hongkun.Zhang@amd.com>
-Signed-off-by: longlyao <Longlong.Yao@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 7ee1af765dfa ("[CIFS]")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/transport.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index 087147f09933a..3b8825a3e2336 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -1695,7 +1695,7 @@ static int psp_hdcp_initialize(struct psp_context *psp)
- 	psp->hdcp_context.context.mem_context.shared_mem_size = PSP_HDCP_SHARED_MEM_SIZE;
- 	psp->hdcp_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index b98ae69edb8fe..60141a7468b00 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -312,7 +312,7 @@ static int
+ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
+ 		struct smb_rqst *rqst)
+ {
+-	int rc = 0;
++	int rc;
+ 	struct kvec *iov;
+ 	int n_vec;
+ 	unsigned int send_length = 0;
+@@ -324,6 +324,7 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
+ 	int val = 1;
+ 	__be32 rfc1002_marker;
  
--	if (!psp->hdcp_context.context.initialized) {
-+	if (!psp->hdcp_context.context.mem_context.shared_buf) {
- 		ret = psp_ta_init_shared_buf(psp, &psp->hdcp_context.context.mem_context);
- 		if (ret)
- 			return ret;
-@@ -1762,7 +1762,7 @@ static int psp_dtm_initialize(struct psp_context *psp)
- 	psp->dtm_context.context.mem_context.shared_mem_size = PSP_DTM_SHARED_MEM_SIZE;
- 	psp->dtm_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
++	cifs_in_send_inc(server);
+ 	if (cifs_rdma_enabled(server)) {
+ 		/* return -EAGAIN when connecting or reconnecting */
+ 		rc = -EAGAIN;
+@@ -332,14 +333,17 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
+ 		goto smbd_done;
+ 	}
  
--	if (!psp->dtm_context.context.initialized) {
-+	if (!psp->dtm_context.context.mem_context.shared_buf) {
- 		ret = psp_ta_init_shared_buf(psp, &psp->dtm_context.context.mem_context);
- 		if (ret)
- 			return ret;
-@@ -1830,7 +1830,7 @@ static int psp_rap_initialize(struct psp_context *psp)
- 	psp->rap_context.context.mem_context.shared_mem_size = PSP_RAP_SHARED_MEM_SIZE;
- 	psp->rap_context.context.ta_load_type = GFX_CMD_ID_LOAD_TA;
++	rc = -EAGAIN;
+ 	if (ssocket == NULL)
+-		return -EAGAIN;
++		goto out;
  
--	if (!psp->rap_context.context.initialized) {
-+	if (!psp->rap_context.context.mem_context.shared_buf) {
- 		ret = psp_ta_init_shared_buf(psp, &psp->rap_context.context.mem_context);
- 		if (ret)
- 			return ret;
++	rc = -ERESTARTSYS;
+ 	if (fatal_signal_pending(current)) {
+ 		cifs_dbg(FYI, "signal pending before send request\n");
+-		return -ERESTARTSYS;
++		goto out;
+ 	}
+ 
++	rc = 0;
+ 	/* cork the socket */
+ 	kernel_setsockopt(ssocket, SOL_TCP, TCP_CORK,
+ 				(char *)&val, sizeof(val));
+@@ -453,7 +457,8 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
+ 			 rc);
+ 	else if (rc > 0)
+ 		rc = 0;
+-
++out:
++	cifs_in_send_dec(server);
+ 	return rc;
+ }
+ 
+@@ -830,9 +835,7 @@ cifs_call_async(struct TCP_Server_Info *server, struct smb_rqst *rqst,
+ 	 * I/O response may come back and free the mid entry on another thread.
+ 	 */
+ 	cifs_save_when_sent(mid);
+-	cifs_in_send_inc(server);
+ 	rc = smb_send_rqst(server, 1, rqst, flags);
+-	cifs_in_send_dec(server);
+ 
+ 	if (rc < 0) {
+ 		revert_current_mid(server, mid->credits);
+@@ -1095,9 +1098,7 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
+ 		else
+ 			midQ[i]->callback = cifs_compound_last_callback;
+ 	}
+-	cifs_in_send_inc(server);
+ 	rc = smb_send_rqst(server, num_rqst, rqst, flags);
+-	cifs_in_send_dec(server);
+ 
+ 	for (i = 0; i < num_rqst; i++)
+ 		cifs_save_when_sent(midQ[i]);
+@@ -1332,9 +1333,7 @@ SendReceive(const unsigned int xid, struct cifs_ses *ses,
+ 
+ 	midQ->mid_state = MID_REQUEST_SUBMITTED;
+ 
+-	cifs_in_send_inc(server);
+ 	rc = smb_send(server, in_buf, len);
+-	cifs_in_send_dec(server);
+ 	cifs_save_when_sent(midQ);
+ 
+ 	if (rc < 0)
+@@ -1471,9 +1470,7 @@ SendReceiveBlockingLock(const unsigned int xid, struct cifs_tcon *tcon,
+ 	}
+ 
+ 	midQ->mid_state = MID_REQUEST_SUBMITTED;
+-	cifs_in_send_inc(server);
+ 	rc = smb_send(server, in_buf, len);
+-	cifs_in_send_dec(server);
+ 	cifs_save_when_sent(midQ);
+ 
+ 	if (rc < 0)
 -- 
 2.39.2
 
