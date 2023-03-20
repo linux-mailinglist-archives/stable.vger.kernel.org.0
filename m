@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0BBF6C18E8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 203666C1848
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232799AbjCTP2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
+        id S232781AbjCTPXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232841AbjCTP20 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335B23252E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:21:29 -0700 (PDT)
+        with ESMTP id S232695AbjCTPWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6518512861
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEE4461565
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0714FC433D2;
-        Mon, 20 Mar 2023 15:21:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB0CC61582
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083F6C4339C;
+        Mon, 20 Mar 2023 15:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325671;
-        bh=fCPrvrp15Ql+O1k02rPn6TGFumL9T00uTCd0uXcJqxU=;
+        s=korg; t=1679325372;
+        bh=W9fLHoHuLWUaINGzPkF6RNt5x4mzbUfgMbFQ41cEGic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0op+QYZGooarma8zeRoNJ1c1s90em/QhAKdWHd4GiYS+Wdi8/FL4AxxzXf2ciHN4b
-         1qP49FXd1q7Ddl/78CS1JigNUEuxOjNHjCyAk4M9TLIflzbmdlSUk5eqhICS0EN0Pb
-         brh5jnI7bJCF6yUWAOWvvm0chy/3ianKoziZBczg=
+        b=uhro8WQVbo9VYv5uyp75DyI4r2eYMnNS5RCti6t3taHPgmU/fWx45nm7IjlWOD792
+         6+92bPAEz5farZOQzEhRdNk1aRN1my6GzylSWDUtuHYFAM5lDD5uKMIXIkBKVgGep9
+         ANWbNjHzsinvirWnxU3V8cJTA2wH/XSVoK/zcZik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -40,20 +40,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>,
         Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 6.2 080/211] ice: xsk: disable txq irq before flushing hw
+Subject: [PATCH 6.1 077/198] ice: xsk: disable txq irq before flushing hw
 Date:   Mon, 20 Mar 2023 15:53:35 +0100
-Message-Id: <20230320145516.637000861@linuxfoundation.org>
+Message-Id: <20230320145510.752625263@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -142,10 +141,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 374b7f10b549b..76b8ac3462266 100644
+index 65468cdc25870..41ee081eb8875 100644
 --- a/drivers/net/ethernet/intel/ice/ice_xsk.c
 +++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -184,8 +184,6 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
+@@ -173,8 +173,6 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
  	}
  	netif_tx_stop_queue(netdev_get_tx_queue(vsi->netdev, q_idx));
  
@@ -154,7 +153,7 @@ index 374b7f10b549b..76b8ac3462266 100644
  	ice_fill_txq_meta(vsi, tx_ring, &txq_meta);
  	err = ice_vsi_stop_tx_ring(vsi, ICE_NO_RESET, 0, tx_ring, &txq_meta);
  	if (err)
-@@ -200,10 +198,11 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
+@@ -189,10 +187,11 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
  		if (err)
  			return err;
  	}
