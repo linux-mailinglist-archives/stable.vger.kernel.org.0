@@ -2,151 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 641C96C1945
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5013C6C1879
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233083AbjCTPcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:32:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
+        id S232651AbjCTPZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:25:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232734AbjCTPcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B97A3608E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:37 -0700 (PDT)
+        with ESMTP id S232823AbjCTPY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF69734C36
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E66E615A9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB8D4C433A1;
-        Mon, 20 Mar 2023 15:24:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F8F9B80EAB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6ED4C433D2;
+        Mon, 20 Mar 2023 15:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325855;
-        bh=r+kgplJXHjd4tajKtvfGZAuZW/s6s6j+ygIfj0Wv5w8=;
+        s=korg; t=1679325441;
+        bh=tHYxFuyyBF0EusOg1uA7zaeTUEMIded575RY6dtTM7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEnZHxTkmIyFl1SocbYwZj00rGSiEZqIiPD2JL5wdeyRAND37pxyLOTWm1WAyzPTb
-         k0dtMGXyZykQ0pKJd5lwZYJwHWZ8dpxHZkxJLrU9MXizN9H93MOThZi2xXi0gql3Fh
-         +Bk1s4pinPavXPQN4LOxW2LyIQi2KUtilaVJC1ks=
+        b=d6kf9d3MntBzFLkYRRyAzAa9qJA8gm5/AFvV+x4drUnjuAB2UL1XVShkCMTkhIM/T
+         yDw22r+0DUBUUjoduL7Fiqkoi0Lra46lSsIz5Cs3XzsWAJt604ouTKjp84Ml3FOA2a
+         +/M/kEnyB5kVD+xWRtAbce4ck8j9R2diw4xhr4EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Freysteinn Alfredsson <Freysteinn.Alfredsson@kau.se>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 087/211] net: atlantic: Fix crash when XDP is enabled but no program is loaded
-Date:   Mon, 20 Mar 2023 15:53:42 +0100
-Message-Id: <20230320145516.955198486@linuxfoundation.org>
+Subject: [PATCH 6.1 085/198] net/iucv: Fix size of interrupt data
+Date:   Mon, 20 Mar 2023 15:53:43 +0100
+Message-Id: <20230320145511.104169794@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 37d010399f7552add2b68e2b347901c83562dab8 ]
+[ Upstream commit 3d87debb8ed2649608ff432699e7c961c0c6f03b ]
 
-The aq_xdp_run_prog() function falls back to the XDP_ABORTED action
-handler (using a goto) if the operations for any of the other actions fail.
-The XDP_ABORTED handler in turn calls the bpf_warn_invalid_xdp_action()
-tracepoint. However, the function also jumps into the XDP_PASS helper if no
-XDP program is loaded on the device, which means the XDP_ABORTED handler
-can be run with a NULL program pointer. This results in a NULL pointer
-deref because the tracepoint dereferences the 'prog' pointer passed to it.
+iucv_irq_data needs to be 4 bytes larger.
+These bytes are not used by the iucv module, but written by
+the z/VM hypervisor in case a CPU is deconfigured.
 
-This situation can happen in multiple ways:
-- If a packet arrives between the removal of the program from the interface
-  and the static_branch_dec() in aq_xdp_setup()
-- If there are multiple devices using the same driver in the system and
-  one of them has an XDP program loaded and the other does not.
+Reported as:
+BUG dma-kmalloc-64 (Not tainted): kmalloc Redzone overwritten
+-----------------------------------------------------------------------------
+0x0000000000400564-0x0000000000400567 @offset=1380. First byte 0x80 instead of 0xcc
+Allocated in iucv_cpu_prepare+0x44/0xd0 age=167839 cpu=2 pid=1
+__kmem_cache_alloc_node+0x166/0x450
+kmalloc_node_trace+0x3a/0x70
+iucv_cpu_prepare+0x44/0xd0
+cpuhp_invoke_callback+0x156/0x2f0
+cpuhp_issue_call+0xf0/0x298
+__cpuhp_setup_state_cpuslocked+0x136/0x338
+__cpuhp_setup_state+0xf4/0x288
+iucv_init+0xf4/0x280
+do_one_initcall+0x78/0x390
+do_initcalls+0x11a/0x140
+kernel_init_freeable+0x25e/0x2a0
+kernel_init+0x2e/0x170
+__ret_from_fork+0x3c/0x58
+ret_from_fork+0xa/0x40
+Freed in iucv_init+0x92/0x280 age=167839 cpu=2 pid=1
+__kmem_cache_free+0x308/0x358
+iucv_init+0x92/0x280
+do_one_initcall+0x78/0x390
+do_initcalls+0x11a/0x140
+kernel_init_freeable+0x25e/0x2a0
+kernel_init+0x2e/0x170
+__ret_from_fork+0x3c/0x58
+ret_from_fork+0xa/0x40
+Slab 0x0000037200010000 objects=32 used=30 fp=0x0000000000400640 flags=0x1ffff00000010200(slab|head|node=0|zone=0|
+Object 0x0000000000400540 @offset=1344 fp=0x0000000000000000
+Redzone  0000000000400500: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400510: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400520: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400530: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Object   0000000000400540: 00 01 00 03 00 00 00 00 00 00 00 00 00 00 00 00  ................
+Object   0000000000400550: f3 86 81 f2 f4 82 f8 82 f0 f0 f0 f0 f0 f0 f0 f2  ................
+Object   0000000000400560: 00 00 00 00 80 00 00 00 cc cc cc cc cc cc cc cc  ................
+Object   0000000000400570: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400580: cc cc cc cc cc cc cc cc                          ........
+Padding  00000000004005d4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+Padding  00000000004005e4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+Padding  00000000004005f4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a              ZZZZZZZZZZZZ
+CPU: 6 PID: 121030 Comm: 116-pai-crypto. Not tainted 6.3.0-20230221.rc0.git4.99b8246b2d71.300.fc37.s390x+debug #1
+Hardware name: IBM 3931 A01 704 (z/VM 7.3.0)
+Call Trace:
+[<000000032aa034ec>] dump_stack_lvl+0xac/0x100
+[<0000000329f5a6cc>] check_bytes_and_report+0x104/0x140
+[<0000000329f5aa78>] check_object+0x370/0x3c0
+[<0000000329f5ede6>] free_debug_processing+0x15e/0x348
+[<0000000329f5f06a>] free_to_partial_list+0x9a/0x2f0
+[<0000000329f5f4a4>] __slab_free+0x1e4/0x3a8
+[<0000000329f61768>] __kmem_cache_free+0x308/0x358
+[<000000032a91465c>] iucv_cpu_dead+0x6c/0x88
+[<0000000329c2fc66>] cpuhp_invoke_callback+0x156/0x2f0
+[<000000032aa062da>] _cpu_down.constprop.0+0x22a/0x5e0
+[<0000000329c3243e>] cpu_device_down+0x4e/0x78
+[<000000032a61dee0>] device_offline+0xc8/0x118
+[<000000032a61e048>] online_store+0x60/0xe0
+[<000000032a08b6b0>] kernfs_fop_write_iter+0x150/0x1e8
+[<0000000329fab65c>] vfs_write+0x174/0x360
+[<0000000329fab9fc>] ksys_write+0x74/0x100
+[<000000032aa03a5a>] __do_syscall+0x1da/0x208
+[<000000032aa177b2>] system_call+0x82/0xb0
+INFO: lockdep is turned off.
+FIX dma-kmalloc-64: Restoring kmalloc Redzone 0x0000000000400564-0x0000000000400567=0xcc
+FIX dma-kmalloc-64: Object at 0x0000000000400540 not freed
 
-Fix this by refactoring the aq_xdp_run_prog() function to remove the 'goto
-pass' handling if there is no XDP program loaded. Instead, factor out the
-skb building in a separate small helper function.
-
-Fixes: 26efaef759a1 ("net: atlantic: Implement xdp data plane")
-Reported-by: Freysteinn Alfredsson <Freysteinn.Alfredsson@kau.se>
-Tested-by: Freysteinn Alfredsson <Freysteinn.Alfredsson@kau.se>
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/20230315125539.103319-1-toke@redhat.com
+Fixes: 2356f4cb1911 ("[S390]: Rewrite of the IUCV base code, part 2")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230315131435.4113889-1-wintera@linux.ibm.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_ring.c  | 28 ++++++++++++++-----
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ net/iucv/iucv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-index 1e8d902e1c8ea..7f933175cbdac 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-@@ -412,6 +412,25 @@ int aq_xdp_xmit(struct net_device *dev, int num_frames,
- 	return num_frames - drop;
- }
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index eb0295d900395..fc3fddeb6f36d 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -83,7 +83,7 @@ struct iucv_irq_data {
+ 	u16 ippathid;
+ 	u8  ipflags1;
+ 	u8  iptype;
+-	u32 res2[8];
++	u32 res2[9];
+ };
  
-+static struct sk_buff *aq_xdp_build_skb(struct xdp_buff *xdp,
-+					struct net_device *dev,
-+					struct aq_ring_buff_s *buff)
-+{
-+	struct xdp_frame *xdpf;
-+	struct sk_buff *skb;
-+
-+	xdpf = xdp_convert_buff_to_frame(xdp);
-+	if (unlikely(!xdpf))
-+		return NULL;
-+
-+	skb = xdp_build_skb_from_frame(xdpf, dev);
-+	if (!skb)
-+		return NULL;
-+
-+	aq_get_rxpages_xdp(buff, xdp);
-+	return skb;
-+}
-+
- static struct sk_buff *aq_xdp_run_prog(struct aq_nic_s *aq_nic,
- 				       struct xdp_buff *xdp,
- 				       struct aq_ring_s *rx_ring,
-@@ -431,7 +450,7 @@ static struct sk_buff *aq_xdp_run_prog(struct aq_nic_s *aq_nic,
- 
- 	prog = READ_ONCE(rx_ring->xdp_prog);
- 	if (!prog)
--		goto pass;
-+		return aq_xdp_build_skb(xdp, aq_nic->ndev, buff);
- 
- 	prefetchw(xdp->data_hard_start); /* xdp_frame write */
- 
-@@ -442,17 +461,12 @@ static struct sk_buff *aq_xdp_run_prog(struct aq_nic_s *aq_nic,
- 	act = bpf_prog_run_xdp(prog, xdp);
- 	switch (act) {
- 	case XDP_PASS:
--pass:
--		xdpf = xdp_convert_buff_to_frame(xdp);
--		if (unlikely(!xdpf))
--			goto out_aborted;
--		skb = xdp_build_skb_from_frame(xdpf, aq_nic->ndev);
-+		skb = aq_xdp_build_skb(xdp, aq_nic->ndev, buff);
- 		if (!skb)
- 			goto out_aborted;
- 		u64_stats_update_begin(&rx_ring->stats.rx.syncp);
- 		++rx_ring->stats.rx.xdp_pass;
- 		u64_stats_update_end(&rx_ring->stats.rx.syncp);
--		aq_get_rxpages_xdp(buff, xdp);
- 		return skb;
- 	case XDP_TX:
- 		xdpf = xdp_convert_buff_to_frame(xdp);
+ struct iucv_irq_list {
 -- 
 2.39.2
 
