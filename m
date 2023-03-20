@@ -2,140 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED5C6C0FFF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 486D66C0FE1
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:57:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbjCTK7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:59:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59866 "EHLO
+        id S230525AbjCTK5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbjCTK63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:58:29 -0400
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 42860274A0;
-        Mon, 20 Mar 2023 03:55:02 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="5.98,274,1673881200"; 
-   d="scan'208";a="156562987"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 20 Mar 2023 19:53:59 +0900
-Received: from localhost.localdomain (unknown [10.226.92.205])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 24A1E4004BCF;
-        Mon, 20 Mar 2023 19:53:55 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        linux-serial@vger.kernel.org,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 4/5] tty: serial: sh-sci: Add support for tx end interrupt handling
-Date:   Mon, 20 Mar 2023 10:53:38 +0000
-Message-Id: <20230320105339.236279-5-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
-References: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
+        with ESMTP id S231230AbjCTK5O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:57:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA8B128D23
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:53:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CFECB80E24
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31CFC433D2;
+        Mon, 20 Mar 2023 10:53:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1679309625;
+        bh=rxyqMpzVaH5VBkjBdqJLBujTPTB9U/b2t2eFMiTfnZM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=L2H5QbPKSnxwB/qLUVoAyCUFYBlZ6FpBsuj/ZRRShw56TlzZFTta3bm5foCbQzkGS
+         qhWJgQOF+WQVrPigtVhHUDYD4+R30fMcisIkMuM0gBU8nOmbTfV0DsFO1NZ+NsGolE
+         EUFMLasFkONVa8hBzedEmWK1w8GYBuvLMCnJ+tmM=
+Subject: FAILED: patch "[PATCH] tracing: Do not let histogram values have some modifiers" failed to apply to 5.15-stable tree
+To:     rostedt@goodmis.org, akpm@linux-foundation.org,
+        mark.rutland@arm.com, mhiramat@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Mar 2023 11:53:40 +0100
+Message-ID: <1679309620128116@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As per the RZ/G2L users hardware manual (Rev.1.20 Sep, 2022), section
-23.3.7 Serial Data Transmission (Asynchronous Mode), it is mentioned
-that, set the SCR.TIE bit to 0 and SCR.TEIE bit to 1, after the last
-data to be transmitted are written to the TDR.
 
-This will generate tx end interrupt and in the handler set SCR.TE and
-SCR.TEIE to 0.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: f9a2adcc9e90 ("arm64: dts: renesas: r9a07g044: Add SCI[0-1] nodes")
+To reproduce the conflict and resubmit, you may use the following commands:
+
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git checkout FETCH_HEAD
+git cherry-pick -x e0213434fe3e4a0d118923dc98d31e7ff1cd9e45
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679309620128116@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+
+Possible dependencies:
+
+e0213434fe3e ("tracing: Do not let histogram values have some modifiers")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e0213434fe3e4a0d118923dc98d31e7ff1cd9e45 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Wed, 1 Mar 2023 20:00:52 -0500
+Subject: [PATCH] tracing: Do not let histogram values have some modifiers
+
+Histogram values can not be strings, stacktraces, graphs, symbols,
+syscalls, or grouped in buckets or log. Give an error if a value is set to
+do so.
+
+Note, the histogram code was not prepared to handle these modifiers for
+histograms and caused a bug.
+
+Mark Rutland reported:
+
+ # echo 'p:copy_to_user __arch_copy_to_user n=$arg2' >> /sys/kernel/tracing/kprobe_events
+ # echo 'hist:keys=n:vals=hitcount.buckets=8:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
+ # cat /sys/kernel/tracing/events/kprobes/copy_to_user/hist
+[  143.694628] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  143.695190] Mem abort info:
+[  143.695362]   ESR = 0x0000000096000004
+[  143.695604]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  143.695889]   SET = 0, FnV = 0
+[  143.696077]   EA = 0, S1PTW = 0
+[  143.696302]   FSC = 0x04: level 0 translation fault
+[  143.702381] Data abort info:
+[  143.702614]   ISV = 0, ISS = 0x00000004
+[  143.702832]   CM = 0, WnR = 0
+[  143.703087] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000448f9000
+[  143.703407] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000
+[  143.704137] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+[  143.704714] Modules linked in:
+[  143.705273] CPU: 0 PID: 133 Comm: cat Not tainted 6.2.0-00003-g6fc512c10a7c #3
+[  143.706138] Hardware name: linux,dummy-virt (DT)
+[  143.706723] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  143.707120] pc : hist_field_name.part.0+0x14/0x140
+[  143.707504] lr : hist_field_name.part.0+0x104/0x140
+[  143.707774] sp : ffff800008333a30
+[  143.707952] x29: ffff800008333a30 x28: 0000000000000001 x27: 0000000000400cc0
+[  143.708429] x26: ffffd7a653b20260 x25: 0000000000000000 x24: ffff10d303ee5800
+[  143.708776] x23: ffffd7a6539b27b0 x22: ffff10d303fb8c00 x21: 0000000000000001
+[  143.709127] x20: ffff10d303ec2000 x19: 0000000000000000 x18: 0000000000000000
+[  143.709478] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[  143.709824] x14: 0000000000000000 x13: 203a6f666e692072 x12: 6567676972742023
+[  143.710179] x11: 0a230a6d6172676f x10: 000000000000002c x9 : ffffd7a6521e018c
+[  143.710584] x8 : 000000000000002c x7 : 7f7f7f7f7f7f7f7f x6 : 000000000000002c
+[  143.710915] x5 : ffff10d303b0103e x4 : ffffd7a653b20261 x3 : 000000000000003d
+[  143.711239] x2 : 0000000000020001 x1 : 0000000000000001 x0 : 0000000000000000
+[  143.711746] Call trace:
+[  143.712115]  hist_field_name.part.0+0x14/0x140
+[  143.712642]  hist_field_name.part.0+0x104/0x140
+[  143.712925]  hist_field_print+0x28/0x140
+[  143.713125]  event_hist_trigger_print+0x174/0x4d0
+[  143.713348]  hist_show+0xf8/0x980
+[  143.713521]  seq_read_iter+0x1bc/0x4b0
+[  143.713711]  seq_read+0x8c/0xc4
+[  143.713876]  vfs_read+0xc8/0x2a4
+[  143.714043]  ksys_read+0x70/0xfc
+[  143.714218]  __arm64_sys_read+0x24/0x30
+[  143.714400]  invoke_syscall+0x50/0x120
+[  143.714587]  el0_svc_common.constprop.0+0x4c/0x100
+[  143.714807]  do_el0_svc+0x44/0xd0
+[  143.714970]  el0_svc+0x2c/0x84
+[  143.715134]  el0t_64_sync_handler+0xbc/0x140
+[  143.715334]  el0t_64_sync+0x190/0x194
+[  143.715742] Code: a9bd7bfd 910003fd a90153f3 aa0003f3 (f9400000)
+[  143.716510] ---[ end trace 0000000000000000 ]---
+Segmentation fault
+
+Link: https://lkml.kernel.org/r/20230302020810.559462599@goodmis.org
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
----
-v3:
- * New patch
----
- drivers/tty/serial/sh-sci.c | 31 ++++++++++++++++++++++++++++---
- drivers/tty/serial/sh-sci.h |  3 +++
- 2 files changed, 31 insertions(+), 3 deletions(-)
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: c6afad49d127f ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 9079a8ea9132..adc2ac4a3cf6 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -862,9 +862,16 @@ static void sci_transmit_chars(struct uart_port *port)
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 89877a18f933..6e8ab726a7b5 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -4235,6 +4235,15 @@ static int __create_val_field(struct hist_trigger_data *hist_data,
+ 		goto out;
+ 	}
  
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(port);
--	if (uart_circ_empty(xmit))
--		sci_stop_tx(port);
-+	if (uart_circ_empty(xmit)) {
-+		if (port->type == PORT_SCI) {
-+			ctrl = serial_port_in(port, SCSCR);
-+			ctrl &= ~SCSCR_TIE;
-+			ctrl |= SCSCR_TEIE;
-+			serial_port_out(port, SCSCR, ctrl);
-+		}
- 
-+		sci_stop_tx(port);
++	/* Some types cannot be a value */
++	if (hist_field->flags & (HIST_FIELD_FL_GRAPH | HIST_FIELD_FL_PERCENT |
++				 HIST_FIELD_FL_BUCKET | HIST_FIELD_FL_LOG2 |
++				 HIST_FIELD_FL_SYM | HIST_FIELD_FL_SYM_OFFSET |
++				 HIST_FIELD_FL_SYSCALL | HIST_FIELD_FL_STACKTRACE)) {
++		hist_err(file->tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(field_str));
++		ret = -EINVAL;
 +	}
- }
- 
- static void sci_receive_chars(struct uart_port *port)
-@@ -1753,6 +1760,24 @@ static irqreturn_t sci_tx_interrupt(int irq, void *ptr)
- 	return IRQ_HANDLED;
- }
- 
-+static irqreturn_t sci_tx_end_interrupt(int irq, void *ptr)
-+{
-+	struct uart_port *port = ptr;
-+	unsigned long flags;
-+	unsigned short ctrl;
 +
-+	if (port->type != PORT_SCI)
-+		return sci_tx_interrupt(irq, ptr);
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	ctrl = serial_port_in(port, SCSCR);
-+	ctrl &= ~(SCSCR_TE | SCSCR_TEIE);
-+	serial_port_out(port, SCSCR, ctrl);
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static irqreturn_t sci_br_interrupt(int irq, void *ptr)
- {
- 	struct uart_port *port = ptr;
-@@ -1889,7 +1914,7 @@ static const struct sci_irq_desc {
+ 	hist_data->fields[val_idx] = hist_field;
  
- 	[SCIx_TEI_IRQ] = {
- 		.desc = "tx end",
--		.handler = sci_tx_interrupt,
-+		.handler = sci_tx_end_interrupt,
- 	},
- 
- 	/*
-diff --git a/drivers/tty/serial/sh-sci.h b/drivers/tty/serial/sh-sci.h
-index c0ae78632dda..7460f6021a92 100644
---- a/drivers/tty/serial/sh-sci.h
-+++ b/drivers/tty/serial/sh-sci.h
-@@ -59,6 +59,9 @@ enum {
- #define SCSMR_SRC_19	0x0600	/* Sampling rate 1/19 */
- #define SCSMR_SRC_27	0x0700	/* Sampling rate 1/27 */
- 
-+/* Serial Control Register, RZ SCI only bits */
-+#define SCSCR_TEIE	BIT(2)		/* Transmit End Interrupt Enable */
-+
- /* Serial Control Register, SCIFA/SCIFB only bits */
- #define SCSCR_TDRQE	BIT(15)	/* Tx Data Transfer Request Enable */
- #define SCSCR_RDRQE	BIT(14)	/* Rx Data Transfer Request Enable */
--- 
-2.25.1
+ 	++hist_data->n_vals;
 
