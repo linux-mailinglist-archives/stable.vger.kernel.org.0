@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1B16C1771
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73CDC6C1775
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232500AbjCTPN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:13:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43020 "EHLO
+        id S232422AbjCTPOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232495AbjCTPNg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:36 -0400
+        with ESMTP id S232433AbjCTPNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59395166E7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58631206C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8674615A4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29AFC433EF;
-        Mon, 20 Mar 2023 15:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10F9961592
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF5AC433D2;
+        Mon, 20 Mar 2023 15:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324909;
-        bh=w/EVluFcOFBdtYa+rB/fHuaoQlj8JQPiqBjehzQCaek=;
+        s=korg; t=1679324917;
+        bh=L4BPA/j0NaFTaEujZOmx4EUTbVrT7bo2QbPBZ6j0+QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DGa4WQ/su2lR3CX0RRHjAyLW3QSCJVOp1fab9CCr01ATniksOCgzqZAU4sNxFbGL6
-         W7pTdzl0xaVGUo/5GqyBTFUCzrCy6SNCRjuVqK3JN1MhqkOM8jWHTtF05nyiTY6vuM
-         Vybluqt+mecX/cPCqptv8035zAEUzpMq/3ceFJRM=
+        b=x+XOBNq9keKFXuP8XnqOUK6RaDyBpz9fRSRdNWLohH+tAaIp8oc59jmGApW+evN3J
+         Aqfc7W+WY1nZCgAxQlOVxC6pQU0r+8xrjl5c0ziZZoFGpaGUbPcTklH1IX+3aneG6n
+         yNSfZ60IYH0TrPNbLqkWnCjYnHxYkNkOH4v1h2vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 019/198] scsi: mpi3mr: Fix sas_hba.phy memory leak in mpi3mr_remove()
-Date:   Mon, 20 Mar 2023 15:52:37 +0100
-Message-Id: <20230320145508.308156701@linuxfoundation.org>
+Subject: [PATCH 6.1 020/198] scsi: mpi3mr: Return proper values for failures in firmware init path
+Date:   Mon, 20 Mar 2023 15:52:38 +0100
+Message-Id: <20230320145508.345697464@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
 References: <20230320145507.420176832@linuxfoundation.org>
@@ -54,39 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Ranjan Kumar <ranjan.kumar@broadcom.com>
 
-[ Upstream commit d4caa1a4255cc44be56bcab3db2c97c632e6cc10 ]
+[ Upstream commit ba8a9ba41fbde250fd8b0ed1e5dad0dc9318df46 ]
 
-Free mrioc->sas_hba.phy at .remove.
+Return proper non-zero return values for all the cases when the controller
+initialization and re-initialization fails.
 
-Fixes: 42fc9fee116f ("scsi: mpi3mr: Add helper functions to manage device's port")
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230302234336.25456-5-thenzl@redhat.com
-Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Link: https://lore.kernel.org/r/20230228140835.4075-5-ranjan.kumar@broadcom.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Stable-dep-of: c798304470ca ("scsi: mpi3mr: Fix memory leaks in mpi3mr_init_ioc()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_os.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/mpi3mr/mpi3mr_fw.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_os.c b/drivers/scsi/mpi3mr/mpi3mr_os.c
-index 5032b0b5186d4..5698e7b90f852 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_os.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_os.c
-@@ -5127,6 +5127,12 @@ static void mpi3mr_remove(struct pci_dev *pdev)
- 	}
- 	spin_unlock_irqrestore(&mrioc->sas_node_lock, flags);
- 
-+	if (mrioc->sas_hba.num_phys) {
-+		kfree(mrioc->sas_hba.phy);
-+		mrioc->sas_hba.phy = NULL;
-+		mrioc->sas_hba.num_phys = 0;
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+index f6b726359a1cc..37aaf8dc65d4d 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+@@ -3817,8 +3817,10 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
+ 	dprint_init(mrioc, "allocating config page buffers\n");
+ 	mrioc->cfg_page = dma_alloc_coherent(&mrioc->pdev->dev,
+ 	    MPI3MR_DEFAULT_CFG_PAGE_SZ, &mrioc->cfg_page_dma, GFP_KERNEL);
+-	if (!mrioc->cfg_page)
++	if (!mrioc->cfg_page) {
++		retval = -1;
+ 		goto out_failed_noretry;
 +	}
-+
- 	spin_lock(&mrioc_list_lock);
- 	list_del(&mrioc->list);
- 	spin_unlock(&mrioc_list_lock);
+ 
+ 	mrioc->cfg_page_sz = MPI3MR_DEFAULT_CFG_PAGE_SZ;
+ 
+@@ -3880,8 +3882,10 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
+ 		dprint_init(mrioc, "allocating memory for throttle groups\n");
+ 		sz = sizeof(struct mpi3mr_throttle_group_info);
+ 		mrioc->throttle_groups = kcalloc(mrioc->num_io_throttle_group, sz, GFP_KERNEL);
+-		if (!mrioc->throttle_groups)
++		if (!mrioc->throttle_groups) {
++			retval = -1;
+ 			goto out_failed_noretry;
++		}
+ 	}
+ 
+ 	retval = mpi3mr_enable_events(mrioc);
+@@ -3901,6 +3905,7 @@ int mpi3mr_init_ioc(struct mpi3mr_ioc *mrioc)
+ 		mpi3mr_memset_buffers(mrioc);
+ 		goto retry_init;
+ 	}
++	retval = -1;
+ out_failed_noretry:
+ 	ioc_err(mrioc, "controller initialization failed\n");
+ 	mpi3mr_issue_reset(mrioc, MPI3_SYSIF_HOST_DIAG_RESET_ACTION_DIAG_FAULT,
+@@ -4013,6 +4018,7 @@ int mpi3mr_reinit_ioc(struct mpi3mr_ioc *mrioc, u8 is_resume)
+ 		ioc_err(mrioc,
+ 		    "cannot create minimum number of operational queues expected:%d created:%d\n",
+ 		    mrioc->shost->nr_hw_queues, mrioc->num_op_reply_q);
++		retval = -1;
+ 		goto out_failed_noretry;
+ 	}
+ 
+@@ -4079,6 +4085,7 @@ int mpi3mr_reinit_ioc(struct mpi3mr_ioc *mrioc, u8 is_resume)
+ 		mpi3mr_memset_buffers(mrioc);
+ 		goto retry_init;
+ 	}
++	retval = -1;
+ out_failed_noretry:
+ 	ioc_err(mrioc, "controller %s is failed\n",
+ 	    (is_resume)?"resume":"re-initialization");
 -- 
 2.39.2
 
