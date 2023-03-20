@@ -2,48 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6EC6C16C6
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E3C6C1962
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232278AbjCTPJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36796 "EHLO
+        id S233106AbjCTPdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232282AbjCTPIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4459F93D8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:11 -0700 (PDT)
+        with ESMTP id S233109AbjCTPdA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C24305E6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EED2B61582
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09727C433EF;
-        Mon, 20 Mar 2023 15:03:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E9366158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71017C433D2;
+        Mon, 20 Mar 2023 15:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324607;
-        bh=9rquQIIV8+GqmTmFonBBAhWkmGTUPetbziXMm31iBjw=;
+        s=korg; t=1679325939;
+        bh=XQtFvuJs4LXlUvPVo2QTIzAptzFOk2td0n4ImZNUIWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwWpJwbhUrkfmfhKqQS3/iRw/OvpTotWWzj2z7MPYNdfAxD34Iqn0vJ6p9gk6e4Tb
-         b1oaPj3ihar15fRF5Z64esYVsS3/5+ecPK0pbBn8rl6sFZJj9pqmGnn+co9g2dXn0I
-         nlAhrFdclxDv/uFRPdcW87a8u45yMqJtetCbnCVs=
+        b=ZK3imXLTKIC0EsUvg3qJVfUdWZ21rArDWOCp+4a7hjn93nz88MBGmhZX6Vxu01nLk
+         rMUigHXosmS8ZRxtBiHN1nTQzAgGMX/olxSo2Ref2s3Fv2d8D+ftO7td8JnCD2KqNS
+         cftmGxPhHXcR+Ik1QV9LMZaZJPsFq/n6dgJdJNLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org, lee@kernel.org
+To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 60/60] HID: uhid: Over-ride the default maximum data buffer value with our own
+        patches@lists.linux.dev,
+        Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>,
+        Dave Ertman <david.m.ertman@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 6.1 171/198] ice: avoid bonding causing auxiliary plug/unplug under RTNL lock
 Date:   Mon, 20 Mar 2023 15:55:09 +0100
-Message-Id: <20230320145433.430516289@linuxfoundation.org>
+Message-Id: <20230320145514.692687227@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,32 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee@kernel.org>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-commit 1c5d4221240a233df2440fe75c881465cdf8da07 upstream.
+commit 248401cb2c4612d83eb0c352ee8103b78b8eb365 upstream.
 
-The default maximum data buffer size for this interface is UHID_DATA_MAX
-(4k).  When data buffers are being processed, ensure this value is used
-when ensuring the sanity, rather than a value between the user provided
-value and HID_MAX_BUFFER_SIZE (16k).
+RDMA is not supported in ice on a PF that has been added to a bonded
+interface. To enforce this, when an interface enters a bond, we unplug
+the auxiliary device that supports RDMA functionality.  This unplug
+currently happens in the context of handling the netdev bonding event.
+This event is sent to the ice driver under RTNL context.  This is causing
+a deadlock where the RDMA driver is waiting for the RTNL lock to complete
+the removal.
 
-Signed-off-by: Lee Jones <lee@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Lee Jones <lee@kernel.org>
+Defer the unplugging/re-plugging of the auxiliary device to the service
+task so that it is not performed under the RTNL lock context.
+
+Cc: stable@vger.kernel.org # 6.1.x
+Reported-by: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Link: https://lore.kernel.org/netdev/CAK8fFZ6A_Gphw_3-QMGKEFQk=sfCw1Qmq0TVZK3rtAi7vb621A@mail.gmail.com/
+Fixes: 5cb1ebdbc434 ("ice: Fix race condition during interface enslave")
+Fixes: 4eace75e0853 ("RDMA/irdma: Report the correct link speed")
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230310194833.3074601-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/uhid.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/ice/ice.h      |   14 +++++---------
+ drivers/net/ethernet/intel/ice/ice_main.c |   19 ++++++++-----------
+ 2 files changed, 13 insertions(+), 20 deletions(-)
 
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -395,6 +395,7 @@ struct hid_ll_driver uhid_hid_driver = {
- 	.parse = uhid_hid_parse,
- 	.raw_request = uhid_hid_raw_request,
- 	.output_report = uhid_hid_output_report,
-+	.max_buffer_size = UHID_DATA_MAX,
- };
- EXPORT_SYMBOL_GPL(uhid_hid_driver);
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -485,6 +485,7 @@ enum ice_pf_flags {
+ 	ICE_FLAG_VF_VLAN_PRUNING,
+ 	ICE_FLAG_LINK_LENIENT_MODE_ENA,
+ 	ICE_FLAG_PLUG_AUX_DEV,
++	ICE_FLAG_UNPLUG_AUX_DEV,
+ 	ICE_FLAG_MTU_CHANGED,
+ 	ICE_FLAG_GNSS,			/* GNSS successfully initialized */
+ 	ICE_PF_FLAGS_NBITS		/* must be last */
+@@ -926,16 +927,11 @@ static inline void ice_set_rdma_cap(stru
+  */
+ static inline void ice_clear_rdma_cap(struct ice_pf *pf)
+ {
+-	/* We can directly unplug aux device here only if the flag bit
+-	 * ICE_FLAG_PLUG_AUX_DEV is not set because ice_unplug_aux_dev()
+-	 * could race with ice_plug_aux_dev() called from
+-	 * ice_service_task(). In this case we only clear that bit now and
+-	 * aux device will be unplugged later once ice_plug_aux_device()
+-	 * called from ice_service_task() finishes (see ice_service_task()).
++	/* defer unplug to service task to avoid RTNL lock and
++	 * clear PLUG bit so that pending plugs don't interfere
+ 	 */
+-	if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
+-		ice_unplug_aux_dev(pf);
+-
++	clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags);
++	set_bit(ICE_FLAG_UNPLUG_AUX_DEV, pf->flags);
+ 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
+ }
+ #endif /* _ICE_H_ */
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2326,18 +2326,15 @@ static void ice_service_task(struct work
+ 		}
+ 	}
  
+-	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
+-		/* Plug aux device per request */
+-		ice_plug_aux_dev(pf);
++	/* unplug aux dev per request, if an unplug request came in
++	 * while processing a plug request, this will handle it
++	 */
++	if (test_and_clear_bit(ICE_FLAG_UNPLUG_AUX_DEV, pf->flags))
++		ice_unplug_aux_dev(pf);
+ 
+-		/* Mark plugging as done but check whether unplug was
+-		 * requested during ice_plug_aux_dev() call
+-		 * (e.g. from ice_clear_rdma_cap()) and if so then
+-		 * plug aux device.
+-		 */
+-		if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
+-			ice_unplug_aux_dev(pf);
+-	}
++	/* Plug aux device per request */
++	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
++		ice_plug_aux_dev(pf);
+ 
+ 	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
+ 		struct iidc_event *event;
 
 
