@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 168C66C1777
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD39F6C167E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbjCTPOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:14:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
+        id S232108AbjCTPGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbjCTPNx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:53 -0400
+        with ESMTP id S232091AbjCTPGZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75AE9F94B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1765625E32
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 245DFB80D34
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862EDC433D2;
-        Mon, 20 Mar 2023 15:08:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5A78B80ECD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B2A0C433EF;
+        Mon, 20 Mar 2023 15:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324922;
-        bh=v81g5Ju93yPkz3l72tZo5MVgoURquqy4Asl0YshQPVI=;
+        s=korg; t=1679324508;
+        bh=AY/Ig6/D6B8kAit4w8uSAEvPz3sYAX7+kRJBXfUowsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSHcD0VVv3uwp7yqUarDTYB91lNfz/zcUYxfWNLPWfWWK1a1oi64gNHb2gk06PZjY
-         Kxjtn9zvYLs9th/9xaZi5jKWHFZ+y3t4yCW0IClsI2ci8w6h1JbicVdlNyiBygZR4V
-         uAViMaSHlYg8S8f8E7246lcdN1U7id99IPr3H6NI=
+        b=WXroi1zxUjppi2sGkr8PSa7fVdV+v1BSnNtYcAKTLPH/puOBFeNdtA4dSxTh/Fy2Z
+         0QU4o/TAWkjvDcrVxsZr921kMMB+OiQjavNmmT6ULKimqvcAZMbI5J6EYATX1+1W91
+         q2Gt9+t+J8NS1RymqkH8eM+71AxF6Scq5Nta3+LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 73/99] fbdev: stifb: Provide valid pixelclock and add fb_check_var() checks
-Date:   Mon, 20 Mar 2023 15:54:51 +0100
-Message-Id: <20230320145446.460445749@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Sasha Levin <sashal@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.4 43/60] sh: intc: Avoid spurious sizeof-pointer-div warning
+Date:   Mon, 20 Mar 2023 15:54:52 +0100
+Message-Id: <20230320145432.699009109@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,77 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
 
-commit 203873a535d627c668f293be0cb73e26c30f9cc7 upstream.
+[ Upstream commit 250870824c1cf199b032b1ef889c8e8d69d9123a ]
 
-Find a valid modeline depending on the machine graphic card
-configuration and add the fb_check_var() function to validate
-Xorg provided graphics settings.
+GCC warns about the pattern sizeof(void*)/sizeof(void), as it looks like
+the abuse of a pattern to calculate the array size. This pattern appears
+in the unevaluated part of the ternary operator in _INTC_ARRAY if the
+parameter is NULL.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The replacement uses an alternate approach to return 0 in case of NULL
+which does not generate the pattern sizeof(void*)/sizeof(void), but still
+emits the warning if _INTC_ARRAY is called with a nonarray parameter.
+
+This patch is required for successful compilation with -Werror enabled.
+
+The idea to use _Generic for type distinction is taken from Comment #7
+in https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108483 by Jakub Jelinek
+
+Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Link: https://lore.kernel.org/r/619fa552-c988-35e5-b1d7-fe256c46a272@mkarcher.dialup.fu-berlin.de
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/stifb.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ include/linux/sh_intc.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -922,6 +922,28 @@ SETUP_HCRX(struct stifb_info *fb)
- /* ------------------- driver specific functions --------------------------- */
+diff --git a/include/linux/sh_intc.h b/include/linux/sh_intc.h
+index c255273b02810..37ad81058d6ae 100644
+--- a/include/linux/sh_intc.h
++++ b/include/linux/sh_intc.h
+@@ -97,7 +97,10 @@ struct intc_hw_desc {
+ 	unsigned int nr_subgroups;
+ };
  
- static int
-+stifb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
-+{
-+	struct stifb_info *fb = container_of(info, struct stifb_info, info);
-+
-+	if (var->xres != fb->info.var.xres ||
-+	    var->yres != fb->info.var.yres ||
-+	    var->bits_per_pixel != fb->info.var.bits_per_pixel)
-+		return -EINVAL;
-+
-+	var->xres_virtual = var->xres;
-+	var->yres_virtual = var->yres;
-+	var->xoffset = 0;
-+	var->yoffset = 0;
-+	var->grayscale = fb->info.var.grayscale;
-+	var->red.length = fb->info.var.red.length;
-+	var->green.length = fb->info.var.green.length;
-+	var->blue.length = fb->info.var.blue.length;
-+
-+	return 0;
-+}
-+
-+static int
- stifb_setcolreg(u_int regno, u_int red, u_int green,
- 	      u_int blue, u_int transp, struct fb_info *info)
- {
-@@ -1145,6 +1167,7 @@ stifb_init_display(struct stifb_info *fb
+-#define _INTC_ARRAY(a) a, __same_type(a, NULL) ? 0 : sizeof(a)/sizeof(*a)
++#define _INTC_SIZEOF_OR_ZERO(a) (_Generic(a,                 \
++                                 typeof(NULL):  0,           \
++                                 default:       sizeof(a)))
++#define _INTC_ARRAY(a) a, _INTC_SIZEOF_OR_ZERO(a)/sizeof(*a)
  
- static const struct fb_ops stifb_ops = {
- 	.owner		= THIS_MODULE,
-+	.fb_check_var	= stifb_check_var,
- 	.fb_setcolreg	= stifb_setcolreg,
- 	.fb_blank	= stifb_blank,
- 	.fb_fillrect	= stifb_fillrect,
-@@ -1164,6 +1187,7 @@ static int __init stifb_init_fb(struct s
- 	struct stifb_info *fb;
- 	struct fb_info *info;
- 	unsigned long sti_rom_address;
-+	char modestr[32];
- 	char *dev_name;
- 	int bpp, xres, yres;
- 
-@@ -1342,6 +1366,9 @@ static int __init stifb_init_fb(struct s
- 	info->flags = FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
- 	info->pseudo_palette = &fb->pseudo_palette;
- 
-+	scnprintf(modestr, sizeof(modestr), "%dx%d-%d", xres, yres, bpp);
-+	fb_find_mode(&info->var, info, modestr, NULL, 0, NULL, bpp);
-+
- 	/* This has to be done !!! */
- 	if (fb_alloc_cmap(&info->cmap, NR_PALETTE, 0))
- 		goto out_err1;
+ #define INTC_HW_DESC(vectors, groups, mask_regs,	\
+ 		     prio_regs,	sense_regs, ack_regs)	\
+-- 
+2.39.2
+
 
 
