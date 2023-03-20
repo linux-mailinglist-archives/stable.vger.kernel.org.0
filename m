@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AD36C1674
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF136C1990
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbjCTPG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
+        id S232934AbjCTPfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232456AbjCTPFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:05:30 -0400
+        with ESMTP id S233146AbjCTPeX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:34:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C084D2A9AC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4442367FC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7764B80EC9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F21C433EF;
-        Mon, 20 Mar 2023 15:01:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02871B80EC8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F7CEC4339B;
+        Mon, 20 Mar 2023 15:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324464;
-        bh=LtHCu70t+HRL4rFaiwgeQZrp3gS8ifNSfT+F2ppNn4U=;
+        s=korg; t=1679326033;
+        bh=ItwEZepMiMsvKIPT7E7ZzxgPotXPPqHnsHfZmPbNf5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGlDN6WeKjaVks9isxhp66TGWCK6MQzoxuyeNPWSniJN9WyUcXNGb1jxekwzmXtJD
-         tqz2QxkRW46Dr2TuVaq8GXZvyY209nqKr5U25HmnD9Su6KLSH4WhRI/27dBm7mFUsk
-         u9A/qVcnrzjlR2qPPmsFKPw+wICGQhT3qFWPrm1I=
+        b=SZ1kEr26iXdpjHw4W9i3+szydJx6dZY2gvMZQ0SfmnloS/8eRMzCbxVitwPjqoBOJ
+         TJvZUYDLd6a0ITtN6IBi42NYZ9Z5N3VClSOzNWDNTLnpkpO3t6OlpUVZbCzIemKTLm
+         uM6og22Rcti1PbBJ24uZRSkWBw9eASEWl16NZK9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/60] hwmon: (adt7475) Fix masking of hysteresis registers
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.2 147/211] tracing: Make tracepoint lockdep check actually test something
 Date:   Mon, 20 Mar 2023 15:54:42 +0100
-Message-Id: <20230320145432.317173705@linuxfoundation.org>
+Message-Id: <20230320145519.587173909@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +57,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 48e8186870d9d0902e712d601ccb7098cb220688 ]
+commit c2679254b9c9980d9045f0f722cf093a2b1f7590 upstream.
 
-The wrong bits are masked in the hysteresis register; indices 0 and 2
-should zero bits [7:4] and preserve bits [3:0], and index 1 should zero
-bits [3:0] and preserve bits [7:4].
+A while ago where the trace events had the following:
 
-Fixes: 1c301fc5394f ("hwmon: Add a driver for the ADT7475 hardware monitoring chip")
-Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20230222005228.158661-3-tony.obrien@alliedtelesis.co.nz
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+   rcu_read_lock_sched_notrace();
+   rcu_dereference_sched(...);
+   rcu_read_unlock_sched_notrace();
+
+If the tracepoint is enabled, it could trigger RCU issues if called in
+the wrong place. And this warning was only triggered if lockdep was
+enabled. If the tracepoint was never enabled with lockdep, the bug would
+not be caught. To handle this, the above sequence was done when lockdep
+was enabled regardless if the tracepoint was enabled or not (although the
+always enabled code really didn't do anything, it would still trigger a
+warning).
+
+But a lot has changed since that lockdep code was added. One is, that
+sequence no longer triggers any warning. Another is, the tracepoint when
+enabled doesn't even do that sequence anymore.
+
+The main check we care about today is whether RCU is "watching" or not.
+So if lockdep is enabled, always check if rcu_is_watching() which will
+trigger a warning if it is not (tracepoints require RCU to be watching).
+
+Note, that old sequence did add a bit of overhead when lockdep was enabled,
+and with the latest kernel updates, would cause the system to slow down
+enough to trigger kernel "stalled" warnings.
+
+Link: http://lore.kernel.org/lkml/20140806181801.GA4605@redhat.com
+Link: http://lore.kernel.org/lkml/20140807175204.C257CAC5@viggo.jf.intel.com
+Link: https://lore.kernel.org/lkml/20230307184645.521db5c9@gandalf.local.home/
+Link: https://lore.kernel.org/linux-trace-kernel/20230310172856.77406446@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: e6753f23d961 ("tracepoint: Make rcuidle tracepoint callers use SRCU")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/adt7475.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/tracepoint.h |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hwmon/adt7475.c b/drivers/hwmon/adt7475.c
-index 20a4118bb3e1c..5af7226657ab4 100644
---- a/drivers/hwmon/adt7475.c
-+++ b/drivers/hwmon/adt7475.c
-@@ -484,10 +484,10 @@ static ssize_t temp_store(struct device *dev, struct device_attribute *attr,
- 		val = (temp - val) / 1000;
- 
- 		if (sattr->index != 1) {
--			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
-+			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
- 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF) << 4;
- 		} else {
--			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
-+			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
- 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF);
- 		}
- 
--- 
-2.39.2
-
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -231,12 +231,11 @@ static inline struct tracepoint *tracepo
+  * not add unwanted padding between the beginning of the section and the
+  * structure. Force alignment to the same alignment as the section start.
+  *
+- * When lockdep is enabled, we make sure to always do the RCU portions of
+- * the tracepoint code, regardless of whether tracing is on. However,
+- * don't check if the condition is false, due to interaction with idle
+- * instrumentation. This lets us find RCU issues triggered with tracepoints
+- * even when this tracepoint is off. This code has no purpose other than
+- * poking RCU a bit.
++ * When lockdep is enabled, we make sure to always test if RCU is
++ * "watching" regardless if the tracepoint is enabled or not. Tracepoints
++ * require RCU to be active, and it should always warn at the tracepoint
++ * site if it is not watching, as it will need to be active when the
++ * tracepoint is enabled.
+  */
+ #define __DECLARE_TRACE(name, proto, args, cond, data_proto)		\
+ 	extern int __traceiter_##name(data_proto);			\
+@@ -249,9 +248,7 @@ static inline struct tracepoint *tracepo
+ 				TP_ARGS(args),				\
+ 				TP_CONDITION(cond), 0);			\
+ 		if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {		\
+-			rcu_read_lock_sched_notrace();			\
+-			rcu_dereference_sched(__tracepoint_##name.funcs);\
+-			rcu_read_unlock_sched_notrace();		\
++			WARN_ON_ONCE(!rcu_is_watching());		\
+ 		}							\
+ 	}								\
+ 	__DECLARE_TRACE_RCU(name, PARAMS(proto), PARAMS(args),		\
 
 
