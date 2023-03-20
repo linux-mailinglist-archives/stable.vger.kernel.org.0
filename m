@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27E3C6C1962
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 509636C185B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbjCTPdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
+        id S232625AbjCTPXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233109AbjCTPdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C24305E6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:42 -0700 (PDT)
+        with ESMTP id S232580AbjCTPXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A95D33CC4
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E9366158F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71017C433D2;
-        Mon, 20 Mar 2023 15:25:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8699615AA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE7AC433D2;
+        Mon, 20 Mar 2023 15:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325939;
-        bh=XQtFvuJs4LXlUvPVo2QTIzAptzFOk2td0n4ImZNUIWw=;
+        s=korg; t=1679325375;
+        bh=HkMszIBiciwf2d4Lw0HrTjWlu/rJIyAuWzHz7NRO9PQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZK3imXLTKIC0EsUvg3qJVfUdWZ21rArDWOCp+4a7hjn93nz88MBGmhZX6Vxu01nLk
-         rMUigHXosmS8ZRxtBiHN1nTQzAgGMX/olxSo2Ref2s3Fv2d8D+ftO7td8JnCD2KqNS
-         cftmGxPhHXcR+Ik1QV9LMZaZJPsFq/n6dgJdJNLs=
+        b=aWCJV7DIZQkxut4x52XcjD6wTZpbmw4x2vjvl1YfmWrZ3T/UxpXO2Ag0bPEdG8GuS
+         NB7pt3TBcVefeXkALdvj1eTo6TX4ZxhGK1/C820OhoDgdMRty0pcpSX2tDx1n3r5aL
+         oP7dxHb01Sy0CKsQber1ESFk1Ue9JimwLdOj6X8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Arpana Arland <arpanax.arland@intel.com>
-Subject: [PATCH 6.1 171/198] ice: avoid bonding causing auxiliary plug/unplug under RTNL lock
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>
+Subject: [PATCH 5.15 097/115] ftrace: Fix invalid address access in lookup_rec() when index is 0
 Date:   Mon, 20 Mar 2023 15:55:09 +0100
-Message-Id: <20230320145514.692687227@linuxfoundation.org>
+Message-Id: <20230320145453.501057775@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,97 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 248401cb2c4612d83eb0c352ee8103b78b8eb365 upstream.
+commit ee92fa443358f4fc0017c1d0d325c27b37802504 upstream.
 
-RDMA is not supported in ice on a PF that has been added to a bonded
-interface. To enforce this, when an interface enters a bond, we unplug
-the auxiliary device that supports RDMA functionality.  This unplug
-currently happens in the context of handling the netdev bonding event.
-This event is sent to the ice driver under RTNL context.  This is causing
-a deadlock where the RDMA driver is waiting for the RTNL lock to complete
-the removal.
+KASAN reported follow problem:
 
-Defer the unplugging/re-plugging of the auxiliary device to the service
-task so that it is not performed under the RTNL lock context.
+ BUG: KASAN: use-after-free in lookup_rec
+ Read of size 8 at addr ffff000199270ff0 by task modprobe
+ CPU: 2 Comm: modprobe
+ Call trace:
+  kasan_report
+  __asan_load8
+  lookup_rec
+  ftrace_location
+  arch_check_ftrace_location
+  check_kprobe_address_safe
+  register_kprobe
 
-Cc: stable@vger.kernel.org # 6.1.x
-Reported-by: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
-Link: https://lore.kernel.org/netdev/CAK8fFZ6A_Gphw_3-QMGKEFQk=sfCw1Qmq0TVZK3rtAi7vb621A@mail.gmail.com/
-Fixes: 5cb1ebdbc434 ("ice: Fix race condition during interface enslave")
-Fixes: 4eace75e0853 ("RDMA/irdma: Report the correct link speed")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20230310194833.3074601-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+When checking pg->records[pg->index - 1].ip in lookup_rec(), it can get a
+pg which is newly added to ftrace_pages_start in ftrace_process_locs().
+Before the first pg->index++, index is 0 and accessing pg->records[-1].ip
+will cause this problem.
+
+Don't check the ip when pg->index is 0.
+
+Link: https://lore.kernel.org/linux-trace-kernel/20230309080230.36064-1-chenzhongjin@huawei.com
+
+Cc: stable@vger.kernel.org
+Fixes: 9644302e3315 ("ftrace: Speed up search by skipping pages by address")
+Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h      |   14 +++++---------
- drivers/net/ethernet/intel/ice/ice_main.c |   19 ++++++++-----------
- 2 files changed, 13 insertions(+), 20 deletions(-)
+ kernel/trace/ftrace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -485,6 +485,7 @@ enum ice_pf_flags {
- 	ICE_FLAG_VF_VLAN_PRUNING,
- 	ICE_FLAG_LINK_LENIENT_MODE_ENA,
- 	ICE_FLAG_PLUG_AUX_DEV,
-+	ICE_FLAG_UNPLUG_AUX_DEV,
- 	ICE_FLAG_MTU_CHANGED,
- 	ICE_FLAG_GNSS,			/* GNSS successfully initialized */
- 	ICE_PF_FLAGS_NBITS		/* must be last */
-@@ -926,16 +927,11 @@ static inline void ice_set_rdma_cap(stru
-  */
- static inline void ice_clear_rdma_cap(struct ice_pf *pf)
- {
--	/* We can directly unplug aux device here only if the flag bit
--	 * ICE_FLAG_PLUG_AUX_DEV is not set because ice_unplug_aux_dev()
--	 * could race with ice_plug_aux_dev() called from
--	 * ice_service_task(). In this case we only clear that bit now and
--	 * aux device will be unplugged later once ice_plug_aux_device()
--	 * called from ice_service_task() finishes (see ice_service_task()).
-+	/* defer unplug to service task to avoid RTNL lock and
-+	 * clear PLUG bit so that pending plugs don't interfere
- 	 */
--	if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
--		ice_unplug_aux_dev(pf);
--
-+	clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags);
-+	set_bit(ICE_FLAG_UNPLUG_AUX_DEV, pf->flags);
- 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
- }
- #endif /* _ICE_H_ */
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2326,18 +2326,15 @@ static void ice_service_task(struct work
- 		}
- 	}
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -1538,7 +1538,8 @@ static struct dyn_ftrace *lookup_rec(uns
+ 	key.flags = end;	/* overload flags, as it is unsigned long */
  
--	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
--		/* Plug aux device per request */
--		ice_plug_aux_dev(pf);
-+	/* unplug aux dev per request, if an unplug request came in
-+	 * while processing a plug request, this will handle it
-+	 */
-+	if (test_and_clear_bit(ICE_FLAG_UNPLUG_AUX_DEV, pf->flags))
-+		ice_unplug_aux_dev(pf);
- 
--		/* Mark plugging as done but check whether unplug was
--		 * requested during ice_plug_aux_dev() call
--		 * (e.g. from ice_clear_rdma_cap()) and if so then
--		 * plug aux device.
--		 */
--		if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
--			ice_unplug_aux_dev(pf);
--	}
-+	/* Plug aux device per request */
-+	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
-+		ice_plug_aux_dev(pf);
- 
- 	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
- 		struct iidc_event *event;
+ 	for (pg = ftrace_pages_start; pg; pg = pg->next) {
+-		if (end < pg->records[0].ip ||
++		if (pg->index == 0 ||
++		    end < pg->records[0].ip ||
+ 		    start >= (pg->records[pg->index - 1].ip + MCOUNT_INSN_SIZE))
+ 			continue;
+ 		rec = bsearch(&key, pg->records, pg->index,
 
 
