@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F336C181C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D876C177B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232602AbjCTPUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:20:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57398 "EHLO
+        id S232531AbjCTPOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232732AbjCTPT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA13F166EE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:37 -0700 (PDT)
+        with ESMTP id S232499AbjCTPN6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8051FDE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83DC0B80E95
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D47B9C4339B;
-        Mon, 20 Mar 2023 15:14:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 799AD614CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C379C433D2;
+        Mon, 20 Mar 2023 15:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325276;
-        bh=Yfb8MHwxqTy06ppr8qSF/2qkAnSJW2ABO1kWx4P6/l4=;
+        s=korg; t=1679324933;
+        bh=ZoihgBCB7rET4pBCs/jDiS3kdfArkE05Mmc1Tn/m0Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qR6VbWB2+Bmz/y99t6BUYg31hIDU+BiE8iFfOX/1MRV5VXyx1ZKlGcxyRbxCj1WQi
-         xUnKfb+NvmQRk2qxQO7xcBmP6nqDnrdsXf1gQvhbmH7sdGbjrIg4NdcW6OUxd4KAjt
-         Q/6Rlvf1CyaK/iHdcLaCCsfYCxu/i3j7Bzp2fk+g=
+        b=hyBYDuzcQXvh37f1k2dlPevfA32LLYJUkogrA6YGlqPNmKdTu4NIe703bY/7GuqWs
+         brhwrzmDxK/SNdw0R9XXGaqzeu4lxThFUdF9DMH1Uiam5wF3e4tRGOLCLY++ze+RQ2
+         lCxj633qFjSofaNl3LOXzV78f4FtOTjWjAaKzoEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 024/211] scsi: mpi3mr: Fix expander node leak in mpi3mr_remove()
-Date:   Mon, 20 Mar 2023 15:52:39 +0100
-Message-Id: <20230320145514.296956206@linuxfoundation.org>
+Subject: [PATCH 6.1 022/198] scsi: mpi3mr: ioctl timeout when disabling/enabling interrupt
+Date:   Mon, 20 Mar 2023 15:52:40 +0100
+Message-Id: <20230320145508.424877368@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +54,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Ranjan Kumar <ranjan.kumar@broadcom.com>
 
-[ Upstream commit ce756daa36e1ba271bb3334267295e447aa57a5c ]
+[ Upstream commit 02ca7da2919ada525fb424640205110e24646b50 ]
 
-Add a missing resource clean up in .remove.
+As part of Task Management handling, the driver will disable and enable the
+MSIx index zero which belongs to the Admin reply queue. During this
+transition the driver loses some interrupts and this leads to Admin request
+and ioctl timeouts.
 
-Fixes: e22bae30667a ("scsi: mpi3mr: Add expander devices to STL")
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230302234336.25456-7-thenzl@redhat.com
-Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+After enabling the interrupts, poll the Admin reply queue to avoid
+timeouts.
+
+Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Link: https://lore.kernel.org/r/20230228140835.4075-2-ranjan.kumar@broadcom.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Stable-dep-of: ce756daa36e1 ("scsi: mpi3mr: Fix expander node leak in mpi3mr_remove()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr.h           | 2 ++
- drivers/scsi/mpi3mr/mpi3mr_os.c        | 7 +++++++
- drivers/scsi/mpi3mr/mpi3mr_transport.c | 5 +----
- 3 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/scsi/mpi3mr/mpi3mr.h    |  3 +++
+ drivers/scsi/mpi3mr/mpi3mr_fw.c | 12 ++++++++++--
+ drivers/scsi/mpi3mr/mpi3mr_os.c |  1 +
+ 3 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/mpi3mr/mpi3mr.h b/drivers/scsi/mpi3mr/mpi3mr.h
-index 68f29ffb05b82..de6914d57402c 100644
+index 8a438f248a820..68f29ffb05b82 100644
 --- a/drivers/scsi/mpi3mr/mpi3mr.h
 +++ b/drivers/scsi/mpi3mr/mpi3mr.h
-@@ -1394,4 +1394,6 @@ void mpi3mr_flush_drv_cmds(struct mpi3mr_ioc *mrioc);
+@@ -903,6 +903,7 @@ struct scmd_priv {
+  * @admin_reply_ephase:Admin reply queue expected phase
+  * @admin_reply_base: Admin reply queue base virtual address
+  * @admin_reply_dma: Admin reply queue base dma address
++ * @admin_reply_q_in_use: Queue is handled by poll/ISR
+  * @ready_timeout: Controller ready timeout
+  * @intr_info: Interrupt cookie pointer
+  * @intr_info_count: Number of interrupt cookies
+@@ -1056,6 +1057,7 @@ struct mpi3mr_ioc {
+ 	u8 admin_reply_ephase;
+ 	void *admin_reply_base;
+ 	dma_addr_t admin_reply_dma;
++	atomic_t admin_reply_q_in_use;
+ 
+ 	u32 ready_timeout;
+ 
+@@ -1391,4 +1393,5 @@ void mpi3mr_add_event_wait_for_device_refresh(struct mpi3mr_ioc *mrioc);
+ void mpi3mr_flush_drv_cmds(struct mpi3mr_ioc *mrioc);
  void mpi3mr_flush_cmds_for_unrecovered_controller(struct mpi3mr_ioc *mrioc);
  void mpi3mr_free_enclosure_list(struct mpi3mr_ioc *mrioc);
- int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc);
-+void mpi3mr_expander_node_remove(struct mpi3mr_ioc *mrioc,
-+	struct mpi3mr_sas_node *sas_expander);
++int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc);
  #endif /*MPI3MR_H_INCLUDED*/
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+index 1a404d71b88cf..74fa7f90399e3 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
+@@ -415,7 +415,7 @@ static void mpi3mr_process_admin_reply_desc(struct mpi3mr_ioc *mrioc,
+ 		    le64_to_cpu(scsi_reply->sense_data_buffer_address));
+ }
+ 
+-static int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
++int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
+ {
+ 	u32 exp_phase = mrioc->admin_reply_ephase;
+ 	u32 admin_reply_ci = mrioc->admin_reply_ci;
+@@ -423,12 +423,17 @@ static int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
+ 	u64 reply_dma = 0;
+ 	struct mpi3_default_reply_descriptor *reply_desc;
+ 
++	if (!atomic_add_unless(&mrioc->admin_reply_q_in_use, 1, 1))
++		return 0;
++
+ 	reply_desc = (struct mpi3_default_reply_descriptor *)mrioc->admin_reply_base +
+ 	    admin_reply_ci;
+ 
+ 	if ((le16_to_cpu(reply_desc->reply_flags) &
+-	    MPI3_REPLY_DESCRIPT_FLAGS_PHASE_MASK) != exp_phase)
++	    MPI3_REPLY_DESCRIPT_FLAGS_PHASE_MASK) != exp_phase) {
++		atomic_dec(&mrioc->admin_reply_q_in_use);
+ 		return 0;
++	}
+ 
+ 	do {
+ 		if (mrioc->unrecoverable)
+@@ -454,6 +459,7 @@ static int mpi3mr_process_admin_reply_q(struct mpi3mr_ioc *mrioc)
+ 	writel(admin_reply_ci, &mrioc->sysif_regs->admin_reply_queue_ci);
+ 	mrioc->admin_reply_ci = admin_reply_ci;
+ 	mrioc->admin_reply_ephase = exp_phase;
++	atomic_dec(&mrioc->admin_reply_q_in_use);
+ 
+ 	return num_admin_replies;
+ }
+@@ -2605,6 +2611,7 @@ static int mpi3mr_setup_admin_qpair(struct mpi3mr_ioc *mrioc)
+ 	mrioc->admin_reply_ci = 0;
+ 	mrioc->admin_reply_ephase = 1;
+ 	mrioc->admin_reply_base = NULL;
++	atomic_set(&mrioc->admin_reply_q_in_use, 0);
+ 
+ 	if (!mrioc->admin_req_base) {
+ 		mrioc->admin_req_base = dma_alloc_coherent(&mrioc->pdev->dev,
+@@ -4168,6 +4175,7 @@ void mpi3mr_memset_buffers(struct mpi3mr_ioc *mrioc)
+ 		memset(mrioc->admin_req_base, 0, mrioc->admin_req_q_sz);
+ 	if (mrioc->admin_reply_base)
+ 		memset(mrioc->admin_reply_base, 0, mrioc->admin_reply_q_sz);
++	atomic_set(&mrioc->admin_reply_q_in_use, 0);
+ 
+ 	if (mrioc->init_cmds.reply) {
+ 		memset(mrioc->init_cmds.reply, 0, sizeof(*mrioc->init_cmds.reply));
 diff --git a/drivers/scsi/mpi3mr/mpi3mr_os.c b/drivers/scsi/mpi3mr/mpi3mr_os.c
-index 2e546c80d98ce..6d55698ea4d16 100644
+index 5698e7b90f852..2e546c80d98ce 100644
 --- a/drivers/scsi/mpi3mr/mpi3mr_os.c
 +++ b/drivers/scsi/mpi3mr/mpi3mr_os.c
-@@ -5079,6 +5079,7 @@ static void mpi3mr_remove(struct pci_dev *pdev)
- 	unsigned long flags;
- 	struct mpi3mr_tgt_dev *tgtdev, *tgtdev_next;
- 	struct mpi3mr_hba_port *port, *hba_port_next;
-+	struct mpi3mr_sas_node *sas_expander, *sas_expander_next;
- 
- 	if (!shost)
- 		return;
-@@ -5119,6 +5120,12 @@ static void mpi3mr_remove(struct pci_dev *pdev)
- 	mpi3mr_cleanup_resources(mrioc);
- 
- 	spin_lock_irqsave(&mrioc->sas_node_lock, flags);
-+	list_for_each_entry_safe_reverse(sas_expander, sas_expander_next,
-+	    &mrioc->sas_expander_list, list) {
-+		spin_unlock_irqrestore(&mrioc->sas_node_lock, flags);
-+		mpi3mr_expander_node_remove(mrioc, sas_expander);
-+		spin_lock_irqsave(&mrioc->sas_node_lock, flags);
-+	}
- 	list_for_each_entry_safe(port, hba_port_next, &mrioc->hba_port_table_list, list) {
- 		ioc_info(mrioc,
- 		    "removing hba_port entry: %p port: %d from hba_port list\n",
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_transport.c b/drivers/scsi/mpi3mr/mpi3mr_transport.c
-index 3b61815979dab..50263ba4f8428 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_transport.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_transport.c
-@@ -9,9 +9,6 @@
- 
- #include "mpi3mr.h"
- 
--static void mpi3mr_expander_node_remove(struct mpi3mr_ioc *mrioc,
--	struct mpi3mr_sas_node *sas_expander);
--
- /**
-  * mpi3mr_post_transport_req - Issue transport requests and wait
-  * @mrioc: Adapter instance reference
-@@ -2163,7 +2160,7 @@ int mpi3mr_expander_add(struct mpi3mr_ioc *mrioc, u16 handle)
-  *
-  * Return nothing.
-  */
--static void mpi3mr_expander_node_remove(struct mpi3mr_ioc *mrioc,
-+void mpi3mr_expander_node_remove(struct mpi3mr_ioc *mrioc,
- 	struct mpi3mr_sas_node *sas_expander)
- {
- 	struct mpi3mr_sas_port *mr_sas_port, *next;
+@@ -3720,6 +3720,7 @@ int mpi3mr_issue_tm(struct mpi3mr_ioc *mrioc, u8 tm_type,
+ 		mpi3mr_poll_pend_io_completions(mrioc);
+ 		mpi3mr_ioc_enable_intr(mrioc);
+ 		mpi3mr_poll_pend_io_completions(mrioc);
++		mpi3mr_process_admin_reply_q(mrioc);
+ 	}
+ 	switch (tm_type) {
+ 	case MPI3_SCSITASKMGMT_TASKTYPE_TARGET_RESET:
 -- 
 2.39.2
 
