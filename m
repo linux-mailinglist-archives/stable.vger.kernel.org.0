@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 581506C1688
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0316C1773
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232193AbjCTPGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54438 "EHLO
+        id S232511AbjCTPOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232192AbjCTPGc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38FD2C67E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:05 -0700 (PDT)
+        with ESMTP id S232521AbjCTPNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B352CFEC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 019F561583
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11F0FC433A4;
-        Mon, 20 Mar 2023 15:01:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46B6FB80D34
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3375C433EF;
+        Mon, 20 Mar 2023 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324489;
-        bh=Elt/ux9plALmjFRZKJT4+VwOylzplvx0/RXwCyUM/Ec=;
+        s=korg; t=1679324912;
+        bh=k3AVDHqc3UaxVFXxz69X0cKYrSTnBKwS1Xjgh2DMPig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWyvz5O9qfq59jXxZGPWBe6aH5cRf/mBSwf9UrrkKDIv4AO3HnTB+joHqae3w23GL
-         uR+2OfsRTG1iy4xSxLabCx1wH1FTEYWc6INbMrJF9WTjZ72hToa2QSbjAP8nrdKYgt
-         oIEbjzXKMjaEV3xT2MaDIUHFWCVkaK4bj0HE4EtM=
+        b=2pwDefWjZPpIYredsCdHxSa7IP/tcVeOjtHU/qQeB+vOV47dXsVtrnS8sTWi+JtAr
+         GSLFha1apxcdAsPcPdoGSuYhWw8Oq8NYoc30DC+mMVJyam/RJCK2McGZmvO9eraoUB
+         69aF/QTH4uahid3vZyNA3p8uaGcJxwZVau5Yg7eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/60] ALSA: hda - controller is in GPU on the DG1
+        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 047/115] net/iucv: Fix size of interrupt data
 Date:   Mon, 20 Mar 2023 15:54:19 +0100
-Message-Id: <20230320145431.305904423@linuxfoundation.org>
+Message-Id: <20230320145451.384754738@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 1bee263dfda57e45ad39c59a663c123a357ce38b ]
+[ Upstream commit 3d87debb8ed2649608ff432699e7c961c0c6f03b ]
 
-Add Intel DG1 to the CONTROLLER_IN_GPU list to ensure audio power is
-requested whenever programming the controller.
+iucv_irq_data needs to be 4 bytes larger.
+These bytes are not used by the iucv module, but written by
+the z/VM hypervisor in case a CPU is deconfigured.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200921141741.2983072-3-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: ff447886e675 ("ALSA: hda: Match only Intel devices with CONTROLLER_IN_GPU()")
+Reported as:
+BUG dma-kmalloc-64 (Not tainted): kmalloc Redzone overwritten
+-----------------------------------------------------------------------------
+0x0000000000400564-0x0000000000400567 @offset=1380. First byte 0x80 instead of 0xcc
+Allocated in iucv_cpu_prepare+0x44/0xd0 age=167839 cpu=2 pid=1
+__kmem_cache_alloc_node+0x166/0x450
+kmalloc_node_trace+0x3a/0x70
+iucv_cpu_prepare+0x44/0xd0
+cpuhp_invoke_callback+0x156/0x2f0
+cpuhp_issue_call+0xf0/0x298
+__cpuhp_setup_state_cpuslocked+0x136/0x338
+__cpuhp_setup_state+0xf4/0x288
+iucv_init+0xf4/0x280
+do_one_initcall+0x78/0x390
+do_initcalls+0x11a/0x140
+kernel_init_freeable+0x25e/0x2a0
+kernel_init+0x2e/0x170
+__ret_from_fork+0x3c/0x58
+ret_from_fork+0xa/0x40
+Freed in iucv_init+0x92/0x280 age=167839 cpu=2 pid=1
+__kmem_cache_free+0x308/0x358
+iucv_init+0x92/0x280
+do_one_initcall+0x78/0x390
+do_initcalls+0x11a/0x140
+kernel_init_freeable+0x25e/0x2a0
+kernel_init+0x2e/0x170
+__ret_from_fork+0x3c/0x58
+ret_from_fork+0xa/0x40
+Slab 0x0000037200010000 objects=32 used=30 fp=0x0000000000400640 flags=0x1ffff00000010200(slab|head|node=0|zone=0|
+Object 0x0000000000400540 @offset=1344 fp=0x0000000000000000
+Redzone  0000000000400500: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400510: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400520: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400530: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Object   0000000000400540: 00 01 00 03 00 00 00 00 00 00 00 00 00 00 00 00  ................
+Object   0000000000400550: f3 86 81 f2 f4 82 f8 82 f0 f0 f0 f0 f0 f0 f0 f2  ................
+Object   0000000000400560: 00 00 00 00 80 00 00 00 cc cc cc cc cc cc cc cc  ................
+Object   0000000000400570: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+Redzone  0000000000400580: cc cc cc cc cc cc cc cc                          ........
+Padding  00000000004005d4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+Padding  00000000004005e4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+Padding  00000000004005f4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a              ZZZZZZZZZZZZ
+CPU: 6 PID: 121030 Comm: 116-pai-crypto. Not tainted 6.3.0-20230221.rc0.git4.99b8246b2d71.300.fc37.s390x+debug #1
+Hardware name: IBM 3931 A01 704 (z/VM 7.3.0)
+Call Trace:
+[<000000032aa034ec>] dump_stack_lvl+0xac/0x100
+[<0000000329f5a6cc>] check_bytes_and_report+0x104/0x140
+[<0000000329f5aa78>] check_object+0x370/0x3c0
+[<0000000329f5ede6>] free_debug_processing+0x15e/0x348
+[<0000000329f5f06a>] free_to_partial_list+0x9a/0x2f0
+[<0000000329f5f4a4>] __slab_free+0x1e4/0x3a8
+[<0000000329f61768>] __kmem_cache_free+0x308/0x358
+[<000000032a91465c>] iucv_cpu_dead+0x6c/0x88
+[<0000000329c2fc66>] cpuhp_invoke_callback+0x156/0x2f0
+[<000000032aa062da>] _cpu_down.constprop.0+0x22a/0x5e0
+[<0000000329c3243e>] cpu_device_down+0x4e/0x78
+[<000000032a61dee0>] device_offline+0xc8/0x118
+[<000000032a61e048>] online_store+0x60/0xe0
+[<000000032a08b6b0>] kernfs_fop_write_iter+0x150/0x1e8
+[<0000000329fab65c>] vfs_write+0x174/0x360
+[<0000000329fab9fc>] ksys_write+0x74/0x100
+[<000000032aa03a5a>] __do_syscall+0x1da/0x208
+[<000000032aa177b2>] system_call+0x82/0xb0
+INFO: lockdep is turned off.
+FIX dma-kmalloc-64: Restoring kmalloc Redzone 0x0000000000400564-0x0000000000400567=0xcc
+FIX dma-kmalloc-64: Object at 0x0000000000400540 not freed
+
+Fixes: 2356f4cb1911 ("[S390]: Rewrite of the IUCV base code, part 2")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230315131435.4113889-1-wintera@linux.ibm.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/iucv/iucv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index c0b8844a2d5bd..6a44ad513a965 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -366,7 +366,8 @@ enum {
- #define CONTROLLER_IN_GPU(pci) (((pci)->device == 0x0a0c) || \
- 					((pci)->device == 0x0c0c) || \
- 					((pci)->device == 0x0d0c) || \
--					((pci)->device == 0x160c))
-+					((pci)->device == 0x160c) || \
-+					((pci)->device == 0x490d))
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index f3343a8541a57..8efc369934fc7 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -83,7 +83,7 @@ struct iucv_irq_data {
+ 	u16 ippathid;
+ 	u8  ipflags1;
+ 	u8  iptype;
+-	u32 res2[8];
++	u32 res2[9];
+ };
  
- #define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
- #define IS_CFL(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0xa348)
+ struct iucv_irq_list {
 -- 
 2.39.2
 
