@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D3A6C0FF0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:58:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 683F56C0FF2
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjCTK62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:58:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
+        id S229906AbjCTK6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:58:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbjCTK5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:57:50 -0400
+        with ESMTP id S229862AbjCTK5w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:57:52 -0400
 Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EF3066EAE;
-        Mon, 20 Mar 2023 03:54:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 106641ADFC;
+        Mon, 20 Mar 2023 03:54:45 -0700 (PDT)
 X-IronPort-AV: E=Sophos;i="5.98,274,1673881200"; 
-   d="scan'208";a="156562966"
+   d="scan'208";a="156562974"
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 20 Mar 2023 19:53:49 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 20 Mar 2023 19:53:52 +0900
 Received: from localhost.localdomain (unknown [10.226.92.205])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 2A7E54004937;
-        Mon, 20 Mar 2023 19:53:45 +0900 (JST)
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 8356C4004937;
+        Mon, 20 Mar 2023 19:53:49 +0900 (JST)
 From:   Biju Das <biju.das.jz@bp.renesas.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
@@ -30,9 +30,9 @@ Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
         linux-serial@vger.kernel.org,
         Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 1/5] tty: serial: sh-sci: Fix transmit end interrupt handler
-Date:   Mon, 20 Mar 2023 10:53:35 +0000
-Message-Id: <20230320105339.236279-2-biju.das.jz@bp.renesas.com>
+Subject: [PATCH v3 2/5] tty: serial: sh-sci: Fix Rx on RZ/G2L SCI
+Date:   Mon, 20 Mar 2023 10:53:36 +0000
+Message-Id: <20230320105339.236279-3-biju.das.jz@bp.renesas.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
 References: <20230320105339.236279-1-biju.das.jz@bp.renesas.com>
@@ -46,56 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The fourth interrupt on SCI port is transmit end interrupt compared to
-the break interrupt on other port types. So, shuffle the interrupts to fix
-the transmit end interrupt handler.
+SCI IP on RZ/G2L alike SoCs do not need regshift compared to other SCI
+IPs on the SH platform. Currently, it does regshift and configuring Rx
+wrongly. Drop adding regshift for RZ/G2L alike SoCs.
 
-Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Fixes: f9a2adcc9e90 ("arm64: dts: renesas: r9a07g044: Add SCI[0-1] nodes")
 Cc: stable@vger.kernel.org
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 ---
-v2->v3:
- * Cced stable@vger.kernel.org
-v1->v2:
- * Replaced the wrong fixes tag
- * Added a simpler check in sci_init_single() and added a check in
-   probe to catch invalid interrupt count.
-Tested the SCI0 interface on RZ/G2UL by connecting to PMOD USBUART.
- 39:          0     GICv3 437 Level     1004d000.serial:rx err
- 40:         12     GICv3 438 Edge      1004d000.serial:rx full
- 41:         70     GICv3 439 Edge      1004d000.serial:tx empty
- 42:         18     GICv3 440 Level     1004d000.serial:tx end
+v3:
+ * New patch.
 ---
- drivers/tty/serial/sh-sci.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/serial/sh-sci.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index af4a7a865764..616041faab55 100644
+index 616041faab55..b9cd27451f90 100644
 --- a/drivers/tty/serial/sh-sci.c
 +++ b/drivers/tty/serial/sh-sci.c
-@@ -31,6 +31,7 @@
- #include <linux/ioport.h>
- #include <linux/ktime.h>
- #include <linux/major.h>
-+#include <linux/minmax.h>
- #include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/of.h>
-@@ -2864,6 +2865,13 @@ static int sci_init_single(struct platform_device *dev,
- 			sci_port->irqs[i] = platform_get_irq(dev, i);
- 	}
+@@ -158,6 +158,7 @@ struct sci_port {
  
-+	/*
-+	 * The fourth interrupt on SCI port is transmit end interrupt, so
-+	 * shuffle the interrupts.
-+	 */
-+	if (p->type == PORT_SCI)
-+		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
+ 	bool has_rtscts;
+ 	bool autorts;
++	bool is_rz_sci;
+ };
+ 
+ #define SCI_NPORTS CONFIG_SERIAL_SH_SCI_NR_UARTS
+@@ -2937,7 +2938,7 @@ static int sci_init_single(struct platform_device *dev,
+ 	port->flags		= UPF_FIXED_PORT | UPF_BOOT_AUTOCONF | p->flags;
+ 	port->fifosize		= sci_port->params->fifosize;
+ 
+-	if (port->type == PORT_SCI) {
++	if (port->type == PORT_SCI && !sci_port->is_rz_sci) {
+ 		if (sci_port->reg_size >= 0x20)
+ 			port->regshift = 2;
+ 		else
+@@ -3353,6 +3354,11 @@ static int sci_probe(struct platform_device *dev)
+ 	sp = &sci_ports[dev_id];
+ 	platform_set_drvdata(dev, sp);
+ 
++	if (of_device_is_compatible(dev->dev.of_node, "renesas,r9a07g043-sci") ||
++	    of_device_is_compatible(dev->dev.of_node, "renesas,r9a07g044-sci") ||
++	    of_device_is_compatible(dev->dev.of_node, "renesas,r9a07g054-sci"))
++		sp->is_rz_sci = 1;
 +
- 	/* The SCI generates several interrupts. They can be muxed together or
- 	 * connected to different interrupt lines. In the muxed case only one
- 	 * interrupt resource is specified as there is only one interrupt ID.
+ 	ret = sci_probe_single(dev, dev_id, p, sp);
+ 	if (ret)
+ 		return ret;
 -- 
 2.25.1
 
