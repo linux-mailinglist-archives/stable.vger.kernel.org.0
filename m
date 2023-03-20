@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C6DB6C19B7
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE896C1947
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233081AbjCTPhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:37:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60234 "EHLO
+        id S232987AbjCTPcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233037AbjCTPgn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54902E836
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:39 -0700 (PDT)
+        with ESMTP id S232953AbjCTPcI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD13D34C12
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5A5CDCE12C5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE4DC433EF;
-        Mon, 20 Mar 2023 15:28:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E381B80EC8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7877EC433EF;
+        Mon, 20 Mar 2023 15:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326112;
-        bh=LpRtXfs3aHQRr8gx0vmr/Po8E1+0VB63pxPkhZZiZN4=;
+        s=korg; t=1679325879;
+        bh=S2MT7GtQ5vxVYcNEXhKtOQ0OEdGKzxFto8a3NzbudZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xoeqhsyyuf1eQhzmxENE/M7wHEsc2qrBYyR5+BrBnBul/GFjthPuWjJIHZEdmIyAw
-         VctVJYhUfL9+fT+l5UXz93yCGNr1oCfiJ1HSPptSvTzqUT9AyglBtBWakavgqyyatr
-         49E+yNX/7gaypTHKcaHiUTAABukGVUanbdfKXAfE=
+        b=PquRr+uZU4NStMwUKjgEvuvphlKjDxsHckTXOiEPZHdgPVhY4BV1J7yzD9ef+1vGQ
+         AuIcngaOEmDs/+2XjuIy4syf9NxxKceFh92l51ZI15Kc8DND+ukgH3xWEafzgJHYoW
+         8qS8NpkRv3d2bbB4uWifvQ2SBrtjtMqfO966EBgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxime Ripard <mripard@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 6.2 163/211] drm/sun4i: fix missing component unbind on bind errors
-Date:   Mon, 20 Mar 2023 15:54:58 +0100
-Message-Id: <20230320145520.270970327@linuxfoundation.org>
+        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 161/198] drm/amd/pm: bump SMU 13.0.4 driver_if header version
+Date:   Mon, 20 Mar 2023 15:54:59 +0100
+Message-Id: <20230320145514.285756184@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,49 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Tim Huang <tim.huang@amd.com>
 
-commit c22f2ff8724b49dce2ae797e9fbf4bc0fa91112f upstream.
+commit ab9bdb1213b4b40942af6a383f555d0c14874c1b upstream.
 
-Make sure to unbind all subcomponents when binding the aggregate device
-fails.
+Align the SMU driver interface version with PMFW to
+suppress the version mismatch message on driver loading.
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Cc: stable@vger.kernel.org      # 4.7
-Cc: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230306103242.4775-1-johan+linaro@kernel.org
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h |    4 ++--
+ drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h                       |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -95,12 +95,12 @@ static int sun4i_drv_bind(struct device
- 	/* drm_vblank_init calls kcalloc, which can fail */
- 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
+@@ -27,7 +27,7 @@
+ // *** IMPORTANT ***
+ // SMU TEAM: Always increment the interface version if
+ // any structure is changed in this file
+-#define PMFW_DRIVER_IF_VERSION 7
++#define PMFW_DRIVER_IF_VERSION 8
  
- 	/* Remove early framebuffers (ie. simplefb) */
- 	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+ typedef struct {
+   int32_t value;
+@@ -198,7 +198,7 @@ typedef struct {
+   uint16_t SkinTemp;
+   uint16_t DeviceState;
+   uint16_t CurTemp;                     //[centi-Celsius]
+-  uint16_t spare2;
++  uint16_t FilterAlphaValue;
  
- 	sun4i_framebuffer_init(drm);
- 
-@@ -119,6 +119,8 @@ static int sun4i_drv_bind(struct device
- 
- finish_poll:
- 	drm_kms_helper_poll_fini(drm);
-+unbind_all:
-+	component_unbind_all(dev, NULL);
- cleanup_mode_config:
- 	drm_mode_config_cleanup(drm);
- 	of_reserved_mem_device_release(dev);
+   uint16_t AverageGfxclkFrequency;
+   uint16_t AverageFclkFrequency;
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
+@@ -29,7 +29,7 @@
+ #define SMU13_DRIVER_IF_VERSION_YELLOW_CARP 0x04
+ #define SMU13_DRIVER_IF_VERSION_ALDE 0x08
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_0_0 0x37
+-#define SMU13_DRIVER_IF_VERSION_SMU_V13_0_4 0x07
++#define SMU13_DRIVER_IF_VERSION_SMU_V13_0_4 0x08
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_5 0x04
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_0_10 0x32
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_7 0x37
 
 
