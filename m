@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C316C1600
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:01:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0596C162D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231752AbjCTPBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:01:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46056 "EHLO
+        id S231470AbjCTPCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjCTPAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:00:23 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933362A16A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:57:31 -0700 (PDT)
+        with ESMTP id S232072AbjCTPCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:02:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7899B2CFD7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:58:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E76EBCE12DA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:57:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF7D7C4339B;
-        Mon, 20 Mar 2023 14:57:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 408AE6158B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:58:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE0CC433D2;
+        Mon, 20 Mar 2023 14:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324246;
-        bh=gADTktQRPcvQFvqpN2oYIJzLVLqzc0wbLEz5CrdsAZU=;
+        s=korg; t=1679324320;
+        bh=agN41OAD9Nh5jv5Z1cnud4dvmgWNTGMol/3HrSCbXmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S88mWOyt7C64wlg8R2L6i4NBtPSkYgdvTZ3bESTQbrYaqobTK8kUGjB/MN9VuPUh7
-         b55VjHW4ufRzzjth3aOtShNSwnqXHP650N/Wj+KhbxuTDdi3kFz2cM0xqWev/KQpAR
-         aT5ak3DCL9SokD3aaqnOHDlVH8hJim5mKmqKn2LI=
+        b=JojxEDaIwgAX0XId3/AFP7nvyjdOSguAwArovaGP9RuBni71ZZZFUJK7ZCAzzHR6w
+         u0kdFCXcsmRVV+J61amKrmzOu7nJiThjoHUA19YstsTVLUHmvA8jUmLOUnnGF4X1XI
+         KMOQANQ7o1/Qz7Ve61uP9LRbfBvXv1bhw/B65cgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        Piotr Raczynski <piotr.raczynski@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/30] hwmon: (xgene) Fix use after free bug in xgene_hwmon_remove due to race condition
+Subject: [PATCH 4.19 16/36] ethernet: sun: add check for the mdesc_grab()
 Date:   Mon, 20 Mar 2023 15:54:42 +0100
-Message-Id: <20230320145420.900682471@linuxfoundation.org>
+Message-Id: <20230320145424.846098131@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145420.204894191@linuxfoundation.org>
-References: <20230320145420.204894191@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,49 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit cb090e64cf25602b9adaf32d5dfc9c8bec493cd1 ]
+[ Upstream commit 90de546d9a0b3c771667af18bb3f80567eabb89b ]
 
-In xgene_hwmon_probe, &ctx->workq is bound with xgene_hwmon_evt_work.
-Then it will be started.
+In vnet_port_probe() and vsw_port_probe(), we should
+check the return value of mdesc_grab() as it may
+return NULL which can caused NPD bugs.
 
-If we remove the driver which will call xgene_hwmon_remove to clean up,
-there may be unfinished work.
-
-The possible sequence is as follows:
-
-Fix it by finishing the work before cleanup in xgene_hwmon_remove.
-
-CPU0                  CPU1
-
-                    |xgene_hwmon_evt_work
-xgene_hwmon_remove   |
-kfifo_free(&ctx->async_msg_fifo);|
-                    |
-                    |kfifo_out_spinlocked
-                    |//use &ctx->async_msg_fifo
-Fixes: 2ca492e22cb7 ("hwmon: (xgene) Fix crash when alarm occurs before driver probe")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Link: https://lore.kernel.org/r/20230310084007.1403388-1-zyytlz.wz@163.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 5d01fa0c6bd8 ("ldmvsw: Add ldmvsw.c driver code")
+Fixes: 43fdf27470b2 ("[SPARC64]: Abstract out mdesc accesses for better MD update handling.")
+Signed-off-by: Liang He <windhl@126.com>
+Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/xgene-hwmon.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/sun/ldmvsw.c  | 3 +++
+ drivers/net/ethernet/sun/sunvnet.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hwmon/xgene-hwmon.c b/drivers/hwmon/xgene-hwmon.c
-index e1be61095532f..4f0d111ba05b6 100644
---- a/drivers/hwmon/xgene-hwmon.c
-+++ b/drivers/hwmon/xgene-hwmon.c
-@@ -751,6 +751,7 @@ static int xgene_hwmon_remove(struct platform_device *pdev)
- {
- 	struct xgene_hwmon_dev *ctx = platform_get_drvdata(pdev);
+diff --git a/drivers/net/ethernet/sun/ldmvsw.c b/drivers/net/ethernet/sun/ldmvsw.c
+index 644e42c181ee6..1c9522ad31787 100644
+--- a/drivers/net/ethernet/sun/ldmvsw.c
++++ b/drivers/net/ethernet/sun/ldmvsw.c
+@@ -291,6 +291,9 @@ static int vsw_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
  
-+	cancel_work_sync(&ctx->workq);
- 	hwmon_device_unregister(ctx->hwmon_dev);
- 	kfifo_free(&ctx->async_msg_fifo);
- 	if (acpi_disabled)
+ 	hp = mdesc_grab();
+ 
++	if (!hp)
++		return -ENODEV;
++
+ 	rmac = mdesc_get_property(hp, vdev->mp, remote_macaddr_prop, &len);
+ 	err = -ENODEV;
+ 	if (!rmac) {
+diff --git a/drivers/net/ethernet/sun/sunvnet.c b/drivers/net/ethernet/sun/sunvnet.c
+index 590172818b922..3a1f0653cfb76 100644
+--- a/drivers/net/ethernet/sun/sunvnet.c
++++ b/drivers/net/ethernet/sun/sunvnet.c
+@@ -432,6 +432,9 @@ static int vnet_port_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ 
+ 	hp = mdesc_grab();
+ 
++	if (!hp)
++		return -ENODEV;
++
+ 	vp = vnet_find_parent(hp, vdev->mp, vdev);
+ 	if (IS_ERR(vp)) {
+ 		pr_err("Cannot find port parent vnet\n");
 -- 
 2.39.2
 
