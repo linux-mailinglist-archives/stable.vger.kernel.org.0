@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB78A6C1995
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3C76C1729
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233040AbjCTPfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:35:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58370 "EHLO
+        id S232358AbjCTPMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233193AbjCTPet (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:34:49 -0400
+        with ESMTP id S232364AbjCTPLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5220836FE8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43D92F069
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47046B80EC8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0255C433EF;
-        Mon, 20 Mar 2023 15:27:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97CB1B80EAC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BAB3C433D2;
+        Mon, 20 Mar 2023 15:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326047;
-        bh=XXgsjh20dOOAVU9aBn8zTTQ9u5yTkBonbr3FD3pyifw=;
+        s=korg; t=1679324788;
+        bh=v3WmhsKYQj2brYwY24PrxhsCZptd76ru0komQ8l7e8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVOMPooO4qd7uYn1guvQr8qd/L5ykr6iIidZ58h/QDnR5Nj7ihl+QjhZptHOtnGKW
-         uR2WQhgFx8fkTEOfWN4KLF9b8T10/tmQ4QfLhWKNWtGSTkHGM1AbCL9yetu7Ale77M
-         HwKbFRQml+8gTv2HlTbUu7pbXsKsTmU2CRhsAmxs=
+        b=FXR3qlU3AHC6GRwlOE/d0YfTcJ9DFEE6Ezyd69NiXAdcjebt9a4+NbZJtgLtQzm8y
+         X4R19+bSpIbHnDPve92ltxlh2A4in4gHhcnOaWSftCTcZTx5bWybckA8kKNSt9CK0f
+         Rw0w1+MMvnU4Ezag5QCqt8nDbkHgCAfGc6MJqYno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.2 141/211] interconnect: exynos: fix registration race
+        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 5.10 58/99] serial: 8250_em: Fix UART port type
 Date:   Mon, 20 Mar 2023 15:54:36 +0100
-Message-Id: <20230320145519.339447976@linuxfoundation.org>
+Message-Id: <20230320145445.820011941@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +51,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit c9e46ca612cfbb0cf890f7ae7389b742e90efe64 upstream.
+commit 32e293be736b853f168cd065d9cbc1b0c69f545d upstream.
 
-The current interconnect provider registration interface is inherently
-racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to trigger a NULL-pointer
-deference when either a NULL pointer or not fully initialised node is
-returned from exynos_generic_icc_xlate().
+As per HW manual for  EMEV2 "R19UH0040EJ0400 Rev.4.00", the UART
+IP found on EMMA mobile SoC is Register-compatible with the
+general-purpose 16750 UART chip. Fix UART port type as 16750 and
+enable 64-bytes fifo support.
 
-Switch to using the new API where the provider is not registered until
-after it has been fully initialised.
-
-Fixes: 2f95b9d5cf0b ("interconnect: Add generic interconnect driver for Exynos SoCs")
-Cc: stable@vger.kernel.org      # 5.11
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-16-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Fixes: 22886ee96895 ("serial8250-em: Emma Mobile UART driver V2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20230227114152.22265-2-biju.das.jz@bp.renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/interconnect/samsung/exynos.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/tty/serial/8250/8250_em.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/interconnect/samsung/exynos.c
-+++ b/drivers/interconnect/samsung/exynos.c
-@@ -98,12 +98,13 @@ static int exynos_generic_icc_remove(str
- 	struct exynos_icc_priv *priv = platform_get_drvdata(pdev);
- 	struct icc_node *parent_node, *node = priv->node;
- 
-+	icc_provider_deregister(&priv->provider);
-+
- 	parent_node = exynos_icc_get_parent(priv->dev->parent->of_node);
- 	if (parent_node && !IS_ERR(parent_node))
- 		icc_link_destroy(node, parent_node);
- 
- 	icc_nodes_remove(&priv->provider);
--	icc_provider_del(&priv->provider);
- 
- 	return 0;
- }
-@@ -132,15 +133,11 @@ static int exynos_generic_icc_probe(stru
- 	provider->inter_set = true;
- 	provider->data = priv;
- 
--	ret = icc_provider_add(provider);
--	if (ret < 0)
--		return ret;
-+	icc_provider_init(provider);
- 
- 	icc_node = icc_node_create(pdev->id);
--	if (IS_ERR(icc_node)) {
--		ret = PTR_ERR(icc_node);
--		goto err_prov_del;
--	}
-+	if (IS_ERR(icc_node))
-+		return PTR_ERR(icc_node);
- 
- 	priv->node = icc_node;
- 	icc_node->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn",
-@@ -171,14 +168,17 @@ static int exynos_generic_icc_probe(stru
- 			goto err_pmqos_del;
- 	}
- 
-+	ret = icc_provider_register(provider);
-+	if (ret < 0)
-+		goto err_pmqos_del;
-+
- 	return 0;
- 
- err_pmqos_del:
- 	dev_pm_qos_remove_request(&priv->qos_req);
- err_node_del:
- 	icc_nodes_remove(provider);
--err_prov_del:
--	icc_provider_del(provider);
-+
- 	return ret;
- }
+--- a/drivers/tty/serial/8250/8250_em.c
++++ b/drivers/tty/serial/8250/8250_em.c
+@@ -106,8 +106,8 @@ static int serial8250_em_probe(struct pl
+ 	memset(&up, 0, sizeof(up));
+ 	up.port.mapbase = regs->start;
+ 	up.port.irq = irq;
+-	up.port.type = PORT_UNKNOWN;
+-	up.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT | UPF_IOREMAP;
++	up.port.type = PORT_16750;
++	up.port.flags = UPF_FIXED_PORT | UPF_IOREMAP | UPF_FIXED_TYPE;
+ 	up.port.dev = &pdev->dev;
+ 	up.port.private_data = priv;
  
 
 
