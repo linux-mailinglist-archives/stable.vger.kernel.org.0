@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F60A6C1643
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 520E26C1854
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231559AbjCTPEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
+        id S232798AbjCTPXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231947AbjCTPDi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:03:38 -0400
+        with ESMTP id S232779AbjCTPXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 444F42E800
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:59:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B75012F20
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 153CA61573
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:58:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE478C433EF;
-        Mon, 20 Mar 2023 14:58:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE4561575
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A03BC433EF;
+        Mon, 20 Mar 2023 15:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324331;
-        bh=k+ieHA1EizOz9DkIxMQtLfnSoTDSSrnyZqcBI3V/4l8=;
+        s=korg; t=1679325358;
+        bh=0bV14CpeIMk+YDJdnqk7WHg/F4i6Ld/mxbQjtUu1iuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AvHd53O7xu9W6cc/nqU7002DcvMmv1Vj3ii6BOIw5k4Xf7G61iiMO7IMkPfHvplzw
-         F4/96w1Y3dS99LAKLrkd6/moI25tMNtJ1gJ53qsSUAfoC195Rl4EhkHWU4hbBaw8IV
-         hfU+6yFT216UMzBo5WZE1mBtHkT0naX3aGj0CTk8=
+        b=ztGcuTXTq44ccWWZEi0K7USjC+D9yHsmoxGbOJepLQ/Qau56yQHWMMMZ8wbQGHOti
+         /Ii1aV7EPov6SsDUS2JQ19b3L8Kb+dMQVQ5wi/TjW28xuu4afZU2YNEuYP0vMrM8m8
+         J/KJU5wrM/FRnyftfIUml49Vqa9xjl9EvOa8ki9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        "HeungJun, Kim" <riverful.kim@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Mauro Carvalho Chehab <mchehab@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        HeungJun@vger.kernel.org
-Subject: [PATCH 4.19 20/36] media: m5mols: fix off-by-one loop termination error
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.15 074/115] tty: serial: fsl_lpuart: skip waiting for transmission complete when UARTCTRL_SBK is asserted
 Date:   Mon, 20 Mar 2023 15:54:46 +0100
-Message-Id: <20230320145424.994438883@linuxfoundation.org>
+Message-Id: <20230320145452.531986076@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
-References: <20230320145424.191578432@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,62 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit efbcbb12ee99f750c9f25c873b55ad774871de2a ]
+commit 2411fd94ceaa6e11326e95d6ebf876cbfed28d23 upstream.
 
-The __find_restype() function loops over the m5mols_default_ffmt[]
-array, and the termination condition ends up being wrong: instead of
-stopping when the iterator becomes the size of the array it traverses,
-it stops after it has already overshot the array.
+According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
+a break character by writing 1 to CTRL[SBK], so here need to skip
+waiting for transmission complete when UARTCTRL_SBK is asserted,
+otherwise the kernel may stuck here.
+And actually set_termios() adds transmission completion waiting to avoid
+data loss or data breakage when changing the baud rate, but we don't
+need to worry about this when queuing break characters.
 
-Now, in practice this doesn't likely matter, because the code will
-always find the entry it looks for, and will thus return early and never
-hit that last extra iteration.
-
-But it turns out that clang will unroll the loop fully, because it has
-only two iterations (well, three due to the off-by-one bug), and then
-clang will end up just giving up in the middle of the loop unrolling
-when it notices that the code walks past the end of the array.
-
-And that made 'objtool' very unhappy indeed, because the generated code
-just falls off the edge of the universe, and ends up falling through to
-the next function, causing this warning:
-
-   drivers/media/i2c/m5mols/m5mols.o: warning: objtool: m5mols_set_fmt() falls through to next function m5mols_get_frame_desc()
-
-Fix the loop ending condition.
-
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Analyzed-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Analyzed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/linux-block/CAHk-=wgTSdKYbmB1JYM5vmHMcD9J9UZr0mn7BOYM_LudrP+Xvw@mail.gmail.com/
-Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
-Cc: HeungJun, Kim <riverful.kim@samsung.com>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230223093941.31790-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/m5mols/m5mols_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/fsl_lpuart.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
-index d9a9644306096..9e6827dedab30 100644
---- a/drivers/media/i2c/m5mols/m5mols_core.c
-+++ b/drivers/media/i2c/m5mols/m5mols_core.c
-@@ -492,7 +492,7 @@ static enum m5mols_restype __find_restype(u32 code)
- 	do {
- 		if (code == m5mols_default_ffmt[type].code)
- 			return type;
--	} while (type++ != SIZE_DEFAULT_FFMT);
-+	} while (++type != SIZE_DEFAULT_FFMT);
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2201,9 +2201,15 @@ lpuart32_set_termios(struct uart_port *p
+ 	/* update the per-port timeout */
+ 	uart_update_timeout(port, termios->c_cflag, baud);
  
- 	return 0;
- }
--- 
-2.39.2
-
+-	/* wait transmit engin complete */
+-	lpuart32_write(&sport->port, 0, UARTMODIR);
+-	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
++	/*
++	 * LPUART Transmission Complete Flag may never be set while queuing a break
++	 * character, so skip waiting for transmission complete when UARTCTRL_SBK is
++	 * asserted.
++	 */
++	if (!(old_ctrl & UARTCTRL_SBK)) {
++		lpuart32_write(&sport->port, 0, UARTMODIR);
++		lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
++	}
+ 
+ 	/* disable transmit and receive */
+ 	lpuart32_write(&sport->port, old_ctrl & ~(UARTCTRL_TE | UARTCTRL_RE),
 
 
