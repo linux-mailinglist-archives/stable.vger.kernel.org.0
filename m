@@ -2,54 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7DF6C1955
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3FD6C164B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbjCTPcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48088 "EHLO
+        id S232164AbjCTPEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:04:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbjCTPc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D7D199D8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:13 -0700 (PDT)
+        with ESMTP id S232166AbjCTPEF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AAD52917D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 357D56158F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42165C433EF;
-        Mon, 20 Mar 2023 15:24:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C3FEB80ECC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB21C433EF;
+        Mon, 20 Mar 2023 14:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325890;
-        bh=IvoQRO8aJSiilef6YAwJXeLVKe9kE3tn576/sb9v0Dc=;
+        s=korg; t=1679324383;
+        bh=zRzH58ejUhK6wY3BxAR+pEpxct2xpD07IXcjBjoBI1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKIz/H+JaU3sEK/IGHIoUJZGdU+Lv3Jx/ZS02RoBfYB9uBozBrwX3zjLF9Wi8niCo
-         qxZkEUIDfYVHdPv89b0pTlGXYBpfxYBtu8xisK1AG8+do8b+F5ngowhKIggCeqY8y4
-         3lsgVMQtOOGmR5rCAhIwG6ldsx9pNDeYeg6ke0d8=
+        b=MZVTuFNjug/1yrzn5YN1p9LXNg3IpBlQfSMonqLDeTwoDiGBhg5NgRZmyNsEmzonF
+         XjDC1n9vsw57kB+Dilg/7xzAMzQkwBBdmup9eOUaZpvwvM9HYirqXe/8/AZ693XDFc
+         ZnJEU5z+BpZxEo6BJl5e2jIB0Wczm3VwUsuhaUck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
+To:     stable@vger.kernel.org, lee@kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Ayush Gupta <ayugupta@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 163/198] drm/amd/display: disconnect MPCC only on OTG change
-Date:   Mon, 20 Mar 2023 15:55:01 +0100
-Message-Id: <20230320145514.377165421@linuxfoundation.org>
+        patches@lists.linux.dev, Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 36/36] HID: uhid: Over-ride the default maximum data buffer value with our own
+Date:   Mon, 20 Mar 2023 15:55:02 +0100
+Message-Id: <20230320145425.591476278@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,56 +51,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Gupta <ayugupta@amd.com>
+From: Lee Jones <lee@kernel.org>
 
-commit 7304ee979b6b6422f41a1312391a5e505fc29ccd upstream.
+commit 1c5d4221240a233df2440fe75c881465cdf8da07 upstream.
 
-[Why]
-Framedrops are observed while playing Vp9 and Av1 10 bit
-video on 8k resolution using VSR while playback controls
-are disappeared/appeared
+The default maximum data buffer size for this interface is UHID_DATA_MAX
+(4k).  When data buffers are being processed, ensure this value is used
+when ensuring the sanity, rather than a value between the user provided
+value and HID_MAX_BUFFER_SIZE (16k).
 
-[How]
-Now ODM 2 to 1 is disabled for 5k or greater resolutions on VSR.
-
-Cc: stable@vger.kernel.org
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Ayush Gupta <ayugupta@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Lee Jones <lee@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/hid/uhid.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-@@ -1883,6 +1883,7 @@ int dcn32_populate_dml_pipes_from_contex
- 	bool subvp_in_use = false;
- 	uint8_t is_pipe_split_expected[MAX_PIPES] = {0};
- 	struct dc_crtc_timing *timing;
-+	bool vsr_odm_support = false;
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -398,6 +398,7 @@ struct hid_ll_driver uhid_hid_driver = {
+ 	.parse = uhid_hid_parse,
+ 	.raw_request = uhid_hid_raw_request,
+ 	.output_report = uhid_hid_output_report,
++	.max_buffer_size = UHID_DATA_MAX,
+ };
+ EXPORT_SYMBOL_GPL(uhid_hid_driver);
  
- 	dcn20_populate_dml_pipes_from_context(dc, context, pipes, fast_validate);
- 
-@@ -1900,12 +1901,15 @@ int dcn32_populate_dml_pipes_from_contex
- 		timing = &pipe->stream->timing;
- 
- 		pipes[pipe_cnt].pipe.dest.odm_combine_policy = dm_odm_combine_policy_dal;
-+		vsr_odm_support = (res_ctx->pipe_ctx[i].stream->src.width >= 5120 &&
-+				res_ctx->pipe_ctx[i].stream->src.width > res_ctx->pipe_ctx[i].stream->dst.width);
- 		if (context->stream_count == 1 &&
- 				context->stream_status[0].plane_count == 1 &&
- 				!dc_is_hdmi_signal(res_ctx->pipe_ctx[i].stream->signal) &&
- 				is_h_timing_divisible_by_2(res_ctx->pipe_ctx[i].stream) &&
- 				pipe->stream->timing.pix_clk_100hz * 100 > DCN3_2_VMIN_DISPCLK_HZ &&
--				dc->debug.enable_single_display_2to1_odm_policy) {
-+				dc->debug.enable_single_display_2to1_odm_policy &&
-+				!vsr_odm_support) { //excluding 2to1 ODM combine on >= 5k vsr
- 			pipes[pipe_cnt].pipe.dest.odm_combine_policy = dm_odm_combine_policy_2to1;
- 		}
- 		pipe_cnt++;
 
 
