@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 640266C16FA
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA496C1682
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232322AbjCTPKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41946 "EHLO
+        id S232156AbjCTPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232329AbjCTPKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:10:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C6F125A5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:39 -0700 (PDT)
+        with ESMTP id S232231AbjCTPEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2902BEC0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA22DB80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D639CC433A7;
-        Mon, 20 Mar 2023 15:05:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC9FD61583
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:00:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9944C4339B;
+        Mon, 20 Mar 2023 15:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324725;
-        bh=5NVLHIXonwLawaQOp/IdY2KPXsBtefrxB6wCE7yhmS8=;
+        s=korg; t=1679324415;
+        bh=h1sONQgw9qZOJu5se/PZZGysohtwrtzMudcWJk/kSmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eElyH7X67IJ2sA44weSCKkEjGcIV0H4QuEIBXO2BOeRulfBhYfxxJCaTavj3R8gNZ
-         M7ANcNVNjKRp9uCkZHLYM1gaMe8M5RDYv/WvII1poVmHhlR/zU1I1FMxPKkEz5bKmi
-         VpLMGdPxH+946/Y5rkb6IPKjKay6Eexw8CyEBmUM=
+        b=K0irG45P/Nr+sfCPVxcUr+t886SIvzppvF9fryb2FSNfMlPheDEqUQMOFQnj+sZkI
+         u+qaTQY6YLyzZcxcM+rSkTTDZOtP9wvw1XPh6jWTEhnKoVWFF1pMsPP0zwHftpHwJh
+         WKZAI8ks9TvwPWIvf4rppC6sdR60h5GzCMR6/7YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        "HeungJun, Kim" <riverful.kim@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Mauro Carvalho Chehab <mchehab@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        HeungJun@vger.kernel.org
-Subject: [PATCH 5.10 47/99] media: m5mols: fix off-by-one loop termination error
+        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
+        syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com,
+        Bart Van Assche <bvanassche@acm.org>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/60] scsi: core: Fix a procfs host directory removal regression
 Date:   Mon, 20 Mar 2023 15:54:25 +0100
-Message-Id: <20230320145445.356264094@linuxfoundation.org>
+Message-Id: <20230320145431.569660402@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,60 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit efbcbb12ee99f750c9f25c873b55ad774871de2a ]
+[ Upstream commit be03df3d4bfe7e8866d4aa43d62e648ffe884f5f ]
 
-The __find_restype() function loops over the m5mols_default_ffmt[]
-array, and the termination condition ends up being wrong: instead of
-stopping when the iterator becomes the size of the array it traverses,
-it stops after it has already overshot the array.
+scsi_proc_hostdir_rm() decreases a reference counter and hence must only be
+called once per host that is removed. This change does not require a
+scsi_add_host_with_dma() change since scsi_add_host_with_dma() will return
+0 (success) if scsi_proc_host_add() is called.
 
-Now, in practice this doesn't likely matter, because the code will
-always find the entry it looks for, and will thus return early and never
-hit that last extra iteration.
-
-But it turns out that clang will unroll the loop fully, because it has
-only two iterations (well, three due to the off-by-one bug), and then
-clang will end up just giving up in the middle of the loop unrolling
-when it notices that the code walks past the end of the array.
-
-And that made 'objtool' very unhappy indeed, because the generated code
-just falls off the edge of the universe, and ends up falling through to
-the next function, causing this warning:
-
-   drivers/media/i2c/m5mols/m5mols.o: warning: objtool: m5mols_set_fmt() falls through to next function m5mols_get_frame_desc()
-
-Fix the loop ending condition.
-
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Analyzed-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Analyzed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/linux-block/CAHk-=wgTSdKYbmB1JYM5vmHMcD9J9UZr0mn7BOYM_LudrP+Xvw@mail.gmail.com/
-Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
-Cc: HeungJun, Kim <riverful.kim@samsung.com>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: fc663711b944 ("scsi: core: Remove the /proc/scsi/${proc_name} directory earlier")
+Cc: John Garry <john.g.garry@oracle.com>
+Reported-by: John Garry <john.g.garry@oracle.com>
+Link: https://lore.kernel.org/all/ed6b8027-a9d9-1b45-be8e-df4e8c6c4605@oracle.com/
+Reported-by: syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-scsi/000000000000890fab05f65342b6@google.com/
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20230307214428.3703498-1-bvanassche@acm.org
+Tested-by: John Garry <john.g.garry@oracle.com>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/m5mols/m5mols_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hosts.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
-index 21666d705e372..dcf9e4d4ee6b8 100644
---- a/drivers/media/i2c/m5mols/m5mols_core.c
-+++ b/drivers/media/i2c/m5mols/m5mols_core.c
-@@ -488,7 +488,7 @@ static enum m5mols_restype __find_restype(u32 code)
- 	do {
- 		if (code == m5mols_default_ffmt[type].code)
- 			return type;
--	} while (type++ != SIZE_DEFAULT_FFMT);
-+	} while (++type != SIZE_DEFAULT_FFMT);
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index d3a63961b98a9..b97e046c6a6e1 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -319,9 +319,6 @@ static void scsi_host_dev_release(struct device *dev)
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
- 	return 0;
- }
+-	/* In case scsi_remove_host() has not been called. */
+-	scsi_proc_hostdir_rm(shost->hostt);
+-
+ 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
+ 	rcu_barrier();
+ 
 -- 
 2.39.2
 
