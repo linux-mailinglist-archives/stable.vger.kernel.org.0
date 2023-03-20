@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1149C6C167D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBA86C18E0
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbjCTPGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
+        id S232705AbjCTP2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:28:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232024AbjCTPGM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6A48697
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:55 -0700 (PDT)
+        with ESMTP id S232799AbjCTP1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:27:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9FC7301B3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4F2DB80ECF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB263C4339B;
-        Mon, 20 Mar 2023 15:01:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03FD3B80EC1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:20:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68794C433EF;
+        Mon, 20 Mar 2023 15:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324467;
-        bh=kb0crfLerUGVXvK3C4Lww97xqDWy0FTI5W0aYXVpuB4=;
+        s=korg; t=1679325657;
+        bh=yMmlfJOzpV7C6jpN6GOwwG6WT+Dwq1GYgikkl2RK5nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mWCI6AnSepRGf2/pR645UiAYssEghST5yfpO6ZC6oqHY+XnM0GdRzIjtLiqzhOEz
-         P20E8mP2epnCqW8Rf9+zlmud5yjgJP1zbR7ceKWflAUKMHd+1au/ncJkpLEuvxItpa
-         QiER4fXC1dX9TgjgwUV7SuAIyt/VDChHK6GzJrqY=
+        b=OuT91zOw3G3DevcxIIo7hjdIXsu3oCPz2JtGredRZsnHFE+zAEhVGuxaJTLV0wQqE
+         YXbS4PWVMsjfq8JuEvZ5l6635sLE2HtfpkcstfOYTzxxXNxktztHTaMvRH32s4oc88
+         omW2M853XccGyywYoipkmlb3bVkol7OdOz3kADLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Glenn Washburn <development@efficientek.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/60] docs: Correct missing "d_" prefix for dentry_operations member d_weak_revalidate
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 6.1 118/198] tty: serial: fsl_lpuart: skip waiting for transmission complete when UARTCTRL_SBK is asserted
 Date:   Mon, 20 Mar 2023 15:54:16 +0100
-Message-Id: <20230320145431.178626391@linuxfoundation.org>
+Message-Id: <20230320145512.508120485@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,38 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Glenn Washburn <development@efficientek.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 74596085796fae0cfce3e42ee46bf4f8acbdac55 ]
+commit 2411fd94ceaa6e11326e95d6ebf876cbfed28d23 upstream.
 
-The details for struct dentry_operations member d_weak_revalidate is
-missing a "d_" prefix.
+According to LPUART RM, Transmission Complete Flag becomes 0 if queuing
+a break character by writing 1 to CTRL[SBK], so here need to skip
+waiting for transmission complete when UARTCTRL_SBK is asserted,
+otherwise the kernel may stuck here.
+And actually set_termios() adds transmission completion waiting to avoid
+data loss or data breakage when changing the baud rate, but we don't
+need to worry about this when queuing break characters.
 
-Fixes: af96c1e304f7 ("docs: filesystems: vfs: Convert vfs.txt to RST")
-Signed-off-by: Glenn Washburn <development@efficientek.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Link: https://lore.kernel.org/r/20230227184042.2375235-1-development@efficientek.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230223093941.31790-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/filesystems/vfs.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/fsl_lpuart.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/filesystems/vfs.rst b/Documentation/filesystems/vfs.rst
-index 7d4d09dd5e6de..241e312006434 100644
---- a/Documentation/filesystems/vfs.rst
-+++ b/Documentation/filesystems/vfs.rst
-@@ -1173,7 +1173,7 @@ defined:
- 	return
- 	-ECHILD and it will be called again in ref-walk mode.
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2184,9 +2184,15 @@ lpuart32_set_termios(struct uart_port *p
+ 	/* update the per-port timeout */
+ 	uart_update_timeout(port, termios->c_cflag, baud);
  
--``_weak_revalidate``
-+``d_weak_revalidate``
- 	called when the VFS needs to revalidate a "jumped" dentry.  This
- 	is called when a path-walk ends at dentry that was not acquired
- 	by doing a lookup in the parent directory.  This includes "/",
--- 
-2.39.2
-
+-	/* wait transmit engin complete */
+-	lpuart32_write(&sport->port, 0, UARTMODIR);
+-	lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
++	/*
++	 * LPUART Transmission Complete Flag may never be set while queuing a break
++	 * character, so skip waiting for transmission complete when UARTCTRL_SBK is
++	 * asserted.
++	 */
++	if (!(old_ctrl & UARTCTRL_SBK)) {
++		lpuart32_write(&sport->port, 0, UARTMODIR);
++		lpuart32_wait_bit_set(&sport->port, UARTSTAT, UARTSTAT_TC);
++	}
+ 
+ 	/* disable transmit and receive */
+ 	lpuart32_write(&sport->port, old_ctrl & ~(UARTCTRL_TE | UARTCTRL_RE),
 
 
