@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5AD6C19A5
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D736C1634
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:03:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233213AbjCTPg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:36:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60328 "EHLO
+        id S232154AbjCTPD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:03:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233155AbjCTPf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:35:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352533B0D0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:06 -0700 (PDT)
+        with ESMTP id S231968AbjCTPCv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:02:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9F02D15F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:59:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30DC4615A9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A4C4C433EF;
-        Mon, 20 Mar 2023 15:28:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C51C3B80EBB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B90C433D2;
+        Mon, 20 Mar 2023 14:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326082;
-        bh=8wu5pezMcJdNfhOyKgih+pTNX3TTCPnpiUU1/pLZHII=;
+        s=korg; t=1679324342;
+        bh=bV7u4jV5V5i0aBzT3wvEsfhBr/KuJuR83Td/G6y/8ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEc4R5bpWeSpdInzJaCKhMrnKnHbcGfNLHMdzhas9Dnpeh/w0g1ZeaOZKpYqVbjFe
-         C2JztBzpEire4apDxFuaQR/QSqKIXu7gLr3bZKV7q+xnuGXN7Sx4irKX1TAmFBr0VJ
-         6ah+tLhTe0K1I2X7xei0F8wtEt3xIgPXLm+6aPQk=
+        b=2l1FDA6qGxyIs3e3l+ntfYgKs8UGs8W5sN+f1fyCwk+OLIblntFh4hPYNDjQg98mM
+         DWFkORAEyRcVeeZZ9FaRdk4yzudFRpmNHQPzKDA2OCte4W6Ac4E+smj0LEbWefGGuL
+         zYI3CfuqAI/d5UjILmoA0J41o9kg94QfxMO5zGfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.2 155/211] KVM: nVMX: add missing consistency checks for CR0 and CR4
+        patches@lists.linux.dev,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Theodore Tso <tytso@mit.edu>, Baokun Li <libaokun1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/36] ext4: fail ext4_iget if special inode unallocated
 Date:   Mon, 20 Mar 2023 15:54:50 +0100
-Message-Id: <20230320145519.928164725@linuxfoundation.org>
+Message-Id: <20230320145425.145903002@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 112e66017bff7f2837030f34c2bc19501e9212d5 upstream.
+[ Upstream commit 5cd740287ae5e3f9d1c46f5bfe8778972fd6d3fe ]
 
-The effective values of the guest CR0 and CR4 registers may differ from
-those included in the VMCS12.  In particular, disabling EPT forces
-CR4.PAE=1 and disabling unrestricted guest mode forces CR0.PG=CR0.PE=1.
+In ext4_fill_super(), EXT4_ORPHAN_FS flag is cleared after
+ext4_orphan_cleanup() is executed. Therefore, when __ext4_iget() is
+called to get an inode whose i_nlink is 0 when the flag exists, no error
+is returned. If the inode is a special inode, a null pointer dereference
+may occur. If the value of i_nlink is 0 for any inodes (except boot loader
+inodes) got by using the EXT4_IGET_SPECIAL flag, the current file system
+is corrupted. Therefore, make the ext4_iget() function return an error if
+it gets such an abnormal special inode.
 
-Therefore, checks on these bits cannot be delegated to the processor
-and must be performed by KVM.
-
-Reported-by: Reima ISHII <ishiir@g.ecc.u-tokyo.ac.jp>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=199179
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216541
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216539
+Reported-by: Luís Henriques <lhenriques@suse.de>
+Suggested-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230107032126.4165860-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -3021,7 +3021,7 @@ static int nested_vmx_check_guest_state(
- 					struct vmcs12 *vmcs12,
- 					enum vm_entry_failure_code *entry_failure_code)
- {
--	bool ia32e;
-+	bool ia32e = !!(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE);
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 6e7989b04d2bf..e844d91c461b0 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4947,13 +4947,6 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+ 		goto bad_inode;
+ 	raw_inode = ext4_raw_inode(&iloc);
  
- 	*entry_failure_code = ENTRY_FAIL_DEFAULT;
- 
-@@ -3047,6 +3047,13 @@ static int nested_vmx_check_guest_state(
- 					   vmcs12->guest_ia32_perf_global_ctrl)))
- 		return -EINVAL;
- 
-+	if (CC((vmcs12->guest_cr0 & (X86_CR0_PG | X86_CR0_PE)) == X86_CR0_PG))
-+		return -EINVAL;
-+
-+	if (CC(ia32e && !(vmcs12->guest_cr4 & X86_CR4_PAE)) ||
-+	    CC(ia32e && !(vmcs12->guest_cr0 & X86_CR0_PG)))
-+		return -EINVAL;
-+
- 	/*
- 	 * If the load IA32_EFER VM-entry control is 1, the following checks
- 	 * are performed on the field for the IA32_EFER MSR:
-@@ -3058,7 +3065,6 @@ static int nested_vmx_check_guest_state(
+-	if ((ino == EXT4_ROOT_INO) && (raw_inode->i_links_count == 0)) {
+-		ext4_error_inode(inode, function, line, 0,
+-				 "iget: root inode unallocated");
+-		ret = -EFSCORRUPTED;
+-		goto bad_inode;
+-	}
+-
+ 	if ((flags & EXT4_IGET_HANDLE) &&
+ 	    (raw_inode->i_links_count == 0) && (raw_inode->i_mode == 0)) {
+ 		ret = -ESTALE;
+@@ -5024,11 +5017,16 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+ 	 * NeilBrown 1999oct15
  	 */
- 	if (to_vmx(vcpu)->nested.nested_run_pending &&
- 	    (vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_EFER)) {
--		ia32e = (vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) != 0;
- 		if (CC(!kvm_valid_efer(vcpu, vmcs12->guest_ia32_efer)) ||
- 		    CC(ia32e != !!(vmcs12->guest_ia32_efer & EFER_LMA)) ||
- 		    CC(((vmcs12->guest_cr0 & X86_CR0_PG) &&
+ 	if (inode->i_nlink == 0) {
+-		if ((inode->i_mode == 0 ||
++		if ((inode->i_mode == 0 || flags & EXT4_IGET_SPECIAL ||
+ 		     !(EXT4_SB(inode->i_sb)->s_mount_state & EXT4_ORPHAN_FS)) &&
+ 		    ino != EXT4_BOOT_LOADER_INO) {
+-			/* this inode is deleted */
+-			ret = -ESTALE;
++			/* this inode is deleted or unallocated */
++			if (flags & EXT4_IGET_SPECIAL) {
++				ext4_error_inode(inode, function, line, 0,
++						 "iget: special inode unallocated");
++				ret = -EFSCORRUPTED;
++			} else
++				ret = -ESTALE;
+ 			goto bad_inode;
+ 		}
+ 		/* The only unlinked inodes we let through here have
+-- 
+2.39.2
+
 
 
