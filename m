@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B525A6C17A2
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C2C6C19C3
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:37:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232525AbjCTPP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:15:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42526 "EHLO
+        id S233228AbjCTPhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:37:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232542AbjCTPPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:15:37 -0400
+        with ESMTP id S233242AbjCTPhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:37:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02642F952
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2173B3E3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDD7161598
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAEEDC433D2;
-        Mon, 20 Mar 2023 15:10:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 892A1615A7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A13C433D2;
+        Mon, 20 Mar 2023 15:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325036;
-        bh=tTokCcv4VpQzIlsiMhCl0LyYha2/iPZvUNQLkq32Yos=;
+        s=korg; t=1679326143;
+        bh=S2MT7GtQ5vxVYcNEXhKtOQ0OEdGKzxFto8a3NzbudZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbaJnoRWid9vu5rIa3cKpUubXBo5aWo2wNzcuR4ya03hD93DaIwSezsgGBuyyrazC
-         bzcC7dru7f2O9/G3IZriu8iQfPMqUUYEIWJn6uynecP5tTC94NsdHID6ZMfUrD4R9a
-         YglBX6vmC7Og+Xc54mZzr336O/4/0Nreuc41TkaY=
+        b=BJttJjFDHcgQ01rTGC6rbb9MI1ALqdvji4M7l3gYb7UNlY9TfVqRDin0AgVDuFNup
+         mTmdygIdpf3yYg3Deh+AzfXfAX9al9OMpt+U3KFUwOPiZ1Hp+mAsZtk7U4E9gelb/g
+         23CBZ2GSbZfBaKZLyzalVhE9zXUr2VAMmITyw9fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 86/99] xfs: remove XFS_PREALLOC_SYNC
+        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 169/211] drm/amd/pm: bump SMU 13.0.4 driver_if header version
 Date:   Mon, 20 Mar 2023 15:55:04 +0100
-Message-Id: <20230320145447.007953063@linuxfoundation.org>
+Message-Id: <20230320145520.525761204@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Tim Huang <tim.huang@amd.com>
 
-commit 472c6e46f589c26057596dcba160712a5b3e02c5 upstream.
+commit ab9bdb1213b4b40942af6a383f555d0c14874c1b upstream.
 
-[partial backport for dependency -
- xfs_ioc_space() still uses XFS_PREALLOC_SYNC]
+Align the SMU driver interface version with PMFW to
+suppress the version mismatch message on driver loading.
 
-Callers can acheive the same thing by calling xfs_log_force_inode()
-after making their modifications. There is no need for
-xfs_update_prealloc_flags() to do this.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_file.c |   13 +++++++------
- fs/xfs/xfs_pnfs.c |    6 ++++--
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h |    4 ++--
+ drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h                       |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -94,8 +94,6 @@ xfs_update_prealloc_flags(
- 		ip->i_d.di_flags &= ~XFS_DIFLAG_PREALLOC;
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
+@@ -27,7 +27,7 @@
+ // *** IMPORTANT ***
+ // SMU TEAM: Always increment the interface version if
+ // any structure is changed in this file
+-#define PMFW_DRIVER_IF_VERSION 7
++#define PMFW_DRIVER_IF_VERSION 8
  
- 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
--	if (flags & XFS_PREALLOC_SYNC)
--		xfs_trans_set_sync(tp);
- 	return xfs_trans_commit(tp);
- }
+ typedef struct {
+   int32_t value;
+@@ -198,7 +198,7 @@ typedef struct {
+   uint16_t SkinTemp;
+   uint16_t DeviceState;
+   uint16_t CurTemp;                     //[centi-Celsius]
+-  uint16_t spare2;
++  uint16_t FilterAlphaValue;
  
-@@ -1000,9 +998,6 @@ xfs_file_fallocate(
- 		}
- 	}
- 
--	if (file->f_flags & O_DSYNC)
--		flags |= XFS_PREALLOC_SYNC;
--
- 	error = xfs_update_prealloc_flags(ip, flags);
- 	if (error)
- 		goto out_unlock;
-@@ -1024,8 +1019,14 @@ xfs_file_fallocate(
- 	 * leave shifted extents past EOF and hence losing access to
- 	 * the data that is contained within them.
- 	 */
--	if (do_file_insert)
-+	if (do_file_insert) {
- 		error = xfs_insert_file_space(ip, offset, len);
-+		if (error)
-+			goto out_unlock;
-+	}
-+
-+	if (file->f_flags & O_DSYNC)
-+		error = xfs_log_force_inode(ip);
- 
- out_unlock:
- 	xfs_iunlock(ip, iolock);
---- a/fs/xfs/xfs_pnfs.c
-+++ b/fs/xfs/xfs_pnfs.c
-@@ -164,10 +164,12 @@ xfs_fs_map_blocks(
- 		 * that the blocks allocated and handed out to the client are
- 		 * guaranteed to be present even after a server crash.
- 		 */
--		error = xfs_update_prealloc_flags(ip,
--				XFS_PREALLOC_SET | XFS_PREALLOC_SYNC);
-+		error = xfs_update_prealloc_flags(ip, XFS_PREALLOC_SET);
-+		if (!error)
-+			error = xfs_log_force_inode(ip);
- 		if (error)
- 			goto out_unlock;
-+
- 	} else {
- 		xfs_iunlock(ip, lock_flags);
- 	}
+   uint16_t AverageGfxclkFrequency;
+   uint16_t AverageFclkFrequency;
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
+@@ -29,7 +29,7 @@
+ #define SMU13_DRIVER_IF_VERSION_YELLOW_CARP 0x04
+ #define SMU13_DRIVER_IF_VERSION_ALDE 0x08
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_0_0 0x37
+-#define SMU13_DRIVER_IF_VERSION_SMU_V13_0_4 0x07
++#define SMU13_DRIVER_IF_VERSION_SMU_V13_0_4 0x08
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_5 0x04
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_0_10 0x32
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_7 0x37
 
 
