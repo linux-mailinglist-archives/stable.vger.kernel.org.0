@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B266C16C2
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BCD6C1853
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232171AbjCTPIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35522 "EHLO
+        id S232694AbjCTPXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232163AbjCTPIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:38 -0400
+        with ESMTP id S232775AbjCTPXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9DEAD04;
-        Mon, 20 Mar 2023 08:04:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9C733476
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D671B80ECD;
-        Mon, 20 Mar 2023 15:04:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E92C433D2;
-        Mon, 20 Mar 2023 15:03:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED579B80EDE
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62080C433D2;
+        Mon, 20 Mar 2023 15:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324640;
-        bh=dvPK7pX9fTGsLSRmKiPozyisP9QMENNzIH9EWKYqf2I=;
+        s=korg; t=1679325388;
+        bh=ij8wE66wOzWGu0eJhDtWevI3AIN/bFrpnKNCX88YudE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ny2b2GY2B5ZK87T/WtRoPKdkLeIF7fd0+Cbk/75wwT5uajx1jXChAkrQCOlcMygfQ
-         XKWR2OFKCd/GoXbpY7Elr2+InuqJQDHMzj4Dr/dqqu4SlmkYCRZzUNBTPhbCClo3q9
-         DzXLQSpNGRKr4cs+ImQ+VtmjG5+Nau2+HCenlyxM=
+        b=tTgzTkPhrAodqSefkutFmo7zdYjzmSnDdV4/eCUjqXq7oCjn0bwGnMqeq+GuFmMPU
+         mc3zBpfbB8T0h+26ljt/0CsRbd8bGQ6jetz3Gflwp2ioaL3xXzT5VkdVbQwtRxZ4ay
+         H7sjQ0x5TO3ihXXhe6o55T6ouBdzH6SSlKJYhS2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Riku Voipio <riku.voipio@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-clk@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 005/115] clk: HI655X: select REGMAP instead of depending on it
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 079/198] net: dsa: mv88e6xxx: fix max_mtu of 1492 on 6165, 6191, 6220, 6250, 6290
 Date:   Mon, 20 Mar 2023 15:53:37 +0100
-Message-Id: <20230320145449.575345693@linuxfoundation.org>
+Message-Id: <20230320145510.849454438@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 0ffad67784a097beccf34d297ddd1b0773b3b8a3 ]
+[ Upstream commit 7e9517375a14f44ee830ca1c3278076dd65fcc8f ]
 
-REGMAP is a hidden (not user visible) symbol. Users cannot set it
-directly thru "make *config", so drivers should select it instead of
-depending on it if they need it.
+There are 3 classes of switch families that the driver is aware of, as
+far as mv88e6xxx_change_mtu() is concerned:
 
-Consistently using "select" or "depends on" can also help reduce
-Kconfig circular dependency issues.
+- MTU configuration is available per port. Here, the
+  chip->info->ops->port_set_jumbo_size() method will be present.
 
-Therefore, change the use of "depends on REGMAP" to "select REGMAP".
+- MTU configuration is global to the switch. Here, the
+  chip->info->ops->set_max_frame_size() method will be present.
 
-Fixes: 3a49afb84ca0 ("clk: enable hi655x common clk automatically")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Riku Voipio <riku.voipio@linaro.org>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: linux-clk@vger.kernel.org
-Link: https://lore.kernel.org/r/20230226053953.4681-3-rdunlap@infradead.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+- We don't know how to change the MTU. Here, none of the above methods
+  will be present.
+
+Switch families MV88E6165, MV88E6191, MV88E6220, MV88E6250 and MV88E6290
+fall in category 3.
+
+The blamed commit has adjusted the MTU for all 3 categories by EDSA_HLEN
+(8 bytes), resulting in a new maximum MTU of 1492 being reported by the
+driver for these switches.
+
+I don't have the hardware to test, but I do have a MV88E6390 switch on
+which I can simulate this by commenting out its .port_set_jumbo_size
+definition from mv88e6390_ops. The result is this set of messages at
+probe time:
+
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 1
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 2
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 3
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 4
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 5
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 6
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 7
+mv88e6085 d0032004.mdio-mii:10: nonfatal error -34 setting MTU to 1500 on port 8
+
+It is highly implausible that there exist Ethernet switches which don't
+support the standard MTU of 1500 octets, and this is what the DSA
+framework says as well - the error comes from dsa_slave_create() ->
+dsa_slave_change_mtu(slave_dev, ETH_DATA_LEN).
+
+But the error messages are alarming, and it would be good to suppress
+them.
+
+As a consequence of this unlikeliness, we reimplement mv88e6xxx_get_max_mtu()
+and mv88e6xxx_change_mtu() on switches from the 3rd category as follows:
+the maximum supported MTU is 1500, and any request to set the MTU to a
+value larger than that fails in dev_validate_mtu().
+
+Fixes: b9c587fed61c ("dsa: mv88e6xxx: Include tagger overhead when setting MTU for DSA and CPU ports")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index c5b3dc97396a6..100e474ff3dc5 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -83,7 +83,7 @@ config COMMON_CLK_RK808
- config COMMON_CLK_HI655X
- 	tristate "Clock driver for Hi655x" if EXPERT
- 	depends on (MFD_HI655X_PMIC || COMPILE_TEST)
--	depends on REGMAP
-+	select REGMAP
- 	default MFD_HI655X_PMIC
- 	help
- 	  This driver supports the hi655x PMIC clock. This
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 3b8b2d0fbafaf..3a6db36574ad7 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3549,7 +3549,7 @@ static int mv88e6xxx_get_max_mtu(struct dsa_switch *ds, int port)
+ 		return 10240 - VLAN_ETH_HLEN - EDSA_HLEN - ETH_FCS_LEN;
+ 	else if (chip->info->ops->set_max_frame_size)
+ 		return 1632 - VLAN_ETH_HLEN - EDSA_HLEN - ETH_FCS_LEN;
+-	return 1522 - VLAN_ETH_HLEN - EDSA_HLEN - ETH_FCS_LEN;
++	return ETH_DATA_LEN;
+ }
+ 
+ static int mv88e6xxx_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+@@ -3557,6 +3557,17 @@ static int mv88e6xxx_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ 	struct mv88e6xxx_chip *chip = ds->priv;
+ 	int ret = 0;
+ 
++	/* For families where we don't know how to alter the MTU,
++	 * just accept any value up to ETH_DATA_LEN
++	 */
++	if (!chip->info->ops->port_set_jumbo_size &&
++	    !chip->info->ops->set_max_frame_size) {
++		if (new_mtu > ETH_DATA_LEN)
++			return -EINVAL;
++
++		return 0;
++	}
++
+ 	if (dsa_is_dsa_port(ds, port) || dsa_is_cpu_port(ds, port))
+ 		new_mtu += EDSA_HLEN;
+ 
+@@ -3565,9 +3576,6 @@ static int mv88e6xxx_change_mtu(struct dsa_switch *ds, int port, int new_mtu)
+ 		ret = chip->info->ops->port_set_jumbo_size(chip, port, new_mtu);
+ 	else if (chip->info->ops->set_max_frame_size)
+ 		ret = chip->info->ops->set_max_frame_size(chip, new_mtu);
+-	else
+-		if (new_mtu > 1522)
+-			ret = -EINVAL;
+ 	mv88e6xxx_reg_unlock(chip);
+ 
+ 	return ret;
 -- 
 2.39.2
 
