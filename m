@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142D46C171E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F236C1776
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232312AbjCTPL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36926 "EHLO
+        id S232347AbjCTPOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232308AbjCTPLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F8AA2ED58
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:37 -0700 (PDT)
+        with ESMTP id S232464AbjCTPNv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925E712CCD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5623CB80EC0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF124C433D2;
-        Mon, 20 Mar 2023 15:01:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCAD66157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF66C433EF;
+        Mon, 20 Mar 2023 15:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324492;
-        bh=FuUN94sy7/vGYQ+gaa4OX9s+FxWxInv2uUtnnCl0XN4=;
+        s=korg; t=1679324920;
+        bh=sXo8mBoKZYZFAHqbPaF7n1eHMzEnof++Sw1JW5lceJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2qI0dpOMV32oxPn6BkyZOeHsLMAg0QNF4REhN5tXggKl2xBMXW7J8rsP+zQBVnTs
-         9L2hVDFl0/z7TM/cPKUm39FqaefNDVhiCHWIajunCBcVSrY+lCpaaLKJi3sm8CZxLc
-         syeos/MVLw4pb4KrOlJkLy1iLBL8FHFz10YrzYE8=
+        b=ocvup/XL9OXNe561ZS0YkKGpdjRThSUfl415l6MUQdx0AiDtcLhl0Jj/tonegrzY4
+         YCYSvBCLmOBrtYWjo/zZKvFrw5HIRVseKnJInz1zUH3ERck1VBVF/pVGjx1SMJTH8G
+         8nS5KhnoJpSgZ7tjvRoYmdt9Dpfr1t1CbGfW1wdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/60] ALSA: hda: Add Alderlake-S PCI ID and HDMI codec vid
+        patches@lists.linux.dev, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 048/115] selftests: net: devlink_port_split.py: skip test if no suitable device available
 Date:   Mon, 20 Mar 2023 15:54:20 +0100
-Message-Id: <20230320145431.355013632@linuxfoundation.org>
+Message-Id: <20230320145451.423831209@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit d78359b25f7c6759a23189145be8141b6fdfe385 ]
+[ Upstream commit 24994513ad13ff2c47ba91d2b5df82c3d496c370 ]
 
-Add HD Audio PCI ID and HDMI codec vendor ID for Intel Alder Lake.
+The `devlink -j port show` command output may not contain the "flavour"
+key, an example from Ubuntu 22.10 s390x LPAR(5.19.0-37-generic), with
+mlx4 driver and iproute2-5.15.0:
+  {"port":{"pci/0001:00:00.0/1":{"type":"eth","netdev":"ens301"},
+           "pci/0001:00:00.0/2":{"type":"eth","netdev":"ens301d1"},
+           "pci/0002:00:00.0/1":{"type":"eth","netdev":"ens317"},
+           "pci/0002:00:00.0/2":{"type":"eth","netdev":"ens317d1"}}}
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Link: https://lore.kernel.org/r/20201116141955.2091240-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: ff447886e675 ("ALSA: hda: Match only Intel devices with CONTROLLER_IN_GPU()")
+This will cause a KeyError exception.
+
+Create a validate_devlink_output() to check for this "flavour" from
+devlink command output to avoid this KeyError exception. Also let
+it handle the check for `devlink -j dev show` output in main().
+
+Apart from this, if the test was not started because the max lanes of
+the designated device is 0. The script will still return 0 and thus
+causing a false-negative test result.
+
+Use a found_max_lanes flag to determine if these tests were skipped
+due to this reason and return KSFT_SKIP to make it more clear.
+
+Link: https://bugs.launchpad.net/bugs/1937133
+Fixes: f3348a82e727 ("selftests: net: Add port split test")
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Link: https://lore.kernel.org/r/20230315165353.229590-1-po-hsu.lin@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c  | 3 +++
- sound/pci/hda/patch_hdmi.c | 1 +
- 2 files changed, 4 insertions(+)
+ .../selftests/net/devlink_port_split.py       | 36 ++++++++++++++++---
+ 1 file changed, 31 insertions(+), 5 deletions(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 6a44ad513a965..bc70a6ca18d0d 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2505,6 +2505,9 @@ static const struct pci_device_id azx_ids[] = {
- 	/* DG1 */
- 	{ PCI_DEVICE(0x8086, 0x490d),
- 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
-+	/* Alderlake-S */
-+	{ PCI_DEVICE(0x8086, 0x7ad0),
-+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
- 	/* Elkhart Lake */
- 	{ PCI_DEVICE(0x8086, 0x4b55),
- 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index bfa11073d9624..5ee3ae267cf3b 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -4221,6 +4221,7 @@ HDA_CODEC_ENTRY(0x8086280d, "Geminilake HDMI",	patch_i915_glk_hdmi),
- HDA_CODEC_ENTRY(0x8086280f, "Icelake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x80862812, "Tigerlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",	patch_i915_tgl_hdmi),
-+HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
+diff --git a/tools/testing/selftests/net/devlink_port_split.py b/tools/testing/selftests/net/devlink_port_split.py
+index 2b5d6ff873738..2d84c7a0be6b2 100755
+--- a/tools/testing/selftests/net/devlink_port_split.py
++++ b/tools/testing/selftests/net/devlink_port_split.py
+@@ -59,6 +59,8 @@ class devlink_ports(object):
+         assert stderr == ""
+         ports = json.loads(stdout)['port']
+ 
++        validate_devlink_output(ports, 'flavour')
++
+         for port in ports:
+             if dev in port:
+                 if ports[port]['flavour'] == 'physical':
+@@ -220,6 +222,27 @@ def split_splittable_port(port, k, lanes, dev):
+     unsplit(port.bus_info)
+ 
+ 
++def validate_devlink_output(devlink_data, target_property=None):
++    """
++    Determine if test should be skipped by checking:
++      1. devlink_data contains values
++      2. The target_property exist in devlink_data
++    """
++    skip_reason = None
++    if any(devlink_data.values()):
++        if target_property:
++            skip_reason = "{} not found in devlink output, test skipped".format(target_property)
++            for key in devlink_data:
++                if target_property in devlink_data[key]:
++                    skip_reason = None
++    else:
++        skip_reason = 'devlink output is empty, test skipped'
++
++    if skip_reason:
++        print(skip_reason)
++        sys.exit(KSFT_SKIP)
++
++
+ def make_parser():
+     parser = argparse.ArgumentParser(description='A test for port splitting.')
+     parser.add_argument('--dev',
+@@ -240,12 +263,9 @@ def main(cmdline=None):
+         stdout, stderr = run_command(cmd)
+         assert stderr == ""
+ 
++        validate_devlink_output(json.loads(stdout))
+         devs = json.loads(stdout)['dev']
+-        if devs:
+-            dev = list(devs.keys())[0]
+-        else:
+-            print("no devlink device was found, test skipped")
+-            sys.exit(KSFT_SKIP)
++        dev = list(devs.keys())[0]
+ 
+     cmd = "devlink dev show %s" % dev
+     stdout, stderr = run_command(cmd)
+@@ -255,6 +275,7 @@ def main(cmdline=None):
+ 
+     ports = devlink_ports(dev)
+ 
++    found_max_lanes = False
+     for port in ports.if_names:
+         max_lanes = get_max_lanes(port.name)
+ 
+@@ -277,6 +298,11 @@ def main(cmdline=None):
+                 split_splittable_port(port, lane, max_lanes, dev)
+ 
+                 lane //= 2
++        found_max_lanes = True
++
++    if not found_max_lanes:
++        print(f"Test not started, no port of device {dev} reports max_lanes")
++        sys.exit(KSFT_SKIP)
+ 
+ 
+ if __name__ == "__main__":
 -- 
 2.39.2
 
