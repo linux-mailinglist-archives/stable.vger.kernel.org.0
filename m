@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4830A6C0887
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 509EE6C088E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbjCTBbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 21:31:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
+        id S229916AbjCTBcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230219AbjCTBbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:31:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6299241CB;
-        Sun, 19 Mar 2023 18:24:12 -0700 (PDT)
+        with ESMTP id S229928AbjCTBb6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:31:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAEED2E0D7;
+        Sun, 19 Mar 2023 18:24:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFD65B80D41;
-        Mon, 20 Mar 2023 00:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989D0C433EF;
-        Mon, 20 Mar 2023 00:57:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80734B80D49;
+        Mon, 20 Mar 2023 00:57:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71111C433D2;
+        Mon, 20 Mar 2023 00:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273859;
-        bh=yVemXlXUOkY+Omili823Wxq2eE4Spqxpx4OpajP0tIc=;
+        s=k20201202; t=1679273862;
+        bh=4WYmlHOFW8JnkQwDZ4iFAD0VkNwsk4pLJ5UCv6X5CIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWDmDNrZbWMZwgvEUiOcIHdH58Rueuvf9hFfv7MGIeEde6gtIJx2WFmadyFxRqW01
-         95xrk8S+23H0dnEgKeMgtxwLbm8C14uUe9wu0Odd3IA3tG+3ZeZeEzcTT0tAgr5YRh
-         CkWm9SS521FEt3hkzfYQtGHzOMd6MuxYg+Z48IxEbUFFM7GTw1DMCeac1usJmmIsvM
-         cd7MEmQxpYTeBQC8orZkglOWIyFMQ8S93/ASZbpe+nwr2cT7GuOE92H+iGLsqdZnAa
-         Fvb/kjCQPJ3y4u7Akb7us9Fwnrz4OXo186TuBJylfl6v4V+1hsmUHGC/JnNs77H0Or
-         ofVrVbv9e9jcA==
+        b=eSefbSjjEKvT/jIuJgMazkLXRLwYAbsqg7G5F+AtccLFVOPo7GwMdDrzzLtmclhBc
+         PzNwJxfV/89aU9R2d4jjBaJAluD3Nj7PtvO+TQnNNnPtcKi5sZjijhse02cMaQTJYm
+         hAoqw8fiitDRKcrXlbpPAI7OIL60GbiCuwBQFNCIP1Zf8LwF6v6kKrUUB9nMDyYshN
+         90RV0lQ0cjlvTyvTDeD4Nv6yYZ3S0+Xq3dHAWF/qcf76wEq+RRDYT3mGQGM3Qk/rnq
+         0Xdzy4DyqWvCc4Ga/SyZvuMX6glwFYegGkd9YIQ3YNvL7cPQiiVeCMOpGeTC/NKyBl
+         mMsVSX97Wqc/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Reka Norman <rekanorman@chromium.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        liqiong@nfschina.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 3/9] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
-Date:   Sun, 19 Mar 2023 20:57:26 -0400
-Message-Id: <20230320005732.1429533-3-sashal@kernel.org>
+Cc:     Michael Schmitz <schmitzmic@gmail.com>,
+        Eero Tamminen <oak@helsinkinet.fi>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>, laurent@vivier.eu,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 4.14 4/9] m68k: Only force 030 bus error if PC not in exception table
+Date:   Sun, 19 Mar 2023 20:57:27 -0400
+Message-Id: <20230320005732.1429533-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005732.1429533-1-sashal@kernel.org>
 References: <20230320005732.1429533-1-sashal@kernel.org>
@@ -48,76 +48,83 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reka Norman <rekanorman@chromium.org>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 8ae2f2b0a28416ed2f6d8478ac8b9f7862f36785 ]
+[ Upstream commit e36a82bebbf7da814530d5a179bef9df5934b717 ]
 
-When a reset notify IPC message is received, the ISR schedules a work
-function and passes the ISHTP device to it via a global pointer
-ishtp_dev. If ish_probe() fails, the devm-managed device resources
-including ishtp_dev are freed, but the work is not cancelled, causing a
-use-after-free when the work function tries to access ishtp_dev. Use
-devm_work_autocancel() instead, so that the work is automatically
-cancelled if probe fails.
+__get_kernel_nofault() does copy data in supervisor mode when
+forcing a task backtrace log through /proc/sysrq_trigger.
+This is expected cause a bus error exception on e.g. NULL
+pointer dereferencing when logging a kernel task has no
+workqueue associated. This bus error ought to be ignored.
 
-Signed-off-by: Reka Norman <rekanorman@chromium.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Our 030 bus error handler is ill equipped to deal with this:
+
+Whenever ssw indicates a kernel mode access on a data fault,
+we don't even attempt to handle the fault and instead always
+send a SEGV signal (or panic). As a result, the check
+for exception handling at the fault PC (buried in
+send_sig_fault() which gets called from do_page_fault()
+eventually) is never used.
+
+In contrast, both 040 and 060 access error handlers do not
+care whether a fault happened on supervisor mode access,
+and will call do_page_fault() on those, ultimately honoring
+the exception table.
+
+Add a check in bus_error030 to call do_page_fault() in case
+we do have an entry for the fault PC in our exception table.
+
+I had attempted a fix for this earlier in 2019 that did rely
+on testing pagefault_disabled() (see link below) to achieve
+the same thing, but this patch should be more generic.
+
+Tested on 030 Atari Falcon.
+
+Reported-by: Eero Tamminen <oak@helsinkinet.fi>
+Link: https://lore.kernel.org/r/alpine.LNX.2.21.1904091023540.25@nippy.intranet
+Link: https://lore.kernel.org/r/63130691-1984-c423-c1f2-73bfd8d3dcd3@gmail.com
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20230301021107.26307-1-schmitzmic@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/m68k/kernel/traps.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index a3106fcc22539..1d8aae83f50c1 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -13,6 +13,7 @@
-  * more details.
-  */
+diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
+index 5c72deb117a8e..d75c143d99d0f 100644
+--- a/arch/m68k/kernel/traps.c
++++ b/arch/m68k/kernel/traps.c
+@@ -30,6 +30,7 @@
+ #include <linux/init.h>
+ #include <linux/ptrace.h>
+ #include <linux/kallsyms.h>
++#include <linux/extable.h>
  
-+#include <linux/devm-helpers.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-@@ -618,7 +619,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
- 	case MNG_RESET_NOTIFY:
- 		if (!ishtp_dev) {
- 			ishtp_dev = dev;
--			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
- 		}
- 		schedule_work(&fw_reset_work);
- 		break;
-@@ -909,6 +909,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- {
- 	struct ishtp_device *dev;
- 	int	i;
-+	int	ret;
+ #include <asm/setup.h>
+ #include <asm/fpu.h>
+@@ -550,7 +551,8 @@ static inline void bus_error030 (struct frame *fp)
+ 			errorcode |= 2;
  
- 	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct ish_hw),
- 		GFP_KERNEL);
-@@ -942,6 +943,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- 		list_add_tail(&tx_buf->link, &dev->wr_free_list_head.link);
- 	}
- 
-+	ret = devm_work_autocancel(&pdev->dev, &fw_reset_work, fw_reset_work_fn);
-+	if (ret) {
-+		dev_err(dev->devc, "Failed to initialise FW reset work\n");
-+		return NULL;
-+	}
-+
- 	dev->ops = &ish_hw_ops;
- 	dev->devc = &pdev->dev;
- 	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
+ 		if (mmusr & (MMU_I | MMU_WP)) {
+-			if (ssw & 4) {
++			/* We might have an exception table for this PC */
++			if (ssw & 4 && !search_exception_tables(fp->ptregs.pc)) {
+ 				pr_err("Data %s fault at %#010lx in %s (pc=%#lx)\n",
+ 				       ssw & RW ? "read" : "write",
+ 				       fp->un.fmtb.daddr,
 -- 
 2.39.2
 
