@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A799B6C16BB
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FCD26C1728
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbjCTPIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
+        id S232093AbjCTPMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232199AbjCTPIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E4B2DE44
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:03:42 -0700 (PDT)
+        with ESMTP id S232358AbjCTPLk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C585123DAF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AC77B80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0D6C433EF;
-        Mon, 20 Mar 2023 15:03:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F1ACB80EC9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F10C4339B;
+        Mon, 20 Mar 2023 15:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324621;
-        bh=aw/NN2IyG6rO32QFTMF2GhEnTbi0Z2JhLpPulKJMQ3c=;
+        s=korg; t=1679324793;
+        bh=xFSLdZOACkhihy+V/IXgg4S5DYfJ2N7/nOv37+1Do2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wArb2Tp9CweGVufm72ai8w83zIkpsS8h6N5dAZQ+A7DVYha7DJXotsO4/kRtNQ/4C
-         vRCLjTbKHe467c0LjVSJnDxchlc6eiZuAA6AiLl1zvlK9r4YTKLXSZr0Xajvgw0y4t
-         S75ePEuIBTyqwU0bZASKrMSXhqXu91LCIVvbmVi0=
+        b=h86j9UZ/CE/dAMZU9+mQUr0mHA13ewqRupZspyXDZ67hZ9JfZrgvl1VabUfb/IZfj
+         MhphprL/laohtOz1l1n7F4AYp76IDtl5RZRrEB1nSqWcZfqHTHxuTijg3bxZHI7SZg
+         oewcdgkSc3m4QgXn1/UFT2hqyU1uXEp0N8mqliU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/99] block: null_blk: Fix handling of fake timeout request
+        patches@lists.linux.dev, Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 034/115] net/smc: fix deadlock triggered by cancel_delayed_work_syn()
 Date:   Mon, 20 Mar 2023 15:54:06 +0100
-Message-Id: <20230320145444.557158473@linuxfoundation.org>
+Message-Id: <20230320145450.888821164@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,55 +56,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Wenjia Zhang <wenjia@linux.ibm.com>
 
-[ Upstream commit 63f886597085f346276e3b3c8974de0100d65f32 ]
+[ Upstream commit 13085e1b5cab8ad802904d72e6a6dae85ae0cd20 ]
 
-When injecting a fake timeout into the null_blk driver using
-fail_io_timeout, the request timeout handler does not execute
-blk_mq_complete_request(), so the complete callback is never executed
-for a timedout request.
+The following LOCKDEP was detected:
+		Workqueue: events smc_lgr_free_work [smc]
+		WARNING: possible circular locking dependency detected
+		6.1.0-20221027.rc2.git8.56bc5b569087.300.fc36.s390x+debug #1 Not tainted
+		------------------------------------------------------
+		kworker/3:0/176251 is trying to acquire lock:
+		00000000f1467148 ((wq_completion)smc_tx_wq-00000000#2){+.+.}-{0:0},
+			at: __flush_workqueue+0x7a/0x4f0
+		but task is already holding lock:
+		0000037fffe97dc8 ((work_completion)(&(&lgr->free_work)->work)){+.+.}-{0:0},
+			at: process_one_work+0x232/0x730
+		which lock already depends on the new lock.
+		the existing dependency chain (in reverse order) is:
+		-> #4 ((work_completion)(&(&lgr->free_work)->work)){+.+.}-{0:0}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       __flush_work+0x76/0xf0
+		       __cancel_work_timer+0x170/0x220
+		       __smc_lgr_terminate.part.0+0x34/0x1c0 [smc]
+		       smc_connect_rdma+0x15e/0x418 [smc]
+		       __smc_connect+0x234/0x480 [smc]
+		       smc_connect+0x1d6/0x230 [smc]
+		       __sys_connect+0x90/0xc0
+		       __do_sys_socketcall+0x186/0x370
+		       __do_syscall+0x1da/0x208
+		       system_call+0x82/0xb0
+		-> #3 (smc_client_lgr_pending){+.+.}-{3:3}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       __mutex_lock+0x96/0x8e8
+		       mutex_lock_nested+0x32/0x40
+		       smc_connect_rdma+0xa4/0x418 [smc]
+		       __smc_connect+0x234/0x480 [smc]
+		       smc_connect+0x1d6/0x230 [smc]
+		       __sys_connect+0x90/0xc0
+		       __do_sys_socketcall+0x186/0x370
+		       __do_syscall+0x1da/0x208
+		       system_call+0x82/0xb0
+		-> #2 (sk_lock-AF_SMC){+.+.}-{0:0}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       lock_sock_nested+0x46/0xa8
+		       smc_tx_work+0x34/0x50 [smc]
+		       process_one_work+0x30c/0x730
+		       worker_thread+0x62/0x420
+		       kthread+0x138/0x150
+		       __ret_from_fork+0x3c/0x58
+		       ret_from_fork+0xa/0x40
+		-> #1 ((work_completion)(&(&smc->conn.tx_work)->work)){+.+.}-{0:0}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       process_one_work+0x2bc/0x730
+		       worker_thread+0x62/0x420
+		       kthread+0x138/0x150
+		       __ret_from_fork+0x3c/0x58
+		       ret_from_fork+0xa/0x40
+		-> #0 ((wq_completion)smc_tx_wq-00000000#2){+.+.}-{0:0}:
+		       check_prev_add+0xd8/0xe88
+		       validate_chain+0x70c/0xb20
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       __flush_workqueue+0xaa/0x4f0
+		       drain_workqueue+0xaa/0x158
+		       destroy_workqueue+0x44/0x2d8
+		       smc_lgr_free+0x9e/0xf8 [smc]
+		       process_one_work+0x30c/0x730
+		       worker_thread+0x62/0x420
+		       kthread+0x138/0x150
+		       __ret_from_fork+0x3c/0x58
+		       ret_from_fork+0xa/0x40
+		other info that might help us debug this:
+		Chain exists of:
+		  (wq_completion)smc_tx_wq-00000000#2
+	  	  --> smc_client_lgr_pending
+		  --> (work_completion)(&(&lgr->free_work)->work)
+		 Possible unsafe locking scenario:
+		       CPU0                    CPU1
+		       ----                    ----
+		  lock((work_completion)(&(&lgr->free_work)->work));
+		                   lock(smc_client_lgr_pending);
+		                   lock((work_completion)
+					(&(&lgr->free_work)->work));
+		  lock((wq_completion)smc_tx_wq-00000000#2);
+		 *** DEADLOCK ***
+		2 locks held by kworker/3:0/176251:
+		 #0: 0000000080183548
+			((wq_completion)events){+.+.}-{0:0},
+				at: process_one_work+0x232/0x730
+		 #1: 0000037fffe97dc8
+			((work_completion)
+			 (&(&lgr->free_work)->work)){+.+.}-{0:0},
+				at: process_one_work+0x232/0x730
+		stack backtrace:
+		CPU: 3 PID: 176251 Comm: kworker/3:0 Not tainted
+		Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
+		Call Trace:
+		 [<000000002983c3e4>] dump_stack_lvl+0xac/0x100
+		 [<0000000028b477ae>] check_noncircular+0x13e/0x160
+		 [<0000000028b48808>] check_prev_add+0xd8/0xe88
+		 [<0000000028b49cc4>] validate_chain+0x70c/0xb20
+		 [<0000000028b4bd26>] __lock_acquire+0x58e/0xbd8
+		 [<0000000028b4cf6a>] lock_acquire.part.0+0xe2/0x248
+		 [<0000000028b4d17c>] lock_acquire+0xac/0x1c8
+		 [<0000000028addaaa>] __flush_workqueue+0xaa/0x4f0
+		 [<0000000028addf9a>] drain_workqueue+0xaa/0x158
+		 [<0000000028ae303c>] destroy_workqueue+0x44/0x2d8
+		 [<000003ff8029af26>] smc_lgr_free+0x9e/0xf8 [smc]
+		 [<0000000028adf3d4>] process_one_work+0x30c/0x730
+		 [<0000000028adf85a>] worker_thread+0x62/0x420
+		 [<0000000028aeac50>] kthread+0x138/0x150
+		 [<0000000028a63914>] __ret_from_fork+0x3c/0x58
+		 [<00000000298503da>] ret_from_fork+0xa/0x40
+		INFO: lockdep is turned off.
+===================================================================
 
-The null_blk driver also has a driver-specific fake timeout mechanism
-which does not have this problem. Fix the problem with fail_io_timeout
-by using the same meachanism as null_blk internal timeout feature, using
-the fake_timeout field of null_blk commands.
+This deadlock occurs because cancel_delayed_work_sync() waits for
+the work(&lgr->free_work) to finish, while the &lgr->free_work
+waits for the work(lgr->tx_wq), which needs the sk_lock-AF_SMC, that
+is already used under the mutex_lock.
 
-Reported-by: Akinobu Mita <akinobu.mita@gmail.com>
-Fixes: de3510e52b0a ("null_blk: fix command timeout completion handling")
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20230314041106.19173-2-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The solution is to use cancel_delayed_work() instead, which kills
+off a pending work.
+
+Fixes: a52bcc919b14 ("net/smc: improve termination processing")
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
+Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk/main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index c6ba8f9f3f311..25db095e943b7 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -1309,8 +1309,7 @@ static inline void nullb_complete_cmd(struct nullb_cmd *cmd)
- 	case NULL_IRQ_SOFTIRQ:
- 		switch (cmd->nq->dev->queue_mode) {
- 		case NULL_Q_MQ:
--			if (likely(!blk_should_fake_timeout(cmd->rq->q)))
--				blk_mq_complete_request(cmd->rq);
-+			blk_mq_complete_request(cmd->rq);
- 			break;
- 		case NULL_Q_BIO:
- 			/*
-@@ -1486,7 +1485,8 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	cmd->rq = bd->rq;
- 	cmd->error = BLK_STS_OK;
- 	cmd->nq = nq;
--	cmd->fake_timeout = should_timeout_request(bd->rq);
-+	cmd->fake_timeout = should_timeout_request(bd->rq) ||
-+		blk_should_fake_timeout(bd->rq->q);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2eafefa15a1ae..f08fcc50fad3c 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1297,7 +1297,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
+ 	if (lgr->terminating)
+ 		return;	/* lgr already terminating */
+ 	/* cancel free_work sync, will terminate when lgr->freeing is set */
+-	cancel_delayed_work_sync(&lgr->free_work);
++	cancel_delayed_work(&lgr->free_work);
+ 	lgr->terminating = 1;
  
- 	blk_mq_start_request(bd->rq);
- 
+ 	/* kill remaining link group connections */
 -- 
 2.39.2
 
