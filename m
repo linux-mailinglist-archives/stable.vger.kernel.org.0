@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8A06C18A8
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EDD6C182F
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232909AbjCTP0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40266 "EHLO
+        id S232660AbjCTPVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232855AbjCTP0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA0A2A14F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:29 -0700 (PDT)
+        with ESMTP id S232705AbjCTPVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7E63251D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4544B615B3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510CFC433D2;
-        Mon, 20 Mar 2023 15:19:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E737FB80EC4
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45263C433EF;
+        Mon, 20 Mar 2023 15:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325564;
-        bh=Eb5jnuG1Ekz+HQ+52zkkQu/88M0jhTAM6jLx6dtOlQY=;
+        s=korg; t=1679325243;
+        bh=FnopRgmivOrI9mpll2HA95oRSrfV9ZY9IOs63XY0C2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTjRPTjNT4Dyb7ik4nC/X1grU5N3Upi/XH4/s4DYOnu+rvnuZepFvfHJ6qDyqzLJb
-         ndgd2JhFPL94zJUZezb08Ntiq4Ia9J3zl5KLlSwAkLB9JwOpqkmYTmZ0QJXcDpq0cv
-         FCBsmRlAp2XWaJxi2cuxq42Mq3/yo7oVBhMqX7jY=
+        b=t7arRS82jPIDEMNl6BoTYT937P2jRt5vKhT35muj/Eg7XJA0Qf5rRqlj2lqhigMll
+         ExundE1ExLQarcQ+zpqQ6msbKqnmR0xa0M6+UNRrMNScXEeJKsSV1GSrXokz6IGuGl
+         3c6eaIiAALw1Ed8Pf+lXeVTFJf5K80sGVKSmls4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Daniel Golle <daniel@makrotopia.org>,
+        patches@lists.linux.dev, Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 062/211] net: ethernet: mtk_eth_soc: reset PCS state
+Subject: [PATCH 6.1 059/198] net/smc: fix deadlock triggered by cancel_delayed_work_syn()
 Date:   Mon, 20 Mar 2023 15:53:17 +0100
-Message-Id: <20230320145515.828203504@linuxfoundation.org>
+Message-Id: <20230320145510.009911205@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,55 +56,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Golle <daniel@makrotopia.org>
+From: Wenjia Zhang <wenjia@linux.ibm.com>
 
-[ Upstream commit 611e2dabb4b3243d176739fd6a5a34d007fa3f86 ]
+[ Upstream commit 13085e1b5cab8ad802904d72e6a6dae85ae0cd20 ]
 
-Reset the internal PCS state machine when changing interface mode.
-This prevents confusing the state machine when changing interface
-modes, e.g. from SGMII to 2500Base-X or vice-versa.
+The following LOCKDEP was detected:
+		Workqueue: events smc_lgr_free_work [smc]
+		WARNING: possible circular locking dependency detected
+		6.1.0-20221027.rc2.git8.56bc5b569087.300.fc36.s390x+debug #1 Not tainted
+		------------------------------------------------------
+		kworker/3:0/176251 is trying to acquire lock:
+		00000000f1467148 ((wq_completion)smc_tx_wq-00000000#2){+.+.}-{0:0},
+			at: __flush_workqueue+0x7a/0x4f0
+		but task is already holding lock:
+		0000037fffe97dc8 ((work_completion)(&(&lgr->free_work)->work)){+.+.}-{0:0},
+			at: process_one_work+0x232/0x730
+		which lock already depends on the new lock.
+		the existing dependency chain (in reverse order) is:
+		-> #4 ((work_completion)(&(&lgr->free_work)->work)){+.+.}-{0:0}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       __flush_work+0x76/0xf0
+		       __cancel_work_timer+0x170/0x220
+		       __smc_lgr_terminate.part.0+0x34/0x1c0 [smc]
+		       smc_connect_rdma+0x15e/0x418 [smc]
+		       __smc_connect+0x234/0x480 [smc]
+		       smc_connect+0x1d6/0x230 [smc]
+		       __sys_connect+0x90/0xc0
+		       __do_sys_socketcall+0x186/0x370
+		       __do_syscall+0x1da/0x208
+		       system_call+0x82/0xb0
+		-> #3 (smc_client_lgr_pending){+.+.}-{3:3}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       __mutex_lock+0x96/0x8e8
+		       mutex_lock_nested+0x32/0x40
+		       smc_connect_rdma+0xa4/0x418 [smc]
+		       __smc_connect+0x234/0x480 [smc]
+		       smc_connect+0x1d6/0x230 [smc]
+		       __sys_connect+0x90/0xc0
+		       __do_sys_socketcall+0x186/0x370
+		       __do_syscall+0x1da/0x208
+		       system_call+0x82/0xb0
+		-> #2 (sk_lock-AF_SMC){+.+.}-{0:0}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       lock_sock_nested+0x46/0xa8
+		       smc_tx_work+0x34/0x50 [smc]
+		       process_one_work+0x30c/0x730
+		       worker_thread+0x62/0x420
+		       kthread+0x138/0x150
+		       __ret_from_fork+0x3c/0x58
+		       ret_from_fork+0xa/0x40
+		-> #1 ((work_completion)(&(&smc->conn.tx_work)->work)){+.+.}-{0:0}:
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       process_one_work+0x2bc/0x730
+		       worker_thread+0x62/0x420
+		       kthread+0x138/0x150
+		       __ret_from_fork+0x3c/0x58
+		       ret_from_fork+0xa/0x40
+		-> #0 ((wq_completion)smc_tx_wq-00000000#2){+.+.}-{0:0}:
+		       check_prev_add+0xd8/0xe88
+		       validate_chain+0x70c/0xb20
+		       __lock_acquire+0x58e/0xbd8
+		       lock_acquire.part.0+0xe2/0x248
+		       lock_acquire+0xac/0x1c8
+		       __flush_workqueue+0xaa/0x4f0
+		       drain_workqueue+0xaa/0x158
+		       destroy_workqueue+0x44/0x2d8
+		       smc_lgr_free+0x9e/0xf8 [smc]
+		       process_one_work+0x30c/0x730
+		       worker_thread+0x62/0x420
+		       kthread+0x138/0x150
+		       __ret_from_fork+0x3c/0x58
+		       ret_from_fork+0xa/0x40
+		other info that might help us debug this:
+		Chain exists of:
+		  (wq_completion)smc_tx_wq-00000000#2
+	  	  --> smc_client_lgr_pending
+		  --> (work_completion)(&(&lgr->free_work)->work)
+		 Possible unsafe locking scenario:
+		       CPU0                    CPU1
+		       ----                    ----
+		  lock((work_completion)(&(&lgr->free_work)->work));
+		                   lock(smc_client_lgr_pending);
+		                   lock((work_completion)
+					(&(&lgr->free_work)->work));
+		  lock((wq_completion)smc_tx_wq-00000000#2);
+		 *** DEADLOCK ***
+		2 locks held by kworker/3:0/176251:
+		 #0: 0000000080183548
+			((wq_completion)events){+.+.}-{0:0},
+				at: process_one_work+0x232/0x730
+		 #1: 0000037fffe97dc8
+			((work_completion)
+			 (&(&lgr->free_work)->work)){+.+.}-{0:0},
+				at: process_one_work+0x232/0x730
+		stack backtrace:
+		CPU: 3 PID: 176251 Comm: kworker/3:0 Not tainted
+		Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
+		Call Trace:
+		 [<000000002983c3e4>] dump_stack_lvl+0xac/0x100
+		 [<0000000028b477ae>] check_noncircular+0x13e/0x160
+		 [<0000000028b48808>] check_prev_add+0xd8/0xe88
+		 [<0000000028b49cc4>] validate_chain+0x70c/0xb20
+		 [<0000000028b4bd26>] __lock_acquire+0x58e/0xbd8
+		 [<0000000028b4cf6a>] lock_acquire.part.0+0xe2/0x248
+		 [<0000000028b4d17c>] lock_acquire+0xac/0x1c8
+		 [<0000000028addaaa>] __flush_workqueue+0xaa/0x4f0
+		 [<0000000028addf9a>] drain_workqueue+0xaa/0x158
+		 [<0000000028ae303c>] destroy_workqueue+0x44/0x2d8
+		 [<000003ff8029af26>] smc_lgr_free+0x9e/0xf8 [smc]
+		 [<0000000028adf3d4>] process_one_work+0x30c/0x730
+		 [<0000000028adf85a>] worker_thread+0x62/0x420
+		 [<0000000028aeac50>] kthread+0x138/0x150
+		 [<0000000028a63914>] __ret_from_fork+0x3c/0x58
+		 [<00000000298503da>] ret_from_fork+0xa/0x40
+		INFO: lockdep is turned off.
+===================================================================
 
-Fixes: 7e538372694b ("net: ethernet: mediatek: Re-add support SGMII")
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Tested-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+This deadlock occurs because cancel_delayed_work_sync() waits for
+the work(&lgr->free_work) to finish, while the &lgr->free_work
+waits for the work(lgr->tx_wq), which needs the sk_lock-AF_SMC, that
+is already used under the mutex_lock.
+
+The solution is to use cancel_delayed_work() instead, which kills
+off a pending work.
+
+Fixes: a52bcc919b14 ("net/smc: improve termination processing")
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
+Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 4 ++++
- drivers/net/ethernet/mediatek/mtk_sgmii.c   | 4 ++++
- 2 files changed, 8 insertions(+)
+ net/smc/smc_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index b481d0d46bb16..d4b4f9eaa4419 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -528,6 +528,10 @@
- #define SGMII_SEND_AN_ERROR_EN		BIT(11)
- #define SGMII_IF_MODE_MASK		GENMASK(5, 1)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c19d4b7c1f28a..0208dfb353456 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1459,7 +1459,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
+ 	if (lgr->terminating)
+ 		return;	/* lgr already terminating */
+ 	/* cancel free_work sync, will terminate when lgr->freeing is set */
+-	cancel_delayed_work_sync(&lgr->free_work);
++	cancel_delayed_work(&lgr->free_work);
+ 	lgr->terminating = 1;
  
-+/* Register to reset SGMII design */
-+#define SGMII_RESERVED_0	0x34
-+#define SGMII_SW_RESET		BIT(0)
-+
- /* Register to set SGMII speed, ANA RG_ Control Signals III*/
- #define SGMSYS_ANA_RG_CS3	0x2028
- #define RG_PHY_SPEED_MASK	(BIT(2) | BIT(3))
-diff --git a/drivers/net/ethernet/mediatek/mtk_sgmii.c b/drivers/net/ethernet/mediatek/mtk_sgmii.c
-index bb00de1003ac4..612f65bb03454 100644
---- a/drivers/net/ethernet/mediatek/mtk_sgmii.c
-+++ b/drivers/net/ethernet/mediatek/mtk_sgmii.c
-@@ -88,6 +88,10 @@ static int mtk_pcs_config(struct phylink_pcs *pcs, unsigned int mode,
- 		regmap_update_bits(mpcs->regmap, SGMSYS_QPHY_PWR_STATE_CTRL,
- 				   SGMII_PHYA_PWD, SGMII_PHYA_PWD);
- 
-+		/* Reset SGMII PCS state */
-+		regmap_update_bits(mpcs->regmap, SGMII_RESERVED_0,
-+				   SGMII_SW_RESET, SGMII_SW_RESET);
-+
- 		if (interface == PHY_INTERFACE_MODE_2500BASEX)
- 			rgc3 = RG_PHY_SPEED_3_125G;
- 		else
+ 	/* kill remaining link group connections */
 -- 
 2.39.2
 
