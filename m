@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8088F6C17FC
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8626C1889
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232661AbjCTPTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:19:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
+        id S232576AbjCTPZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:25:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232619AbjCTPS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F7C62C64E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:23 -0700 (PDT)
+        with ESMTP id S232645AbjCTPZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37F48683
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDCD7B80EDB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C00C433EF;
-        Mon, 20 Mar 2023 15:12:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BC5061575
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388C9C433EF;
+        Mon, 20 Mar 2023 15:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325155;
-        bh=XlyKjxvn52nhRum6llsWjb1HNdixuZsp/9PSZT/mEJE=;
+        s=korg; t=1679325493;
+        bh=AJP7oNcdbJX/dQ+np7TFPAclgxmHUJa1+6jzkW3nMdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUxoLzQaPXU9AmNaftgrSICJtrNAi4s4qGLX+CADZZPP2b0EWw8o/ehkbAOjS7xD7
-         KSx9QtdpEV3blpkF7B13NMptUbUWHvv33c0Rj4ARAwyEhsNt53L0q+fa9YHBUffQcZ
-         7nnfsm6rrTyLY4ShcPuh6hNSxC+cWxBv9eV77jLQ=
+        b=kEkL7J6uP9h3a2Ctr/pC5NoZEFm9VbEs65NHXVohUB1xmnAIIUS5f18vepmESxiTL
+         Gz6ckNc/p210e8ZSVfEVNmJW22BO39LS9UhD5DIeMCFiLXIjCsuiRgQVTQl0MOMeg9
+         6e/ENDiHPkFU2sisv7doDmqgFPSOiulwyw7GVU88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        Simon Horman <simon.horman@corigine.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 046/198] net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()
+Subject: [PATCH 6.2 049/211] qed/qed_dev: guard against a possible division by zero
 Date:   Mon, 20 Mar 2023 15:53:04 +0100
-Message-Id: <20230320145509.400064647@linuxfoundation.org>
+Message-Id: <20230320145515.284382241@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,66 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 22a825c541d775c1dbe7b2402786025acad6727b ]
+[ Upstream commit 1a9dc5610ef89d807acdcfbff93a558f341a44da ]
 
-When performing a stress test on SMC-R by rmmod mlx5_ib driver
-during the wrk/nginx test, we found that there is a probability
-of triggering a panic while terminating all link groups.
+Previously we would divide total_left_rate by zero if num_vports
+happened to be 1 because non_requested_count is calculated as
+num_vports - req_count. Guard against this by validating num_vports at
+the beginning and returning an error otherwise.
 
-This issue dues to the race between smc_smcr_terminate_all()
-and smc_buf_create().
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-			smc_smcr_terminate_all
-
-smc_buf_create
-/* init */
-conn->sndbuf_desc = NULL;
-...
-
-			__smc_lgr_terminate
-				smc_conn_kill
-					smc_close_abort
-						smc_cdc_get_slot_and_msg_send
-
-			__softirqentry_text_start
-				smc_wr_tx_process_cqe
-					smc_cdc_tx_handler
-						READ(conn->sndbuf_desc->len);
-						/* panic dues to NULL sndbuf_desc */
-
-conn->sndbuf_desc = xxx;
-
-This patch tries to fix the issue by always to check the sndbuf_desc
-before send any cdc msg, to make sure that no null pointer is
-seen during cqe processing.
-
-Fixes: 0b29ec643613 ("net/smc: immediate termination for SMCR link groups")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Link: https://lore.kernel.org/r/1678263432-17329-1-git-send-email-alibuda@linux.alibaba.com
+Fixes: bcd197c81f63 ("qed: Add vport WFQ configuration APIs")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230309201556.191392-1-d-tatianin@yandex-team.ru
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_cdc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 53f63bfbaf5f9..89105e95b4523 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -114,6 +114,9 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- 	union smc_host_cursor cfed;
- 	int rc;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index d61cd32ec3b65..86a93cac26470 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -5083,6 +5083,11 @@ static int qed_init_wfq_param(struct qed_hwfn *p_hwfn,
  
-+	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
-+		return -ENOBUFS;
+ 	num_vports = p_hwfn->qm_info.num_vports;
+ 
++	if (num_vports < 2) {
++		DP_NOTICE(p_hwfn, "Unexpected num_vports: %d\n", num_vports);
++		return -EINVAL;
++	}
 +
- 	smc_cdc_add_pending_send(conn, pend);
- 
- 	conn->tx_cdc_seq++;
+ 	/* Accounting for the vports which are configured for WFQ explicitly */
+ 	for (i = 0; i < num_vports; i++) {
+ 		u32 tmp_speed;
 -- 
 2.39.2
 
