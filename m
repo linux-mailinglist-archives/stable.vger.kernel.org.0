@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4D76C17ED
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B076C1885
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232471AbjCTPSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54726 "EHLO
+        id S232834AbjCTPZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232622AbjCTPSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:04 -0400
+        with ESMTP id S232907AbjCTPYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAFC931E11
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:12:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7757366A6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 079E0B80EC0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47F04C433EF;
-        Mon, 20 Mar 2023 15:12:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C95CAB80E95
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36689C433EF;
+        Mon, 20 Mar 2023 15:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325141;
-        bh=7P+Qk8UVbePONM+ocqLe5OYH4QQA7VaeuOo7lQH6DQU=;
+        s=korg; t=1679325482;
+        bh=XlyKjxvn52nhRum6llsWjb1HNdixuZsp/9PSZT/mEJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvmk867j8QR4269Y0iWJjTJdGBbd85NivfkZgBGpDbH3bFP48jYhE7vxasSeoU7Hs
-         Tnu9NnKQfO5NpnOyX/mD2y5HJATSmQc8c3mkMhgEwgFWqScIQxvxNkKJ4Ztu/CckXQ
-         HkmQ+SB15c1b1m5HsTIkIvNjNjAnDIruKDgZP0N8=
+        b=udv/VgdNK8TD+W0HqVUasWt/fTKEMxEzFF243/Aca3ljYIy3czdb8m4ELbRZ5nh2E
+         AH8SFYBc6ikYvTZ7UCzZejLw45BoRddDslyWrpnF9923TzeWHpV7Ngerlruo1waeCy
+         BPFAvfaksIJ2r9jgkP+C6OWPSH4GDOuaQjbY3kjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Andrea Righi <andrea.righi@canonical.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 045/198] drm/i915/sseu: fix max_subslices array-index-out-of-bounds access
+Subject: [PATCH 6.2 048/211] net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()
 Date:   Mon, 20 Mar 2023 15:53:03 +0100
-Message-Id: <20230320145509.352771021@linuxfoundation.org>
+Message-Id: <20230320145515.238270436@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-[ Upstream commit 193c41926d152761764894f46e23b53c00186a82 ]
+[ Upstream commit 22a825c541d775c1dbe7b2402786025acad6727b ]
 
-It seems that commit bc3c5e0809ae ("drm/i915/sseu: Don't try to store EU
-mask internally in UAPI format") exposed a potential out-of-bounds
-access, reported by UBSAN as following on a laptop with a gen 11 i915
-card:
+When performing a stress test on SMC-R by rmmod mlx5_ib driver
+during the wrk/nginx test, we found that there is a probability
+of triggering a panic while terminating all link groups.
 
-  UBSAN: array-index-out-of-bounds in drivers/gpu/drm/i915/gt/intel_sseu.c:65:27
-  index 6 is out of range for type 'u16 [6]'
-  CPU: 2 PID: 165 Comm: systemd-udevd Not tainted 6.2.0-9-generic #9-Ubuntu
-  Hardware name: Dell Inc. XPS 13 9300/077Y9N, BIOS 1.11.0 03/22/2022
-  Call Trace:
-   <TASK>
-   show_stack+0x4e/0x61
-   dump_stack_lvl+0x4a/0x6f
-   dump_stack+0x10/0x18
-   ubsan_epilogue+0x9/0x3a
-   __ubsan_handle_out_of_bounds.cold+0x42/0x47
-   gen11_compute_sseu_info+0x121/0x130 [i915]
-   intel_sseu_info_init+0x15d/0x2b0 [i915]
-   intel_gt_init_mmio+0x23/0x40 [i915]
-   i915_driver_mmio_probe+0x129/0x400 [i915]
-   ? intel_gt_probe_all+0x91/0x2e0 [i915]
-   i915_driver_probe+0xe1/0x3f0 [i915]
-   ? drm_privacy_screen_get+0x16d/0x190 [drm]
-   ? acpi_dev_found+0x64/0x80
-   i915_pci_probe+0xac/0x1b0 [i915]
-   ...
+This issue dues to the race between smc_smcr_terminate_all()
+and smc_buf_create().
 
-According to the definition of sseu_dev_info, eu_mask->hsw is limited to
-a maximum of GEN_MAX_SS_PER_HSW_SLICE (6) sub-slices, but
-gen11_sseu_info_init() can potentially set 8 sub-slices, in the
-!IS_JSL_EHL(gt->i915) case.
+			smc_smcr_terminate_all
 
-Fix this by reserving up to 8 slots for max_subslices in the eu_mask
-struct.
+smc_buf_create
+/* init */
+conn->sndbuf_desc = NULL;
+...
 
-Reported-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Fixes: bc3c5e0809ae ("drm/i915/sseu: Don't try to store EU mask internally in UAPI format")
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230220171858.131416-1-andrea.righi@canonical.com
-(cherry picked from commit 3cba09a6ac86ea1d456909626eb2685596c07822)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+			__smc_lgr_terminate
+				smc_conn_kill
+					smc_close_abort
+						smc_cdc_get_slot_and_msg_send
+
+			__softirqentry_text_start
+				smc_wr_tx_process_cqe
+					smc_cdc_tx_handler
+						READ(conn->sndbuf_desc->len);
+						/* panic dues to NULL sndbuf_desc */
+
+conn->sndbuf_desc = xxx;
+
+This patch tries to fix the issue by always to check the sndbuf_desc
+before send any cdc msg, to make sure that no null pointer is
+seen during cqe processing.
+
+Fixes: 0b29ec643613 ("net/smc: immediate termination for SMCR link groups")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Link: https://lore.kernel.org/r/1678263432-17329-1-git-send-email-alibuda@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_sseu.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/smc_cdc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_sseu.h b/drivers/gpu/drm/i915/gt/intel_sseu.h
-index aa87d3832d60d..d7e8c374f153e 100644
---- a/drivers/gpu/drm/i915/gt/intel_sseu.h
-+++ b/drivers/gpu/drm/i915/gt/intel_sseu.h
-@@ -27,7 +27,7 @@ struct drm_printer;
-  * is only relevant to pre-Xe_HP platforms (Xe_HP and beyond use the
-  * I915_MAX_SS_FUSE_BITS value below).
-  */
--#define GEN_MAX_SS_PER_HSW_SLICE	6
-+#define GEN_MAX_SS_PER_HSW_SLICE	8
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 53f63bfbaf5f9..89105e95b4523 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -114,6 +114,9 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+ 	union smc_host_cursor cfed;
+ 	int rc;
  
- /*
-  * Maximum number of 32-bit registers used by hardware to express the
++	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
++		return -ENOBUFS;
++
+ 	smc_cdc_add_pending_send(conn, pend);
+ 
+ 	conn->tx_cdc_seq++;
 -- 
 2.39.2
 
