@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C099B6C1936
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9DC6C1694
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232881AbjCTPbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54508 "EHLO
+        id S231897AbjCTPHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232744AbjCTPbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E43399DA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:57 -0700 (PDT)
+        with ESMTP id S232226AbjCTPHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2580A2FCCA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84132B80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE88C433D2;
-        Mon, 20 Mar 2023 15:23:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F0C61573
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15987C4339B;
+        Mon, 20 Mar 2023 15:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325833;
-        bh=N7eoYudBbjL6k7958QC2rfm95vzjkqFZEI3efbhH/C8=;
+        s=korg; t=1679324563;
+        bh=lCLsMt3NL3qouQq0xW8PNLryrGaViEFM5EBTwI63YHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgDvz31LkSo0KfLHAyDNEsq6jROHbbIROAlDWusv+K5qXNsE5+RU5cgJ32kaA2g8D
-         QZOx9HNjknUB+unN3swLqwFK12n27a0bAP6HrfQEGBVXt3nDVQ6IVHOhpbc3otkkWo
-         paHOEBQssjxssh2xHRvgIiq10hZv4VnQI+DBST0A=
+        b=zjgigRgHd3iS3pgTReN9i9Z/89Gsbb2CVY9hmXK9eQCW2/NCVWWFYmedgY0QOVWiB
+         6PrN3eUan/zEpzEk9u9wSEo4dP1HniFy4flEM/4UBYzvQypKwy4Hf9BXUXIsSlwXbS
+         loXj9dOAxfkrtUZ2wQREghWRtY5YHYTYeWwCGgjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Gongjun Song <gongjun.song@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 150/198] ALSA: hda: intel-dsp-config: add MTL PCI id
+        patches@lists.linux.dev, David Gow <davidgow@google.com>,
+        =?UTF-8?q?Sergio=20Gonz=C3=A1lez=20Collado?= 
+        <sergio.collado@gmail.com>, Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 39/60] rust: arch/um: Disable FP/SIMD instruction to match x86
 Date:   Mon, 20 Mar 2023 15:54:48 +0100
-Message-Id: <20230320145513.832945683@linuxfoundation.org>
+Message-Id: <20230320145432.558574402@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: David Gow <davidgow@google.com>
 
-commit bbdf904b13a62bb8b1272d92a7dde082dff86fbb upstream.
+[ Upstream commit 8849818679478933dd1d9718741f4daa3f4e8b86 ]
 
-Use SOF as default audio driver.
+The kernel disables all SSE and similar FP/SIMD instructions on
+x86-based architectures (partly because we shouldn't be using floats in
+the kernel, and partly to avoid the need for stack alignment, see:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53383 )
 
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Gongjun Song <gongjun.song@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230306074101.3906707-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+UML does not do the same thing, which isn't in itself a problem, but
+does add to the list of differences between UML and "normal" x86 builds.
+
+In addition, there was a crash bug with LLVM < 15 / rustc < 1.65 when
+building with SSE, so disabling it fixes rust builds with earlier
+compiler versions, see:
+https://github.com/Rust-for-Linux/linux/pull/881
+
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Sergio González Collado <sergio.collado@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-dsp-config.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/x86/Makefile.um | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/sound/hda/intel-dsp-config.c
-+++ b/sound/hda/intel-dsp-config.c
-@@ -472,6 +472,15 @@ static const struct config_entry config_
- 	},
- #endif
+diff --git a/arch/x86/Makefile.um b/arch/x86/Makefile.um
+index 1db7913795f51..e51c53d10efe7 100644
+--- a/arch/x86/Makefile.um
++++ b/arch/x86/Makefile.um
+@@ -1,6 +1,12 @@
+ # SPDX-License-Identifier: GPL-2.0
+ core-y += arch/x86/crypto/
  
-+/* Meteor Lake */
-+#if IS_ENABLED(CONFIG_SND_SOC_SOF_METEORLAKE)
-+	/* Meteorlake-P */
-+	{
-+		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
-+		.device = 0x7e28,
-+	},
-+#endif
++#
++# Disable SSE and other FP/SIMD instructions to match normal x86
++#
++KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
++KBUILD_RUSTFLAGS += -Ctarget-feature=-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2
 +
- };
+ ifeq ($(CONFIG_X86_32),y)
+ START := 0x8048000
  
- static const struct config_entry *snd_intel_dsp_find_config
+-- 
+2.39.2
+
 
 
