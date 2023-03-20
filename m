@@ -2,105 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6456C131C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 14:19:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99AC86C1324
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 14:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231802AbjCTNTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 09:19:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43484 "EHLO
+        id S229611AbjCTNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 09:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231784AbjCTNTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 09:19:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B349241D5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 06:19:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB26A614C3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 13:19:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48E26C433EF;
-        Mon, 20 Mar 2023 13:18:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679318341;
-        bh=fUhDyZHeBOcSwPnfZyfTu4hHOdwBeWOtcvESWQvwi/o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwqD1Ph4rkX6rrIQGT9vQu5nhRh1dRMi73Vccu6thbWqJOjS2u1ECK7IAJ5FpglDL
-         1OeIEjLEJXwK+Gj2P1/o2ZaQw1FH1hmrH7liwQ/+qB5/0z9evf9LrZGJBQThoq+tw/
-         KdP3A/hDvxUb1hIdzVMAVmHzodYRrr1VafOQOTAWqNeiSLQ4dMzolhxKJZlUjimiCd
-         fosR8QMY2z0i+zhQySQMU+XwkV+84ndniUY8bREARh5toTvDsawbUaGXyRSJ5wY+j7
-         ya8p0Yf15IwvL7ACCFHpwWOlX5Jw5IZfHJuAYuPpek1Q+drgH9xvmF0VUHXpeCnB80
-         mOdZXHCqtFTag==
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-arm-kernel@lists.infradead.org, linux@armlinux.org.uk
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
-Subject: [PATCH v4 04/12] ARM: entry: Fix iWMMXT TIF flag handling
-Date:   Mon, 20 Mar 2023 14:18:37 +0100
-Message-Id: <20230320131845.3138015-5-ardb@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230320131845.3138015-1-ardb@kernel.org>
-References: <20230320131845.3138015-1-ardb@kernel.org>
+        with ESMTP id S229639AbjCTNVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 09:21:14 -0400
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44F11702
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 06:21:12 -0700 (PDT)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230320132108euoutp01cfbb926dcc5137c71a283782677ac425~OIz-gFlyo0994909949euoutp01N
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 13:21:08 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230320132108euoutp01cfbb926dcc5137c71a283782677ac425~OIz-gFlyo0994909949euoutp01N
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1679318468;
+        bh=sbyqXqoXRMYqXTD1u3Ab+qOj/IRXNylcus7hLq1x6/U=;
+        h=Date:Subject:To:CC:From:In-Reply-To:References:From;
+        b=VkkHZADaiFdB+J+/RrZs5F+YQA7Wd/8KLY0uKBnW1TJhyaszNxERNnI99zKxhkjpi
+         3ToeJaCf0ptArWhK2m3A8EQqTkyJ5GxVcJTd2nAE0FrW2YYp/9uyl5H+o9qlT1xUF0
+         JzvacfiJZaYreJd4F1YC0uIYdm/XDSVOqNcbd1MU=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20230320132108eucas1p2ebbe60c573a2b3aa2888a9da3b00a1a0~OIz-R5StE2025020250eucas1p2E;
+        Mon, 20 Mar 2023 13:21:08 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+        eusmges3new.samsung.com (EUCPMTA) with SMTP id 07.C7.10014.3CD58146; Mon, 20
+        Mar 2023 13:21:07 +0000 (GMT)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20230320132107eucas1p17f65ea0f0521391071fbf7d6fd0a093e~OIz_5a2qs0977709777eucas1p1J;
+        Mon, 20 Mar 2023 13:21:07 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20230320132107eusmtrp17ceec616cbfca188ba42365a81298c02~OIz_4qMJ10784907849eusmtrp1n;
+        Mon, 20 Mar 2023 13:21:07 +0000 (GMT)
+X-AuditID: cbfec7f5-b8bff7000000271e-e2-64185dc36e38
+Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
+        eusmgms2.samsung.com (EUCPMTA) with SMTP id 28.9E.09583.3CD58146; Mon, 20
+        Mar 2023 13:21:07 +0000 (GMT)
+Received: from CAMSVWEXC01.scsc.local (unknown [106.1.227.71]) by
+        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20230320132107eusmtip2cf04c08eb20679c99ca1090804974bf4~OIz_qy3Xb0452204522eusmtip2S;
+        Mon, 20 Mar 2023 13:21:07 +0000 (GMT)
+Received: from [106.110.32.251] (106.110.32.251) by CAMSVWEXC01.scsc.local
+        (2002:6a01:e347::6a01:e347) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+        Mon, 20 Mar 2023 13:21:03 +0000
+Message-ID: <160812bc-20b7-84f4-62e5-5ef4bc624c68@samsung.com>
+Date:   Mon, 20 Mar 2023 14:21:03 +0100
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1993; i=ardb@kernel.org; h=from:subject; bh=fUhDyZHeBOcSwPnfZyfTu4hHOdwBeWOtcvESWQvwi/o=; b=owGbwMvMwCFmkMcZplerG8N4Wi2JIUUiVvN8tNzp6vicP0G/r6z68jNt3w2vCTOk34XF5l2I9 5DysNLoKGVhEONgkBVTZBGY/ffdztMTpWqdZ8nCzGFlAhnCwMUpABMp4mL4H7Ld8NTUzsoFOxI6 qkIm5Cw90xq8vFZa61cyo9DtD5V76xn+KcTrrjMUeM2595d1Yqf4bZv363Z3ebLb7PLnX2Azfe8 dDgA=
-X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+        Thunderbird/102.8.0
+Subject: Re: [PATCH 1/1] nvme-pci: add NVME_QUIRK_BOGUS_NID for Samsung
+ PM173X
+Content-Language: en-US
+To:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+CC:     Christoph Hellwig <hch@lst.de>,
+        "# v4 . 16+" <stable@vger.kernel.org>,
+        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "javier.gonz@samsung.com" <javier.gonz@samsung.com>,
+        "k.jensen@samsung.com" <k.jensen@samsung.com>,
+        "jh.i.park@samsung.com" <jh.i.park@samsung.com>
+From:   Pankaj Raghav <p.raghav@samsung.com>
+In-Reply-To: <3B7AB643-C87C-4C19-A47A-C15565750243@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Originating-IP: [106.110.32.251]
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+        CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347)
+X-Brightmail-Tracker: H4sIAAAAAAAAA01SaUwTYRDl6y7tFi0uV5iAiilqAgaEKLURbRBFGxMTMGoEIVLpCihU7XJ5
+        I/WIxQgCiVKVgnLJfVoQlaQgKBi8otJKAYV64QFB4g2yLhr+vXnz3nzzJh+B2ZZaOhHRijhK
+        qZDFCLlW+PW2710erWEg9zL7iSdutnHF10rvcMQZ+mdI/OTGJa5YW2jmiQuK2jBxxdBnXJxb
+        /Qr5EdJzqk886YPealxaU3KaK63NPyptMiRzpSNmIy4drZkbyAuxWiGnYqITKOViSbhVVOtV
+        2HuCTHr3q4qXjAZnqhGfAHIpNGRpcTWyImzJYgT1rzqmii8I8l60YmwximDw9Tj+z5IyXIXY
+        RhEC9VAq/l+l6TFw2aIJgaG/1pKxCEgJNJY9ncQEgZMLIE23maVt4F72IM7QDmQIvB1KYGg7
+        MhAuGE0YgzHSEYyDWg6D7cnl8OZu39/xGNmBQXNmMmK8XNIdjp3mMRr+5Eta01fEet3ghO4n
+        j8UuoKq/iLEBhHDzUQ5i8WEob7vPY2YCeZ4PXY8vTYnWgKniA4/FdvC+vW4Kz4bOzDNTlzgI
+        5u6fGGs+jiCtsZLLLASkL5y9H8NqVoG5cRhnaWvo/mjD7mMNGdfPY+logWbaJTTTImumRdBM
+        i5CL8BLkSMXTsZEUvURBJXrSslg6XhHpGbEntgZN/qfO8faxBlT8fsRTjzgE0iMgMKG9YC0G
+        cluBXLb/AKXcs10ZH0PReuRM4EJHwaKV9yJsyUhZHLWbovZSyn9dDsF3Sub4OytCL1suC8vi
+        o3KlM25THd1eWBZ25sdqr6YUcmEL1fBRmXNlXUvzgLHOqy4F1/bfyn7SR9SuGygoc4WEw6KT
+        sx7PfljZq7rQnxY0Txvst7Gcltm4jM050hnkoEv/YTjVKzFaSpcPNIruWETJ7y5a7LM7vzYg
+        2Dt1/4qQzs3qqg4so1QTYB3Y40EfKhrNzqkY19OxQiO1r0W+S5cX0TVxysJ1ieRFto8qKfTZ
+        1pQjo4b0IFPU/DhBuPd6jcjhduTz4KVzLRIrNzWPze8hieGIhz3+ut/hKlHSjDRfkf3Tr9vM
+        6g23vo24jbw8V7/Tzy2xb8dxU2YdHbBF4lqfGZogxOkombc7pqRlfwAMsTG9vgMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrIIsWRmVeSWpSXmKPExsVy+t/xe7qHYyVSDM7tkLf4v+cYm8XK1UeZ
+        LCYdusZocXnXHDaL+cueslssXX6M2WLd6/csFgs2PmJ04PCY2PyO3eP8vY0sHptWdbJ5bF5S
+        77H7ZgObx8ent1g8Pm+SC2CP0rMpyi8tSVXIyC8usVWKNrQw0jO0tNAzMrHUMzQ2j7UyMlXS
+        t7NJSc3JLEst0rdL0Ms4sliioFWg4uWfDewNjE94uhg5OSQETCSaPmxg7GLk4hASWMoosbFr
+        KxNEQkbi05WP7BC2sMSfa11sEEUfGSVaXp5hBkkICexmlJj1xR7E5hWwk9i55iprFyMHB4uA
+        qkT/9lCIsKDEyZlPWEBsUYEoiad3DoG1Cgv4SbT0NDOC2MwC4hK3nswH2ysiYCXx/MR9sF3M
+        AqeYJfZPboC67hyTxIc39xlBFrAJaEk0doIdxwm0d/7d71CDNCVat/9mh7DlJZq3zmaGeEBJ
+        Ys/FeYwQdq3Eq/u7GScwis5Cct8sJHfMQjJqFpJRCxhZVjGKpJYW56bnFhvpFSfmFpfmpesl
+        5+duYgTG9bZjP7fsYFz56qPeIUYmDsZDjBIczEoivG7MEilCvCmJlVWpRfnxRaU5qcWHGE2B
+        YTSRWUo0OR+YWPJK4g3NDEwNTcwsDUwtzYyVxHk9CzoShQTSE0tSs1NTC1KLYPqYODilGph2
+        VDJyShTdvRn4/aWI0eSKhScmySe52vqzJyuqnzxZVdg71YPrwqN54ZsYM+67pNo9rb7Wl9Qn
+        nv145ptA1l5Lozc8lxYXL1c8fGVGuJTWNfX1hz67flzG75hoXWhTzcWwskDVRzTS7Cjn+RWM
+        T1YW9aXefLTt/dn7c2S7eT/Wm7GJqO4MVdkc7cjMY9354QOTpZfg5ZTw/xL23reuf67KDU34
+        /Uhn8o+y7p/vTPq3/GowWDnDeMrDyQx7dxrPzJmlPEP28rsOm8P7Dh2f8eCLqMLRe+rG/l5l
+        6h5Hbust881OWcVZ5LO3+6eO5aNqwTN8qxvm2G9Ldrmyqma9ecC+sIb3Rf/3cRn0zZjxYo0S
+        S3FGoqEWc1FxIgB2BdwZdAMAAA==
+X-CMS-MailID: 20230320132107eucas1p17f65ea0f0521391071fbf7d6fd0a093e
+X-Msg-Generator: CA
+X-RootMTR: 20230317111849eucas1p115741dc29cc0a5c57914e60aa5216288
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20230317111849eucas1p115741dc29cc0a5c57914e60aa5216288
+References: <20230315223436.2857712-1-saeed.mirzamohammadi@oracle.com>
+        <20230316051508.GA8520@lst.de>
+        <930CF361-37C2-4625-B5FA-245248544F92@oracle.com>
+        <CGME20230317111849eucas1p115741dc29cc0a5c57914e60aa5216288@eucas1p1.samsung.com>
+        <20230317111031.lygazqsaeekpdegd@blixen>
+        <3B7AB643-C87C-4C19-A47A-C15565750243@oracle.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The conditional MOVS instruction that appears to have been added to test
-for the TIF_USING_IWMMXT thread_info flag only sets the N and Z
-condition flags and register R7, none of which are referenced in the
-subsequent code. This means that the instruction does nothing, which
-means that we might misidentify faulting FPE instructions as iWMMXT
-instructions on kernels that were built to support both.
+On 2023-03-17 17:26, Saeed Mirzamohammadi wrote:
+>> Hi Saeed,
+>> On Thu, Mar 16, 2023 at 09:31:38PM +0000, Saeed Mirzamohammadi wrote:
+>>> eui64 values are not unique. Here is an example:
+>>> namespace1
+>>> nguid   : 36554630529000710025384500000001
+>>> eui64   : 002538191100104a
+>>> namespace2
+>>> nguid   : 36554630529000710025384500000002
+>>> eui64   : 002538191100104a
+>>> namespace3
+>>> nguid   : 36554630529000710025384500000003
+>>> eui64   : 002538191100104a
+>>> namespace4
+>>> nguid   : 36554630529000710025384500000004
+>>> eui64   : 002538191100104a
+>>>
+>>> I haven’t yet contacted Samsung. Do you recommend any one to reach out to?
+>>
+>> I am able to reproduce this error with a PM173X.
+>>
+>> nvme id-ns:
+>> root@missingno:~# nvme id-ns -n 1 /dev/nvme1 | grep eui64
+>> eui64   : 00253891010005b3
+>> root@missingno:~# nvme id-ns -n 2 /dev/nvme1 | grep eui64
+>> eui64   : 00253891010005b3
+>> root@missingno:~# nvme id-ns -n 3 /dev/nvme1 | grep eui64
+>> eui64   : 00253891010005b3
+>>
+>> dmesg:
+>> [174690.305507] nvme nvme1: identifiers changed for nsid 1
+>> [174878.481002] nvme nvme1: rescanning namespaces.
+>> [174878.535981] nvme nvme1: duplicate IDs in subsystem for nsid 2
+>> [174878.599982] nvme nvme1: duplicate IDs in subsystem for nsid 2
+>> [174883.673001] nvme nvme1: rescanning namespaces.
+>> [174883.740045] nvme nvme1: duplicate IDs in subsystem for nsid 2
+>> [174883.784025] nvme nvme1: duplicate IDs in subsystem for nsid 3
+>> [174883.852034] nvme nvme1: duplicate IDs in subsystem for nsid 2
+>> [174883.892040] nvme nvme1: duplicate IDs in subsystem for nsid 3
+>>
+>> I will report this to our firmware team. Meanwhile, Could you paste your
+>> output id-ctrl output here? I am interested in the fw version you are using.
+> 
+> NVME Identify Controller:
+> vid       : 0x144d
+> ssvid     : 0x108e
+> sn        : S64VNE0R602271
+> mn        : SAMSUNG MZWLR3T8HBLS-00AU3
+> fr        : MPK94R5Q
 
-This seems to have been part of the original submission of the code, and
-so this has never worked as intended, and nobody ever noticed, and so we
-might decide to just leave this as-is. However, with the ongoing move
-towards multiplatform kernels, the issue becomes more likely to
-manifest, and so it is better to fix it.
+We have reported this error to our firmware team. I will keep you posted.
 
-So check whether we are dealing with an undef exception regarding
-coprocessor index #0 or #1, and if so, load the thread_info flag and
-only dispatch it as a iWMMXT trap if the flag is set.
-
-Cc: <stable@vger.kernel.org> # v2.6.9+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- arch/arm/kernel/entry-armv.S | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index c39303e5c23470e6..c5d2f07994fb0d87 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -606,10 +606,11 @@ call_fpe:
- 	strb	r7, [r6, #TI_USED_CP]		@ set appropriate used_cp[]
- #ifdef CONFIG_IWMMXT
- 	@ Test if we need to give access to iWMMXt coprocessors
--	ldr	r5, [r10, #TI_FLAGS]
--	rsbs	r7, r8, #(1 << 8)		@ CP 0 or 1 only
--	movscs	r7, r5, lsr #(TIF_USING_IWMMXT + 1)
--	bcs	iwmmxt_task_enable
-+	tst	r8, #0xe << 8			@ CP 0 or 1?
-+	ldreq	r5, [r10, #TI_FLAGS]		@ if so, load thread_info flags
-+	andeq	r5, r5, #1 << TIF_USING_IWMMXT	@ isolate TIF_USING_IWMMXT flag
-+	teqeq	r5, #1 << TIF_USING_IWMMXT	@ check whether it is set
-+	beq	iwmmxt_task_enable		@ branch if set
- #endif
-  ARM(	add	pc, pc, r8, lsr #6	)
-  THUMB(	lsr	r8, r8, #6		)
--- 
-2.39.2
-
+--
+Pankaj
