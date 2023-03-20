@@ -2,171 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5B36C1105
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 12:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3286C1120
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 12:47:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbjCTLlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 07:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50040 "EHLO
+        id S230336AbjCTLrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 07:47:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229794AbjCTLla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 07:41:30 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B323C18A99
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 04:41:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679312488; x=1710848488;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=mn+7W3rAAKTJhHIl3EXQW8ChJzfqiTzQaFfu8mK5H8s=;
-  b=F02F96pm25KGveWp6sPHHJMwkijM/1DPZirwGdCgyGeA3yd132+0xPNu
-   tk1lpF65d0c4qsZyA7deC9y7UO/pb7vgjP+VWyYrqf7WmSheI2NkuyWfX
-   gxWJy5+rs5h7dZ0IhDfUDwx0WPciLSQ4/7HqPOzFg4cHDZaWkAn5OcI4Z
-   33slZjF66N+COK7DhC7rUPCjYiruUQkC7QrUij/f4e8QjgKP1g36XGPCJ
-   D/4CUgFiiO9s+4+jktR3TNTPYDlhmIPl00gX4eQFYuG5Bef1lceJ33cSA
-   /TUx0SlEKHsJNPluqxDMLSVVOnsbkZi82NuNxesk1uGw/xZo5KSjZDg2C
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10654"; a="401211704"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="401211704"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 04:41:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10654"; a="1010440526"
-X-IronPort-AV: E=Sophos;i="5.98,274,1673942400"; 
-   d="scan'208";a="1010440526"
-Received: from pkotynia-desk.ger.corp.intel.com (HELO jkrzyszt-mobl1.ger.corp.intel.com) ([10.213.5.235])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2023 04:41:26 -0700
-From:   Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Subject: [PATCH 5.10.y] drm/i915/active: Fix misuse of non-idle barriers as fence trackers
-Date:   Mon, 20 Mar 2023 12:40:44 +0100
-Message-Id: <20230320114044.168634-1-janusz.krzysztofik@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <167930744720516@kroah.com>
-References: <167930744720516@kroah.com>
+        with ESMTP id S229527AbjCTLrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 07:47:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CC32200D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 04:47:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3A740CE1271
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 11:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DFEC433D2;
+        Mon, 20 Mar 2023 11:47:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1679312848;
+        bh=WSsdG+aCRWEdaTpKmbDAnnaxgR2VZMIEWKsynM8+qhA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wP+zJsb1pejyBbriodObmJdprgPPQw9hZwt8vn2ZlPE7IrzT4BUTxst5r4Smn8J4j
+         JUSQinLWYXby3/bgqYpivuhBVb/ut54JO5KJ1QIRl+Q2u5T/JIAh8kVF2fPzQRBnEX
+         lEpS7yIcaykVjfHyZQTQsB+WcidSAZQjcF8GyOXE=
+Date:   Mon, 20 Mar 2023 12:47:25 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
+Cc:     christophe.leroy@csgroup.eu, mpe@ellerman.id.au,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] powerpc/boot: Don't always pass
+ -mcpu=powerpc when building" failed to apply to 6.1-stable tree
+Message-ID: <ZBhHzXH9hgRnTlOd@kroah.com>
+References: <1678953691202116@kroah.com>
+ <20230317172157.ces5ikgyj3rt2vne@pali>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230317172157.ces5ikgyj3rt2vne@pali>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Users reported oopses on list corruptions when using i915 perf with a
-number of concurrently running graphics applications.  Root cause analysis
-pointed at an issue in barrier processing code -- a race among perf open /
-close replacing active barriers with perf requests on kernel context and
-concurrent barrier preallocate / acquire operations performed during user
-context first pin / last unpin.
+On Fri, Mar 17, 2023 at 06:21:57PM +0100, Pali Rohár wrote:
+> On Thursday 16 March 2023 09:01:31 gregkh@linuxfoundation.org wrote:
+> > The patch below does not apply to the 6.1-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > To reproduce the conflict and resubmit, you may use the following commands:
+> > 
+> > git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+> > git checkout FETCH_HEAD
+> > git cherry-pick -x ff7c76f66d8bad4e694c264c789249e1d3a8205d
+> 
+> It applies cleanly for me with above steps.
+> 
+> > # <resolve conflicts, build, test, etc.>
+> > git commit -s
+> > git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678953691202116@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+> > 
+> > Possible dependencies:
+> > 
+> > ff7c76f66d8b ("powerpc/boot: Don't always pass -mcpu=powerpc when building 32-bit uImage")
+> 
+> Probably you are missing fix for CONFIG_TARGET_CPU_BOOL as mentioned
+> previously. Commit is:
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=45f7091aac3546ef8112bf62836650ca0bbf0b79
 
-When adding a request to a composite tracker, we try to reuse an existing
-fence tracker, already allocated and registered with that composite.  The
-tracker we obtain may already track another fence, may be an idle barrier,
-or an active barrier.
+Ok, will try that out now, thanks!
 
-If the tracker we get occurs a non-idle barrier then we try to delete that
-barrier from a list of barrier tasks it belongs to.  However, while doing
-that we don't respect return value from a function that performs the
-barrier deletion.  Should the deletion ever fail, we would end up reusing
-the tracker still registered as a barrier task.  Since the same structure
-field is reused with both fence callback lists and barrier tasks list,
-list corruptions would likely occur.
-
-Barriers are now deleted from a barrier tasks list by temporarily removing
-the list content, traversing that content with skip over the node to be
-deleted, then populating the list back with the modified content.  Should
-that intentionally racy concurrent deletion attempts be not serialized,
-one or more of those may fail because of the list being temporary empty.
-
-Related code that ignores the results of barrier deletion was initially
-introduced in v5.4 by commit d8af05ff38ae ("drm/i915: Allow sharing the
-idle-barrier from other kernel requests").  However, all users of the
-barrier deletion routine were apparently serialized at that time, then the
-issue didn't exhibit itself.  Results of git bisect with help of a newly
-developed igt@gem_barrier_race@remote-request IGT test indicate that list
-corruptions might start to appear after commit 311770173fac ("drm/i915/gt:
-Schedule request retirement when timeline idles"), introduced in v5.5.
-
-Respect results of barrier deletion attempts -- mark the barrier as idle
-only if successfully deleted from the list.  Then, before proceeding with
-setting our fence as the one currently tracked, make sure that the tracker
-we've got is not a non-idle barrier.  If that check fails then don't use
-that tracker but go back and try to acquire a new, usable one.
-
-v3: use unlikely() to document what outcome we expect (Andi),
-  - fix bad grammar in commit description.
-v2: no code changes,
-  - blame commit 311770173fac ("drm/i915/gt: Schedule request retirement
-    when timeline idles"), v5.5, not commit d8af05ff38ae ("drm/i915: Allow
-    sharing the idle-barrier from other kernel requests"), v5.4,
-  - reword commit description.
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6333
-Fixes: 311770173fac ("drm/i915/gt: Schedule request retirement when timeline idles")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org # v5.5
-Cc: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230302120820.48740-1-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit 506006055769b10d1b2b4e22f636f3b45e0e9fc7)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit e0e6b416b25ee14716f3549e0cbec1011b193809)
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
----
- drivers/gpu/drm/i915/i915_active.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
-index c4c2d24dc5094..0532a5069c04b 100644
---- a/drivers/gpu/drm/i915/i915_active.c
-+++ b/drivers/gpu/drm/i915/i915_active.c
-@@ -432,8 +432,7 @@ replace_barrier(struct i915_active *ref, struct i915_active_fence *active)
- 	 * we can use it to substitute for the pending idle-barrer
- 	 * request that we want to emit on the kernel_context.
- 	 */
--	__active_del_barrier(ref, node_from_active(active));
--	return true;
-+	return __active_del_barrier(ref, node_from_active(active));
- }
- 
- int i915_active_ref(struct i915_active *ref, u64 idx, struct dma_fence *fence)
-@@ -446,16 +445,19 @@ int i915_active_ref(struct i915_active *ref, u64 idx, struct dma_fence *fence)
- 	if (err)
- 		return err;
- 
--	active = active_instance(ref, idx);
--	if (!active) {
--		err = -ENOMEM;
--		goto out;
--	}
-+	do {
-+		active = active_instance(ref, idx);
-+		if (!active) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+
-+		if (replace_barrier(ref, active)) {
-+			RCU_INIT_POINTER(active->fence, NULL);
-+			atomic_dec(&ref->count);
-+		}
-+	} while (unlikely(is_barrier(active)));
- 
--	if (replace_barrier(ref, active)) {
--		RCU_INIT_POINTER(active->fence, NULL);
--		atomic_dec(&ref->count);
--	}
- 	if (!__i915_active_fence_set(active, fence))
- 		__i915_active_acquire(ref);
- 
--- 
-2.25.1
-
+greg k-h
