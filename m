@@ -2,139 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0C86C2134
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 20:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37AB76C2167
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 20:30:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229657AbjCTTUT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 15:20:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53312 "EHLO
+        id S230368AbjCTTaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 15:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231560AbjCTTTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 15:19:42 -0400
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06F84EF9;
-        Mon, 20 Mar 2023 12:11:57 -0700 (PDT)
-Received: by mail-qt1-f170.google.com with SMTP id t19so354498qta.12;
-        Mon, 20 Mar 2023 12:11:57 -0700 (PDT)
+        with ESMTP id S231566AbjCTT35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 15:29:57 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865BF26876;
+        Mon, 20 Mar 2023 12:22:21 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id fb38so2714790pfb.7;
+        Mon, 20 Mar 2023 12:22:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679340139;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=F8cZ/SgykcdtJDq1l5H8ozbgaiP6IPGwDuK89HEBuAk=;
+        b=HAcPE40eOcxoCHrG43mfdwoOS2+q86L2j2Vr+h9AjRsyG50heeF4biSrz69k1wt07W
+         QOFBXsskIOaqgReA4piu1x+FPZWh2I3waH+jyNFlLWJAQzNBYtAW2CJWiOJoeDqvHO8G
+         BMxeLhOBHd6YjCDpKNmaZMH3v379debzozB5rUx8vvdPsZrvJCvTnfQgygowa1loCnpx
+         fzEiiDHwb9xJOYkPZzzfsQ9CAZ8rMe5AB8ccgD5suy3HqtEs0kPBCJINMqhUG3UgdoW2
+         ezowJByU4NU1Xn/NYFcn5n9LO6uOsiAMPn82CXxtIAn8Hf89W1td9e2ljrdefBQBZhh1
+         lSlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679339516;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=32XMWaYeoPpvuSP4SJ2y+jdAZEcgNNcwFIl8GOW4Yfc=;
-        b=o3qIN2/LnO4ED23wjTMEUrjH699iEJ//+/jSREdD7Cuv9fQeXnRaexFGeDm8cF/PqI
-         cxI+ZhpZCnAtcscmFCVRyCUbCzAStPyR69Dvfop4uwN9DezgV84bKLB2G8R0DEJXDt7a
-         lhKKahXjSGkhaIQJF/thSal0clOE1u226furEQijuGKvoyxfw64sekiglP2JLlYTqk0l
-         kNWiNjNot4P8VOWPylzlPMRRbsvW2FUbr31O3R927O0XOdkabv1zt3hsdgbVTllFv4QX
-         dPwOrujKrDnLHmpnnErMnuPjnlpx8v/zY4oE67flQdM+jZx4Dcnivz95C7BiUTdE3tHI
-         vp1g==
-X-Gm-Message-State: AO0yUKUWSl6xVYsQbh1il4e4NC/bc4StrS0WzXhIW9VWiEcuWACJIdAa
-        8t7X1m9vRQbQqMwBV6qysiQHB4PRQTTD5g==
-X-Google-Smtp-Source: AK7set/lzaN1t3KTUVZkEumSDbdmOHX5pEo8NAJQP1oIh0/XbnlYc0mKuLl4/fvcWAm42fACvEG+lQ==
-X-Received: by 2002:a05:622a:54e:b0:3bf:d9f3:debe with SMTP id m14-20020a05622a054e00b003bfd9f3debemr289534qtx.59.1679339516454;
-        Mon, 20 Mar 2023 12:11:56 -0700 (PDT)
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com. [209.85.219.179])
-        by smtp.gmail.com with ESMTPSA id c7-20020ac86e87000000b003e1ff058350sm2007985qtv.63.2023.03.20.12.11.55
+        d=1e100.net; s=20210112; t=1679340139;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=F8cZ/SgykcdtJDq1l5H8ozbgaiP6IPGwDuK89HEBuAk=;
+        b=rTHe01I9nVHE3cWrxTvla+a1/w0B+rD60HwTRw7jytobRGG7zVhpC/5aWKkUMQHrB8
+         qhBNNqYBOOEkukt1Kv9SSKeJv6i60VkJIteIPCf5mEucneh3/2dbPhUCnbjHai77jFeX
+         hqhzHY0AEKTb9MvdqdkhW1grtc5H6YXgGZKl9o4kPlCJI02bxu0yxkdXBU4/U4/Ke95d
+         zZkVcNmMTSffuMB2mk1VQcDiqyVcsIFLN7OnpRhWNb1N3743Twc0msj2u8oCadEtRYZ8
+         pevxghB4kRMEO9u8XSHBRKGU6wyBZX3Rk0Q2oA/9NI0/SWy7V9UHe01Y4+cLe482h86b
+         7l4w==
+X-Gm-Message-State: AO0yUKUSjQ6qqShyzv6oDaF5SMDEcS+p9qycxhEFyDapASZwflFfh2Gu
+        xRCUMS6IX5sz6ChEZGWp7jY=
+X-Google-Smtp-Source: AK7set/XVroZFVsiNRScnNn2KeEgRBnORCoFN2FALRhzbT0x+SdhdWP3ZrQNierHE7ZBHgGpMqugDA==
+X-Received: by 2002:aa7:97ba:0:b0:623:cc95:e517 with SMTP id d26-20020aa797ba000000b00623cc95e517mr16252546pfq.17.1679340139327;
+        Mon, 20 Mar 2023 12:22:19 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id h4-20020a62b404000000b005a8bfe3b241sm6646418pfn.167.2023.03.20.12.22.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Mar 2023 12:11:55 -0700 (PDT)
-Received: by mail-yb1-f179.google.com with SMTP id e71so14500150ybc.0;
-        Mon, 20 Mar 2023 12:11:55 -0700 (PDT)
-X-Received: by 2002:a25:5b84:0:b0:b67:d295:d614 with SMTP id
- p126-20020a255b84000000b00b67d295d614mr201995ybb.12.1679339514703; Mon, 20
- Mar 2023 12:11:54 -0700 (PDT)
+        Mon, 20 Mar 2023 12:22:18 -0700 (PDT)
+Message-ID: <961d41bf-94d5-c689-e9dd-105d212bad8a@gmail.com>
+Date:   Mon, 20 Mar 2023 12:22:09 -0700
 MIME-Version: 1.0
-References: <20230320105339.236279-1-biju.das.jz@bp.renesas.com> <20230320105339.236279-3-biju.das.jz@bp.renesas.com>
-In-Reply-To: <20230320105339.236279-3-biju.das.jz@bp.renesas.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 20 Mar 2023 20:11:43 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdW2gxDzYbP_0Z90o8mHdUm_BV6e+gMHpELJx_g=ezAbdw@mail.gmail.com>
-Message-ID: <CAMuHMdW2gxDzYbP_0Z90o8mHdUm_BV6e+gMHpELJx_g=ezAbdw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/5] tty: serial: sh-sci: Fix Rx on RZ/G2L SCI
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        linux-serial@vger.kernel.org,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH 5.10 00/99] 5.10.176-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230320145443.333824603@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Biju,
+On 3/20/23 07:53, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.176 release.
+> There are 99 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Mar 2023 14:54:22 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.176-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-On Mon, Mar 20, 2023 at 11:53 AM Biju Das <biju.das.jz@bp.renesas.com> wrote:
-> SCI IP on RZ/G2L alike SoCs do not need regshift compared to other SCI
-> IPs on the SH platform. Currently, it does regshift and configuring Rx
-> wrongly. Drop adding regshift for RZ/G2L alike SoCs.
->
-> Fixes: f9a2adcc9e90 ("arm64: dts: renesas: r9a07g044: Add SCI[0-1] nodes")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-> ---
-> v3:
->  * New patch.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-Thanks for your patch!
-
-> --- a/drivers/tty/serial/sh-sci.c
-> +++ b/drivers/tty/serial/sh-sci.c
-> @@ -158,6 +158,7 @@ struct sci_port {
->
->         bool has_rtscts;
->         bool autorts;
-> +       bool is_rz_sci;
->  };
->
->  #define SCI_NPORTS CONFIG_SERIAL_SH_SCI_NR_UARTS
-> @@ -2937,7 +2938,7 @@ static int sci_init_single(struct platform_device *dev,
->         port->flags             = UPF_FIXED_PORT | UPF_BOOT_AUTOCONF | p->flags;
->         port->fifosize          = sci_port->params->fifosize;
->
-> -       if (port->type == PORT_SCI) {
-> +       if (port->type == PORT_SCI && !sci_port->is_rz_sci) {
-
-Perhaps check for !dev->dev.of_node instead? Values of 1 or 2 for
-regshift are only needed for sh770x/sh7750/sh7760, which don't use
-DT yet.  When they are converted to DT, we can extend the driver to
-support the more-or-less standard "reg-shift" DT property.
-
->                 if (sci_port->reg_size >= 0x20)
->                         port->regshift = 2;
->                 else
-> @@ -3353,6 +3354,11 @@ static int sci_probe(struct platform_device *dev)
->         sp = &sci_ports[dev_id];
->         platform_set_drvdata(dev, sp);
->
-> +       if (of_device_is_compatible(dev->dev.of_node, "renesas,r9a07g043-sci") ||
-> +           of_device_is_compatible(dev->dev.of_node, "renesas,r9a07g044-sci") ||
-> +           of_device_is_compatible(dev->dev.of_node, "renesas,r9a07g054-sci"))
-
-Please, no of_device_is_compatible() checks in a driver that uses
-proper DT matching.
-
-> +               sp->is_rz_sci = 1;
-> +
->         ret = sci_probe_single(dev, dev_id, p, sp);
->         if (ret)
->                 return ret;
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Florian
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
