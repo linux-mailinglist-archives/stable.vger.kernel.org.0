@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3946C1714
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4B86C17B5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:16:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232133AbjCTPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34868 "EHLO
+        id S232562AbjCTPQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:16:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232360AbjCTPLS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA4930B2F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:19 -0700 (PDT)
+        with ESMTP id S232494AbjCTPQa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F7C22F049
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B13F4B80EC2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11526C433EF;
-        Mon, 20 Mar 2023 15:06:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 638D8614CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73CF5C433EF;
+        Mon, 20 Mar 2023 15:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324766;
-        bh=WoHtjj8OLiwyM8WH0skVJldRCid1d/QYTnhjXPDK7Dg=;
+        s=korg; t=1679325083;
+        bh=UhbWfDo4aa049H3Fc/KzDMnX6UzczZvujkPWPefrYfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ygb3AmxQk/UiKhDZbys71dlEAEbUPu/MolWm5behWbGWvysTAqvH6Ji71ZOcN4Be
-         jxWlXpzXgSLAS8WpfGVhSSbz+q91riRu+MMGFME2/z65W2Kd1xhekC1AiSnnBtmE8P
-         IM2C+AFC23DBHCAK7C4KdlQ3yS9opo6jaXffyjWk=
+        b=EJEGeuvEE9wrwwJXefoLLBN+8u/mj2pMT0P3R/5qUSVoBdPoIplwnUmE42R2m4PEn
+         Sid9K7U9FRyFPoQ/eQ94KlOmhtePD5MujlPubv4trF//FRXQZVlQS2rxFA4nZnfZWt
+         LOBbX72s5/LuY/GIZeHybksVqJiiO6aYjNxz8JAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 002/198] drm/virtio: Pass correct device to dma_sync_sgtable_for_device()
+Subject: [PATCH 6.2 005/211] fbdev: chipsfb: Fix error codes in chipsfb_pci_init()
 Date:   Mon, 20 Mar 2023 15:52:20 +0100
-Message-Id: <20230320145507.533360077@linuxfoundation.org>
+Message-Id: <20230320145513.524234003@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,54 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit a54bace095d00e9222161495649688bc43de4dde ]
+[ Upstream commit 77bc762451c2dc72bdbea07b857c916c9e7f4952 ]
 
-The "vdev->dev.parent" should be used instead of "vdev->dev" as a device
-for which to perform the DMA operation in both
-virtio_gpu_cmd_transfer_to_host_2d(3d).
+The error codes are not set on these error paths.
 
-Because the virtio-gpu device "vdev->dev" doesn't really have DMA OPS
-assigned to it, but parent (virtio-pci or virtio-mmio) device
-"vdev->dev.parent" has. The more, the sgtable in question the code is
-trying to sync here was mapped for the parent device (by using its DMA OPS)
-previously at:
-virtio_gpu_object_shmem_init()->drm_gem_shmem_get_pages_sgt()->
-dma_map_sgtable(), so should be synced here for the same parent device.
-
-Fixes: b5c9ed70d1a9 ("drm/virtio: Improve DMA API usage for shmem BOs")
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230224153450.526222-1-olekstysh@gmail.com
+Fixes: 145eed48de27 ("fbdev: Remove conflicting devices on PCI bus")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/Y/yG+sm2mhdJeTZW@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/chipsfb.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 9ff8660b50ade..208e9434cb28d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -597,7 +597,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
+index cc37ec3f8fc1f..7799d52a651f3 100644
+--- a/drivers/video/fbdev/chipsfb.c
++++ b/drivers/video/fbdev/chipsfb.c
+@@ -358,16 +358,21 @@ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
+ 	if (rc)
+ 		return rc;
  
- 	if (virtio_gpu_is_shmem(bo) && use_dma_api)
--		dma_sync_sgtable_for_device(&vgdev->vdev->dev,
-+		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
+-	if (pci_enable_device(dp) < 0) {
++	rc = pci_enable_device(dp);
++	if (rc < 0) {
+ 		dev_err(&dp->dev, "Cannot enable PCI device\n");
+ 		goto err_out;
+ 	}
  
- 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
-@@ -1019,7 +1019,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+-	if ((dp->resource[0].flags & IORESOURCE_MEM) == 0)
++	if ((dp->resource[0].flags & IORESOURCE_MEM) == 0) {
++		rc = -ENODEV;
+ 		goto err_disable;
++	}
+ 	addr = pci_resource_start(dp, 0);
+-	if (addr == 0)
++	if (addr == 0) {
++		rc = -ENODEV;
+ 		goto err_disable;
++	}
  
- 	if (virtio_gpu_is_shmem(bo) && use_dma_api)
--		dma_sync_sgtable_for_device(&vgdev->vdev->dev,
-+		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
+ 	p = framebuffer_alloc(0, &dp->dev);
+ 	if (p == NULL) {
+@@ -417,7 +422,8 @@ static int chipsfb_pci_init(struct pci_dev *dp, const struct pci_device_id *ent)
  
- 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	init_chips(p, addr);
+ 
+-	if (register_framebuffer(p) < 0) {
++	rc = register_framebuffer(p);
++	if (rc < 0) {
+ 		dev_err(&dp->dev,"C&T 65550 framebuffer failed to register\n");
+ 		goto err_unmap;
+ 	}
 -- 
 2.39.2
 
