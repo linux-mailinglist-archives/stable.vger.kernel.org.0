@@ -2,49 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3EDD6C175F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA9516C1670
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbjCTPNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:13:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48514 "EHLO
+        id S232077AbjCTPGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232380AbjCTPMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0D293FF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:50 -0700 (PDT)
+        with ESMTP id S232390AbjCTPFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:05:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D45B47B
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5002DB80D34
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CA6C433EF;
-        Mon, 20 Mar 2023 15:07:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E431F6159F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C89AEC433EF;
+        Mon, 20 Mar 2023 15:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324868;
-        bh=XoXp1zVDk8va1TV4vbn3meuLr7xQcugivYD1jQqMmJs=;
+        s=korg; t=1679324478;
+        bh=5NVLHIXonwLawaQOp/IdY2KPXsBtefrxB6wCE7yhmS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdRUJkIjqS80v8mdLm9BQ/JN3TBieq6Plwh1+7IdiIWJKwjnQD0JUb0vmL1p5PZF2
-         w3Jegv7q22d+ZLDyFsY3YC99kgKQd3VsWzbuXeJWr4O3IYcNQiNRLDtDkok9ZczG13
-         prvI0MJO3pxQNuQCDYDzUrb2qrrUVVqS6tHrAI9g=
+        b=HbqEpEi2eokwn4vgvmHApJUo/9ezdynxkinuSsIU1RYOFD4JuIDEzGu96cgksOwbG
+         Uph3TQbCMr91y5DGgrofyGgxkz8KWRPwJQbEUw+xYcqKllPCziNCvup9C/8nAo9Rrz
+         Ga7hWGBj+nkgDWtpGTD6Zr59TmuYWZTIAHipFxD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Hamidreza H. Fard" <nitocris@posteo.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 67/99] ALSA: hda/realtek: Fix the speaker output on Samsung Galaxy Book2 Pro
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        "HeungJun, Kim" <riverful.kim@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Mauro Carvalho Chehab <mchehab@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        HeungJun@vger.kernel.org
+Subject: [PATCH 5.4 36/60] media: m5mols: fix off-by-one loop termination error
 Date:   Mon, 20 Mar 2023 15:54:45 +0100
-Message-Id: <20230320145446.207063476@linuxfoundation.org>
+Message-Id: <20230320145432.427629610@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,32 +60,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamidreza H. Fard <nitocris@posteo.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit a86e79e3015f5dd8e1b01ccfa49bd5c6e41047a1 upstream.
+[ Upstream commit efbcbb12ee99f750c9f25c873b55ad774871de2a ]
 
-Samsung Galaxy Book2 Pro (13" 2022 NP930XED-KA1DE) with codec SSID
-144d:c868 requires the same workaround for enabling the speaker amp
-like other Samsung models with ALC298 code.
+The __find_restype() function loops over the m5mols_default_ffmt[]
+array, and the termination condition ends up being wrong: instead of
+stopping when the iterator becomes the size of the array it traverses,
+it stops after it has already overshot the array.
 
-Signed-off-by: Hamidreza H. Fard <nitocris@posteo.net>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230307163741.3878-1-nitocris@posteo.net
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now, in practice this doesn't likely matter, because the code will
+always find the entry it looks for, and will thus return early and never
+hit that last extra iteration.
+
+But it turns out that clang will unroll the loop fully, because it has
+only two iterations (well, three due to the off-by-one bug), and then
+clang will end up just giving up in the middle of the loop unrolling
+when it notices that the code walks past the end of the array.
+
+And that made 'objtool' very unhappy indeed, because the generated code
+just falls off the edge of the universe, and ends up falling through to
+the next function, causing this warning:
+
+   drivers/media/i2c/m5mols/m5mols.o: warning: objtool: m5mols_set_fmt() falls through to next function m5mols_get_frame_desc()
+
+Fix the loop ending condition.
+
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Analyzed-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Analyzed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/linux-block/CAHk-=wgTSdKYbmB1JYM5vmHMcD9J9UZr0mn7BOYM_LudrP+Xvw@mail.gmail.com/
+Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
+Cc: HeungJun, Kim <riverful.kim@samsung.com>
+Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/i2c/m5mols/m5mols_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9091,6 +9091,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xca03, "Samsung Galaxy Book2 Pro 360 (NP930QED)", ALC298_FIXUP_SAMSUNG_AMP),
-+	SND_PCI_QUIRK(0x144d, 0xc868, "Samsung Galaxy Book2 Pro (NP930XED)", ALC298_FIXUP_SAMSUNG_AMP),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
+diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
+index 21666d705e372..dcf9e4d4ee6b8 100644
+--- a/drivers/media/i2c/m5mols/m5mols_core.c
++++ b/drivers/media/i2c/m5mols/m5mols_core.c
+@@ -488,7 +488,7 @@ static enum m5mols_restype __find_restype(u32 code)
+ 	do {
+ 		if (code == m5mols_default_ffmt[type].code)
+ 			return type;
+-	} while (type++ != SIZE_DEFAULT_FFMT);
++	} while (++type != SIZE_DEFAULT_FFMT);
+ 
+ 	return 0;
+ }
+-- 
+2.39.2
+
 
 
