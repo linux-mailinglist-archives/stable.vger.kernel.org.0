@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F8C6C1693
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 973ED6C19B8
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:37:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231808AbjCTPHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
+        id S233115AbjCTPhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:37:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232223AbjCTPGz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A07628EB3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:39 -0700 (PDT)
+        with ESMTP id S233153AbjCTPgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D4C38022
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F3F8B80EC2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF735C433EF;
-        Mon, 20 Mar 2023 15:02:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C509C6158F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2026C433D2;
+        Mon, 20 Mar 2023 15:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324555;
-        bh=ATEnrQL5w3FWRq9chTFV0ZbIetkRdvanc1fVU8ygjNs=;
+        s=korg; t=1679326118;
+        bh=qiPPvstn9iDse4oCkEy7I1GK5Guy0SDOGAs8XIcXX3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E492sAuQDaMghreT5NNglkXZEtiWuVVrXFkIMfhQNHjGnDoEc6AD48H405iNirL1Q
-         k/0EUpjTpAKN9zqQmqNBljZh/J2/XOokz0D1GVV2eLm63Tqe5Pdbg/4DoIN5eVn8IP
-         +9bAvqK+yczXcUhDpFQLjE9vilsCckpWDAU2EDf4=
+        b=w1Q5ziYQ+b2S1wPFXrGMuXbTOqf2h5YqV8knue8AYmBnVenCetto2A+4welfAq2ur
+         z8+2GKj01k5laeWoVZ9B5wbwfgE23MEZTin7DVl+m/TliFkK+g0ZEX0nhApsXlwPJE
+         MBhfRPNHaM46BM0Fr9mrKJqe8bAhsG4vFxzlJhkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 51/60] fbdev: stifb: Provide valid pixelclock and add fb_check_var() checks
+        patches@lists.linux.dev,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.2 165/211] drm/i915/dg2: Add HDMI pixel clock frequencies 267.30 and 319.89 MHz
 Date:   Mon, 20 Mar 2023 15:55:00 +0100
-Message-Id: <20230320145433.041908539@linuxfoundation.org>
+Message-Id: <20230320145520.346847077@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,77 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
 
-commit 203873a535d627c668f293be0cb73e26c30f9cc7 upstream.
+commit 46bc23dcd94569270d02c4c1f7e62ae01ebd53bb upstream.
 
-Find a valid modeline depending on the machine graphic card
-configuration and add the fb_check_var() function to validate
-Xorg provided graphics settings.
+Add snps phy table values for HDMI pixel clocks 267.30 MHz and
+319.89 MHz. Values are based on the Bspec algorithm for
+PLL programming for HDMI.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
 Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8008
+Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Signed-off-by: Uma Shankar <uma.shankar@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230223043619.3941382-1-ankit.k.nautiyal@intel.com
+(cherry picked from commit d46746b8b13cbd377ffc733e465d25800459a31b)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/stifb.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/gpu/drm/i915/display/intel_snps_phy.c |   62 ++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -922,6 +922,28 @@ SETUP_HCRX(struct stifb_info *fb)
- /* ------------------- driver specific functions --------------------------- */
+--- a/drivers/gpu/drm/i915/display/intel_snps_phy.c
++++ b/drivers/gpu/drm/i915/display/intel_snps_phy.c
+@@ -1419,6 +1419,36 @@ static const struct intel_mpllb_state dg
+ 		REG_FIELD_PREP(SNPS_PHY_MPLLB_SSC_UP_SPREAD, 1),
+ };
  
- static int
-+stifb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
-+{
-+	struct stifb_info *fb = container_of(info, struct stifb_info, info);
++static const struct intel_mpllb_state dg2_hdmi_267300 = {
++	.clock = 267300,
++	.ref_control =
++		REG_FIELD_PREP(SNPS_PHY_REF_CONTROL_REF_RANGE, 3),
++	.mpllb_cp =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_INT, 7) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_PROP, 14) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_INT_GS, 64) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_PROP_GS, 124),
++	.mpllb_div =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_DIV5_CLK_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_TX_CLK_DIV, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_PMIX_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_V2I, 2) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FREQ_VCO, 3),
++	.mpllb_div2 =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_REF_CLK_DIV, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_MULTIPLIER, 74) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_HDMI_DIV, 1),
++	.mpllb_fracn1 =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_CGG_UPDATE_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_DEN, 65535),
++	.mpllb_fracn2 =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_QUOT, 30146) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_REM, 36699),
++	.mpllb_sscen =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_SSC_UP_SPREAD, 1),
++};
 +
-+	if (var->xres != fb->info.var.xres ||
-+	    var->yres != fb->info.var.yres ||
-+	    var->bits_per_pixel != fb->info.var.bits_per_pixel)
-+		return -EINVAL;
-+
-+	var->xres_virtual = var->xres;
-+	var->yres_virtual = var->yres;
-+	var->xoffset = 0;
-+	var->yoffset = 0;
-+	var->grayscale = fb->info.var.grayscale;
-+	var->red.length = fb->info.var.red.length;
-+	var->green.length = fb->info.var.green.length;
-+	var->blue.length = fb->info.var.blue.length;
-+
-+	return 0;
-+}
-+
-+static int
- stifb_setcolreg(u_int regno, u_int red, u_int green,
- 	      u_int blue, u_int transp, struct fb_info *info)
- {
-@@ -1103,6 +1125,7 @@ stifb_init_display(struct stifb_info *fb
+ static const struct intel_mpllb_state dg2_hdmi_268500 = {
+ 	.clock = 268500,
+ 	.ref_control =
+@@ -1509,6 +1539,36 @@ static const struct intel_mpllb_state dg
+ 		REG_FIELD_PREP(SNPS_PHY_MPLLB_SSC_UP_SPREAD, 1),
+ };
  
- static struct fb_ops stifb_ops = {
- 	.owner		= THIS_MODULE,
-+	.fb_check_var	= stifb_check_var,
- 	.fb_setcolreg	= stifb_setcolreg,
- 	.fb_blank	= stifb_blank,
- 	.fb_fillrect	= cfb_fillrect,
-@@ -1122,6 +1145,7 @@ static int __init stifb_init_fb(struct s
- 	struct stifb_info *fb;
- 	struct fb_info *info;
- 	unsigned long sti_rom_address;
-+	char modestr[32];
- 	char *dev_name;
- 	int bpp, xres, yres;
- 
-@@ -1300,6 +1324,9 @@ static int __init stifb_init_fb(struct s
- 	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA;
- 	info->pseudo_palette = &fb->pseudo_palette;
- 
-+	scnprintf(modestr, sizeof(modestr), "%dx%d-%d", xres, yres, bpp);
-+	fb_find_mode(&info->var, info, modestr, NULL, 0, NULL, bpp);
++static const struct intel_mpllb_state dg2_hdmi_319890 = {
++	.clock = 319890,
++	.ref_control =
++		REG_FIELD_PREP(SNPS_PHY_REF_CONTROL_REF_RANGE, 3),
++	.mpllb_cp =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_INT, 6) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_PROP, 14) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_INT_GS, 64) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_CP_PROP_GS, 124),
++	.mpllb_div =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_DIV5_CLK_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_TX_CLK_DIV, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_PMIX_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_V2I, 2) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FREQ_VCO, 2),
++	.mpllb_div2 =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_REF_CLK_DIV, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_MULTIPLIER, 94) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_HDMI_DIV, 1),
++	.mpllb_fracn1 =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_CGG_UPDATE_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_EN, 1) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_DEN, 65535),
++	.mpllb_fracn2 =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_QUOT, 64094) |
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_FRACN_REM, 13631),
++	.mpllb_sscen =
++		REG_FIELD_PREP(SNPS_PHY_MPLLB_SSC_UP_SPREAD, 1),
++};
 +
- 	/* This has to be done !!! */
- 	if (fb_alloc_cmap(&info->cmap, NR_PALETTE, 0))
- 		goto out_err1;
+ static const struct intel_mpllb_state dg2_hdmi_497750 = {
+ 	.clock = 497750,
+ 	.ref_control =
+@@ -1696,8 +1756,10 @@ static const struct intel_mpllb_state *
+ 	&dg2_hdmi_209800,
+ 	&dg2_hdmi_241500,
+ 	&dg2_hdmi_262750,
++	&dg2_hdmi_267300,
+ 	&dg2_hdmi_268500,
+ 	&dg2_hdmi_296703,
++	&dg2_hdmi_319890,
+ 	&dg2_hdmi_497750,
+ 	&dg2_hdmi_592000,
+ 	&dg2_hdmi_593407,
 
 
