@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 072086C19E7
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5A7C6C1837
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233171AbjCTPji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40850 "EHLO
+        id S232410AbjCTPWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:22:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233230AbjCTPjP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6BB2E0F3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:49 -0700 (PDT)
+        with ESMTP id S232719AbjCTPVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D198136CD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F303B80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF2BC433EF;
-        Mon, 20 Mar 2023 15:30:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 66E3BCE12EB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2779CC4339B;
+        Mon, 20 Mar 2023 15:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326236;
-        bh=lLXBj/bdFjlolTNbeU1Pf/BTwvc7xwlXeLyYxAFGWso=;
+        s=korg; t=1679325328;
+        bh=YAq+Bf7ra3cq1nrDi5rHRjehqZChJcH6ijEaUwTFk00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnKKgG3mrDLcgINmyDxhy5dNXMqftCuF5lI0vHPbypeqcauy22425+fUkOCC3jK9L
-         2t5UPXfTN48b4gMNQNglp03vafMboDTWqMNWZhZmDa9+KYooWawXCvVIGS6pcVy3Uf
-         xuLYvQZboMkJI/tk3aSzrWsvuRPTP6QVIf6sr+tQ=
+        b=aDcgsp0Gok/B4h+HWZuIKB/vpEEVVDxih8x0Mk8K3dHuSbFgpxmlggGhz/qC7AxgS
+         lQu5/bTvhpcujhMpScx6UzX5thcnKkz7xB/PXYCLjf1J9crPjtwvyBUvJ9DtrkU5Be
+         8sV4UfIxTwjI3psEzc6XyzUfFkWJeaxcieV9+kTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.2 168/211] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh broken BIOSes
+        patches@lists.linux.dev, Maxime Ripard <mripard@kernel.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.15 091/115] drm/sun4i: fix missing component unbind on bind errors
 Date:   Mon, 20 Mar 2023 15:55:03 +0100
-Message-Id: <20230320145520.487160109@linuxfoundation.org>
+Message-Id: <20230320145453.230740845@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 542a56e8eb4467ae654eefab31ff194569db39cd upstream.
+commit c22f2ff8724b49dce2ae797e9fbf4bc0fa91112f upstream.
 
-The VCN firmware loading path enables the indirect SRAM mode if it's
-advertised as supported. We might have some cases of FW issues that
-prevents this mode to working properly though, ending-up in a failed
-probe. An example below, observed in the Steam Deck:
+Make sure to unbind all subcomponents when binding the aggregate device
+fails.
 
-[...]
-[drm] failed to load ucode VCN0_RAM(0x3A)
-[drm] psp gfx command LOAD_IP_FW(0x6) failed and response status is (0xFFFF0000)
-amdgpu 0000:04:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vcn_dec_0 test failed (-110)
-[drm:amdgpu_device_init.cold [amdgpu]] *ERROR* hw_init of IP block <vcn_v3_0> failed -110
-amdgpu 0000:04:00.0: amdgpu: amdgpu_device_ip_init failed
-amdgpu 0000:04:00.0: amdgpu: Fatal error during GPU init
-[...]
-
-Disabling the VCN block circumvents this, but it's a very invasive
-workaround that turns off the entire feature. So, let's add a quirk
-on VCN loading that checks for known problematic BIOSes on Vangogh,
-so we can proactively disable the indirect SRAM mode and allow the
-HW proper probe and VCN IP block to work fine.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2385
-Fixes: 82132ecc5432 ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
-Cc: stable@vger.kernel.org
-Cc: James Zhu <James.Zhu@amd.com>
-Cc: Leo Liu <leo.liu@amd.com>
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
+Cc: stable@vger.kernel.org      # 4.7
+Cc: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230306103242.4775-1-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/gpu/drm/sun4i/sun4i_drv.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-@@ -26,6 +26,7 @@
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -94,12 +94,12 @@ static int sun4i_drv_bind(struct device
+ 	/* drm_vblank_init calls kcalloc, which can fail */
+ 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
+ 	if (ret)
+-		goto cleanup_mode_config;
++		goto unbind_all;
  
- #include <linux/firmware.h>
- #include <linux/module.h>
-+#include <linux/dmi.h>
- #include <linux/pci.h>
- #include <linux/debugfs.h>
- #include <drm/drm_drv.h>
-@@ -222,6 +223,24 @@ int amdgpu_vcn_sw_init(struct amdgpu_dev
- 		return r;
- 	}
+ 	/* Remove early framebuffers (ie. simplefb) */
+ 	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
+ 	if (ret)
+-		goto cleanup_mode_config;
++		goto unbind_all;
  
-+	/*
-+	 * Some Steam Deck's BIOS versions are incompatible with the
-+	 * indirect SRAM mode, leading to amdgpu being unable to get
-+	 * properly probed (and even potentially crashing the kernel).
-+	 * Hence, check for these versions here - notice this is
-+	 * restricted to Vangogh (Deck's APU).
-+	 */
-+	if (adev->ip_versions[UVD_HWIP][0] == IP_VERSION(3, 0, 2)) {
-+		const char *bios_ver = dmi_get_system_info(DMI_BIOS_VERSION);
-+
-+		if (bios_ver && (!strncmp("F7A0113", bios_ver, 7) ||
-+		     !strncmp("F7A0114", bios_ver, 7))) {
-+			adev->vcn.indirect_sram = false;
-+			dev_info(adev->dev,
-+				"Steam Deck quirk: indirect SRAM disabled on BIOS %s\n", bios_ver);
-+		}
-+	}
-+
- 	hdr = (const struct common_firmware_header *)adev->vcn.fw->data;
- 	adev->vcn.fw_version = le32_to_cpu(hdr->ucode_version);
+ 	sun4i_framebuffer_init(drm);
  
+@@ -118,6 +118,8 @@ static int sun4i_drv_bind(struct device
+ 
+ finish_poll:
+ 	drm_kms_helper_poll_fini(drm);
++unbind_all:
++	component_unbind_all(dev, NULL);
+ cleanup_mode_config:
+ 	drm_mode_config_cleanup(drm);
+ 	of_reserved_mem_device_release(dev);
 
 
