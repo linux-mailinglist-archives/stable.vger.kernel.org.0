@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 335E06C16DF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D8F86C1957
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231246AbjCTPKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        id S233011AbjCTPcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232269AbjCTPJa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:30 -0400
+        with ESMTP id S233014AbjCTPc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468BC5FEF
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82BA4200
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 262DE6158F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3365FC433EF;
-        Mon, 20 Mar 2023 15:04:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F6B3615A9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 334CDC4339B;
+        Mon, 20 Mar 2023 15:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324689;
-        bh=1dmy8v+6t/Q81mRh9oGB2LK5JOqFchzXvLhucNgLVas=;
+        s=korg; t=1679325912;
+        bh=Ga9u1H+GEVvBwqwzUZ57KhPcb1wQ+1h/VvDqfU/g4+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ev/9HX19yxj5TCleQqhkWqMOkWH8De1Et9uvcTOMqRw9HXlL3Dx64XVVKQUJjtahD
-         sdOP8TlxUGx+Sx9yZlgtgXtrrBanOm1SDcoUNq79/QF4JV5cyKU+x1bRtdJdNLda7u
-         GXyX3RyBK9Bhgl0CVS5yQvL5ptBItVn1YXwv+zMg=
+        b=09/yLbJkBy2Odf8V915mYVVziHbUiud/zGBuoW0v4aB461OHqfsLd96MuT1B762GF
+         WlAtu0MqV5Wjen+wXhgmQMnhW7f+npaAy/Rry53FWlU2MDm8zscDVCJeQisaRStCac
+         9OWBzBRt9V+aGYNM26+2U3KWHqDIg8HG410Xhd7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 41/99] hwmon: (adt7475) Fix masking of hysteresis registers
+        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Georgi Djakov <djakov@kernel.org>
+Subject: [PATCH 6.2 124/211] memory: tegra: fix interconnect registration race
 Date:   Mon, 20 Mar 2023 15:54:19 +0100
-Message-Id: <20230320145445.086965977@linuxfoundation.org>
+Message-Id: <20230320145518.565626701@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 48e8186870d9d0902e712d601ccb7098cb220688 ]
+commit 5553055c62683ce339f9ef5fb2a26c8331485d68 upstream.
 
-The wrong bits are masked in the hysteresis register; indices 0 and 2
-should zero bits [7:4] and preserve bits [3:0], and index 1 should zero
-bits [3:0] and preserve bits [7:4].
+The current interconnect provider registration interface is inherently
+racy as nodes are not added until the after adding the provider. This
+can specifically cause racing DT lookups to fail.
 
-Fixes: 1c301fc5394f ("hwmon: Add a driver for the ADT7475 hardware monitoring chip")
-Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20230222005228.158661-3-tony.obrien@alliedtelesis.co.nz
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Switch to using the new API where the provider is not registered until
+after it has been fully initialised.
+
+Fixes: 06f079816d4c ("memory: tegra-mc: Add interconnect framework")
+Cc: stable@vger.kernel.org      # 5.11
+Cc: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20230306075651.2449-18-johan+linaro@kernel.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/adt7475.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/memory/tegra/mc.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hwmon/adt7475.c b/drivers/hwmon/adt7475.c
-index c7f19a1ca0a59..6b84822e7d93b 100644
---- a/drivers/hwmon/adt7475.c
-+++ b/drivers/hwmon/adt7475.c
-@@ -486,10 +486,10 @@ static ssize_t temp_store(struct device *dev, struct device_attribute *attr,
- 		val = (temp - val) / 1000;
+--- a/drivers/memory/tegra/mc.c
++++ b/drivers/memory/tegra/mc.c
+@@ -794,16 +794,12 @@ static int tegra_mc_interconnect_setup(s
+ 	mc->provider.aggregate = mc->soc->icc_ops->aggregate;
+ 	mc->provider.xlate_extended = mc->soc->icc_ops->xlate_extended;
  
- 		if (sattr->index != 1) {
--			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
-+			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
- 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF) << 4;
- 		} else {
--			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
-+			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
- 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF);
- 		}
+-	err = icc_provider_add(&mc->provider);
+-	if (err)
+-		return err;
++	icc_provider_init(&mc->provider);
  
--- 
-2.39.2
-
+ 	/* create Memory Controller node */
+ 	node = icc_node_create(TEGRA_ICC_MC);
+-	if (IS_ERR(node)) {
+-		err = PTR_ERR(node);
+-		goto del_provider;
+-	}
++	if (IS_ERR(node))
++		return PTR_ERR(node);
+ 
+ 	node->name = "Memory Controller";
+ 	icc_node_add(node, &mc->provider);
+@@ -830,12 +826,14 @@ static int tegra_mc_interconnect_setup(s
+ 			goto remove_nodes;
+ 	}
+ 
++	err = icc_provider_register(&mc->provider);
++	if (err)
++		goto remove_nodes;
++
+ 	return 0;
+ 
+ remove_nodes:
+ 	icc_nodes_remove(&mc->provider);
+-del_provider:
+-	icc_provider_del(&mc->provider);
+ 
+ 	return err;
+ }
 
 
