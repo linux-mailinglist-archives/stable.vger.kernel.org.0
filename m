@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDA66C1795
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 927F06C1695
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbjCTPPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:15:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
+        id S230138AbjCTPHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232591AbjCTPO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6976010D0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:01 -0700 (PDT)
+        with ESMTP id S231846AbjCTPHL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643902FCCD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E85C4615A1
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3439C433D2;
-        Mon, 20 Mar 2023 15:09:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D28D2B80ED7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47AACC433EF;
+        Mon, 20 Mar 2023 15:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325000;
-        bh=qwzzc7IUl5Ap/rYytx2BqjtS/FBf0q1OKaIPdxZcs/E=;
+        s=korg; t=1679324560;
+        bh=xF/dmG43/GCzmE8l12Joz7tZr1uvZBB1WbFQAB/nL68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fB+q2ffhNjDfDyW7NTRXCHq+rWG6G9SsQpge5VqxPRtRbGQ+LrBvMXJtUXbuSB4Hw
-         I/kNg6clw/RzgfZYIYbkvauh+SQWmqS7PBcAueGVr81cTciuT3CkS5AxaVVDip7+Vh
-         jXQWY+lbZGyM0KpLj4JmR6iyiQeex6jlRIcLZBgo=
+        b=SbAuRWIMpctAr7Ja2CgjXivY3BpJ4ifZan8yvbDV7S0xR1k2ojdlOU0AnnT5MuJCD
+         nSjXu+UBPKSWoLrB5n8qcd9gYzCQKkcxpbCQqXvEy+zifBIc4EVSVE/ziay054jZLB
+         l5NGXjQQ9ZrkVCJA2d30ZYEmPpXwCHmYLfSzsFZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.10 82/99] PCI/DPC: Await readiness of secondary bus after reset
-Date:   Mon, 20 Mar 2023 15:55:00 +0100
-Message-Id: <20230320145446.853479416@linuxfoundation.org>
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>, stable@kernel.org
+Subject: [PATCH 5.4 52/60] x86/mm: Fix use of uninitialized buffer in sme_enable()
+Date:   Mon, 20 Mar 2023 15:55:01 +0100
+Message-Id: <20230320145433.081368157@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-commit 53b54ad074de1896f8b021615f65b27f557ce874 upstream.
+commit cbebd68f59f03633469f3ecf9bea99cd6cce3854 upstream.
 
-pci_bridge_wait_for_secondary_bus() is called after a Secondary Bus
-Reset, but not after a DPC-induced Hot Reset.
+cmdline_find_option() may fail before doing any initialization of
+the buffer array. This may lead to unpredictable results when the same
+buffer is used later in calls to strncmp() function.  Fix the issue by
+returning early if cmdline_find_option() returns an error.
 
-As a result, the delays prescribed by PCIe r6.0 sec 6.6.1 are not
-observed and devices on the secondary bus may be accessed before
-they're ready.
+Found by Linux Verification Center (linuxtesting.org) with static
+analysis tool SVACE.
 
-One affected device is Intel's Ponte Vecchio HPC GPU.  It comprises a
-PCIe switch whose upstream port is not immediately ready after reset.
-Because its config space is restored too early, it remains in
-D0uninitialized, its subordinate devices remain inaccessible and DPC
-recovery fails with messages such as:
-
-  i915 0000:8c:00.0: can't change power state from D3cold to D0 (config space inaccessible)
-  intel_vsec 0000:8e:00.1: can't change power state from D3cold to D0 (config space inaccessible)
-  pcieport 0000:89:02.0: AER: device recovery failed
-
-Fix it.
-
-Link: https://lore.kernel.org/r/9f5ff00e1593d8d9a4b452398b98aa14d23fca11.1673769517.git.lukas@wunner.de
-Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: stable@vger.kernel.org
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230306160656.14844-1-n.zhandarovich@fintech.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c      |    3 ---
- drivers/pci/pci.h      |    6 ++++++
- drivers/pci/pcie/dpc.c |    4 ++--
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ arch/x86/mm/mem_encrypt_identity.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -157,9 +157,6 @@ static int __init pcie_port_pm_setup(cha
- }
- __setup("pcie_port_pm=", pcie_port_pm_setup);
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -579,7 +579,8 @@ void __init sme_enable(struct boot_param
+ 	cmdline_ptr = (const char *)((u64)bp->hdr.cmd_line_ptr |
+ 				     ((u64)bp->ext_cmd_line_ptr << 32));
  
--/* Time to wait after a reset for device to become responsive */
--#define PCIE_RESET_READY_POLL_MS 60000
--
- /**
-  * pci_bus_max_busnr - returns maximum PCI bus number of given bus' children
-  * @bus: pointer to PCI bus structure to search
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -53,6 +53,12 @@ int pci_bus_error_reset(struct pci_dev *
-  * Reset (PCIe r6.0 sec 5.8).
-  */
- #define PCI_RESET_WAIT		1000	/* msec */
-+/*
-+ * Devices may extend the 1 sec period through Request Retry Status completions
-+ * (PCIe r6.0 sec 2.3.1).  The spec does not provide an upper limit, but 60 sec
-+ * ought to be enough for any device to become responsive.
-+ */
-+#define PCIE_RESET_READY_POLL_MS 60000	/* msec */
+-	cmdline_find_option(cmdline_ptr, cmdline_arg, buffer, sizeof(buffer));
++	if (cmdline_find_option(cmdline_ptr, cmdline_arg, buffer, sizeof(buffer)) < 0)
++		return;
  
- /**
-  * struct pci_platform_pm_ops - Firmware PM callbacks
---- a/drivers/pci/pcie/dpc.c
-+++ b/drivers/pci/pcie/dpc.c
-@@ -170,8 +170,8 @@ pci_ers_result_t dpc_reset_link(struct p
- 	pci_write_config_word(pdev, cap + PCI_EXP_DPC_STATUS,
- 			      PCI_EXP_DPC_STATUS_TRIGGER);
- 
--	if (!pcie_wait_for_link(pdev, true)) {
--		pci_info(pdev, "Data Link Layer Link Active not set in 1000 msec\n");
-+	if (pci_bridge_wait_for_secondary_bus(pdev, "DPC",
-+					      PCIE_RESET_READY_POLL_MS)) {
- 		clear_bit(PCI_DPC_RECOVERED, &pdev->priv_flags);
- 		ret = PCI_ERS_RESULT_DISCONNECT;
- 	} else {
+ 	if (!strncmp(buffer, cmdline_on, sizeof(buffer)))
+ 		sme_me_mask = me_mask;
 
 
