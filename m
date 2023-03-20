@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 919FF6C16B9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E6B6C16C8
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232191AbjCTPIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
+        id S231899AbjCTPJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbjCTPIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:18 -0400
+        with ESMTP id S231844AbjCTPIo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC442270F;
-        Mon, 20 Mar 2023 08:03:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D941D241D3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4816F6158B;
-        Mon, 20 Mar 2023 15:03:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF66C433EF;
-        Mon, 20 Mar 2023 15:03:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB7D76157F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3F1C433D2;
+        Mon, 20 Mar 2023 15:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324593;
-        bh=f1RmTaChlATyRSUZ9EPL2SM6wu64SUGwnXYSCJtNH0E=;
+        s=korg; t=1679324651;
+        bh=CrlRtSmj+CpAkpqnYplqcn9+dUtNkH6NDMZXSXxVIr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeBQYM/qZNB3KdFua5dBrh3RLUVYCdXECdWtMEkfKsRenSyEsOgWDB5hHoHiu+3Ew
-         cVoq+5IFlcseDP+AYmVy1fU7Ek1QxXcsF5q8PIxCqTrJxg7G9Np1TcZ10WL5i5b69o
-         tAf4VW1MggRrfZTEis5ct61kCjg+zUkJkOOXa3wc=
+        b=o6ZuQP8jSdoIOUDEaZ1afbzSierw0nqFkh8kvG56O7jBG9rjGBOXNT4XiscPVZuXs
+         3CkvNyTL7YPcNwOW2IZ2vRb8sfu1datQxlJh9BArbt7bhLlf00fCCpv8LVmTK90dvd
+         BoJiPaQM6agiXCVLWwnftXwzHm72XeB/H80GpqIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Riku Voipio <riku.voipio@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-clk@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 05/99] clk: HI655X: select REGMAP instead of depending on it
+        patches@lists.linux.dev, Jeremy Sowden <jeremy@azazel.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 011/115] netfilter: nft_redir: correct length for loading protocol registers
 Date:   Mon, 20 Mar 2023 15:53:43 +0100
-Message-Id: <20230320145443.573814052@linuxfoundation.org>
+Message-Id: <20230320145449.846513347@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit 0ffad67784a097beccf34d297ddd1b0773b3b8a3 ]
+[ Upstream commit 1f617b6b4c7a3d5ea7a56abb83a4c27733b60c2f ]
 
-REGMAP is a hidden (not user visible) symbol. Users cannot set it
-directly thru "make *config", so drivers should select it instead of
-depending on it if they need it.
+The values in the protocol registers are two bytes wide.  However, when
+parsing the register loads, the code currently uses the larger 16-byte
+size of a `union nf_inet_addr`.  Change it to use the (correct) size of
+a `union nf_conntrack_man_proto` instead.
 
-Consistently using "select" or "depends on" can also help reduce
-Kconfig circular dependency issues.
-
-Therefore, change the use of "depends on REGMAP" to "select REGMAP".
-
-Fixes: 3a49afb84ca0 ("clk: enable hi655x common clk automatically")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Riku Voipio <riku.voipio@linaro.org>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: linux-clk@vger.kernel.org
-Link: https://lore.kernel.org/r/20230226053953.4681-3-rdunlap@infradead.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: d07db9884a5f ("netfilter: nf_tables: introduce nft_validate_register_load()")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/Kconfig | 2 +-
+ net/netfilter/nft_redir.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index c715d4681a0b8..4ae49eae45869 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -79,7 +79,7 @@ config COMMON_CLK_RK808
- config COMMON_CLK_HI655X
- 	tristate "Clock driver for Hi655x" if EXPERT
- 	depends on (MFD_HI655X_PMIC || COMPILE_TEST)
--	depends on REGMAP
-+	select REGMAP
- 	default MFD_HI655X_PMIC
- 	help
- 	  This driver supports the hi655x PMIC clock. This
+diff --git a/net/netfilter/nft_redir.c b/net/netfilter/nft_redir.c
+index ba09890dddb50..deb7e65c8d82b 100644
+--- a/net/netfilter/nft_redir.c
++++ b/net/netfilter/nft_redir.c
+@@ -48,7 +48,7 @@ static int nft_redir_init(const struct nft_ctx *ctx,
+ 	unsigned int plen;
+ 	int err;
+ 
+-	plen = sizeof_field(struct nf_nat_range, min_addr.all);
++	plen = sizeof_field(struct nf_nat_range, min_proto.all);
+ 	if (tb[NFTA_REDIR_REG_PROTO_MIN]) {
+ 		err = nft_parse_register_load(tb[NFTA_REDIR_REG_PROTO_MIN],
+ 					      &priv->sreg_proto_min, plen);
 -- 
 2.39.2
 
