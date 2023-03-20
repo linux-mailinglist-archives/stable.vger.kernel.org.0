@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2D26C0CFD
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:19:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD62C6C0CFE
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:19:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbjCTJT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53268 "EHLO
+        id S230428AbjCTJT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:19:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230371AbjCTJTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:22 -0400
+        with ESMTP id S230149AbjCTJT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A667715CAA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE7849D8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF13961295
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B767EC433EF;
-        Mon, 20 Mar 2023 09:19:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AFFD612CA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F696C433D2;
+        Mon, 20 Mar 2023 09:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303959;
-        bh=4Ozf+JRTJ6VjNFNBkgHQWuLEt433Jqdyeujpo8lyxaI=;
+        s=korg; t=1679303961;
+        bh=FlO9Io5FczpwE7j4mm/lYA6NeuLE47sAjP5m7SYZnJM=;
         h=Subject:To:Cc:From:Date:From;
-        b=dC7X2/i75eLqn2hKf7T86aiT8NSzZwsalcaG1+wBz4Tgcy3cCRjXi2de0x0TrcZ1N
-         PImjF4ATaByS8/jytFvvyIvc5qKbj2h+8MKKzIqP3jqFCg+RIk0gR7gBlP5sNZgbg4
-         OpmyACBYnJ9CHEcptzwZVqpPspMx0i+50952aqHQ=
-Subject: FAILED: patch "[PATCH] interconnect: fix icc_provider_del() error handling" failed to apply to 5.10-stable tree
+        b=anqMLAE27BZVTZW2CvZ5rw0hHLCni5FD+V8xCOxb1bwaxDWjs3DDJbzewjPsK9yXx
+         m7PHGCBSX6QMJMtFLe1nWb2Zf4TS1eu9BcfRu/YQL72HZ4ACxl3IZGaqr9q5UHVd2b
+         oVbGwmUJkh93id4gnRpUVbQQP+pc0CRCbsqNQVBA=
+Subject: FAILED: patch "[PATCH] interconnect: fix icc_provider_del() error handling" failed to apply to 5.4-stable tree
 To:     johan+linaro@kernel.org, djakov@kernel.org,
         konrad.dybcio@linaro.org, luca.ceresoli@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:19:08 +0100
-Message-ID: <167930394812570@kroah.com>
+Date:   Mon, 20 Mar 2023 10:19:09 +0100
+Message-ID: <167930394920337@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,24 +48,30 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x e0e7089bf9a87bc5e3997422e4e24563424f9018
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930394812570@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930394920337@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
 e0e7089bf9a8 ("interconnect: fix icc_provider_del() error handling")
 680f8666baf6 ("interconnect: Make icc_provider_del() return void")
+1521e22bfa12 ("interconnect: Introduce xlate_extended() callback")
+8a307d3601bc ("interconnect: Export of_icc_get_from_provider()")
+1597d453289b ("interconnect: Add of_icc_get_by_index() helper function")
+3791163602f7 ("interconnect: Handle memory allocation errors")
+05309830e1f8 ("interconnect: Add a name to struct icc_path")
+dd018a9cf910 ("interconnect: Move internal structs into a separate file")
 
 thanks,
 
