@@ -2,108 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F75E6C18C4
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE606C1823
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232887AbjCTP1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
+        id S232691AbjCTPVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232800AbjCTP0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57AA8696
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:20:10 -0700 (PDT)
+        with ESMTP id S232787AbjCTPUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:20:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21796AF0A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E553161593
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3ECAC433D2;
-        Mon, 20 Mar 2023 15:19:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B6661582
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B637CC433D2;
+        Mon, 20 Mar 2023 15:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325589;
-        bh=BuR7NKzkajkPZTvxr6pF9S92otsa5NYAbZzXxo83uRM=;
+        s=korg; t=1679325287;
+        bh=YTwt102BhJc/wmok+1eqBlZgfszbAecEam3vPLOa1oQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWugfVUa6/NhgK0DFB/FdkCR6GjPPf1NErXKYqECY2Kf7y7FBEWg7M4BgEHV9wQS5
-         2V0a/UfajmHox2g0vz31wiIOQEvHP4GO2A38A19vR8ZTxX/d5KCd8XP9VL2JyUkVKz
-         dL//sZ9nAiUAGrIdflqH4MTVKIQTn/ppBtBqZydw=
+        b=wZi4RzNGITkKr+3VN65ZSg3DOQ5UMv+hPBDX1F+iQr37ymUtsQkAgRx9nBFGghZBF
+         9rgRxci4ZiLPtf28PDJlTePU7XSY5xMce/Xp36K6K8L9o915KlO8wBgR1Utyyg7QD3
+         /sa4QDBvgEpMr9tmRNjmrTa6GiHph7MD0RCa4bTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 066/211] block: null_blk: Fix handling of fake timeout request
-Date:   Mon, 20 Mar 2023 15:53:21 +0100
-Message-Id: <20230320145515.986021976@linuxfoundation.org>
+        patches@lists.linux.dev, Ming Lei <ming.lei@redhat.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 064/198] nvme: fix handling single range discard request
+Date:   Mon, 20 Mar 2023 15:53:22 +0100
+Message-Id: <20230320145510.230823799@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 63f886597085f346276e3b3c8974de0100d65f32 ]
+[ Upstream commit 37f0dc2ec78af0c3f35dd05578763de059f6fe77 ]
 
-When injecting a fake timeout into the null_blk driver using
-fail_io_timeout, the request timeout handler does not execute
-blk_mq_complete_request(), so the complete callback is never executed
-for a timedout request.
+When investigating one customer report on warning in nvme_setup_discard,
+we observed the controller(nvme/tcp) actually exposes
+queue_max_discard_segments(req->q) == 1.
 
-The null_blk driver also has a driver-specific fake timeout mechanism
-which does not have this problem. Fix the problem with fail_io_timeout
-by using the same meachanism as null_blk internal timeout feature, using
-the fake_timeout field of null_blk commands.
+Obviously the current code can't handle this situation, since contiguity
+merge like normal RW request is taken.
 
-Reported-by: Akinobu Mita <akinobu.mita@gmail.com>
-Fixes: de3510e52b0a ("null_blk: fix command timeout completion handling")
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20230314041106.19173-2-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix the issue by building range from request sector/nr_sectors directly.
+
+Fixes: b35ba01ea697 ("nvme: support ranged discard requests")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk/main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index 7d28e3aa406c2..a200aba02e436 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -1413,8 +1413,7 @@ static inline void nullb_complete_cmd(struct nullb_cmd *cmd)
- 	case NULL_IRQ_SOFTIRQ:
- 		switch (cmd->nq->dev->queue_mode) {
- 		case NULL_Q_MQ:
--			if (likely(!blk_should_fake_timeout(cmd->rq->q)))
--				blk_mq_complete_request(cmd->rq);
-+			blk_mq_complete_request(cmd->rq);
- 			break;
- 		case NULL_Q_BIO:
- 			/*
-@@ -1675,7 +1674,8 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	cmd->rq = bd->rq;
- 	cmd->error = BLK_STS_OK;
- 	cmd->nq = nq;
--	cmd->fake_timeout = should_timeout_request(bd->rq);
-+	cmd->fake_timeout = should_timeout_request(bd->rq) ||
-+		blk_should_fake_timeout(bd->rq->q);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 2031fd960549c..a95e48b51da66 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -779,16 +779,26 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
+ 		range = page_address(ns->ctrl->discard_page);
+ 	}
  
- 	blk_mq_start_request(bd->rq);
+-	__rq_for_each_bio(bio, req) {
+-		u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
+-		u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
+-
+-		if (n < segments) {
+-			range[n].cattr = cpu_to_le32(0);
+-			range[n].nlb = cpu_to_le32(nlb);
+-			range[n].slba = cpu_to_le64(slba);
++	if (queue_max_discard_segments(req->q) == 1) {
++		u64 slba = nvme_sect_to_lba(ns, blk_rq_pos(req));
++		u32 nlb = blk_rq_sectors(req) >> (ns->lba_shift - 9);
++
++		range[0].cattr = cpu_to_le32(0);
++		range[0].nlb = cpu_to_le32(nlb);
++		range[0].slba = cpu_to_le64(slba);
++		n = 1;
++	} else {
++		__rq_for_each_bio(bio, req) {
++			u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
++			u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
++
++			if (n < segments) {
++				range[n].cattr = cpu_to_le32(0);
++				range[n].nlb = cpu_to_le32(nlb);
++				range[n].slba = cpu_to_le64(slba);
++			}
++			n++;
+ 		}
+-		n++;
+ 	}
  
+ 	if (WARN_ON_ONCE(n != segments)) {
 -- 
 2.39.2
 
