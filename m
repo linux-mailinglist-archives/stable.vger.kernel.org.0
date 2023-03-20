@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD62C6C0CFE
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39C56C0CFF
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230428AbjCTJT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
+        id S230389AbjCTJTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:19:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbjCTJT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE7849D8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:23 -0700 (PDT)
+        with ESMTP id S230416AbjCTJT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:19:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA6ABA270
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AFFD612CA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F696C433D2;
-        Mon, 20 Mar 2023 09:19:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44C5D61295
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5465CC433EF;
+        Mon, 20 Mar 2023 09:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303961;
-        bh=FlO9Io5FczpwE7j4mm/lYA6NeuLE47sAjP5m7SYZnJM=;
+        s=korg; t=1679303964;
+        bh=9H8CDTWh/ilf88nhW6NhQoeKY537sjCt/sOobDQfAgQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=anqMLAE27BZVTZW2CvZ5rw0hHLCni5FD+V8xCOxb1bwaxDWjs3DDJbzewjPsK9yXx
-         m7PHGCBSX6QMJMtFLe1nWb2Zf4TS1eu9BcfRu/YQL72HZ4ACxl3IZGaqr9q5UHVd2b
-         oVbGwmUJkh93id4gnRpUVbQQP+pc0CRCbsqNQVBA=
-Subject: FAILED: patch "[PATCH] interconnect: fix icc_provider_del() error handling" failed to apply to 5.4-stable tree
+        b=bhsoG+Qc2DRIpJo6gpdm7KyZXaZcnZhylxqlCRzzno0TWFVouHDIk1Uml7+cx2RtK
+         OKQFNKV9+XVaWzxDkBqObPJ3RfTU/RwUZs1mEBeot/ARBV/rlgCDgyMdxXjbbMrb+R
+         VkK7eM2+uFuhefQvgvldu0rpRwxtrkEqPmJnucTo=
+Subject: FAILED: patch "[PATCH] interconnect: fix provider registration API" failed to apply to 5.15-stable tree
 To:     johan+linaro@kernel.org, djakov@kernel.org,
         konrad.dybcio@linaro.org, luca.ceresoli@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:19:09 +0100
-Message-ID: <167930394920337@kroah.com>
+Date:   Mon, 20 Mar 2023 10:19:22 +0100
+Message-ID: <16793039624279@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,30 +48,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
-git cherry-pick -x e0e7089bf9a87bc5e3997422e4e24563424f9018
+git cherry-pick -x eb59eca0d8ac15f8c1b7f1cd35999455a90292c0
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930394920337@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16793039624279@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
+eb59eca0d8ac ("interconnect: fix provider registration API")
 e0e7089bf9a8 ("interconnect: fix icc_provider_del() error handling")
 680f8666baf6 ("interconnect: Make icc_provider_del() return void")
-1521e22bfa12 ("interconnect: Introduce xlate_extended() callback")
-8a307d3601bc ("interconnect: Export of_icc_get_from_provider()")
-1597d453289b ("interconnect: Add of_icc_get_by_index() helper function")
-3791163602f7 ("interconnect: Handle memory allocation errors")
-05309830e1f8 ("interconnect: Add a name to struct icc_path")
-dd018a9cf910 ("interconnect: Move internal structs into a separate file")
 
 thanks,
 
@@ -79,54 +74,148 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e0e7089bf9a87bc5e3997422e4e24563424f9018 Mon Sep 17 00:00:00 2001
+From eb59eca0d8ac15f8c1b7f1cd35999455a90292c0 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan+linaro@kernel.org>
-Date: Mon, 6 Mar 2023 08:56:30 +0100
-Subject: [PATCH] interconnect: fix icc_provider_del() error handling
+Date: Mon, 6 Mar 2023 08:56:31 +0100
+Subject: [PATCH] interconnect: fix provider registration API
 
-The interconnect framework currently expects that providers are only
-removed when there are no users and after all nodes have been removed.
+The current interconnect provider interface is inherently racy as
+providers are expected to be added before being fully initialised.
 
-There is currently nothing that guarantees this to be the case and the
-framework does not do any reference counting, but refusing to remove the
-provider is never correct as that would leave a dangling pointer to a
-resource that is about to be released in the global provider list (e.g.
-accessible through debugfs).
+Specifically, nodes are currently not added and the provider data is not
+initialised until after registering the provider which can cause racing
+DT lookups to fail.
 
-Replace the current sanity checks with WARN_ON() so that the provider is
-always removed.
+Add a new provider API which will be used to fix up the interconnect
+drivers.
+
+The old API is reimplemented using the new interface and will be removed
+once all drivers have been fixed.
 
 Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
-Cc: stable@vger.kernel.org      # 5.1: 680f8666baf6: interconnect: Make icc_provider_del() return void
+Fixes: 87e3031b6fbd ("interconnect: Allow endpoints translation via DT")
+Cc: stable@vger.kernel.org      # 5.1
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com> # i.MX8MP MSC SM2-MB-EP1 Board
-Link: https://lore.kernel.org/r/20230306075651.2449-3-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/20230306075651.2449-4-johan+linaro@kernel.org
 Signed-off-by: Georgi Djakov <djakov@kernel.org>
 
 diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
-index 5217f449eeec..cabb6f5df83e 100644
+index cabb6f5df83e..7a24c1444ace 100644
 --- a/drivers/interconnect/core.c
 +++ b/drivers/interconnect/core.c
-@@ -1065,18 +1065,8 @@ EXPORT_SYMBOL_GPL(icc_provider_add);
- void icc_provider_del(struct icc_provider *provider)
+@@ -1033,44 +1033,68 @@ int icc_nodes_remove(struct icc_provider *provider)
+ EXPORT_SYMBOL_GPL(icc_nodes_remove);
+ 
+ /**
+- * icc_provider_add() - add a new interconnect provider
+- * @provider: the interconnect provider that will be added into topology
++ * icc_provider_init() - initialize a new interconnect provider
++ * @provider: the interconnect provider to initialize
++ *
++ * Must be called before adding nodes to the provider.
++ */
++void icc_provider_init(struct icc_provider *provider)
++{
++	WARN_ON(!provider->set);
++
++	INIT_LIST_HEAD(&provider->nodes);
++}
++EXPORT_SYMBOL_GPL(icc_provider_init);
++
++/**
++ * icc_provider_register() - register a new interconnect provider
++ * @provider: the interconnect provider to register
+  *
+  * Return: 0 on success, or an error code otherwise
+  */
+-int icc_provider_add(struct icc_provider *provider)
++int icc_provider_register(struct icc_provider *provider)
+ {
+-	if (WARN_ON(!provider->set))
+-		return -EINVAL;
+ 	if (WARN_ON(!provider->xlate && !provider->xlate_extended))
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&icc_lock);
+-
+-	INIT_LIST_HEAD(&provider->nodes);
+ 	list_add_tail(&provider->provider_list, &icc_providers);
+-
+ 	mutex_unlock(&icc_lock);
+ 
+-	dev_dbg(provider->dev, "interconnect provider added to topology\n");
++	dev_dbg(provider->dev, "interconnect provider registered\n");
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(icc_provider_add);
++EXPORT_SYMBOL_GPL(icc_provider_register);
+ 
+ /**
+- * icc_provider_del() - delete previously added interconnect provider
+- * @provider: the interconnect provider that will be removed from topology
++ * icc_provider_deregister() - deregister an interconnect provider
++ * @provider: the interconnect provider to deregister
+  */
+-void icc_provider_del(struct icc_provider *provider)
++void icc_provider_deregister(struct icc_provider *provider)
  {
  	mutex_lock(&icc_lock);
--	if (provider->users) {
--		pr_warn("interconnect provider still has %d users\n",
--			provider->users);
--		mutex_unlock(&icc_lock);
--		return;
--	}
--
--	if (!list_empty(&provider->nodes)) {
--		pr_warn("interconnect provider still has nodes\n");
--		mutex_unlock(&icc_lock);
--		return;
--	}
-+	WARN_ON(provider->users);
-+	WARN_ON(!list_empty(&provider->nodes));
+ 	WARN_ON(provider->users);
+-	WARN_ON(!list_empty(&provider->nodes));
  
  	list_del(&provider->provider_list);
  	mutex_unlock(&icc_lock);
+ }
++EXPORT_SYMBOL_GPL(icc_provider_deregister);
++
++int icc_provider_add(struct icc_provider *provider)
++{
++	icc_provider_init(provider);
++
++	return icc_provider_register(provider);
++}
++EXPORT_SYMBOL_GPL(icc_provider_add);
++
++void icc_provider_del(struct icc_provider *provider)
++{
++	WARN_ON(!list_empty(&provider->nodes));
++
++	icc_provider_deregister(provider);
++}
+ EXPORT_SYMBOL_GPL(icc_provider_del);
+ 
+ static const struct of_device_id __maybe_unused ignore_list[] = {
+diff --git a/include/linux/interconnect-provider.h b/include/linux/interconnect-provider.h
+index cd5c5a27557f..d12cd18aab3f 100644
+--- a/include/linux/interconnect-provider.h
++++ b/include/linux/interconnect-provider.h
+@@ -122,6 +122,9 @@ int icc_link_destroy(struct icc_node *src, struct icc_node *dst);
+ void icc_node_add(struct icc_node *node, struct icc_provider *provider);
+ void icc_node_del(struct icc_node *node);
+ int icc_nodes_remove(struct icc_provider *provider);
++void icc_provider_init(struct icc_provider *provider);
++int icc_provider_register(struct icc_provider *provider);
++void icc_provider_deregister(struct icc_provider *provider);
+ int icc_provider_add(struct icc_provider *provider);
+ void icc_provider_del(struct icc_provider *provider);
+ struct icc_node_data *of_icc_get_from_provider(struct of_phandle_args *spec);
+@@ -167,6 +170,15 @@ static inline int icc_nodes_remove(struct icc_provider *provider)
+ 	return -ENOTSUPP;
+ }
+ 
++static inline void icc_provider_init(struct icc_provider *provider) { }
++
++static inline int icc_provider_register(struct icc_provider *provider)
++{
++	return -ENOTSUPP;
++}
++
++static inline void icc_provider_deregister(struct icc_provider *provider) { }
++
+ static inline int icc_provider_add(struct icc_provider *provider)
+ {
+ 	return -ENOTSUPP;
 
