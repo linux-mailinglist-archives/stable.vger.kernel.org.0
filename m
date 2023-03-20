@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 537916C0CF5
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3DD6C0CF7
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230028AbjCTJSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:18:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52082 "EHLO
+        id S230178AbjCTJTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:19:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230220AbjCTJSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:18:40 -0400
+        with ESMTP id S230234AbjCTJS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:18:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4F2233DB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:18:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE8718B05
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:18:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA71EB80DB4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:18:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F695C4339E;
-        Mon, 20 Mar 2023 09:18:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A690AB80C88
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2000FC4339E;
+        Mon, 20 Mar 2023 09:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303915;
-        bh=dwPBUmJ3Dkyul6G0hV3AjItNezZxnXOGhYeqowyXiFk=;
+        s=korg; t=1679303924;
+        bh=8QqakqNdtP/0Am8qEvapYjuElXWI1rdQosVmuf5waOw=;
         h=Subject:To:Cc:From:Date:From;
-        b=fo/BWShuKEn0Kegft1zq7s0LawJQDhft3k8XWuLNlfq+IrUl3ojyuyVAgQENPJUnE
-         IWVc8cDPCzxLTmDq8buqI8Xkbg9wGM7p3z7VqqT+kAOy3MZq4pPEEIVV5u8dgoERXc
-         h5bJQHyfBpA5yexKNX4s7NXapdnvxqLCXXeqbbUc=
-Subject: FAILED: patch "[PATCH] s390/ipl: add missing intersection check to ipl_report" failed to apply to 5.10-stable tree
+        b=vM2N7BpU0zgJOjXk6xuf9xcW0mtlhqxjtOojSNEDJKe51j3zYPvDCGUqJsqswk1Rr
+         I4Cd9KPqchh/peStEV3VEvQjMy40J1598IxwO8T37z6dKxocGFyvW7vZbymtHKKyt9
+         +mlhpXECi/70kgY5ciNZXwNrfO7FBN/WU9C7cM+A=
+Subject: FAILED: patch "[PATCH] s390/ipl: add missing intersection check to ipl_report" failed to apply to 5.4-stable tree
 To:     svens@linux.ibm.com, gor@linux.ibm.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:18:28 +0100
-Message-ID: <16793039081369@kroah.com>
+Date:   Mon, 20 Mar 2023 10:18:33 +0100
+Message-ID: <1679303913560@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x a52e5cdbe8016d4e3e6322fd93d71afddb9a5af9
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16793039081369@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303913560@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -72,6 +72,7 @@ d7e7fbba67a3 ("s390/early: rewrite program parameter setup in C")
 92bca2fe61f5 ("s390/kasan: avoid confusing naming")
 90178c190079 ("s390/mm: let vmalloc area size depend on physical memory size")
 a3453d923ece ("s390/kasan: remove 3-level paging support")
+847d4287a0c6 ("Merge tag 's390-5.10-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux")
 
 thanks,
 
