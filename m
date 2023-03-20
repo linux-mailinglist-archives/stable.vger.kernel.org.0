@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 308986C1792
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7E46C1691
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbjCTPPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:15:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47882 "EHLO
+        id S232176AbjCTPHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232524AbjCTPOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:50 -0400
+        with ESMTP id S232191AbjCTPGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB8132659C
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA842C671
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F31BD615A4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09F47C4339C;
-        Mon, 20 Mar 2023 15:09:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26C856159F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AED0C4339B;
+        Mon, 20 Mar 2023 15:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324989;
-        bh=Ip50Ov6Vt6/Tojrs8t3G32RF4K2c4lNTrV2jOnZ/1iM=;
+        s=korg; t=1679324549;
+        bh=YygPIafDe5Vo2CbrtKmzGhM4bRtsRn5hsqQUywE4sIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0mjQJsDSJCDEm7XPpF+osVpWbCEdAqKhXb0/zuGg+pHHDX7VOFWH5syZ40r/4HXc
-         //evmofrbO5vUVYOhsG5RmRt/geB51+0m9tRXl5AbZGg7ucZGSbBDGX/0avAYZLnLH
-         e9zG9vjtaVwvJjBAcOeDEilpZorRFCqKfRRHagJ8=
+        b=HyaadSssjzeo4NZ2WOt1CS5azuyBgTdRysYrk6iVP8/I71cHjzp9oS1R5LJW1Uq7/
+         Gk1IG0ECv/xi//Iuf2oVdNV31+fTZzzcVQgYqTUdJIf7lLLHpe+A2fjW5l7IGxpgZE
+         jzCngYXac5TpIUa1RX2vUVRZCDkMezJXYOPHsxLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sheng Bi <windy.bi.enflame@gmail.com>,
-        Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [PATCH 5.10 81/99] PCI: Unify delay handling for reset and resume
+        patches@lists.linux.dev,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Chen Zhongjin <chenzhongjin@huawei.com>
+Subject: [PATCH 5.4 50/60] ftrace: Fix invalid address access in lookup_rec() when index is 0
 Date:   Mon, 20 Mar 2023 15:54:59 +0100
-Message-Id: <20230320145446.803183845@linuxfoundation.org>
+Message-Id: <20230320145433.000698337@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,257 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit ac91e6980563ed53afadd925fa6585ffd2bc4a2c upstream.
+commit ee92fa443358f4fc0017c1d0d325c27b37802504 upstream.
 
-Sheng Bi reports that pci_bridge_secondary_bus_reset() may fail to wait
-for devices on the secondary bus to become accessible after reset:
+KASAN reported follow problem:
 
-Although it does call pci_dev_wait(), it erroneously passes the bridge's
-pci_dev rather than that of a child.  The bridge of course is always
-accessible while its secondary bus is reset, so pci_dev_wait() returns
-immediately.
+ BUG: KASAN: use-after-free in lookup_rec
+ Read of size 8 at addr ffff000199270ff0 by task modprobe
+ CPU: 2 Comm: modprobe
+ Call trace:
+  kasan_report
+  __asan_load8
+  lookup_rec
+  ftrace_location
+  arch_check_ftrace_location
+  check_kprobe_address_safe
+  register_kprobe
 
-Sheng Bi proposes introducing a new pci_bridge_secondary_bus_wait()
-function which is called from pci_bridge_secondary_bus_reset():
+When checking pg->records[pg->index - 1].ip in lookup_rec(), it can get a
+pg which is newly added to ftrace_pages_start in ftrace_process_locs().
+Before the first pg->index++, index is 0 and accessing pg->records[-1].ip
+will cause this problem.
 
-https://lore.kernel.org/linux-pci/20220523171517.32407-1-windy.bi.enflame@gmail.com/
+Don't check the ip when pg->index is 0.
 
-However we already have pci_bridge_wait_for_secondary_bus() which does
-almost exactly what we need.  So far it's only called on resume from
-D3cold (which implies a Fundamental Reset per PCIe r6.0 sec 5.8).
-Re-using it for Secondary Bus Resets is a leaner and more rational
-approach than introducing a new function.
+Link: https://lore.kernel.org/linux-trace-kernel/20230309080230.36064-1-chenzhongjin@huawei.com
 
-That only requires a few minor tweaks:
-
-- Amend pci_bridge_wait_for_secondary_bus() to await accessibility of
-  the first device on the secondary bus by calling pci_dev_wait() after
-  performing the prescribed delays.  pci_dev_wait() needs two parameters,
-  a reset reason and a timeout, which callers must now pass to
-  pci_bridge_wait_for_secondary_bus().  The timeout is 1 sec for resume
-  (PCIe r6.0 sec 6.6.1) and 60 sec for reset (commit 821cdad5c46c ("PCI:
-  Wait up to 60 seconds for device to become ready after FLR")).
-  Introduce a PCI_RESET_WAIT macro for the 1 sec timeout.
-
-- Amend pci_bridge_wait_for_secondary_bus() to return 0 on success or
-  -ENOTTY on error for consumption by pci_bridge_secondary_bus_reset().
-
-- Drop an unnecessary 1 sec delay from pci_reset_secondary_bus() which
-  is now performed by pci_bridge_wait_for_secondary_bus().  A static
-  delay this long is only necessary for Conventional PCI, so modern
-  PCIe systems benefit from shorter reset times as a side effect.
-
-Fixes: 6b2f1351af56 ("PCI: Wait for device to become ready after secondary bus reset")
-Link: https://lore.kernel.org/r/da77c92796b99ec568bd070cbe4725074a117038.1673769517.git.lukas@wunner.de
-Reported-by: Sheng Bi <windy.bi.enflame@gmail.com>
-Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.17+
+Cc: stable@vger.kernel.org
+Fixes: 9644302e3315 ("ftrace: Speed up search by skipping pages by address")
+Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-driver.c |    4 +--
- drivers/pci/pci.c        |   54 ++++++++++++++++++++---------------------------
- drivers/pci/pci.h        |   10 +++++++-
- 3 files changed, 35 insertions(+), 33 deletions(-)
+ kernel/trace/ftrace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -911,7 +911,7 @@ static int pci_pm_resume_noirq(struct de
- 	pcie_pme_root_status_cleanup(pci_dev);
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -1557,7 +1557,8 @@ unsigned long ftrace_location_range(unsi
+ 	key.flags = end;	/* overload flags, as it is unsigned long */
  
- 	if (!skip_bus_pm && prev_state == PCI_D3cold)
--		pci_bridge_wait_for_secondary_bus(pci_dev);
-+		pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return 0;
-@@ -1298,7 +1298,7 @@ static int pci_pm_runtime_resume(struct
- 	pci_pm_default_resume(pci_dev);
- 
- 	if (prev_state == PCI_D3cold)
--		pci_bridge_wait_for_secondary_bus(pci_dev);
-+		pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
- 
- 	if (pm && pm->runtime_resume)
- 		error = pm->runtime_resume(dev);
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1221,7 +1221,7 @@ static int pci_dev_wait(struct pci_dev *
- 			return -ENOTTY;
- 		}
- 
--		if (delay > 1000)
-+		if (delay > PCI_RESET_WAIT)
- 			pci_info(dev, "not ready %dms after %s; waiting\n",
- 				 delay - 1, reset_type);
- 
-@@ -1230,7 +1230,7 @@ static int pci_dev_wait(struct pci_dev *
- 		pci_read_config_dword(dev, PCI_COMMAND, &id);
- 	}
- 
--	if (delay > 1000)
-+	if (delay > PCI_RESET_WAIT)
- 		pci_info(dev, "ready %dms after %s\n", delay - 1,
- 			 reset_type);
- 
-@@ -4792,24 +4792,31 @@ static int pci_bus_max_d3cold_delay(cons
- /**
-  * pci_bridge_wait_for_secondary_bus - Wait for secondary bus to be accessible
-  * @dev: PCI bridge
-+ * @reset_type: reset type in human-readable form
-+ * @timeout: maximum time to wait for devices on secondary bus (milliseconds)
-  *
-  * Handle necessary delays before access to the devices on the secondary
-- * side of the bridge are permitted after D3cold to D0 transition.
-+ * side of the bridge are permitted after D3cold to D0 transition
-+ * or Conventional Reset.
-  *
-  * For PCIe this means the delays in PCIe 5.0 section 6.6.1. For
-  * conventional PCI it means Tpvrh + Trhfa specified in PCI 3.0 section
-  * 4.3.2.
-+ *
-+ * Return 0 on success or -ENOTTY if the first device on the secondary bus
-+ * failed to become accessible.
-  */
--void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
-+int pci_bridge_wait_for_secondary_bus(struct pci_dev *dev, char *reset_type,
-+				      int timeout)
- {
- 	struct pci_dev *child;
- 	int delay;
- 
- 	if (pci_dev_is_disconnected(dev))
--		return;
-+		return 0;
- 
- 	if (!pci_is_bridge(dev))
--		return;
-+		return 0;
- 
- 	down_read(&pci_bus_sem);
- 
-@@ -4821,14 +4828,14 @@ void pci_bridge_wait_for_secondary_bus(s
- 	 */
- 	if (!dev->subordinate || list_empty(&dev->subordinate->devices)) {
- 		up_read(&pci_bus_sem);
--		return;
-+		return 0;
- 	}
- 
- 	/* Take d3cold_delay requirements into account */
- 	delay = pci_bus_max_d3cold_delay(dev->subordinate);
- 	if (!delay) {
- 		up_read(&pci_bus_sem);
--		return;
-+		return 0;
- 	}
- 
- 	child = list_first_entry(&dev->subordinate->devices, struct pci_dev,
-@@ -4837,14 +4844,12 @@ void pci_bridge_wait_for_secondary_bus(s
- 
- 	/*
- 	 * Conventional PCI and PCI-X we need to wait Tpvrh + Trhfa before
--	 * accessing the device after reset (that is 1000 ms + 100 ms). In
--	 * practice this should not be needed because we don't do power
--	 * management for them (see pci_bridge_d3_possible()).
-+	 * accessing the device after reset (that is 1000 ms + 100 ms).
- 	 */
- 	if (!pci_is_pcie(dev)) {
- 		pci_dbg(dev, "waiting %d ms for secondary bus\n", 1000 + delay);
- 		msleep(1000 + delay);
--		return;
-+		return 0;
- 	}
- 
- 	/*
-@@ -4861,11 +4866,11 @@ void pci_bridge_wait_for_secondary_bus(s
- 	 * configuration requests if we only wait for 100 ms (see
- 	 * https://bugzilla.kernel.org/show_bug.cgi?id=203885).
- 	 *
--	 * Therefore we wait for 100 ms and check for the device presence.
--	 * If it is still not present give it an additional 100 ms.
-+	 * Therefore we wait for 100 ms and check for the device presence
-+	 * until the timeout expires.
- 	 */
- 	if (!pcie_downstream_port(dev))
--		return;
-+		return 0;
- 
- 	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
- 		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
-@@ -4876,14 +4881,11 @@ void pci_bridge_wait_for_secondary_bus(s
- 		if (!pcie_wait_for_link_delay(dev, true, delay)) {
- 			/* Did not train, no need to wait any further */
- 			pci_info(dev, "Data Link Layer Link Active not set in 1000 msec\n");
--			return;
-+			return -ENOTTY;
- 		}
- 	}
- 
--	if (!pci_device_is_present(child)) {
--		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
--		msleep(delay);
--	}
-+	return pci_dev_wait(child, reset_type, timeout - delay);
- }
- 
- void pci_reset_secondary_bus(struct pci_dev *dev)
-@@ -4902,15 +4904,6 @@ void pci_reset_secondary_bus(struct pci_
- 
- 	ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
- 	pci_write_config_word(dev, PCI_BRIDGE_CONTROL, ctrl);
--
--	/*
--	 * Trhfa for conventional PCI is 2^25 clock cycles.
--	 * Assuming a minimum 33MHz clock this results in a 1s
--	 * delay before we can consider subordinate devices to
--	 * be re-initialized.  PCIe has some ways to shorten this,
--	 * but we don't make use of them yet.
--	 */
--	ssleep(1);
- }
- 
- void __weak pcibios_reset_secondary_bus(struct pci_dev *dev)
-@@ -4929,7 +4922,8 @@ int pci_bridge_secondary_bus_reset(struc
- {
- 	pcibios_reset_secondary_bus(dev);
- 
--	return pci_dev_wait(dev, "bus reset", PCIE_RESET_READY_POLL_MS);
-+	return pci_bridge_wait_for_secondary_bus(dev, "bus reset",
-+						 PCIE_RESET_READY_POLL_MS);
- }
- EXPORT_SYMBOL_GPL(pci_bridge_secondary_bus_reset);
- 
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -47,6 +47,13 @@ int pci_bus_error_reset(struct pci_dev *
- #define PCI_PM_D3HOT_WAIT       10	/* msec */
- #define PCI_PM_D3COLD_WAIT      100	/* msec */
- 
-+/*
-+ * Following exit from Conventional Reset, devices must be ready within 1 sec
-+ * (PCIe r6.0 sec 6.6.1).  A D3cold to D0 transition implies a Conventional
-+ * Reset (PCIe r6.0 sec 5.8).
-+ */
-+#define PCI_RESET_WAIT		1000	/* msec */
-+
- /**
-  * struct pci_platform_pm_ops - Firmware PM callbacks
-  *
-@@ -108,7 +115,8 @@ void pci_allocate_cap_save_buffers(struc
- void pci_free_cap_save_buffers(struct pci_dev *dev);
- bool pci_bridge_d3_possible(struct pci_dev *dev);
- void pci_bridge_d3_update(struct pci_dev *dev);
--void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev);
-+int pci_bridge_wait_for_secondary_bus(struct pci_dev *dev, char *reset_type,
-+				      int timeout);
- 
- static inline void pci_wakeup_event(struct pci_dev *dev)
- {
+ 	for (pg = ftrace_pages_start; pg; pg = pg->next) {
+-		if (end < pg->records[0].ip ||
++		if (pg->index == 0 ||
++		    end < pg->records[0].ip ||
+ 		    start >= (pg->records[pg->index - 1].ip + MCOUNT_INSN_SIZE))
+ 			continue;
+ 		rec = bsearch(&key, pg->records, pg->index,
 
 
