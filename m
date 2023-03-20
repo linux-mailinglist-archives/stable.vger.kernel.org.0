@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D82E6C0794
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B32D86C0780
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbjCTA7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:59:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34558 "EHLO
+        id S230396AbjCTA6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbjCTA6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:58:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7412056F;
-        Sun, 19 Mar 2023 17:55:45 -0700 (PDT)
+        with ESMTP id S230332AbjCTA5n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:57:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1154206B0;
+        Sun, 19 Mar 2023 17:55:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27449B80B48;
-        Mon, 20 Mar 2023 00:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79138C433D2;
-        Mon, 20 Mar 2023 00:55:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 634EE61151;
+        Mon, 20 Mar 2023 00:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED78DC4339B;
+        Mon, 20 Mar 2023 00:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273718;
-        bh=o2hSVSgxLu9H00c5eClJaIkDhqs030/SP8ijcu8C2BU=;
+        s=k20201202; t=1679273725;
+        bh=N0JngPiakVmWn0pas8UQ6o3gjr4WlERh/VaRTspIy+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9r/hhL8oX3WD0icCuVtkIEF76r7/IVuC95dPVNrotDtUVKECWjeu6I0cSqCBcoo6
-         ISZPZGlxLPhKhoziqurkLaqrd6/2k7JRILVkIonSi0bbbHpxAGUvGRntpoytAO1s3J
-         vYMtuK6p129y50h2gHdfzcdajy7IdX0QNOynuwjvYn/w250G5eN5VmJv98q3j+0i0M
-         CNvCKyFy2GQQidiznuuegBfWQdZjUQ4o9v35GTPfKpPVBM5xJOfVbr7D3D5qAnh6lg
-         LJn4K1DmcM2t61W1LgWIjbsJWGhTN1qhl5hHHt0KaTuEDDtubdFqU9LHNQm4ftCA2/
-         DdDByT+3/oufw==
+        b=RJCb83Ismanr4enTTAIpR5TtMuAmp7+NhrVdLuPkcvBWPYCgcbCiyJg9KGGeHTt7E
+         cBj+bPiy9ShcrCzukVKlc6E6e03zKpbpaOy5UNVsSdX0vZ9BJL1rI31+qUAxdkxIcn
+         9RP2xD1fsMO2TsTtlIgDOQ7EZgqeaS479WwqASnY1Mv5F6zRhCNVWivonSwPhCVIJP
+         Nf054oiG9xl/pBURO+1OZsDSoGNsdonJNdyyO9wQANVMVUwM/HuaxY+Ca+DzoCnI3c
+         +JP6M8vqt9G1sxr1Lz5XmHar5aqWjz7z0Ipe1yxVL2y6l/WxsEs02pBJXUhsSy6i15
+         Apl+bsJtDb1cw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Thomas Glanzmann <thomas@glanzmann.de>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        evan.quan@amd.com, Hawking.Zhang@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 29/29] drm/amd: Fix initialization mistake for NBIO 7.3.0
-Date:   Sun, 19 Mar 2023 20:54:11 -0400
-Message-Id: <20230320005413.1428452-29-sashal@kernel.org>
+Cc:     Lee Jones <lee@kernel.org>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, david.rheinsberg@gmail.com,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/17] HID: uhid: Over-ride the default maximum data buffer value with our own
+Date:   Sun, 19 Mar 2023 20:55:04 -0400
+Message-Id: <20230320005521.1428820-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
-References: <20230320005413.1428452-1-sashal@kernel.org>
+In-Reply-To: <20230320005521.1428820-1-sashal@kernel.org>
+References: <20230320005521.1428820-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,61 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Lee Jones <lee@kernel.org>
 
-[ Upstream commit 1717cc5f2962a4652c76ed3858b499ccae6c277c ]
+[ Upstream commit 1c5d4221240a233df2440fe75c881465cdf8da07 ]
 
-The same strapping initialization issue that happened on NBIO 7.5.1
-appears to be happening on NBIO 7.3.0.
-Apply the same fix to 7.3.0 as well.
+The default maximum data buffer size for this interface is UHID_DATA_MAX
+(4k).  When data buffers are being processed, ensure this value is used
+when ensuring the sanity, rather than a value between the user provided
+value and HID_MAX_BUFFER_SIZE (16k).
 
-Note: This workaround relies upon the integrated GPU being enabled
-in BIOS. If the integrated GPU is disabled in BIOS a different
-workaround will be required.
-
-Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
-Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/hid/uhid.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-index 4b0d563c6522c..4ef1fa4603c8e 100644
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-@@ -382,11 +382,6 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
- 		if (def != data)
- 			WREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regBIF1_PCIE_MST_CTRL_3), data);
- 		break;
--	case IP_VERSION(7, 5, 1):
--		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
--		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
--		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
--		fallthrough;
- 	default:
- 		def = data = RREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regPCIE_CONFIG_CNTL));
- 		data = REG_SET_FIELD(data, PCIE_CONFIG_CNTL,
-@@ -399,6 +394,15 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
- 		break;
- 	}
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index fc06d8bb42e0f..ba0ca652b9dab 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -395,6 +395,7 @@ struct hid_ll_driver uhid_hid_driver = {
+ 	.parse = uhid_hid_parse,
+ 	.raw_request = uhid_hid_raw_request,
+ 	.output_report = uhid_hid_output_report,
++	.max_buffer_size = UHID_DATA_MAX,
+ };
+ EXPORT_SYMBOL_GPL(uhid_hid_driver);
  
-+	switch (adev->ip_versions[NBIO_HWIP][0]) {
-+	case IP_VERSION(7, 3, 0):
-+	case IP_VERSION(7, 5, 1):
-+		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
-+		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
-+		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
-+		break;
-+	}
-+
- 	if (amdgpu_sriov_vf(adev))
- 		adev->rmmio_remap.reg_offset = SOC15_REG_OFFSET(NBIO, 0,
- 			regBIF_BX_PF0_HDP_MEM_COHERENCY_FLUSH_CNTL) << 2;
 -- 
 2.39.2
 
