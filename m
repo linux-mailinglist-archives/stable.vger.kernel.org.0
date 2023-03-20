@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B45296C168B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F08676C1873
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbjCTPHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
+        id S232655AbjCTPYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:24:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232229AbjCTPGj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:39 -0400
+        with ESMTP id S232672AbjCTPYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:24:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A074F2D61
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D485E360A6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:17:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46656B80EC9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C00C433EF;
-        Mon, 20 Mar 2023 15:02:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37E4AB80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:17:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7529AC433EF;
+        Mon, 20 Mar 2023 15:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324533;
-        bh=S6tEHWndNmSMMQ5WutitFRxVDIVV+AOXs7zwPkBG9T4=;
+        s=korg; t=1679325432;
+        bh=kJkK3+l+HP8IxMfE2VAikLE5Y6vW92FODnSE6P8vndQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgLNpHxGvsoetD2wm418rYR3ZBKsJzty5QxR1iF71aRaiMosJuJbgiz+3XICqEoLr
-         bLszmgA+EL5quxHb3TDUY3+lGUskl/8YCnMsMk5Bo3m3mVOQJk5OIjiCXGhwxqKvZL
-         F8R8YfWNS+a+4wDLC99hAuWZAPQVNGgDILNdpsIQ=
+        b=1/ZeNzl5Y7jiOd7iAiCVDdM5nchms7v4HhdH3VryPTwd3Q1jX6GJFRv1I+Rd8STA8
+         p0CdPPe0adFvGmzivSdzkNbdrCuKYVWXOBQbjI+lb1tz/mmnMGR1gQxcb8ZXjTd5W7
+         JSUQPtLYQGXeEpUMW2GO0EoBR536mKXcU6r1VgMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        Freysteinn Alfredsson <Freysteinn.Alfredsson@kau.se>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/99] drm/meson: fix 1px pink line on GXM when scaling video overlay
+Subject: [PATCH 6.1 084/198] net: atlantic: Fix crash when XDP is enabled but no program is loaded
 Date:   Mon, 20 Mar 2023 15:53:42 +0100
-Message-Id: <20230320145443.535484626@linuxfoundation.org>
+Message-Id: <20230320145511.057934169@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 5c8cf1664f288098a971a1d1e65716a2b6a279e1 ]
+[ Upstream commit 37d010399f7552add2b68e2b347901c83562dab8 ]
 
-Playing media with a resolution smaller than the crtc size requires the
-video overlay to be scaled for output and GXM boards display a 1px pink
-line on the bottom of the scaled overlay. Comparing with the downstream
-vendor driver revealed VPP_DUMMY_DATA not being set [0].
+The aq_xdp_run_prog() function falls back to the XDP_ABORTED action
+handler (using a goto) if the operations for any of the other actions fail.
+The XDP_ABORTED handler in turn calls the bpf_warn_invalid_xdp_action()
+tracepoint. However, the function also jumps into the XDP_PASS helper if no
+XDP program is loaded on the device, which means the XDP_ABORTED handler
+can be run with a NULL program pointer. This results in a NULL pointer
+deref because the tracepoint dereferences the 'prog' pointer passed to it.
 
-Setting VPP_DUMMY_DATA prevents the 1px pink line from being seen.
+This situation can happen in multiple ways:
+- If a packet arrives between the removal of the program from the interface
+  and the static_branch_dec() in aq_xdp_setup()
+- If there are multiple devices using the same driver in the system and
+  one of them has an XDP program loaded and the other does not.
 
-[0] https://github.com/endlessm/linux-s905x/blob/master/drivers/amlogic/amports/video.c#L7869
+Fix this by refactoring the aq_xdp_run_prog() function to remove the 'goto
+pass' handling if there is no XDP program loaded. Instead, factor out the
+skb building in a separate small helper function.
 
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Suggested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230303123312.155164-1-christianshewitt@gmail.com
+Fixes: 26efaef759a1 ("net: atlantic: Implement xdp data plane")
+Reported-by: Freysteinn Alfredsson <Freysteinn.Alfredsson@kau.se>
+Tested-by: Freysteinn Alfredsson <Freysteinn.Alfredsson@kau.se>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20230315125539.103319-1-toke@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_vpp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../net/ethernet/aquantia/atlantic/aq_ring.c  | 28 ++++++++++++++-----
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_vpp.c b/drivers/gpu/drm/meson/meson_vpp.c
-index 154837688ab0d..5df1957c8e41f 100644
---- a/drivers/gpu/drm/meson/meson_vpp.c
-+++ b/drivers/gpu/drm/meson/meson_vpp.c
-@@ -100,6 +100,8 @@ void meson_vpp_init(struct meson_drm *priv)
- 			       priv->io_base + _REG(VPP_DOLBY_CTRL));
- 		writel_relaxed(0x1020080,
- 				priv->io_base + _REG(VPP_DUMMY_DATA1));
-+		writel_relaxed(0x42020,
-+				priv->io_base + _REG(VPP_DUMMY_DATA));
- 	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
- 		writel_relaxed(0xf, priv->io_base + _REG(DOLBY_PATH_CTRL));
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+index 25129e723b575..2dc8d215a5918 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -412,6 +412,25 @@ int aq_xdp_xmit(struct net_device *dev, int num_frames,
+ 	return num_frames - drop;
+ }
  
++static struct sk_buff *aq_xdp_build_skb(struct xdp_buff *xdp,
++					struct net_device *dev,
++					struct aq_ring_buff_s *buff)
++{
++	struct xdp_frame *xdpf;
++	struct sk_buff *skb;
++
++	xdpf = xdp_convert_buff_to_frame(xdp);
++	if (unlikely(!xdpf))
++		return NULL;
++
++	skb = xdp_build_skb_from_frame(xdpf, dev);
++	if (!skb)
++		return NULL;
++
++	aq_get_rxpages_xdp(buff, xdp);
++	return skb;
++}
++
+ static struct sk_buff *aq_xdp_run_prog(struct aq_nic_s *aq_nic,
+ 				       struct xdp_buff *xdp,
+ 				       struct aq_ring_s *rx_ring,
+@@ -431,7 +450,7 @@ static struct sk_buff *aq_xdp_run_prog(struct aq_nic_s *aq_nic,
+ 
+ 	prog = READ_ONCE(rx_ring->xdp_prog);
+ 	if (!prog)
+-		goto pass;
++		return aq_xdp_build_skb(xdp, aq_nic->ndev, buff);
+ 
+ 	prefetchw(xdp->data_hard_start); /* xdp_frame write */
+ 
+@@ -442,17 +461,12 @@ static struct sk_buff *aq_xdp_run_prog(struct aq_nic_s *aq_nic,
+ 	act = bpf_prog_run_xdp(prog, xdp);
+ 	switch (act) {
+ 	case XDP_PASS:
+-pass:
+-		xdpf = xdp_convert_buff_to_frame(xdp);
+-		if (unlikely(!xdpf))
+-			goto out_aborted;
+-		skb = xdp_build_skb_from_frame(xdpf, aq_nic->ndev);
++		skb = aq_xdp_build_skb(xdp, aq_nic->ndev, buff);
+ 		if (!skb)
+ 			goto out_aborted;
+ 		u64_stats_update_begin(&rx_ring->stats.rx.syncp);
+ 		++rx_ring->stats.rx.xdp_pass;
+ 		u64_stats_update_end(&rx_ring->stats.rx.syncp);
+-		aq_get_rxpages_xdp(buff, xdp);
+ 		return skb;
+ 	case XDP_TX:
+ 		xdpf = xdp_convert_buff_to_frame(xdp);
 -- 
 2.39.2
 
