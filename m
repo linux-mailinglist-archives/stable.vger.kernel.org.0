@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3C76C1729
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5EB56C164E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232358AbjCTPMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35686 "EHLO
+        id S232201AbjCTPEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232364AbjCTPLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43D92F069
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:39 -0700 (PDT)
+        with ESMTP id S232180AbjCTPEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8026B2B618
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97CB1B80EAC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BAB3C433D2;
-        Mon, 20 Mar 2023 15:06:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E537B80EC8
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1758C433EF;
+        Mon, 20 Mar 2023 14:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324788;
-        bh=v3WmhsKYQj2brYwY24PrxhsCZptd76ru0komQ8l7e8k=;
+        s=korg; t=1679324389;
+        bh=LPTqG6PJB4W/JqXy0gnQJ4ohULvRZavu9EKEHp+2QRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXR3qlU3AHC6GRwlOE/d0YfTcJ9DFEE6Ezyd69NiXAdcjebt9a4+NbZJtgLtQzm8y
-         X4R19+bSpIbHnDPve92ltxlh2A4in4gHhcnOaWSftCTcZTx5bWybckA8kKNSt9CK0f
-         Rw0w1+MMvnU4Ezag5QCqt8nDbkHgCAfGc6MJqYno=
+        b=Ex63RgoR/JGAqjsGjTpDpW1O3JIyJM2h19xlCW4iRGzPI9uLK60vqNFy5sAO0aI/3
+         iQr+hh+d82VRHFfA1yUfNSVPNX1TuUAaFRV8B9CQGyJDmGfx+rEERAGTMOsJ2gSbYE
+         gBGfa+rQwZ+stAawW7Ue1ckA/x2+WQPzV6rQNiys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH 5.10 58/99] serial: 8250_em: Fix UART port type
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 10/36] net: usb: smsc75xx: Limit packet length to skb->len
 Date:   Mon, 20 Mar 2023 15:54:36 +0100
-Message-Id: <20230320145445.820011941@linuxfoundation.org>
+Message-Id: <20230320145424.630143213@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,36 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-commit 32e293be736b853f168cd065d9cbc1b0c69f545d upstream.
+[ Upstream commit d8b228318935044dafe3a5bc07ee71a1f1424b8d ]
 
-As per HW manual for  EMEV2 "R19UH0040EJ0400 Rev.4.00", the UART
-IP found on EMMA mobile SoC is Register-compatible with the
-general-purpose 16750 UART chip. Fix UART port type as 16750 and
-enable 64-bytes fifo support.
+Packet length retrieved from skb data may be larger than
+the actual socket buffer length (up to 9026 bytes). In such
+case the cloned skb passed up the network stack will leak
+kernel memory contents.
 
-Fixes: 22886ee96895 ("serial8250-em: Emma Mobile UART driver V2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20230227114152.22265-2-biju.das.jz@bp.renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_em.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/smsc75xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_em.c
-+++ b/drivers/tty/serial/8250/8250_em.c
-@@ -106,8 +106,8 @@ static int serial8250_em_probe(struct pl
- 	memset(&up, 0, sizeof(up));
- 	up.port.mapbase = regs->start;
- 	up.port.irq = irq;
--	up.port.type = PORT_UNKNOWN;
--	up.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT | UPF_IOREMAP;
-+	up.port.type = PORT_16750;
-+	up.port.flags = UPF_FIXED_PORT | UPF_IOREMAP | UPF_FIXED_TYPE;
- 	up.port.dev = &pdev->dev;
- 	up.port.private_data = priv;
- 
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index 8b9fd4e071f3d..b4705dee2b751 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -2225,7 +2225,8 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 				dev->net->stats.rx_frame_errors++;
+ 		} else {
+ 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
+-			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
++			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
++				     size > skb->len)) {
+ 				netif_dbg(dev, rx_err, dev->net,
+ 					  "size err rx_cmd_a=0x%08x\n",
+ 					  rx_cmd_a);
+-- 
+2.39.2
+
 
 
