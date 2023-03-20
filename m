@@ -2,85 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1886C17F4
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:18:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5011D6C163D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:03:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbjCTPS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
+        id S231473AbjCTPDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:03:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232523AbjCTPS2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:18:28 -0400
+        with ESMTP id S232139AbjCTPDY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:03:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63327AF21
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777272DE60
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 07:59:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC5B96158F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6397C433D2;
-        Mon, 20 Mar 2023 15:13:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9CC46159D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8DADC433D2;
+        Mon, 20 Mar 2023 14:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325183;
-        bh=v3WmhsKYQj2brYwY24PrxhsCZptd76ru0komQ8l7e8k=;
+        s=korg; t=1679324334;
+        bh=rbXSAK+88t/rL+IzRSDszfV7F6QhwewLoU1P/X/l4ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oThIq8uvJYXzQtIfB+iBNho6M3IKcITZ3IKDqZee6U7klfdPyLDz+9G8sMSQy1Ax+
-         dqIXCFvwz8LdpJppP0Oi+hypZ4H/Bu5MKXr8VmHcKyTnK1LuYKPyPG4i17MhvhIky7
-         2PvCmE2jLI1LgeVLC2pLorvrUBVjvMV6g1tamBGQ=
+        b=0Yb0hOOeoViiOlTHH6Bh6/SZNH0b/ZHPkxWT2Gu2mp1p7/XteH97ZA51Xk5q9s4mJ
+         0xNlGFVTbSNnr1cmIoeBd0BSknQQKRtmVvslD4uVKglhf54DE0/yrRpmaQ1XyghDN9
+         YE/8SgBTYNln5J361TdHx2/x7IBP2+WDNp3Tel+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH 5.15 075/115] serial: 8250_em: Fix UART port type
+        patches@lists.linux.dev, Tobias Schramm <t.schramm@manjaro.org>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 21/36] mmc: atmel-mci: fix race between stop command and start of next command
 Date:   Mon, 20 Mar 2023 15:54:47 +0100
-Message-Id: <20230320145452.571561353@linuxfoundation.org>
+Message-Id: <20230320145425.024491536@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
+References: <20230320145424.191578432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Tobias Schramm <t.schramm@manjaro.org>
 
-commit 32e293be736b853f168cd065d9cbc1b0c69f545d upstream.
+[ Upstream commit eca5bd666b0aa7dc0bca63292e4778968241134e ]
 
-As per HW manual for  EMEV2 "R19UH0040EJ0400 Rev.4.00", the UART
-IP found on EMMA mobile SoC is Register-compatible with the
-general-purpose 16750 UART chip. Fix UART port type as 16750 and
-enable 64-bytes fifo support.
+This commit fixes a race between completion of stop command and start of a
+new command.
+Previously the command ready interrupt was enabled before stop command
+was written to the command register. This caused the command ready
+interrupt to fire immediately since the CMDRDY flag is asserted constantly
+while there is no command in progress.
+Consequently the command state machine will immediately advance to the
+next state when the tasklet function is executed again, no matter
+actual completion state of the stop command.
+Thus a new command can then be dispatched immediately, interrupting and
+corrupting the stop command on the CMD line.
+Fix that by dropping the command ready interrupt enable before calling
+atmci_send_stop_cmd. atmci_send_stop_cmd does already enable the
+command ready interrupt, no further writes to ATMCI_IER are necessary.
 
-Fixes: 22886ee96895 ("serial8250-em: Emma Mobile UART driver V2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20230227114152.22265-2-biju.das.jz@bp.renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Link: https://lore.kernel.org/r/20221230194315.809903-2-t.schramm@manjaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_em.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/atmel-mci.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_em.c
-+++ b/drivers/tty/serial/8250/8250_em.c
-@@ -106,8 +106,8 @@ static int serial8250_em_probe(struct pl
- 	memset(&up, 0, sizeof(up));
- 	up.port.mapbase = regs->start;
- 	up.port.irq = irq;
--	up.port.type = PORT_UNKNOWN;
--	up.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT | UPF_IOREMAP;
-+	up.port.type = PORT_16750;
-+	up.port.flags = UPF_FIXED_PORT | UPF_IOREMAP | UPF_FIXED_TYPE;
- 	up.port.dev = &pdev->dev;
- 	up.port.private_data = priv;
- 
+diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
+index d40bab3d9f4af..fb435a8d37213 100644
+--- a/drivers/mmc/host/atmel-mci.c
++++ b/drivers/mmc/host/atmel-mci.c
+@@ -1857,7 +1857,6 @@ static void atmci_tasklet_func(unsigned long priv)
+ 				atmci_writel(host, ATMCI_IER, ATMCI_NOTBUSY);
+ 				state = STATE_WAITING_NOTBUSY;
+ 			} else if (host->mrq->stop) {
+-				atmci_writel(host, ATMCI_IER, ATMCI_CMDRDY);
+ 				atmci_send_stop_cmd(host, data);
+ 				state = STATE_SENDING_STOP;
+ 			} else {
+@@ -1890,8 +1889,6 @@ static void atmci_tasklet_func(unsigned long priv)
+ 				 * command to send.
+ 				 */
+ 				if (host->mrq->stop) {
+-					atmci_writel(host, ATMCI_IER,
+-					             ATMCI_CMDRDY);
+ 					atmci_send_stop_cmd(host, data);
+ 					state = STATE_SENDING_STOP;
+ 				} else {
+-- 
+2.39.2
+
 
 
