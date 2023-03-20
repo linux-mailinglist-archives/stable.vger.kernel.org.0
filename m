@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D336C197A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:34:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D1E96C177F
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233039AbjCTPeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54502 "EHLO
+        id S232415AbjCTPOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233079AbjCTPdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:35 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23A02A17B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:28 -0700 (PDT)
+        with ESMTP id S232398AbjCTPOI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B432E0C4
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 99FC6CE12DB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA53C433EF;
-        Mon, 20 Mar 2023 15:26:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEE196154D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:09:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAB3DC433D2;
+        Mon, 20 Mar 2023 15:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325983;
-        bh=LpRtXfs3aHQRr8gx0vmr/Po8E1+0VB63pxPkhZZiZN4=;
+        s=korg; t=1679324950;
+        bh=wsxCaoUF0hhSGtz5fXwqWPw8ulraezA65sGTYhhvfK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJnkgIztKpw6wnUAGVnkuaFVrxQwr0JIbZwL4aNGJAIcthTPcbrCvfsfAWOxlWoym
-         JyZsl8TL/sdt4JQCBHeMgx58DnJWObwYW/2jx14LfVg1DtAp5pQ7Iab2eDDC6OUBlx
-         gWv+B4YZPqp1zrqkyZNozYqsdQXjiX9MCzOK7Ja8=
+        b=oGzUQfOhQrbsfVgRkIXqdM1VuejtyBV2IyRdYJNNYVGNzOFpifNxljvlUXQHl3Akq
+         a+x6XgO2sGoFUThi1FbYJVm2xfP/ELieq07b67csqtAXzi+4jeYFCeN5wqoqDAtlmX
+         aYIXW3FDemztvZ+/Yz0CV0XcHy/VozK/7uiWU9jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxime Ripard <mripard@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 6.1 156/198] drm/sun4i: fix missing component unbind on bind errors
+        patches@lists.linux.dev,
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>, stable@kernel.org
+Subject: [PATCH 5.10 76/99] x86/mm: Fix use of uninitialized buffer in sme_enable()
 Date:   Mon, 20 Mar 2023 15:54:54 +0100
-Message-Id: <20230320145514.062468878@linuxfoundation.org>
+Message-Id: <20230320145446.588074368@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,49 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-commit c22f2ff8724b49dce2ae797e9fbf4bc0fa91112f upstream.
+commit cbebd68f59f03633469f3ecf9bea99cd6cce3854 upstream.
 
-Make sure to unbind all subcomponents when binding the aggregate device
-fails.
+cmdline_find_option() may fail before doing any initialization of
+the buffer array. This may lead to unpredictable results when the same
+buffer is used later in calls to strncmp() function.  Fix the issue by
+returning early if cmdline_find_option() returns an error.
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Cc: stable@vger.kernel.org      # 4.7
-Cc: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230306103242.4775-1-johan+linaro@kernel.org
+Found by Linux Verification Center (linuxtesting.org) with static
+analysis tool SVACE.
+
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230306160656.14844-1-n.zhandarovich@fintech.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_drv.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/mm/mem_encrypt_identity.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -95,12 +95,12 @@ static int sun4i_drv_bind(struct device
- 	/* drm_vblank_init calls kcalloc, which can fail */
- 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -586,7 +586,8 @@ void __init sme_enable(struct boot_param
+ 	cmdline_ptr = (const char *)((u64)bp->hdr.cmd_line_ptr |
+ 				     ((u64)bp->ext_cmd_line_ptr << 32));
  
- 	/* Remove early framebuffers (ie. simplefb) */
- 	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+-	cmdline_find_option(cmdline_ptr, cmdline_arg, buffer, sizeof(buffer));
++	if (cmdline_find_option(cmdline_ptr, cmdline_arg, buffer, sizeof(buffer)) < 0)
++		return;
  
- 	sun4i_framebuffer_init(drm);
- 
-@@ -119,6 +119,8 @@ static int sun4i_drv_bind(struct device
- 
- finish_poll:
- 	drm_kms_helper_poll_fini(drm);
-+unbind_all:
-+	component_unbind_all(dev, NULL);
- cleanup_mode_config:
- 	drm_mode_config_cleanup(drm);
- 	of_reserved_mem_device_release(dev);
+ 	if (!strncmp(buffer, cmdline_on, sizeof(buffer)))
+ 		sme_me_mask = me_mask;
 
 
