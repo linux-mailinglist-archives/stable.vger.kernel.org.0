@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F25A6C198F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA7E6C19D2
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232469AbjCTPfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:35:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33370 "EHLO
+        id S232990AbjCTPio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233115AbjCTPeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:34:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0EED35ED8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:11 -0700 (PDT)
+        with ESMTP id S233268AbjCTPiV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BFFE1E1E1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 664F760C19
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74153C433EF;
-        Mon, 20 Mar 2023 15:27:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 82D23CE12C5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3A2C433D2;
+        Mon, 20 Mar 2023 15:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326030;
-        bh=rv+GyJiahLQZejHLFzkvnbHOD0LwUBvUB6ioqNnkT6I=;
+        s=korg; t=1679326183;
+        bh=2H03kPlgVZ9UReKwuHr8cdjhGt7MIJ9YvOECSJbxdBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sl/jKAYKoy/cB0VeJApXKUN7Oai0t5u+oO7cW6vNoQbiZafPHYTf1ujvYsYApYi3L
-         JHKiljvW92vuZgf/rttffeHRrsvNyFHCU2WzofLvA55ox8kZm9L3v2W2Cj8nlClW8N
-         J8/IdpI+cW5wYVVRRRe5Yn96yNz/Wjt7HefXYTtc=
+        b=OK92DCjU5DJpBxBACugRN2XPeEXiXvA8hGQ9sw6VneeFrQ/RRkUaATRVpma03KN0P
+         XJDcIc1vebQV0HlvNz49qqc1BxtgqKr0OsptmBDIaW7XCHGV2bCXxldaWhwMF8z9h7
+         uU2R83Z/KuMMPlymvnTrKVAW5k2f1WHkrtkzf/P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>, stable@kernel.org
-Subject: [PATCH 6.1 188/198] x86/mm: Fix use of uninitialized buffer in sme_enable()
+        patches@lists.linux.dev, Tero Kristo <tero.kristo@linux.intel.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.2 191/211] trace/hwlat: Do not wipe the contents of per-cpu thread data
 Date:   Mon, 20 Mar 2023 15:55:26 +0100
-Message-Id: <20230320145515.348786212@linuxfoundation.org>
+Message-Id: <20230320145521.516810984@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,40 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+From: Tero Kristo <tero.kristo@linux.intel.com>
 
-commit cbebd68f59f03633469f3ecf9bea99cd6cce3854 upstream.
+commit 4c42f5f0d1dd20bddd9f940beb1e6ccad60c4498 upstream.
 
-cmdline_find_option() may fail before doing any initialization of
-the buffer array. This may lead to unpredictable results when the same
-buffer is used later in calls to strncmp() function.  Fix the issue by
-returning early if cmdline_find_option() returns an error.
+Do not wipe the contents of the per-cpu kthread data when starting the
+tracer, as this will completely forget about already running instances
+and can later start new additional per-cpu threads.
 
-Found by Linux Verification Center (linuxtesting.org) with static
-analysis tool SVACE.
+Link: https://lore.kernel.org/all/20230302113654.2984709-1-tero.kristo@linux.intel.com/
+Link: https://lkml.kernel.org/r/20230310100451.3948583-2-tero.kristo@linux.intel.com
 
-Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/20230306160656.14844-1-n.zhandarovich@fintech.ru
+Cc: stable@vger.kernel.org
+Fixes: f46b16520a087 ("trace/hwlat: Implement the per-cpu mode")
+Signed-off-by: Tero Kristo <tero.kristo@linux.intel.com>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/mem_encrypt_identity.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/trace/trace_hwlat.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -600,7 +600,8 @@ void __init sme_enable(struct boot_param
- 	cmdline_ptr = (const char *)((u64)bp->hdr.cmd_line_ptr |
- 				     ((u64)bp->ext_cmd_line_ptr << 32));
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -584,9 +584,6 @@ static int start_per_cpu_kthreads(struct
+ 	 */
+ 	cpumask_and(current_mask, cpu_online_mask, tr->tracing_cpumask);
  
--	cmdline_find_option(cmdline_ptr, cmdline_arg, buffer, sizeof(buffer));
-+	if (cmdline_find_option(cmdline_ptr, cmdline_arg, buffer, sizeof(buffer)) < 0)
-+		return;
- 
- 	if (!strncmp(buffer, cmdline_on, sizeof(buffer)))
- 		sme_me_mask = me_mask;
+-	for_each_online_cpu(cpu)
+-		per_cpu(hwlat_per_cpu_data, cpu).kthread = NULL;
+-
+ 	for_each_cpu(cpu, current_mask) {
+ 		retval = start_cpu_kthread(cpu);
+ 		if (retval)
 
 
