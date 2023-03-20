@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90A96C16C4
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B53B6C195E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232197AbjCTPI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
+        id S233125AbjCTPdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232180AbjCTPIj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334A32E835
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:06 -0700 (PDT)
+        with ESMTP id S233013AbjCTPcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04082F060
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D4DB6154D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D7CC433EF;
-        Mon, 20 Mar 2023 15:03:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E4BDB80EAB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D33C433D2;
+        Mon, 20 Mar 2023 15:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324585;
-        bh=h3y3HH01KgcJq02AOFdV2sZ5v+gM4bqe9amZ6i9IiDs=;
+        s=korg; t=1679325915;
+        bh=xiRh6sWfV3prQZpdcS43W6PEq3K7YVCnNLbksEWsJ4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkr1UYOdwxWpekUkRPfa1I6o+7JF5QbXP/pFLquI9oFkGBCwIbeZQVNoCrEVVlp64
-         HAyqg/OvUZ0/i6VKlliZFE3ZLCADQWBECxQh2OerSxYt1EyMWLcaX8OcZukL2EecLQ
-         yLxpvNPd/UVVVjGeIR6YAQ8qeeJnTQ9EkxUYdAaE=
+        b=FPrldL6CTElnyxJcUmovcCwfh4Ulj1BocjWsrt0h73kFBuKO/LE4eeSXcRFuuhJSO
+         RIF0iRWRod+sj73GN3wyxoBdDWYE/57Xhje5UWZzegcykqeKOZ+FkJwZX3leElZKyS
+         HqFT7Sealv+y1SOBLHJoRmip+ov8iGrzFlniROXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH 5.4 56/60] serial: 8250_em: Fix UART port type
+        patches@lists.linux.dev, Christoph Paasch <cpaasch@apple.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 167/198] mptcp: fix lockdep false positive in mptcp_pm_nl_create_listen_socket()
 Date:   Mon, 20 Mar 2023 15:55:05 +0100
-Message-Id: <20230320145433.255720925@linuxfoundation.org>
+Message-Id: <20230320145514.536525592@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,38 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 32e293be736b853f168cd065d9cbc1b0c69f545d upstream.
+commit cee4034a3db1d30c3243dd51506a9d4ab1a849fa upstream.
 
-As per HW manual for  EMEV2 "R19UH0040EJ0400 Rev.4.00", the UART
-IP found on EMMA mobile SoC is Register-compatible with the
-general-purpose 16750 UART chip. Fix UART port type as 16750 and
-enable 64-bytes fifo support.
+Christoph reports a lockdep splat in the mptcp_subflow_create_socket()
+error path, when such function is invoked by
+mptcp_pm_nl_create_listen_socket().
 
-Fixes: 22886ee96895 ("serial8250-em: Emma Mobile UART driver V2")
+Such code path acquires two separates, nested socket lock, with the
+internal lock operation lacking the "nested" annotation. Adding that
+in sock_release() for mptcp's sake only could be confusing.
+
+Instead just add a new lockclass to the in-kernel msk socket,
+re-initializing the lockdep infra after the socket creation.
+
+Fixes: ad2171009d96 ("mptcp: fix locking for in-kernel listener creation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20230227114152.22265-2-biju.das.jz@bp.renesas.com
-[biju: manually fixed the conflicts]
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/354
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Tested-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_em.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mptcp/pm_netlink.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_em.c
-+++ b/drivers/tty/serial/8250/8250_em.c
-@@ -102,8 +102,8 @@ static int serial8250_em_probe(struct pl
- 	memset(&up, 0, sizeof(up));
- 	up.port.mapbase = regs->start;
- 	up.port.irq = irq->start;
--	up.port.type = PORT_UNKNOWN;
--	up.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT | UPF_IOREMAP;
-+	up.port.type = PORT_16750;
-+	up.port.flags = UPF_FIXED_PORT | UPF_IOREMAP | UPF_FIXED_TYPE;
- 	up.port.dev = &pdev->dev;
- 	up.port.private_data = priv;
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -987,9 +987,13 @@ out:
+ 	return ret;
+ }
  
++static struct lock_class_key mptcp_slock_keys[2];
++static struct lock_class_key mptcp_keys[2];
++
+ static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
+ 					    struct mptcp_pm_addr_entry *entry)
+ {
++	bool is_ipv6 = sk->sk_family == AF_INET6;
+ 	int addrlen = sizeof(struct sockaddr_in);
+ 	struct sockaddr_storage addr;
+ 	struct socket *ssock;
+@@ -1006,6 +1010,18 @@ static int mptcp_pm_nl_create_listen_soc
+ 	if (!newsk)
+ 		return -EINVAL;
+ 
++	/* The subflow socket lock is acquired in a nested to the msk one
++	 * in several places, even by the TCP stack, and this msk is a kernel
++	 * socket: lockdep complains. Instead of propagating the _nested
++	 * modifiers in several places, re-init the lock class for the msk
++	 * socket to an mptcp specific one.
++	 */
++	sock_lock_init_class_and_name(newsk,
++				      is_ipv6 ? "mlock-AF_INET6" : "mlock-AF_INET",
++				      &mptcp_slock_keys[is_ipv6],
++				      is_ipv6 ? "msk_lock-AF_INET6" : "msk_lock-AF_INET",
++				      &mptcp_keys[is_ipv6]);
++
+ 	lock_sock(newsk);
+ 	ssock = __mptcp_nmpc_socket(mptcp_sk(newsk));
+ 	release_sock(newsk);
 
 
