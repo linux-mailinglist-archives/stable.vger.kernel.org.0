@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B47B6C19C0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D13F36C19CF
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbjCTPh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
+        id S233108AbjCTPiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:38:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbjCTPhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:37:04 -0400
+        with ESMTP id S233119AbjCTPiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E2D32CC4
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BEBFE077
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:29:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 445B96154E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DB39C433EF;
-        Mon, 20 Mar 2023 15:28:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4396161593
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53681C4339B;
+        Mon, 20 Mar 2023 15:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326134;
-        bh=ZbuY7MbesWOMw1HpLMWa9kzAUuC2J3xY0mqJbOsQJ0Q=;
+        s=korg; t=1679326175;
+        bh=rsc6DeU+Ch57SmvyZGQKPDccSe/DsX+OxfnQCkjRClk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVyc5IsfvJHmjpAwVOUR5ccIPOjNISN336QDRip0qUeYAF/Sk+VHrlGO71bhHdXVu
-         /afmmucEfsqNlY1PT1Suz6BzenmgZYTLXgSxGXBxBNwZe8x3foIo6JjiAGlTYydmE7
-         nr17nMKJrtWXveRbEJpOQE+KaiPatilrCVpU2TOY=
+        b=BgqrcAqA1dg/URaaQUbzBSIUPniFUtsKnlpfI9qIocq2Lcp8D1H3Cai1FvUG4t4Wf
+         TeqP4O2BaCQj9FQ+/3dKICPx4VGjIJ7c9/6zW3Dg/DY6s3YYZ2GspBOyaaTrhmBbqs
+         wScTPvU99Uepl27aTWhRCxjrzr6lV3ea7vOLc6uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.1 185/198] ASoC: Intel: soc-acpi: fix copy-paste issue in topology names
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.2 188/211] powerpc/boot: Dont always pass -mcpu=powerpc when building 32-bit uImage
 Date:   Mon, 20 Mar 2023 15:55:23 +0100
-Message-Id: <20230320145515.249463997@linuxfoundation.org>
+Message-Id: <20230320145521.392170709@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 858a438a6cf919e5727d2a0f5f3f0e68b2d5354e upstream.
+commit ff7c76f66d8bad4e694c264c789249e1d3a8205d upstream.
 
-For some reason the convention for topology names was not followed and
-the name inspired by another unrelated hardware configuration. As a
-result, the kernel will request a non-existent topology file.
+When CONFIG_TARGET_CPU is specified then pass its value to the compiler
+-mcpu option. This fixes following build error when building kernel with
+powerpc e500 SPE capable cross compilers:
 
-Link: https://github.com/thesofproject/sof/pull/6878
-Fixes: 2ec8b081d59f ("ASoC: Intel: soc-acpi: Add entry for sof_es8336 in ADL match table")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307100733.15025-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+    BOOTAS  arch/powerpc/boot/crt0.o
+  powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
+  powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
+  make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
+
+Similar change was already introduced for the main powerpc Makefile in
+commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
+compiler").
+
+Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
+Cc: stable@vger.kernel.org # v5.19+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/common/soc-acpi-intel-adl-match.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/boot/Makefile |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/sound/soc/intel/common/soc-acpi-intel-adl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-adl-match.c
-@@ -547,7 +547,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_in
- 	{
- 		.comp_ids = &essx_83x6,
- 		.drv_name = "sof-essx8336",
--		.sof_tplg_filename = "sof-adl-es83x6", /* the tplg suffix is added at run time */
-+		.sof_tplg_filename = "sof-adl-es8336", /* the tplg suffix is added at run time */
- 		.tplg_quirk_mask = SND_SOC_ACPI_TPLG_INTEL_SSP_NUMBER |
- 					SND_SOC_ACPI_TPLG_INTEL_SSP_MSB |
- 					SND_SOC_ACPI_TPLG_INTEL_DMIC_NUMBER,
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-
+ 		 $(LINUXINCLUDE)
+ 
+ ifdef CONFIG_PPC64_BOOT_WRAPPER
+-ifdef CONFIG_CPU_LITTLE_ENDIAN
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
++BOOTCFLAGS	+= -m64
+ else
+-BOOTCFLAGS	+= -m64 -mcpu=powerpc64
++BOOTCFLAGS	+= -m32
+ endif
++
++ifdef CONFIG_TARGET_CPU_BOOL
++BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
++else ifdef CONFIG_PPC64_BOOT_WRAPPER
++ifdef CONFIG_CPU_LITTLE_ENDIAN
++BOOTCFLAGS	+= -mcpu=powerpc64le
+ else
+-BOOTCFLAGS	+= -m32 -mcpu=powerpc
++BOOTCFLAGS	+= -mcpu=powerpc64
++endif
+ endif
+ 
+ BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
 
 
