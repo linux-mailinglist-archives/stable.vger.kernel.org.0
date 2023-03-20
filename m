@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC726C1711
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD646C16C9
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:09:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbjCTPL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36900 "EHLO
+        id S232224AbjCTPJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:09:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232350AbjCTPLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF85630B38
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:14 -0700 (PDT)
+        with ESMTP id S232220AbjCTPIp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3939C2596A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C3EDB80E55
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7CF9C433D2;
-        Mon, 20 Mar 2023 15:06:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6455BB80ED2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C32DEC433EF;
+        Mon, 20 Mar 2023 15:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324769;
-        bh=ItlIgBt4X28+o0HDeXfg3I4bYvEL4gWkj7nf80R+dYE=;
+        s=korg; t=1679324610;
+        bh=HDwxe8wJ9xTAiwu1kJCMrpSyJIcbUhvheKmkOmS50YU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDPy6sWZKmCPLe1V69m5v3UfMQYU33waC8Yp/dTIUrWjZp0DPzxW6nhDd/ZgH3kkZ
-         M6903aRT/SM4ahin1Zub4y90GGkSULufqFCJZqb/76C/3Y1Pe83aqtUnGLjgWa5xZF
-         xCEgQRdEoqVgHkk+c86UjZDQuxGk/0KeiC64zMqc=
+        b=h2HLMQ3CKEnNY3+7VRYpKc750u8HWjxbnNwowDKwquWLiNy2fwmL4WtCKrGyl1MRV
+         5scjnyCEOZ/kOGW3A/UD6NJx26Lz3YkENNA+gancP4fzywXbKmwH2ygtG8mz9wyEzI
+         zeQwmJxbsztLnWlBJU79qCUDD1xabv1QxQRuZVyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>, Jan Kara <jack@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Dan Schatzberg <schatzberg.dan@gmail.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 030/115] loop: Fix use-after-free issues
-Date:   Mon, 20 Mar 2023 15:54:02 +0100
-Message-Id: <20230320145450.706752156@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 25/99] net: usb: smsc75xx: Limit packet length to skb->len
+Date:   Mon, 20 Mar 2023 15:54:03 +0100
+Message-Id: <20230320145444.439266497@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,99 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit 9b0cb770f5d7b1ff40bea7ca385438ee94570eec ]
+[ Upstream commit d8b228318935044dafe3a5bc07ee71a1f1424b8d ]
 
-do_req_filebacked() calls blk_mq_complete_request() synchronously or
-asynchronously when using asynchronous I/O unless memory allocation fails.
-Hence, modify loop_handle_cmd() such that it does not dereference 'cmd' nor
-'rq' after do_req_filebacked() finished unless we are sure that the request
-has not yet been completed. This patch fixes the following kernel crash:
+Packet length retrieved from skb data may be larger than
+the actual socket buffer length (up to 9026 bytes). In such
+case the cloned skb passed up the network stack will leak
+kernel memory contents.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000054
-Call trace:
- css_put.42938+0x1c/0x1ac
- loop_process_work+0xc8c/0xfd4
- loop_rootcg_workfn+0x24/0x34
- process_one_work+0x244/0x558
- worker_thread+0x400/0x8fc
- kthread+0x16c/0x1e0
- ret_from_fork+0x10/0x20
-
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Dan Schatzberg <schatzberg.dan@gmail.com>
-Fixes: c74d40e8b5e2 ("loop: charge i/o to mem and blk cg")
-Fixes: bc07c10a3603 ("block: loop: support DIO & AIO")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20230314182155.80625-1-bvanassche@acm.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/net/usb/smsc75xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 58a38e61de535..07cf7a35ae502 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -2188,35 +2188,44 @@ static blk_status_t loop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 
- static void loop_handle_cmd(struct loop_cmd *cmd)
- {
-+	struct cgroup_subsys_state *cmd_blkcg_css = cmd->blkcg_css;
-+	struct cgroup_subsys_state *cmd_memcg_css = cmd->memcg_css;
- 	struct request *rq = blk_mq_rq_from_pdu(cmd);
- 	const bool write = op_is_write(req_op(rq));
- 	struct loop_device *lo = rq->q->queuedata;
- 	int ret = 0;
- 	struct mem_cgroup *old_memcg = NULL;
-+	const bool use_aio = cmd->use_aio;
- 
- 	if (write && (lo->lo_flags & LO_FLAGS_READ_ONLY)) {
- 		ret = -EIO;
- 		goto failed;
- 	}
- 
--	if (cmd->blkcg_css)
--		kthread_associate_blkcg(cmd->blkcg_css);
--	if (cmd->memcg_css)
-+	if (cmd_blkcg_css)
-+		kthread_associate_blkcg(cmd_blkcg_css);
-+	if (cmd_memcg_css)
- 		old_memcg = set_active_memcg(
--			mem_cgroup_from_css(cmd->memcg_css));
-+			mem_cgroup_from_css(cmd_memcg_css));
- 
-+	/*
-+	 * do_req_filebacked() may call blk_mq_complete_request() synchronously
-+	 * or asynchronously if using aio. Hence, do not touch 'cmd' after
-+	 * do_req_filebacked() has returned unless we are sure that 'cmd' has
-+	 * not yet been completed.
-+	 */
- 	ret = do_req_filebacked(lo, rq);
- 
--	if (cmd->blkcg_css)
-+	if (cmd_blkcg_css)
- 		kthread_associate_blkcg(NULL);
- 
--	if (cmd->memcg_css) {
-+	if (cmd_memcg_css) {
- 		set_active_memcg(old_memcg);
--		css_put(cmd->memcg_css);
-+		css_put(cmd_memcg_css);
- 	}
-  failed:
- 	/* complete non-aio request */
--	if (!cmd->use_aio || ret) {
-+	if (!use_aio || ret) {
- 		if (ret == -EOPNOTSUPP)
- 			cmd->ret = ret;
- 		else
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index 378a12ae2d957..0b3d11e28faa7 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -2211,7 +2211,8 @@ static int smsc75xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 				dev->net->stats.rx_frame_errors++;
+ 		} else {
+ 			/* MAX_SINGLE_PACKET_SIZE + 4(CRC) + 2(COE) + 4(Vlan) */
+-			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12))) {
++			if (unlikely(size > (MAX_SINGLE_PACKET_SIZE + ETH_HLEN + 12) ||
++				     size > skb->len)) {
+ 				netif_dbg(dev, rx_err, dev->net,
+ 					  "size err rx_cmd_a=0x%08x\n",
+ 					  rx_cmd_a);
 -- 
 2.39.2
 
