@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B886C175A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8231C6C194D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232477AbjCTPNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:13:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S232731AbjCTPcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbjCTPMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B3E618E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:39 -0700 (PDT)
+        with ESMTP id S233037AbjCTPcQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9311715A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63B5DB80EBE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8080C4339B;
-        Mon, 20 Mar 2023 15:07:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C0D07CE12FA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0237C4331E;
+        Mon, 20 Mar 2023 15:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324857;
-        bh=fOl6ipfcv2phHEvl35dX4b+oB0uLTQsz1KS8/AbIa6E=;
+        s=korg; t=1679325877;
+        bh=VtzitmGnVagzTZ2jz2D/JcRzU6x1SGf12rGlVS9Q2ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIFCSrlOiJ3AAtSZS+bNUC4b9wNQrbYHLB5NV2jqq07WDoAiCEVi/cyZANWoaRH8d
-         hbx9bbRrGBostCfiIWjdTcvKAnuzsV7Kmo+Svi2gUvjSAActMXUr64p6TZ1KJHKzv2
-         SU/4Xmj391K9FnOA5NQ3Ji4SSfQSZ4JtYiVZAWIQ=
+        b=TRScydoJUT/mjBCecTkfGh17xbPdc9PtN1bqSynGjIQk7SWm80ZE7XKfFctuSBfnd
+         1JHYr3j3oO97h+4r7NL9EpNdbE8f/d42VVWyUv/vKOg3NJs0FI3CLPjktOvxEyBkN3
+         Bzbze9+XnaCrfO41De6RomLH+Q0KcX+ZkLNxPcDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 5.15 041/115] ice: xsk: disable txq irq before flushing hw
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Subject: [PATCH 6.2 118/211] tty: serial: fsl_lpuart: fix race on RX DMA shutdown
 Date:   Mon, 20 Mar 2023 15:54:13 +0100
-Message-Id: <20230320145451.173734569@linuxfoundation.org>
+Message-Id: <20230320145518.279946238@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,111 +52,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
 
-[ Upstream commit b830c9642386867863ac64295185f896ff2928ac ]
+commit 1be6f2b15f902c02e055ae0b419ca789200473c9 upstream.
 
-ice_qp_dis() intends to stop a given queue pair that is a target of xsk
-pool attach/detach. One of the steps is to disable interrupts on these
-queues. It currently is broken in a way that txq irq is turned off
-*after* HW flush which in turn takes no effect.
+>From time to time DMA completion can come in the middle of DMA shutdown:
 
-ice_qp_dis():
--> ice_qvec_dis_irq()
---> disable rxq irq
---> flush hw
--> ice_vsi_stop_tx_ring()
--->disable txq irq
+<process ctx>:				<IRQ>:
+lpuart32_shutdown()
+  lpuart_dma_shutdown()
+    del_timer_sync()
+					lpuart_dma_rx_complete()
+					  lpuart_copy_rx_to_tty()
+					    mod_timer()
+    lpuart_dma_rx_free()
 
-Below splat can be triggered by following steps:
-- start xdpsock WITHOUT loading xdp prog
-- run xdp_rxq_info with XDP_TX action on this interface
-- start traffic
-- terminate xdpsock
+When the timer fires a bit later, sport->dma_rx_desc is NULL:
 
-[  256.312485] BUG: kernel NULL pointer dereference, address: 0000000000000018
-[  256.319560] #PF: supervisor read access in kernel mode
-[  256.324775] #PF: error_code(0x0000) - not-present page
-[  256.329994] PGD 0 P4D 0
-[  256.332574] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  256.337006] CPU: 3 PID: 32 Comm: ksoftirqd/3 Tainted: G           OE      6.2.0-rc5+ #51
-[  256.345218] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
-[  256.355807] RIP: 0010:ice_clean_rx_irq_zc+0x9c/0x7d0 [ice]
-[  256.361423] Code: b7 8f 8a 00 00 00 66 39 ca 0f 84 f1 04 00 00 49 8b 47 40 4c 8b 24 d0 41 0f b7 45 04 66 25 ff 3f 66 89 04 24 0f 84 85 02 00 00 <49> 8b 44 24 18 0f b7 14 24 48 05 00 01 00 00 49 89 04 24 49 89 44
-[  256.380463] RSP: 0018:ffffc900088bfd20 EFLAGS: 00010206
-[  256.385765] RAX: 000000000000003c RBX: 0000000000000035 RCX: 000000000000067f
-[  256.393012] RDX: 0000000000000775 RSI: 0000000000000000 RDI: ffff8881deb3ac80
-[  256.400256] RBP: 000000000000003c R08: ffff889847982710 R09: 0000000000010000
-[  256.407500] R10: ffffffff82c060c0 R11: 0000000000000004 R12: 0000000000000000
-[  256.414746] R13: ffff88811165eea0 R14: ffffc9000d255000 R15: ffff888119b37600
-[  256.421990] FS:  0000000000000000(0000) GS:ffff8897e0cc0000(0000) knlGS:0000000000000000
-[  256.430207] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  256.436036] CR2: 0000000000000018 CR3: 0000000005c0a006 CR4: 00000000007706e0
-[  256.443283] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  256.450527] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  256.457770] PKRU: 55555554
-[  256.460529] Call Trace:
-[  256.463015]  <TASK>
-[  256.465157]  ? ice_xmit_zc+0x6e/0x150 [ice]
-[  256.469437]  ice_napi_poll+0x46d/0x680 [ice]
-[  256.473815]  ? _raw_spin_unlock_irqrestore+0x1b/0x40
-[  256.478863]  __napi_poll+0x29/0x160
-[  256.482409]  net_rx_action+0x136/0x260
-[  256.486222]  __do_softirq+0xe8/0x2e5
-[  256.489853]  ? smpboot_thread_fn+0x2c/0x270
-[  256.494108]  run_ksoftirqd+0x2a/0x50
-[  256.497747]  smpboot_thread_fn+0x1c1/0x270
-[  256.501907]  ? __pfx_smpboot_thread_fn+0x10/0x10
-[  256.506594]  kthread+0xea/0x120
-[  256.509785]  ? __pfx_kthread+0x10/0x10
-[  256.513597]  ret_from_fork+0x29/0x50
-[  256.517238]  </TASK>
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
+pc : lpuart_copy_rx_to_tty+0xcc/0x5bc
+lr : lpuart_timer_func+0x1c/0x2c
+Call trace:
+ lpuart_copy_rx_to_tty
+ lpuart_timer_func
+ call_timer_fn
+ __run_timers.part.0
+ run_timer_softirq
+ __do_softirq
+ __irq_exit_rcu
+ irq_exit
+ handle_domain_irq
+ gic_handle_irq
+ call_on_irq_stack
+ do_interrupt_handler
+ ...
 
-In fact, irqs were not disabled and napi managed to be scheduled and run
-while xsk_pool pointer was still valid, but SW ring of xdp_buff pointers
-was already freed.
+To fix this fold del_timer_sync() into lpuart_dma_rx_free() after
+dmaengine_terminate_sync() to make sure timer will not be re-started in
+lpuart_copy_rx_to_tty() <= lpuart_dma_rx_complete().
 
-To fix this, call ice_qvec_dis_irq() after ice_vsi_stop_tx_ring(). Also
-while at it, remove redundant ice_clean_rx_ring() call - this is handled
-in ice_qp_clean_rings().
-
-Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4a8588a1cf86 ("serial: fsl_lpuart: delete timer on shutdown")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Link: https://lore.kernel.org/r/20230309134302.74940-2-alexander.sverdlin@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 60d8ef0c88595..070be30cbaa91 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -166,8 +166,6 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
- 	}
- 	netif_tx_stop_queue(netdev_get_tx_queue(vsi->netdev, q_idx));
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1328,6 +1328,7 @@ static void lpuart_dma_rx_free(struct ua
+ 	struct dma_chan *chan = sport->dma_rx_chan;
  
--	ice_qvec_dis_irq(vsi, rx_ring, q_vector);
--
- 	ice_fill_txq_meta(vsi, tx_ring, &txq_meta);
- 	err = ice_vsi_stop_tx_ring(vsi, ICE_NO_RESET, 0, tx_ring, &txq_meta);
- 	if (err)
-@@ -182,6 +180,8 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
- 		if (err)
- 			return err;
+ 	dmaengine_terminate_sync(chan);
++	del_timer_sync(&sport->lpuart_timer);
+ 	dma_unmap_sg(chan->device->dev, &sport->rx_sgl, 1, DMA_FROM_DEVICE);
+ 	kfree(sport->rx_ring.buf);
+ 	sport->rx_ring.tail = 0;
+@@ -1762,7 +1763,6 @@ static int lpuart32_startup(struct uart_
+ static void lpuart_dma_shutdown(struct lpuart_port *sport)
+ {
+ 	if (sport->lpuart_dma_rx_use) {
+-		del_timer_sync(&sport->lpuart_timer);
+ 		lpuart_dma_rx_free(&sport->port);
+ 		sport->lpuart_dma_rx_use = false;
  	}
-+	ice_qvec_dis_irq(vsi, rx_ring, q_vector);
-+
- 	err = ice_vsi_ctrl_one_rx_ring(vsi, false, q_idx, true);
- 	if (err)
- 		return err;
--- 
-2.39.2
-
+@@ -1922,10 +1922,8 @@ lpuart_set_termios(struct uart_port *por
+ 	 * Since timer function acqures sport->port.lock, need to stop before
+ 	 * acquring same lock because otherwise del_timer_sync() can deadlock.
+ 	 */
+-	if (old && sport->lpuart_dma_rx_use) {
+-		del_timer_sync(&sport->lpuart_timer);
++	if (old && sport->lpuart_dma_rx_use)
+ 		lpuart_dma_rx_free(&sport->port);
+-	}
+ 
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+@@ -2159,10 +2157,8 @@ lpuart32_set_termios(struct uart_port *p
+ 	 * Since timer function acqures sport->port.lock, need to stop before
+ 	 * acquring same lock because otherwise del_timer_sync() can deadlock.
+ 	 */
+-	if (old && sport->lpuart_dma_rx_use) {
+-		del_timer_sync(&sport->lpuart_timer);
++	if (old && sport->lpuart_dma_rx_use)
+ 		lpuart_dma_rx_free(&sport->port);
+-	}
+ 
+ 	spin_lock_irqsave(&sport->port.lock, flags);
+ 
+@@ -2962,7 +2958,6 @@ static int lpuart_suspend(struct device
+ 			 * cannot resume as expected, hence gracefully release the
+ 			 * Rx DMA path before suspend and start Rx DMA path on resume.
+ 			 */
+-			del_timer_sync(&sport->lpuart_timer);
+ 			lpuart_dma_rx_free(&sport->port);
+ 
+ 			/* Disable Rx DMA to use UART port as wakeup source */
 
 
