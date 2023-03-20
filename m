@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 794796C1846
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0170E6C183B
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232773AbjCTPXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35036 "EHLO
+        id S232671AbjCTPWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232689AbjCTPWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:41 -0400
+        with ESMTP id S232644AbjCTPVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:21:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC6CE10E7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8862303F9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45848B80EC5
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A606AC4339B;
-        Mon, 20 Mar 2023 15:15:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8686AB80EAB
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56FEC4339B;
+        Mon, 20 Mar 2023 15:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325334;
-        bh=7+E4MrdQ5GjkQx6N+UjMGjQ1swkXXvr3D7dXhvnfl3Q=;
+        s=korg; t=1679325342;
+        bh=OZlJusg9GtHkazQGENwIZTrqCk4r8FHDTY9X5M6MXpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKibA32owCHK8IcGadN81XVuCGVwxbWMjcWk0oD9g2XMDKB8P6rxXki4wxibbC5Bg
-         Ew2UORGUABd3tuwMJQ/kx1WrHRz1n6LOlL8lZgeyRB3Q8LrfNXW2kzZ2cUlv6va78d
-         b1Ayu3wNKj02puhlFLYv1Vp9lCRpVBTF6qwP7FyU=
+        b=HkZopT79s82JlKCPwDOWPUZ+Is4CxXd4Y4M7k6Njtndpy9e4y/r1QBvPLjPRCgakt
+         i7HFerznYK9m9Y7sExB/fwhpidgdGVk0+jmd5QKidIYVPaRkd40FGmdaQAxqcnP42c
+         Z24Tx9nVdRwfwh0QqYNftky5xgTRGVDh5ALLwXMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Wilck <mwilck@suse.com>,
-        Hannes Reinecke <hare@suse.de>, Lee Duncan <lduncan@suse.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
+        syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com,
+        Bart Van Assche <bvanassche@acm.org>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 030/211] scsi: core: Add BLIST_NO_VPD_SIZE for some VDASD
-Date:   Mon, 20 Mar 2023 15:52:45 +0100
-Message-Id: <20230320145514.522308364@linuxfoundation.org>
+Subject: [PATCH 6.2 031/211] scsi: core: Fix a procfs host directory removal regression
+Date:   Mon, 20 Mar 2023 15:52:46 +0100
+Message-Id: <20230320145514.570166406@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
 References: <20230320145513.305686421@linuxfoundation.org>
@@ -55,133 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Duncan <lduncan@suse.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 4b1a2c2a8e0ddcb89c5f6c5003bd9b53142f69e3 ]
+[ Upstream commit be03df3d4bfe7e8866d4aa43d62e648ffe884f5f ]
 
-Some storage, such as AIX VDASD (virtual storage) and IBM 2076 (front
-end), fail as a result of commit c92a6b5d6335 ("scsi: core: Query VPD
-size before getting full page").
+scsi_proc_hostdir_rm() decreases a reference counter and hence must only be
+called once per host that is removed. This change does not require a
+scsi_add_host_with_dma() change since scsi_add_host_with_dma() will return
+0 (success) if scsi_proc_host_add() is called.
 
-That commit changed getting SCSI VPD pages so that we now read just
-enough of the page to get the actual page size, then read the whole
-page in a second read. The problem is that the above mentioned
-hardware returns zero for the page size, because of a firmware
-error. In such cases, until the firmware is fixed, this new blacklist
-flag says to revert to the original method of reading the VPD pages,
-i.e. try to read a whole buffer's worth on the first try.
-
-[mkp: reworked somewhat]
-
-Fixes: c92a6b5d6335 ("scsi: core: Query VPD size before getting full page")
-Reported-by: Martin Wilck <mwilck@suse.com>
-Suggested-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Lee Duncan <lduncan@suse.com>
-Link: https://lore.kernel.org/r/20220928181350.9948-1-leeman.duncan@gmail.com
-Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Fixes: fc663711b944 ("scsi: core: Remove the /proc/scsi/${proc_name} directory earlier")
+Cc: John Garry <john.g.garry@oracle.com>
+Reported-by: John Garry <john.g.garry@oracle.com>
+Link: https://lore.kernel.org/all/ed6b8027-a9d9-1b45-be8e-df4e8c6c4605@oracle.com/
+Reported-by: syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-scsi/000000000000890fab05f65342b6@google.com/
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20230307214428.3703498-1-bvanassche@acm.org
+Tested-by: John Garry <john.g.garry@oracle.com>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi.c         | 3 +++
- drivers/scsi/scsi_devinfo.c | 3 ++-
- drivers/scsi/scsi_scan.c    | 3 +++
- include/scsi/scsi_device.h  | 2 ++
- include/scsi/scsi_devinfo.h | 6 +++---
- 5 files changed, 13 insertions(+), 4 deletions(-)
+ drivers/scsi/hosts.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
-index 9feb0323bc44a..dff1d692e756a 100644
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -326,6 +326,9 @@ static int scsi_get_vpd_size(struct scsi_device *sdev, u8 page)
- 	unsigned char vpd_header[SCSI_VPD_HEADER_SIZE] __aligned(4);
- 	int result;
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index 8e34bbf44d1f5..2bf8612fa55dd 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -341,9 +341,6 @@ static void scsi_host_dev_release(struct device *dev)
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
-+	if (sdev->no_vpd_size)
-+		return SCSI_DEFAULT_VPD_LEN;
-+
- 	/*
- 	 * Fetch the VPD page header to find out how big the page
- 	 * is. This is done to prevent problems on legacy devices
-diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
-index c7080454aea99..bc9d280417f6a 100644
---- a/drivers/scsi/scsi_devinfo.c
-+++ b/drivers/scsi/scsi_devinfo.c
-@@ -134,7 +134,7 @@ static struct {
- 	{"3PARdata", "VV", NULL, BLIST_REPORTLUN2},
- 	{"ADAPTEC", "AACRAID", NULL, BLIST_FORCELUN},
- 	{"ADAPTEC", "Adaptec 5400S", NULL, BLIST_FORCELUN},
--	{"AIX", "VDASD", NULL, BLIST_TRY_VPD_PAGES},
-+	{"AIX", "VDASD", NULL, BLIST_TRY_VPD_PAGES | BLIST_NO_VPD_SIZE},
- 	{"AFT PRO", "-IX CF", "0.0>", BLIST_FORCELUN},
- 	{"BELKIN", "USB 2 HS-CF", "1.95",  BLIST_FORCELUN | BLIST_INQUIRY_36},
- 	{"BROWNIE", "1200U3P", NULL, BLIST_NOREPORTLUN},
-@@ -188,6 +188,7 @@ static struct {
- 	{"HPE", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES},
- 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
- 	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
-+	{"IBM", "2076", NULL, BLIST_NO_VPD_SIZE},
- 	{"IBM", "2105", NULL, BLIST_RETRY_HWERROR},
- 	{"iomega", "jaz 1GB", "J.86", BLIST_NOTQ | BLIST_NOLUN},
- 	{"IOMEGA", "ZIP", NULL, BLIST_NOTQ | BLIST_NOLUN},
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index f9b18fdc7b3c8..6042a5587bc37 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -1055,6 +1055,9 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
- 	else if (*bflags & BLIST_SKIP_VPD_PAGES)
- 		sdev->skip_vpd_pages = 1;
+-	/* In case scsi_remove_host() has not been called. */
+-	scsi_proc_hostdir_rm(shost->hostt);
+-
+ 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
+ 	rcu_barrier();
  
-+	if (*bflags & BLIST_NO_VPD_SIZE)
-+		sdev->no_vpd_size = 1;
-+
- 	transport_configure_device(&sdev->sdev_gendev);
- 
- 	if (sdev->host->hostt->slave_configure) {
-diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-index 3642b8e3928b7..15169d75c251e 100644
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -145,6 +145,7 @@ struct scsi_device {
- 	const char * model;		/* ... after scan; point to static string */
- 	const char * rev;		/* ... "nullnullnullnull" before scan */
- 
-+#define SCSI_DEFAULT_VPD_LEN	255	/* default SCSI VPD page size (max) */
- 	struct scsi_vpd __rcu *vpd_pg0;
- 	struct scsi_vpd __rcu *vpd_pg83;
- 	struct scsi_vpd __rcu *vpd_pg80;
-@@ -215,6 +216,7 @@ struct scsi_device {
- 					 * creation time */
- 	unsigned ignore_media_change:1; /* Ignore MEDIA CHANGE on resume */
- 	unsigned silence_suspend:1;	/* Do not print runtime PM related messages */
-+	unsigned no_vpd_size:1;		/* No VPD size reported in header */
- 
- 	unsigned int queue_stopped;	/* request queue is quiesced */
- 	bool offline_already;		/* Device offline message logged */
-diff --git a/include/scsi/scsi_devinfo.h b/include/scsi/scsi_devinfo.h
-index 5d14adae21c78..6b548dc2c4965 100644
---- a/include/scsi/scsi_devinfo.h
-+++ b/include/scsi/scsi_devinfo.h
-@@ -32,7 +32,8 @@
- #define BLIST_IGN_MEDIA_CHANGE	((__force blist_flags_t)(1ULL << 11))
- /* do not do automatic start on add */
- #define BLIST_NOSTARTONADD	((__force blist_flags_t)(1ULL << 12))
--#define __BLIST_UNUSED_13	((__force blist_flags_t)(1ULL << 13))
-+/* do not ask for VPD page size first on some broken targets */
-+#define BLIST_NO_VPD_SIZE	((__force blist_flags_t)(1ULL << 13))
- #define __BLIST_UNUSED_14	((__force blist_flags_t)(1ULL << 14))
- #define __BLIST_UNUSED_15	((__force blist_flags_t)(1ULL << 15))
- #define __BLIST_UNUSED_16	((__force blist_flags_t)(1ULL << 16))
-@@ -74,8 +75,7 @@
- #define __BLIST_HIGH_UNUSED (~(__BLIST_LAST_USED | \
- 			       (__force blist_flags_t) \
- 			       ((__force __u64)__BLIST_LAST_USED - 1ULL)))
--#define __BLIST_UNUSED_MASK (__BLIST_UNUSED_13 | \
--			     __BLIST_UNUSED_14 | \
-+#define __BLIST_UNUSED_MASK (__BLIST_UNUSED_14 | \
- 			     __BLIST_UNUSED_15 | \
- 			     __BLIST_UNUSED_16 | \
- 			     __BLIST_UNUSED_24 | \
 -- 
 2.39.2
 
