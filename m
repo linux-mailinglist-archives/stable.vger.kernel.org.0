@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35E7F6C1969
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF816C1856
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233145AbjCTPd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59276 "EHLO
+        id S232695AbjCTPXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:23:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232976AbjCTPdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1874D2F79C
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:52 -0700 (PDT)
+        with ESMTP id S232705AbjCTPXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 732343346F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BB17614CA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B330C4339C;
-        Mon, 20 Mar 2023 15:25:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4FECB80E95
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BACC433D2;
+        Mon, 20 Mar 2023 15:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325950;
-        bh=OK51pA6AfDny/zyDfCNFG8jKyJLbssprXLRN+gZ2oFY=;
+        s=korg; t=1679325391;
+        bh=+9XB9Rhm1c09iWR3YEFf1TqSNocuu6TcC58Mljwmc7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRbLTkcP55bdLjuuYuuD2WioFjsYzgkvUpuTfG+jnPmmK+fMX2vU1gx0f3ZMeYl7F
-         EEnvNvv0+VKTCu5eLYarSoY1i9GIsQZO55Gd9hB37YNDggZhwmT1W/m+uDUh9AbuBY
-         SZneY2oWjT28GuBxC2FtGOeaeVVJyXa2x+20fKzY=
+        b=e1y78txuOVFGbyMrC4nYsvnOx+ZZzlzdzYFNN/xY57RbvemsEqNkKZSaEBwAgQGq5
+         4ygQQUz3ZX2pAv186e2IrcxeQogFjQ1B+qsjXC57vnjmqpEtJGBUtL86E3tGIALB4T
+         M7aUwcLKnJaxROiPzw3j4p6ehy0SJ2w/0jVuu4LY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Jerome Glisse <jglisse@redhat.com>, Shaohua Li <shli@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 173/198] mm/userfaultfd: propagate uffd-wp bit when PTE-mapping the huge zeropage
+        patches@lists.linux.dev,
+        Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>,
+        Dave Ertman <david.m.ertman@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 5.15 099/115] ice: avoid bonding causing auxiliary plug/unplug under RTNL lock
 Date:   Mon, 20 Mar 2023 15:55:11 +0100
-Message-Id: <20230320145514.773748187@linuxfoundation.org>
+Message-Id: <20230320145453.566206280@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,223 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-commit 42b2af2c9b7eede8ef21d0943f84d135e21a32a3 upstream.
+commit 248401cb2c4612d83eb0c352ee8103b78b8eb365 upstream.
 
-Currently, we'd lose the userfaultfd-wp marker when PTE-mapping a huge
-zeropage, resulting in the next write faults in the PMD range not
-triggering uffd-wp events.
+RDMA is not supported in ice on a PF that has been added to a bonded
+interface. To enforce this, when an interface enters a bond, we unplug
+the auxiliary device that supports RDMA functionality.  This unplug
+currently happens in the context of handling the netdev bonding event.
+This event is sent to the ice driver under RTNL context.  This is causing
+a deadlock where the RDMA driver is waiting for the RTNL lock to complete
+the removal.
 
-Various actions (partial MADV_DONTNEED, partial mremap, partial munmap,
-partial mprotect) could trigger this.  However, most importantly,
-un-protecting a single sub-page from the userfaultfd-wp handler when
-processing a uffd-wp event will PTE-map the shared huge zeropage and lose
-the uffd-wp bit for the remainder of the PMD.
+Defer the unplugging/re-plugging of the auxiliary device to the service
+task so that it is not performed under the RTNL lock context.
 
-Let's properly propagate the uffd-wp bit to the PMDs.
-
- #define _GNU_SOURCE
- #include <stdio.h>
- #include <stdlib.h>
- #include <stdint.h>
- #include <stdbool.h>
- #include <inttypes.h>
- #include <fcntl.h>
- #include <unistd.h>
- #include <errno.h>
- #include <poll.h>
- #include <pthread.h>
- #include <sys/mman.h>
- #include <sys/syscall.h>
- #include <sys/ioctl.h>
- #include <linux/userfaultfd.h>
-
- static size_t pagesize;
- static int uffd;
- static volatile bool uffd_triggered;
-
- #define barrier() __asm__ __volatile__("": : :"memory")
-
- static void uffd_wp_range(char *start, size_t size, bool wp)
- {
- 	struct uffdio_writeprotect uffd_writeprotect;
-
- 	uffd_writeprotect.range.start = (unsigned long) start;
- 	uffd_writeprotect.range.len = size;
- 	if (wp) {
- 		uffd_writeprotect.mode = UFFDIO_WRITEPROTECT_MODE_WP;
- 	} else {
- 		uffd_writeprotect.mode = 0;
- 	}
- 	if (ioctl(uffd, UFFDIO_WRITEPROTECT, &uffd_writeprotect)) {
- 		fprintf(stderr, "UFFDIO_WRITEPROTECT failed: %d\n", errno);
- 		exit(1);
- 	}
- }
-
- static void *uffd_thread_fn(void *arg)
- {
- 	static struct uffd_msg msg;
- 	ssize_t nread;
-
- 	while (1) {
- 		struct pollfd pollfd;
- 		int nready;
-
- 		pollfd.fd = uffd;
- 		pollfd.events = POLLIN;
- 		nready = poll(&pollfd, 1, -1);
- 		if (nready == -1) {
- 			fprintf(stderr, "poll() failed: %d\n", errno);
- 			exit(1);
- 		}
-
- 		nread = read(uffd, &msg, sizeof(msg));
- 		if (nread <= 0)
- 			continue;
-
- 		if (msg.event != UFFD_EVENT_PAGEFAULT ||
- 		    !(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WP)) {
- 			printf("FAIL: wrong uffd-wp event fired\n");
- 			exit(1);
- 		}
-
- 		/* un-protect the single page. */
- 		uffd_triggered = true;
- 		uffd_wp_range((char *)(uintptr_t)msg.arg.pagefault.address,
- 			      pagesize, false);
- 	}
- 	return arg;
- }
-
- static int setup_uffd(char *map, size_t size)
- {
- 	struct uffdio_api uffdio_api;
- 	struct uffdio_register uffdio_register;
- 	pthread_t thread;
-
- 	uffd = syscall(__NR_userfaultfd,
- 		       O_CLOEXEC | O_NONBLOCK | UFFD_USER_MODE_ONLY);
- 	if (uffd < 0) {
- 		fprintf(stderr, "syscall() failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	uffdio_api.api = UFFD_API;
- 	uffdio_api.features = UFFD_FEATURE_PAGEFAULT_FLAG_WP;
- 	if (ioctl(uffd, UFFDIO_API, &uffdio_api) < 0) {
- 		fprintf(stderr, "UFFDIO_API failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	if (!(uffdio_api.features & UFFD_FEATURE_PAGEFAULT_FLAG_WP)) {
- 		fprintf(stderr, "UFFD_FEATURE_WRITEPROTECT missing\n");
- 		return -ENOSYS;
- 	}
-
- 	uffdio_register.range.start = (unsigned long) map;
- 	uffdio_register.range.len = size;
- 	uffdio_register.mode = UFFDIO_REGISTER_MODE_WP;
- 	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) < 0) {
- 		fprintf(stderr, "UFFDIO_REGISTER failed: %d\n", errno);
- 		return -errno;
- 	}
-
- 	pthread_create(&thread, NULL, uffd_thread_fn, NULL);
-
- 	return 0;
- }
-
- int main(void)
- {
- 	const size_t size = 4 * 1024 * 1024ull;
- 	char *map, *cur;
-
- 	pagesize = getpagesize();
-
- 	map = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0);
- 	if (map == MAP_FAILED) {
- 		fprintf(stderr, "mmap() failed\n");
- 		return -errno;
- 	}
-
- 	if (madvise(map, size, MADV_HUGEPAGE)) {
- 		fprintf(stderr, "MADV_HUGEPAGE failed\n");
- 		return -errno;
- 	}
-
- 	if (setup_uffd(map, size))
- 		return 1;
-
- 	/* Read the whole range, populating zeropages. */
- 	madvise(map, size, MADV_POPULATE_READ);
-
- 	/* Write-protect the whole range. */
- 	uffd_wp_range(map, size, true);
-
- 	/* Make sure uffd-wp triggers on each page. */
- 	for (cur = map; cur < map + size; cur += pagesize) {
- 		uffd_triggered = false;
-
- 		barrier();
- 		/* Trigger a write fault. */
- 		*cur = 1;
- 		barrier();
-
- 		if (!uffd_triggered) {
- 			printf("FAIL: uffd-wp did not trigger\n");
- 			return 1;
- 		}
- 	}
-
- 	printf("PASS: uffd-wp triggered\n");
- 	return 0;
- }
-
-Link: https://lkml.kernel.org/r/20230302175423.589164-1-david@redhat.com
-Fixes: e06f1e1dd499 ("userfaultfd: wp: enabled write protection in userfaultfd API")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Shaohua Li <shli@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org # 6.1.x
+Reported-by: Jaroslav Pulchart <jaroslav.pulchart@gooddata.com>
+Link: https://lore.kernel.org/netdev/CAK8fFZ6A_Gphw_3-QMGKEFQk=sfCw1Qmq0TVZK3rtAi7vb621A@mail.gmail.com/
+Fixes: 5cb1ebdbc434 ("ice: Fix race condition during interface enslave")
+Fixes: 4eace75e0853 ("RDMA/irdma: Report the correct link speed")
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230310194833.3074601-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/huge_memory.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice.h      |   14 +++++---------
+ drivers/net/ethernet/intel/ice/ice_main.c |   19 ++++++++-----------
+ 2 files changed, 13 insertions(+), 20 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2004,7 +2004,7 @@ static void __split_huge_zero_page_pmd(s
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -399,6 +399,7 @@ enum ice_pf_flags {
+ 	ICE_FLAG_MDD_AUTO_RESET_VF,
+ 	ICE_FLAG_LINK_LENIENT_MODE_ENA,
+ 	ICE_FLAG_PLUG_AUX_DEV,
++	ICE_FLAG_UNPLUG_AUX_DEV,
+ 	ICE_FLAG_MTU_CHANGED,
+ 	ICE_PF_FLAGS_NBITS		/* must be last */
+ };
+@@ -706,16 +707,11 @@ static inline void ice_set_rdma_cap(stru
+  */
+ static inline void ice_clear_rdma_cap(struct ice_pf *pf)
  {
- 	struct mm_struct *mm = vma->vm_mm;
- 	pgtable_t pgtable;
--	pmd_t _pmd;
-+	pmd_t _pmd, old_pmd;
- 	int i;
- 
- 	/*
-@@ -2015,7 +2015,7 @@ static void __split_huge_zero_page_pmd(s
- 	 *
- 	 * See Documentation/mm/mmu_notifier.rst
+-	/* We can directly unplug aux device here only if the flag bit
+-	 * ICE_FLAG_PLUG_AUX_DEV is not set because ice_unplug_aux_dev()
+-	 * could race with ice_plug_aux_dev() called from
+-	 * ice_service_task(). In this case we only clear that bit now and
+-	 * aux device will be unplugged later once ice_plug_aux_device()
+-	 * called from ice_service_task() finishes (see ice_service_task()).
++	/* defer unplug to service task to avoid RTNL lock and
++	 * clear PLUG bit so that pending plugs don't interfere
  	 */
--	pmdp_huge_clear_flush(vma, haddr, pmd);
-+	old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
+-	if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
+-		ice_unplug_aux_dev(pf);
+-
++	clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags);
++	set_bit(ICE_FLAG_UNPLUG_AUX_DEV, pf->flags);
+ 	clear_bit(ICE_FLAG_RDMA_ENA, pf->flags);
+ 	clear_bit(ICE_FLAG_AUX_ENA, pf->flags);
+ }
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2156,18 +2156,15 @@ static void ice_service_task(struct work
+ 		}
+ 	}
  
- 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
- 	pmd_populate(mm, &_pmd, pgtable);
-@@ -2024,6 +2024,8 @@ static void __split_huge_zero_page_pmd(s
- 		pte_t *pte, entry;
- 		entry = pfn_pte(my_zero_pfn(haddr), vma->vm_page_prot);
- 		entry = pte_mkspecial(entry);
-+		if (pmd_uffd_wp(old_pmd))
-+			entry = pte_mkuffd_wp(entry);
- 		pte = pte_offset_map(&_pmd, haddr);
- 		VM_BUG_ON(!pte_none(*pte));
- 		set_pte_at(mm, haddr, pte, entry);
+-	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
+-		/* Plug aux device per request */
+-		ice_plug_aux_dev(pf);
++	/* unplug aux dev per request, if an unplug request came in
++	 * while processing a plug request, this will handle it
++	 */
++	if (test_and_clear_bit(ICE_FLAG_UNPLUG_AUX_DEV, pf->flags))
++		ice_unplug_aux_dev(pf);
+ 
+-		/* Mark plugging as done but check whether unplug was
+-		 * requested during ice_plug_aux_dev() call
+-		 * (e.g. from ice_clear_rdma_cap()) and if so then
+-		 * plug aux device.
+-		 */
+-		if (!test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
+-			ice_unplug_aux_dev(pf);
+-	}
++	/* Plug aux device per request */
++	if (test_and_clear_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags))
++		ice_plug_aux_dev(pf);
+ 
+ 	if (test_and_clear_bit(ICE_FLAG_MTU_CHANGED, pf->flags)) {
+ 		struct iidc_event *event;
 
 
