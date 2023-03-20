@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 883446C186A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A36D86C17AD
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:16:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232829AbjCTPYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:24:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
+        id S232419AbjCTPQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:16:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232541AbjCTPXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:38 -0400
+        with ESMTP id S232431AbjCTPQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B6634029
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDD033CF0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97FB3B80E6F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F77CC433A0;
-        Mon, 20 Mar 2023 15:16:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E927B80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5137C433EF;
+        Mon, 20 Mar 2023 15:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325416;
-        bh=fKwRQx3/9sCFxAbi+E9QknKmOWeqSWL9Rq9UYTcIkNk=;
+        s=korg; t=1679325056;
+        bh=SFBggJYkVHnCEZcZfLMB/8VKkg2NrKqNkLzN9FgAHNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHpU0X6wG9IPVAjucNPlcqDrjv6pdCaNEd+xJqD7xq1zdxe2nIEhEwxOp+rcF0YAY
-         Z7U3CdFs+hBtbc/T0cCY9nWsybBFU6PU9wT1cpyz8U0wZJZtaNRcurAgyo3lc+Ku0v
-         hsMMdjgYbgqxfiVQf5H5Xh5fXgEcl7bBx4PCOv7M=
+        b=YV23UDvYdDBz5IkxDwJuFEDHLZOYrreDPOsJZ5itWUGRW/9bs7AVQvVP2QN21W+FN
+         0cJs3A56q8+0oWMT8Ium84liqRFhNcR43hD/wCrKDL/fEEBSTylfodilWF8FoqMqDv
+         uN0LORHuhaijgDbMy6R1Sa4Ml0YrDRf9nMzvF9js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gautam Dawar <gautam.dawar@amd.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
+        patches@lists.linux.dev, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/211] vhost-vdpa: free iommu domain after last use during cleanup
+Subject: [PATCH 6.1 038/198] ipvlan: Make skb->skb_iif track skb->dev for l3s mode
 Date:   Mon, 20 Mar 2023 15:52:56 +0100
-Message-Id: <20230320145514.955523740@linuxfoundation.org>
+Message-Id: <20230320145509.064585439@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautam Dawar <gautam.dawar@amd.com>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-[ Upstream commit 5a522150093a0eabae9470a70a37a6e436bfad08 ]
+[ Upstream commit 59a0b022aa249e3f5735d93de0849341722c4754 ]
 
-Currently vhost_vdpa_cleanup() unmaps the DMA mappings by calling
-`iommu_unmap(v->domain, map->start, map->size);`
-from vhost_vdpa_general_unmap() when the parent vDPA driver doesn't
-provide DMA config operations.
+For l3s mode, skb->dev is set to ipvlan interface in ipvlan_nf_input():
+  skb->dev = addr->master->dev
+but, skb->skb_iif remain unchanged, this will cause socket lookup failed
+if a target socket is bound to a interface, like the following example:
 
-However, the IOMMU domain referred to by `v->domain` is freed in
-vhost_vdpa_free_domain() before vhost_vdpa_cleanup() in
-vhost_vdpa_release() which results in NULL pointer de-reference.
-Accordingly, moving the call to vhost_vdpa_free_domain() in
-vhost_vdpa_cleanup() would makes sense. This will also help
-detaching the dma device in error handling of vhost_vdpa_alloc_domain().
+  ip link add ipvlan0 link eth0 type ipvlan mode l3s
+  ip addr add dev ipvlan0 192.168.124.111/24
+  ip link set ipvlan0 up
 
-This issue was observed on terminating QEMU with SIGQUIT.
+  ping -c 1 -I ipvlan0 8.8.8.8
+  100% packet loss
 
-Fixes: 037d4305569a ("vhost-vdpa: call vhost_vdpa_cleanup during the release")
-Signed-off-by: Gautam Dawar <gautam.dawar@amd.com>
-Message-Id: <20230301163203.29883-1-gautam.dawar@amd.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+This is because there is no match sk in __raw_v4_lookup() as sk->sk_bound_dev_if != dif(skb->skb_iif).
+Fix this by make skb->skb_iif track skb->dev in ipvlan_nf_input().
+
+Fixes: c675e06a98a4 ("ipvlan: decouple l3s mode dependencies from other modes")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/29865b1f-6db7-c07a-de89-949d3721ea30@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vdpa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ipvlan/ipvlan_l3s.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ec32f785dfdec..b7657984dd8df 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -1134,6 +1134,7 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
+diff --git a/drivers/net/ipvlan/ipvlan_l3s.c b/drivers/net/ipvlan/ipvlan_l3s.c
+index 943d26cbf39f5..71712ea25403d 100644
+--- a/drivers/net/ipvlan/ipvlan_l3s.c
++++ b/drivers/net/ipvlan/ipvlan_l3s.c
+@@ -101,6 +101,7 @@ static unsigned int ipvlan_nf_input(void *priv, struct sk_buff *skb,
+ 		goto out;
  
- err_attach:
- 	iommu_domain_free(v->domain);
-+	v->domain = NULL;
- 	return ret;
- }
- 
-@@ -1178,6 +1179,7 @@ static void vhost_vdpa_cleanup(struct vhost_vdpa *v)
- 			vhost_vdpa_remove_as(v, asid);
- 	}
- 
-+	vhost_vdpa_free_domain(v);
- 	vhost_dev_cleanup(&v->vdev);
- 	kfree(v->vdev.vqs);
- }
-@@ -1250,7 +1252,6 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
- 	vhost_vdpa_clean_irq(v);
- 	vhost_vdpa_reset(v);
- 	vhost_dev_stop(&v->vdev);
--	vhost_vdpa_free_domain(v);
- 	vhost_vdpa_config_put(v);
- 	vhost_vdpa_cleanup(v);
- 	mutex_unlock(&d->mutex);
+ 	skb->dev = addr->master->dev;
++	skb->skb_iif = skb->dev->ifindex;
+ 	len = skb->len + ETH_HLEN;
+ 	ipvlan_count_rx(addr->master, len, true, false);
+ out:
 -- 
 2.39.2
 
