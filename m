@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D74566C06E9
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:53:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4446C06ED
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbjCTAxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:53:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59836 "EHLO
+        id S229565AbjCTAxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:53:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbjCTAxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:53:05 -0400
+        with ESMTP id S229497AbjCTAxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:53:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E1C19F31;
-        Sun, 19 Mar 2023 17:53:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3DA719F31;
+        Sun, 19 Mar 2023 17:53:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D63A61151;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC5B61152;
+        Mon, 20 Mar 2023 00:53:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B95C4339E;
         Mon, 20 Mar 2023 00:53:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D393C4339B;
-        Mon, 20 Mar 2023 00:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273582;
-        bh=58zc0AzHfesSx+M9pKNJIvOAgE7ILLowXaKun9ELkcg=;
+        s=k20201202; t=1679273584;
+        bh=eG+a1Q+h3eRWaHORW/ALPgQfchAXi4bvlCKXTEmWzoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gIbqgn7k1BUXyI4aG/jajqBB+m2131dIi0ynBiuQJWklwp/Bcyz4IScDw0V+k/Oj+
-         +OkwWKCRhTSGIM6FmdgVFFY6Ftp2mC/OqwbLOB2QkQpxePvr0jkWboftMBBtMNoxV4
-         FOFlr2vad3XNmUKswVMBCytiggQc/u+1BcuwBxucdxVnyDQPXAjkTlqWspHNx5bLPl
-         V1VrF74cirVSj/84YsPIE0+NEZ3vLq69xAeR59HRWi847vuMrLkTawp0ANLbqeXQJG
-         +qiBmrtq61YZtAdL9GB5ISKUmOfBDjypeovHF0PoxOArlR39PzhhSfkb9XXu2s2WBR
-         OnRUrrykCL7SA==
+        b=S6zFVtxaigTQjCacjPBhlcErae0L0xs/gU246eri5VVhN/wGiThCB4l5OrvcJSjqu
+         3BbPsWeEqLHJ7IL1o9OIuHK70YJgZXvk5h3Ph0y9FP3w/lqylsHcm48udBEYduDefI
+         tZHDx5OY5A68kjhLOPWug0jWLU6JTRpHE6gTKrhfgYnZ7yoTG3v+0zmn80bmMBkQPO
+         7LYf28tt6Yl7cp0ocu3hCNEgMciWAuA4OiHnYUsoyMR2fQF16HUWtfE5rYpXZeBoAh
+         uozCzuO8TBLipCbSxgMk7TYI5zWoXJNShWgu941UqYYjYK9sakJQ+IZAcjGXKbHpeS
+         ah1AU9YcLk/IA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Danny Kaehn <kaehndan@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 02/30] HID: cp2112: Fix driver not registering GPIO IRQ chip as threaded
-Date:   Sun, 19 Mar 2023 20:52:27 -0400
-Message-Id: <20230320005258.1428043-2-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        lianhui tang <bluetlh@gmail.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>, alex.aring@gmail.com,
+        miquel.raynal@bootlin.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linux-wpan@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 03/30] ca8210: fix mac_len negative array access
+Date:   Sun, 19 Mar 2023 20:52:28 -0400
+Message-Id: <20230320005258.1428043-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005258.1428043-1-sashal@kernel.org>
 References: <20230320005258.1428043-1-sashal@kernel.org>
@@ -56,35 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danny Kaehn <kaehndan@gmail.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 37f5b858a66543b2b67c0288280af623985abc29 ]
+[ Upstream commit 6c993779ea1d0cccdb3a5d7d45446dd229e610a3 ]
 
-The CP2112 generates interrupts from a polling routine on a thread,
-and can only support threaded interrupts. This patch configures the
-gpiochip irq chip with this flag, disallowing consumers to request
-a hard IRQ from this driver, which resulted in a segfault previously.
+This patch fixes a buffer overflow access of skb->data if
+ieee802154_hdr_peek_addrs() fails.
 
-Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
-Link: https://lore.kernel.org/r/20230210170044.11835-1-kaehndan@gmail.com
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reported-by: lianhui tang <bluetlh@gmail.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20230217042504.3303396-1-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-cp2112.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ieee802154/ca8210.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 1e16b0fa310d1..27cadadda7c9d 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1354,6 +1354,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	girq->parents = NULL;
- 	girq->default_type = IRQ_TYPE_NONE;
- 	girq->handler = handle_simple_irq;
-+	girq->threaded = true;
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index e1a569b99e4a6..0b0c6c0764fe9 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -1913,6 +1913,8 @@ static int ca8210_skb_tx(
+ 	 * packet
+ 	 */
+ 	mac_len = ieee802154_hdr_peek_addrs(skb, &header);
++	if (mac_len < 0)
++		return mac_len;
  
- 	ret = gpiochip_add_data(&dev->gc, dev);
- 	if (ret < 0) {
+ 	secspec.security_level = header.sec.level;
+ 	secspec.key_id_mode = header.sec.key_id_mode;
 -- 
 2.39.2
 
