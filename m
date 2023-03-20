@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8BE6C0772
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:58:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A4E6C07D6
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 02:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230337AbjCTA57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:57:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34752 "EHLO
+        id S231246AbjCTBC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 21:02:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbjCTA4n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:56:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4928B1F5E2;
-        Sun, 19 Mar 2023 17:55:15 -0700 (PDT)
+        with ESMTP id S231404AbjCTBAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 21:00:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159B422DCF;
+        Sun, 19 Mar 2023 17:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4213D611F1;
-        Mon, 20 Mar 2023 00:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9270DC433D2;
-        Mon, 20 Mar 2023 00:54:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05CA8B80D55;
+        Mon, 20 Mar 2023 00:54:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3714C4339C;
+        Mon, 20 Mar 2023 00:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273691;
-        bh=st7aYBmLfd0MyXZF/9PgTN++ECgcprKMlOymemBkRRc=;
+        s=k20201202; t=1679273694;
+        bh=5VMwDl1Jsw26GjyXU8bTq4Dwad0lh0CCc32p19PzZOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLRMPdHSe+5qdtsoVw+bVryKYy7oU4p2dP43c3eFTf0sa34fAIlQQQz64SEcSpZxL
-         tLdvD34bfulzsSHwizWQMMflScyIk4c2Iqakmjp7Mv2QsgYKzNd/m9w4rWWlXmOv6+
-         H3omJEpdHy++icBSvGo5/VjUyeHz/YC8r+xr46WsFSoSv5vSvIn1HobXHIDxxt2b22
-         M2bxZUAGI5avsOWgVqiuhS/HVjMoV6hl7SAlTg++65Ow/1L+gA9Rmq3llZEoT7Pcgx
-         ONgRf7lDrfWaUROAMmgdhn7dHv7I3/hQubIXpfhf+xbmexHl0rfmrZgp2IT0h9QtNy
-         6AmzQqlL2J4pA==
+        b=tMw74AVDVlN15REjVkW3XzbOiHwr2HtwWnm+zNjCsyeAti/yRYgzTEFOvC3Jiwo8g
+         5vZyaLuElwy/q9Q5t5rCHehnaFvM+EmzbYuaNa3XWMuCHRqk4BTs0k4cXhScoLkvIX
+         CZKXCILFfkfbppeA1HgZCgFz/JS3Sg+XrSCIM3dTRSqi3gXClzowNY1oHNX2pBB0Za
+         PdijQmdN2E4cogGYMVeMpNlPxWDzLwZnBFt6Z5BlVcll0KpN8s3u0/CgrHUZB1egoT
+         fkEDGe4HwVbDS8wZTXs5I7QomhzCxwj/tSVHE7FmzWGAvzDE2RTDAUEuRsEAasSAto
+         7SOc5DJ2GAtCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ranjan Kumar <ranjan.kumar@broadcom.com>,
@@ -40,9 +40,9 @@ Cc:     Ranjan Kumar <ranjan.kumar@broadcom.com>,
         kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
         jejb@linux.ibm.com, mpi3mr-linuxdrv.pdl@broadcom.com,
         linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 17/29] scsi: mpi3mr: Wait for diagnostic save during controller init
-Date:   Sun, 19 Mar 2023 20:53:59 -0400
-Message-Id: <20230320005413.1428452-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 19/29] scsi: mpi3mr: NVMe command size greater than 8K fails
+Date:   Sun, 19 Mar 2023 20:54:01 -0400
+Message-Id: <20230320005413.1428452-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -61,58 +61,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ranjan Kumar <ranjan.kumar@broadcom.com>
 
-[ Upstream commit 0a319f1629495d27879b7ebf6eee62b8cf6e4c37 ]
+[ Upstream commit 4f297e856a7b5da2f2c66a12e739666e23943560 ]
 
-If a controller reset operation is triggered to recover the controller from
-a fault state, then wait for the snapdump to be saved in the firmware
-region before proceeding to reset the controller.
+A wrong variable is checked while populating PRP entries in the PRP page
+and this results in failure. No PRP entries in the PRP page were
+successfully created and any NVMe Encapsulated commands with PRP of size
+greater than 8K failed.
 
 Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
 Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Link: https://lore.kernel.org/r/20230228140835.4075-4-ranjan.kumar@broadcom.com
+Link: https://lore.kernel.org/r/20230228140835.4075-6-ranjan.kumar@broadcom.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_fw.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/scsi/mpi3mr/mpi3mr_app.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
-index 4efab23b40d25..832d9c0179cf1 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
-@@ -1198,7 +1198,7 @@ mpi3mr_revalidate_factsdata(struct mpi3mr_ioc *mrioc)
-  */
- static int mpi3mr_bring_ioc_ready(struct mpi3mr_ioc *mrioc)
- {
--	u32 ioc_config, ioc_status, timeout;
-+	u32 ioc_config, ioc_status, timeout, host_diagnostic;
- 	int retval = 0;
- 	enum mpi3mr_iocstate ioc_state;
- 	u64 base_info;
-@@ -1252,6 +1252,23 @@ static int mpi3mr_bring_ioc_ready(struct mpi3mr_ioc *mrioc)
- 			    retval, mpi3mr_iocstate_name(ioc_state));
- 	}
- 	if (ioc_state != MRIOC_STATE_RESET) {
-+		if (ioc_state == MRIOC_STATE_FAULT) {
-+			timeout = MPI3_SYSIF_DIAG_SAVE_TIMEOUT * 10;
-+			mpi3mr_print_fault_info(mrioc);
-+			do {
-+				host_diagnostic =
-+					readl(&mrioc->sysif_regs->host_diagnostic);
-+				if (!(host_diagnostic &
-+				      MPI3_SYSIF_HOST_DIAG_SAVE_IN_PROGRESS))
-+					break;
-+				if (!pci_device_is_present(mrioc->pdev)) {
-+					mrioc->unrecoverable = 1;
-+					ioc_err(mrioc, "controller is not present at the bringup\n");
-+					goto out_device_not_present;
-+				}
-+				msleep(100);
-+			} while (--timeout);
-+		}
- 		mpi3mr_print_fault_info(mrioc);
- 		ioc_info(mrioc, "issuing soft reset to bring to reset state\n");
- 		retval = mpi3mr_issue_reset(mrioc,
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_app.c b/drivers/scsi/mpi3mr/mpi3mr_app.c
+index bff6377023979..d10c6afb7f9cd 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_app.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_app.c
+@@ -886,7 +886,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
+ 			 * each time through the loop.
+ 			 */
+ 			*prp_entry = cpu_to_le64(dma_addr);
+-			if (*prp1_entry & sgemod_mask) {
++			if (*prp_entry & sgemod_mask) {
+ 				dprint_bsg_err(mrioc,
+ 				    "%s: PRP address collides with SGE modifier\n",
+ 				    __func__);
+@@ -895,7 +895,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
+ 			*prp_entry &= ~sgemod_mask;
+ 			*prp_entry |= sgemod_val;
+ 			prp_entry++;
+-			prp_entry_dma++;
++			prp_entry_dma += prp_size;
+ 		}
+ 
+ 		/*
 -- 
 2.39.2
 
