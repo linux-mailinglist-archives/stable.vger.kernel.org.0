@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAB26C171A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A666C174D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232392AbjCTPL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
+        id S232355AbjCTPMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232369AbjCTPLa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:30 -0400
+        with ESMTP id S232413AbjCTPMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:12:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7542BF2B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563D32F785
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:07:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E44C5614CA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A08C4339B;
-        Mon, 20 Mar 2023 15:06:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C8A61570
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:07:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F2DC433EF;
+        Mon, 20 Mar 2023 15:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324777;
-        bh=CG9JYHjdXHn9zl6K5PszkBtoTpQPme+ij3aiH6j18Fw=;
+        s=korg; t=1679324829;
+        bh=LMAnPrFomDHfoN75DI0ASHVFH4E7xDUXHNhI76XWoro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNaXbvLXk2a+jQ1KAr69oSWRpQ2JQzwSbsmw74d9bA4zi22/sqsjIv4SoCQ/xJtXL
-         rz8ulKMGSQzdq728KaVoJmW8HrdcIUUK4DD8h8cZM72ZvBsr4iyXnKQE+STOfuySjR
-         ZPfngfB3Fqmc1D9e5mFN5Ft0czC/iKG6wdciaFeI=
+        b=wQAxt26jZxT8OpHJcnNa1Dhr0mPtNrG3SwfExqH6cimoRJGN7ySVa4/Yz3J2NKofL
+         lfjcjo7Y8BxyoygUDeNPRimKEncHUQiIx+rEns04nHzwKlmAzs0Hx4HvwKlwhDhkts
+         0Lz7k8urPTEK2N3d5wHOXrtPxM5PxoIzVjmFnqG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 5.10 32/99] ice: xsk: disable txq irq before flushing hw
+        patches@lists.linux.dev, Ming Lei <ming.lei@redhat.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 038/115] nvme: fix handling single range discard request
 Date:   Mon, 20 Mar 2023 15:54:10 +0100
-Message-Id: <20230320145444.719983263@linuxfoundation.org>
+Message-Id: <20230320145451.062526339@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,109 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit b830c9642386867863ac64295185f896ff2928ac ]
+[ Upstream commit 37f0dc2ec78af0c3f35dd05578763de059f6fe77 ]
 
-ice_qp_dis() intends to stop a given queue pair that is a target of xsk
-pool attach/detach. One of the steps is to disable interrupts on these
-queues. It currently is broken in a way that txq irq is turned off
-*after* HW flush which in turn takes no effect.
+When investigating one customer report on warning in nvme_setup_discard,
+we observed the controller(nvme/tcp) actually exposes
+queue_max_discard_segments(req->q) == 1.
 
-ice_qp_dis():
--> ice_qvec_dis_irq()
---> disable rxq irq
---> flush hw
--> ice_vsi_stop_tx_ring()
--->disable txq irq
+Obviously the current code can't handle this situation, since contiguity
+merge like normal RW request is taken.
 
-Below splat can be triggered by following steps:
-- start xdpsock WITHOUT loading xdp prog
-- run xdp_rxq_info with XDP_TX action on this interface
-- start traffic
-- terminate xdpsock
+Fix the issue by building range from request sector/nr_sectors directly.
 
-[  256.312485] BUG: kernel NULL pointer dereference, address: 0000000000000018
-[  256.319560] #PF: supervisor read access in kernel mode
-[  256.324775] #PF: error_code(0x0000) - not-present page
-[  256.329994] PGD 0 P4D 0
-[  256.332574] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  256.337006] CPU: 3 PID: 32 Comm: ksoftirqd/3 Tainted: G           OE      6.2.0-rc5+ #51
-[  256.345218] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
-[  256.355807] RIP: 0010:ice_clean_rx_irq_zc+0x9c/0x7d0 [ice]
-[  256.361423] Code: b7 8f 8a 00 00 00 66 39 ca 0f 84 f1 04 00 00 49 8b 47 40 4c 8b 24 d0 41 0f b7 45 04 66 25 ff 3f 66 89 04 24 0f 84 85 02 00 00 <49> 8b 44 24 18 0f b7 14 24 48 05 00 01 00 00 49 89 04 24 49 89 44
-[  256.380463] RSP: 0018:ffffc900088bfd20 EFLAGS: 00010206
-[  256.385765] RAX: 000000000000003c RBX: 0000000000000035 RCX: 000000000000067f
-[  256.393012] RDX: 0000000000000775 RSI: 0000000000000000 RDI: ffff8881deb3ac80
-[  256.400256] RBP: 000000000000003c R08: ffff889847982710 R09: 0000000000010000
-[  256.407500] R10: ffffffff82c060c0 R11: 0000000000000004 R12: 0000000000000000
-[  256.414746] R13: ffff88811165eea0 R14: ffffc9000d255000 R15: ffff888119b37600
-[  256.421990] FS:  0000000000000000(0000) GS:ffff8897e0cc0000(0000) knlGS:0000000000000000
-[  256.430207] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  256.436036] CR2: 0000000000000018 CR3: 0000000005c0a006 CR4: 00000000007706e0
-[  256.443283] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  256.450527] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  256.457770] PKRU: 55555554
-[  256.460529] Call Trace:
-[  256.463015]  <TASK>
-[  256.465157]  ? ice_xmit_zc+0x6e/0x150 [ice]
-[  256.469437]  ice_napi_poll+0x46d/0x680 [ice]
-[  256.473815]  ? _raw_spin_unlock_irqrestore+0x1b/0x40
-[  256.478863]  __napi_poll+0x29/0x160
-[  256.482409]  net_rx_action+0x136/0x260
-[  256.486222]  __do_softirq+0xe8/0x2e5
-[  256.489853]  ? smpboot_thread_fn+0x2c/0x270
-[  256.494108]  run_ksoftirqd+0x2a/0x50
-[  256.497747]  smpboot_thread_fn+0x1c1/0x270
-[  256.501907]  ? __pfx_smpboot_thread_fn+0x10/0x10
-[  256.506594]  kthread+0xea/0x120
-[  256.509785]  ? __pfx_kthread+0x10/0x10
-[  256.513597]  ret_from_fork+0x29/0x50
-[  256.517238]  </TASK>
-
-In fact, irqs were not disabled and napi managed to be scheduled and run
-while xsk_pool pointer was still valid, but SW ring of xdp_buff pointers
-was already freed.
-
-To fix this, call ice_qvec_dis_irq() after ice_vsi_stop_tx_ring(). Also
-while at it, remove redundant ice_clean_rx_ring() call - this is handled
-in ice_qp_clean_rings().
-
-Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b35ba01ea697 ("nvme: support ranged discard requests")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 59963b901be0f..e0790df700e2c 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -169,8 +169,6 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 06750f3d52745..ef9d7a795b007 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -853,16 +853,26 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
+ 		range = page_address(ns->ctrl->discard_page);
  	}
- 	netif_tx_stop_queue(netdev_get_tx_queue(vsi->netdev, q_idx));
  
--	ice_qvec_dis_irq(vsi, rx_ring, q_vector);
+-	__rq_for_each_bio(bio, req) {
+-		u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
+-		u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
 -
- 	ice_fill_txq_meta(vsi, tx_ring, &txq_meta);
- 	err = ice_vsi_stop_tx_ring(vsi, ICE_NO_RESET, 0, tx_ring, &txq_meta);
- 	if (err)
-@@ -185,6 +183,8 @@ static int ice_qp_dis(struct ice_vsi *vsi, u16 q_idx)
- 		if (err)
- 			return err;
- 	}
-+	ice_qvec_dis_irq(vsi, rx_ring, q_vector);
+-		if (n < segments) {
+-			range[n].cattr = cpu_to_le32(0);
+-			range[n].nlb = cpu_to_le32(nlb);
+-			range[n].slba = cpu_to_le64(slba);
++	if (queue_max_discard_segments(req->q) == 1) {
++		u64 slba = nvme_sect_to_lba(ns, blk_rq_pos(req));
++		u32 nlb = blk_rq_sectors(req) >> (ns->lba_shift - 9);
 +
- 	err = ice_vsi_ctrl_one_rx_ring(vsi, false, q_idx, true);
- 	if (err)
- 		return err;
++		range[0].cattr = cpu_to_le32(0);
++		range[0].nlb = cpu_to_le32(nlb);
++		range[0].slba = cpu_to_le64(slba);
++		n = 1;
++	} else {
++		__rq_for_each_bio(bio, req) {
++			u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
++			u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
++
++			if (n < segments) {
++				range[n].cattr = cpu_to_le32(0);
++				range[n].nlb = cpu_to_le32(nlb);
++				range[n].slba = cpu_to_le64(slba);
++			}
++			n++;
+ 		}
+-		n++;
+ 	}
+ 
+ 	if (WARN_ON_ONCE(n != segments)) {
 -- 
 2.39.2
 
