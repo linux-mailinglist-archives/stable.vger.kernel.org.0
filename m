@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A7F6C1996
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:35:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94CD96C19D6
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233067AbjCTPfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:35:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59304 "EHLO
+        id S233188AbjCTPiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:38:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbjCTPev (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:34:51 -0400
+        with ESMTP id S233146AbjCTPi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:38:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C232536FE3
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:27:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5296414492
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D93760C19
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F18DC433D2;
-        Mon, 20 Mar 2023 15:27:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8081A61561
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D10BC433EF;
+        Mon, 20 Mar 2023 15:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326049;
-        bh=W/PJz5z66yHvD0e16L23WRHM+Ko77EDQFxHzVagYpEI=;
+        s=korg; t=1679326191;
+        bh=WZcpLRaJ38rETLsEeDRuOU7hG1w5FdMNAeoi3tqxS4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBInJ7Q9Icy4V918sW9btQhepQDdxyLXhiaPoWwZaLqO3RBlO6V8vp57MgsM3Vb8d
-         4Q1l0Ijjvr4YUU1Dq8iMQQk4Orl5oQBk9guoiZT9kkheyR4vQu8gYhpxolYlMYnUJa
-         6CoFiCYullDjvwpL+Ej7PiYGg8D3sO9JV4REK4Qk=
+        b=MXKO18d1gYlR7e49XoUYdqSzqxTPMcIO7Iwx2P0nrksZUTca6Ak3kmuSU7YfgudIl
+         ACbSph/O/9fo1T/nai5EAKk5Q3DYLl16hnGvx/PMe6WxV46LwoxeJjrK5Y9xaj0gnX
+         JbW8HuoGZOQw7qht+PasXnNI3z3xUhiNf/EWrjv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 6.1 191/198] virt/coco/sev-guest: Check SEV_SNP attribute at probe time
+        patches@lists.linux.dev,
+        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 194/211] net: phy: nxp-c45-tja11xx: fix MII_BASIC_CONFIG_REV bit
 Date:   Mon, 20 Mar 2023 15:55:29 +0100
-Message-Id: <20230320145515.474548348@linuxfoundation.org>
+Message-Id: <20230320145521.653487824@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 
-commit d6fd48eff7506bb866a54e40369df8899f2078a9 upstream.
+commit 8ba572052a4b8fe5b205854d27e54e3486049b71 upstream.
 
-No need to check it on every ioctl. And yes, this is a common SEV driver
-but it does only SNP-specific operations currently. This can be
-revisited later, when more use cases appear.
+According to the TJA1103 user manual, the bit for the reversed role in MII
+or RMII modes is bit 4.
 
-No functional changes.
-
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20230307192449.24732-3-bp@alien8.de
+Cc: <stable@vger.kernel.org> # 5.15+
+Fixes: b050f2f15e04 ("phy: nxp-c45: add driver for tja1103")
+Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+Link: https://lore.kernel.org/r/20230309100111.1246214-1-radu-nicolae.pirea@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/sev.c                   |    3 ---
- drivers/virt/coco/sev-guest/sev-guest.c |    3 +++
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/phy/nxp-c45-tja11xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -2183,9 +2183,6 @@ int snp_issue_guest_request(u64 exit_cod
- 	struct ghcb *ghcb;
- 	int ret;
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -79,7 +79,7 @@
+ #define SGMII_ABILITY			BIT(0)
  
--	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
--		return -ENODEV;
--
- 	if (!fw_err)
- 		return -EINVAL;
- 
---- a/drivers/virt/coco/sev-guest/sev-guest.c
-+++ b/drivers/virt/coco/sev-guest/sev-guest.c
-@@ -705,6 +705,9 @@ static int __init sev_guest_probe(struct
- 	void __iomem *mapping;
- 	int ret;
- 
-+	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
-+		return -ENODEV;
-+
- 	if (!dev->platform_data)
- 		return -ENODEV;
- 
+ #define VEND1_MII_BASIC_CONFIG		0xAFC6
+-#define MII_BASIC_CONFIG_REV		BIT(8)
++#define MII_BASIC_CONFIG_REV		BIT(4)
+ #define MII_BASIC_CONFIG_SGMII		0x9
+ #define MII_BASIC_CONFIG_RGMII		0x7
+ #define MII_BASIC_CONFIG_RMII		0x5
 
 
