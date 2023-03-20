@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7644C6C074A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 393046C0749
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:56:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbjCTA4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60168 "EHLO
+        id S230046AbjCTA4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:56:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbjCTA4A (ORCPT
+        with ESMTP id S230058AbjCTA4A (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:56:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A53A17CFF;
-        Sun, 19 Mar 2023 17:54:45 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7B1166DE;
+        Sun, 19 Mar 2023 17:54:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C09611EE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A844BB80D3F;
+        Mon, 20 Mar 2023 00:53:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F8AC4339B;
         Mon, 20 Mar 2023 00:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19513C433EF;
-        Mon, 20 Mar 2023 00:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273629;
-        bh=LpnRW/UaSi4n7Emhs3bTrY4ZahkicVJRdQ3WmVnngPo=;
+        s=k20201202; t=1679273630;
+        bh=H1tR2yD4c9ycqm5QTk9a8AHQejQOSN5qo7cZ/Jx6/QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDeFmvDlgOCkwR8UHOEDMQP08T4cho4vKhuffRmV7kRo9cpwX8TJjunvhFzZAISEc
-         keyip2ySDVJ4x3BGlk7Iqi4frgmp5PAG+Qyun2nQxx8lUbCic0GYkx/G5bg4vbOIO8
-         ojVzcVuieOYGa+zswdol7gngeZoNjDLc9VIjvQikG6zfUVX+lqKXsMUn/OVStX2YS6
-         5qlQULAGBTnvpemYIVK0f9kSV2bJw9+WNVzA2PaDaN04824tBfvuk4wNMLhrUtqg/9
-         K2rmN3P9qOnVm/yBEyFl2KrzHsjw4xovguWZxRqAhp6vTH4jEyFdSvPjSGNASXcr7K
-         wTSoqqfJfX8Rg==
+        b=I5jwydAvwbOLj/Xj5zunxvUTu5CngriI76NBy0GJ80nUyw0LcO0rJyEovH2amUmYM
+         ovJOKYAYxl/5SL2g2LoA+RveGjqY7qWiRufwtuCWQgXWIdBFBC7jbTf0sdVfISmz91
+         vojzjpFlP1oLg1zvehGdDMLqyNF5K8FEfOLBiu03sakIBhoUxDoHtbjOgmp9cylX1G
+         jMDuLLrof3Vo4LgEJyH8M5NYkHZDfbGkubdbEkoSrL0m8uhK5ViLIz7VbU9SX5lL/U
+         iaiVk6cFDeI5skDJJaT8sz1dfuhA/8ccziGF03NjNZGbusiHpfSu7KINCVn4KfG3r8
+         eppmcgSzIYZAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Kelley <mikelley@microsoft.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, kys@microsoft.com,
-        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
-        jejb@linux.ibm.com, linux-hyperv@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 22/30] scsi: storvsc: Handle BlockSize change in Hyper-V VHD/VHDX file
-Date:   Sun, 19 Mar 2023 20:52:47 -0400
-Message-Id: <20230320005258.1428043-22-sashal@kernel.org>
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 23/30] platform/x86: ISST: Increase range of valid mail box commands
+Date:   Sun, 19 Mar 2023 20:52:48 -0400
+Message-Id: <20230320005258.1428043-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005258.1428043-1-sashal@kernel.org>
 References: <20230320005258.1428043-1-sashal@kernel.org>
@@ -58,87 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 11d9874c4204a785f43d899a1ab12f9dc8d9de3e ]
+[ Upstream commit 95ecf90158522269749f1b7ce98b1eed66ca087b ]
 
-Hyper-V uses a VHD or VHDX file on the host as the underlying storage for a
-virtual disk.  The VHD/VHDX file format is a sparse format where real disk
-space on the host is assigned in chunks that the VHD/VHDX file format calls
-the BlockSize.  This BlockSize is not to be confused with the 512-byte (or
-4096-byte) sector size of the underlying storage device.  The default block
-size for a new VHD/VHDX file is 32 Mbytes.  When a guest VM touches any
-disk space within a 32 Mbyte chunk of the VHD/VHDX file, Hyper-V allocates
-32 Mbytes of real disk space for that section of the VHD/VHDX. Similarly,
-if a discard operation is done that covers an entire 32 Mbyte chunk,
-Hyper-V will free the real disk space for that portion of the VHD/VHDX.
-This BlockSize is surfaced in Linux as the "discard_granularity" in
-/sys/block/sd<x>/queue, which makes sense.
+A new command CONFIG_TDP_GET_RATIO_INFO is added, with sub command type
+of 0x0C. The previous range of valid sub commands was from 0x00 to 0x0B.
+Change the valid range from 0x00 to 0x0C.
 
-Hyper-V also has differencing disks that can overlay a VHD/VHDX file to
-capture changes to the VHD/VHDX while preserving the original VHD/VHDX.
-One example of this differencing functionality is for VM snapshots.  When a
-snapshot is created, a differencing disk is created.  If the snapshot is
-rolled back, Hyper-V can just delete the differencing disk, and the VM will
-see the original disk contents at the time the snapshot was taken.
-Differencing disks are used in other scenarios as well.
-
-The BlockSize for a differencing disk defaults to 2 Mbytes, not 32 Mbytes.
-The smaller default is used because changes to differencing disks are
-typically scattered all over, and Hyper-V doesn't want to allocate 32
-Mbytes of real disk space for a stray write here or there.  The smaller
-BlockSize provides more efficient use of real disk space.
-
-When a differencing disk is added to a VHD/VHDX, Hyper-V reports
-UNIT_ATTENTION with a sense code indicating "Operating parameters have
-changed", because the value of discard_granularity should be changed to 2
-Mbytes. When the differencing disk is removed, discard_granularity should
-be changed back to 32 Mbytes.  However, current code simply reports a
-message from scsi_report_sense() and the value of
-/sys/block/sd<x>/queue/discard_granularity is not updated. The message
-isn't very actionable by a sysadmin.
-
-Fix this by having the storvsc driver check for the sense code indicating
-that the underly VHD/VHDX block size has changed, and do a rescan of the
-device to pick up the new discard_granularity.  With this change the entire
-transition to/from differencing disks is handled automatically and
-transparently, with no confusing messages being output.
-
-Link: https://lore.kernel.org/r/1677516514-86060-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20230227053504.2734214-1-srinivas.pandruvada@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/platform/x86/intel/speed_select_if/isst_if_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 22705eb781b0e..2bf25e80b29a8 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -987,6 +987,22 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 				goto do_work;
- 			}
+diff --git a/drivers/platform/x86/intel/speed_select_if/isst_if_common.c b/drivers/platform/x86/intel/speed_select_if/isst_if_common.c
+index a7e02b24a87ad..0829e793a8fce 100644
+--- a/drivers/platform/x86/intel/speed_select_if/isst_if_common.c
++++ b/drivers/platform/x86/intel/speed_select_if/isst_if_common.c
+@@ -47,7 +47,7 @@ struct isst_cmd_set_req_type {
  
-+			/*
-+			 * Check for "Operating parameters have changed"
-+			 * due to Hyper-V changing the VHD/VHDX BlockSize
-+			 * when adding/removing a differencing disk. This
-+			 * causes discard_granularity to change, so do a
-+			 * rescan to pick up the new granularity. We don't
-+			 * want scsi_report_sense() to output a message
-+			 * that a sysadmin wouldn't know what to do with.
-+			 */
-+			if ((asc == 0x3f) && (ascq != 0x03) &&
-+					(ascq != 0x0e)) {
-+				process_err_fn = storvsc_device_scan;
-+				set_host_byte(scmnd, DID_REQUEUE);
-+				goto do_work;
-+			}
-+
- 			/*
- 			 * Otherwise, let upper layer deal with the
- 			 * error when sense message is present
+ static const struct isst_valid_cmd_ranges isst_valid_cmds[] = {
+ 	{0xD0, 0x00, 0x03},
+-	{0x7F, 0x00, 0x0B},
++	{0x7F, 0x00, 0x0C},
+ 	{0x7F, 0x10, 0x12},
+ 	{0x7F, 0x20, 0x23},
+ 	{0x94, 0x03, 0x03},
 -- 
 2.39.2
 
