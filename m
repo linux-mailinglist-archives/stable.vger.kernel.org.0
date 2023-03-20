@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 762D96C194A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 618E26C17A0
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233027AbjCTPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48196 "EHLO
+        id S232560AbjCTPPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:15:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbjCTPcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:32:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73B1F13D59
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:24:59 -0700 (PDT)
+        with ESMTP id S232449AbjCTPP1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:15:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1519D33461
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50B466154E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:24:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60910C433D2;
-        Mon, 20 Mar 2023 15:24:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62C3861592
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711AFC433D2;
+        Mon, 20 Mar 2023 15:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325898;
-        bh=2HYIgpyknmUWw9lfDLh7sxPXePIIqr+VLNh999ZYNR0=;
+        s=korg; t=1679325027;
+        bh=gwi4qgfkSnuoIiJJcxMq7HAed2DLyUpGGxuCINhs1L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvxkM87VAp/+OkeTjiL+hIqAbPr2uNW8GKZI49vBXas7nEpi1wHbIHR2fxfbJ/bJo
-         GFNftGbu7Jpv9JBnWXW+DbClY4WCh2bG5lIwUv3pMLt7saS7JpRUCaFlfKCRIk3vUs
-         s1n7Uqurz38eJuuO2W+EOud0fiQUA/jK13NZFzNs=
+        b=FZ98eXx8qp44l4XResvO9y+DZMCsh8f/hWxKh14znkEi5hDrtG3m+AIGr7Da5T+n/
+         zhjIpHIHczBRWq5KYXWhtXz5BNN/TfaUUK7rHmp00LZNGMomkCLUAqfbb9OAXjEXeJ
+         LohWf++MrlWQGUFUGpImx18nzpDKxIYSVZ7lv+TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christoph Paasch <cpaasch@apple.com>
-Subject: [PATCH 6.1 164/198] mptcp: fix possible deadlock in subflow_error_report
-Date:   Mon, 20 Mar 2023 15:55:02 +0100
-Message-Id: <20230320145514.414783794@linuxfoundation.org>
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 85/99] xfs: dont leak btree cursor when insrec fails after a split
+Date:   Mon, 20 Mar 2023 15:55:03 +0100
+Message-Id: <20230320145446.977379316@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,54 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit b7a679ba7c652587b85294f4953f33ac0b756d40 upstream.
+commit a54f78def73d847cb060b18c4e4a3d1d26c9ca6d upstream.
 
-Christoph reported a possible deadlock while the TCP stack
-destroys an unaccepted subflow due to an incoming reset: the
-MPTCP socket error path tries to acquire the msk-level socket
-lock while TCP still owns the listener socket accept queue
-spinlock, and the reverse dependency already exists in the
-TCP stack.
+The recent patch to improve btree cycle checking caused a regression
+when I rebased the in-memory btree branch atop the 5.19 for-next branch,
+because in-memory short-pointer btrees do not have AG numbers.  This
+produced the following complaint from kmemleak:
 
-Note that the above is actually a lockdep false positive, as
-the chain involves two separate sockets. A different per-socket
-lockdep key will address the issue, but such a change will be
-quite invasive.
+unreferenced object 0xffff88803d47dde8 (size 264):
+  comm "xfs_io", pid 4889, jiffies 4294906764 (age 24.072s)
+  hex dump (first 32 bytes):
+    90 4d 0b 0f 80 88 ff ff 00 a0 bd 05 80 88 ff ff  .M..............
+    e0 44 3a a0 ff ff ff ff 00 df 08 06 80 88 ff ff  .D:.............
+  backtrace:
+    [<ffffffffa0388059>] xfbtree_dup_cursor+0x49/0xc0 [xfs]
+    [<ffffffffa029887b>] xfs_btree_dup_cursor+0x3b/0x200 [xfs]
+    [<ffffffffa029af5d>] __xfs_btree_split+0x6ad/0x820 [xfs]
+    [<ffffffffa029b130>] xfs_btree_split+0x60/0x110 [xfs]
+    [<ffffffffa029f6da>] xfs_btree_make_block_unfull+0x19a/0x1f0 [xfs]
+    [<ffffffffa029fada>] xfs_btree_insrec+0x3aa/0x810 [xfs]
+    [<ffffffffa029fff3>] xfs_btree_insert+0xb3/0x240 [xfs]
+    [<ffffffffa02cb729>] xfs_rmap_insert+0x99/0x200 [xfs]
+    [<ffffffffa02cf142>] xfs_rmap_map_shared+0x192/0x5f0 [xfs]
+    [<ffffffffa02cf60b>] xfs_rmap_map_raw+0x6b/0x90 [xfs]
+    [<ffffffffa0384a85>] xrep_rmap_stash+0xd5/0x1d0 [xfs]
+    [<ffffffffa0384dc0>] xrep_rmap_visit_bmbt+0xa0/0xf0 [xfs]
+    [<ffffffffa0384fb6>] xrep_rmap_scan_iext+0x56/0xa0 [xfs]
+    [<ffffffffa03850d8>] xrep_rmap_scan_ifork+0xd8/0x160 [xfs]
+    [<ffffffffa0385195>] xrep_rmap_scan_inode+0x35/0x80 [xfs]
+    [<ffffffffa03852ee>] xrep_rmap_find_rmaps+0x10e/0x270 [xfs]
 
-Instead, we can simply stop earlier the socket error handling
-for orphaned or unaccepted subflows, breaking the critical
-lockdep chain. Error handling in such a scenario is a no-op.
+I noticed that xfs_btree_insrec has a bunch of debug code that return
+out of the function immediately, without freeing the "new" btree cursor
+that can be returned when _make_block_unfull calls xfs_btree_split.  Fix
+the error return in this function to free the btree cursor.
 
-Reported-and-tested-by: Christoph Paasch <cpaasch@apple.com>
-Fixes: 15cc10453398 ("mptcp: deliver ssk errors to msk")
-Cc: stable@vger.kernel.org
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/355
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/xfs/libxfs/xfs_btree.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1376,6 +1376,13 @@ static void subflow_error_report(struct
- {
- 	struct sock *sk = mptcp_subflow_ctx(ssk)->conn;
+--- a/fs/xfs/libxfs/xfs_btree.c
++++ b/fs/xfs/libxfs/xfs_btree.c
+@@ -3190,7 +3190,7 @@ xfs_btree_insrec(
+ 	struct xfs_btree_block	*block;	/* btree block */
+ 	struct xfs_buf		*bp;	/* buffer for block */
+ 	union xfs_btree_ptr	nptr;	/* new block ptr */
+-	struct xfs_btree_cur	*ncur;	/* new btree cursor */
++	struct xfs_btree_cur	*ncur = NULL;	/* new btree cursor */
+ 	union xfs_btree_key	nkey;	/* new block key */
+ 	union xfs_btree_key	*lkey;
+ 	int			optr;	/* old key/record index */
+@@ -3270,7 +3270,7 @@ xfs_btree_insrec(
+ #ifdef DEBUG
+ 	error = xfs_btree_check_block(cur, block, level, bp);
+ 	if (error)
+-		return error;
++		goto error0;
+ #endif
  
-+	/* bail early if this is a no-op, so that we avoid introducing a
-+	 * problematic lockdep dependency between TCP accept queue lock
-+	 * and msk socket spinlock
-+	 */
-+	if (!sk->sk_socket)
-+		return;
-+
- 	mptcp_data_lock(sk);
- 	if (!sock_owned_by_user(sk))
- 		__mptcp_error_report(sk);
+ 	/*
+@@ -3290,7 +3290,7 @@ xfs_btree_insrec(
+ 		for (i = numrecs - ptr; i >= 0; i--) {
+ 			error = xfs_btree_debug_check_ptr(cur, pp, i, level);
+ 			if (error)
+-				return error;
++				goto error0;
+ 		}
+ 
+ 		xfs_btree_shift_keys(cur, kp, 1, numrecs - ptr + 1);
+@@ -3375,6 +3375,8 @@ xfs_btree_insrec(
+ 	return 0;
+ 
+ error0:
++	if (ncur)
++		xfs_btree_del_cursor(ncur, error);
+ 	return error;
+ }
+ 
 
 
