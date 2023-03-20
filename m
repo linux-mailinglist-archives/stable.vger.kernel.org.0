@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D10C6C1277
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 13:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9602F6C12A0
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 14:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231588AbjCTM6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 08:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37796 "EHLO
+        id S230443AbjCTNFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 09:05:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231596AbjCTM5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 08:57:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A6515154
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 05:57:30 -0700 (PDT)
+        with ESMTP id S229640AbjCTNFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 09:05:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F1F18B3C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 06:05:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71660B80D5B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 12:57:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFEADC433A0;
-        Mon, 20 Mar 2023 12:57:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679317048;
-        bh=7/X6PRwUdby+TbrwGZuTM9/QGRNALIimXNczN2m49w4=;
-        h=Subject:To:From:Date:From;
-        b=nsc9iJuXGrtjr3JPLtXsiHVX82ZkKCKDgnka5RGFo/p5+Ga1meFCuWkUMVLUzns2h
-         fEZBMk223b/DchMlpRql02CfKGJT2dSZ1UdnsmL+f47sNXw8DbK05Ssfc5t0FZFYSx
-         zhKDQ40nJidduq8WKjCAFUuM0TclfrPABJm7BRH4=
-Subject: patch "counter: 104-quad-8: Fix Synapse action reported for Index signals" added to char-misc-linus
-To:     william.gray@linaro.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 13:57:17 +0100
-Message-ID: <167931703787245@kroah.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 240E9614DA
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 13:05:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA78C4339C;
+        Mon, 20 Mar 2023 13:05:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679317544;
+        bh=W43j5evAxbRzp+5Ve/V8Jf0xjL0cf+kfp9ty/eD8YpM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=G5QYqYqzodYsqOLFwJevEpJF2gbmfIKiAmPq2tk6OY4Za+3+fcAJ3CNV5YFCCI5QD
+         2UA8/blGY69VUMaeOeR7Rfv51XNzh0OVWpaFKBaqPsdUtk38FlGqrI/sS9j3KueYJU
+         H0Fah32y7c86NgEZb7Scuw7ezq7DaKvZ2J7+Zdz0uSo3vJRJTtJm2X9I3LQeZj6gUs
+         xmISz2y/4+zKiP6GHLqh8V7HLpnL/USeCUgFGwR7UIsqLGEK0VunIUEts0ofmBzeOt
+         H7aN2SlWjsL28Hbbu3tdzMAnFNOnfA0RHVoUuiGg3aDt8j5GCIODFiiNFmjZ+lozAE
+         +cWMoIZ4ZUQFQ==
+From:   Lee Jones <lee@kernel.org>
+To:     lee@kernel.org
+Cc:     stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH v5.15.y 1/2] HID: core: Provide new max_buffer_size attribute to over-ride the default
+Date:   Mon, 20 Mar 2023 13:05:34 +0000
+Message-Id: <20230320130535.2769860-1-lee@kernel.org>
+X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -45,57 +50,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit b1a37ed00d7908a991c1d0f18a8cba3c2aa99bdc upstream.
 
-This is a note to let you know that I've just added the patch titled
+Presently, when a report is processed, its proposed size, provided by
+the user of the API (as Report Size * Report Count) is compared against
+the subsystem default HID_MAX_BUFFER_SIZE (16k).  However, some
+low-level HID drivers allocate a reduced amount of memory to their
+buffers (e.g. UHID only allocates UHID_DATA_MAX (4k) buffers), rending
+this check inadequate in some cases.
 
-    counter: 104-quad-8: Fix Synapse action reported for Index signals
+In these circumstances, if the received report ends up being smaller
+than the proposed report size, the remainder of the buffer is zeroed.
+That is, the space between sizeof(csize) (size of the current report)
+and the rsize (size proposed i.e. Report Size * Report Count), which can
+be handled up to HID_MAX_BUFFER_SIZE (16k).  Meaning that memset()
+shoots straight past the end of the buffer boundary and starts zeroing
+out in-use values, often resulting in calamity.
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+This patch introduces a new variable into 'struct hid_ll_driver' where
+individual low-level drivers can over-ride the default maximum value of
+HID_MAX_BUFFER_SIZE (16k) with something more sympathetic to the
+interface.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 00f4bc5184c19cb33f468f1ea409d70d19f8f502 Mon Sep 17 00:00:00 2001
-From: William Breathitt Gray <william.gray@linaro.org>
-Date: Thu, 16 Mar 2023 16:34:26 -0400
-Subject: counter: 104-quad-8: Fix Synapse action reported for Index signals
-
-Signal 16 and higher represent the device's Index lines. The
-priv->preset_enable array holds the device configuration for these Index
-lines. The preset_enable configuration is active low on the device, so
-invert the conditional check in quad8_action_read() to properly handle
-the logical state of preset_enable.
-
-Fixes: f1d8a071d45b ("counter: 104-quad-8: Add Generic Counter interface support")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230316203426.224745-1-william.gray@linaro.org/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[Lee: Backported to v5.15.y]
+Signed-off-by: Lee Jones <lee@kernel.org>
 ---
- drivers/counter/104-quad-8.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 18 +++++++++++++-----
+ include/linux/hid.h    |  3 +++
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index d59e4f34a680..d9cb937665cf 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -368,7 +368,7 @@ static int quad8_action_read(struct counter_device *counter,
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index f1ea883db5de1..d941023c56289 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -258,6 +258,7 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
+ {
+ 	struct hid_report *report;
+ 	struct hid_field *field;
++	unsigned int max_buffer_size = HID_MAX_BUFFER_SIZE;
+ 	unsigned int usages;
+ 	unsigned int offset;
+ 	unsigned int i;
+@@ -288,8 +289,11 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
+ 	offset = report->size;
+ 	report->size += parser->global.report_size * parser->global.report_count;
  
- 	/* Handle Index signals */
- 	if (synapse->signal->id >= 16) {
--		if (priv->preset_enable[count->id])
-+		if (!priv->preset_enable[count->id])
- 			*action = COUNTER_SYNAPSE_ACTION_RISING_EDGE;
- 		else
- 			*action = COUNTER_SYNAPSE_ACTION_NONE;
++	if (parser->device->ll_driver->max_buffer_size)
++		max_buffer_size = parser->device->ll_driver->max_buffer_size;
++
+ 	/* Total size check: Allow for possible report index byte */
+-	if (report->size > (HID_MAX_BUFFER_SIZE - 1) << 3) {
++	if (report->size > (max_buffer_size - 1) << 3) {
+ 		hid_err(parser->device, "report is too long\n");
+ 		return -1;
+ 	}
+@@ -1752,6 +1756,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
+ 	struct hid_report_enum *report_enum = hid->report_enum + type;
+ 	struct hid_report *report;
+ 	struct hid_driver *hdrv;
++	int max_buffer_size = HID_MAX_BUFFER_SIZE;
+ 	unsigned int a;
+ 	u32 rsize, csize = size;
+ 	u8 *cdata = data;
+@@ -1768,10 +1773,13 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
+ 
+ 	rsize = hid_compute_report_size(report);
+ 
+-	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
+-		rsize = HID_MAX_BUFFER_SIZE - 1;
+-	else if (rsize > HID_MAX_BUFFER_SIZE)
+-		rsize = HID_MAX_BUFFER_SIZE;
++	if (hid->ll_driver->max_buffer_size)
++		max_buffer_size = hid->ll_driver->max_buffer_size;
++
++	if (report_enum->numbered && rsize >= max_buffer_size)
++		rsize = max_buffer_size - 1;
++	else if (rsize > max_buffer_size)
++		rsize = max_buffer_size;
+ 
+ 	if (csize < rsize) {
+ 		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3cfbffd94a058..c3478e396829e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -805,6 +805,7 @@ struct hid_driver {
+  * @output_report: send output report to device
+  * @idle: send idle request to device
+  * @may_wakeup: return if device may act as a wakeup source during system-suspend
++ * @max_buffer_size: over-ride maximum data buffer size (default: HID_MAX_BUFFER_SIZE)
+  */
+ struct hid_ll_driver {
+ 	int (*start)(struct hid_device *hdev);
+@@ -830,6 +831,8 @@ struct hid_ll_driver {
+ 
+ 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+ 	bool (*may_wakeup)(struct hid_device *hdev);
++
++	unsigned int max_buffer_size;
+ };
+ 
+ extern struct hid_ll_driver i2c_hid_ll_driver;
 -- 
-2.40.0
-
+2.40.0.rc1.284.g88254d51c5-goog
 
