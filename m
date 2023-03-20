@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6696C180E
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1003B6C1895
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:25:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232351AbjCTPUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
+        id S232747AbjCTPZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232637AbjCTPTd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:33 -0400
+        with ESMTP id S232744AbjCTPZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE959274BA
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E0F367C6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:18:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6616615B2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C489EC433EF;
-        Mon, 20 Mar 2023 15:13:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60EF261575
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:18:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70876C433EF;
+        Mon, 20 Mar 2023 15:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325205;
-        bh=g7eLk0dgrMHSZMRUydLwJ7iTR3XUh4/ZboFmQQkTgbY=;
+        s=korg; t=1679325520;
+        bh=pt+NkFuX8/a4q7hUsBkx1I3oXIoC3ZeJEGymosVjHN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1myXP0xEvf449C3b6t6lLDD0MCzdOsAwMM+LXn5pP+1L0k/SqhrhEVYpagP4OT0dl
-         u59xSHzx+bccM0K0fWGeXXzJWyz1bkzfI5Ct7umYpi/qV317vB3YLk9UZuH7T4d4Bw
-         uyxs3P73n8d1SW0oAtQ1lBG9FdRpNKDUfIzZJxus=
+        b=YNDJ1G+i/D0P/b3QQnb3DY5QYeivTzQbSl/4BnRfshI+RZIKd29+hdhy2zB9g1bEK
+         0GWliGvN3A7VpHlJKZksxYKCZsmQz1HIXSN0LjVEi+v7bttK86ref7+p0lUIbHlWO1
+         KKPOvQWeYdLuydWolPsC1QCsrtgRIyxX5phC4ee0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 049/198] net: dsa: mt7530: set PLL frequency and trgmii only when trgmii is used
+Subject: [PATCH 6.2 052/211] block: do not reverse request order when flushing plug list
 Date:   Mon, 20 Mar 2023 15:53:07 +0100
-Message-Id: <20230320145509.547976837@linuxfoundation.org>
+Message-Id: <20230320145515.429110598@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,114 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 0b086d76e7b011772b0ac214c6e5fd5816eff2df ]
+[ Upstream commit 34e0a279a993debaff03158fc2fbf6a00c093643 ]
 
-As my testing on the MCM MT7530 switch on MT7621 SoC shows, setting the PLL
-frequency does not affect MII modes other than trgmii on port 5 and port 6.
-So the assumption is that the operation here called "setting the PLL
-frequency" actually sets the frequency of the TRGMII TX clock.
+Commit 26fed4ac4eab ("block: flush plug based on hardware and software
+queue order") changed flushing of plug list to submit requests one
+device at a time. However while doing that it also started using
+list_add_tail() instead of list_add() used previously thus effectively
+submitting requests in reverse order. Also when forming a rq_list with
+remaining requests (in case two or more devices are used), we
+effectively reverse the ordering of the plug list for each device we
+process. Submitting requests in reverse order has negative impact on
+performance for rotational disks (when BFQ is not in use). We observe
+10-25% regression in random 4k write throughput, as well as ~20%
+regression in MariaDB OLTP benchmark on rotational storage on btrfs
+filesystem.
 
-Make it so that it and the rest of the trgmii setup run only when the
-trgmii mode is used.
+Fix the problem by preserving ordering of the plug list when inserting
+requests into the queuelist as well as by appending to requeue_list
+instead of prepending to it.
 
-Tested rgmii and trgmii modes of port 6 on MCM MT7530 on MT7621AT Unielec
-U7621-06 and standalone MT7530 on MT7623NI Bananapi BPI-R2.
-
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Tested-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20230310073338.5836-2-arinc.unal@arinc9.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 26fed4ac4eab ("block: flush plug based on hardware and software queue order")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20230313093002.11756-1-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 62 ++++++++++++++++++++--------------------
- 1 file changed, 31 insertions(+), 31 deletions(-)
+ block/blk-mq.c         | 5 +++--
+ include/linux/blk-mq.h | 6 ++++++
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 4306782bf2257..1757d6a2c72ae 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -430,8 +430,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 	switch (interface) {
- 	case PHY_INTERFACE_MODE_RGMII:
- 		trgint = 0;
--		/* PLL frequency: 125MHz */
--		ncpo1 = 0x0c80;
- 		break;
- 	case PHY_INTERFACE_MODE_TRGMII:
- 		trgint = 1;
-@@ -462,38 +460,40 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
- 		   P6_INTF_MODE(trgint));
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index b9e3b558367f1..c021fb05161b9 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2743,6 +2743,7 @@ static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
+ 	struct blk_mq_hw_ctx *this_hctx = NULL;
+ 	struct blk_mq_ctx *this_ctx = NULL;
+ 	struct request *requeue_list = NULL;
++	struct request **requeue_lastp = &requeue_list;
+ 	unsigned int depth = 0;
+ 	LIST_HEAD(list);
  
--	/* Lower Tx Driving for TRGMII path */
--	for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
--		mt7530_write(priv, MT7530_TRGMII_TD_ODT(i),
--			     TD_DM_DRVP(8) | TD_DM_DRVN(8));
--
--	/* Disable MT7530 core and TRGMII Tx clocks */
--	core_clear(priv, CORE_TRGMII_GSW_CLK_CG,
--		   REG_GSWCK_EN | REG_TRGMIICK_EN);
--
--	/* Setup the MT7530 TRGMII Tx Clock */
--	core_write(priv, CORE_PLL_GROUP5, RG_LCDDS_PCW_NCPO1(ncpo1));
--	core_write(priv, CORE_PLL_GROUP6, RG_LCDDS_PCW_NCPO0(0));
--	core_write(priv, CORE_PLL_GROUP10, RG_LCDDS_SSC_DELTA(ssc_delta));
--	core_write(priv, CORE_PLL_GROUP11, RG_LCDDS_SSC_DELTA1(ssc_delta));
--	core_write(priv, CORE_PLL_GROUP4,
--		   RG_SYSPLL_DDSFBK_EN | RG_SYSPLL_BIAS_EN |
--		   RG_SYSPLL_BIAS_LPF_EN);
--	core_write(priv, CORE_PLL_GROUP2,
--		   RG_SYSPLL_EN_NORMAL | RG_SYSPLL_VODEN |
--		   RG_SYSPLL_POSDIV(1));
--	core_write(priv, CORE_PLL_GROUP7,
--		   RG_LCDDS_PCW_NCPO_CHG | RG_LCCDS_C(3) |
--		   RG_LCDDS_PWDB | RG_LCDDS_ISO_EN);
--
--	/* Enable MT7530 core and TRGMII Tx clocks */
--	core_set(priv, CORE_TRGMII_GSW_CLK_CG,
--		 REG_GSWCK_EN | REG_TRGMIICK_EN);
--
--	if (!trgint)
-+	if (trgint) {
-+		/* Lower Tx Driving for TRGMII path */
-+		for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
-+			mt7530_write(priv, MT7530_TRGMII_TD_ODT(i),
-+				     TD_DM_DRVP(8) | TD_DM_DRVN(8));
-+
-+		/* Disable MT7530 core and TRGMII Tx clocks */
-+		core_clear(priv, CORE_TRGMII_GSW_CLK_CG,
-+			   REG_GSWCK_EN | REG_TRGMIICK_EN);
-+
-+		/* Setup the MT7530 TRGMII Tx Clock */
-+		core_write(priv, CORE_PLL_GROUP5, RG_LCDDS_PCW_NCPO1(ncpo1));
-+		core_write(priv, CORE_PLL_GROUP6, RG_LCDDS_PCW_NCPO0(0));
-+		core_write(priv, CORE_PLL_GROUP10, RG_LCDDS_SSC_DELTA(ssc_delta));
-+		core_write(priv, CORE_PLL_GROUP11, RG_LCDDS_SSC_DELTA1(ssc_delta));
-+		core_write(priv, CORE_PLL_GROUP4,
-+			   RG_SYSPLL_DDSFBK_EN | RG_SYSPLL_BIAS_EN |
-+			   RG_SYSPLL_BIAS_LPF_EN);
-+		core_write(priv, CORE_PLL_GROUP2,
-+			   RG_SYSPLL_EN_NORMAL | RG_SYSPLL_VODEN |
-+			   RG_SYSPLL_POSDIV(1));
-+		core_write(priv, CORE_PLL_GROUP7,
-+			   RG_LCDDS_PCW_NCPO_CHG | RG_LCCDS_C(3) |
-+			   RG_LCDDS_PWDB | RG_LCDDS_ISO_EN);
-+
-+		/* Enable MT7530 core and TRGMII Tx clocks */
-+		core_set(priv, CORE_TRGMII_GSW_CLK_CG,
-+			 REG_GSWCK_EN | REG_TRGMIICK_EN);
-+	} else {
- 		for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
- 			mt7530_rmw(priv, MT7530_TRGMII_RD(i),
- 				   RD_TAP_MASK, RD_TAP(16));
-+	}
-+
- 	return 0;
- }
+@@ -2753,10 +2754,10 @@ static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
+ 			this_hctx = rq->mq_hctx;
+ 			this_ctx = rq->mq_ctx;
+ 		} else if (this_hctx != rq->mq_hctx || this_ctx != rq->mq_ctx) {
+-			rq_list_add(&requeue_list, rq);
++			rq_list_add_tail(&requeue_lastp, rq);
+ 			continue;
+ 		}
+-		list_add_tail(&rq->queuelist, &list);
++		list_add(&rq->queuelist, &list);
+ 		depth++;
+ 	} while (!rq_list_empty(plug->mq_list));
  
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 779fba613bd09..19ae71f3fb97d 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -228,6 +228,12 @@ static inline unsigned short req_get_ioprio(struct request *req)
+ 	*(listptr) = rq;				\
+ } while (0)
+ 
++#define rq_list_add_tail(lastpptr, rq)	do {		\
++	(rq)->rq_next = NULL;				\
++	**(lastpptr) = rq;				\
++	*(lastpptr) = &rq->rq_next;			\
++} while (0)
++
+ #define rq_list_pop(listptr)				\
+ ({							\
+ 	struct request *__req = NULL;			\
 -- 
 2.39.2
 
