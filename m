@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B132B6C164D
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:04:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3026C180D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231630AbjCTPEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
+        id S232678AbjCTPTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:19:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231941AbjCTPEG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:04:06 -0400
+        with ESMTP id S232598AbjCTPTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:19:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9F626866
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:00:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A80BC6595
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:13:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3B43B80EC9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 14:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB05C433D2;
-        Mon, 20 Mar 2023 14:59:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C113B80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:13:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E53C433D2;
+        Mon, 20 Mar 2023 15:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324353;
-        bh=AY/Ig6/D6B8kAit4w8uSAEvPz3sYAX7+kRJBXfUowsI=;
+        s=korg; t=1679325238;
+        bh=S6AoOAsIo8yAveuwlr6QRe1L5MwF2dsJT7Ztt/10cDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cwt2IpuAxolB3Pk7JDV4PpH+oMZCvAF7rfpS7LuSQY6lVySlsEK5cCmkql9v9RMFR
-         3e/scKzlNjVs7OvfLHnTmSEszRz6H5KxC7zBvSX/ZqD2fnWYBMaCNoccTaF6q6OnZR
-         2OgHE4aByT0G61fnJ7daAqEmG6jSogtj08OdrdFA=
+        b=l+Htno46A9JUsukPOXmqNtd9snEQckKy915jGvcHFQtucssRgUinA8ZUPXO1dthnC
+         sDLpQPbqA7aI7P4+qX0TEYdc/2bkL6dCLB1w8ZCdLMW5mVS5v+Xvic2Om+RgZnYkRv
+         yBnyTAsbTbuPOVklbhBmwncyU8hTise+dd/cK1NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 4.19 27/36] sh: intc: Avoid spurious sizeof-pointer-div warning
+        patches@lists.linux.dev, Sung-hun Kim <sfoon.kim@samsung.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 081/115] tracing: Make splice_read available again
 Date:   Mon, 20 Mar 2023 15:54:53 +0100
-Message-Id: <20230320145425.249174463@linuxfoundation.org>
+Message-Id: <20230320145452.819421221@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145424.191578432@linuxfoundation.org>
-References: <20230320145424.191578432@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+From: Sung-hun Kim <sfoon.kim@samsung.com>
 
-[ Upstream commit 250870824c1cf199b032b1ef889c8e8d69d9123a ]
+commit e400be674a1a40e9dcb2e95f84d6c1fd2d88f31d upstream.
 
-GCC warns about the pattern sizeof(void*)/sizeof(void), as it looks like
-the abuse of a pattern to calculate the array size. This pattern appears
-in the unevaluated part of the ternary operator in _INTC_ARRAY if the
-parameter is NULL.
+Since the commit 36e2c7421f02 ("fs: don't allow splice read/write
+without explicit ops") is applied to the kernel, splice() and
+sendfile() calls on the trace file (/sys/kernel/debug/tracing
+/trace) return EINVAL.
 
-The replacement uses an alternate approach to return 0 in case of NULL
-which does not generate the pattern sizeof(void*)/sizeof(void), but still
-emits the warning if _INTC_ARRAY is called with a nonarray parameter.
+This patch restores these system calls by initializing splice_read
+in file_operations of the trace file. This patch only enables such
+functionalities for the read case.
 
-This patch is required for successful compilation with -Werror enabled.
+Link: https://lore.kernel.org/linux-trace-kernel/20230314013707.28814-1-sfoon.kim@samsung.com
 
-The idea to use _Generic for type distinction is taken from Comment #7
-in https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108483 by Jakub Jelinek
-
-Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Link: https://lore.kernel.org/r/619fa552-c988-35e5-b1d7-fe256c46a272@mkarcher.dialup.fu-berlin.de
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 36e2c7421f02 ("fs: don't allow splice read/write without explicit ops")
+Signed-off-by: Sung-hun Kim <sfoon.kim@samsung.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sh_intc.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/sh_intc.h b/include/linux/sh_intc.h
-index c255273b02810..37ad81058d6ae 100644
---- a/include/linux/sh_intc.h
-+++ b/include/linux/sh_intc.h
-@@ -97,7 +97,10 @@ struct intc_hw_desc {
- 	unsigned int nr_subgroups;
- };
- 
--#define _INTC_ARRAY(a) a, __same_type(a, NULL) ? 0 : sizeof(a)/sizeof(*a)
-+#define _INTC_SIZEOF_OR_ZERO(a) (_Generic(a,                 \
-+                                 typeof(NULL):  0,           \
-+                                 default:       sizeof(a)))
-+#define _INTC_ARRAY(a) a, _INTC_SIZEOF_OR_ZERO(a)/sizeof(*a)
- 
- #define INTC_HW_DESC(vectors, groups, mask_regs,	\
- 		     prio_regs,	sense_regs, ack_regs)	\
--- 
-2.39.2
-
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5093,6 +5093,8 @@ loff_t tracing_lseek(struct file *file,
+ static const struct file_operations tracing_fops = {
+ 	.open		= tracing_open,
+ 	.read		= seq_read,
++	.read_iter	= seq_read_iter,
++	.splice_read	= generic_file_splice_read,
+ 	.write		= tracing_write_stub,
+ 	.llseek		= tracing_lseek,
+ 	.release	= tracing_release,
 
 
