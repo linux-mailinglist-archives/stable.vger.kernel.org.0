@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2606C17DD
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12AD36C1674
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232458AbjCTPRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47834 "EHLO
+        id S232169AbjCTPG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:06:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232588AbjCTPR0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:17:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458063433B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:12:10 -0700 (PDT)
+        with ESMTP id S232456AbjCTPFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:05:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C084D2A9AC
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:01:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55E4461598
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:12:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6409FC433EF;
-        Mon, 20 Mar 2023 15:12:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7764B80EC9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F21C433EF;
+        Mon, 20 Mar 2023 15:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325127;
-        bh=u62PHWIrN6HTCJZD7dyHy2je/j/PdhGkuo2ogWvA/hw=;
+        s=korg; t=1679324464;
+        bh=LtHCu70t+HRL4rFaiwgeQZrp3gS8ifNSfT+F2ppNn4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bi7BII/gYWVhkyxoaCHqLl99TiudyG6ZSSCyPWwAfJQQMh+RcEFQCSVOmvcM70FL+
-         HsFSIG9PD3iHQsYqyeXnLd/3VUXZVhPG2ty/QyMWRmWm02lq2/qh8oW8sSzf6mfWm7
-         wE67gvR0JxisnBR4BqdLNUpew8la4Wu99MAwFfRE=
+        b=NGlDN6WeKjaVks9isxhp66TGWCK6MQzoxuyeNPWSniJN9WyUcXNGb1jxekwzmXtJD
+         tqz2QxkRW46Dr2TuVaq8GXZvyY209nqKr5U25HmnD9Su6KLSH4WhRI/27dBm7mFUsk
+         u9A/qVcnrzjlR2qPPmsFKPw+wICGQhT3qFWPrm1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Van Hensbergen <ericvh@kernel.org>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        patches@lists.linux.dev,
+        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/115] net/9p: fix bug in client create for .L
+Subject: [PATCH 5.4 33/60] hwmon: (adt7475) Fix masking of hysteresis registers
 Date:   Mon, 20 Mar 2023 15:54:42 +0100
-Message-Id: <20230320145452.358993165@linuxfoundation.org>
+Message-Id: <20230320145432.317173705@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Van Hensbergen <ericvh@kernel.org>
+From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
 
-[ Upstream commit 3866584a1c56a2bbc8c0981deb4476d0b801969e ]
+[ Upstream commit 48e8186870d9d0902e712d601ccb7098cb220688 ]
 
-We are supposed to set fid->mode to reflect the flags
-that were used to open the file.  We were actually setting
-it to the creation mode which is the default perms of the
-file not the flags the file was opened with.
+The wrong bits are masked in the hysteresis register; indices 0 and 2
+should zero bits [7:4] and preserve bits [3:0], and index 1 should zero
+bits [3:0] and preserve bits [7:4].
 
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Reviewed-by: Dominique Martinet <asmadeus@codewreck.org>
+Fixes: 1c301fc5394f ("hwmon: Add a driver for the ADT7475 hardware monitoring chip")
+Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20230222005228.158661-3-tony.obrien@alliedtelesis.co.nz
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/client.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/adt7475.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/9p/client.c b/net/9p/client.c
-index 08e0c9990af06..c4c1e44cd7ca3 100644
---- a/net/9p/client.c
-+++ b/net/9p/client.c
-@@ -1315,7 +1315,7 @@ int p9_client_create_dotl(struct p9_fid *ofid, const char *name, u32 flags,
- 		 qid->type, qid->path, qid->version, iounit);
+diff --git a/drivers/hwmon/adt7475.c b/drivers/hwmon/adt7475.c
+index 20a4118bb3e1c..5af7226657ab4 100644
+--- a/drivers/hwmon/adt7475.c
++++ b/drivers/hwmon/adt7475.c
+@@ -484,10 +484,10 @@ static ssize_t temp_store(struct device *dev, struct device_attribute *attr,
+ 		val = (temp - val) / 1000;
  
- 	memmove(&ofid->qid, qid, sizeof(struct p9_qid));
--	ofid->mode = mode;
-+	ofid->mode = flags;
- 	ofid->iounit = iounit;
+ 		if (sattr->index != 1) {
+-			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
++			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
+ 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF) << 4;
+ 		} else {
+-			data->temp[HYSTERSIS][sattr->index] &= 0x0F;
++			data->temp[HYSTERSIS][sattr->index] &= 0xF0;
+ 			data->temp[HYSTERSIS][sattr->index] |= (val & 0xF);
+ 		}
  
- free_and_error:
 -- 
 2.39.2
 
