@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF1EA6C1743
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB71B6C19C1
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbjCTPM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
+        id S233051AbjCTPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:37:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232353AbjCTPLz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9AF07AAD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:54 -0700 (PDT)
+        with ESMTP id S233060AbjCTPhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:37:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A4B3B3CD
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A660B61570
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F8FC433D2;
-        Mon, 20 Mar 2023 15:06:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5FB8B80ED9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A01EC433EF;
+        Mon, 20 Mar 2023 15:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324813;
-        bh=BCmNvDMhrMkhlmJKS0+v/dzhSURA4nc1L1BFv8Z3Rfg=;
+        s=korg; t=1679326137;
+        bh=VlDFE6xx2/WZzxco8M/zCYjaQG4TMPBklq6VnAqL7PY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxdCPuydw7dNZ0gYnARlvIJgOO2gVJDlJj9U4ZtST84X1097yIcgvtpEhxbRZO1fq
-         pIg56VFo7SkrV5CmivGX0SGE6NPOePGeGgYkAuxdkCpP5IQOLSVXnhFA9WqF7FuRlF
-         6kSO2tgV7DbOSke8DqZUuEXybggoQBPYKhZsFza8=
+        b=pieJnM5sh5CioTp6ilWiRl4uBZtcEcR6gOonbVIlGUN9een8hb50z7LcSu1g5OCtW
+         CWNo2dukO1PEtIXsfEZkf8wUGQiRWussllJeApHDoqUxrXeafg77llW3Nvr5r5AcwZ
+         pOUrjfxCsW7ejp/fHuWjKjCFv0mYVJ55q4h36oRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Sung-hun Kim <sfoon.kim@samsung.com>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 61/99] tracing: Make splice_read available again
+Subject: [PATCH 6.2 144/211] tracing: Make splice_read available again
 Date:   Mon, 20 Mar 2023 15:54:39 +0100
-Message-Id: <20230320145445.941093832@linuxfoundation.org>
+Message-Id: <20230320145519.472844343@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -78,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -4705,6 +4705,8 @@ loff_t tracing_lseek(struct file *file,
+@@ -5119,6 +5119,8 @@ loff_t tracing_lseek(struct file *file,
  static const struct file_operations tracing_fops = {
  	.open		= tracing_open,
  	.read		= seq_read,
