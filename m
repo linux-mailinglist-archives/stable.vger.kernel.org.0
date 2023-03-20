@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 800C46C0CD4
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 548996C0CD6
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231193AbjCTJMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
+        id S231205AbjCTJMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:12:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbjCTJMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C6212F2A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:15 -0700 (PDT)
+        with ESMTP id S230220AbjCTJMT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB42812F3C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF61D612AB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0196C433EF;
-        Mon, 20 Mar 2023 09:12:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78963612C9
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88DF2C433D2;
+        Mon, 20 Mar 2023 09:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303534;
-        bh=H0MY2KF0IkQ6/DPdjnXv5xs4do7f5be+R3EZNKHN/4g=;
+        s=korg; t=1679303536;
+        bh=PjL1MvXwy9nXv6U5xTkiPU1j7ZmW7DueaOWg1dUl9yE=;
         h=Subject:To:Cc:From:Date:From;
-        b=0iP6r+nrs7HH0jAZyfVv3sHguIV+RARO0YHxOq/xg7W17WVZASIwLVo1waV5UWMQj
-         aqYe7tOHO2dpmH1ItQAdvz6qwbOF/Te7xyS0wKydBMw//05Tc/8/qva8VUdkVt5MqM
-         I6L09/1u3atLiQL1Aj3kzoOCMP2tN+FoXAM21c8E=
-Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 5.4-stable tree
+        b=Enz9H4gQbKOFnUMmvLVIAK4u8R96MMPQQDp4XH1CZV2E2eGaE4tLl/+VSUJAJgX/y
+         y5CQSF95mqzXaXvXThezrr5JFIzCpYX7vy01PRx5cLkAeNjgg6rg6olL2okymrl6zo
+         F4Zv4UeeCsvAkpdm7cvhCUcftd4srFejOCPv7lD8=
+Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 4.19-stable tree
 To:     alexander.sverdlin@siemens.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:11:55 +0100
-Message-ID: <1679303515186114@kroah.com>
+Date:   Mon, 20 Mar 2023 10:11:56 +0100
+Message-ID: <1679303516195248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1be6f2b15f902c02e055ae0b419ca789200473c9
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303515186114@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679303516195248@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
@@ -75,6 +75,15 @@ c2f448cff22a ("tty: serial: fsl_lpuart: add LS1028A support")
 a092ab25fdaa ("tty: serial: fsl_lpuart: fix DMA mapping")
 159381df1442 ("tty: serial: fsl_lpuart: fix DMA operation when using IOMMU")
 487ee861de17 ("tty: serial: fsl_lpuart: use the sg count from dma_map_sg")
+352bd55e5dce ("tty: serial: fsl_lpuart: Introduce lpuart*_setup_watermark_enable()")
+4ff69041eccf ("tty: serial: fsl_lpuart: Introduce lpuart32_configure()")
+fd60e8e4a701 ("tty: serial: fsl_lpuart: Introduce lpuart_rx_dma_startup()")
+5982199ca071 ("tty: serial: fsl_lpuart: Introduce lpuart_tx_dma_startup()")
+769d55c523f7 ("tty: serial: fsl_lpuart: Introduce lpuart_dma_shutdown()")
+8a9b82422ff5 ("tty: serial: fsl_lpuart: Drop unnecessary lpuart*_stop_tx()")
+bcfa46bfb9b7 ("tty: serial: fsl_lpuart: Drop unnecessary extra parenthesis")
+d26454ee3c45 ("tty: serial: fsl_lpuart: Drop no-op bit opearation")
+9bc19af9dacb ("tty: serial: fsl_lpuart: Flush HW FIFOs in .flush_buffer")
 
 thanks,
 
