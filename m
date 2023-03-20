@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6236C17C7
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:17:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35EDF6C1772
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232608AbjCTPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:17:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48874 "EHLO
+        id S232386AbjCTPN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:13:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232501AbjCTPQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:16:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3854E2ED4D
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:11:51 -0700 (PDT)
+        with ESMTP id S232413AbjCTPNi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:13:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E993C00
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:08:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA5B6B80EAC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31E9AC4339B;
-        Mon, 20 Mar 2023 15:11:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0586EB80EC1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:08:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52DCAC4339B;
+        Mon, 20 Mar 2023 15:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325108;
-        bh=S6tEHWndNmSMMQ5WutitFRxVDIVV+AOXs7zwPkBG9T4=;
+        s=korg; t=1679324906;
+        bh=dl3QTd+UtKcU/FC+DFXYJAoSVrWbgV2C49IRHaIEPo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ST4l563Tae8ws4bzI3zV6He60HvttbU8ICH4xPGzMzUytUJn6m0YdktfUTQM/8ja4
-         d1asHJe3hCogXrKAqJIaae162q7m3cGvSgfJrUdWHR1OFU8nVaCgFEzxjWBiaLYp1s
-         QnGzhnIJ1WLQBElcdkH5BUy6qUtvImSg5aylSOyQ=
+        b=a0UL9k8rD2Jl894lrZVszqa6hHtSGSoGPkXbysLVPKiIPkh9R/v9pIQW2yi6wNvKb
+         E7cZUYAjWZU/W1yqfZjkgXAZbP0w8+yGVxpHtyhjdC5k+1714tcvEIbtTXu4zQi5cf
+         NcyO1p4yhlMhFXIlbD4uEYEiXW25mNs/TIeOGk8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Steven Price <steven.price@arm.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 007/211] drm/meson: fix 1px pink line on GXM when scaling video overlay
+Subject: [PATCH 6.1 004/198] drm/panfrost: Dont sync rpm suspension after mmu flushing
 Date:   Mon, 20 Mar 2023 15:52:22 +0100
-Message-Id: <20230320145513.601843880@linuxfoundation.org>
+Message-Id: <20230320145507.624863284@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,43 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-[ Upstream commit 5c8cf1664f288098a971a1d1e65716a2b6a279e1 ]
+[ Upstream commit ba3be66f11c3c49afaa9f49b99e21d88756229ef ]
 
-Playing media with a resolution smaller than the crtc size requires the
-video overlay to be scaled for output and GXM boards display a 1px pink
-line on the bottom of the scaled overlay. Comparing with the downstream
-vendor driver revealed VPP_DUMMY_DATA not being set [0].
+Lockdep warns about potential circular locking dependency of devfreq
+with the fs_reclaim caused by immediate device suspension when mapping is
+released by shrinker. Fix it by doing the suspension asynchronously.
 
-Setting VPP_DUMMY_DATA prevents the 1px pink line from being seen.
-
-[0] https://github.com/endlessm/linux-s905x/blob/master/drivers/amlogic/amports/video.c#L7869
-
-Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
-Suggested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230303123312.155164-1-christianshewitt@gmail.com
+Reviewed-by: Steven Price <steven.price@arm.com>
+Fixes: ec7eba47da86 ("drm/panfrost: Rework page table flushing and runtime PM interaction")
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://lore.kernel.org/all/20230108210445.3948344-3-dmitry.osipenko@collabora.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_vpp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_vpp.c b/drivers/gpu/drm/meson/meson_vpp.c
-index 154837688ab0d..5df1957c8e41f 100644
---- a/drivers/gpu/drm/meson/meson_vpp.c
-+++ b/drivers/gpu/drm/meson/meson_vpp.c
-@@ -100,6 +100,8 @@ void meson_vpp_init(struct meson_drm *priv)
- 			       priv->io_base + _REG(VPP_DOLBY_CTRL));
- 		writel_relaxed(0x1020080,
- 				priv->io_base + _REG(VPP_DUMMY_DATA1));
-+		writel_relaxed(0x42020,
-+				priv->io_base + _REG(VPP_DUMMY_DATA));
- 	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
- 		writel_relaxed(0xf, priv->io_base + _REG(DOLBY_PATH_CTRL));
+diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+index 4e83a1891f3ed..666a5e53fe193 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -282,7 +282,7 @@ static void panfrost_mmu_flush_range(struct panfrost_device *pfdev,
+ 	if (pm_runtime_active(pfdev->dev))
+ 		mmu_hw_do_operation(pfdev, mmu, iova, size, AS_COMMAND_FLUSH_PT);
  
+-	pm_runtime_put_sync_autosuspend(pfdev->dev);
++	pm_runtime_put_autosuspend(pfdev->dev);
+ }
+ 
+ static int mmu_map_sg(struct panfrost_device *pfdev, struct panfrost_mmu *mmu,
 -- 
 2.39.2
 
