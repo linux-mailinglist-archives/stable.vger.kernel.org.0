@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0DA56C183C
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A90A96C16C4
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232686AbjCTPWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
+        id S232197AbjCTPI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232739AbjCTPWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:22:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A49EE2ED57
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:15:45 -0700 (PDT)
+        with ESMTP id S232180AbjCTPIj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334A32E835
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8188261593
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:15:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC23C433EF;
-        Mon, 20 Mar 2023 15:15:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D4DB6154D
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D7CC433EF;
+        Mon, 20 Mar 2023 15:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325344;
-        bh=xDcV1/srJoF5WCumscxvQSNTMwTYz8+Rs4NROu8Uv88=;
+        s=korg; t=1679324585;
+        bh=h3y3HH01KgcJq02AOFdV2sZ5v+gM4bqe9amZ6i9IiDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2SC9e6p9jCQfqovfjwXy7kvMg2CR+3KRFJQHTH728217WFsjXGHsk5jQoew962sOm
-         pJzEKwEQinML0OjDDCOSkFJQwYo07Pirk12pvjjz/nL6cRawuC5aC1tyo1Eup6zAjk
-         Ag/w5bbwRqKRb3JDZUeYUJIld2eMdOGOm9TlIfSQ=
+        b=nkr1UYOdwxWpekUkRPfa1I6o+7JF5QbXP/pFLquI9oFkGBCwIbeZQVNoCrEVVlp64
+         HAyqg/OvUZ0/i6VKlliZFE3ZLCADQWBECxQh2OerSxYt1EyMWLcaX8OcZukL2EecLQ
+         yLxpvNPd/UVVVjGeIR6YAQ8qeeJnTQ9EkxUYdAaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Christoph Paasch <cpaasch@apple.com>
-Subject: [PATCH 5.15 093/115] mptcp: fix possible deadlock in subflow_error_report
+        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 5.4 56/60] serial: 8250_em: Fix UART port type
 Date:   Mon, 20 Mar 2023 15:55:05 +0100
-Message-Id: <20230320145453.329372024@linuxfoundation.org>
+Message-Id: <20230320145433.255720925@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,54 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit b7a679ba7c652587b85294f4953f33ac0b756d40 upstream.
+commit 32e293be736b853f168cd065d9cbc1b0c69f545d upstream.
 
-Christoph reported a possible deadlock while the TCP stack
-destroys an unaccepted subflow due to an incoming reset: the
-MPTCP socket error path tries to acquire the msk-level socket
-lock while TCP still owns the listener socket accept queue
-spinlock, and the reverse dependency already exists in the
-TCP stack.
+As per HW manual for  EMEV2 "R19UH0040EJ0400 Rev.4.00", the UART
+IP found on EMMA mobile SoC is Register-compatible with the
+general-purpose 16750 UART chip. Fix UART port type as 16750 and
+enable 64-bytes fifo support.
 
-Note that the above is actually a lockdep false positive, as
-the chain involves two separate sockets. A different per-socket
-lockdep key will address the issue, but such a change will be
-quite invasive.
-
-Instead, we can simply stop earlier the socket error handling
-for orphaned or unaccepted subflows, breaking the critical
-lockdep chain. Error handling in such a scenario is a no-op.
-
-Reported-and-tested-by: Christoph Paasch <cpaasch@apple.com>
-Fixes: 15cc10453398 ("mptcp: deliver ssk errors to msk")
+Fixes: 22886ee96895 ("serial8250-em: Emma Mobile UART driver V2")
 Cc: stable@vger.kernel.org
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/355
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20230227114152.22265-2-biju.das.jz@bp.renesas.com
+[biju: manually fixed the conflicts]
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/tty/serial/8250/8250_em.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1316,6 +1316,13 @@ static void subflow_error_report(struct
- {
- 	struct sock *sk = mptcp_subflow_ctx(ssk)->conn;
+--- a/drivers/tty/serial/8250/8250_em.c
++++ b/drivers/tty/serial/8250/8250_em.c
+@@ -102,8 +102,8 @@ static int serial8250_em_probe(struct pl
+ 	memset(&up, 0, sizeof(up));
+ 	up.port.mapbase = regs->start;
+ 	up.port.irq = irq->start;
+-	up.port.type = PORT_UNKNOWN;
+-	up.port.flags = UPF_BOOT_AUTOCONF | UPF_FIXED_PORT | UPF_IOREMAP;
++	up.port.type = PORT_16750;
++	up.port.flags = UPF_FIXED_PORT | UPF_IOREMAP | UPF_FIXED_TYPE;
+ 	up.port.dev = &pdev->dev;
+ 	up.port.private_data = priv;
  
-+	/* bail early if this is a no-op, so that we avoid introducing a
-+	 * problematic lockdep dependency between TCP accept queue lock
-+	 * and msk socket spinlock
-+	 */
-+	if (!sk->sk_socket)
-+		return;
-+
- 	mptcp_data_lock(sk);
- 	if (!sock_owned_by_user(sk))
- 		__mptcp_error_report(sk);
 
 
