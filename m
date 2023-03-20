@@ -2,152 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2DE6C1368
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 14:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE2026C1374
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 14:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230082AbjCTNa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 09:30:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60122 "EHLO
+        id S230214AbjCTNcu convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Mar 2023 09:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231382AbjCTNaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 09:30:24 -0400
-Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4571249EE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 06:29:59 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id C535F5C0125;
-        Mon, 20 Mar 2023 09:29:54 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 20 Mar 2023 09:29:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1679318994; x=1679405394; bh=qv
-        X9zx3KAw16Ja13RgmgQbU7FAVBJJp8PsL97exb4Dc=; b=ZBN8Jh4q8K4ZXWJNkp
-        22dwEatSEl26OcygVwn5ckPqPW0OgdJbjAjRsBTaLk5e++CaQUlZemRHtvX2j2EE
-        s2czrxX7ZxIQmat/+6GdTjKUqrbKojK724RCPC+P3ppyx+ZX4sEbx+oxhoF+5L+h
-        znYLGNtRk63bcSW/AvPPvqp+oxqJgxlkyWk2WmVDS7lpH2FgpegORoBRC+3xJpl1
-        7B423kq0SQtuFY8qo67hOxF3b0BzPrIBvvPdwJBr2plzXgS24hfvb4EnFEHKwpWo
-        1Expl4lLQ3w11az9G00g04P04unl2ZkyV/CnnlKayzr74Hlh5lyhISK/JgUoA4w/
-        dENQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1679318994; x=1679405394; bh=qvX9zx3KAw16J
-        a13RgmgQbU7FAVBJJp8PsL97exb4Dc=; b=ae9nJvhotF2lU3OTFYWpd271ztUgr
-        uK7+zuudnVGMLYvlwgPbwjX83zhQsPyl0FuKAIAhcrF3lKY9RefFqz3LDyZdcnWE
-        3GvQ8YBEmxmtGB8HypScBzKfi9OVeClo2g3k+/M8LypjieTAP5oJksvxYfiulJ4x
-        ZNpXDpOykkWlPJhLUBI4PbollqbXYXngHeN3WUrlcRituSkU6Va1zPFKcF5M1nol
-        9dEUYRTL1ZV0LSRuA8MdMN2nB0MaQCL48ztjQQaKshgk2rVgzDydE/SNtdCYIt69
-        R4HowVBirBwfCBu3/J2VTcB1vtvY0b27J6BM/DooQCubW/nD5gSDd7yYw==
-X-ME-Sender: <xms:0l8YZF9NvEAwXc3nl4Lj8DxvWndnC6WFUOn7zwtRSDcxnJuf715IXA>
-    <xme:0l8YZJtnOrsC4mPtgVsL1sjsnIko9Lh7Hxau5SOr-X_HaXoh1qSVNe7aIaAsd-qEc
-    cvr1Iec7FcpXg>
-X-ME-Received: <xmr:0l8YZDC3NxUgzfs_ntbGbB6zb7dXxdwEZdqmb96HrzsnLgWKuUNouNEahEKR-4E0P_NTcfTlRZiOlxz4SpKBttoPc_s6bKu6dyg0BA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdefkedghedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepleeite
-    evieefteelfeehveegvdetveehgffhvdejffdvleevhfffgeffffejlefgnecuffhomhgr
-    ihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:0l8YZJeLcdwNS2fHWZFaaOeD0AWpLWsbBQiG13-Tr-Q6oyt5Zv1JaA>
-    <xmx:0l8YZKPdOb3OElc-4W_T1nm1hAJjZH37uSTa5g5YFUNjkXaRNDNblg>
-    <xmx:0l8YZLls7rs_i9d-oyI7Pn8uIK3pizcqgkTTm-zrEoueeICB_ThT0w>
-    <xmx:0l8YZDbcd1fEzn7ryVNgnI8q6vHvjm7yxa1sEWJKMwl5iqWsENbKnQ>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Mar 2023 09:29:54 -0400 (EDT)
-Date:   Mon, 20 Mar 2023 14:29:51 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.15.y] drm/i915/active: Fix misuse of non-idle barriers
- as fence trackers
-Message-ID: <ZBhfz5KP4kOQ3WO6@kroah.com>
-References: <1679307444199182@kroah.com>
- <20230320114752.169004-1-janusz.krzysztofik@linux.intel.com>
+        with ESMTP id S229878AbjCTNcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 09:32:48 -0400
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5263358E;
+        Mon, 20 Mar 2023 06:32:46 -0700 (PDT)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1peFcv-002LMJ-Sn; Mon, 20 Mar 2023 14:32:41 +0100
+Received: from p57bd9bc2.dip0.t-ipconnect.de ([87.189.155.194] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1peFcv-000m1l-Kk; Mon, 20 Mar 2023 14:32:41 +0100
+Message-ID: <c33548dd94ca23347a418743120aed4a552264a2.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH 7/7 v4] sh: mcount.S: fix build error when PRINTK is not
+ enabled
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, stable@vger.kernel.org,
+        linux-sh <linux-sh@vger.kernel.org>
+Date:   Mon, 20 Mar 2023 14:32:40 +0100
+In-Reply-To: <CAMuHMdVR78EXTVd7ThUEv6rxL8aHSyAoC_5z8KyAPmiTyww85w@mail.gmail.com>
+References: <20230306040037.20350-1-rdunlap@infradead.org>
+         <20230306040037.20350-8-rdunlap@infradead.org>
+         <056df6d548ad0e4f7f4ccb2782744b165ce20578.camel@physik.fu-berlin.de>
+         <CAMuHMdU+tsKuONm9iPqqTFSnRT2zaV3zogYgc-+vCp6x-ruQ_w@mail.gmail.com>
+         <01f84314b2499b6859a4826ecf7363635e66a4fc.camel@physik.fu-berlin.de>
+         <CAMuHMdVR78EXTVd7ThUEv6rxL8aHSyAoC_5z8KyAPmiTyww85w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.46.4 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230320114752.169004-1-janusz.krzysztofik@linux.intel.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 87.189.155.194
+X-ZEDAT-Hint: PO
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 20, 2023 at 12:47:52PM +0100, Janusz Krzysztofik wrote:
-> Users reported oopses on list corruptions when using i915 perf with a
-> number of concurrently running graphics applications.  Root cause analysis
-> pointed at an issue in barrier processing code -- a race among perf open /
-> close replacing active barriers with perf requests on kernel context and
-> concurrent barrier preallocate / acquire operations performed during user
-> context first pin / last unpin.
-> 
-> When adding a request to a composite tracker, we try to reuse an existing
-> fence tracker, already allocated and registered with that composite.  The
-> tracker we obtain may already track another fence, may be an idle barrier,
-> or an active barrier.
-> 
-> If the tracker we get occurs a non-idle barrier then we try to delete that
-> barrier from a list of barrier tasks it belongs to.  However, while doing
-> that we don't respect return value from a function that performs the
-> barrier deletion.  Should the deletion ever fail, we would end up reusing
-> the tracker still registered as a barrier task.  Since the same structure
-> field is reused with both fence callback lists and barrier tasks list,
-> list corruptions would likely occur.
-> 
-> Barriers are now deleted from a barrier tasks list by temporarily removing
-> the list content, traversing that content with skip over the node to be
-> deleted, then populating the list back with the modified content.  Should
-> that intentionally racy concurrent deletion attempts be not serialized,
-> one or more of those may fail because of the list being temporary empty.
-> 
-> Related code that ignores the results of barrier deletion was initially
-> introduced in v5.4 by commit d8af05ff38ae ("drm/i915: Allow sharing the
-> idle-barrier from other kernel requests").  However, all users of the
-> barrier deletion routine were apparently serialized at that time, then the
-> issue didn't exhibit itself.  Results of git bisect with help of a newly
-> developed igt@gem_barrier_race@remote-request IGT test indicate that list
-> corruptions might start to appear after commit 311770173fac ("drm/i915/gt:
-> Schedule request retirement when timeline idles"), introduced in v5.5.
-> 
-> Respect results of barrier deletion attempts -- mark the barrier as idle
-> only if successfully deleted from the list.  Then, before proceeding with
-> setting our fence as the one currently tracked, make sure that the tracker
-> we've got is not a non-idle barrier.  If that check fails then don't use
-> that tracker but go back and try to acquire a new, usable one.
-> 
-> v3: use unlikely() to document what outcome we expect (Andi),
->   - fix bad grammar in commit description.
-> v2: no code changes,
->   - blame commit 311770173fac ("drm/i915/gt: Schedule request retirement
->     when timeline idles"), v5.5, not commit d8af05ff38ae ("drm/i915: Allow
->     sharing the idle-barrier from other kernel requests"), v5.4,
->   - reword commit description.
-> 
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6333
-> Fixes: 311770173fac ("drm/i915/gt: Schedule request retirement when timeline idles")
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: stable@vger.kernel.org # v5.5
-> Cc: Andi Shyti <andi.shyti@linux.intel.com>
-> Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-> Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-> Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20230302120820.48740-1-janusz.krzysztofik@linux.intel.com
-> (cherry picked from commit 506006055769b10d1b2b4e22f636f3b45e0e9fc7)
-> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-> (cherry picked from commit e0e6b416b25ee14716f3549e0cbec1011b193809)
-> Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Hi Geert!
 
-Both backports now queued up, thanks.
+On Mon, 2023-03-20 at 13:42 +0100, Geert Uytterhoeven wrote:
+> Oops, obviously all of that happened before my morning coffee ;-)
+> 
+> Makefile has:
+> 
+>     ifdef CONFIG_FRAME_POINTER
+>     KBUILD_CFLAGS   += -fno-omit-frame-pointer -fno-optimize-sibling-calls
+>     KBUILD_RUSTFLAGS += -Cforce-frame-pointers=y
+>     else
+>     # Some targets (ARM with Thumb2, for example), can't be built with frame
+>     # pointers.  For those, we don't have FUNCTION_TRACER automatically
+>     # select FRAME_POINTER.  However, FUNCTION_TRACER adds -pg, and this is
+>     # incompatible with -fomit-frame-pointer with current GCC, so we don't use
+>     # -fomit-frame-pointer with FUNCTION_TRACER.
+>     # In the Rust target specification, "frame-pointer" is set explicitly
+>     # to "may-omit".
+>     ifndef CONFIG_FUNCTION_TRACER
+>     KBUILD_CFLAGS   += -fomit-frame-pointer
+>     endif
+>     endif
+> 
+> Your config probably has CONFIG_FRAME_POINTER set?
+> 
+>     arch/sh/Kconfig.debug=config DWARF_UNWINDER
+>     arch/sh/Kconfig.debug-  bool "Enable the DWARF unwinder for stacktraces"
+>     arch/sh/Kconfig.debug-  depends on DEBUG_KERNEL
+>     arch/sh/Kconfig.debug:  select FRAME_POINTER
+> 
+> You should make sure that cannot happen when CONFIG_FUNCTION_TRACER
+> is enabled. I.e. make DWARF_UNWINDER depend on !FUNCTION_TRACER?
+> 
+> Other architectures do something similar:
+> 
+>     arch/sparc/Kconfig.debug:config FRAME_POINTER
+>     arch/sparc/Kconfig.debug-       bool
+>     arch/sparc/Kconfig.debug-       depends on MCOUNT
+> 
+>     arch/x86/Kconfig.debug:config FRAME_POINTER
+>     arch/x86/Kconfig.debug- depends on !UNWINDER_ORC && !UNWINDER_GUESS
+>     arch/x86/Kconfig.debug- bool
+> 
+> Probably you need to adjust the following, too:
+> 
+>     lib/Kconfig.debug:config FRAME_POINTER
+>     lib/Kconfig.debug-      bool "Compile the kernel with frame pointers"
+>     lib/Kconfig.debug-      depends on DEBUG_KERNEL && (M68K || UML ||
+> SUPERH) || ARCH_WANT_FRAME_POINTERS
+>     lib/Kconfig.debug-      default y if (DEBUG_INFO && UML) ||
+> ARCH_WANT_FRAME_POINTERS
+> 
+> i.e. drop SUPERH from the list above, and select ARCH_WANT_FRAME_POINTERS
+> if !FUNCTION_TRACER.
 
-greg k-h
+Do you think you can send a patch for this change? I can then review and apply
+it together with Randy's series in case everything works as expected.
+
+Adrian
+
+-- 
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
