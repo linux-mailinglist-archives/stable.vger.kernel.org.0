@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5856C0CD0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9346C0CD2
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 10:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230210AbjCTJME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 05:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43942 "EHLO
+        id S230483AbjCTJMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 05:12:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbjCTJMD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:03 -0400
+        with ESMTP id S229913AbjCTJMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 05:12:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D982012F2A
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFA9112F2A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 02:12:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E937B80DB2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF99FC433D2;
-        Mon, 20 Mar 2023 09:11:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 783FDB80DB3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 09:12:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D820FC433EF;
+        Mon, 20 Mar 2023 09:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679303519;
-        bh=Kw2w5QKS/J731Xd0o1Szks+OGaocsvUKrUVvXkUJBnU=;
+        s=korg; t=1679303528;
+        bh=i2WNXprPTUh8rZ4yunBiuiWzKOKC0Kj13NUoTi2oWGc=;
         h=Subject:To:Cc:From:Date:From;
-        b=BzI7ivTe/gRY5f1IXCmeZYDug8F2vGLjSPtCijI7H+LchcxqO60XRRsid8bhWsPFa
-         9w9xxN9TujAFCua5jeNd7xW/AZqs4uD2qkuyumecX3awIcuO70GTfo2rV18O9WfHRQ
-         iG5+qisykMtSo9noSzk9zyYiAUIXU50KL4Flg76w=
-Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 6.1-stable tree
+        b=HpWsqWxiNl6fC/yBNMexknJV3cGZXmq0uHFUILJzui89J9114REbgdNhEARUBUCvi
+         w4/3pA58IjKzkqFMiDZLjinkNVwCh6isugMkWd3ToGERR6YMinr1vjCSPYZHtLz4gQ
+         +m9nzja9wxpMphpLNvXnYRKruISndhi7FrW2mKZ4=
+Subject: FAILED: patch "[PATCH] tty: serial: fsl_lpuart: fix race on RX DMA shutdown" failed to apply to 5.15-stable tree
 To:     alexander.sverdlin@siemens.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 10:11:51 +0100
-Message-ID: <167930351118194@kroah.com>
+Date:   Mon, 20 Mar 2023 10:11:53 +0100
+Message-ID: <167930351311153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,25 +48,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1be6f2b15f902c02e055ae0b419ca789200473c9
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930351118194@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167930351311153@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 1be6f2b15f90 ("tty: serial: fsl_lpuart: fix race on RX DMA shutdown")
 8682ab0eea89 ("tty: serial: fsl_lpuart: switch to new dmaengine_terminate_* API")
 4f5cb8c5e915 ("tty: serial: fsl_lpuart: enable wakeup source for lpuart")
+374e01fa1304 ("serial: fsl_lpuart: Fix comment typo")
 
 thanks,
 
