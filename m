@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD6E6C078F
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:59:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F736C0793
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 01:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbjCTA7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Mar 2023 20:59:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34482 "EHLO
+        id S230388AbjCTA7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Mar 2023 20:59:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230369AbjCTA6X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:58:23 -0400
+        with ESMTP id S230382AbjCTA6a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Mar 2023 20:58:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2473514994;
-        Sun, 19 Mar 2023 17:55:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A797A211C0;
+        Sun, 19 Mar 2023 17:55:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA889611F2;
-        Mon, 20 Mar 2023 00:55:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA6DC4339B;
-        Mon, 20 Mar 2023 00:55:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D415A611FD;
+        Mon, 20 Mar 2023 00:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F708C433EF;
+        Mon, 20 Mar 2023 00:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273703;
-        bh=hJGxOy3tMjtDUMTcuAGCkYtKT1wPJLC0lJFhzzorNcM=;
+        s=k20201202; t=1679273707;
+        bh=dP8MKAIz+hzlwbkB+IquFyYQGS6Da7JzwgrSPP86ulE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KAF7gD/n+tAePUVQokEJ9l97pOxiIwb/09sqEBqFK0ooJ5ajoD4K75Xg7WSONH1CP
-         9F9GT2h8KR6VaammDK+N6vQyod3SQeY3Gdn/V/pQofeuChprUzz6bSfDOVhCr33bFp
-         ihSqTFWUCPQ0h3eNkULb4cIee25/Bkvm0O60iObxcHyFkNuhMHJbCauDA1hkT+YvCa
-         vH3ZBIncXDsNT96VtIYBVAn5+CBsSvZXnVRjdSJUhJyzUO+IyaV6GuQezxsVTZgz4p
-         o0X8+dFL/gaR/XLGPcO2c688sO1NsdHXyd4EKJb7kGXKkqmyArfGVBAvfnEXArxI8Q
-         brUouw/P62uJA==
+        b=YbF0BOlB4Fl97XetgSB9wOhWsffhm7FRRR30pral7NG3IMYiRP5meSd40dJDhijeT
+         0SvaF+juvlxxZ9uokFr2Bx4EviUNIsa2L41rjuEXA2QWZ+qNCq2gcEus6ANye+qEEE
+         Sh1taSffcAmrEc2RMpXIJXq+A3QiVdzgdMAlCzP9pnSJz1JnU3QGzV7HYwf7Sn2PY+
+         YZWcL/w3kpeGxG/CQWo+3YrbsWt0bRAO2wRhepqyD/PlKNTlSRf7V4AFMtc9T1mGt6
+         kXeXD3M8jeIF7eufNJCWAtVWEaIDeZzn6YN+f0UJVOHFBkQZ1cydeYYmmBrbRgi/Qr
+         2PCop3oYzZ7yQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Enrico Sau <enrico.sau@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, bjorn@mork.no,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        netdev@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 25/29] net: usb: qmi_wwan: add Telit 0x1080 composition
-Date:   Sun, 19 Mar 2023 20:54:07 -0400
-Message-Id: <20230320005413.1428452-25-sashal@kernel.org>
+Cc:     Swapnil Patel <Swapnil.Patel@amd.com>,
+        Pavle Kotarac <pavle.kotarac@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, mairacanal@riseup.net, mwen@igalia.com,
+        oliver.logush@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 26/29] drm/amd/display: Update clock table to include highest clock setting
+Date:   Sun, 19 Mar 2023 20:54:08 -0400
+Message-Id: <20230320005413.1428452-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -56,34 +62,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enrico Sau <enrico.sau@gmail.com>
+From: Swapnil Patel <Swapnil.Patel@amd.com>
 
-[ Upstream commit 382e363d5bed0cec5807b35761d14e55955eee63 ]
+[ Upstream commit 2d99a7ec25cf456cd3680eb314d6454138e5aa64 ]
 
-Add the following Telit FE990 composition:
+[Why]
+Currently, the clk manager matches SocVoltage with voltage from
+fused settings (dfPstate clock table). And then corresponding clocks
+are selected.
 
-0x1080: tty, adb, rmnet, tty, tty, tty, tty
+However in certain situations, this leads to clk manager not
+including at least one entry with highest supported clock setting.
 
-Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
-Link: https://lore.kernel.org/r/20230306120528.198842-1-enrico.sau@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+[How]
+Update the clk manager to include at least one entry with highest
+supported clock setting.
+
+Reviewed-by: Pavle Kotarac <pavle.kotarac@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Swapnil Patel <Swapnil.Patel@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../display/dc/clk_mgr/dcn301/vg_clk_mgr.c    | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 554d4e2a84a4e..2cc28af52ee25 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1363,6 +1363,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1057, 2)},	/* Telit FN980 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1080, 2)}, /* Telit FE990 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c
+index 24715ca2fa944..01383aac6b419 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c
+@@ -529,6 +529,19 @@ static struct clk_bw_params vg_bw_params = {
+ 
+ };
+ 
++static uint32_t find_max_clk_value(const uint32_t clocks[], uint32_t num_clocks)
++{
++	uint32_t max = 0;
++	int i;
++
++	for (i = 0; i < num_clocks; ++i) {
++		if (clocks[i] > max)
++			max = clocks[i];
++	}
++
++	return max;
++}
++
+ static unsigned int find_dcfclk_for_voltage(const struct vg_dpm_clocks *clock_table,
+ 		unsigned int voltage)
+ {
+@@ -572,12 +585,16 @@ static void vg_clk_mgr_helper_populate_bw_params(
+ 
+ 	bw_params->clk_table.num_entries = j + 1;
+ 
+-	for (i = 0; i < bw_params->clk_table.num_entries; i++, j--) {
++	for (i = 0; i < bw_params->clk_table.num_entries - 1; i++, j--) {
+ 		bw_params->clk_table.entries[i].fclk_mhz = clock_table->DfPstateTable[j].fclk;
+ 		bw_params->clk_table.entries[i].memclk_mhz = clock_table->DfPstateTable[j].memclk;
+ 		bw_params->clk_table.entries[i].voltage = clock_table->DfPstateTable[j].voltage;
+ 		bw_params->clk_table.entries[i].dcfclk_mhz = find_dcfclk_for_voltage(clock_table, clock_table->DfPstateTable[j].voltage);
+ 	}
++	bw_params->clk_table.entries[i].fclk_mhz = clock_table->DfPstateTable[j].fclk;
++	bw_params->clk_table.entries[i].memclk_mhz = clock_table->DfPstateTable[j].memclk;
++	bw_params->clk_table.entries[i].voltage = clock_table->DfPstateTable[j].voltage;
++	bw_params->clk_table.entries[i].dcfclk_mhz = find_max_clk_value(clock_table->DcfClocks, VG_NUM_DCFCLK_DPM_LEVELS);
+ 
+ 	bw_params->vram_type = bios_info->memory_type;
+ 	bw_params->num_channels = bios_info->ma_channel_number;
 -- 
 2.39.2
 
