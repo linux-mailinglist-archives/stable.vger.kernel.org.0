@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B76266C192A
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B656C18A5
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233026AbjCTPbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:31:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50454 "EHLO
+        id S232817AbjCTP03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:26:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233028AbjCTPbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:04 -0400
+        with ESMTP id S232825AbjCTPZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:25:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0576D38E94
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9DC2C64E
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92B5DB80EAB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04BA0C433D2;
-        Mon, 20 Mar 2023 15:23:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9131B80EC2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23466C433EF;
+        Mon, 20 Mar 2023 15:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325800;
-        bh=lTz+5AFy/jELT6czLvUxdm6WsyIvvXg3gLGmy6nRE7o=;
+        s=korg; t=1679325556;
+        bh=f+ukSv2m3v8o7lzRsmVB/195V/CPiXrA7klvqDt9pbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMshjJyr8g6+2SCXAGIZgOe+aBF3YUy2DVveYeiSVKhMlPIdfnKbKzyksB217+YxW
-         Ec4fys1vS5taxPvP6Zh4dRyJ5fok7M7bJMi4YQnJxV9aJcPGg3eKXeMle2jWBohwaz
-         XpiqvdeBaLBP6ubgmQiBUKeBBHt3FaeR8bIQvn+A=
+        b=EQitRUrIiDo22qbbAI5FnuB9Yu/iydhGCxUmRwh9RfaDOnuhqf7hAXavWr81tDqoq
+         u1uZ2cfPsFUsWjedddEyk+4jUKICjJwi2wBnYKZxr05Z6ua4gAzC6tcMEkP7wLLRwF
+         DIxZigMWjYaStBXRbcvATV/bSrjaBfK9D6zS6uAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 103/211] hwmon: tmp512: drop of_match_ptr for ID table
-Date:   Mon, 20 Mar 2023 15:53:58 +0100
-Message-Id: <20230320145517.604964542@linuxfoundation.org>
+Subject: [PATCH 6.1 101/198] hwmon: (ltc2992) Set `can_sleep` flag for GPIO chip
+Date:   Mon, 20 Mar 2023 15:53:59 +0100
+Message-Id: <20230320145511.811679470@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 00d85e81796b17a29a0e096c5a4735daa47adef8 ]
+[ Upstream commit ab00709310eedcd8dae0df1f66d332f9bc64c99e ]
 
-The driver will match mostly by DT table (even thought there is regular
-ID table) so there is little benefit in of_match_ptr (this also allows
-ACPI matching via PRP0001, even though it might not be relevant here).
-This also fixes !CONFIG_OF error:
+The ltc2992 drivers uses a mutex and I2C bus access in its GPIO chip `set`
+and `get` implementation. This means these functions can sleep and the GPIO
+chip should set the `can_sleep` property to true.
 
-  drivers/hwmon/tmp513.c:610:34: error: ‘tmp51x_of_match’ defined but not used [-Werror=unused-const-variable=]
+This will ensure that a warning is printed when trying to set or get the
+GPIO value from a context that potentially can't sleep.
 
-Fixes: 59dfa75e5d82 ("hwmon: Add driver for Texas Instruments TMP512/513 sensor chips.")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230312193723.478032-2-krzysztof.kozlowski@linaro.org
+Fixes: 9ca26df1ba25 ("hwmon: (ltc2992) Add support for GPIOs.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20230314093146.2443845-2-lars@metafoo.de
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tmp513.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/ltc2992.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/tmp513.c b/drivers/hwmon/tmp513.c
-index 47bbe47e062fd..7d5f7441aceb1 100644
---- a/drivers/hwmon/tmp513.c
-+++ b/drivers/hwmon/tmp513.c
-@@ -758,7 +758,7 @@ static int tmp51x_probe(struct i2c_client *client)
- static struct i2c_driver tmp51x_driver = {
- 	.driver = {
- 		.name	= "tmp51x",
--		.of_match_table = of_match_ptr(tmp51x_of_match),
-+		.of_match_table = tmp51x_of_match,
- 	},
- 	.probe_new	= tmp51x_probe,
- 	.id_table	= tmp51x_id,
+diff --git a/drivers/hwmon/ltc2992.c b/drivers/hwmon/ltc2992.c
+index 72489d5d7eaf9..d88e883c7492c 100644
+--- a/drivers/hwmon/ltc2992.c
++++ b/drivers/hwmon/ltc2992.c
+@@ -323,6 +323,7 @@ static int ltc2992_config_gpio(struct ltc2992_state *st)
+ 	st->gc.label = name;
+ 	st->gc.parent = &st->client->dev;
+ 	st->gc.owner = THIS_MODULE;
++	st->gc.can_sleep = true;
+ 	st->gc.base = -1;
+ 	st->gc.names = st->gpio_names;
+ 	st->gc.ngpio = ARRAY_SIZE(st->gpio_names);
 -- 
 2.39.2
 
