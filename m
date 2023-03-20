@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D35BC6C1963
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 142D46C171E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:12:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbjCTPdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
+        id S232312AbjCTPL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232734AbjCTPdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 725AC166F6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:25:41 -0700 (PDT)
+        with ESMTP id S232308AbjCTPLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F8AA2ED58
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 966BCCE12DB
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:25:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEC62C433EF;
-        Mon, 20 Mar 2023 15:25:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5623CB80EC0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:01:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF124C433D2;
+        Mon, 20 Mar 2023 15:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325918;
-        bh=iKbqb9exd5j6fKs6xHxa7RARfrt2BXyXsMsRsHajGgw=;
+        s=korg; t=1679324492;
+        bh=FuUN94sy7/vGYQ+gaa4OX9s+FxWxInv2uUtnnCl0XN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LuMzc2hdsDIYsQN06Pd+c8Lh6fXeI01TbtqWtsI2Yp9UrrLpz76Tqgo5QXPsbM5HZ
-         Nr8yt3aI64zkLE81fE7PBiJsTjcjZiCNBZOz2r+EOo/XfTtm0wDmi561AfGTcKIeMl
-         pyfXt/at0nvHiHfChVpCIjimaks1WIANldj8qqJI=
+        b=c2qI0dpOMV32oxPn6BkyZOeHsLMAg0QNF4REhN5tXggKl2xBMXW7J8rsP+zQBVnTs
+         9L2hVDFl0/z7TM/cPKUm39FqaefNDVhiCHWIajunCBcVSrY+lCpaaLKJi3sm8CZxLc
+         syeos/MVLw4pb4KrOlJkLy1iLBL8FHFz10YrzYE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>
-Subject: [PATCH 6.2 125/211] memory: tegra20-emc: fix interconnect registration race
+        patches@lists.linux.dev,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/60] ALSA: hda: Add Alderlake-S PCI ID and HDMI codec vid
 Date:   Mon, 20 Mar 2023 15:54:20 +0100
-Message-Id: <20230320145518.617629250@linuxfoundation.org>
+Message-Id: <20230320145431.355013632@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,65 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit c5587f61ec050f7e9ebb3e2da29d12af63e833d3 upstream.
+[ Upstream commit d78359b25f7c6759a23189145be8141b6fdfe385 ]
 
-The current interconnect provider registration interface is inherently
-racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to fail.
+Add HD Audio PCI ID and HDMI codec vendor ID for Intel Alder Lake.
 
-Switch to using the new API where the provider is not registered until
-after it has been fully initialised.
-
-Fixes: d5ef16ba5fbe ("memory: tegra20: Support interconnect framework")
-Cc: stable@vger.kernel.org      # 5.11
-Cc: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20230306075651.2449-20-johan+linaro@kernel.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Link: https://lore.kernel.org/r/20201116141955.2091240-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Stable-dep-of: ff447886e675 ("ALSA: hda: Match only Intel devices with CONTROLLER_IN_GPU()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/tegra20-emc.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/pci/hda/hda_intel.c  | 3 +++
+ sound/pci/hda/patch_hdmi.c | 1 +
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/memory/tegra/tegra20-emc.c
-+++ b/drivers/memory/tegra/tegra20-emc.c
-@@ -1021,15 +1021,13 @@ static int tegra_emc_interconnect_init(s
- 	emc->provider.aggregate = soc->icc_ops->aggregate;
- 	emc->provider.xlate_extended = emc_of_icc_xlate_extended;
- 
--	err = icc_provider_add(&emc->provider);
--	if (err)
--		goto err_msg;
-+	icc_provider_init(&emc->provider);
- 
- 	/* create External Memory Controller node */
- 	node = icc_node_create(TEGRA_ICC_EMC);
- 	if (IS_ERR(node)) {
- 		err = PTR_ERR(node);
--		goto del_provider;
-+		goto err_msg;
- 	}
- 
- 	node->name = "External Memory Controller";
-@@ -1050,12 +1048,14 @@ static int tegra_emc_interconnect_init(s
- 	node->name = "External Memory (DRAM)";
- 	icc_node_add(node, &emc->provider);
- 
-+	err = icc_provider_register(&emc->provider);
-+	if (err)
-+		goto remove_nodes;
-+
- 	return 0;
- 
- remove_nodes:
- 	icc_nodes_remove(&emc->provider);
--del_provider:
--	icc_provider_del(&emc->provider);
- err_msg:
- 	dev_err(emc->dev, "failed to initialize ICC: %d\n", err);
- 
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 6a44ad513a965..bc70a6ca18d0d 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2505,6 +2505,9 @@ static const struct pci_device_id azx_ids[] = {
+ 	/* DG1 */
+ 	{ PCI_DEVICE(0x8086, 0x490d),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	/* Alderlake-S */
++	{ PCI_DEVICE(0x8086, 0x7ad0),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	/* Elkhart Lake */
+ 	{ PCI_DEVICE(0x8086, 0x4b55),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index bfa11073d9624..5ee3ae267cf3b 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -4221,6 +4221,7 @@ HDA_CODEC_ENTRY(0x8086280d, "Geminilake HDMI",	patch_i915_glk_hdmi),
+ HDA_CODEC_ENTRY(0x8086280f, "Icelake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x80862812, "Tigerlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",	patch_i915_tgl_hdmi),
++HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
+-- 
+2.39.2
+
 
 
