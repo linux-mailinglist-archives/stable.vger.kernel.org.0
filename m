@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A346C1706
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF70D6C192C
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232345AbjCTPK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        id S232719AbjCTPbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:31:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232348AbjCTPKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:10:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA632A6F9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:05:54 -0700 (PDT)
+        with ESMTP id S233045AbjCTPbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05FEA38B65
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FABCB80EBE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:05:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A513C43443;
-        Mon, 20 Mar 2023 15:05:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC2F61598
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEEE4C433D2;
+        Mon, 20 Mar 2023 15:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324752;
-        bh=508cYWXjh/raga37wwZ1mH8UfufdvxzkHEOl06lvTKo=;
+        s=korg; t=1679325811;
+        bh=XhpReMj36BlNDK3+s+oxR1RtENo0vBcfeNHemoNRg9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEQjMAC0QzBq8H91zwfp5rNx5K5ZCg43ckWCJOqvL+TIXIp9QOzVd71bVBo6anED3
-         28OD3jB/bWRZ3JdahbVBuUF8qkjMl+CgFYjSJw1ss0kRpHLePIoAGXU/McFacY9l4o
-         RJWGKG823jo6OyrIhvD6SQQg74BWWALjrLLUf6B8=
+        b=UUa3f+xetYmQoGTqyntF9oEE9l0gbhYS3MCaoSYXZHjID9LJX1VAVD2Xrq4298PRr
+         5WzIyAShEfsziw0Wxmr+GfMtQXLK0zYCHcWKpp90j+4vWKEvGIRQMw20gI+Io0RMYv
+         ld5qBXMftVQJAO/LjpyShSZ+vKAjoFhCVkphrk9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/115] net: dsa: mt7530: remove now incorrect comment regarding port 5
+Subject: [PATCH 6.2 105/211] hwmon: (adm1266) Set `can_sleep` flag for GPIO chip
 Date:   Mon, 20 Mar 2023 15:54:00 +0100
-Message-Id: <20230320145450.609203898@linuxfoundation.org>
+Message-Id: <20230320145517.685697554@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,36 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit feb03fd11c5616f3a47e4714d2f9917d0f1a2edd ]
+[ Upstream commit a5bb73b3f5db1a4e91402ad132b59b13d2651ed9 ]
 
-Remove now incorrect comment regarding port 5 as GMAC5. This is supposed to
-be supported since commit 38f790a80560 ("net: dsa: mt7530: Add support for
-port 5") under mt7530_setup_port5().
+The adm1266 driver uses I2C bus access in its GPIO chip `set` and `get`
+implementation. This means these functions can sleep and the GPIO chip
+should set the `can_sleep` property to true.
 
-Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20230310073338.5836-1-arinc.unal@arinc9.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This will ensure that a warning is printed when trying to set or get the
+GPIO value from a context that potentially can't sleep.
+
+Fixes: d98dfad35c38 ("hwmon: (pmbus/adm1266) Add support for GPIOs")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20230314093146.2443845-1-lars@metafoo.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pmbus/adm1266.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 7bcfa3be95e29..22a09a11d8749 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -2168,7 +2168,7 @@ mt7530_setup(struct dsa_switch *ds)
- 
- 	mt7530_pll_setup(priv);
- 
--	/* Enable Port 6 only; P5 as GMAC5 which currently is not supported */
-+	/* Enable port 6 */
- 	val = mt7530_read(priv, MT7530_MHWTRAP);
- 	val &= ~MHWTRAP_P6_DIS & ~MHWTRAP_PHY_ACCESS;
- 	val |= MHWTRAP_MANUAL;
+diff --git a/drivers/hwmon/pmbus/adm1266.c b/drivers/hwmon/pmbus/adm1266.c
+index ec5f932fc6f0f..1ac2b2f4c5705 100644
+--- a/drivers/hwmon/pmbus/adm1266.c
++++ b/drivers/hwmon/pmbus/adm1266.c
+@@ -301,6 +301,7 @@ static int adm1266_config_gpio(struct adm1266_data *data)
+ 	data->gc.label = name;
+ 	data->gc.parent = &data->client->dev;
+ 	data->gc.owner = THIS_MODULE;
++	data->gc.can_sleep = true;
+ 	data->gc.base = -1;
+ 	data->gc.names = data->gpio_names;
+ 	data->gc.ngpio = ARRAY_SIZE(data->gpio_names);
 -- 
 2.39.2
 
