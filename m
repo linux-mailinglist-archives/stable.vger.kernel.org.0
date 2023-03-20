@@ -2,126 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7486C16BF
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5221F6C1900
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232249AbjCTPIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35172 "EHLO
+        id S232923AbjCTP3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:29:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbjCTPIX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:08:23 -0400
+        with ESMTP id S232469AbjCTP2x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:28:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827B02DE74
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:03:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5BA3846A
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:22:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25A56B80EC9
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3DBC433D2;
-        Mon, 20 Mar 2023 15:03:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C6F6B80EC0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73706C4339B;
+        Mon, 20 Mar 2023 15:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324631;
-        bh=ebagr/tWPnExcIFL3koZdcn4FdASEPrVK5Pk6Vgdv3k=;
+        s=korg; t=1679325720;
+        bh=sXo8mBoKZYZFAHqbPaF7n1eHMzEnof++Sw1JW5lceJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQvKkSMxNcRUofye9yt0iTptD9sd3jo+hTtD32waiFJ6vbHgG87hXA8PG1s9W61OZ
-         28e9vLscOffLrcPozBzhU5r4a4ZU9GkW2mskjY/gY6A+5cYaiObnzUR+ucSqh6/dR3
-         f4Wv/ZgIkBez4inkHwcCc0HENRE2Oz4BY40/VEec=
+        b=b/Zd5irywwH22lgRM26c1PDYyGTj5LVe8G7zwcgbp4gOlvaGgIo9kdeedtmzuJyAo
+         djVQnM1ujkoU4WUXOPdjBj0uxJuIAZCS0a1x1f4wLlJ9WwNRgiGmYp2WV7zFsj6xHR
+         KZRQX2W7yjKZ5dR3+3lhcgDJG8f/sYVnAn4ZviDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenchao Hao <haowenchao2@huawei.com>,
-        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 07/99] scsi: mpt3sas: Fix NULL pointer access in mpt3sas_transport_port_add()
+Subject: [PATCH 6.2 090/211] selftests: net: devlink_port_split.py: skip test if no suitable device available
 Date:   Mon, 20 Mar 2023 15:53:45 +0100
-Message-Id: <20230320145443.673323474@linuxfoundation.org>
+Message-Id: <20230320145517.073381213@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Hao <haowenchao2@huawei.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit d3c57724f1569311e4b81e98fad0931028b9bdcd ]
+[ Upstream commit 24994513ad13ff2c47ba91d2b5df82c3d496c370 ]
 
-Port is allocated by sas_port_alloc_num() and rphy is allocated by either
-sas_end_device_alloc() or sas_expander_alloc(), all of which may return
-NULL. So we need to check the rphy to avoid possible NULL pointer access.
+The `devlink -j port show` command output may not contain the "flavour"
+key, an example from Ubuntu 22.10 s390x LPAR(5.19.0-37-generic), with
+mlx4 driver and iproute2-5.15.0:
+  {"port":{"pci/0001:00:00.0/1":{"type":"eth","netdev":"ens301"},
+           "pci/0001:00:00.0/2":{"type":"eth","netdev":"ens301d1"},
+           "pci/0002:00:00.0/1":{"type":"eth","netdev":"ens317"},
+           "pci/0002:00:00.0/2":{"type":"eth","netdev":"ens317d1"}}}
 
-If sas_rphy_add() returned with failure, rphy is set to NULL. We would
-access the rphy in the following lines which would also result NULL pointer
-access.
+This will cause a KeyError exception.
 
-Fixes: 78316e9dfc24 ("scsi: mpt3sas: Fix possible resource leaks in mpt3sas_transport_port_add()")
-Signed-off-by: Wenchao Hao <haowenchao2@huawei.com>
-Link: https://lore.kernel.org/r/20230225100135.2109330-1-haowenchao2@huawei.com
-Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Create a validate_devlink_output() to check for this "flavour" from
+devlink command output to avoid this KeyError exception. Also let
+it handle the check for `devlink -j dev show` output in main().
+
+Apart from this, if the test was not started because the max lanes of
+the designated device is 0. The script will still return 0 and thus
+causing a false-negative test result.
+
+Use a found_max_lanes flag to determine if these tests were skipped
+due to this reason and return KSFT_SKIP to make it more clear.
+
+Link: https://bugs.launchpad.net/bugs/1937133
+Fixes: f3348a82e727 ("selftests: net: Add port split test")
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Link: https://lore.kernel.org/r/20230315165353.229590-1-po-hsu.lin@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_transport.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ .../selftests/net/devlink_port_split.py       | 36 ++++++++++++++++---
+ 1 file changed, 31 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_transport.c b/drivers/scsi/mpt3sas/mpt3sas_transport.c
-index b58f4d9c296a3..326265fd7f91a 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_transport.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_transport.c
-@@ -670,7 +670,7 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 		goto out_fail;
- 	}
- 	port = sas_port_alloc_num(sas_node->parent_dev);
--	if ((sas_port_add(port))) {
-+	if (!port || (sas_port_add(port))) {
- 		ioc_err(ioc, "failure at %s:%d/%s()!\n",
- 			__FILE__, __LINE__, __func__);
- 		goto out_fail;
-@@ -695,6 +695,12 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 		rphy = sas_expander_alloc(port,
- 		    mpt3sas_port->remote_identify.device_type);
+diff --git a/tools/testing/selftests/net/devlink_port_split.py b/tools/testing/selftests/net/devlink_port_split.py
+index 2b5d6ff873738..2d84c7a0be6b2 100755
+--- a/tools/testing/selftests/net/devlink_port_split.py
++++ b/tools/testing/selftests/net/devlink_port_split.py
+@@ -59,6 +59,8 @@ class devlink_ports(object):
+         assert stderr == ""
+         ports = json.loads(stdout)['port']
  
-+	if (!rphy) {
-+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
-+			__FILE__, __LINE__, __func__);
-+		goto out_delete_port;
-+	}
++        validate_devlink_output(ports, 'flavour')
 +
- 	rphy->identify = mpt3sas_port->remote_identify;
+         for port in ports:
+             if dev in port:
+                 if ports[port]['flavour'] == 'physical':
+@@ -220,6 +222,27 @@ def split_splittable_port(port, k, lanes, dev):
+     unsplit(port.bus_info)
  
- 	if (mpt3sas_port->remote_identify.device_type == SAS_END_DEVICE) {
-@@ -714,6 +720,7 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 			__FILE__, __LINE__, __func__);
- 		sas_rphy_free(rphy);
- 		rphy = NULL;
-+		goto out_delete_port;
- 	}
  
- 	if (mpt3sas_port->remote_identify.device_type == SAS_END_DEVICE) {
-@@ -740,7 +747,10 @@ mpt3sas_transport_port_add(struct MPT3SAS_ADAPTER *ioc, u16 handle,
- 		    rphy_to_expander_device(rphy));
- 	return mpt3sas_port;
- 
-- out_fail:
-+out_delete_port:
-+	sas_port_delete(port);
++def validate_devlink_output(devlink_data, target_property=None):
++    """
++    Determine if test should be skipped by checking:
++      1. devlink_data contains values
++      2. The target_property exist in devlink_data
++    """
++    skip_reason = None
++    if any(devlink_data.values()):
++        if target_property:
++            skip_reason = "{} not found in devlink output, test skipped".format(target_property)
++            for key in devlink_data:
++                if target_property in devlink_data[key]:
++                    skip_reason = None
++    else:
++        skip_reason = 'devlink output is empty, test skipped'
 +
-+out_fail:
- 	list_for_each_entry_safe(mpt3sas_phy, next, &mpt3sas_port->phy_list,
- 	    port_siblings)
- 		list_del(&mpt3sas_phy->port_siblings);
++    if skip_reason:
++        print(skip_reason)
++        sys.exit(KSFT_SKIP)
++
++
+ def make_parser():
+     parser = argparse.ArgumentParser(description='A test for port splitting.')
+     parser.add_argument('--dev',
+@@ -240,12 +263,9 @@ def main(cmdline=None):
+         stdout, stderr = run_command(cmd)
+         assert stderr == ""
+ 
++        validate_devlink_output(json.loads(stdout))
+         devs = json.loads(stdout)['dev']
+-        if devs:
+-            dev = list(devs.keys())[0]
+-        else:
+-            print("no devlink device was found, test skipped")
+-            sys.exit(KSFT_SKIP)
++        dev = list(devs.keys())[0]
+ 
+     cmd = "devlink dev show %s" % dev
+     stdout, stderr = run_command(cmd)
+@@ -255,6 +275,7 @@ def main(cmdline=None):
+ 
+     ports = devlink_ports(dev)
+ 
++    found_max_lanes = False
+     for port in ports.if_names:
+         max_lanes = get_max_lanes(port.name)
+ 
+@@ -277,6 +298,11 @@ def main(cmdline=None):
+                 split_splittable_port(port, lane, max_lanes, dev)
+ 
+                 lane //= 2
++        found_max_lanes = True
++
++    if not found_max_lanes:
++        print(f"Test not started, no port of device {dev} reports max_lanes")
++        sys.exit(KSFT_SKIP)
+ 
+ 
+ if __name__ == "__main__":
 -- 
 2.39.2
 
