@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F10746C18B0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC726C1711
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232571AbjCTP0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45122 "EHLO
+        id S232348AbjCTPL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:11:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232394AbjCTP0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A84B2FCE7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:33 -0700 (PDT)
+        with ESMTP id S232350AbjCTPLE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:11:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF85630B38
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:06:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 643B8615AE
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750A4C433EF;
-        Mon, 20 Mar 2023 15:19:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C3EDB80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7CF9C433D2;
+        Mon, 20 Mar 2023 15:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325572;
-        bh=VqcU0kjoPpaodik/tmc2o/BUXU32GcZs2CiF6oE5zjw=;
+        s=korg; t=1679324769;
+        bh=ItlIgBt4X28+o0HDeXfg3I4bYvEL4gWkj7nf80R+dYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fivB+CTQ+WPOvSbaPPbBSrYy00p+A/JmIWgfdYowHrCTw5SsaDdeS+ejKv2UwQWsU
-         bDX4cD3AwqlCcxdid0E5sehjDesW36sAnjUqlXQqO4nYehaHtAJKalIpIvRCpqfDfh
-         g6dSP3kNujLII26yvfh7/wziC+oZNP1vIcPtpY7I=
+        b=iDPy6sWZKmCPLe1V69m5v3UfMQYU33waC8Yp/dTIUrWjZp0DPzxW6nhDd/ZgH3kkZ
+         M6903aRT/SM4ahin1Zub4y90GGkSULufqFCJZqb/76C/3Y1Pe83aqtUnGLjgWa5xZF
+         xCEgQRdEoqVgHkk+c86UjZDQuxGk/0KeiC64zMqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roger Lu <roger.lu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 104/198] soc: mediatek: mtk-svs: keep svs alive if CONFIG_DEBUG_FS not supported
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>, Jan Kara <jack@suse.cz>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Dan Schatzberg <schatzberg.dan@gmail.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 030/115] loop: Fix use-after-free issues
 Date:   Mon, 20 Mar 2023 15:54:02 +0100
-Message-Id: <20230320145511.939152502@linuxfoundation.org>
+Message-Id: <20230320145450.706752156@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Lu <roger.lu@mediatek.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 8bf305087629a98224aa97769587434ea4016767 ]
+[ Upstream commit 9b0cb770f5d7b1ff40bea7ca385438ee94570eec ]
 
-Some projects might not support CONFIG_DEBUG_FS but still needs svs to be
-alive. Therefore, enclose debug cmd codes with CONFIG_DEBUG_FS to make sure
-svs can be alive when CONFIG_DEBUG_FS not supported.
+do_req_filebacked() calls blk_mq_complete_request() synchronously or
+asynchronously when using asynchronous I/O unless memory allocation fails.
+Hence, modify loop_handle_cmd() such that it does not dereference 'cmd' nor
+'rq' after do_req_filebacked() finished unless we are sure that the request
+has not yet been completed. This patch fixes the following kernel crash:
 
-Signed-off-by: Roger Lu <roger.lu@mediatek.com>
-Link: https://lore.kernel.org/r/20230111074528.29354-8-roger.lu@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000054
+Call trace:
+ css_put.42938+0x1c/0x1ac
+ loop_process_work+0xc8c/0xfd4
+ loop_rootcg_workfn+0x24/0x34
+ process_one_work+0x244/0x558
+ worker_thread+0x400/0x8fc
+ kthread+0x16c/0x1e0
+ ret_from_fork+0x10/0x20
+
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Dan Schatzberg <schatzberg.dan@gmail.com>
+Fixes: c74d40e8b5e2 ("loop: charge i/o to mem and blk cg")
+Fixes: bc07c10a3603 ("block: loop: support DIO & AIO")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20230314182155.80625-1-bvanassche@acm.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-svs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/block/loop.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
-index 00526fd37d7b8..e55fb16fdc5ac 100644
---- a/drivers/soc/mediatek/mtk-svs.c
-+++ b/drivers/soc/mediatek/mtk-svs.c
-@@ -138,6 +138,7 @@
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 58a38e61de535..07cf7a35ae502 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -2188,35 +2188,44 @@ static blk_status_t loop_queue_rq(struct blk_mq_hw_ctx *hctx,
  
- static DEFINE_SPINLOCK(svs_lock);
- 
-+#ifdef CONFIG_DEBUG_FS
- #define debug_fops_ro(name)						\
- 	static int svs_##name##_debug_open(struct inode *inode,		\
- 					   struct file *filp)		\
-@@ -170,6 +171,7 @@ static DEFINE_SPINLOCK(svs_lock);
- 	}
- 
- #define svs_dentry_data(name)	{__stringify(name), &svs_##name##_debug_fops}
-+#endif
- 
- /**
-  * enum svsb_phase - svs bank phase enumeration
-@@ -628,6 +630,7 @@ static int svs_adjust_pm_opp_volts(struct svs_bank *svsb)
- 	return ret;
- }
- 
-+#ifdef CONFIG_DEBUG_FS
- static int svs_dump_debug_show(struct seq_file *m, void *p)
+ static void loop_handle_cmd(struct loop_cmd *cmd)
  {
- 	struct svs_platform *svsp = (struct svs_platform *)m->private;
-@@ -843,6 +846,7 @@ static int svs_create_debug_cmds(struct svs_platform *svsp)
++	struct cgroup_subsys_state *cmd_blkcg_css = cmd->blkcg_css;
++	struct cgroup_subsys_state *cmd_memcg_css = cmd->memcg_css;
+ 	struct request *rq = blk_mq_rq_from_pdu(cmd);
+ 	const bool write = op_is_write(req_op(rq));
+ 	struct loop_device *lo = rq->q->queuedata;
+ 	int ret = 0;
+ 	struct mem_cgroup *old_memcg = NULL;
++	const bool use_aio = cmd->use_aio;
  
- 	return 0;
- }
-+#endif /* CONFIG_DEBUG_FS */
- 
- static u32 interpolate(u32 f0, u32 f1, u32 v0, u32 v1, u32 fx)
- {
-@@ -2444,11 +2448,13 @@ static int svs_probe(struct platform_device *pdev)
- 		goto svs_probe_iounmap;
+ 	if (write && (lo->lo_flags & LO_FLAGS_READ_ONLY)) {
+ 		ret = -EIO;
+ 		goto failed;
  	}
  
-+#ifdef CONFIG_DEBUG_FS
- 	ret = svs_create_debug_cmds(svsp);
- 	if (ret) {
- 		dev_err(svsp->dev, "svs create debug cmds fail: %d\n", ret);
- 		goto svs_probe_iounmap;
+-	if (cmd->blkcg_css)
+-		kthread_associate_blkcg(cmd->blkcg_css);
+-	if (cmd->memcg_css)
++	if (cmd_blkcg_css)
++		kthread_associate_blkcg(cmd_blkcg_css);
++	if (cmd_memcg_css)
+ 		old_memcg = set_active_memcg(
+-			mem_cgroup_from_css(cmd->memcg_css));
++			mem_cgroup_from_css(cmd_memcg_css));
+ 
++	/*
++	 * do_req_filebacked() may call blk_mq_complete_request() synchronously
++	 * or asynchronously if using aio. Hence, do not touch 'cmd' after
++	 * do_req_filebacked() has returned unless we are sure that 'cmd' has
++	 * not yet been completed.
++	 */
+ 	ret = do_req_filebacked(lo, rq);
+ 
+-	if (cmd->blkcg_css)
++	if (cmd_blkcg_css)
+ 		kthread_associate_blkcg(NULL);
+ 
+-	if (cmd->memcg_css) {
++	if (cmd_memcg_css) {
+ 		set_active_memcg(old_memcg);
+-		css_put(cmd->memcg_css);
++		css_put(cmd_memcg_css);
  	}
-+#endif
- 
- 	return 0;
- 
+  failed:
+ 	/* complete non-aio request */
+-	if (!cmd->use_aio || ret) {
++	if (!use_aio || ret) {
+ 		if (ret == -EOPNOTSUPP)
+ 			cmd->ret = ret;
+ 		else
 -- 
 2.39.2
 
