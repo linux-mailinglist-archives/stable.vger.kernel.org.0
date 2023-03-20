@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C226C16E4
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85776C168E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232212AbjCTPKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:10:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
+        id S232237AbjCTPHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232228AbjCTPJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:09:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC1A26C28
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:04:59 -0700 (PDT)
+        with ESMTP id S232002AbjCTPGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D56F72A2
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 564A261585
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:04:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 663AEC433EF;
-        Mon, 20 Mar 2023 15:04:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF796B80ED0
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 079E3C4339B;
+        Mon, 20 Mar 2023 15:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324697;
-        bh=FMbUqgL0lq5swos4No6ff30OTTxdiyKWbGJBYOaTgj0=;
+        s=korg; t=1679324541;
+        bh=St5Ji6FgxOU1wLkYWLknQwVHLTpACLHUrJhOa0TCgEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8gKb0xkspu7PVJHGgsQZOV6m6Emk3ynfzR3Q2wroNjFS0wAEg2H2+KGUaoZqibtM
-         eLJFyQGXbxpbVoLcBf5IZVEze+2mawm/z54PyiMRuxkedVya9RglFuey9CMMWCxyt9
-         hdtUKz0FzOtZW6JmqgaWIRRQm9OqDsvTF0A0OJ90=
+        b=hTtX/HMAZpq/G8xIlvHDFaxoLoaj9mCduTdcUWlLDkwDnQ2WWNdp4EocYU6ZeljmX
+         aoIJzDnG5beiMp8hVY7SQzKsdhaK0sPQVUe42HZMrvPMiXJ6+66S4TEaoz1RY7uC0k
+         bjOpztIZWj18EeuE11YQ+1ONWjgPNRK7QbfjwZ+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefano Garzarella <sgarzare@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
+        syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com,
+        Bart Van Assche <bvanassche@acm.org>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/115] vdpa_sim: set last_used_idx as last_avail_idx in vdpasim_queue_ready
-Date:   Mon, 20 Mar 2023 15:53:51 +0100
-Message-Id: <20230320145450.214072736@linuxfoundation.org>
+Subject: [PATCH 5.10 14/99] scsi: core: Fix a procfs host directory removal regression
+Date:   Mon, 20 Mar 2023 15:53:52 +0100
+Message-Id: <20230320145443.951985817@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
+References: <20230320145443.333824603@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,60 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugenio Pérez <eperezma@redhat.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit b4cca6d48eb3fa6f0d9caba4329b1a2b0ff67a77 ]
+[ Upstream commit be03df3d4bfe7e8866d4aa43d62e648ffe884f5f ]
 
-Starting from an used_idx different than 0 is needed in use cases like
-virtual machine migration.  Not doing so and letting the caller set an
-avail idx different than 0 causes destination device to try to use old
-buffers that source driver already recover and are not available
-anymore.
+scsi_proc_hostdir_rm() decreases a reference counter and hence must only be
+called once per host that is removed. This change does not require a
+scsi_add_host_with_dma() change since scsi_add_host_with_dma() will return
+0 (success) if scsi_proc_host_add() is called.
 
-Since vdpa_sim does not support receive inflight descriptors as a
-destination of a migration, let's set both avail_idx and used_idx the
-same at vq start.  This is how vhost-user works in a
-VHOST_SET_VRING_BASE call.
-
-Although the simple fix is to set last_used_idx at vdpasim_set_vq_state,
-it would be reset at vdpasim_queue_ready.  The last_avail_idx case is
-fixed with commit 0e84f918fac8 ("vdpa_sim: not reset state in
-vdpasim_queue_ready").  Since the only option is to make it equal to
-last_avail_idx, adding the only change needed here.
-
-This was discovered and tested live migrating the vdpa_sim_net device.
-
-Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-Message-Id: <20230302181857.925374-1-eperezma@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: fc663711b944 ("scsi: core: Remove the /proc/scsi/${proc_name} directory earlier")
+Cc: John Garry <john.g.garry@oracle.com>
+Reported-by: John Garry <john.g.garry@oracle.com>
+Link: https://lore.kernel.org/all/ed6b8027-a9d9-1b45-be8e-df4e8c6c4605@oracle.com/
+Reported-by: syzbot+645a4616b87a2f10e398@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-scsi/000000000000890fab05f65342b6@google.com/
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20230307214428.3703498-1-bvanassche@acm.org
+Tested-by: John Garry <john.g.garry@oracle.com>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/scsi/hosts.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index eeda45fbba258..3ccefa58e405c 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -75,6 +75,17 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
- 			  (uintptr_t)vq->device_addr);
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index 0fd2487203ff5..18321cf9db5d6 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -322,9 +322,6 @@ static void scsi_host_dev_release(struct device *dev)
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
- 	vq->vring.last_avail_idx = last_avail_idx;
-+
-+	/*
-+	 * Since vdpa_sim does not support receive inflight descriptors as a
-+	 * destination of a migration, let's set both avail_idx and used_idx
-+	 * the same at vq start.  This is how vhost-user works in a
-+	 * VHOST_SET_VRING_BASE call.
-+	 *
-+	 * Although the simple fix is to set last_used_idx at
-+	 * vdpasim_set_vq_state, it would be reset at vdpasim_queue_ready.
-+	 */
-+	vq->vring.last_used_idx = last_avail_idx;
- 	vq->vring.notify = vdpasim_vq_notify;
- }
+-	/* In case scsi_remove_host() has not been called. */
+-	scsi_proc_hostdir_rm(shost->hostt);
+-
+ 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
+ 	rcu_barrier();
  
 -- 
 2.39.2
