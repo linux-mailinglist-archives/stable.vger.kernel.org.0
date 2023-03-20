@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F2856C16B5
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D73C6C1932
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231960AbjCTPIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:08:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34550 "EHLO
+        id S233034AbjCTPbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232222AbjCTPH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:07:58 -0400
+        with ESMTP id S233068AbjCTPbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:31:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA89C2CC72
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:03:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20BF2BF00
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F020BB80EAC
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:03:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E80FC433D2;
-        Mon, 20 Mar 2023 15:03:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67F0BB80ED7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7620C433EF;
+        Mon, 20 Mar 2023 15:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324604;
-        bh=Z+sQXRxUhjKAqZ7ovGFK74OegnZv+YnJQM3Wdd8orIs=;
+        s=korg; t=1679325822;
+        bh=RTQqVSWx6IE27E7U9ID+JWsW+NdwyRMaZL3l3SDcBLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkeFOp0hmCcybNz6sGtzJbVjTfCh0Sy4MkENghnbSvFt+QZXm2NcbFpiZuE5qBxo0
-         5gvA2ENwsHuFgwBcBQEAbQCFVwFyv85BNPLOifpCgUN7Y5kydORgxfGi9rbzwkBz3A
-         NnqzUVDmnWdEwNkHwW1nUBm1qv5lMqaD1EoNF+Uo=
+        b=Ycq+nFw9RW9LOTX1EH3vtWzNXFuXDxfhTJyY9cChiS6J5YxSc3TIzKZr3ZHYJ5qch
+         vvII/0+TayJuFNMnwLi1ShAzsaCUzXO1EPncSgizy3dBB6BJyDw0SCoYzpMg5UCowB
+         /nSu5Af5DezetGonhVqdTJBFlfBTQFGtWS3tZ3bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 24/99] net/smc: fix deadlock triggered by cancel_delayed_work_syn()
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        "HeungJun, Kim" <riverful.kim@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Mauro Carvalho Chehab <mchehab@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        HeungJun@vger.kernel.org
+Subject: [PATCH 6.2 107/211] media: m5mols: fix off-by-one loop termination error
 Date:   Mon, 20 Mar 2023 15:54:02 +0100
-Message-Id: <20230320145444.395346385@linuxfoundation.org>
+Message-Id: <20230320145517.767465808@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,162 +60,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenjia Zhang <wenjia@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 13085e1b5cab8ad802904d72e6a6dae85ae0cd20 ]
+[ Upstream commit efbcbb12ee99f750c9f25c873b55ad774871de2a ]
 
-The following LOCKDEP was detected:
-		Workqueue: events smc_lgr_free_work [smc]
-		WARNING: possible circular locking dependency detected
-		6.1.0-20221027.rc2.git8.56bc5b569087.300.fc36.s390x+debug #1 Not tainted
-		------------------------------------------------------
-		kworker/3:0/176251 is trying to acquire lock:
-		00000000f1467148 ((wq_completion)smc_tx_wq-00000000#2){+.+.}-{0:0},
-			at: __flush_workqueue+0x7a/0x4f0
-		but task is already holding lock:
-		0000037fffe97dc8 ((work_completion)(&(&lgr->free_work)->work)){+.+.}-{0:0},
-			at: process_one_work+0x232/0x730
-		which lock already depends on the new lock.
-		the existing dependency chain (in reverse order) is:
-		-> #4 ((work_completion)(&(&lgr->free_work)->work)){+.+.}-{0:0}:
-		       __lock_acquire+0x58e/0xbd8
-		       lock_acquire.part.0+0xe2/0x248
-		       lock_acquire+0xac/0x1c8
-		       __flush_work+0x76/0xf0
-		       __cancel_work_timer+0x170/0x220
-		       __smc_lgr_terminate.part.0+0x34/0x1c0 [smc]
-		       smc_connect_rdma+0x15e/0x418 [smc]
-		       __smc_connect+0x234/0x480 [smc]
-		       smc_connect+0x1d6/0x230 [smc]
-		       __sys_connect+0x90/0xc0
-		       __do_sys_socketcall+0x186/0x370
-		       __do_syscall+0x1da/0x208
-		       system_call+0x82/0xb0
-		-> #3 (smc_client_lgr_pending){+.+.}-{3:3}:
-		       __lock_acquire+0x58e/0xbd8
-		       lock_acquire.part.0+0xe2/0x248
-		       lock_acquire+0xac/0x1c8
-		       __mutex_lock+0x96/0x8e8
-		       mutex_lock_nested+0x32/0x40
-		       smc_connect_rdma+0xa4/0x418 [smc]
-		       __smc_connect+0x234/0x480 [smc]
-		       smc_connect+0x1d6/0x230 [smc]
-		       __sys_connect+0x90/0xc0
-		       __do_sys_socketcall+0x186/0x370
-		       __do_syscall+0x1da/0x208
-		       system_call+0x82/0xb0
-		-> #2 (sk_lock-AF_SMC){+.+.}-{0:0}:
-		       __lock_acquire+0x58e/0xbd8
-		       lock_acquire.part.0+0xe2/0x248
-		       lock_acquire+0xac/0x1c8
-		       lock_sock_nested+0x46/0xa8
-		       smc_tx_work+0x34/0x50 [smc]
-		       process_one_work+0x30c/0x730
-		       worker_thread+0x62/0x420
-		       kthread+0x138/0x150
-		       __ret_from_fork+0x3c/0x58
-		       ret_from_fork+0xa/0x40
-		-> #1 ((work_completion)(&(&smc->conn.tx_work)->work)){+.+.}-{0:0}:
-		       __lock_acquire+0x58e/0xbd8
-		       lock_acquire.part.0+0xe2/0x248
-		       lock_acquire+0xac/0x1c8
-		       process_one_work+0x2bc/0x730
-		       worker_thread+0x62/0x420
-		       kthread+0x138/0x150
-		       __ret_from_fork+0x3c/0x58
-		       ret_from_fork+0xa/0x40
-		-> #0 ((wq_completion)smc_tx_wq-00000000#2){+.+.}-{0:0}:
-		       check_prev_add+0xd8/0xe88
-		       validate_chain+0x70c/0xb20
-		       __lock_acquire+0x58e/0xbd8
-		       lock_acquire.part.0+0xe2/0x248
-		       lock_acquire+0xac/0x1c8
-		       __flush_workqueue+0xaa/0x4f0
-		       drain_workqueue+0xaa/0x158
-		       destroy_workqueue+0x44/0x2d8
-		       smc_lgr_free+0x9e/0xf8 [smc]
-		       process_one_work+0x30c/0x730
-		       worker_thread+0x62/0x420
-		       kthread+0x138/0x150
-		       __ret_from_fork+0x3c/0x58
-		       ret_from_fork+0xa/0x40
-		other info that might help us debug this:
-		Chain exists of:
-		  (wq_completion)smc_tx_wq-00000000#2
-	  	  --> smc_client_lgr_pending
-		  --> (work_completion)(&(&lgr->free_work)->work)
-		 Possible unsafe locking scenario:
-		       CPU0                    CPU1
-		       ----                    ----
-		  lock((work_completion)(&(&lgr->free_work)->work));
-		                   lock(smc_client_lgr_pending);
-		                   lock((work_completion)
-					(&(&lgr->free_work)->work));
-		  lock((wq_completion)smc_tx_wq-00000000#2);
-		 *** DEADLOCK ***
-		2 locks held by kworker/3:0/176251:
-		 #0: 0000000080183548
-			((wq_completion)events){+.+.}-{0:0},
-				at: process_one_work+0x232/0x730
-		 #1: 0000037fffe97dc8
-			((work_completion)
-			 (&(&lgr->free_work)->work)){+.+.}-{0:0},
-				at: process_one_work+0x232/0x730
-		stack backtrace:
-		CPU: 3 PID: 176251 Comm: kworker/3:0 Not tainted
-		Hardware name: IBM 8561 T01 701 (z/VM 7.2.0)
-		Call Trace:
-		 [<000000002983c3e4>] dump_stack_lvl+0xac/0x100
-		 [<0000000028b477ae>] check_noncircular+0x13e/0x160
-		 [<0000000028b48808>] check_prev_add+0xd8/0xe88
-		 [<0000000028b49cc4>] validate_chain+0x70c/0xb20
-		 [<0000000028b4bd26>] __lock_acquire+0x58e/0xbd8
-		 [<0000000028b4cf6a>] lock_acquire.part.0+0xe2/0x248
-		 [<0000000028b4d17c>] lock_acquire+0xac/0x1c8
-		 [<0000000028addaaa>] __flush_workqueue+0xaa/0x4f0
-		 [<0000000028addf9a>] drain_workqueue+0xaa/0x158
-		 [<0000000028ae303c>] destroy_workqueue+0x44/0x2d8
-		 [<000003ff8029af26>] smc_lgr_free+0x9e/0xf8 [smc]
-		 [<0000000028adf3d4>] process_one_work+0x30c/0x730
-		 [<0000000028adf85a>] worker_thread+0x62/0x420
-		 [<0000000028aeac50>] kthread+0x138/0x150
-		 [<0000000028a63914>] __ret_from_fork+0x3c/0x58
-		 [<00000000298503da>] ret_from_fork+0xa/0x40
-		INFO: lockdep is turned off.
-===================================================================
+The __find_restype() function loops over the m5mols_default_ffmt[]
+array, and the termination condition ends up being wrong: instead of
+stopping when the iterator becomes the size of the array it traverses,
+it stops after it has already overshot the array.
 
-This deadlock occurs because cancel_delayed_work_sync() waits for
-the work(&lgr->free_work) to finish, while the &lgr->free_work
-waits for the work(lgr->tx_wq), which needs the sk_lock-AF_SMC, that
-is already used under the mutex_lock.
+Now, in practice this doesn't likely matter, because the code will
+always find the entry it looks for, and will thus return early and never
+hit that last extra iteration.
 
-The solution is to use cancel_delayed_work() instead, which kills
-off a pending work.
+But it turns out that clang will unroll the loop fully, because it has
+only two iterations (well, three due to the off-by-one bug), and then
+clang will end up just giving up in the middle of the loop unrolling
+when it notices that the code walks past the end of the array.
 
-Fixes: a52bcc919b14 ("net/smc: improve termination processing")
-Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+And that made 'objtool' very unhappy indeed, because the generated code
+just falls off the edge of the universe, and ends up falling through to
+the next function, causing this warning:
+
+   drivers/media/i2c/m5mols/m5mols.o: warning: objtool: m5mols_set_fmt() falls through to next function m5mols_get_frame_desc()
+
+Fix the loop ending condition.
+
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Analyzed-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Analyzed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/linux-block/CAHk-=wgTSdKYbmB1JYM5vmHMcD9J9UZr0mn7BOYM_LudrP+Xvw@mail.gmail.com/
+Fixes: bc125106f8af ("[media] Add support for M-5MOLS 8 Mega Pixel camera ISP")
+Cc: HeungJun, Kim <riverful.kim@samsung.com>
+Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_core.c | 2 +-
+ drivers/media/i2c/m5mols/m5mols_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index bf485a2017a4e..e84241ff4ac4f 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -912,7 +912,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
- 	if (lgr->terminating)
- 		return;	/* lgr already terminating */
- 	/* cancel free_work sync, will terminate when lgr->freeing is set */
--	cancel_delayed_work_sync(&lgr->free_work);
-+	cancel_delayed_work(&lgr->free_work);
- 	lgr->terminating = 1;
+diff --git a/drivers/media/i2c/m5mols/m5mols_core.c b/drivers/media/i2c/m5mols/m5mols_core.c
+index 2b01873ba0db5..5c2336f318d9a 100644
+--- a/drivers/media/i2c/m5mols/m5mols_core.c
++++ b/drivers/media/i2c/m5mols/m5mols_core.c
+@@ -488,7 +488,7 @@ static enum m5mols_restype __find_restype(u32 code)
+ 	do {
+ 		if (code == m5mols_default_ffmt[type].code)
+ 			return type;
+-	} while (type++ != SIZE_DEFAULT_FFMT);
++	} while (++type != SIZE_DEFAULT_FFMT);
  
- 	/* kill remaining link group connections */
+ 	return 0;
+ }
 -- 
 2.39.2
 
