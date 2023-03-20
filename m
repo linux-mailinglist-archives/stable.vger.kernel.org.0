@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7E46C1691
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FECA6C1827
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbjCTPHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:07:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54634 "EHLO
+        id S232716AbjCTPVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:21:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232191AbjCTPGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA842C671
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:30 -0700 (PDT)
+        with ESMTP id S232815AbjCTPUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:20:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C60F328E60
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:14:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26C856159F
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AED0C4339B;
-        Mon, 20 Mar 2023 15:02:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AA93B80E55
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:14:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C696C433D2;
+        Mon, 20 Mar 2023 15:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324549;
-        bh=YygPIafDe5Vo2CbrtKmzGhM4bRtsRn5hsqQUywE4sIk=;
+        s=korg; t=1679325289;
+        bh=VKA86dxSzIfz3MBzpKSbFC0jz6kRo8lrjVkHsBRpjpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HyaadSssjzeo4NZ2WOt1CS5azuyBgTdRysYrk6iVP8/I71cHjzp9oS1R5LJW1Uq7/
-         Gk1IG0ECv/xi//Iuf2oVdNV31+fTZzzcVQgYqTUdJIf7lLLHpe+A2fjW5l7IGxpgZE
-         jzCngYXac5TpIUa1RX2vUVRZCDkMezJXYOPHsxLU=
+        b=QptYMLOrWNjEbdWUaRoMMYc45n/i8fu4kvLqewNquW0IOdOI5ADh1pB5KQSDRpivj
+         mVJ2RCayi7kBJCEyrwXAfrzni+0nncdo7gzCf+kaNPSsMjFGVaVn+WcuhWKMO/dhKc
+         5N/8MQKqG8qrhVdr0B7w9dBszQqZUkogsp7cehno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Chen Zhongjin <chenzhongjin@huawei.com>
-Subject: [PATCH 5.4 50/60] ftrace: Fix invalid address access in lookup_rec() when index is 0
+        patches@lists.linux.dev, "Hamidreza H. Fard" <nitocris@posteo.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 087/115] ALSA: hda/realtek: Fix the speaker output on Samsung Galaxy Book2 Pro
 Date:   Mon, 20 Mar 2023 15:54:59 +0100
-Message-Id: <20230320145433.000698337@linuxfoundation.org>
+Message-Id: <20230320145453.061859781@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
-References: <20230320145430.861072439@linuxfoundation.org>
+In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
+References: <20230320145449.336983711@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Hamidreza H. Fard <nitocris@posteo.net>
 
-commit ee92fa443358f4fc0017c1d0d325c27b37802504 upstream.
+commit a86e79e3015f5dd8e1b01ccfa49bd5c6e41047a1 upstream.
 
-KASAN reported follow problem:
+Samsung Galaxy Book2 Pro (13" 2022 NP930XED-KA1DE) with codec SSID
+144d:c868 requires the same workaround for enabling the speaker amp
+like other Samsung models with ALC298 code.
 
- BUG: KASAN: use-after-free in lookup_rec
- Read of size 8 at addr ffff000199270ff0 by task modprobe
- CPU: 2 Comm: modprobe
- Call trace:
-  kasan_report
-  __asan_load8
-  lookup_rec
-  ftrace_location
-  arch_check_ftrace_location
-  check_kprobe_address_safe
-  register_kprobe
-
-When checking pg->records[pg->index - 1].ip in lookup_rec(), it can get a
-pg which is newly added to ftrace_pages_start in ftrace_process_locs().
-Before the first pg->index++, index is 0 and accessing pg->records[-1].ip
-will cause this problem.
-
-Don't check the ip when pg->index is 0.
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230309080230.36064-1-chenzhongjin@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 9644302e3315 ("ftrace: Speed up search by skipping pages by address")
-Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Hamidreza H. Fard <nitocris@posteo.net>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230307163741.3878-1-nitocris@posteo.net
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1557,7 +1557,8 @@ unsigned long ftrace_location_range(unsi
- 	key.flags = end;	/* overload flags, as it is unsigned long */
- 
- 	for (pg = ftrace_pages_start; pg; pg = pg->next) {
--		if (end < pg->records[0].ip ||
-+		if (pg->index == 0 ||
-+		    end < pg->records[0].ip ||
- 		    start >= (pg->records[pg->index - 1].ip + MCOUNT_INSN_SIZE))
- 			continue;
- 		rec = bsearch(&key, pg->records, pg->index,
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9166,6 +9166,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xca03, "Samsung Galaxy Book2 Pro 360 (NP930QED)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc868, "Samsung Galaxy Book2 Pro (NP930XED)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
 
 
