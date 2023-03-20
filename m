@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC036C178B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E1086C168D
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232371AbjCTPO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:14:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47998 "EHLO
+        id S232103AbjCTPHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:07:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbjCTPO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:14:27 -0400
+        with ESMTP id S232087AbjCTPGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:06:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85891302A7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:09:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0D02F79C
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:02:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E8F46159E
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:09:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D89EC433D2;
-        Mon, 20 Mar 2023 15:09:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EDC461591
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:02:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D0CDC433D2;
+        Mon, 20 Mar 2023 15:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679324972;
-        bh=EW3IUZy7H/oEoRo7wEwIx5XU9yzKL1a/g34Sm7XYNn4=;
+        s=korg; t=1679324538;
+        bh=BwMa0FBHuNbfB0LJHH5h6fV8V+VzdSgBkCg2dzC4crY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acytCLOGNccCUFkzzqNmjcVrQ06rcgyxC0L2cDNlc1Huv2VPp666yVGpYknPkzLng
-         7T9ZvBFG7a5n4TKVPe/rV2rx7LDwYnD0CVveGwGBeXbWQW6HLy/l30nqGJnPrjpvzT
-         Ll+oROpRwZyfqev1BsOwvKplWjF6QqsGnw4MrTMI=
+        b=vNfCdZl0A7y/AjmztUNJBLk6ybe3Q4GU5JOJ6a+A8vUpYSC9h/VpxfPCPiu10BW9V
+         4JRyPmK0rZ2ruzm3ZMBW9CDi8wvsWv/6FR8DG/ZbRTRAE0dBbN6Naj8GK43yOx9EIz
+         sWqvf9MwypphRbnyizH6d4TleF8OF3FjNN3u5+ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.10 79/99] io_uring: avoid null-ptr-deref in io_arm_poll_handler
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 48/60] tracing: Make tracepoint lockdep check actually test something
 Date:   Mon, 20 Mar 2023 15:54:57 +0100
-Message-Id: <20230320145446.714163290@linuxfoundation.org>
+Message-Id: <20230320145432.917475596@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145430.861072439@linuxfoundation.org>
+References: <20230320145430.861072439@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,42 +57,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-No upstream commit exists for this commit.
+commit c2679254b9c9980d9045f0f722cf093a2b1f7590 upstream.
 
-The issue was introduced with backporting upstream commit c16bda37594f
-("io_uring/poll: allow some retries for poll triggering spuriously").
+A while ago where the trace events had the following:
 
-Memory allocation can possibly fail causing invalid pointer be
-dereferenced just before comparing it to NULL value.
+   rcu_read_lock_sched_notrace();
+   rcu_dereference_sched(...);
+   rcu_read_unlock_sched_notrace();
 
-Move the pointer check in proper place (upstream has the similar location
-of the check). In case the request has REQ_F_POLLED flag up, apoll can't
-be NULL so no need to check there.
+If the tracepoint is enabled, it could trigger RCU issues if called in
+the wrong place. And this warning was only triggered if lockdep was
+enabled. If the tracepoint was never enabled with lockdep, the bug would
+not be caught. To handle this, the above sequence was done when lockdep
+was enabled regardless if the tracepoint was enabled or not (although the
+always enabled code really didn't do anything, it would still trigger a
+warning).
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+But a lot has changed since that lockdep code was added. One is, that
+sequence no longer triggers any warning. Another is, the tracepoint when
+enabled doesn't even do that sequence anymore.
 
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+The main check we care about today is whether RCU is "watching" or not.
+So if lockdep is enabled, always check if rcu_is_watching() which will
+trigger a warning if it is not (tracepoints require RCU to be watching).
+
+Note, that old sequence did add a bit of overhead when lockdep was enabled,
+and with the latest kernel updates, would cause the system to slow down
+enough to trigger kernel "stalled" warnings.
+
+Link: http://lore.kernel.org/lkml/20140806181801.GA4605@redhat.com
+Link: http://lore.kernel.org/lkml/20140807175204.C257CAC5@viggo.jf.intel.com
+Link: https://lore.kernel.org/lkml/20230307184645.521db5c9@gandalf.local.home/
+Link: https://lore.kernel.org/linux-trace-kernel/20230310172856.77406446@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: e6753f23d961 ("tracepoint: Make rcuidle tracepoint callers use SRCU")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/tracepoint.h |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -5792,10 +5792,10 @@ static int io_arm_poll_handler(struct io
- 		}
- 	} else {
- 		apoll = kmalloc(sizeof(*apoll), GFP_ATOMIC);
-+		if (unlikely(!apoll))
-+			return IO_APOLL_ABORTED;
- 		apoll->poll.retries = APOLL_MAX_RETRY;
- 	}
--	if (unlikely(!apoll))
--		return IO_APOLL_ABORTED;
- 	apoll->double_poll = NULL;
- 	req->apoll = apoll;
- 	req->flags |= REQ_F_POLLED;
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -231,12 +231,11 @@ static inline struct tracepoint *tracepo
+  * not add unwanted padding between the beginning of the section and the
+  * structure. Force alignment to the same alignment as the section start.
+  *
+- * When lockdep is enabled, we make sure to always do the RCU portions of
+- * the tracepoint code, regardless of whether tracing is on. However,
+- * don't check if the condition is false, due to interaction with idle
+- * instrumentation. This lets us find RCU issues triggered with tracepoints
+- * even when this tracepoint is off. This code has no purpose other than
+- * poking RCU a bit.
++ * When lockdep is enabled, we make sure to always test if RCU is
++ * "watching" regardless if the tracepoint is enabled or not. Tracepoints
++ * require RCU to be active, and it should always warn at the tracepoint
++ * site if it is not watching, as it will need to be active when the
++ * tracepoint is enabled.
+  */
+ #define __DECLARE_TRACE(name, proto, args, cond, data_proto, data_args) \
+ 	extern struct tracepoint __tracepoint_##name;			\
+@@ -248,9 +247,7 @@ static inline struct tracepoint *tracepo
+ 				TP_ARGS(data_args),			\
+ 				TP_CONDITION(cond), 0);			\
+ 		if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {		\
+-			rcu_read_lock_sched_notrace();			\
+-			rcu_dereference_sched(__tracepoint_##name.funcs);\
+-			rcu_read_unlock_sched_notrace();		\
++			WARN_ON_ONCE(!rcu_is_watching());		\
+ 		}							\
+ 	}								\
+ 	__DECLARE_TRACE_RCU(name, PARAMS(proto), PARAMS(args),		\
 
 
