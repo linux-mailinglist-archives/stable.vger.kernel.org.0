@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C526C0E8B
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:19:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA80C6C0E90
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 11:20:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229992AbjCTKTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 06:19:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
+        id S230113AbjCTKUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 06:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229885AbjCTKTn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:19:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 547621041B
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:19:42 -0700 (PDT)
+        with ESMTP id S230082AbjCTKT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 06:19:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED23512BE1
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 03:19:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06282B80DE0
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64399C433EF;
-        Mon, 20 Mar 2023 10:19:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A5C76133F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 10:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AE1C433D2;
+        Mon, 20 Mar 2023 10:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679307579;
-        bh=R15ZucWFf46/nc0vGLuqWFZ/+JLPKNjuKz3YFDei6e0=;
+        s=korg; t=1679307596;
+        bh=vfopX1iW8HZjLRZodgDgxQbMRRNBntRK1XiMei6Lvus=;
         h=Subject:To:Cc:From:Date:From;
-        b=WjQzbc48M8834p0hV3EiMAjj7nsZj1zs/u4aSs+tcAZgyQVHL7EjIhaHD3PR6I52w
-         Ru2OwewoDDqXFG13LBHqat8rjtP0ABR+l96g0ukI0ffXY45YTwjn1g2ShioESXEhoa
-         vJ+pZb2CcZM/DBGazuAyj1RJlgHlA2XNjUVONy4E=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Write to correct dirty_rect" failed to apply to 6.1-stable tree
-To:     ben@bcheng.me, alexander.deucher@amd.com, hamza.mahfooz@amd.com
+        b=TQV8dkC5gl/ZAnDH904aYTjEcBhX94KgdRxmFE9wyGYV5UZivbWec2wj06daMTo4Q
+         GqsukhMt03ho9P20y8LkvPtCI1+Yq28mmotD2eh+4Jm+XmUhOCkKdOxnCCNe+l0qgu
+         EzU8ydcaB5IxtLE5JYDPZOPpqgPYCqgC/REj/9SM=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Remove OTG DIV register write for Virtual" failed to apply to 6.1-stable tree
+To:     SyedSaaem.Rizvi@amd.com, Alvin.Lee2@amd.com, Samson.Tam@amd.com,
+        alexander.deucher@amd.com, daniel.wheeler@amd.com,
+        mario.limonciello@amd.com, qingqing.zhuo@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Mar 2023 11:19:36 +0100
-Message-ID: <1679307576136187@kroah.com>
+Date:   Mon, 20 Mar 2023 11:19:53 +0100
+Message-ID: <1679307593223218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,15 +58,16 @@ To reproduce the conflict and resubmit, you may use the following commands:
 
 git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x 751281c55579f0cb0e56c9797d4663f689909681
+git cherry-pick -x 709671ffb15dcd1b4f6afe2a9d8c67c7c4ead4a1
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679307576136187@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679307593223218@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-751281c55579 ("drm/amd/display: Write to correct dirty_rect")
-30ebe41582d1 ("drm/amd/display: add FB_DAMAGE_CLIPS support")
+709671ffb15d ("drm/amd/display: Remove OTG DIV register write for Virtual signals.")
+3b214bb7185d ("drm/amd/display: fix k1 k2 divider programming for phantom streams")
+368307cef69c ("drm/amd/display: Include virtual signal to set k1 and k2 values")
 
 thanks,
 
@@ -72,41 +75,43 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 751281c55579f0cb0e56c9797d4663f689909681 Mon Sep 17 00:00:00 2001
-From: Benjamin Cheng <ben@bcheng.me>
-Date: Sun, 12 Mar 2023 20:47:39 -0400
-Subject: [PATCH] drm/amd/display: Write to correct dirty_rect
+From 709671ffb15dcd1b4f6afe2a9d8c67c7c4ead4a1 Mon Sep 17 00:00:00 2001
+From: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
+Date: Mon, 27 Feb 2023 18:55:07 -0500
+Subject: [PATCH] drm/amd/display: Remove OTG DIV register write for Virtual
+ signals.
 
-When FB_DAMAGE_CLIPS are provided in a non-MPO scenario, the loop does
-not use the counter i. This causes the fill_dc_dity_rect() to always
-fill dirty_rects[0], causing graphical artifacts when a damage clip
-aware DRM client sends more than 1 damage clip.
+[WHY]
+Hot plugging and then hot unplugging leads to k1 and k2 values to
+change, as signal is detected as a virtual signal on hot unplug. Writing
+these values to OTG_PIXEL_RATE_DIV register might cause primary display
+to blank (known hw bug).
 
-Instead, use the flip_addrs->dirty_rect_count which is incremented by
-fill_dc_dirty_rect() on a successful fill.
+[HOW]
+No longer write k1 and k2 values to register if signal is virtual, we
+have safe guards in place in the case that k1 and k2 is unassigned so
+that an unknown value is not written to the register either.
 
-Fixes: 30ebe41582d1 ("drm/amd/display: add FB_DAMAGE_CLIPS support")
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2453
-Signed-off-by: Benjamin Cheng <ben@bcheng.me>
-Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+Cc: stable@vger.kernel.org
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Samson Tam <Samson.Tam@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 009ef917dad4..32abbafd43fa 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5105,9 +5105,9 @@ static void fill_dc_dirty_rects(struct drm_plane *plane,
- 
- 		for (; flip_addrs->dirty_rect_count < num_clips; clips++)
- 			fill_dc_dirty_rect(new_plane_state->plane,
--					   &dirty_rects[i], clips->x1,
--					   clips->y1, clips->x2 - clips->x1,
--					   clips->y2 - clips->y1,
-+					   &dirty_rects[flip_addrs->dirty_rect_count],
-+					   clips->x1, clips->y1,
-+					   clips->x2 - clips->x1, clips->y2 - clips->y1,
- 					   &flip_addrs->dirty_rect_count,
- 					   false);
- 		return;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+index 16f892125b6f..9d14045cccd6 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+@@ -1104,7 +1104,7 @@ unsigned int dcn32_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsign
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
+ 		else
+ 			*k2_div = PIXEL_RATE_DIV_BY_4;
+-	} else if (dc_is_dp_signal(stream->signal) || dc_is_virtual_signal(stream->signal)) {
++	} else if (dc_is_dp_signal(stream->signal)) {
+ 		if (two_pix_per_container) {
+ 			*k1_div = PIXEL_RATE_DIV_BY_1;
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
 
