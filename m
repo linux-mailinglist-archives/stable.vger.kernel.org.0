@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 618E26C17A0
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:15:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 072086C19E7
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232560AbjCTPPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:15:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S233171AbjCTPji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232449AbjCTPP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:15:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1519D33461
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:10:29 -0700 (PDT)
+        with ESMTP id S233230AbjCTPjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6BB2E0F3
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62C3861592
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711AFC433D2;
-        Mon, 20 Mar 2023 15:10:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F303B80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF2BC433EF;
+        Mon, 20 Mar 2023 15:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325027;
-        bh=gwi4qgfkSnuoIiJJcxMq7HAed2DLyUpGGxuCINhs1L0=;
+        s=korg; t=1679326236;
+        bh=lLXBj/bdFjlolTNbeU1Pf/BTwvc7xwlXeLyYxAFGWso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZ98eXx8qp44l4XResvO9y+DZMCsh8f/hWxKh14znkEi5hDrtG3m+AIGr7Da5T+n/
-         zhjIpHIHczBRWq5KYXWhtXz5BNN/TfaUUK7rHmp00LZNGMomkCLUAqfbb9OAXjEXeJ
-         LohWf++MrlWQGUFUGpImx18nzpDKxIYSVZ7lv+TY=
+        b=fnKKgG3mrDLcgINmyDxhy5dNXMqftCuF5lI0vHPbypeqcauy22425+fUkOCC3jK9L
+         2t5UPXfTN48b4gMNQNglp03vafMboDTWqMNWZhZmDa9+KYooWawXCvVIGS6pcVy3Uf
+         xuLYvQZboMkJI/tk3aSzrWsvuRPTP6QVIf6sr+tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 85/99] xfs: dont leak btree cursor when insrec fails after a split
+        patches@lists.linux.dev, James Zhu <James.Zhu@amd.com>,
+        Leo Liu <leo.liu@amd.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 168/211] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh broken BIOSes
 Date:   Mon, 20 Mar 2023 15:55:03 +0100
-Message-Id: <20230320145446.977379316@linuxfoundation.org>
+Message-Id: <20230320145520.487160109@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145443.333824603@linuxfoundation.org>
-References: <20230320145443.333824603@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,90 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-commit a54f78def73d847cb060b18c4e4a3d1d26c9ca6d upstream.
+commit 542a56e8eb4467ae654eefab31ff194569db39cd upstream.
 
-The recent patch to improve btree cycle checking caused a regression
-when I rebased the in-memory btree branch atop the 5.19 for-next branch,
-because in-memory short-pointer btrees do not have AG numbers.  This
-produced the following complaint from kmemleak:
+The VCN firmware loading path enables the indirect SRAM mode if it's
+advertised as supported. We might have some cases of FW issues that
+prevents this mode to working properly though, ending-up in a failed
+probe. An example below, observed in the Steam Deck:
 
-unreferenced object 0xffff88803d47dde8 (size 264):
-  comm "xfs_io", pid 4889, jiffies 4294906764 (age 24.072s)
-  hex dump (first 32 bytes):
-    90 4d 0b 0f 80 88 ff ff 00 a0 bd 05 80 88 ff ff  .M..............
-    e0 44 3a a0 ff ff ff ff 00 df 08 06 80 88 ff ff  .D:.............
-  backtrace:
-    [<ffffffffa0388059>] xfbtree_dup_cursor+0x49/0xc0 [xfs]
-    [<ffffffffa029887b>] xfs_btree_dup_cursor+0x3b/0x200 [xfs]
-    [<ffffffffa029af5d>] __xfs_btree_split+0x6ad/0x820 [xfs]
-    [<ffffffffa029b130>] xfs_btree_split+0x60/0x110 [xfs]
-    [<ffffffffa029f6da>] xfs_btree_make_block_unfull+0x19a/0x1f0 [xfs]
-    [<ffffffffa029fada>] xfs_btree_insrec+0x3aa/0x810 [xfs]
-    [<ffffffffa029fff3>] xfs_btree_insert+0xb3/0x240 [xfs]
-    [<ffffffffa02cb729>] xfs_rmap_insert+0x99/0x200 [xfs]
-    [<ffffffffa02cf142>] xfs_rmap_map_shared+0x192/0x5f0 [xfs]
-    [<ffffffffa02cf60b>] xfs_rmap_map_raw+0x6b/0x90 [xfs]
-    [<ffffffffa0384a85>] xrep_rmap_stash+0xd5/0x1d0 [xfs]
-    [<ffffffffa0384dc0>] xrep_rmap_visit_bmbt+0xa0/0xf0 [xfs]
-    [<ffffffffa0384fb6>] xrep_rmap_scan_iext+0x56/0xa0 [xfs]
-    [<ffffffffa03850d8>] xrep_rmap_scan_ifork+0xd8/0x160 [xfs]
-    [<ffffffffa0385195>] xrep_rmap_scan_inode+0x35/0x80 [xfs]
-    [<ffffffffa03852ee>] xrep_rmap_find_rmaps+0x10e/0x270 [xfs]
+[...]
+[drm] failed to load ucode VCN0_RAM(0x3A)
+[drm] psp gfx command LOAD_IP_FW(0x6) failed and response status is (0xFFFF0000)
+amdgpu 0000:04:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vcn_dec_0 test failed (-110)
+[drm:amdgpu_device_init.cold [amdgpu]] *ERROR* hw_init of IP block <vcn_v3_0> failed -110
+amdgpu 0000:04:00.0: amdgpu: amdgpu_device_ip_init failed
+amdgpu 0000:04:00.0: amdgpu: Fatal error during GPU init
+[...]
 
-I noticed that xfs_btree_insrec has a bunch of debug code that return
-out of the function immediately, without freeing the "new" btree cursor
-that can be returned when _make_block_unfull calls xfs_btree_split.  Fix
-the error return in this function to free the btree cursor.
+Disabling the VCN block circumvents this, but it's a very invasive
+workaround that turns off the entire feature. So, let's add a quirk
+on VCN loading that checks for known problematic BIOSes on Vangogh,
+so we can proactively disable the indirect SRAM mode and allow the
+HW proper probe and VCN IP block to work fine.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2385
+Fixes: 82132ecc5432 ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
+Cc: stable@vger.kernel.org
+Cc: James Zhu <James.Zhu@amd.com>
+Cc: Leo Liu <leo.liu@amd.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/libxfs/xfs_btree.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/fs/xfs/libxfs/xfs_btree.c
-+++ b/fs/xfs/libxfs/xfs_btree.c
-@@ -3190,7 +3190,7 @@ xfs_btree_insrec(
- 	struct xfs_btree_block	*block;	/* btree block */
- 	struct xfs_buf		*bp;	/* buffer for block */
- 	union xfs_btree_ptr	nptr;	/* new block ptr */
--	struct xfs_btree_cur	*ncur;	/* new btree cursor */
-+	struct xfs_btree_cur	*ncur = NULL;	/* new btree cursor */
- 	union xfs_btree_key	nkey;	/* new block key */
- 	union xfs_btree_key	*lkey;
- 	int			optr;	/* old key/record index */
-@@ -3270,7 +3270,7 @@ xfs_btree_insrec(
- #ifdef DEBUG
- 	error = xfs_btree_check_block(cur, block, level, bp);
- 	if (error)
--		return error;
-+		goto error0;
- #endif
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
+@@ -26,6 +26,7 @@
  
- 	/*
-@@ -3290,7 +3290,7 @@ xfs_btree_insrec(
- 		for (i = numrecs - ptr; i >= 0; i--) {
- 			error = xfs_btree_debug_check_ptr(cur, pp, i, level);
- 			if (error)
--				return error;
-+				goto error0;
- 		}
+ #include <linux/firmware.h>
+ #include <linux/module.h>
++#include <linux/dmi.h>
+ #include <linux/pci.h>
+ #include <linux/debugfs.h>
+ #include <drm/drm_drv.h>
+@@ -222,6 +223,24 @@ int amdgpu_vcn_sw_init(struct amdgpu_dev
+ 		return r;
+ 	}
  
- 		xfs_btree_shift_keys(cur, kp, 1, numrecs - ptr + 1);
-@@ -3375,6 +3375,8 @@ xfs_btree_insrec(
- 	return 0;
- 
- error0:
-+	if (ncur)
-+		xfs_btree_del_cursor(ncur, error);
- 	return error;
- }
++	/*
++	 * Some Steam Deck's BIOS versions are incompatible with the
++	 * indirect SRAM mode, leading to amdgpu being unable to get
++	 * properly probed (and even potentially crashing the kernel).
++	 * Hence, check for these versions here - notice this is
++	 * restricted to Vangogh (Deck's APU).
++	 */
++	if (adev->ip_versions[UVD_HWIP][0] == IP_VERSION(3, 0, 2)) {
++		const char *bios_ver = dmi_get_system_info(DMI_BIOS_VERSION);
++
++		if (bios_ver && (!strncmp("F7A0113", bios_ver, 7) ||
++		     !strncmp("F7A0114", bios_ver, 7))) {
++			adev->vcn.indirect_sram = false;
++			dev_info(adev->dev,
++				"Steam Deck quirk: indirect SRAM disabled on BIOS %s\n", bios_ver);
++		}
++	}
++
+ 	hdr = (const struct common_firmware_header *)adev->vcn.fw->data;
+ 	adev->vcn.fw_version = le32_to_cpu(hdr->ucode_version);
  
 
 
