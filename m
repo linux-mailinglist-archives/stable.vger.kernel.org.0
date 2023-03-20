@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D3A96C1862
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:23:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 487656C1971
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:33:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232782AbjCTPXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
+        id S232791AbjCTPdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232797AbjCTPXa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:23:30 -0400
+        with ESMTP id S233072AbjCTPdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:33:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD52E241C6
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:16:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39EEB36445
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20476B80ED7
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:16:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8475FC4339B;
-        Mon, 20 Mar 2023 15:16:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6533B80ED7
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B8EC433EF;
+        Mon, 20 Mar 2023 15:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325410;
-        bh=d81WpvGHXcAaGO6+jdo5a6M6e5BWfqqEcbhXTx3AZ70=;
+        s=korg; t=1679325964;
+        bh=oNs5CYJKvPO/tjHt1S2z8Hzv0790wMQ3H0YGEJLrCg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJvjyFncSOsOXIn/SP3fD/A+ELLEYuPCEbprEv1mACIc6x81LHtewcLBtYDcSuHj2
-         TRKMGFSmbd4oRYEoERChfXXprBTIg4w63MsG3u9X2n4U4JIFizxSMdBk8CpHpy4Cm3
-         Et/nymCtRryvb1VMTBTsAr7mxG1D03/wO+7D8pmE=
+        b=rYsH6un780UJN96XSZ8ntXtIzeQBWtjgvDmeGTM7wuFKIZ16sRGloBF7XW4bxKtdJ
+         cWoG4INkpUPKo/wtHZ1sAU3vJ1nDcww3TVkL03LNSQ2cQgsq/rvDQ2EtGPENuB8OHb
+         BJbsEjp/ImXxyzeK+fNtEb2BB9p4PPsCkX76dLF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 101/115] mmc: sdhci_am654: lower power-on failed message severity
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.1 175/198] powerpc/64: Set default CPU in Kconfig
 Date:   Mon, 20 Mar 2023 15:55:13 +0100
-Message-Id: <20230320145453.664548141@linuxfoundation.org>
+Message-Id: <20230320145514.858877805@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-References: <20230320145449.336983711@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 11440da77d6020831ee6f9ce4551b545dea789ee upstream.
+commit 45f7091aac3546ef8112bf62836650ca0bbf0b79 upstream.
 
-Lower the power-on failed message severity from warn to info when the
-controller does not power-up. It's normal to have this situation when
-the SD card slot is empty, therefore we should not warn the user about
-it.
+Since commit 0069f3d14e7a ("powerpc/64e: Tie PPC_BOOK3E_64 to
+PPC_E500MC"), the only possible BOOK3E/64 are E500, so no need of a
+default CPU over the E5500.
 
-Fixes: 7ca0f166f5b2 ("mmc: sdhci_am654: Add workaround for card detect debounce timer")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230306162751.163369-1-francesco@dolcini.it
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+When the user selects book3e, they must have an e500 compatible
+compiler, and it won't work anymore with the default -mcpu=power64, see
+commit d6b551b8f90c ("powerpc/64e: Fix build failure with GCC
+12 (unrecognized opcode: `wrteei')").
+
+For book3s/64, replace GENERIC_CPU by POWERPC64_CPU to match the PPC32
+POWERPC_CPU, and set a default mpcu value in Kconfig directly.
+
+When a user selects a particular CPU, they must ensure the compiler has
+the requested capability. Therefore, remove hidden fallback, instead
+offer user the possibility to say they want to use the toolchain
+default.
+
+Fixes: d6b551b8f90c ("powerpc/64e: Fix build failure with GCC 12 (unrecognized opcode: `wrteei')")
+Reported-by: Pali Rohár <pali@kernel.org>
+Tested-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/76c11197b058193dcb8e8b26adffba09cfbdab11.1674632329.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci_am654.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/Makefile                  |   22 +++++-----------------
+ arch/powerpc/platforms/Kconfig.cputype |   12 +++++++-----
+ 2 files changed, 12 insertions(+), 22 deletions(-)
 
---- a/drivers/mmc/host/sdhci_am654.c
-+++ b/drivers/mmc/host/sdhci_am654.c
-@@ -369,7 +369,7 @@ static void sdhci_am654_write_b(struct s
- 					MAX_POWER_ON_TIMEOUT, false, host, val,
- 					reg);
- 		if (ret)
--			dev_warn(mmc_dev(host->mmc), "Power on failed\n");
-+			dev_info(mmc_dev(host->mmc), "Power on failed\n");
- 	}
- }
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -146,19 +146,6 @@ CFLAGS-$(CONFIG_PPC32)	+= $(call cc-opti
  
+ CFLAGS-$(CONFIG_PPC32)	+= $(call cc-option,-mno-readonly-in-sdata)
+ 
+-ifdef CONFIG_PPC_BOOK3S_64
+-ifdef CONFIG_CPU_LITTLE_ENDIAN
+-CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power8
+-else
+-CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=power4
+-endif
+-CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power10,	\
+-				  $(call cc-option,-mtune=power9,	\
+-				  $(call cc-option,-mtune=power8)))
+-else ifdef CONFIG_PPC_BOOK3E_64
+-CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
+-endif
+-
+ ifdef CONFIG_FUNCTION_TRACER
+ CC_FLAGS_FTRACE := -pg
+ ifdef CONFIG_MPROFILE_KERNEL
+@@ -166,11 +153,12 @@ CC_FLAGS_FTRACE += -mprofile-kernel
+ endif
+ endif
+ 
+-CFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
+-AFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
++CFLAGS-$(CONFIG_TARGET_CPU_BOOL) += -mcpu=$(CONFIG_TARGET_CPU)
++AFLAGS-$(CONFIG_TARGET_CPU_BOOL) += -mcpu=$(CONFIG_TARGET_CPU)
+ 
+-CFLAGS-$(CONFIG_E5500_CPU) += $(call cc-option,-mcpu=e500mc64,-mcpu=powerpc64)
+-CFLAGS-$(CONFIG_E6500_CPU) += $(call cc-option,-mcpu=e6500,$(E5500_CPU))
++CFLAGS-$(CONFIG_POWERPC64_CPU) += $(call cc-option,-mtune=power10,	\
++				  $(call cc-option,-mtune=power9,	\
++				  $(call cc-option,-mtune=power8)))
+ 
+ asinstr := $(call as-instr,lis 9$(comma)foo@high,-DHAVE_AS_ATHIGH=1)
+ 
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -118,19 +118,18 @@ endchoice
+ 
+ choice
+ 	prompt "CPU selection"
+-	default GENERIC_CPU
+ 	help
+ 	  This will create a kernel which is optimised for a particular CPU.
+ 	  The resulting kernel may not run on other CPUs, so use this with care.
+ 
+ 	  If unsure, select Generic.
+ 
+-config GENERIC_CPU
++config POWERPC64_CPU
+ 	bool "Generic (POWER5 and PowerPC 970 and above)"
+ 	depends on PPC_BOOK3S_64 && !CPU_LITTLE_ENDIAN
+ 	select PPC_64S_HASH_MMU
+ 
+-config GENERIC_CPU
++config POWERPC64_CPU
+ 	bool "Generic (POWER8 and above)"
+ 	depends on PPC_BOOK3S_64 && CPU_LITTLE_ENDIAN
+ 	select ARCH_HAS_FAST_MULTIPLIER
+@@ -228,13 +227,12 @@ config E500MC_CPU
+ 
+ config TOOLCHAIN_DEFAULT_CPU
+ 	bool "Rely on the toolchain's implicit default CPU"
+-	depends on PPC32
+ 
+ endchoice
+ 
+ config TARGET_CPU_BOOL
+ 	bool
+-	default !GENERIC_CPU && !TOOLCHAIN_DEFAULT_CPU
++	default !TOOLCHAIN_DEFAULT_CPU
+ 
+ config TARGET_CPU
+ 	string
+@@ -246,6 +244,10 @@ config TARGET_CPU
+ 	default "power8" if POWER8_CPU
+ 	default "power9" if POWER9_CPU
+ 	default "power10" if POWER10_CPU
++	default "e500mc64" if E5500_CPU
++	default "e6500" if E6500_CPU
++	default "power4" if POWERPC64_CPU && !CPU_LITTLE_ENDIAN
++	default "power8" if POWERPC64_CPU && CPU_LITTLE_ENDIAN
+ 	default "405" if 405_CPU
+ 	default "440" if 440_CPU
+ 	default "464" if 464_CPU
 
 
