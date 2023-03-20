@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C07566C18B6
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ED5E6C191E
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232816AbjCTP0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:26:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
+        id S232931AbjCTPat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232827AbjCTP0a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:26:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6F4166ED
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:19:44 -0700 (PDT)
+        with ESMTP id S232934AbjCTPaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:30:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E069C38B7F
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:23:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7CF61565
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89FB4C433EF;
-        Mon, 20 Mar 2023 15:19:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E047B80ED6
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C24E1C433EF;
+        Mon, 20 Mar 2023 15:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679325583;
-        bh=Ed3pU383HVMS7+m2FVX1Tx39zViPKwp/B/wTTwKwH/M=;
+        s=korg; t=1679325781;
+        bh=KTYWWFvzK9g9XVDLU4q5d6cycX96LXFxNauZDMOY11M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wO2Mrs37YHTuOQOofY6539+Z+3QM4k4p5Vy9nUPNuI8nQJs/qhI9RNk1IGzuNDieo
-         2UD+4HCkVTpj6ya4VWmxSg6mEa6cpaUXOSJVPFBlas+SduId2j6/VayzIh1haeNSK3
-         DZmlnJSWxrW2Ry6sAFAjQzulq3i4OlR/VPtuZmqA=
+        b=PWOETkreCnyu6f0wC3T/QCkKfecXcUHU3G0i4pf2YEQavHU1JsIxrRUBc0OiB4SYC
+         qnPmlA9UfIj7pXUM2Ut1M4ngyHhV46/X8PayUALxavQcIkvRzhlk9eY8ujgUpF8JAi
+         wLUEGHdudRM6z8Dt+UhpMFmHiN2F+wR/12TH4HmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 097/198] hwmon: (ucd90320) Add minimum delay between bus accesses
+Subject: [PATCH 6.2 100/211] hwmon: (xgene) Fix use after free bug in xgene_hwmon_remove due to race condition
 Date:   Mon, 20 Mar 2023 15:53:55 +0100
-Message-Id: <20230320145511.640090287@linuxfoundation.org>
+Message-Id: <20230320145517.479971710@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-References: <20230320145507.420176832@linuxfoundation.org>
+In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
+References: <20230320145513.305686421@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,146 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 8d655e65237643c48ada2c131b83679bf1105373 ]
+[ Upstream commit cb090e64cf25602b9adaf32d5dfc9c8bec493cd1 ]
 
-When probing the ucd90320 access to some of the registers randomly fails.
-Sometimes it NACKs a transfer, sometimes it returns just random data and
-the PEC check fails.
+In xgene_hwmon_probe, &ctx->workq is bound with xgene_hwmon_evt_work.
+Then it will be started.
 
-Experimentation shows that this seems to be triggered by a register access
-directly back to back with a previous register write. Experimentation also
-shows that inserting a small delay after register writes makes the issue go
-away.
+If we remove the driver which will call xgene_hwmon_remove to clean up,
+there may be unfinished work.
 
-Use a similar solution to what the max15301 driver does to solve the same
-problem. Create a custom set of bus read and write functions that make sure
-that the delay is added.
+The possible sequence is as follows:
 
-Fixes: a470f11c5ba2 ("hwmon: (pmbus/ucd9000) Add support for UCD90320 Power Sequencer")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20230312160312.2227405-1-lars@metafoo.de
+Fix it by finishing the work before cleanup in xgene_hwmon_remove.
+
+CPU0                  CPU1
+
+                    |xgene_hwmon_evt_work
+xgene_hwmon_remove   |
+kfifo_free(&ctx->async_msg_fifo);|
+                    |
+                    |kfifo_out_spinlocked
+                    |//use &ctx->async_msg_fifo
+Fixes: 2ca492e22cb7 ("hwmon: (xgene) Fix crash when alarm occurs before driver probe")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Link: https://lore.kernel.org/r/20230310084007.1403388-1-zyytlz.wz@163.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/ucd9000.c | 75 +++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ drivers/hwmon/xgene-hwmon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/pmbus/ucd9000.c b/drivers/hwmon/pmbus/ucd9000.c
-index 75fc770c9e403..3daaf22378322 100644
---- a/drivers/hwmon/pmbus/ucd9000.c
-+++ b/drivers/hwmon/pmbus/ucd9000.c
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/debugfs.h>
-+#include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of_device.h>
-@@ -16,6 +17,7 @@
- #include <linux/i2c.h>
- #include <linux/pmbus.h>
- #include <linux/gpio/driver.h>
-+#include <linux/timekeeping.h>
- #include "pmbus.h"
- 
- enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd90320, ucd9090,
-@@ -65,6 +67,7 @@ struct ucd9000_data {
- 	struct gpio_chip gpio;
- #endif
- 	struct dentry *debugfs;
-+	ktime_t write_time;
- };
- #define to_ucd9000_data(_info) container_of(_info, struct ucd9000_data, info)
- 
-@@ -73,6 +76,73 @@ struct ucd9000_debugfs_entry {
- 	u8 index;
- };
- 
-+/*
-+ * It has been observed that the UCD90320 randomly fails register access when
-+ * doing another access right on the back of a register write. To mitigate this
-+ * make sure that there is a minimum delay between a write access and the
-+ * following access. The 250us is based on experimental data. At a delay of
-+ * 200us the issue seems to go away. Add a bit of extra margin to allow for
-+ * system to system differences.
-+ */
-+#define UCD90320_WAIT_DELAY_US 250
-+
-+static inline void ucd90320_wait(const struct ucd9000_data *data)
-+{
-+	s64 delta = ktime_us_delta(ktime_get(), data->write_time);
-+
-+	if (delta < UCD90320_WAIT_DELAY_US)
-+		udelay(UCD90320_WAIT_DELAY_US - delta);
-+}
-+
-+static int ucd90320_read_word_data(struct i2c_client *client, int page,
-+				   int phase, int reg)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+
-+	if (reg >= PMBUS_VIRT_BASE)
-+		return -ENXIO;
-+
-+	ucd90320_wait(data);
-+	return pmbus_read_word_data(client, page, phase, reg);
-+}
-+
-+static int ucd90320_read_byte_data(struct i2c_client *client, int page, int reg)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+
-+	ucd90320_wait(data);
-+	return pmbus_read_byte_data(client, page, reg);
-+}
-+
-+static int ucd90320_write_word_data(struct i2c_client *client, int page,
-+				    int reg, u16 word)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+	int ret;
-+
-+	ucd90320_wait(data);
-+	ret = pmbus_write_word_data(client, page, reg, word);
-+	data->write_time = ktime_get();
-+
-+	return ret;
-+}
-+
-+static int ucd90320_write_byte(struct i2c_client *client, int page, u8 value)
-+{
-+	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
-+	struct ucd9000_data *data = to_ucd9000_data(info);
-+	int ret;
-+
-+	ucd90320_wait(data);
-+	ret = pmbus_write_byte(client, page, value);
-+	data->write_time = ktime_get();
-+
-+	return ret;
-+}
-+
- static int ucd9000_get_fan_config(struct i2c_client *client, int fan)
+diff --git a/drivers/hwmon/xgene-hwmon.c b/drivers/hwmon/xgene-hwmon.c
+index 5cde837bfd094..d1abea49f01be 100644
+--- a/drivers/hwmon/xgene-hwmon.c
++++ b/drivers/hwmon/xgene-hwmon.c
+@@ -761,6 +761,7 @@ static int xgene_hwmon_remove(struct platform_device *pdev)
  {
- 	int fan_config = 0;
-@@ -598,6 +668,11 @@ static int ucd9000_probe(struct i2c_client *client)
- 		info->read_byte_data = ucd9000_read_byte_data;
- 		info->func[0] |= PMBUS_HAVE_FAN12 | PMBUS_HAVE_STATUS_FAN12
- 		  | PMBUS_HAVE_FAN34 | PMBUS_HAVE_STATUS_FAN34;
-+	} else if (mid->driver_data == ucd90320) {
-+		info->read_byte_data = ucd90320_read_byte_data;
-+		info->read_word_data = ucd90320_read_word_data;
-+		info->write_byte = ucd90320_write_byte;
-+		info->write_word_data = ucd90320_write_word_data;
- 	}
+ 	struct xgene_hwmon_dev *ctx = platform_get_drvdata(pdev);
  
- 	ucd9000_probe_gpio(client, mid, data);
++	cancel_work_sync(&ctx->workq);
+ 	hwmon_device_unregister(ctx->hwmon_dev);
+ 	kfifo_free(&ctx->async_msg_fifo);
+ 	if (acpi_disabled)
 -- 
 2.39.2
 
