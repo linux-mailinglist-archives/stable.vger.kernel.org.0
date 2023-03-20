@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 908F66C19E6
-	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 584236C19AC
+	for <lists+stable@lfdr.de>; Mon, 20 Mar 2023 16:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbjCTPje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 11:39:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
+        id S233018AbjCTPgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 11:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233119AbjCTPjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:39:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C174C211C8
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:30:44 -0700 (PDT)
+        with ESMTP id S233037AbjCTPgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 11:36:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B472E37B76
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 08:28:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC60615C2
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA981C433EF;
-        Mon, 20 Mar 2023 15:30:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16D4BB80EC5
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 15:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6699CC433EF;
+        Mon, 20 Mar 2023 15:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679326211;
-        bh=ba6L21C3hPRAFcDmsnPxAcMMAGQ4TxPfN8sCtncYEAQ=;
+        s=korg; t=1679326090;
+        bh=XEIL89TGnfcFjyp706sAMEL4q4pULuaGN8w/nvuROlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGKsn7trhtFmVre0tV/WnxzmtyUBRY5e2oWUN8DxHExeuIuaMFTqObF9RWxiQT578
-         6IVJiZfInysxz1MdFx8vIWGvUfvGBMdrDjMRGjG1XlrMHoXpvVW8bI1f7v2MV6aKcO
-         fBldHIs7WSYF5NAuaySxahG7aRUXs08uEvO5tDiU=
+        b=bHewd3RF53WRe4+A7TOeFlrSs5DiG+q80xYxZmmrwTqaIip5vhrmgt+NNph27qe6m
+         gngbmnPpL/WjLYWwkZUMPXQk8/u2CTpTnG4+6i62gGePHC8wi2rcXg8hdojNhY/oal
+         60UoSapuBy+S0ceXJHYe5nv3jlOJQjKnM2SlLh2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.2 200/211] ASoC: qcom: q6prm: fix incorrect clk_root passed to ADSP
-Date:   Mon, 20 Mar 2023 15:55:35 +0100
-Message-Id: <20230320145521.912483569@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 198/198] io_uring/msg_ring: let target know allocated index
+Date:   Mon, 20 Mar 2023 15:55:36 +0100
+Message-Id: <20230320145515.762603682@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320145513.305686421@linuxfoundation.org>
-References: <20230320145513.305686421@linuxfoundation.org>
+In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
+References: <20230320145507.420176832@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 65882134bc622a1e57bd5928ac588855ea2e3ddd upstream.
+commit 5da28edd7bd5518f97175ecea77615bb729a7a28 upstream.
 
-The second to last argument is clk_root (root of the clock), however the
-code called q6prm_request_lpass_clock() with clk_attr instead
-(copy-paste error).  This effectively was passing value of 1 as root
-clock which worked on some of the SoCs (e.g. SM8450) but fails on
-others, depending on the ADSP.  For example on SM8550 this "1" as root
-clock is not accepted and results in errors coming from ADSP.
+msg_ring requests transferring files support auto index selection via
+IORING_FILE_INDEX_ALLOC, however they don't return the selected index
+to the target ring and there is no other good way for the userspace to
+know where is the receieved file.
 
-Fixes: 2f20640491ed ("ASoC: qdsp6: qdsp6: q6prm: handle clk disable correctly")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230302122908.221398-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Return the index for allocated slots and 0 otherwise, which is
+consistent with other fixed file installing requests.
+
+Cc: stable@vger.kernel.org # v6.0+
+Fixes: e6130eba8a848 ("io_uring: add support for passing fixed file descriptors")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://github.com/axboe/liburing/issues/809
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/qdsp6/q6prm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ io_uring/msg_ring.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/qcom/qdsp6/q6prm.c
-+++ b/sound/soc/qcom/qdsp6/q6prm.c
-@@ -183,9 +183,9 @@ int q6prm_set_lpass_clock(struct device
- 			  unsigned int freq)
- {
- 	if (freq)
--		return q6prm_request_lpass_clock(dev, clk_id, clk_attr, clk_attr, freq);
-+		return q6prm_request_lpass_clock(dev, clk_id, clk_attr, clk_root, freq);
+--- a/io_uring/msg_ring.c
++++ b/io_uring/msg_ring.c
+@@ -84,6 +84,8 @@ static int io_msg_send_fd(struct io_kioc
+ 	struct file *src_file;
+ 	int ret;
  
--	return q6prm_release_lpass_clock(dev, clk_id, clk_attr, clk_attr, freq);
-+	return q6prm_release_lpass_clock(dev, clk_id, clk_attr, clk_root, freq);
- }
- EXPORT_SYMBOL_GPL(q6prm_set_lpass_clock);
- 
++	if (msg->len)
++		return -EINVAL;
+ 	if (target_ctx == ctx)
+ 		return -EINVAL;
+ 	if (target_ctx->flags & IORING_SETUP_R_DISABLED)
+@@ -120,7 +122,7 @@ static int io_msg_send_fd(struct io_kioc
+ 	 * completes with -EOVERFLOW, then the sender must ensure that a
+ 	 * later IORING_OP_MSG_RING delivers the message.
+ 	 */
+-	if (!io_post_aux_cqe(target_ctx, msg->user_data, msg->len, 0, true))
++	if (!io_post_aux_cqe(target_ctx, msg->user_data, ret, 0, true))
+ 		ret = -EOVERFLOW;
+ out_unlock:
+ 	io_double_unlock_ctx(ctx, target_ctx, issue_flags);
 
 
