@@ -2,69 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 334DD6C3BB5
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 21:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E560A6C3BE2
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 21:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230288AbjCUUYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 16:24:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37454 "EHLO
+        id S230021AbjCUUd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 16:33:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbjCUUYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 16:24:05 -0400
-Received: from mout.web.de (mout.web.de [217.72.192.78])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A564742F;
-        Tue, 21 Mar 2023 13:23:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-        t=1679430144; i=dahms.tobias@web.de;
-        bh=3vrnUaZQjktarTyyAWmtSbWvpA3xyzQS8LOv5gymyyM=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=eso4Q+iXBnUEfC1ghMuLfphO4olJjHoKZZTdX4bjwKgcvbSCKaMdzCaYMrrpvCZzP
-         jP5EA0CqrbSL7mj5zW0cMs1MYrl7VXByXSgaGySefRhsi3ZzzpJ3bliEkSr5isHETp
-         d4xiJ7mwmNHNQBaOGT/WF21lB+82FKNchTbWRZktWKdaZxMuRZ8Q4UvHtmlqV6BRu2
-         +eN9RFFcy7mEapj5WmQOYkpl3kmLn1Qfcz9Etl0Qs0px75lC8DRU8Kiie83o1wKW3v
-         e0AZIJcaVp0zb+aP1WLQs3SUVxa8gq8SPOdaxn/4ma5oHnEDBSjMV8vJ5swjJ6Eqaz
-         xX4kOS7buGzPA==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.2.2] ([92.206.138.58]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MgibW-1q8Y4y23J6-00h2bQ; Tue, 21
- Mar 2023 21:22:24 +0100
-Message-ID: <f8f7d7ae-7e4b-e0fb-6a21-1d4fdcc22035@web.de>
-Date:   Tue, 21 Mar 2023 21:22:23 +0100
+        with ESMTP id S229713AbjCUUd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 16:33:56 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4285A22110
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 13:33:53 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id ew6so1666908edb.7
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 13:33:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1679430832;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=KTpu7F9BL2yL3dz5JaGLJyVf1Ik8YB0yHGfUTS5ixLY=;
+        b=p+bIXPROrY9Nrek+Wmbtia3iwVn1uy5t5w/nMtRwmRA8GTLXIuMWRTOTMjAwvAADPV
+         DACTTt5AzcV0w90we/PtHmkPjievW5kvs59J9hzQLWyky5rRuUgY1b5xiseQW36ZPKK9
+         Qwqwk8npprKqw1mJPUEG7w210YMUp93BRMFT1lnoh9lD+y6tFqpkIoIQMg4RAUfh0KK6
+         Wwfbp+utgdZ+r1i1hW04RWiH5VYdU0mdiPpGB8DIcCsI+IupfeQ+6anQzwFCdo+wJWpT
+         nV9TgkqYd3VykDsAhd5lMfSMmXrgd36f605L+P5vjqTFjEEn8Fifu0TRTFskB/NSP27F
+         WaFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679430832;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=KTpu7F9BL2yL3dz5JaGLJyVf1Ik8YB0yHGfUTS5ixLY=;
+        b=vP8So+VNPxHO9CnEuTRerkjilFXzN3IXBbIF7z2zixB9GvNjEEQmOMtdv4C8UbBYo6
+         2G+G+W6eJxS7muLhqaDfx/rvaGVjNuf2U6qIxWR9fBu16cADAy/AXAm47gfIGf5bZbeb
+         LH+u9d/dqFP+3ZYxSdSh84YaVAxXdibXdNo4uMPg4E1N5AgimDip8Jz29lh0rEQnfwQ3
+         woTLZeVQADBQ7bCkadYNoIeZS1r8MKIxtp7XUQljrnLawDc4WbX0g56Iifd+bbqPPkHA
+         5rYqU90tUIVx2EMiNu0KRKBXRnZ2h9v8f7fggHMjrpCh6YQrbfK8pe14K6GFJ8ttztpb
+         TE2w==
+X-Gm-Message-State: AO0yUKU76PNe9rxDuNakX+jBZsbq9Jhs5mmSoVk4j9hutVTpNwwwBBtY
+        1AdP/m84pggpGkMpoJZ/ozYXDg==
+X-Google-Smtp-Source: AK7set8DiQQyI/6A7EQc/HPSa7kGeb9afOqUgPq7x5HSX2RAXq6ySWlu8V7lc1HMMxcVwyd57KB7FA==
+X-Received: by 2002:a17:907:2122:b0:92f:b290:78c with SMTP id qo2-20020a170907212200b0092fb290078cmr4179455ejb.21.1679430831701;
+        Tue, 21 Mar 2023 13:33:51 -0700 (PDT)
+Received: from [192.168.1.195] ([5.133.47.210])
+        by smtp.googlemail.com with ESMTPSA id b1-20020a1709065e4100b008ca52f7fbcbsm6212839eju.1.2023.03.21.13.33.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Mar 2023 13:33:51 -0700 (PDT)
+Message-ID: <4df4d530-f12a-cc34-692a-1f5ff784bbe5@linaro.org>
+Date:   Tue, 21 Mar 2023 20:33:49 +0000
 MIME-Version: 1.0
-Subject: Re: kernel error at led trigger "phy0tpt"
-Content-Language: de-DE
-To:     "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>, stable@vger.kernel.org,
-        regressions@lists.linux.dev
-Cc:     linux-wireless@vger.kernel.org, linux-leds@vger.kernel.org
-References: <91feceb2-0df4-19b9-5ffa-d37e3d344fdf@web.de>
- <be785bbb-d77d-9930-56d0-dcef26f07bb2@leemhuis.info>
-From:   Tobias Dahms <dahms.tobias@web.de>
-In-Reply-To: <be785bbb-d77d-9930-56d0-dcef26f07bb2@leemhuis.info>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH] clk: qcom: gfm-mux: use runtime pm while accessing
+ registers
+Content-Language: en-US
+To:     Stephen Boyd <sboyd@kernel.org>, agross@kernel.org,
+        andersson@kernel.org
+Cc:     konrad.dybcio@linaro.org, mturquette@baylibre.com,
+        linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Amit Pundir <amit.pundir@linaro.org>
+References: <20230321175758.26738-1-srinivas.kandagatla@linaro.org>
+ <c5273d67493cbb008f13d7538837828a.sboyd@kernel.org>
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+In-Reply-To: <c5273d67493cbb008f13d7538837828a.sboyd@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:uHQnkX0fYIYlHoABAFNTANHLkC3kvk98ARgpoB0OZ0avajHCvlG
- BJird9BaItFEqkVoLuUpMAKtu1xKLR8ie5pN/iECs7wAIQpK0Eu13GWGgqtMNpCn46At2EQ
- Nr30f1wbNf41laurSwZmIo+CxRtlovme6KLNHUwxdT9LRoSS8Lve1+RpeM9Ouki0TiVPx/x
- g4kEqKBOe1vO8lZt8Y4vA==
-UI-OutboundReport: notjunk:1;M01:P0:ztJnEZGelIg=;3q/vPhXE6vuP4fqPiimMQf3PhBU
- tfrInOcvw5b2yuNyHUoNWC3+t9mdSfYrQheu3IYnu5eu++8HNeAvA6aVJpR+iHY45qUEtkhyW
- 0ZBF95DHnFBEYH2mUj8CF+8nhCs55pZ1xBK8tWEkL9YaMxlWrSpBptO/1lqB8NT4foHBA01rS
- MIYH0iKRS0B6g+nU1vZKW823dxbFlqJB12+0yPD0F3HMllhqHV6KkUm286FhdRDJG0Js3c9UF
- icnPtg6IiDhMnUNH1Tbckp2XF9jS8vE8uiZNn3ScEOLOyEKn0jwN4LMG2ht4Aal2N9rldem9/
- q0Zay1FtAkNkI85u60MzoihFJDFllCjEDbFtbMW4/TKrhvcbiNogph2iz7wkidwG8Fure+K+z
- HoaqtLao9IkMKJF+4kSI76R60yNBxCKwKwA3E5+FPrscKHznI4l9mRxBzPX1j4MtWLBMG6Jl4
- LzFp7mx0hRCdJ70CkiEoKMb3SpQUuyZ3tP1M0/0kNDqV61u32wbQQBJG8siOMd0N9nfeWoZ/P
- gfnyMWES5hUK+8xBDveXy3qOT2hhxz+rbruk8Zvx8cW8NL08uSJ4l47OcoI5Yd6MeQxn54fnf
- coYxAQdo4oZDCdhDyTdzN1LXfzTzEuosJv9NzgzWMcYii1ZVH4B8Icc8VEw11V7T108SY4Oxu
- 1pnMcq0Afe/Rs63DHEWiXOND/HcjRu8IBIUD4KKoQEZ4NZrMirIKyjx6MEH7zvWMsXtrpdygk
- jwxlFj9r8+ZbYX5db+KLNH/Sv39GCnOJcxN3OJJV7opVyQ3RmTA+y0JuU/2/YcaX6oIqVVEXU
- BTJEBGeGFpiddRDLFkQvYrMOa5W22kzqjbkgdV9FIdW5MrD2wawoiQcHy7/b1Fk8z8AvGK+eI
- FxRKmzGGOKJ+9nYejwsLVVv+07VJ4ym+2Ud2BB7CmB5RStxGlGuufWyBZnwvhFCt0zvwYPuSM
- e5Zw4xtn23j7Aumk+U4V6IlNWD8=
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,60 +79,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Thorsten,
 
-all mentioned kernels are vanilla kernels. The "-bpi-r2" is only a
-suffix from CONFIG_LOCALVERSION=3D"-bpi-r2"
 
-I will bisect on weekend and come back to you.
+On 21/03/2023 18:46, Stephen Boyd wrote:
+> Quoting Srinivas Kandagatla (2023-03-21 10:57:58)
+>> gfm mux driver does support runtime pm but we never use it while
+>> accessing registers. Looks like this driver was getting lucky and
+>> totally depending on other drivers to leave the clk on.
+>>
+>> Fix this by doing runtime pm while accessing registers.
+>>
+>> Fixes: a2d8f507803e ("clk: qcom: Add support to LPASS AUDIO_CC Glitch Free Mux clocks")
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Amit Pundir <amit.pundir@linaro.org>
+> 
+> Is there a link to the report?
 
-regards
-Tobias
+https://www.spinics.net/lists/stable/msg638380.html
 
-Am 21.03.23 um 15:40 schrieb Linux regression tracking (Thorsten Leemhuis)=
-:
-> On 20.03.23 20:44, Tobias Dahms wrote:
->> Hello,
+> 
+>> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+>> ---
+>>   drivers/clk/qcom/lpass-gfm-sm8250.c | 29 ++++++++++++++++++++++++++++-
+>>   1 file changed, 28 insertions(+), 1 deletion(-)
 >>
->> since some kernel versions I get a kernel errror while setting led
->> trigger to phy0tpt.
+>> diff --git a/drivers/clk/qcom/lpass-gfm-sm8250.c b/drivers/clk/qcom/lpass-gfm-sm8250.c
+>> index 96f476f24eb2..bcf0ea534f7f 100644
+>> --- a/drivers/clk/qcom/lpass-gfm-sm8250.c
+>> +++ b/drivers/clk/qcom/lpass-gfm-sm8250.c
+>> @@ -38,14 +38,37 @@ struct clk_gfm {
+>>   static u8 clk_gfm_get_parent(struct clk_hw *hw)
+>>   {
+>>          struct clk_gfm *clk = to_clk_gfm(hw);
+>> +       int ret;
+>> +       u8 parent;
+>> +
+>> +       ret = pm_runtime_resume_and_get(clk->priv->dev);
+>> +       if (ret < 0 && ret != -EACCES) {
+>> +               dev_err_ratelimited(clk->priv->dev,
+>> +                                   "pm_runtime_resume_and_get failed in %s, ret %d\n",
+>> +                                   __func__, ret);
+>> +               return ret;
+>> +       }
+>> +
+>> +       parent = readl(clk->gfm_mux) & clk->mux_mask;
+>> +
+>> +       pm_runtime_mark_last_busy(clk->priv->dev);
+>>   
+>> -       return readl(clk->gfm_mux) & clk->mux_mask;
+>> +       return parent;
+>>   }
+>>   
+>>   static int clk_gfm_set_parent(struct clk_hw *hw, u8 index)
+>>   {
+>>          struct clk_gfm *clk = to_clk_gfm(hw);
+>>          unsigned int val;
+>> +       int ret;
+>> +
+>> +       ret = pm_runtime_resume_and_get(clk->priv->dev);
+> 
+> Doesn't the clk framework already do this? Why do we need to do it
+> again?
+
+You are right, clk core already does do pm_runtime_resume_and_get for 
+set_parent.
+
+this looks redundant here.
+
+
+so we need only need to add this for get_parent
+
+--srini
+> 
+>> +       if (ret < 0 && ret != -EACCES) {
+>> +               dev_err_ratelimited(clk->priv->dev,
+>> +                                   "pm_runtime_resume_and_get failed in %s, ret %d\n",
+>> +                                   __func__, ret);
+>> +               return ret;
+>> +       }
+>>   
+>>          val = readl(clk->gfm_mux);
 >>
->> command to reproduce:
->> echo phy0tpt > /sys/class/leds/bpi-r2\:isink\:blue/trigger
->>
->> same trigger, other led location =3D> no error:
->> echo phy0tpt > /sys/class/leds/bpi-r2\:pio\:blue/trigger
->>
->> other trigger, same led location =3D> no error:
->> echo phy0tx > /sys/class/leds/bpi-r2\:isink\:blue/trigger
->>
->> last good kernel:
->> bpi-r2 5.19.17-bpi-r2
->>
->> error at kernel versions:
->> bpi-r2 6.0.19-bpi-r2
->> up to
->> bpi-r2 6.3.0-rc1-bpi-r2+
->
-> Thx for the report.
->
-> "5.19.17-bpi-r2" sounds like a vendor kernel. Is that one that is
-> vanilla or at least close to vanilla? If not, you'll have to report this
-> to your kernel vendor. If not: could you try to bisect this?
->
->> wireless lan card:
->> 01:00.0 Network controller: MEDIATEK Corp. MT7612E 802.11acbgn PCI
->> Express Wireless Network Adapter
->>
->> distribution:
->> Arch-Linux-ARM (with vanilla kernel instead of original distribution
->> kernel)
->>
->> board:
->> BananaPi-R2
->
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-> --
-> Everything you wanna know about Linux kernel regression tracking:
-> https://linux-regtracking.leemhuis.info/about/#tldr
-> If I did something stupid, please tell me, as explained on that page.
