@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A56386C2872
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 04:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B28556C2884
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 04:20:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230036AbjCUDA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 23:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
+        id S229710AbjCUDUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 23:20:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229927AbjCUDAu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 23:00:50 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DC8F392BD
-        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 20:00:39 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=joseph.qi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VeLAXn8_1679367634;
-Received: from localhost(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0VeLAXn8_1679367634)
+        with ESMTP id S229497AbjCUDUe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 23:20:34 -0400
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249A92CFEF
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 20:20:31 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R631e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=joseph.qi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VeLC9Fu_1679368827;
+Received: from localhost(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0VeLC9Fu_1679368827)
           by smtp.aliyun-inc.com;
-          Tue, 21 Mar 2023 11:00:35 +0800
+          Tue, 21 Mar 2023 11:20:28 +0800
 From:   Joseph Qi <joseph.qi@linux.alibaba.com>
 To:     stable@vger.kernel.org
 Cc:     Jan Kara via Ocfs2-devel <ocfs2-devel@oss.oracle.com>,
@@ -30,17 +30,17 @@ Cc:     Jan Kara via Ocfs2-devel <ocfs2-devel@oss.oracle.com>,
         Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>
 Subject: [PATCH] ocfs2: fix data corruption after failed write
-Date:   Tue, 21 Mar 2023 11:00:32 +0800
-Message-Id: <20230321030032.237859-1-joseph.qi@linux.alibaba.com>
+Date:   Tue, 21 Mar 2023 11:20:24 +0800
+Message-Id: <20230321032024.165992-1-joseph.qi@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
-In-Reply-To: <1679313445246112@kroah.com>
-References: <1679313445246112@kroah.com>
+In-Reply-To: <16793134471133@kroah.com>
+References: <16793134471133@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -79,10 +79,10 @@ Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
  1 file changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index ad20403b383f..9b23e74036eb 100644
+index b6948813eb06..1353db3f7f48 100644
 --- a/fs/ocfs2/aops.c
 +++ b/fs/ocfs2/aops.c
-@@ -1981,11 +1981,25 @@ int ocfs2_write_end_nolock(struct address_space *mapping,
+@@ -2003,11 +2003,25 @@ int ocfs2_write_end_nolock(struct address_space *mapping,
  	}
  
  	if (unlikely(copied < len) && wc->w_target_page) {
