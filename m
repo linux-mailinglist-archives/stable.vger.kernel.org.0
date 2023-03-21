@@ -2,117 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05AA66C3DCC
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 23:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E88846C3DD8
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 23:48:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbjCUWjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 18:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42366 "EHLO
+        id S229823AbjCUWs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 18:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbjCUWjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 18:39:42 -0400
-Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4EB458C02
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 15:39:40 -0700 (PDT)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 8224510044F54
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 22:39:40 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id ekdop8ctiRSTPekdop9sqU; Tue, 21 Mar 2023 22:39:40 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=VeEygHl9 c=1 sm=1 tr=0 ts=641a322c
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=k__wU0fu6RkA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=rfUgbRho1piRMPMoZasA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=hUW8pYd+LpC4DENJtd2TZsFH9B+ajPMexhgePaVCXTI=; b=YuufMZlMKj7oRLVDFXwO3b4FrG
-        JLWDA2BmXmq3yFVFiLh0QAqx2mh/lM5FHorczcq+VuDWWsbLyvpnwhDSV+qori5qW4L+hfPbe8wST
-        zWlo1QdCT9A3G1dwLwn6hDWornt3zxMfxQsapobq/MrdZRq7rPAh+MFmDCzxfn4OsonnDnpwqOY1L
-        N81eLvW79IMxo1XhTN6M3Wi1rEqX3KtuWesFksPxRD4kPh3jioA1elYzpo7zOIvlgR6qGGOdU8vsA
-        d+K/nzfmQPtVzv2+imVVkyTbjoloznaC8v7fkcp6Q1zYksupz3q9sTfnIefQ+hKgDWaBl+YyD8zvU
-        W7OS5Ntg==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:32786 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pekdm-000EuT-VH;
-        Tue, 21 Mar 2023 16:39:39 -0600
-Subject: Re: [PATCH 5.15 000/115] 5.15.104-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230320145449.336983711@linuxfoundation.org>
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <bb957243-48f6-5aee-281e-d820c3de6155@w6rz.net>
-Date:   Tue, 21 Mar 2023 15:39:33 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229970AbjCUWsy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 18:48:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26BE8EB44;
+        Tue, 21 Mar 2023 15:48:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5F41B80D5C;
+        Tue, 21 Mar 2023 22:48:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C88C433D2;
+        Tue, 21 Mar 2023 22:48:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679438930;
+        bh=eRkCIDKtMuOnkY12HfzUf0za5OR3niuDosLQfAgVtEA=;
+        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+        b=lY8hziGCpjvnfSPvhRPK1muiFE0geLAf8x7mxf377TCmLwVpqG/fVp9KMlZijkz7i
+         L8JMzlc5H33OOxevLOEGtr7KXLfshUbd6OjjlKTD6PzIopM49GQfRqRuZGxGd3bJwr
+         abuPRxzu2NtCx5YagH4C/EZjXQs/KUgG0xsnWNhYATX7sNCkDQSCOoQeSiSZDzTXgn
+         Zz214VkrHVFtHkY+Q2OHbn+kqxoSOyW436gG9IYHJfvIwVJM4JkRAXCH/p4UVkS7ZB
+         PuY57Rwe5LPDUXEuwdn7wvrzyp/k33COAlLhEtFg0n1y7t+GHCpfI99WY7oDLYioUT
+         E/MoJgetUvBwQ==
+Message-ID: <ab6757652325303964d3de29f920befe.sboyd@kernel.org>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pekdm-000EuT-VH
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:32786
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 34
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <4df4d530-f12a-cc34-692a-1f5ff784bbe5@linaro.org>
+References: <20230321175758.26738-1-srinivas.kandagatla@linaro.org> <c5273d67493cbb008f13d7538837828a.sboyd@kernel.org> <4df4d530-f12a-cc34-692a-1f5ff784bbe5@linaro.org>
+Subject: Re: [PATCH] clk: qcom: gfm-mux: use runtime pm while accessing registers
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     konrad.dybcio@linaro.org, mturquette@baylibre.com,
+        linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Amit Pundir <amit.pundir@linaro.org>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        agross@kernel.org, andersson@kernel.org
+Date:   Tue, 21 Mar 2023 15:48:48 -0700
+User-Agent: alot/0.10
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/20/23 7:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.104 release.
-> There are 115 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Mar 2023 14:54:26 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.104-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Quoting Srinivas Kandagatla (2023-03-21 13:33:49)
+>=20
+>=20
+> On 21/03/2023 18:46, Stephen Boyd wrote:
+> > Quoting Srinivas Kandagatla (2023-03-21 10:57:58)
+> >> gfm mux driver does support runtime pm but we never use it while
+> >> accessing registers. Looks like this driver was getting lucky and
+> >> totally depending on other drivers to leave the clk on.
+> >>
+> >> Fix this by doing runtime pm while accessing registers.
+> >>
+> >> Fixes: a2d8f507803e ("clk: qcom: Add support to LPASS AUDIO_CC Glitch =
+Free Mux clocks")
+> >> Cc: stable@vger.kernel.org
+> >> Reported-by: Amit Pundir <amit.pundir@linaro.org>
+> >=20
+> > Is there a link to the report?
+>=20
+> https://www.spinics.net/lists/stable/msg638380.html
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Please add a Link: after the reported-by and use a lore link instead of
+spinics please.
 
-Tested-by: Ron Economos <re@w6rz.net>
+> >>   {
+> >>          struct clk_gfm *clk =3D to_clk_gfm(hw);
+> >>          unsigned int val;
+> >> +       int ret;
+> >> +
+> >> +       ret =3D pm_runtime_resume_and_get(clk->priv->dev);
+> >=20
+> > Doesn't the clk framework already do this? Why do we need to do it
+> > again?
+>=20
+> You are right, clk core already does do pm_runtime_resume_and_get for=20
+> set_parent.
+>=20
+> this looks redundant here.
+>=20
+>=20
+> so we need only need to add this for get_parent
+>=20
 
+The get_parent() clk op is called from a couple places in the clk
+framework. I guess that you're getting called from
+clk_core_reparent_orphans() where the runtime PM count isn't
+incremented? Can you confirm? Either way, this should be fixed in the
+framework and not in the driver.
