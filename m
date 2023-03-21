@@ -2,96 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D60F6C2CCD
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 09:44:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C0E6C2CD6
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 09:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229900AbjCUIo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 04:44:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53354 "EHLO
+        id S230093AbjCUIqy convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 21 Mar 2023 04:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229869AbjCUIoZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 04:44:25 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B31347413;
-        Tue, 21 Mar 2023 01:43:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1679388204; x=1710924204;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=btMS0huDMUYhEmGuZe82nAyhxOj5XzUpq5NA/2S108g=;
-  b=S3A4PWZyCEnf03oEsWjmJjWeYV++mV/b0Im/oYpx7YyujKfVUgRcLmq4
-   s+u/bB5/C0/ohoTu2sqmQc1uyxYvVzpLg2773eXF5TjkAoeaDMTEsLl+1
-   GJ3ekWHI9CP6YtOwWpKGnSOLRlQm2NF5nI5zJ+7h5IPwZiQQBwm4U6OXo
-   +ZXMRZK9FhJhlXiEiYuvGSw7YRD8LSrIc9XxiCrnV1Pm3oQOyORYn3Q/b
-   t3xgCgtuUvz6vHCup4OSFL/lpz2swnfwgX97yIVrnOeB3D7+QVqatGlI6
-   UX+Tc1d7MOvS/5P31HPRZUjV+pCdrdwuYX+8XNALYkg23Vt7/3YMaMH/L
-   w==;
-X-IronPort-AV: E=Sophos;i="5.98,278,1673938800"; 
-   d="asc'?scan'208";a="143082697"
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 21 Mar 2023 01:43:11 -0700
-Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Tue, 21 Mar 2023 01:43:11 -0700
-Received: from wendy (10.10.115.15) by chn-vm-ex04.mchp-main.com
- (10.10.85.152) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21 via Frontend
- Transport; Tue, 21 Mar 2023 01:43:09 -0700
-Date:   Tue, 21 Mar 2023 08:42:39 +0000
-From:   Conor Dooley <conor.dooley@microchip.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>, <patches@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <srw@sladewatkins.net>,
-        <rwarsow@gmx.de>
-Subject: Re: [PATCH 6.1 000/198] 6.1.21-rc1 review
-Message-ID: <174b5c37-b4cc-4ec4-89f1-8eca4ccd3043@spud>
-References: <20230320145507.420176832@linuxfoundation.org>
+        with ESMTP id S230012AbjCUIqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 04:46:48 -0400
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC771B4;
+        Tue, 21 Mar 2023 01:45:50 -0700 (PDT)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1peXcb-002Leu-VU; Tue, 21 Mar 2023 09:45:33 +0100
+Received: from p57bd9952.dip0.t-ipconnect.de ([87.189.153.82] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1peXcb-001BoR-OK; Tue, 21 Mar 2023 09:45:33 +0100
+Message-ID: <fa8b4f3ca8f3d9dc0487399962bcc6ef75ebd6b0.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH 6/7 v5] sh: fix Kconfig entry for NUMA => SMP
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Tue, 21 Mar 2023 09:45:33 +0100
+In-Reply-To: <CAMuHMdW-oxpoHubUJUpsjG9aXtQ3MMwAopN-hS+Mf0gN1udhig@mail.gmail.com>
+References: <20230320231310.28841-1-rdunlap@infradead.org>
+         <CAMuHMdXnbRvCjtgpbMnUVoRbHSk407t7Sr4XPpoiaE7M1h+4Ng@mail.gmail.com>
+         <ad2234ad155d51c142e59adcf2981bce23d69aa4.camel@physik.fu-berlin.de>
+         <CAMuHMdW-oxpoHubUJUpsjG9aXtQ3MMwAopN-hS+Mf0gN1udhig@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.46.4 
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3ranM69fegQ07Uvr"
-Content-Disposition: inline
-In-Reply-To: <20230320145507.420176832@linuxfoundation.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 87.189.153.82
+X-ZEDAT-Hint: PO
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---3ranM69fegQ07Uvr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Geert!
 
-On Mon, Mar 20, 2023 at 03:52:18PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.21 release.
-> There are 198 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, 2023-03-21 at 09:42 +0100, Geert Uytterhoeven wrote:
+> Hi Adrian,
+> 
+> On Tue, Mar 21, 2023 at 9:10 AM John Paul Adrian Glaubitz
+> <glaubitz@physik.fu-berlin.de> wrote:
+> > On Tue, 2023-03-21 at 08:55 +0100, Geert Uytterhoeven wrote:
+> > > On Tue, Mar 21, 2023 at 12:13 AM Randy Dunlap <rdunlap@infradead.org> wrote:
+> > > > Fix SUPERH builds that select SYS_SUPPORTS_NUMA but do not select
+> > > > SYS_SUPPORTS_SMP and SMP.
+> > > 
+> > > Perhaps because these SoCs do not support SMP?
+> > 
+> > Well, there is actually a dual-core 7786 board available, see:
+> > 
+> > > https://www.apnet.co.jp/product/superh/ap-sh4ad-0a.html
+> > 
+> > Quoting:
+> > 
+> > »The SH7786 is equipped with a dual-core SH-4A and has interfaces such as
+> >  DDR3 SDRAM, PCI Express, USB, and display unit.«
+> 
+> SH7786 is dual-core...
+> 
+> > FWIW, I just realized we need this for config CPU_SUBTYPE_SH7786 as well.
+> 
+> ... and CPU_SUBTYPE_SH7786 selects CPU_SHX3, which selects
+> SYS_SUPPORTS_SMP and SYS_SUPPORTS_NUMA in turn.
+> So everything is fine for SH7786.
 
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Yeah, this explains it then. Your new patch is definitely the better approach
+and I would prefer it over Randy's suggested change. Let's see what the mm
+maintainers have to say.
 
 Thanks,
-Conor.
+Adrian
 
---3ranM69fegQ07Uvr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZBlt8AAKCRB4tDGHoIJi
-0osqAQCXp7XGbmO3waPebaOqtK+o/IFEysCgiDT7zf72nI9BGwEA0mQccjPondSp
-o1T13gT3EdwtFKCNYQ0yXOVc4mTLTQA=
-=g0Vt
------END PGP SIGNATURE-----
-
---3ranM69fegQ07Uvr--
+-- 
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
