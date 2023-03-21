@@ -2,178 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 478FE6C3B04
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 20:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6EFD6C3B11
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 20:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbjCUTwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 15:52:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
+        id S229796AbjCUTz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 15:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjCUTwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 15:52:40 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2FE580FA
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 12:51:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679428261;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=b040N8CNxfbYJhZz1b4CUOkkZsaH37yKg0qihqmHA8c=;
-        b=Gn/+ylrGGxwKesZJkMdCyvg4hoB6bK/waMmaIFZhtbUSyIY49I3itNR77VOT3soGns5wki
-        LhGvXcVGg9clFmln/v949wOawmxPUBL7ldh/6IqETpB9ay2S2AUafzI7Fez6emSNMpld6l
-        Ev/1o4DE8ofj1EB+leIGCySkA04YYx4=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-587-75TqA8wbMX6CHV7V0mGTLw-1; Tue, 21 Mar 2023 15:51:00 -0400
-X-MC-Unique: 75TqA8wbMX6CHV7V0mGTLw-1
-Received: by mail-qt1-f198.google.com with SMTP id c14-20020ac87d8e000000b003e38726ec8bso1063041qtd.23
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 12:51:00 -0700 (PDT)
+        with ESMTP id S229906AbjCUTz2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 15:55:28 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 928DA5257
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 12:55:25 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id z19so6808933plo.2
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 12:55:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679428524;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q/wUwxvW+FfThUfdWCfnXj78MTC+zyznEfwwlCcll78=;
+        b=sKPpwpVwDcvSjMCFibi/QjkT59oMAqhZkxVl6BnNA9pgfQYS4EDuP2QjxEcodO/prf
+         Yq8R880DJ+geg540r1HXawIJel6uOC480AwODyfCWVjspuGhir70JYsDG6573vXNJ+Ci
+         li3efWJb1HmoSH0x0HGorX8eOk05wOKhqFhFu5ZUaYBhMAtjT8ohskhYYIuqsVZTqe0u
+         npsttSUXQlOO34mcAZFigJNEtAx/eLfuAtHkDNjySiukuDnjNeJ0U9/4GVMKe1wQRjgQ
+         1nTg2TeQ2VOl7WZGh3Ia1kUbV0vXXqwkyNLJDWaDdKYyq9EftHj8BtzkOH4OBi7MVXz2
+         JS8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679428259; x=1682020259;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b040N8CNxfbYJhZz1b4CUOkkZsaH37yKg0qihqmHA8c=;
-        b=nCkC1PUn0CGd2u9DP+zwHHoDuzF+VoJwLL9QjXBe4PAZapJQc8sJ2ipG6GvDL/bNZc
-         4fAjxZOEqKnWE/jEZLs7qOFMPMJ/LzIe0gMM+Bd4bJ8Kkl0+/6UZI73y960vEzuyni0I
-         2O9rVqsOfVTpUvmBjsSy85UpF/pUCgJlyzjXbPK+AzfjrgNLdlwfINTZ3QE6xDASOLfy
-         BBQC1/fcAefX+0/vMLuphUE2IlZSHKb/GcSo+f8LxWfw3sMJ2Zyqb86BlA5sh+Yj8cBn
-         CzJWDLamHxyS3gBZCONgrSQ9+XnGETZDlflyerlSDY/JQhTHRzanx/ZH1EJnaW00lPY0
-         ncIw==
-X-Gm-Message-State: AO0yUKWAEg/WH97Eh7TzPmlVQ/3y2DZclT8XrQyF6evtdtgD4zX93+PC
-        QRN6jIdft9OaKtdtkMgb9yTYuSBEKFfCr8QwEzVO2BC1nS2cV/IrWJnQavjdJ6pPQ5PQx4kTWl6
-        3of1WxS3ec+j+IKr88sP6Vgtr
-X-Received: by 2002:a05:6214:528e:b0:56e:f7dd:47ad with SMTP id kj14-20020a056214528e00b0056ef7dd47admr5782767qvb.5.1679428259572;
-        Tue, 21 Mar 2023 12:50:59 -0700 (PDT)
-X-Google-Smtp-Source: AK7set+sVDRBm/gwJm/iFwMYO6SbODkEMeOMDTM6JC6ocZJrlH5/OeyrDjWyRXgOS0eDEVvUVqyHGA==
-X-Received: by 2002:a05:6214:528e:b0:56e:f7dd:47ad with SMTP id kj14-20020a056214528e00b0056ef7dd47admr5782743qvb.5.1679428259230;
-        Tue, 21 Mar 2023 12:50:59 -0700 (PDT)
-Received: from x1n (bras-base-aurron9127w-grc-40-70-52-229-124.dsl.bell.ca. [70.52.229.124])
-        by smtp.gmail.com with ESMTPSA id c23-20020a379a17000000b007436d0e9408sm4882350qke.127.2023.03.21.12.50.58
+        d=1e100.net; s=20210112; t=1679428524;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Q/wUwxvW+FfThUfdWCfnXj78MTC+zyznEfwwlCcll78=;
+        b=g8tAOiI5owgYXMI6PYNct6AC8pXHWjZBZtTJQ+AEay7oCF1ViWOeKID9t7D4i+3uvM
+         vjxJwtEWWpGmMfStC9N7SOnaSxr1NaTsVJDV89247Mdg8Kg1BYvOyu2pLU1+ExRzBh6l
+         kPXSB3Nz5bH+0CoJj1MFzYqRmM8lAqxy8vC5k1fcDZrrwX4BDtJyMvqebnoQ7u3VkFMn
+         InwHumYd6hALKIFtbkpTxoAm/4x/pFEQQ78X/BceyPFiSLoezc4V2AM2fTZmvW/OSewI
+         VfVelFaJGYCRdl56iRxiUqvVgp4PUylVzcURhyxjTLW/6NMfKErwcY9rerDCJBmYamXT
+         PsGg==
+X-Gm-Message-State: AO0yUKXwK538lJa+mjKPjj4tX80oLwhAhN+XsUXjvNobS+twfsHmP4cJ
+        ezXWs0iwz6AI25wvq20Ro4XF43R9Ut/35RS+JQfPXw==
+X-Google-Smtp-Source: AK7set9lipDyYxYYXFvZIllDRm79g4f91lxs09dzuHKF6D+V4r9tQKqLMTd1M2/ClOK0IxAYQG5xDw==
+X-Received: by 2002:a17:902:dad1:b0:1a1:9fa4:1b18 with SMTP id q17-20020a170902dad100b001a19fa41b18mr344531plx.19.1679428524070;
+        Tue, 21 Mar 2023 12:55:24 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ji17-20020a170903325100b00199023c688esm9166918plb.26.2023.03.21.12.55.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Mar 2023 12:50:58 -0700 (PDT)
-Date:   Tue, 21 Mar 2023 15:50:57 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        linux-stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] mm/hugetlb: Fix uffd wr-protection for CoW optimization
- path
-Message-ID: <ZBoKod6+twRYvSYz@x1n>
-References: <20230321191840.1897940-1-peterx@redhat.com>
- <44aae7fc-fb1f-b38e-bc17-504abf054e3f@redhat.com>
+        Tue, 21 Mar 2023 12:55:23 -0700 (PDT)
+Message-ID: <641a0bab.170a0220.34137.0ed1@mx.google.com>
+Date:   Tue, 21 Mar 2023 12:55:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <44aae7fc-fb1f-b38e-bc17-504abf054e3f@redhat.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.103-115-gac0c67f7c475
+Subject: stable-rc/queue/5.15 baseline: 179 runs,
+ 1 regressions (v5.15.103-115-gac0c67f7c475)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 21, 2023 at 08:36:35PM +0100, David Hildenbrand wrote:
-> On 21.03.23 20:18, Peter Xu wrote:
-> > This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
-> > writable even with uffd-wp bit set.  It only happens with all these
-> > conditions met: (1) hugetlb memory (2) private mapping (3) original mapping
-> > was missing, then (4) being wr-protected (IOW, pte marker installed).  Then
-> > write to the page to trigger.
-> > 
-> > Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
-> > even reaching hugetlb_wp() to avoid taking more locks that userfault won't
-> > need.  However there's one CoW optimization path for missing hugetlb page
-> > that can trigger hugetlb_wp() inside hugetlb_no_page(), that can bypass the
-> > userfaultfd-wp traps.
-> > 
-> > A few ways to resolve this:
-> > 
-> >    (1) Skip the CoW optimization for hugetlb private mapping, considering
-> >    that private mappings for hugetlb should be very rare, so it may not
-> >    really be helpful to major workloads.  The worst case is we only skip the
-> >    optimization if userfaultfd_wp(vma)==true, because uffd-wp needs another
-> >    fault anyway.
-> > 
-> >    (2) Move the userfaultfd-wp handling for hugetlb from hugetlb_fault()
-> >    into hugetlb_wp().  The major cons is there're a bunch of locks taken
-> >    when calling hugetlb_wp(), and that will make the changeset unnecessarily
-> >    complicated due to the lock operations.
-> > 
-> >    (3) Carry over uffd-wp bit in hugetlb_wp(), so it'll need to fault again
-> >    for uffd-wp privately mapped pages.
-> > 
-> > This patch chose option (3) which contains the minimum changeset (simplest
-> > for backport) and also make sure hugetlb_wp() itself will start to be
-> > always safe with uffd-wp ptes even if called elsewhere in the future.
-> > 
-> > This patch will be needed for v5.19+ hence copy stable.
-> > 
-> > Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-> > Cc: linux-stable <stable@vger.kernel.org>
-> > Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
-> > Signed-off-by: Peter Xu <peterx@redhat.com>
-> > ---
-> >   mm/hugetlb.c | 8 +++++---
-> >   1 file changed, 5 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> > index 8bfd07f4c143..22337b191eae 100644
-> > --- a/mm/hugetlb.c
-> > +++ b/mm/hugetlb.c
-> > @@ -5478,7 +5478,7 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
-> >   		       struct folio *pagecache_folio, spinlock_t *ptl)
-> >   {
-> >   	const bool unshare = flags & FAULT_FLAG_UNSHARE;
-> > -	pte_t pte;
-> > +	pte_t pte, newpte;
-> >   	struct hstate *h = hstate_vma(vma);
-> >   	struct page *old_page;
-> >   	struct folio *new_folio;
-> > @@ -5622,8 +5622,10 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
-> >   		mmu_notifier_invalidate_range(mm, range.start, range.end);
-> >   		page_remove_rmap(old_page, vma, true);
-> >   		hugepage_add_new_anon_rmap(new_folio, vma, haddr);
-> > -		set_huge_pte_at(mm, haddr, ptep,
-> > -				make_huge_pte(vma, &new_folio->page, !unshare));
-> > +		newpte = make_huge_pte(vma, &new_folio->page, !unshare);
-> > +		if (huge_pte_uffd_wp(pte))
-> > +			newpte = huge_pte_mkuffd_wp(newpte);
-> > +		set_huge_pte_at(mm, haddr, ptep, newpte);
-> >   		folio_set_hugetlb_migratable(new_folio);
-> >   		/* Make the old page be freed below */
-> >   		new_folio = page_folio(old_page);
-> 
-> Looks correct to me. Do we have a reproducer?
+stable-rc/queue/5.15 baseline: 179 runs, 1 regressions (v5.15.103-115-gac0c=
+67f7c475)
 
-I used a reproducer for the async mode I wrote (patch 2 attached, need to
-change to VM_PRIVATE):
+Regressions Summary
+-------------------
 
-https://lore.kernel.org/all/ZBNr4nohj%2FTw4Zhw@x1n/
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
 
-I don't think kernel kselftest can trigger it because we don't do strict
-checks yet with uffd-wp bits.  I've already started looking into cleanup
-the test cases and I do plan to add new tests to cover this.
 
-Meanwhile, let's also wait for an ack from Muhammad.  Even though the async
-mode is not part of the code base, it'll be a good test for verifying every
-single uffd-wp bit being set or cleared as expected.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.103-115-gac0c67f7c475/plan/baseline/
 
-> Acked-by: David Hildenbrand <david@redhat.com>
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.103-115-gac0c67f7c475
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ac0c67f7c4752d245e461a5ee01fc9efbcd1d7af =
 
-Thanks,
 
--- 
-Peter Xu
 
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6419d7ece0b8c993519c9529
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.103=
+-115-gac0c67f7c475/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.103=
+-115-gac0c67f7c475/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6419d7ece0b8c993519c9532
+        failing since 63 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
+ fail: v5.15.87-100-ge215d5ead661)
+
+    2023-03-21T16:14:02.941762  <8>[   10.005871] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3432201_1.5.2.4.1>
+    2023-03-21T16:14:03.048398  / # #
+    2023-03-21T16:14:03.149802  export SHELL=3D/bin/sh
+    2023-03-21T16:14:03.150170  #
+    2023-03-21T16:14:03.251362  / # export SHELL=3D/bin/sh. /lava-3432201/e=
+nvironment
+    2023-03-21T16:14:03.251926  =
+
+    2023-03-21T16:14:03.353407  / # . /lava-3432201/environment/lava-343220=
+1/bin/lava-test-runner /lava-3432201/1
+    2023-03-21T16:14:03.354259  =
+
+    2023-03-21T16:14:03.359099  / # /lava-3432201/bin/lava-test-runner /lav=
+a-3432201/1
+    2023-03-21T16:14:03.442260  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =20
