@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F3476C2F5E
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 11:47:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEE86C2FBD
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 12:05:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229653AbjCUKqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 06:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45364 "EHLO
+        id S229990AbjCULFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 07:05:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230436AbjCUKqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 06:46:38 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4180983E1;
-        Tue, 21 Mar 2023 03:46:36 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id r29so13127743wra.13;
-        Tue, 21 Mar 2023 03:46:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679395595;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=t4AxwrNbXBosIdWOTlqnL08w0o4lntoCcy4bybyLIr0=;
-        b=OhYnpS1gk4YXU3Ngn85LyLKtfXXH/KOn2nGOozP4T6yreJX1sEkfYe9/dDK9vxQ2SH
-         q41JPPd59YDUe8b2JgV2b58T+VWuigI5Od8y+cJuCeTkEvPWAXY5ZhSzSRE2w3DxeBCH
-         OZSWwjA3LKC04+NZu+dyjqPRoVWUXJSF6FPIYegwWujDHqv89BV/egFG/Q/u61IFidOz
-         1hgf0cvdC3xJ5nWrEdxJ41MvFyInRxaERXbgKYE05OEV6YzeYnfQzIDHFu8QJTa9Yo/Z
-         1uNfdi4nLE21dFzKIaqfkPDrkk/D1SH5APteRC/uUhSrauwJMKOdUtztPIXVWhOSRjv3
-         vkQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679395595;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=t4AxwrNbXBosIdWOTlqnL08w0o4lntoCcy4bybyLIr0=;
-        b=q+BNzUAXQGAgAVBUBHI+knSsvGXujbcCrpPlodV+zdj+hMVlQ+sqAmLBO64gdlk+U9
-         LcoUbnwbvigyZmhNn4m9EFU7jTUluhCfG7YNYdkzN6RcNlj+ZHZ/ed4qMoi2uuosK6DA
-         YGIo28gLVnYk3pUX9CPRCJPywVYU+NndIpxEmhSsOBmi9+owo4chikBskjzO2e3cKZH+
-         1PHwLgMcxCd9MWedPS5c6BK+s8J8dBudxXuMRfND+gwayj3bJ6mTj5rTcju46SpmnZGn
-         Qj6uepsfpeDNvy+bVf4AM9oBJ3MG9Smz9xYTSJo8Bbq8JnOs4JCLvwBy0Dk3JoSEpJ9R
-         oY6g==
-X-Gm-Message-State: AO0yUKVwytQ7DifUbNxeoEkW5YC5SObszF70yGU2/x0PjuK8tqdNgYMP
-        v3eGm6VsB1wI6IQJD7imo/25+GIT0rU=
-X-Google-Smtp-Source: AK7set8phuvShdcncxaugj14Gu9OfaHJJOrx/MrybQyndt01XkYmqvNbxb8r4MwelS4o4h8rkds4ig==
-X-Received: by 2002:a5d:6a44:0:b0:2cf:efa5:5322 with SMTP id t4-20020a5d6a44000000b002cfefa55322mr11436400wrw.14.1679395594500;
-        Tue, 21 Mar 2023 03:46:34 -0700 (PDT)
-Received: from amir-ThinkPad-T480.lan ([5.29.249.86])
-        by smtp.gmail.com with ESMTPSA id a7-20020a5d5087000000b002c55306f6edsm10990645wrt.54.2023.03.21.03.46.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Mar 2023 03:46:34 -0700 (PDT)
-From:   Amir Goldstein <amir73il@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Jeff Layton <jlayton@kernel.org>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        stable@vger.kernel.org, linux-nfs@vger.kernel.org
-Subject: [PATCH 5.15] lockd: set file_lock start and end when decoding nlm4 testargs
-Date:   Tue, 21 Mar 2023 12:46:28 +0200
-Message-Id: <20230321104628.37323-1-amir73il@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229964AbjCULF3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 07:05:29 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DB02B63E;
+        Tue, 21 Mar 2023 04:05:23 -0700 (PDT)
+X-UUID: 44070bc4c7d811eda9a90f0bb45854f4-20230321
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=mdqNGlxEp7pDLOgt43rQf5lzDoIlr9ne3YAiYLzanzo=;
+        b=JBcVHiunIjNJiZmDiy5N0KI1NMn9DgtjIHjrHf1GKMBUTJEGBBqVlAnkDW5ZecOZjIjqP8yT84tFjWlNnCw4QtPfcHWbAstswbIWZQhBPDXJhxJ6OJ/8WtBoq20m1AxKiaizu69lp/IEJthRszhA9jKBp7yqkhoZJkJolUKittk=;
+X-CID-CACHE: Type:Local,Time:202303211905+08,HitQuantity:1
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.22,REQID:30b75a4c-bac2-46b8-9add-6a517f47c7c9,IP:0,U
+        RL:0,TC:0,Content:-5,EDM:-30,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+        ON:release,TS:-35
+X-CID-META: VersionHash:120426c,CLOUDID:5c5de8b3-beed-4dfc-bd9c-e1b22fa6ccc4,B
+        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:2,IP:nil,UR
+        L:11|1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
+X-CID-BVR: 0
+X-CID-BAS: 0,_,0,_
+X-UUID: 44070bc4c7d811eda9a90f0bb45854f4-20230321
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
+        (envelope-from <tze-nan.wu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1161388397; Tue, 21 Mar 2023 19:05:18 +0800
+Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.25; Tue, 21 Mar 2023 19:05:16 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.1118.25 via Frontend Transport; Tue, 21 Mar 2023 19:05:16 +0800
+From:   Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        "Tom Zanussi" <zanussi@kernel.org>
+CC:     <bobule.chang@mediatek.com>, <Tze-nan.Wu@mediatek.com>,
+        <cheng-jui.wang@mediatek.com>, <wsd_upstream@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>, <stable@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-trace-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>
+Subject: [PATCH] tracing/synthetic: Fix races on freeing last_cmd
+Date:   Tue, 21 Mar 2023 19:04:43 +0800
+Message-ID: <20230321110444.1587-1-Tze-nan.Wu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+        T_SPF_TEMPERROR,UNPARSEABLE_RELAY,URIBL_BLOCKED autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,114 +69,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: "Tze-nan Wu" <Tze-nan.Wu@mediatek.com>
 
-commit 7ff84910c66c9144cc0de9d9deed9fb84c03aff0 upstream.
+Currently, the "last_cmd" variable can be accessed by multiple processes
+asynchronously when multiple users manipulate synthetic_events node
+at the same time, it could lead to use-after-free or double-free.
 
-Commit 6930bcbfb6ce dropped the setting of the file_lock range when
-decoding a nlm_lock off the wire. This causes the client side grant
-callback to miss matching blocks and reject the lock, only to rerequest
-it 30s later.
+This patch add "lastcmd_mutex" to prevent "last_cmd" from being accessed
+asynchronously.
 
-Add a helper function to set the file_lock range from the start and end
-values that the protocol uses, and have the nlm_lock decoder call that to
-set up the file_lock args properly.
+================================================================
 
-Fixes: 6930bcbfb6ce ("lockd: detect and reject lock arguments that overflow")
-Reported-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Tested-by: Amir Goldstein <amir73il@gmail.com>
-Cc: stable@vger.kernel.org #6.0
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+It's easy to reproduce in the KASAN environment by running the two
+scripts below in different shells.
+
+script 1:
+        while :
+        do
+                echo -n -e '\x88' > /sys/kernel/tracing/synthetic_events
+        done
+
+script 2:
+        while :
+        do
+                echo -n -e '\xb0' > /sys/kernel/tracing/synthetic_events
+        done
+
+================================================================
+double-free scenario:
+
+    process A                       process B
+-------------------               ---------------
+1.kstrdup last_cmd
+                                  2.free last_cmd
+3.free last_cmd(double-free)
+
+================================================================
+use-after-free scenario:
+
+    process A                       process B
+-------------------               ---------------
+1.kstrdup last_cmd
+                                  2.free last_cmd
+3.tracing_log_err(use-after-free)
+
+================================================================
+
+Appendix 1. KASAN report double-free:
+
+BUG: KASAN: double-free in kfree+0xdc/0x1d4
+Free of addr ***** by task sh/4879
+Call trace:
+        ...
+        kfree+0xdc/0x1d4
+        create_or_delete_synth_event+0x60/0x1e8
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Allocated by task 4879:
+        ...
+        kstrdup+0x5c/0x98
+        create_or_delete_synth_event+0x6c/0x1e8
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Freed by task 5464:
+        ...
+        kfree+0xdc/0x1d4
+        create_or_delete_synth_event+0x60/0x1e8
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+================================================================
+Appendix 2. KASAN report use-after-free:
+
+BUG: KASAN: use-after-free in strlen+0x5c/0x7c
+Read of size 1 at addr ***** by task sh/5483
+sh: CPU: 7 PID: 5483 Comm: sh
+        ...
+        __asan_report_load1_noabort+0x34/0x44
+        strlen+0x5c/0x7c
+        tracing_log_err+0x60/0x444
+        create_or_delete_synth_event+0xc4/0x204
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Allocated by task 5483:
+        ...
+        kstrdup+0x5c/0x98
+        create_or_delete_synth_event+0x80/0x204
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Freed by task 5480:
+        ...
+        kfree+0xdc/0x1d4
+        create_or_delete_synth_event+0x74/0x204
+        trace_parse_run_command+0x2bc/0x4b8
+        synth_events_write+0x20/0x30
+        vfs_write+0x200/0x830
+        ...
+
+Fixes: 27c888da9867 ("tracing: Remove size restriction on synthetic event cmd error logging")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
 ---
+ kernel/trace/trace_events_synth.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-Greg,
-
-The upstream fix applies cleanly to 6.1.y and 6.2.y, so as the
-Cc stable mentions, please apply upstream fix to those trees.
-
-Alas, the regressing commit was also applied to v5.15.61,
-so please apply this backport to fix 5.15.y.
-
-Thanks,
-Amir.
-
- fs/lockd/clnt4xdr.c        |  9 +--------
- fs/lockd/xdr4.c            | 13 ++++++++++++-
- include/linux/lockd/xdr4.h |  1 +
- 3 files changed, 14 insertions(+), 9 deletions(-)
-
-diff --git a/fs/lockd/clnt4xdr.c b/fs/lockd/clnt4xdr.c
-index 7df6324ccb8a..8161667c976f 100644
---- a/fs/lockd/clnt4xdr.c
-+++ b/fs/lockd/clnt4xdr.c
-@@ -261,7 +261,6 @@ static int decode_nlm4_holder(struct xdr_stream *xdr, struct nlm_res *result)
- 	u32 exclusive;
- 	int error;
- 	__be32 *p;
--	s32 end;
+diff --git a/kernel/trace/trace_events_synth.c b/kernel/trace/trace_events_synth.c
+index 46d0abb32d0f..f0ff730125bf 100644
+--- a/kernel/trace/trace_events_synth.c
++++ b/kernel/trace/trace_events_synth.c
+@@ -44,14 +44,21 @@ enum { ERRORS };
  
- 	memset(lock, 0, sizeof(*lock));
- 	locks_init_lock(fl);
-@@ -285,13 +284,7 @@ static int decode_nlm4_holder(struct xdr_stream *xdr, struct nlm_res *result)
- 	fl->fl_type  = exclusive != 0 ? F_WRLCK : F_RDLCK;
- 	p = xdr_decode_hyper(p, &l_offset);
- 	xdr_decode_hyper(p, &l_len);
--	end = l_offset + l_len - 1;
--
--	fl->fl_start = (loff_t)l_offset;
--	if (l_len == 0 || end < 0)
--		fl->fl_end = OFFSET_MAX;
--	else
--		fl->fl_end = (loff_t)end;
-+	nlm4svc_set_file_lock_range(fl, l_offset, l_len);
- 	error = 0;
- out:
- 	return error;
-diff --git a/fs/lockd/xdr4.c b/fs/lockd/xdr4.c
-index 72f7d190fb3b..b303ecd74f33 100644
---- a/fs/lockd/xdr4.c
-+++ b/fs/lockd/xdr4.c
-@@ -33,6 +33,17 @@ loff_t_to_s64(loff_t offset)
- 	return res;
+ static const char *err_text[] = { ERRORS };
+ 
++DEFINE_MUTEX(lastcmd_mutex);
+ static char *last_cmd;
+ 
+ static int errpos(const char *str)
+ {
++	int ret = 0;
++
++	mutex_lock(&lastcmd_mutex);
+ 	if (!str || !last_cmd)
+-		return 0;
++		goto out;
+ 
+-	return err_pos(last_cmd, str);
++	ret = err_pos(last_cmd, str);
++ out:
++	mutex_unlock(&lastcmd_mutex);
++	return ret;
  }
  
-+void nlm4svc_set_file_lock_range(struct file_lock *fl, u64 off, u64 len)
-+{
-+	s64 end = off + len - 1;
-+
-+	fl->fl_start = off;
-+	if (len == 0 || end < 0)
-+		fl->fl_end = OFFSET_MAX;
-+	else
-+		fl->fl_end = end;
-+}
-+
- /*
-  * NLM file handles are defined by specification to be a variable-length
-  * XDR opaque no longer than 1024 bytes. However, this implementation
-@@ -80,7 +91,7 @@ svcxdr_decode_lock(struct xdr_stream *xdr, struct nlm_lock *lock)
- 	locks_init_lock(fl);
- 	fl->fl_flags = FL_POSIX;
- 	fl->fl_type  = F_RDLCK;
+ static void last_cmd_set(const char *str)
+@@ -59,18 +66,22 @@ static void last_cmd_set(const char *str)
+ 	if (!str)
+ 		return;
+ 
++	mutex_lock(&lastcmd_mutex);
+ 	kfree(last_cmd);
 -
-+	nlm4svc_set_file_lock_range(fl, lock->lock_start, lock->lock_len);
- 	return true;
+ 	last_cmd = kstrdup(str, GFP_KERNEL);
++	mutex_unlock(&lastcmd_mutex);
  }
  
-diff --git a/include/linux/lockd/xdr4.h b/include/linux/lockd/xdr4.h
-index 5ae766f26e04..025250ade98e 100644
---- a/include/linux/lockd/xdr4.h
-+++ b/include/linux/lockd/xdr4.h
-@@ -24,6 +24,7 @@
+ static void synth_err(u8 err_type, u16 err_pos)
+ {
++	mutex_lock(&lastcmd_mutex);
+ 	if (!last_cmd)
+-		return;
++		goto out;
  
+ 	tracing_log_err(NULL, "synthetic_events", last_cmd, err_text,
+ 			err_type, err_pos);
++ out:
++	mutex_unlock(&lastcmd_mutex);
+ }
  
- 
-+void	nlm4svc_set_file_lock_range(struct file_lock *fl, u64 off, u64 len);
- int	nlm4svc_decode_testargs(struct svc_rqst *, __be32 *);
- int	nlm4svc_encode_testres(struct svc_rqst *, __be32 *);
- int	nlm4svc_decode_lockargs(struct svc_rqst *, __be32 *);
+ static int create_synth_event(const char *raw_command);
 -- 
-2.16.5
+2.18.0
 
