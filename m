@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80EEC6C30B6
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 12:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0808E6C30B8
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 12:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbjCULsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 07:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48766 "EHLO
+        id S230367AbjCULsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 07:48:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbjCULsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 07:48:05 -0400
-Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F0596AD21;
-        Tue, 21 Mar 2023 04:48:03 -0700 (PDT)
+        with ESMTP id S230325AbjCULsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 07:48:09 -0400
+Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EF69D4A1DD;
+        Tue, 21 Mar 2023 04:48:06 -0700 (PDT)
 X-IronPort-AV: E=Sophos;i="5.98,278,1673881200"; 
-   d="scan'208";a="153277014"
+   d="scan'208";a="156652132"
 Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie5.idc.renesas.com with ESMTP; 21 Mar 2023 20:48:03 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 21 Mar 2023 20:48:06 +0900
 Received: from localhost.localdomain (unknown [10.226.93.140])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 9667741E3338;
-        Tue, 21 Mar 2023 20:48:00 +0900 (JST)
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id ECA8241E388B;
+        Tue, 21 Mar 2023 20:48:03 +0900 (JST)
 From:   Biju Das <biju.das.jz@bp.renesas.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
@@ -30,9 +30,9 @@ Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
         linux-serial@vger.kernel.org,
         Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v4 1/5] tty: serial: sh-sci: Fix transmit end interrupt handler
-Date:   Tue, 21 Mar 2023 11:47:49 +0000
-Message-Id: <20230321114753.75038-2-biju.das.jz@bp.renesas.com>
+Subject: [PATCH v4 2/5] tty: serial: sh-sci: Fix Rx on RZ/G2L SCI
+Date:   Tue, 21 Mar 2023 11:47:50 +0000
+Message-Id: <20230321114753.75038-3-biju.das.jz@bp.renesas.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230321114753.75038-1-biju.das.jz@bp.renesas.com>
 References: <20230321114753.75038-1-biju.das.jz@bp.renesas.com>
@@ -46,58 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The fourth interrupt on SCI port is transmit end interrupt compared to
-the break interrupt on other port types. So, shuffle the interrupts to fix
-the transmit end interrupt handler.
+SCI IP on RZ/G2L alike SoCs do not need regshift compared to other SCI
+IPs on the SH platform. Currently, it does regshift and configuring Rx
+wrongly. Drop adding regshift for RZ/G2L alike SoCs.
 
-Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
+Fixes: dfc80387aefb ("serial: sh-sci: Compute the regshift value for SCI ports")
 Cc: stable@vger.kernel.org
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 ---
 v3->v4:
- * No change.
-v2->v3:
- * Cced stable@vger.kernel.org
-v1->v2:
- * Replaced the wrong fixes tag
- * Added a simpler check in sci_init_single() and added a check in
-   probe to catch invalid interrupt count.
-Tested the SCI0 interface on RZ/G2UL by connecting to PMOD USBUART.
- 39:          0     GICv3 437 Level     1004d000.serial:rx err
- 40:         12     GICv3 438 Edge      1004d000.serial:rx full
- 41:         70     GICv3 439 Edge      1004d000.serial:tx empty
- 42:         18     GICv3 440 Level     1004d000.serial:tx end
+ * Updated the fixes tag
+ * Replaced sci_port->is_rz_sci with dev->dev.of_node as regshift are only needed
+   for sh770x/sh7750/sh7760, which don't use DT yet.
+ * Dropped is_rz_sci variable from struct sci_port.
+v3:
+ * New patch.
 ---
- drivers/tty/serial/sh-sci.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/serial/sh-sci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index af4a7a865764..616041faab55 100644
+index 616041faab55..15954ca3e9dc 100644
 --- a/drivers/tty/serial/sh-sci.c
 +++ b/drivers/tty/serial/sh-sci.c
-@@ -31,6 +31,7 @@
- #include <linux/ioport.h>
- #include <linux/ktime.h>
- #include <linux/major.h>
-+#include <linux/minmax.h>
- #include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/of.h>
-@@ -2864,6 +2865,13 @@ static int sci_init_single(struct platform_device *dev,
- 			sci_port->irqs[i] = platform_get_irq(dev, i);
- 	}
+@@ -2937,7 +2937,7 @@ static int sci_init_single(struct platform_device *dev,
+ 	port->flags		= UPF_FIXED_PORT | UPF_BOOT_AUTOCONF | p->flags;
+ 	port->fifosize		= sci_port->params->fifosize;
  
-+	/*
-+	 * The fourth interrupt on SCI port is transmit end interrupt, so
-+	 * shuffle the interrupts.
-+	 */
-+	if (p->type == PORT_SCI)
-+		swap(sci_port->irqs[SCIx_BRI_IRQ], sci_port->irqs[SCIx_TEI_IRQ]);
-+
- 	/* The SCI generates several interrupts. They can be muxed together or
- 	 * connected to different interrupt lines. In the muxed case only one
- 	 * interrupt resource is specified as there is only one interrupt ID.
+-	if (port->type == PORT_SCI) {
++	if (port->type == PORT_SCI && !dev->dev.of_node) {
+ 		if (sci_port->reg_size >= 0x20)
+ 			port->regshift = 2;
+ 		else
 -- 
 2.25.1
 
