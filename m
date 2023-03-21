@@ -2,74 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B3B6C38B3
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 18:55:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B95B26C38C3
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 18:58:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbjCURzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 13:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51604 "EHLO
+        id S229744AbjCUR6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 13:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230179AbjCURzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 13:55:50 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AD1F4FF20
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 10:55:49 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id u5so16853428plq.7
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 10:55:49 -0700 (PDT)
+        with ESMTP id S230446AbjCUR60 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 13:58:26 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B045722CA8
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 10:58:07 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id b20so30087397edd.1
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 10:58:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sladewatkins.net; s=googled; t=1679421348;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=anmwm8yh/Vv8uX68Kbemfb9lejd4xrXhy7Hrxs7x/Xc=;
-        b=p+5z7EVJQPLlOQLYbDplKK87mDndC8RzhIx2+st0XPbLsiD60EhRtLtfqfOMrMg+UX
-         /6Fwj04we+rGkipUMwrnIhhNChD58Q+D0HcJUHND61pTEtL7rj9utgbbf8CfmF/HIZbF
-         EDeRugM3ONkg2u9p7433FET+ZotZEyzDYdmf/hRf9jAOgoYDSNjm1bEYnHJI5BHOvQ1y
-         PC2DH9oJ4lT9AG6rBH6ke+6Py0SlJmK5fXwyCpNspaE/JhcQP8CehRxKb7kOddg7f5om
-         LTr1C2/zgoe8GetVf6eCS9oLMEcn6Qvb3IETEgBN+7KAKQUJf6eumactKjZ0GyKoighV
-         JuTA==
+        d=linaro.org; s=google; t=1679421485;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=beQg10Ver7dN23IwCsKB//20vr3DygviG7yoTEe+FxY=;
+        b=QYAinkUisZBUcqo8VDaVOtNZcE9iFdEWTyzmy+5Vslhmfcvc2PXM46b3gIzf8PAWNg
+         wk0cuUkFBYCNPNdWsdLs75cyRkOfwGriVmanTFGFlETNqFqo+vVRhE22syEXMoAc9YT+
+         l3W4AOQF/7195XmOmm9TRVJ+f2Iu1nTZ/mW+CJZRAfSzResa+vuByUXUjgjkMWReRX2N
+         /28pe7mcY0it3eefC1NF6gAxt+MYwlGEE+fSDAhzvXVeyFDiq2H3jJst7I1sJOOOSlWl
+         H587CiPo+Mczy397Hvvc6VZ3O8LQZHVzD6AmcNx5XrHWiMLMVuVgF1gRtnWi3rhlBEcB
+         go3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679421348;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=anmwm8yh/Vv8uX68Kbemfb9lejd4xrXhy7Hrxs7x/Xc=;
-        b=0EP/Nfvo8es1kYpLh1zu0jcRP9t7TCd3BmIwGtKlN9Z4IyQa7ayKhpBmXCEL7ylVml
-         RsM855pkjladeD4J3aKojf3hfvP9fDbUad1plAlk6NIvarVc+h9S9Rz6I2lSBqDbU9Ia
-         AUPKl7HS7oty6tdkAh4TAoGFfJ5m2+4rjbnIsl1Tca4j4ACKn91NVb6OCMoUa6Y1ic8y
-         mzrfeXwWWU6zCE5LThLaidqJafVfk2E2vcB6zTT9lz4Ah/SOU99+HUN2f3pSYGPcfiIr
-         GSmUpHw554QMAyUHx/xWCnvjaHqfvYV5BX1YM/vCp//6plHyX9c6r7eR+JsSw28E2/vh
-         F/CQ==
-X-Gm-Message-State: AO0yUKVbBAvDUQW1NP1XBsaFahPtW3EujjeU/+eyeIvKihZv4qIQLJnd
-        mnApKsVAptjnjg0xJXKmFV0oMgQZSzvSx7VTJwOdxRojPnUW7yfQQoBWZhfSMdpi+hXD8CS/iaX
-        KtwR1NUBiWgbAYMTlY0KF8TQXP3fKsXlZE33CZDssdPsBdg==
-X-Google-Smtp-Source: AK7set+aSSNndRQzBA2NvrSAm3VcmzzTjttcwiReGOC8KcfvRLO1EcHhKyk4ELdF6t0E/8bB9RzPogDwF+CPhKhae0E=
-X-Received: by 2002:a17:90b:190b:b0:23d:535f:59c7 with SMTP id
- mp11-20020a17090b190b00b0023d535f59c7mr221120pjb.7.1679421348502; Tue, 21 Mar
- 2023 10:55:48 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1679421485;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=beQg10Ver7dN23IwCsKB//20vr3DygviG7yoTEe+FxY=;
+        b=XpKSKzmFA0WIHrOuBruwg8VklmqADfX72o2ss6THSglWpyrBIqeFvQTLTKFoCvRbAd
+         ZIrqIlVBJPAxa+coEPm7FnmKZPsrgowPwc2lIIzVVx/6alQi1pgH0o5zcEXqEcq8Qb3M
+         /2dHJSuOTAz7qGPdG0MNlr/R7/Vge85ObLtn6T89Fncbjuq54o7ZQS0GG1KW870oy0XF
+         QK9IY1NYMzXpALEymRp4JDS4RRorU6p0FNFHZXjEh5ljStRo3onllxcGZPlsLHls5JQ+
+         g2dtaGzme9mgFRrx22ly9dXv9l1Pb064fVLOUVid9DQEE5EAh9l4xiBCgjQ5pfQxa8Sf
+         KCPw==
+X-Gm-Message-State: AO0yUKV2dbRu3JmuGfBaAoEPXBkDu2FzoLgaurX/V8gCc8+VUjON6zFM
+        H7UJzrkG4vg9muRR8SabODgVcA==
+X-Google-Smtp-Source: AK7set8gOMiqKZ8ghAMrSL9tsj+E0T5/dhTV2S9V9Tjnei/fZr6elg7a8benpEtAOLJHv9tHtR9fcA==
+X-Received: by 2002:a17:906:2855:b0:92a:7178:ab56 with SMTP id s21-20020a170906285500b0092a7178ab56mr3498973ejc.39.1679421485742;
+        Tue, 21 Mar 2023 10:58:05 -0700 (PDT)
+Received: from localhost.localdomain ([5.133.47.210])
+        by smtp.gmail.com with ESMTPSA id p9-20020a1709060e8900b0093313f4fc3csm4887360ejf.70.2023.03.21.10.58.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Mar 2023 10:58:04 -0700 (PDT)
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+To:     andersson@kernel.org, agross@kernel.org
+Cc:     konrad.dybcio@linaro.org, mturquette@baylibre.com,
+        sboyd@kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Amit Pundir <amit.pundir@linaro.org>
+Subject: [PATCH] clk: qcom: gfm-mux: use runtime pm while accessing registers
+Date:   Tue, 21 Mar 2023 17:57:58 +0000
+Message-Id: <20230321175758.26738-1-srinivas.kandagatla@linaro.org>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-References: <20230321080647.018123628@linuxfoundation.org>
-In-Reply-To: <20230321080647.018123628@linuxfoundation.org>
-From:   Slade Watkins <srw@sladewatkins.net>
-Date:   Tue, 21 Mar 2023 13:55:37 -0400
-Message-ID: <CA+pv=HOG7Ye9qvUTyYuCNYW=iEbmwEtGO9534EcPz4iUKTFMcg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/57] 5.4.238-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-SWM-Antispam: Scanned by pmxgwmtau.interior-mail.sladewatkinsmedia.com
-X-SWM-TLS-Policy-Status: enforced
-X-Gm-Spam: 0
-X-Gm-Phishy: 0
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,27 +71,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 21, 2023 at 4:39=E2=80=AFAM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.238 release.
-> There are 57 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 23 Mar 2023 08:06:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.238-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
+gfm mux driver does support runtime pm but we never use it while
+accessing registers. Looks like this driver was getting lucky and
+totally depending on other drivers to leave the clk on.
 
-Compiles and boots on my x86_64 test systems. No errors or regressions.
+Fix this by doing runtime pm while accessing registers.
 
-Tested-by: Slade Watkins <srw@sladewatkins.net>
+Fixes: a2d8f507803e ("clk: qcom: Add support to LPASS AUDIO_CC Glitch Free Mux clocks")
+Cc: stable@vger.kernel.org
+Reported-by: Amit Pundir <amit.pundir@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+---
+ drivers/clk/qcom/lpass-gfm-sm8250.c | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
 
--- Slade
+diff --git a/drivers/clk/qcom/lpass-gfm-sm8250.c b/drivers/clk/qcom/lpass-gfm-sm8250.c
+index 96f476f24eb2..bcf0ea534f7f 100644
+--- a/drivers/clk/qcom/lpass-gfm-sm8250.c
++++ b/drivers/clk/qcom/lpass-gfm-sm8250.c
+@@ -38,14 +38,37 @@ struct clk_gfm {
+ static u8 clk_gfm_get_parent(struct clk_hw *hw)
+ {
+ 	struct clk_gfm *clk = to_clk_gfm(hw);
++	int ret;
++	u8 parent;
++
++	ret = pm_runtime_resume_and_get(clk->priv->dev);
++	if (ret < 0 && ret != -EACCES) {
++		dev_err_ratelimited(clk->priv->dev,
++				    "pm_runtime_resume_and_get failed in %s, ret %d\n",
++				    __func__, ret);
++		return ret;
++	}
++
++	parent = readl(clk->gfm_mux) & clk->mux_mask;
++
++	pm_runtime_mark_last_busy(clk->priv->dev);
+ 
+-	return readl(clk->gfm_mux) & clk->mux_mask;
++	return parent;
+ }
+ 
+ static int clk_gfm_set_parent(struct clk_hw *hw, u8 index)
+ {
+ 	struct clk_gfm *clk = to_clk_gfm(hw);
+ 	unsigned int val;
++	int ret;
++
++	ret = pm_runtime_resume_and_get(clk->priv->dev);
++	if (ret < 0 && ret != -EACCES) {
++		dev_err_ratelimited(clk->priv->dev,
++				    "pm_runtime_resume_and_get failed in %s, ret %d\n",
++				    __func__, ret);
++		return ret;
++	}
+ 
+ 	val = readl(clk->gfm_mux);
+ 
+@@ -57,6 +80,8 @@ static int clk_gfm_set_parent(struct clk_hw *hw, u8 index)
+ 
+ 	writel(val, clk->gfm_mux);
+ 
++	pm_runtime_mark_last_busy(clk->priv->dev);
++
+ 	return 0;
+ }
+ 
+@@ -251,6 +276,8 @@ static int lpass_gfm_clk_driver_probe(struct platform_device *pdev)
+ 	if (IS_ERR(cc->base))
+ 		return PTR_ERR(cc->base);
+ 
++	cc->dev = dev;
++
+ 	err = devm_pm_runtime_enable(dev);
+ 	if (err)
+ 		return err;
+-- 
+2.21.0
+
