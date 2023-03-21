@@ -2,105 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E65E6C3A4A
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 20:21:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 124BB6C3AA6
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 20:33:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjCUTVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 15:21:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
+        id S230038AbjCUTdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Mar 2023 15:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229525AbjCUTVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 15:21:02 -0400
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A20804FF0C;
-        Tue, 21 Mar 2023 12:20:39 -0700 (PDT)
-Received: by mail-qt1-x834.google.com with SMTP id c19so19242805qtn.13;
-        Tue, 21 Mar 2023 12:20:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679426438;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=4A1X8DSIXCYAuOVZx3RnCB5u8at26anAgkpP7Mq9w28=;
-        b=fsdsLU8DCXjJVvgFV85Ke4ZB7uwjYESWn4NK2Grj772hkmFIsvvJpZxP29vNUanffA
-         pSYuR62rztsntYmQdyJQIZ+5a5bxZA+Cc9wZT+ioPlslSZcx5RjakzHxiLAisIL6YJVW
-         vPQw+H2cYMK203jM5zenY2eeKbYNlA5AbTtet2vVjDWTUBQEJFDej/SeOSxjeq7b+9yr
-         d078vyjbtTbK3tCOBk0m0AgFsh4pFmskHtGNC8mKJdsOMvd4ZEY/G6dsT1oXCMt7F/1I
-         jdvUL/sl42crEAOY7wpWRySDvRvNQBWEUxNQzmuppqxoE+JClRMt4ck3YChHrqpoU42Z
-         E/Kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679426438;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4A1X8DSIXCYAuOVZx3RnCB5u8at26anAgkpP7Mq9w28=;
-        b=U2FEHgoZ175jSlyY9XUknHFSDnt41DYpiO19ng7qwO8K7zivHx6E5Wu2P1HEUu5sOd
-         NtCwyKfrKmtkyFBXudh5EsvGf3ysul3bw1AoCdOUBIrT5x25Qxn7GeBI7ZheHdjNwga0
-         3BySUepmXhtUaYlGxPO+ZKrVHweW36pp/1vhu2+8FNYKi0MYel7AxqXl78kxRJSJ3wdz
-         u9JZeeanvVPYLnSXeQJ+2o0WvqEimCOY+5uuGZfahhoh2kTQqx31J4A6dmBKyhn/MRUb
-         nzweHZYawDLq8p42tPnvJTBtEKSbrgrCHZJSX4Vaw/yr7/MUKA21EASiXgIGcwmrl2sx
-         KFeA==
-X-Gm-Message-State: AO0yUKXNDaOVJNjYngjfVNwBobw2T/iAibUEtHRsWLKFmsY+2BPsq9Sn
-        G/FmyMst1N7H0ZrATnOamI0=
-X-Google-Smtp-Source: AK7set8loF1+hW+VViWeDj7w2xu00cQHiNQqltuCYAYPi2E5wn965efpgQpenrkn6vyIk508/ACg/A==
-X-Received: by 2002:ac8:7f10:0:b0:3ba:18c2:99e7 with SMTP id f16-20020ac87f10000000b003ba18c299e7mr1726278qtk.45.1679426438541;
-        Tue, 21 Mar 2023 12:20:38 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id o16-20020ac86990000000b003bf9f9f1844sm8701774qtq.71.2023.03.21.12.20.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Mar 2023 12:20:37 -0700 (PDT)
-Message-ID: <8f95d89f-ce6d-5067-bcdd-158fffb8f0ab@gmail.com>
-Date:   Tue, 21 Mar 2023 12:20:30 -0700
+        with ESMTP id S230021AbjCUTdt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 15:33:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CC5574F4
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 12:32:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC04961DD7
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 19:32:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD09C433A4
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 19:32:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679427166;
+        bh=2hTJAPDPwCHR9HR+TlToIXnIVAWTFBm302dtPSH9zic=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Ibmc0hJSPQTEijZShHnDX8yT7Uw+glP+mLy7uFyZtgEcZDoEER04N7q9HoujMuNYZ
+         WSUadPDVt2+5qcuke+2cU4HF8HkbhNGd88V8+1ISJs4lQ3pv5vV/CWI4h6joqXarGD
+         gZ3PgQwF7zr7QgyL9YfQU+bYGeLHU2wvoKXXWBuKFpHfWcjR4c60tU2tvGo04TskOm
+         4aVtCGF6t4DQ6Ip2RCEIjr87feMrfvpvoeBkM8nMk6dGY47/1vK+z1iPhHL5fiW71g
+         jl255pGlIDjqFSuZEpLsfTdCghDzVMUIvEcDK+gAfiRHEluCgvSuRbk8P7Gs72iB0E
+         28mDx6QDLPKgw==
+Received: by mail-lf1-f52.google.com with SMTP id t11so20538968lfr.1
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 12:32:45 -0700 (PDT)
+X-Gm-Message-State: AO0yUKWls8L6Szc6alteNYMOkPyff0EogwxOQQVuSvdD8chtkRa7waiO
+        5Kk5ECDPxAMwHgYPOgWgdzLxPSZNxGVx7aP/6Z8=
+X-Google-Smtp-Source: AK7set8Tkl1y74GPuFrvRjHAttWXCOBrJzLXEyBoQdnExVEM/5NM6BzM21zq+Xwj7xELpO9A0qTp4W5S5hECz76800o=
+X-Received: by 2002:ac2:48b2:0:b0:4d5:ca32:6ae4 with SMTP id
+ u18-20020ac248b2000000b004d5ca326ae4mr1206995lfg.4.1679427164012; Tue, 21 Mar
+ 2023 12:32:44 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH 6.2 000/214] 6.2.8-rc3 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230321180749.921141176@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230321180749.921141176@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20230320131845.3138015-1-ardb@kernel.org> <20230320131845.3138015-5-ardb@kernel.org>
+ <CACRpkdbRf9NL4+m+bJZ16x5uCMb2rDYmBk3xTwmVDFykDTmnMQ@mail.gmail.com> <2q3srsro-n086-s7r1-5o68-8r0qs2467s5r@onlyvoer.pbz>
+In-Reply-To: <2q3srsro-n086-s7r1-5o68-8r0qs2467s5r@onlyvoer.pbz>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Tue, 21 Mar 2023 20:32:32 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXFhqDkwXn7Th62E47U7A_tzEdmNy_0aPidVsVhtnud3cA@mail.gmail.com>
+Message-ID: <CAMj1kXFhqDkwXn7Th62E47U7A_tzEdmNy_0aPidVsVhtnud3cA@mail.gmail.com>
+Subject: Re: [PATCH v4 04/12] ARM: entry: Fix iWMMXT TIF flag handling
+To:     Nicolas Pitre <npitre@baylibre.com>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/21/23 11:08, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.8 release.
-> There are 214 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 23 Mar 2023 18:07:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.8-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Tue, 21 Mar 2023 at 20:19, Nicolas Pitre <npitre@baylibre.com> wrote:
+>
+> On Mon, Mar 20, 2023 at 2:19=E2=80=AFPM Ard Biesheuvel <ardb@kernel.org> =
+wrote:
+>
+> > The conditional MOVS instruction that appears to have been added to tes=
+t
+> > for the TIF_USING_IWMMXT thread_info flag only sets the N and Z
+> > condition flags and register R7, none of which are referenced in the
+> > subsequent code.
+>
+> Really?
+>
+> As far as I know, the rsb instruction is a "reversed subtract" and that
+> also sets the carry flag.
+>
+> And so does a move with a shifter argument (the last dropped bit is
+> moved to the carry flag).
+>
+> What am I missing?
+>
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+No, you are absolutely right. I looked up the wrong encoding in the
+ARM ARM. MOVS without a shift preserves the carry flag, but the
+variant you used here behaves as you describe.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
-
+So the code is correct - apologies for the noise.
