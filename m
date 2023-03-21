@@ -2,96 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 088A06C280A
-	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 03:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B0E6C280C
+	for <lists+stable@lfdr.de>; Tue, 21 Mar 2023 03:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229747AbjCUCWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Mar 2023 22:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
+        id S229794AbjCUCWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Mar 2023 22:22:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229685AbjCUCWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 22:22:02 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFDE038EAF;
-        Mon, 20 Mar 2023 19:21:58 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id p3-20020a17090a74c300b0023f69bc7a68so9960663pjl.4;
-        Mon, 20 Mar 2023 19:21:58 -0700 (PDT)
+        with ESMTP id S229808AbjCUCWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Mar 2023 22:22:07 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5660938E86
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 19:22:02 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id c18so14554950ple.11
+        for <stable@vger.kernel.org>; Mon, 20 Mar 2023 19:22:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679365318;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=wk7k/qCAEMpFxh6ljdNclCqPNBMbolmdQlBNy8zLG6c=;
-        b=b1MSLsahswHQ/R2ruWXyq261SamPgeFglyhnW66D2sIrLNRx0SFsX2VXITmRYCB6CK
-         fehaT1Sk5io6kbOcCAYGe2hREFU03baYDHSh2xbF20lhO36WlTb+uSykO6VpHg2RvkVn
-         wXpDivVKoVSLiYqu/w1mYxJAluWFnzUd9Nwxd2AXQJjpxxurB3/X+fMG/8ciSgOMcLHb
-         8eIR51rNeI+e+iOW9ez/PS7iLRc6f9SGJRd31JzU8Jb5oOT/CYKm82d5R1qClNgfAD43
-         8uOf8uMEoHFSTCKKBNRPCIMDKMRnHKxSfc5CE5yqB4tT1QPeq4swNoMiFJ1bilaFgTjd
-         dg5Q==
+        d=gmail.com; s=20210112; t=1679365322;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=dKDJd+thGVBC1IVFKDXx0SWcwEiYHVdjzeJ2ZoR4z4A=;
+        b=nRn2squL6ViLinzwRfbfEtcIacO/x0AWTKI6L35LkLjd6cc36VvHe4HeeHor8bcd/5
+         Ch2QCNYI+U9amPD7EHFwEYSxn1yA1eXiexVvO994Dmrc6czyl5pcSQb5ZRCjU5UOr84q
+         g4yAhTG1gRNL3EW88wpUY99j6Tz4sGteV1bCA+Cm8ZgknDKcV1tAtnScXxAiUaBE+dp3
+         TEOPg/aQilYZSDX7ndrhMQObcc5LvJcTeGk94w22q2aGgPFvWY0IZw3kB07KJoL+mptg
+         4R3UE2o8ZVhmT8ODrew+7f1Iclijmfy9X82020mNAxQ2Fbh/TFHM21FTDIoi1iURaoLT
+         lKPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679365318;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wk7k/qCAEMpFxh6ljdNclCqPNBMbolmdQlBNy8zLG6c=;
-        b=EHDyP2PrRMbRVMg8wpcIae9VTvk9PYRuCwl5zdOgPrGcAtJV17fkMzFl4O0BlqdxUO
-         la9vnUrfPphE4oq259e9LzI38omBL7Cy70BJYLl7ADRpfzFl9sa4EtayWLUzfOw+hEFg
-         v3W2DkoQDvdtJLufY5giZO8ZaJ36u2so40sI1OOfAO18thhPhAajTzYsJCwKhAUlDKRv
-         Czb2bm26v/Z44a+tLdAiIuev1SwAkXIaGILC9j/uU+ua5LqcZ+yaKnFm+sebiFbwZHwN
-         hql2tU/3QmVN5wWb99juJ6gEt7XRClgJgEecXo7i3cQVvyAYtcMnDKPWy6MHb+jERJ4M
-         aoAg==
-X-Gm-Message-State: AO0yUKXOdQem0fdv8lrc1m6EVfuXrwFVotv3Mk1Sr8jUyiQPazQj5FKq
-        K4JaGN3Hgl5yWN/bNhWl8OdaJhGuXOyueUJJwDg=
-X-Google-Smtp-Source: AK7set/6yamH3SwJz12TWGOrpA7X6sERswa68dKqJacheL9RN5DQS5iOTenIxqkTYSJIWjI0P/gz4qQ3xJOrBW1iYHU=
-X-Received: by 2002:a17:90a:29c5:b0:23d:2f4:af49 with SMTP id
- h63-20020a17090a29c500b0023d02f4af49mr200529pjd.4.1679365318063; Mon, 20 Mar
- 2023 19:21:58 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1679365322;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=dKDJd+thGVBC1IVFKDXx0SWcwEiYHVdjzeJ2ZoR4z4A=;
+        b=4f0zoAk8JcCZfDNv1hBdgGiwvgP27NXSjhpkWSMoMRjw2B6dHbsYjPmpFAm3AYewel
+         NO0ybAzgdl1mDiTd/zKSnoMCvmvqSok87MTeelg0eIG3BAGqwtvJ0lYfwkJWPkE9DZsQ
+         oBjtK4K3E+JbemS9UP4W+g+YyF/NLvdVWUKQ8MTSp8aX3MMmszDRh3JDyTSdH0QuQiCz
+         CUvvYrLMhVgGcLQJFAvDAZPcz+Usy0P/2nVtwVZvrO9Lp/VuqVUb+2vyFus7+7HlnniO
+         wj5FYFm0QVjjODpX1Us0kfMiN+C1w+h4DlH0ThxAzTDRPW5culFFOsQpgW3QYY+lkfwn
+         yURg==
+X-Gm-Message-State: AO0yUKWxmuHJR/tJnJiTFRuUjVdv6l3HXVR5icDN880IBP3xOO+6+HhV
+        jlCNH1uySoRoyznX2FOkeTU=
+X-Google-Smtp-Source: AK7set965EFtPzTxbfl3UQOO5Iu+ijvBM6v4OzQ+NsX/kbIHi5eZb8oR0u4cxgGMLMwBRZQ1ZSrGvg==
+X-Received: by 2002:a17:90b:1644:b0:23e:feef:38ef with SMTP id il4-20020a17090b164400b0023efeef38efmr830586pjb.41.1679365321863;
+        Mon, 20 Mar 2023 19:22:01 -0700 (PDT)
+Received: from [30.221.130.251] ([47.246.101.59])
+        by smtp.gmail.com with ESMTPSA id oc10-20020a17090b1c0a00b00233df90227fsm4017641pjb.18.2023.03.20.19.21.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Mar 2023 19:22:01 -0700 (PDT)
+Message-ID: <bba399a1-8950-6a74-da22-4d98fab506e7@gmail.com>
+Date:   Tue, 21 Mar 2023 10:21:53 +0800
 MIME-Version: 1.0
-References: <20230320145449.336983711@linuxfoundation.org>
-In-Reply-To: <20230320145449.336983711@linuxfoundation.org>
-From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Mon, 20 Mar 2023 19:21:46 -0700
-Message-ID: <CAJq+SaDtjHaEHH0Yo38ygEmXfnTTDEtuVd0bLF49E2W2UGc6oQ@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/115] 5.15.104-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [Ocfs2-devel] FAILED: patch "[PATCH] ocfs2: fix data corruption
+ after failed write" failed to apply to 5.10-stable tree
+Content-Language: en-US
+To:     Bagas Sanjaya <bagasdotme@gmail.com>, gregkh@linuxfoundation.org,
+        ocfs2-devel@oss.oracle.com, akpm@linux-foundation.org,
+        gechangwei@live.cn, ghe@suse.com, jack@suse.cz, jlbec@evilplan.org,
+        joseph.qi@linux.alibaba.com, junxiao.bi@oracle.com,
+        mark@fasheh.com, piaojun@huawei.com, stable@vger.kernel.org
+References: <1679313445246112@kroah.com>
+ <63069869-30cf-c45f-3b05-b0b9b46bc36a@gmail.com> <ZBkSwL37/9DpfnvP@debian.me>
+From:   Joseph Qi <jiangqi903@gmail.com>
+In-Reply-To: <ZBkSwL37/9DpfnvP@debian.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> This is the start of the stable review cycle for the 5.15.104 release.
-> There are 115 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Mar 2023 14:54:26 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.104-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
 
-Compiled and booted on my x86_64 and ARM64 test systems. No errors or
-regressions.
+On 3/21/23 10:13 AM, Bagas Sanjaya wrote:
+> On Tue, Mar 21, 2023 at 10:06:30AM +0800, Joseph Qi wrote:
+>> Hi Greg,
+>> It can be cleanly applied for linux-5.10.y and linux-4.19.y in my desktop.
+>> I'm not sure how it happens.
+>>
+> 
+> If you can apply the backport, why don't you post it here?
+> 
+My mistake, it requires feature folio.
+Will adapt and post it later.
 
-Tested-by: Allen Pais <apais@linux.microsoft.com>
-
-Thanks.
+Thanks,
+Joseph
