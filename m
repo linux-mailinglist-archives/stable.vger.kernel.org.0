@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C37166C568A
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:07:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6035E6C5696
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbjCVUHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:07:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59824 "EHLO
+        id S230200AbjCVUH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230040AbjCVUGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:06:24 -0400
+        with ESMTP id S231614AbjCVUGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:06:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B8D5A1AA;
-        Wed, 22 Mar 2023 13:01:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA3474A6A;
+        Wed, 22 Mar 2023 13:01:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85368B81DEB;
-        Wed, 22 Mar 2023 20:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C3CC433EF;
-        Wed, 22 Mar 2023 20:01:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90E44B81DE5;
+        Wed, 22 Mar 2023 20:01:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A2CC433D2;
+        Wed, 22 Mar 2023 20:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515279;
-        bh=iIimPAl3W7sA8efoe/qBB54Hy/DRWY0cczHHWIEH6Vk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwNZW7GP4+9lNJ6kuHGnfpDFGLTpnPvFKfV+QeJ5wC85X2Zb+CjLmf/xc18eo0UYq
-         Vi7SieOh3CwYb1/uGmESopAzL+IdhEuD0AS3EBkJ2QCMMGbPjzDulaxt2EbadC7XRB
-         VHQ4UijoH/r46DkEcmTeJrZXW2kmXnG+xXfqGCTdnkEXMNizW63d+nFZfwODFZZ6st
-         c1o0Etbitcme6SYC9X3oPRt++sVOsuJBEq6ib7MV4xU5h0doIFYhjoXKvwtsdutbD6
-         gsXMXHjvT0OeqUsggF8GnlRdIoQ7toMrPJURX3uKjDua98VmS52+0LHPn+WsOHLxoR
-         zFVn/xqrST95A==
+        s=k20201202; t=1679515284;
+        bh=lO83JbYB595jUa9xjhKWREvC9z3maQjWgMRdLXiBsF4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Oda2MuCbk0ZpNE2HmhYHF9LlfhVb7FC0bf1ynMDX3zRMDfuFZf96CFj7hpUY8mHHP
+         W1JnhuWCKv70jqLVJ6rJWbxqSmOi5PF+Ae6Y+Pu0Twx58a4uhs70JcBolIgdIZ6xy+
+         5hJRYwDJ4RgmM9ciCc9+UWnY0Cq+GNhrfxzxOur/ZrEk87mVFONZBirGn7ZAtNETBz
+         PQ8BGNRB7jK9Gm7gvcGtRlh43u/0V3wavYhbY6MwVxOIgSWVgDKpPJfzOdjuEq0T9M
+         2DlVXL7IJtQW70V8k3lZr5Mot/BP1OJeq0lfuoCKFYSZTroK3tpjbJdjxZs01rMErS
+         vMLbdpbJErLHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anton Gusev <aagusev@ispras.ru>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 34/34] tracing: Fix wrong return in kprobe_event_gen_test.c
-Date:   Wed, 22 Mar 2023 15:59:26 -0400
-Message-Id: <20230322195926.1996699-34-sashal@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com,
+        Hyunwoo Kim <v4bel@theori.io>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/16] xfrm: Zero padding when dumping algos and encap
+Date:   Wed, 22 Mar 2023 16:01:05 -0400
+Message-Id: <20230322200121.1997157-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
-References: <20230322195926.1996699-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,51 +58,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Gusev <aagusev@ispras.ru>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit bc4f359b3b607daac0290d0038561237a86b38cb ]
+[ Upstream commit 8222d5910dae08213b6d9d4bc9a7f8502855e624 ]
 
-Overwriting the error code with the deletion result may cause the
-function to return 0 despite encountering an error. Commit b111545d26c0
-("tracing: Remove the useless value assignment in
-test_create_synth_event()") solves a similar issue by
-returning the original error code, so this patch does the same.
+When copying data to user-space we should ensure that only valid
+data is copied over.  Padding in structures may be filled with
+random (possibly sensitve) data and should never be given directly
+to user-space.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+This patch fixes the copying of xfrm algorithms and the encap
+template in xfrm_user so that padding is zeroed.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20230131075818.5322-1-aagusev@ispras.ru
-
-Signed-off-by: Anton Gusev <aagusev@ispras.ru>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com
+Reported-by: Hyunwoo Kim <v4bel@theori.io>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_user.c | 45 ++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 41 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/kprobe_event_gen_test.c b/kernel/trace/kprobe_event_gen_test.c
-index c736487fc0e48..e0c420eb0b2b4 100644
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -146,7 +146,7 @@ static int __init test_gen_kprobe_cmd(void)
- 	if (trace_event_file_is_valid(gen_kprobe_test))
- 		gen_kprobe_test = NULL;
- 	/* We got an error after creating the event, delete it */
--	ret = kprobe_event_delete("gen_kprobe_test");
-+	kprobe_event_delete("gen_kprobe_test");
- 	goto out;
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 5fba82757ce5e..eb0952dbf4236 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -906,7 +906,9 @@ static int copy_to_user_aead(struct xfrm_algo_aead *aead, struct sk_buff *skb)
+ 		return -EMSGSIZE;
+ 
+ 	ap = nla_data(nla);
+-	memcpy(ap, aead, sizeof(*aead));
++	strscpy_pad(ap->alg_name, aead->alg_name, sizeof(ap->alg_name));
++	ap->alg_key_len = aead->alg_key_len;
++	ap->alg_icv_len = aead->alg_icv_len;
+ 
+ 	if (redact_secret && aead->alg_key_len)
+ 		memset(ap->alg_key, 0, (aead->alg_key_len + 7) / 8);
+@@ -926,7 +928,8 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
+ 		return -EMSGSIZE;
+ 
+ 	ap = nla_data(nla);
+-	memcpy(ap, ealg, sizeof(*ealg));
++	strscpy_pad(ap->alg_name, ealg->alg_name, sizeof(ap->alg_name));
++	ap->alg_key_len = ealg->alg_key_len;
+ 
+ 	if (redact_secret && ealg->alg_key_len)
+ 		memset(ap->alg_key, 0, (ealg->alg_key_len + 7) / 8);
+@@ -937,6 +940,40 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
+ 	return 0;
  }
  
-@@ -211,7 +211,7 @@ static int __init test_gen_kretprobe_cmd(void)
- 	if (trace_event_file_is_valid(gen_kretprobe_test))
- 		gen_kretprobe_test = NULL;
- 	/* We got an error after creating the event, delete it */
--	ret = kprobe_event_delete("gen_kretprobe_test");
-+	kprobe_event_delete("gen_kretprobe_test");
- 	goto out;
- }
- 
++static int copy_to_user_calg(struct xfrm_algo *calg, struct sk_buff *skb)
++{
++	struct nlattr *nla = nla_reserve(skb, XFRMA_ALG_COMP, sizeof(*calg));
++	struct xfrm_algo *ap;
++
++	if (!nla)
++		return -EMSGSIZE;
++
++	ap = nla_data(nla);
++	strscpy_pad(ap->alg_name, calg->alg_name, sizeof(ap->alg_name));
++	ap->alg_key_len = 0;
++
++	return 0;
++}
++
++static int copy_to_user_encap(struct xfrm_encap_tmpl *ep, struct sk_buff *skb)
++{
++	struct nlattr *nla = nla_reserve(skb, XFRMA_ENCAP, sizeof(*ep));
++	struct xfrm_encap_tmpl *uep;
++
++	if (!nla)
++		return -EMSGSIZE;
++
++	uep = nla_data(nla);
++	memset(uep, 0, sizeof(*uep));
++
++	uep->encap_type = ep->encap_type;
++	uep->encap_sport = ep->encap_sport;
++	uep->encap_dport = ep->encap_dport;
++	uep->encap_oa = ep->encap_oa;
++
++	return 0;
++}
++
+ static int xfrm_smark_put(struct sk_buff *skb, struct xfrm_mark *m)
+ {
+ 	int ret = 0;
+@@ -992,12 +1029,12 @@ static int copy_to_user_state_extra(struct xfrm_state *x,
+ 			goto out;
+ 	}
+ 	if (x->calg) {
+-		ret = nla_put(skb, XFRMA_ALG_COMP, sizeof(*(x->calg)), x->calg);
++		ret = copy_to_user_calg(x->calg, skb);
+ 		if (ret)
+ 			goto out;
+ 	}
+ 	if (x->encap) {
+-		ret = nla_put(skb, XFRMA_ENCAP, sizeof(*x->encap), x->encap);
++		ret = copy_to_user_encap(x->encap, skb);
+ 		if (ret)
+ 			goto out;
+ 	}
 -- 
 2.39.2
 
