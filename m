@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3511D6C5612
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B0F6C562B
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231572AbjCVUDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:03:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
+        id S230362AbjCVUDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:03:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230503AbjCVUC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:02:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E986C18D;
-        Wed, 22 Mar 2023 12:59:19 -0700 (PDT)
+        with ESMTP id S231536AbjCVUCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:02:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D826C1A8;
+        Wed, 22 Mar 2023 12:59:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4EF4622B0;
-        Wed, 22 Mar 2023 19:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 145C8C4339B;
-        Wed, 22 Mar 2023 19:58:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60F4DB81DC6;
+        Wed, 22 Mar 2023 19:58:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29FB9C4339C;
+        Wed, 22 Mar 2023 19:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515134;
-        bh=owSwlma77mkOCIyn2UW6eaOPLBHPastApHjuYD7u7cI=;
+        s=k20201202; t=1679515137;
+        bh=YpKGVIZwXXwpPXYfMjguBK41oZD5x+E7M/c8749YMQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U25O5FlT+olGyIIi1H4dNik5NUFnM6QoNUJJqK5DaQNeLpfLFAtJ+aRFZTheIzl7c
-         mFZ+xoxFHaBYImoR0MQdPn9U/NA4H5zwEFz9ShaSPjUfgeGCf377mcFkb2mLGSwjYR
-         Oj7l0yrooJVKchIwxb1SB70yPcNJGAZn+FaMyJT/rAzknvPzCtJZCuI3mOwNV5RLXJ
-         PY7SHZ5/tCACeysrK9afXK8Nb8+kvHMe+gzWPvGBjYgux7bJWFhwyOW11eFeW2oNnk
-         2/d4i/l1q85Ieg4MArPFcFAVFnHS38/qLCf204Soof29X0Hk9CKQu8KfEzt4aop3mo
-         vIKggsyZPAR5w==
+        b=h6BeHHnWUdAhr6mRv9EELkUJZJLjdqWDiiNeUhO3xJ8BkzwEw906U+Wv4XCCjrlpG
+         yiAeCs8zVVKzNEKnzYz47pqwdFx7tXuJha2Om65e02LtPOPD6RCEfkrwHPuyh5rHg4
+         B5KRSeNwvgN0i5nk7lIWGb9adJxBlqD46Ogb6GNgF8GQLO0pDkWehkac0h5lOPA4gd
+         mmnNWDltGuMBLSdGG67DdZO/P5G3x5/GZzJsLi99PBIDN0MUlXqB7cy7YEUa54dFer
+         Gxi17icmACWcojAplDXhDVGBQdQgrYjAf92mSDQFtQeE3kd9qGBZlqbrC88d5UT1CI
+         yhKWgYMd56FWQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kristian Overskeid <koverskeid@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, bigeasy@linutronix.de,
-        kurt@linutronix.de, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 29/45] net: hsr: Don't log netdev_err message on unknown prp dst node
-Date:   Wed, 22 Mar 2023 15:56:23 -0400
-Message-Id: <20230322195639.1995821-29-sashal@kernel.org>
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, dengshaomin@cdjrlc.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 30/45] ALSA: asihpi: check pao in control_message()
+Date:   Wed, 22 Mar 2023 15:56:24 -0400
+Message-Id: <20230322195639.1995821-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195639.1995821-1-sashal@kernel.org>
 References: <20230322195639.1995821-1-sashal@kernel.org>
@@ -57,38 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Overskeid <koverskeid@gmail.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
+[ Upstream commit 9026c0bf233db53b86f74f4c620715e94eb32a09 ]
 
-If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
-node will be deleted from the node_db list. If a frame is sent to the node
-after it is deleted, a netdev_err message for each slave interface is
-produced. This should not happen with dan nodes because of supervision
-frames, but can happen often with san nodes, which clutters the kernel
-log. Since the hsr protocol does not support sans, this is only relevant
-for the prp protocol.
+control_message() might be called with pao = NULL.
+Here indicates control_message() as sample.
 
-Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+(B)	static void control_message(struct hpi_adapter_obj *pao, ...)
+	{                                                   ^^^
+		struct hpi_hw_obj *phw = pao->priv;
+		...                      ^^^
+	}
+
+(A)	void _HPI_6205(struct hpi_adapter_obj *pao, ...)
+	{                                      ^^^
+		...
+		case HPI_OBJ_CONTROL:
+(B)			control_message(pao, phm, phr);
+			break;          ^^^
+		...
+	}
+
+	void HPI_6205(...)
+	{
+		...
+(A)		_HPI_6205(NULL, phm, phr);
+		...       ^^^^
+	}
+
+Therefore, We will get too many warning via cppcheck, like below
+
+	sound/pci/asihpi/hpi6205.c:238:27: warning: Possible null pointer dereference: pao [nullPointer]
+		 struct hpi_hw_obj *phw = pao->priv;
+		                          ^
+	sound/pci/asihpi/hpi6205.c:433:13: note: Calling function '_HPI_6205', 1st argument 'NULL' value is 0
+		  _HPI_6205(NULL, phm, phr);
+		            ^
+	sound/pci/asihpi/hpi6205.c:401:20: note: Calling function 'control_message', 1st argument 'pao' value is 0
+	   control_message(pao, phm, phr);
+	                   ^
+Set phr->error like many functions doing, and don't call _HPI_6205()
+with NULL.
+
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87ttypeaqz.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_framereg.c | 2 +-
+ sound/pci/asihpi/hpi6205.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
-index 00db74d96583d..865eda39d6014 100644
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -415,7 +415,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
- 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
- 				       eth_hdr(skb)->h_dest);
- 	if (!node_dst) {
--		if (net_ratelimit())
-+		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
- 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
+diff --git a/sound/pci/asihpi/hpi6205.c b/sound/pci/asihpi/hpi6205.c
+index 27e11b5f70b97..c7d7eff86727f 100644
+--- a/sound/pci/asihpi/hpi6205.c
++++ b/sound/pci/asihpi/hpi6205.c
+@@ -430,7 +430,7 @@ void HPI_6205(struct hpi_message *phm, struct hpi_response *phr)
+ 		pao = hpi_find_adapter(phm->adapter_index);
+ 	} else {
+ 		/* subsys messages don't address an adapter */
+-		_HPI_6205(NULL, phm, phr);
++		phr->error = HPI_ERROR_INVALID_OBJ_INDEX;
  		return;
  	}
+ 
 -- 
 2.39.2
 
