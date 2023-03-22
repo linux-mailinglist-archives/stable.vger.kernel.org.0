@@ -2,55 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F9DE6C554F
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 20:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 189056C5555
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 20:57:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230393AbjCVT53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 15:57:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43446 "EHLO
+        id S230365AbjCVT5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 15:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbjCVT5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:57:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C375864865;
-        Wed, 22 Mar 2023 12:56:45 -0700 (PDT)
+        with ESMTP id S230362AbjCVT5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:57:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45AF66D3A;
+        Wed, 22 Mar 2023 12:56:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D883F62276;
-        Wed, 22 Mar 2023 19:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E68EC433D2;
-        Wed, 22 Mar 2023 19:56:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78831B81DC6;
+        Wed, 22 Mar 2023 19:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33B8C433EF;
+        Wed, 22 Mar 2023 19:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515004;
-        bh=I5p+nFrt1hderaCIh4QWIYwi/J9OVB299B44AzHSw3I=;
+        s=k20201202; t=1679515013;
+        bh=XrrhMWQnqt1ikQWLiMWwcVO1PUIEDtnXn1ngPJpkiys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+F98dBoCunSkg96oFbFI5q7RqHIv6gvXE2s+GU3QQxykQCIZQAk4uAOtfJEfBQx1
-         DJJjDt/sgr8HF25LD+2F3VJdh9Jn9vmWoIp4RFY6hg3+ePfSEJgI2fX5CQskEaC59T
-         YL3FhBpDJCVxMOKmf2Lll0u7K/5NZwHumb5C63McEcDJcbIlx49Lk2TqND2ysU0sP8
-         qgwy/lY+12Iy7q5uSKic41QaR7pQ6w9RDgaQ0GNHdEJpDUM33QASlj10T/UU/FBDeN
-         Zh4HTXaOhE8x7+VWIhTeB8ZppTuOo4GaEZtq2/BON5x8AGwHBFG1Nz/DiB0vh9HB/i
-         5h3pVbQBCh0jg==
+        b=ah7XpLjL9ye5D+AnQpbshf4njYK0ylip+22deqyTRJZBupxJDUfccZRve2iWHhJtn
+         pfABLLt9pvdU/vzTg+1ro8+VNUHRvGNvRQRRukosW4v5PFDQNXisJPDa8Do7tx9ajB
+         AKZopyf0DGxl7iLn3SwhkuNQSnExvVe1nWP4lKOy0T6TN6fnv3rAnvLlIA7+O/Yj3g
+         x/ntkB1QPSUiKaMelviV6G4KNxNZDZaGsWwXJnHnZH5l0aeTrPKCH7VrE4fWn1ieQU
+         QOBYgAnZhXGCfAikmtU6RYU6wd+BGX4HtyuEAx5EahVV8x1TxCeFIGJkcdbUdDQBIF
+         2PrmNum4UvZaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>,
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
-        srinivas.kandagatla@linaro.org, bgoswami@quicinc.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        pierre-louis.bossart@linux.intel.com,
+        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
+        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 02/45] ASoC: codecs: tx-macro: Fix for KASAN: slab-out-of-bounds
-Date:   Wed, 22 Mar 2023 15:55:56 -0400
-Message-Id: <20230322195639.1995821-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 03/45] ASoC: Intel: avs: max98357a: Explicitly define codec format
+Date:   Wed, 22 Mar 2023 15:55:57 -0400
+Message-Id: <20230322195639.1995821-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195639.1995821-1-sashal@kernel.org>
 References: <20230322195639.1995821-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,91 +63,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit e5e7e398f6bb7918dab0612eb6991f7bae95520d ]
+[ Upstream commit d16c893425d07ada1fdd817ec06d322efcf69480 ]
 
-When we run syzkaller we get below Out of Bound.
-    "KASAN: slab-out-of-bounds Read in regcache_flat_read"
+max98357a is speaker codec configured in 48000/2/S16_LE format
+regardless of front end format, so force it to be so.
 
-    Below is the backtrace of the issue:
-
-    dump_backtrace+0x0/0x4c8
-    show_stack+0x34/0x44
-    dump_stack_lvl+0xd8/0x118
-    print_address_description+0x30/0x2d8
-    kasan_report+0x158/0x198
-    __asan_report_load4_noabort+0x44/0x50
-    regcache_flat_read+0x10c/0x110
-    regcache_read+0xf4/0x180
-    _regmap_read+0xc4/0x278
-    _regmap_update_bits+0x130/0x290
-    regmap_update_bits_base+0xc0/0x15c
-    snd_soc_component_update_bits+0xa8/0x22c
-    snd_soc_component_write_field+0x68/0xd4
-    tx_macro_digital_mute+0xec/0x140
-
-    Actually There is no need to have decimator with 32 bits.
-    By limiting the variable with short type u8 issue is resolved.
-
-Signed-off-by: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
-Link: https://lore.kernel.org/r/20230304080702.609-1-quic_visr@quicinc.com
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Link: https://lore.kernel.org/r/20230303134854.2277146-2-amadeuszx.slawinski@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-tx-macro.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ sound/soc/intel/avs/boards/max98357a.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index 2449a2df66df0..8facdb922f076 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -242,7 +242,7 @@ enum {
+diff --git a/sound/soc/intel/avs/boards/max98357a.c b/sound/soc/intel/avs/boards/max98357a.c
+index 921f42caf7e09..183123d08c5a3 100644
+--- a/sound/soc/intel/avs/boards/max98357a.c
++++ b/sound/soc/intel/avs/boards/max98357a.c
+@@ -8,6 +8,7 @@
  
- struct tx_mute_work {
- 	struct tx_macro *tx;
--	u32 decimator;
-+	u8 decimator;
- 	struct delayed_work dwork;
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <sound/pcm_params.h>
+ #include <sound/soc.h>
+ #include <sound/soc-acpi.h>
+ #include <sound/soc-dapm.h>
+@@ -24,6 +25,26 @@ static const struct snd_soc_dapm_route card_base_routes[] = {
+ 	{ "Spk", NULL, "Speaker" },
  };
  
-@@ -635,7 +635,7 @@ static int tx_macro_mclk_enable(struct tx_macro *tx,
- 	return 0;
- }
- 
--static bool is_amic_enabled(struct snd_soc_component *component, int decimator)
-+static bool is_amic_enabled(struct snd_soc_component *component, u8 decimator)
++static int
++avs_max98357a_be_fixup(struct snd_soc_pcm_runtime *runrime, struct snd_pcm_hw_params *params)
++{
++	struct snd_interval *rate, *channels;
++	struct snd_mask *fmt;
++
++	rate = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
++	channels = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
++	fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
++
++	/* The ADSP will convert the FE rate to 48k, stereo */
++	rate->min = rate->max = 48000;
++	channels->min = channels->max = 2;
++
++	/* set SSP0 to 16 bit */
++	snd_mask_none(fmt);
++	snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
++	return 0;
++}
++
+ static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
+ 			       struct snd_soc_dai_link **dai_link)
  {
- 	u16 adc_mux_reg, adc_reg, adc_n;
- 
-@@ -849,7 +849,7 @@ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
- 			       struct snd_kcontrol *kcontrol, int event)
- {
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
--	unsigned int decimator;
-+	u8 decimator;
- 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg, tx_gain_ctl_reg;
- 	u8 hpf_cut_off_freq;
- 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
-@@ -1064,7 +1064,8 @@ static int tx_macro_hw_params(struct snd_pcm_substream *substream,
- 			      struct snd_soc_dai *dai)
- {
- 	struct snd_soc_component *component = dai->component;
--	u32 decimator, sample_rate;
-+	u32 sample_rate;
-+	u8 decimator;
- 	int tx_fs_rate;
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
- 
-@@ -1128,7 +1129,7 @@ static int tx_macro_digital_mute(struct snd_soc_dai *dai, int mute, int stream)
- {
- 	struct snd_soc_component *component = dai->component;
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
--	u16 decimator;
-+	u8 decimator;
- 
- 	/* active decimator not set yet */
- 	if (tx->active_decimator[dai->id] == -1)
+@@ -55,6 +76,7 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
+ 	dl->num_platforms = 1;
+ 	dl->id = 0;
+ 	dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
++	dl->be_hw_params_fixup = avs_max98357a_be_fixup;
+ 	dl->nonatomic = 1;
+ 	dl->no_pcm = 1;
+ 	dl->dpcm_playback = 1;
 -- 
 2.39.2
 
