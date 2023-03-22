@@ -2,80 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8E56C444C
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 08:46:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA436C45E4
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 10:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbjCVHq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 03:46:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
+        id S229597AbjCVJNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 05:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjCVHq2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 03:46:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8A35AB74;
-        Wed, 22 Mar 2023 00:46:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78062B81A34;
-        Wed, 22 Mar 2023 07:46:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F176BC433EF;
-        Wed, 22 Mar 2023 07:46:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679471185;
-        bh=OcfApPzBhFbVilWX9veIC9cR3TcxTEM6uyoh7NQTV4I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ieqy7YeKERD238mqSeqZHh7bdt9fv+09KJAVhevtdiTYCEvGE9yxrzC3swox3JAPb
-         NfqyXmLjIqhaRUjmAtqjkMxmhBoozBBh/ukaB8AFPSxzPu5m7aEGgQE9kWjGqtcdQ/
-         O/KPhln1Xk/gb2TYzrb97riZItapLy5TVtlRo2Kru2gq6hCpNX6WhkBXUe4kn3asu6
-         GpOGzQ6HnmiZRA/KlS74CvuDUQM1gXZWD+Clwx4c3QTltnB4tyRBAEBWl6wiMnYsRW
-         7vVaKdsFj5QX3Lv9orvk3bS2n0JOHa1yvyUPBkJty7oI/vRbSvh+RIS3w92sJyGpIA
-         EE2WuNkUxPRxA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1petCI-0002Sf-Be; Wed, 22 Mar 2023 08:47:51 +0100
-Date:   Wed, 22 Mar 2023 08:47:50 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Sean Paul <sean@poorly.run>, David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 05/10] drm/msm: fix drm device leak on bind errors
-Message-ID: <ZBqypsYBMSr8HPxP@hovoldconsulting.com>
-References: <20230306100722.28485-1-johan+linaro@kernel.org>
- <20230306100722.28485-6-johan+linaro@kernel.org>
- <90264695-131e-46b7-46db-822b0aee9801@linaro.org>
+        with ESMTP id S230305AbjCVJNj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 05:13:39 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986FD252BD;
+        Wed, 22 Mar 2023 02:13:37 -0700 (PDT)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1peuXH-00045z-Jf; Wed, 22 Mar 2023 10:13:35 +0100
+Message-ID: <fc081e0f-2b58-b169-5ac1-f7845f48d1bf@leemhuis.info>
+Date:   Wed, 22 Mar 2023 10:13:35 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <90264695-131e-46b7-46db-822b0aee9801@linaro.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Content-Language: en-US, de-DE
+From:   "Linux regression tracking (Thorsten Leemhuis)" 
+        <regressions@leemhuis.info>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "platform-driver-x86@vger.kernel.org" 
+        <platform-driver-x86@vger.kernel.org>,
+        ibm-acpi-devel@lists.sourceforge.net,
+        Hans de Goede <hdegoede@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux kernel regressions list <regressions@lists.linux.dev>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+To:     Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: [regression] Bug 217225 - can no longer alter /proc/acpi/ibm/fan
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1679476417;ce60d401;
+X-HE-SMSGID: 1peuXH-00045z-Jf
+X-Spam-Status: No, score=0.0 required=5.0 tests=RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 21, 2023 at 04:54:51PM +0200, Dmitry Baryshkov wrote:
-> On 06/03/2023 12:07, Johan Hovold wrote:
-> > Make sure to free the DRM device also in case of early errors during
-> > bind().
-> > 
-> > Fixes: 2027e5b3413d ("drm/msm: Initialize MDSS irq domain at probe time")
-> > Cc: stable@vger.kernel.org      # 5.17
-> > Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Hi, Thorsten here, the Linux kernel's regression tracker.
+
+I noticed a regression report in bugzilla.kernel.org. As many (most?)
+kernel developers don't keep an eye on it, I decided to forward it by
+mail (note, the reporter *is not* CCed to this mail, see[1]).
+
+Note, it's a stable regression, so it's a bit unclear who's responsible.
+I decided to forward it nevertheless, as some of you might want to be
+aware of this or might even have an idea what's wrong.
+
+Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=217225 :
+
+>  runrin 2023-03-21 17:49:34 UTC
+>
+> I occasionally manage my fan speed manually by changing the `level' in
+> `/proc/acpi/ibm/fan'. As of upgrading to 6.1.20, I am now getting the
+> following error when attempting to change the fan speed:
 > 
-> Can we migrate to devm_drm_dev_alloc instead() ? Will it make code 
-> simpler and/or easier to handle?
+> $ echo 'level auto' > /proc/acpi/ibm/fan
+> echo: write error: invalid argument
+> 
+> While troubleshooting, I tried double checking that fan_control had been
+> set to 1 as noted in the documentation.
+> 
+> I recently upgraded my kernel a few versions at once, so unfortunately i
+> can't be sure when this bug originated. It was working with 6.1.15, and
+> since upgrading to 6.1.20 it is no longer working.
 
-I'm just fixing the bugs here. Cleanups/rework like that can be done on
-top but should not be backported as it risks introducing new issues.
+See the ticket for more details. The reporter was already asked to
+bisect. I'll ask to consider testing latest mainline.
 
-Johan
+
+[TLDR for the rest of this mail: I'm adding this report to the list of
+tracked Linux kernel regressions; the text you find below is based on a
+few templates paragraphs you might have encountered already in similar
+form.]
+
+BTW, let me use this mail to also add the report to the list of tracked
+regressions to ensure it's doesn't fall through the cracks:
+
+#regzbot introduced: v6.1.15..v6.1.20
+https://bugzilla.kernel.org/show_bug.cgi?id=217225
+#regzbot title: platform: thinkpad: can no longer alter /proc/acpi/ibm/fan
+#regzbot ignore-activity
+
+This isn't a regression? This issue or a fix for it are already
+discussed somewhere else? It was fixed already? You want to clarify when
+the regression started to happen? Or point out I got the title or
+something else totally wrong? Then just reply and tell me -- ideally
+while also telling regzbot about it, as explained by the page listed in
+the footer of this mail.
+
+Developers: When fixing the issue, remember to add 'Link:' tags pointing
+to the report (e.g. the buzgzilla ticket and maybe this mail as well, if
+this thread sees some discussion). See page linked in footer for details.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+--
+Everything you wanna know about Linux kernel regression tracking:
+https://linux-regtracking.leemhuis.info/about/#tldr
+If I did something stupid, please tell me, as explained on that page.
+
+[1] because bugzilla.kernel.org tells users upon registration their
+"email address will never be displayed to logged out users"
