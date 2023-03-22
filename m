@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A316C5682
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:07:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75AF96C5686
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:07:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbjCVUG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:06:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60954 "EHLO
+        id S231795AbjCVUHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231724AbjCVUGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:06:21 -0400
+        with ESMTP id S230293AbjCVUGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:06:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E19D06A1C6;
-        Wed, 22 Mar 2023 13:01:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F725CC38;
+        Wed, 22 Mar 2023 13:01:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF172622C0;
-        Wed, 22 Mar 2023 20:01:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C64DC433A1;
-        Wed, 22 Mar 2023 20:00:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1799622B6;
+        Wed, 22 Mar 2023 20:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F28C433D2;
+        Wed, 22 Mar 2023 20:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515260;
-        bh=UgHQf1efIHBgU4uG2r7B5JWlDxv2+s1TXxnzspAXBoo=;
+        s=k20201202; t=1679515263;
+        bh=oZn11/EJKjvAZGw7qBbEjPMyq4wcw8nl3p9vzcyQi6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAi9C7QmlxTc7ZRlhLvPRtyTk7wWDJIeHsEpD+DsZFReniQKm8hRHFUpTe5SMuqmj
-         aEz7PbscZVw618Ld+t9H88QyHULAZdNYWqh8AyqHTj9550pOwsdgz4Wq4jt+TG/XCL
-         dHBcQkYJSdHFH1Pgbtcd0wLnpStx4S85j0cq1Hn4/d1H1549V/0hCBoa3di5778JYf
-         AhdJKL4ybNPyzSl9OoBxch2pSenupIixTqyrPh/CNWgREEwWWxSnmkhKdPSJfzmqdu
-         Dw5M5vVfoLy8EvuQj7bztwzzns8eIqC0kT2OGoQ/hqTFbrzel4cmfWQBQtyraZPk4y
-         0QTn/qdyex4pA==
+        b=Wo7s5eHZW/AMInUrzS4p5y5tmyruxqmPkAhDk+zj8t33hc+2lp287Sw3uG0mozTeE
+         cnL6jMQyZpl3gtds0kNwUIIn/d89MT5Vkk7BPrYN7X17nj1gp+vNeBCS0RB3Nlv+Je
+         CcLYhTqRz2L+9/Oxb0z+W/yMoSJVbDYwU0aSF8a6rBAVF6893gK7xJkEgPQv4F/+xB
+         Mrs5xzWrRlp5DhP8vWKrCmkfn0/MC0HzAD6lXU9LEcuU7M8wYSmAbCQ+B5AAGB/hXr
+         3aovHbhuHUiYTsHzOZLtFxyR7VHleMMXdCRBE3DvXhXC/8Z9nkHAAk3BGzYcOOhLWv
+         0HR6Lo4Y5v4eQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Yu <yu.c.chen@intel.com>,
-        Hariganesh Govindarajulu <hariganesh.govindarajulu@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
-        junming@nfschina.com, linux-acpi@vger.kernel.org,
-        acpica-devel@lists.linuxfoundation.org
-Subject: [PATCH AUTOSEL 6.1 23/34] ACPI: tools: pfrut: Check if the input of level and type is in the right numeric range
-Date:   Wed, 22 Mar 2023 15:59:15 -0400
-Message-Id: <20230322195926.1996699-23-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Ryan Roberts <ryan.roberts@arm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org
+Subject: [PATCH AUTOSEL 6.1 24/34] sched_getaffinity: don't assume 'cpumask_size()' is fully initialized
+Date:   Wed, 22 Mar 2023 15:59:16 -0400
+Message-Id: <20230322195926.1996699-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,91 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Yu <yu.c.chen@intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 0bc23d8b2237a104d7f8379d687aa4cb82e2968b ]
+[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
 
-The user provides arbitrary non-numeic value to level and type,
-which could bring unexpected behavior. In this case the expected
-behavior would be to throw an error.
+The getaffinity() system call uses 'cpumask_size()' to decide how big
+the CPU mask is - so far so good.  It is indeed the allocation size of a
+cpumask.
 
- pfrut -h
-usage: pfrut [OPTIONS]
-code injection:
--l, --load
--s, --stage
--a, --activate
--u, --update [stage and activate]
--q, --query
--d, --revid
-update telemetry:
--G, --getloginfo
--T, --type(0:execution, 1:history)
--L, --level(0, 1, 2, 4)
--R, --read
--D, --revid log
+But the code also assumes that the whole allocation is initialized
+without actually doing so itself.  That's wrong, because we might have
+fixed-size allocations (making copying and clearing more efficient), but
+not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
 
- pfrut -T A
- pfrut -G
-log_level:0
-log_type:0
-log_revid:2
-max_data_size:65536
-chunk1_size:0
-chunk2_size:1530
-rollover_cnt:0
-reset_cnt:17
+Having checked other users of 'cpumask_size()', they all seem to be ok,
+either using it purely for the allocation size, or explicitly zeroing
+the cpumask before using the size in bytes to copy it.
 
-Fix this by restricting the input to be in the expected range.
+See for example the ublk_ctrl_get_queue_affinity() function that uses
+the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
+cleared, whether the storage is on the stack or if it was an external
+allocation.
 
-Reported-by: Hariganesh Govindarajulu <hariganesh.govindarajulu@intel.com>
-Suggested-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix this by just zeroing the allocation before using it.  Do the same
+for the compat version of sched_getaffinity(), which had the same logic.
+
+Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
+access the bits.  For a cpumask_var_t, it ends up being a pointer to the
+same data either way, but it's just a good idea to treat it like you
+would a 'cpumask_t'.  The compat case already did that.
+
+Reported-by: Ryan Roberts <ryan.roberts@arm.com>
+Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
+Cc: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/acpi/tools/pfrut/pfrut.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ kernel/compat.c     | 2 +-
+ kernel/sched/core.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/power/acpi/tools/pfrut/pfrut.c b/tools/power/acpi/tools/pfrut/pfrut.c
-index 52aa0351533c3..388c9e3ad0407 100644
---- a/tools/power/acpi/tools/pfrut/pfrut.c
-+++ b/tools/power/acpi/tools/pfrut/pfrut.c
-@@ -97,7 +97,7 @@ static struct option long_options[] = {
- static void parse_options(int argc, char **argv)
- {
- 	int option_index = 0;
--	char *pathname;
-+	char *pathname, *endptr;
- 	int opt;
+diff --git a/kernel/compat.c b/kernel/compat.c
+index 55551989d9da5..fb50f29d9b361 100644
+--- a/kernel/compat.c
++++ b/kernel/compat.c
+@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
+ 	if (len & (sizeof(compat_ulong_t)-1))
+ 		return -EINVAL;
  
- 	pathname = strdup(argv[0]);
-@@ -125,11 +125,23 @@ static void parse_options(int argc, char **argv)
- 			log_getinfo = 1;
- 			break;
- 		case 'T':
--			log_type = atoi(optarg);
-+			log_type = strtol(optarg, &endptr, 0);
-+			if (*endptr || (log_type != 0 && log_type != 1)) {
-+				printf("Number expected: type(0:execution, 1:history) - Quit.\n");
-+				exit(1);
-+			}
-+
- 			set_log_type = 1;
- 			break;
- 		case 'L':
--			log_level = atoi(optarg);
-+			log_level = strtol(optarg, &endptr, 0);
-+			if (*endptr ||
-+			    (log_level != 0 && log_level != 1 &&
-+			     log_level != 2 && log_level != 4)) {
-+				printf("Number expected: level(0, 1, 2, 4) - Quit.\n");
-+				exit(1);
-+			}
-+
- 			set_log_level = 1;
- 			break;
- 		case 'R':
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	ret = sched_getaffinity(pid, mask);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index f730b6fe94a7f..1d033e5719e70 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8301,14 +8301,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
+ 	if (len & (sizeof(unsigned long)-1))
+ 		return -EINVAL;
+ 
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	ret = sched_getaffinity(pid, mask);
+ 	if (ret == 0) {
+ 		unsigned int retlen = min(len, cpumask_size());
+ 
+-		if (copy_to_user(user_mask_ptr, mask, retlen))
++		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
+ 			ret = -EFAULT;
+ 		else
+ 			ret = retlen;
 -- 
 2.39.2
 
