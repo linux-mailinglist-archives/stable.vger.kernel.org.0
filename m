@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D65F16C56FC
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 295D06C5700
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbjCVULR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:11:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53988 "EHLO
+        id S232116AbjCVULd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:11:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231873AbjCVUKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04BFD7DF90;
-        Wed, 22 Mar 2023 13:03:43 -0700 (PDT)
+        with ESMTP id S231600AbjCVUKw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C137DF9C;
+        Wed, 22 Mar 2023 13:03:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 550D4B81B97;
-        Wed, 22 Mar 2023 20:02:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6923EC433EF;
-        Wed, 22 Mar 2023 20:02:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 388D5622D9;
+        Wed, 22 Mar 2023 20:02:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98096C433EF;
+        Wed, 22 Mar 2023 20:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515330;
-        bh=ADgOMX62IrR82V6veE+B2pFtCQ5XlrDFYKj5HOS6t58=;
-        h=From:To:Cc:Subject:Date:From;
-        b=aY3aBFczkCcb9UVy2ASFnv3mGpXwsVfB6nc2UmM0m31rV5VcxBnFJGctoP3k3MhkJ
-         f4kHCtqVEAiRdBCKNPuosauxDHw1auPQnoi8cUI42QUn+meJaPb2gKLPWxf9G8MLZd
-         TprogqtX1z9ONDzTWPxCb/eU65tFCRDQ7L0LFNe/XIJtfCbpcboZx9oItBv9WWlxC0
-         AFV5X5yVBsAlj++M+Q2OCbdjTfEz+8wy//I+G58h7ww5KF7gYGxUhy+5m+Tca7yHpM
-         ZoewSIpBt4ZH518lrBPOSHdALbCi0eFU7pn5Vrib+ZkEo3wJjktsWt73GEdineMdn8
-         t8sVimH1f+PGg==
+        s=k20201202; t=1679515334;
+        bh=lvQnkhV/8wk805PIcWa9w3sPtixMKH2N/WGyitj9tfc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=IPNHHb2QUoSz1YE6fMXlNKttssHHum+tcNQy/vqBx6WTgN8y64FeGEmg6TVYxeJ0W
+         rbKu9ByP7zlcvki+4okjcwa3g9iYyy7ncI6WM8C32PKldeI3eFAcCM1DPDX6iKxZbZ
+         zviXUenzHfBUTatq6ALmLohphvDiu1e0CyzbvGO2DYy8HJcEKleDLINcchTzTq1258
+         KCTsJw4VuHJ7RK/XMHGA25OGI5N1ijj8ouV/KTR0gP6h4W5aqNcxnKh1F68CEglYdo
+         1NeDG5eXr7vizJeYsRYjt0WajtiZ7uDZceva7YYzmjLilZNxXiM/n9OTxXO+hpaqQt
+         7qabJMxqLT3rw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     NeilBrown <neilb@suse.de>, Dan Carpenter <error27@gmail.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/12] md: avoid signed overflow in slot_store()
-Date:   Wed, 22 Mar 2023 16:01:55 -0400
-Message-Id: <20230322200207.1997367-1-sashal@kernel.org>
+Cc:     Kristian Overskeid <koverskeid@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, bigeasy@linutronix.de,
+        kurt@linutronix.de, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 02/12] net: hsr: Don't log netdev_err message on unknown prp dst node
+Date:   Wed, 22 Mar 2023 16:01:56 -0400
+Message-Id: <20230322200207.1997367-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230322200207.1997367-1-sashal@kernel.org>
+References: <20230322200207.1997367-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -53,42 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Kristian Overskeid <koverskeid@gmail.com>
 
-[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
+[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
 
-slot_store() uses kstrtouint() to get a slot number, but stores the
-result in an "int" variable (by casting a pointer).
-This can result in a negative slot number if the unsigned int value is
-very large.
+If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
+node will be deleted from the node_db list. If a frame is sent to the node
+after it is deleted, a netdev_err message for each slave interface is
+produced. This should not happen with dan nodes because of supervision
+frames, but can happen often with san nodes, which clutters the kernel
+log. Since the hsr protocol does not support sans, this is only relevant
+for the prp protocol.
 
-A negative number means that the slot is empty, but setting a negative
-slot number this way will not remove the device from the array.  I don't
-think this is a serious problem, but it could cause confusion and it is
-best to fix it.
-
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/hsr/hsr_framereg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index c0b34637bd667..1553c2495841b 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -3207,6 +3207,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
- 		if (err < 0)
- 			return err;
-+		if (slot < 0)
-+			/* overflow */
-+			return -ENOSPC;
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 20cb6b7dbc694..08627c8368848 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -380,7 +380,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
+ 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
+ 				       eth_hdr(skb)->h_dest);
+ 	if (!node_dst) {
+-		if (net_ratelimit())
++		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
+ 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
+ 		return;
  	}
- 	if (rdev->mddev->pers && slot == -1) {
- 		/* Setting 'slot' on an active array requires also
 -- 
 2.39.2
 
