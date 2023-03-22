@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9F4F6C5758
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:19:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DDC46C56ED
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232243AbjCVUTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:19:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
+        id S232013AbjCVUKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232340AbjCVUSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:18:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15966B950;
-        Wed, 22 Mar 2023 13:08:47 -0700 (PDT)
+        with ESMTP id S232154AbjCVUKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42CC96A1F2;
+        Wed, 22 Mar 2023 13:03:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AFDAB81DEE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4494622B8;
         Wed, 22 Mar 2023 20:02:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BD1C433EF;
-        Wed, 22 Mar 2023 20:02:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712A8C4339E;
+        Wed, 22 Mar 2023 20:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515351;
-        bh=oFDq41osjBl72pC69W2veQiQ7hFMujgQQKKzYNGEQaY=;
+        s=k20201202; t=1679515352;
+        bh=L0ppsVkM3L1IhzDIY/wbSoHkSWthJizIcAiKa9RNvfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNgeqCH5pcrrtqe6XWL9UtTggmbS7Az+IwLkzi3rjer3XQG2ITuYTF+COMO+vU/G+
-         rnYbPAKcy67YFZzM+lTsUyiu2m+tydSnjCg1QVjeP/wS+jhKOr0/9deieritshcY0p
-         XeKuCtZV/Ie8eZ6RCAziwmSCEr+Waonldd5nXR57Ys3veDA/5m61qxkgZ3IokyhGMK
-         afXBv027FbhTxGFCzrtZDjzOhYziGmyYcVZFXxdZiG3p0jamLFa4397+sqb7wJfQZ0
-         oTRvwr+QPQeM8jtjvplZzMbCvglUs+th1G0nYe1KBTEvksTextqswqC1o8zP+yef7M
-         HOgk9R0GprRww==
+        b=nH0cBNi7YCouv7ksIzIAmZkiLAoUsQAyBWKnzqEbcAcWzpEplotiW2ZJTmcE+Dq52
+         wzMAR29MtA4DrmoedbmAYOYoLJhUJQmnzMR12jlFo56HRWv6kP2XBaYhNDe4dLNo68
+         KIw62krylHt/+TwSzlRRfEdekLrfvxX3ltOm8wJY5G0fMP5IeR4rK2NhHElE1LPWBa
+         wiCFN0lDDI9uiAf34IdOQCs2bIQGt9miaj/e6F7DFKTegZgwo1YWlw95Xi2dF2aQ+X
+         zJdGWvrvp9bag2HAzjtykeYr1T7cc8aLoW1kqQE5bGsOgdd1Mott59490n3KYfWCm1
+         COLmwv0NjK2ng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org
-Subject: [PATCH AUTOSEL 5.10 06/12] sched_getaffinity: don't assume 'cpumask_size()' is fully initialized
-Date:   Wed, 22 Mar 2023 16:02:00 -0400
-Message-Id: <20230322200207.1997367-6-sashal@kernel.org>
+Cc:     Wei Chen <harperchen1110@gmail.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, adaplas@gmail.com,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 07/12] fbdev: nvidia: Fix potential divide by zero
+Date:   Wed, 22 Mar 2023 16:02:01 -0400
+Message-Id: <20230322200207.1997367-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322200207.1997367-1-sashal@kernel.org>
 References: <20230322200207.1997367-1-sashal@kernel.org>
@@ -49,8 +46,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,80 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit 92e2a00f2987483e1f9253625828622edd442e61 ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+variable var->pixclock can be set by user. In case it
+equals to zero, divide by zero would occur in nvidiafb_set_par.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
+Similar crashes have happened in other fbdev drivers. There
+is no check and modification on var->pixclock along the call
+chain to nvidia_check_var and nvidiafb_set_par. We believe it
+could also be triggered in driver nvidia from user site.
 
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
-
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
-
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
-
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
-
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/nvidia/nvidia.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index 05adfd6fa8bf9..f9f7a79e07c5f 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
+diff --git a/drivers/video/fbdev/nvidia/nvidia.c b/drivers/video/fbdev/nvidia/nvidia.c
+index a372a183c1f01..f9c388a8c10e3 100644
+--- a/drivers/video/fbdev/nvidia/nvidia.c
++++ b/drivers/video/fbdev/nvidia/nvidia.c
+@@ -763,6 +763,8 @@ static int nvidiafb_check_var(struct fb_var_screeninfo *var,
+ 	int pitch, err = 0;
  
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
+ 	NVTRACE_ENTER();
++	if (!var->pixclock)
++		return -EINVAL;
  
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 1303a2607f1f8..0cae8282899a2 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6064,14 +6064,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		unsigned int retlen = min(len, cpumask_size());
- 
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+ 	var->transp.offset = 0;
+ 	var->transp.length = 0;
 -- 
 2.39.2
 
