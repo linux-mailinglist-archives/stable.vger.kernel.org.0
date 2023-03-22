@@ -2,114 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA066C435F
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 07:40:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8E56C444C
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 08:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbjCVGkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 02:40:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43404 "EHLO
+        id S229487AbjCVHq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 03:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230005AbjCVGkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 02:40:47 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B775BC8E
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 23:40:45 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id y20so22080623lfj.2
-        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 23:40:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1679467244;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OjibXlExvge37of3uq5kGMqBiMIjX3D2b9DBjXXdAOg=;
-        b=UWFPA1O80E8Yvytt01jq2QIZlVrmn7Jcyha10uK9nvBUeZ9OymTt6B8Z9AX3M1FOVk
-         FAgiDSO/jaNYlZwykZtkM6h8Br2W+Xz3Upj+p1cJ3G9NUWRYMew1DqmVVcxg5s3xhR6W
-         P91VXlrP4QY4cVIZIPaw74N3GzXJs/CWhQEK6vuRWwkKRvwhFYhgMhM2OX/jvg3VuVOM
-         73Z/Q0t2qS9GkaccmEy2b5NdVtlgmhAPox9KqyABqgEIl07lkYOdVCdKoQoS9014wOwR
-         4MuZ77zV2HQU60wNZPhj+9F35cimJ5cg6Prcql48PgTM4ngXq9dDpTVf1swH+/8w6rq1
-         YMVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679467244;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OjibXlExvge37of3uq5kGMqBiMIjX3D2b9DBjXXdAOg=;
-        b=471yAkJJLUiVS3QWPGh3h7OXc9W/CT9FV1H7CeDjr/nbLIF1AHWQgTNNbMLk6ZSOrY
-         +cxYRXUgvZdJOp3kS752CmpOnQ864jFxpLtHxI05yL12HOYVNQxDvopmO7yOuQYx6ogb
-         RkNviZPE9RgbFb1FluMvaHRKYgkNzvayFsL9lsRDFbaGTJavDeN23yW8YQKF5sinnq7t
-         8dnLXNTKa8eTuKhF5Cde4k8ROKROWGo59RP9HPxTXnwnQWHMypCS/QPd9pY4zTolMqrY
-         cUnwKBfaiTYCagU6yymLkt+R9zuaBMV6+Qj/K6m4xTsUt9uatM/5YdH2OeewMZY7sku/
-         R3FQ==
-X-Gm-Message-State: AO0yUKX4G0N9RB//vKhKijdy3hxALLK0/RbTeWl7DOcsjn4Yj93cL0Cn
-        V0tkrxVr8ay2ehEOR+F5is+fKA==
-X-Google-Smtp-Source: AK7set8Qi0viAviwjYHM3w8QtxMrW5ArDewIDKji6YiN0pl8h2sw0lxNoFC7eh4swxgCw7JwHCrZQw==
-X-Received: by 2002:ac2:43a4:0:b0:4e8:47cd:b4ba with SMTP id t4-20020ac243a4000000b004e847cdb4bamr1676972lfl.13.1679467244027;
-        Tue, 21 Mar 2023 23:40:44 -0700 (PDT)
-Received: from ta1.c.googlers.com.com (61.215.228.35.bc.googleusercontent.com. [35.228.215.61])
-        by smtp.gmail.com with ESMTPSA id n20-20020ac242d4000000b004dafde0e7b7sm2462255lfl.279.2023.03.21.23.40.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Mar 2023 23:40:43 -0700 (PDT)
-From:   Tudor Ambarus <tudor.ambarus@linaro.org>
-To:     michael@walle.cc, pratyush@kernel.org
-Cc:     miquel.raynal@bootlin.com, richard@nod.at,
-        Takahiro.Kuwano@infineon.com, bacem.daassi@infineon.com,
-        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v4 09/11] mtd: spi-nor: core: Update flash's current address mode when changing address mode
-Date:   Wed, 22 Mar 2023 06:40:31 +0000
-Message-Id: <20230322064033.2370483-10-tudor.ambarus@linaro.org>
-X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
-In-Reply-To: <20230322064033.2370483-1-tudor.ambarus@linaro.org>
-References: <20230322064033.2370483-1-tudor.ambarus@linaro.org>
+        with ESMTP id S229436AbjCVHq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 03:46:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8A35AB74;
+        Wed, 22 Mar 2023 00:46:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78062B81A34;
+        Wed, 22 Mar 2023 07:46:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F176BC433EF;
+        Wed, 22 Mar 2023 07:46:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679471185;
+        bh=OcfApPzBhFbVilWX9veIC9cR3TcxTEM6uyoh7NQTV4I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ieqy7YeKERD238mqSeqZHh7bdt9fv+09KJAVhevtdiTYCEvGE9yxrzC3swox3JAPb
+         NfqyXmLjIqhaRUjmAtqjkMxmhBoozBBh/ukaB8AFPSxzPu5m7aEGgQE9kWjGqtcdQ/
+         O/KPhln1Xk/gb2TYzrb97riZItapLy5TVtlRo2Kru2gq6hCpNX6WhkBXUe4kn3asu6
+         GpOGzQ6HnmiZRA/KlS74CvuDUQM1gXZWD+Clwx4c3QTltnB4tyRBAEBWl6wiMnYsRW
+         7vVaKdsFj5QX3Lv9orvk3bS2n0JOHa1yvyUPBkJty7oI/vRbSvh+RIS3w92sJyGpIA
+         EE2WuNkUxPRxA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1petCI-0002Sf-Be; Wed, 22 Mar 2023 08:47:51 +0100
+Date:   Wed, 22 Mar 2023 08:47:50 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sean Paul <sean@poorly.run>, David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 05/10] drm/msm: fix drm device leak on bind errors
+Message-ID: <ZBqypsYBMSr8HPxP@hovoldconsulting.com>
+References: <20230306100722.28485-1-johan+linaro@kernel.org>
+ <20230306100722.28485-6-johan+linaro@kernel.org>
+ <90264695-131e-46b7-46db-822b0aee9801@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <90264695-131e-46b7-46db-822b0aee9801@linaro.org>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The bug was obswerved while reading code. There are not many users of
-addr_mode_nbytes. Anyway, we should update the flash's current address
-mode when changing the address mode, fix it. We don't care for now about
-the set_4byte_addr_mode(nor, false) from spi_nor_restore(), as it is
-used at driver remove and shutdown.
+On Tue, Mar 21, 2023 at 04:54:51PM +0200, Dmitry Baryshkov wrote:
+> On 06/03/2023 12:07, Johan Hovold wrote:
+> > Make sure to free the DRM device also in case of early errors during
+> > bind().
+> > 
+> > Fixes: 2027e5b3413d ("drm/msm: Initialize MDSS irq domain at probe time")
+> > Cc: stable@vger.kernel.org      # 5.17
+> > Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> 
+> Can we migrate to devm_drm_dev_alloc instead() ? Will it make code 
+> simpler and/or easier to handle?
 
-Cc: stable@vger.kernel.org
-Fixes: d7931a215063 ("mtd: spi-nor: core: Track flash's internal address mode")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
----
- drivers/mtd/spi-nor/core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+I'm just fixing the bugs here. Cleanups/rework like that can be done on
+top but should not be backported as it risks introducing new issues.
 
-diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index 1cf566fed9c6..868414017399 100644
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -2769,6 +2769,7 @@ static int spi_nor_quad_enable(struct spi_nor *nor)
- 
- static int spi_nor_init(struct spi_nor *nor)
- {
-+	struct spi_nor_flash_parameter *params = nor->params;
- 	int err;
- 
- 	err = spi_nor_octal_dtr_enable(nor, true);
-@@ -2810,9 +2811,10 @@ static int spi_nor_init(struct spi_nor *nor)
- 		 */
- 		WARN_ONCE(nor->flags & SNOR_F_BROKEN_RESET,
- 			  "enabling reset hack; may not recover from unexpected reboots\n");
--		err = nor->params->set_4byte_addr_mode(nor, true);
-+		err = params->set_4byte_addr_mode(nor, true);
- 		if (err && err != -ENOTSUPP)
- 			return err;
-+		params->addr_mode_nbytes = 4;
- 	}
- 
- 	return 0;
--- 
-2.40.0.rc1.284.g88254d51c5-goog
-
+Johan
