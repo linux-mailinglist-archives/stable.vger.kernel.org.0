@@ -2,113 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FDAA6C411C
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 04:36:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA066C435F
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 07:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbjCVDgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Mar 2023 23:36:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46634 "EHLO
+        id S230031AbjCVGkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 02:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbjCVDgP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Mar 2023 23:36:15 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7A1B574F7;
-        Tue, 21 Mar 2023 20:36:14 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id z10so9810523pgr.8;
-        Tue, 21 Mar 2023 20:36:14 -0700 (PDT)
+        with ESMTP id S230005AbjCVGkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 02:40:47 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B775BC8E
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 23:40:45 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id y20so22080623lfj.2
+        for <stable@vger.kernel.org>; Tue, 21 Mar 2023 23:40:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679456174;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cc5DrnEojv7YzJeakKQDE2SxbRr1LRl34O5JQg2M6PA=;
-        b=awX3m9vefbZpc3RuCHE7jwwzjw8g250qVtMe4fA0XdztKNV3oF4Qz48I2beLUTlx+Z
-         eGFH7EEwbYVEM4Z9x9Lp5BYSqbvMvck1Ql5Y3vhrakrr6vY9qXniDu0uc21psLy6rhaM
-         z9dJo/2lKryXLCAP+jN3J4raQyMmb97/xSVUHtfDGWHZF+engVHAu23KPyzOaSNkCzfe
-         dEvEcwDJO89ueQVR2kIG1A/Ai3BZd/EHJaQK8Whf9ruaYFCCzkKosxS5RaQyPDPaGk68
-         E7zn8A43yoqaO7qJ0G917eUNH40Tgr5hv7uJnyzmAL3Df0gKpX7YADP/oJXWFBLJzQTg
-         MZ8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679456174;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=linaro.org; s=google; t=1679467244;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cc5DrnEojv7YzJeakKQDE2SxbRr1LRl34O5JQg2M6PA=;
-        b=1X3LHr+OIFhHe9Hg8SdY1qhqi4C49V/fqGQqftUgckU612jT2JOdLcfSmhUXy6uZ22
-         bIxo4If8217wHijyx3nUtrDWYoriND0f4l0p8LyQEYIrR0DjFAd115Zaqi2+NPUbxJ3J
-         dpFAJu6Qg/00Wll1dKmGHRtLwKaYngsMiXjG32HY2UrX/35PGPuhU6cJAzEzOiTPgswx
-         wB+LgDCO+ul5yGs3wNewzSWQOlb7NRZYXNCI+/8sR7gocBCdxFcfSyYjSux+NL9UG1z9
-         YvfBVcGQb02CE6BVW8qZbPFWHqzCCEvnTecjAxyos7cH/Luv1Gq0WUVEKZ+GatPlTz8Q
-         2iBg==
-X-Gm-Message-State: AO0yUKWN8Z5KEae65RnE9CTmtDZQ6c/cIpXj+/daLlWR55lWOyRDDuxF
-        E24GoH3aguDOlDzQlAYF7a4=
-X-Google-Smtp-Source: AK7set9xQymjHsWW4dxuyE68uy9S+v5E3RymCn9aJK+gp2C0qZe4RXxZjI1qHxQBmvGQmfONI3RrlQ==
-X-Received: by 2002:a62:844e:0:b0:622:ece1:35d3 with SMTP id k75-20020a62844e000000b00622ece135d3mr868953pfd.5.1679456174115;
-        Tue, 21 Mar 2023 20:36:14 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-30.three.co.id. [180.214.232.30])
-        by smtp.gmail.com with ESMTPSA id x16-20020aa784d0000000b006280676b8b4sm3653085pfn.220.2023.03.21.20.36.13
+        bh=OjibXlExvge37of3uq5kGMqBiMIjX3D2b9DBjXXdAOg=;
+        b=UWFPA1O80E8Yvytt01jq2QIZlVrmn7Jcyha10uK9nvBUeZ9OymTt6B8Z9AX3M1FOVk
+         FAgiDSO/jaNYlZwykZtkM6h8Br2W+Xz3Upj+p1cJ3G9NUWRYMew1DqmVVcxg5s3xhR6W
+         P91VXlrP4QY4cVIZIPaw74N3GzXJs/CWhQEK6vuRWwkKRvwhFYhgMhM2OX/jvg3VuVOM
+         73Z/Q0t2qS9GkaccmEy2b5NdVtlgmhAPox9KqyABqgEIl07lkYOdVCdKoQoS9014wOwR
+         4MuZ77zV2HQU60wNZPhj+9F35cimJ5cg6Prcql48PgTM4ngXq9dDpTVf1swH+/8w6rq1
+         YMVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679467244;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OjibXlExvge37of3uq5kGMqBiMIjX3D2b9DBjXXdAOg=;
+        b=471yAkJJLUiVS3QWPGh3h7OXc9W/CT9FV1H7CeDjr/nbLIF1AHWQgTNNbMLk6ZSOrY
+         +cxYRXUgvZdJOp3kS752CmpOnQ864jFxpLtHxI05yL12HOYVNQxDvopmO7yOuQYx6ogb
+         RkNviZPE9RgbFb1FluMvaHRKYgkNzvayFsL9lsRDFbaGTJavDeN23yW8YQKF5sinnq7t
+         8dnLXNTKa8eTuKhF5Cde4k8ROKROWGo59RP9HPxTXnwnQWHMypCS/QPd9pY4zTolMqrY
+         cUnwKBfaiTYCagU6yymLkt+R9zuaBMV6+Qj/K6m4xTsUt9uatM/5YdH2OeewMZY7sku/
+         R3FQ==
+X-Gm-Message-State: AO0yUKX4G0N9RB//vKhKijdy3hxALLK0/RbTeWl7DOcsjn4Yj93cL0Cn
+        V0tkrxVr8ay2ehEOR+F5is+fKA==
+X-Google-Smtp-Source: AK7set8Qi0viAviwjYHM3w8QtxMrW5ArDewIDKji6YiN0pl8h2sw0lxNoFC7eh4swxgCw7JwHCrZQw==
+X-Received: by 2002:ac2:43a4:0:b0:4e8:47cd:b4ba with SMTP id t4-20020ac243a4000000b004e847cdb4bamr1676972lfl.13.1679467244027;
+        Tue, 21 Mar 2023 23:40:44 -0700 (PDT)
+Received: from ta1.c.googlers.com.com (61.215.228.35.bc.googleusercontent.com. [35.228.215.61])
+        by smtp.gmail.com with ESMTPSA id n20-20020ac242d4000000b004dafde0e7b7sm2462255lfl.279.2023.03.21.23.40.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Mar 2023 20:36:13 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 43A21106772; Wed, 22 Mar 2023 10:27:15 +0700 (WIB)
-Date:   Wed, 22 Mar 2023 10:27:15 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tue, 21 Mar 2023 23:40:43 -0700 (PDT)
+From:   Tudor Ambarus <tudor.ambarus@linaro.org>
+To:     michael@walle.cc, pratyush@kernel.org
+Cc:     miquel.raynal@bootlin.com, richard@nod.at,
+        Takahiro.Kuwano@infineon.com, bacem.daassi@infineon.com,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@linaro.org>,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/214] 6.2.8-rc3 review
-Message-ID: <ZBp1k17eviGPhnnW@debian.me>
-References: <20230321180749.921141176@linuxfoundation.org>
+Subject: [PATCH v4 09/11] mtd: spi-nor: core: Update flash's current address mode when changing address mode
+Date:   Wed, 22 Mar 2023 06:40:31 +0000
+Message-Id: <20230322064033.2370483-10-tudor.ambarus@linaro.org>
+X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
+In-Reply-To: <20230322064033.2370483-1-tudor.ambarus@linaro.org>
+References: <20230322064033.2370483-1-tudor.ambarus@linaro.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="IKKBsrAChcI1rFR/"
-Content-Disposition: inline
-In-Reply-To: <20230321180749.921141176@linuxfoundation.org>
-X-Spam-Status: No, score=1.3 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: *
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The bug was obswerved while reading code. There are not many users of
+addr_mode_nbytes. Anyway, we should update the flash's current address
+mode when changing the address mode, fix it. We don't care for now about
+the set_4byte_addr_mode(nor, false) from spi_nor_restore(), as it is
+used at driver remove and shutdown.
 
---IKKBsrAChcI1rFR/
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cc: stable@vger.kernel.org
+Fixes: d7931a215063 ("mtd: spi-nor: core: Track flash's internal address mode")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+---
+ drivers/mtd/spi-nor/core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-On Tue, Mar 21, 2023 at 07:08:32PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.8 release.
-> There are 214 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index 1cf566fed9c6..868414017399 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2769,6 +2769,7 @@ static int spi_nor_quad_enable(struct spi_nor *nor)
+ 
+ static int spi_nor_init(struct spi_nor *nor)
+ {
++	struct spi_nor_flash_parameter *params = nor->params;
+ 	int err;
+ 
+ 	err = spi_nor_octal_dtr_enable(nor, true);
+@@ -2810,9 +2811,10 @@ static int spi_nor_init(struct spi_nor *nor)
+ 		 */
+ 		WARN_ONCE(nor->flags & SNOR_F_BROKEN_RESET,
+ 			  "enabling reset hack; may not recover from unexpected reboots\n");
+-		err = nor->params->set_4byte_addr_mode(nor, true);
++		err = params->set_4byte_addr_mode(nor, true);
+ 		if (err && err != -ENOTSUPP)
+ 			return err;
++		params->addr_mode_nbytes = 4;
+ 	}
+ 
+ 	return 0;
+-- 
+2.40.0.rc1.284.g88254d51c5-goog
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---IKKBsrAChcI1rFR/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZBp1kgAKCRD2uYlJVVFO
-o+i9AQCnTzbFhfiMLuDyojdMj1c04sIPs6urEuudcbYtprPrPQEAzNZiWhHQNnQl
-99rE/5k5fDZCstp+6458xOgtWWZEHAQ=
-=8Hhb
------END PGP SIGNATURE-----
-
---IKKBsrAChcI1rFR/--
