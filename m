@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75AF96C5686
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C99C36C56B3
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231795AbjCVUHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:07:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
+        id S231875AbjCVUIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:08:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230293AbjCVUGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:06:23 -0400
+        with ESMTP id S231343AbjCVUIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:08:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F725CC38;
-        Wed, 22 Mar 2023 13:01:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32B656B966;
+        Wed, 22 Mar 2023 13:02:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1799622B6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AF15622B9;
+        Wed, 22 Mar 2023 20:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C011C433EF;
         Wed, 22 Mar 2023 20:01:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F28C433D2;
-        Wed, 22 Mar 2023 20:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515263;
-        bh=oZn11/EJKjvAZGw7qBbEjPMyq4wcw8nl3p9vzcyQi6s=;
+        s=k20201202; t=1679515264;
+        bh=AQ6nU7SHgrEcWyO/dDeU3DSDaMiK10FMK2chPHbMoog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wo7s5eHZW/AMInUrzS4p5y5tmyruxqmPkAhDk+zj8t33hc+2lp287Sw3uG0mozTeE
-         cnL6jMQyZpl3gtds0kNwUIIn/d89MT5Vkk7BPrYN7X17nj1gp+vNeBCS0RB3Nlv+Je
-         CcLYhTqRz2L+9/Oxb0z+W/yMoSJVbDYwU0aSF8a6rBAVF6893gK7xJkEgPQv4F/+xB
-         Mrs5xzWrRlp5DhP8vWKrCmkfn0/MC0HzAD6lXU9LEcuU7M8wYSmAbCQ+B5AAGB/hXr
-         3aovHbhuHUiYTsHzOZLtFxyR7VHleMMXdCRBE3DvXhXC/8Z9nkHAAk3BGzYcOOhLWv
-         0HR6Lo4Y5v4eQ==
+        b=BdlZ+gwU2/pHkvwm80zox2c7v+qHZHS9edyn7L9nrPFhlhjCp7yThd4hc3cf9U8oi
+         464dXSpIrD7gsj+KepN2ZHtGQgCCEtaDPn60Hes+iVkolxnxUC8oo+PufzOhlPl3nS
+         2ZViN/2uBMebD0IvDwqH7LpWwa0RJg+zSD6Tswja1vx3oVkxZc3fOpGu0GKv8cKaN5
+         Xngo9pXmwDBZ6wgxWizbSIRHf6mN+6ZFjYkpP2pV7dAdnIfy2x9MAM1usQVbqYWfdi
+         cAYtMDSuWra4BxJzklmzLBatsb8TWCtFwtO3QJszNHDOJQCSPjwx18B/ltJsp46SXe
+         vnl4jQNS2BvZg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org
-Subject: [PATCH AUTOSEL 6.1 24/34] sched_getaffinity: don't assume 'cpumask_size()' is fully initialized
-Date:   Wed, 22 Mar 2023 15:59:16 -0400
-Message-Id: <20230322195926.1996699-24-sashal@kernel.org>
+Cc:     Philipp Geulen <p.geulen@js-elektronik.de>,
+        Chaitanya Kulkarni <kkch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.1 25/34] nvme-pci: add NVME_QUIRK_BOGUS_NID for Lexar NM620
+Date:   Wed, 22 Mar 2023 15:59:17 -0400
+Message-Id: <20230322195926.1996699-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
@@ -58,80 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Philipp Geulen <p.geulen@js-elektronik.de>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit b65d44fa0fe072c91bf41cd8756baa2b4c77eff2 ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+Added a quirk to fix Lexar NM620 1TB SSD reporting duplicate NGUIDs.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
-
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
-
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
-
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
-
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
-
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Philipp Geulen <p.geulen@js-elektronik.de>
+Reviewed-by: Chaitanya Kulkarni <kkch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index 55551989d9da5..fb50f29d9b361 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index f730b6fe94a7f..1d033e5719e70 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -8301,14 +8301,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		unsigned int retlen = min(len, cpumask_size());
- 
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 778f94e9a4453..7893b52294553 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3545,6 +3545,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1d97, 0x2263), /* Lexar NM610 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
++	{ PCI_DEVICE(0x1d97, 0x1d97), /* Lexar NM620 */
++		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1d97, 0x2269), /* Lexar NM760 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
 -- 
 2.39.2
 
