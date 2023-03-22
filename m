@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E00D6C5550
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 20:57:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F9DE6C554F
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 20:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbjCVT5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 15:57:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43454 "EHLO
+        id S230393AbjCVT53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 15:57:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbjCVT5I (ORCPT
+        with ESMTP id S229620AbjCVT5I (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:57:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E8462B6B;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C375864865;
         Wed, 22 Mar 2023 12:56:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFCF8B81DE7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D883F62276;
+        Wed, 22 Mar 2023 19:56:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E68EC433D2;
         Wed, 22 Mar 2023 19:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40798C433EF;
-        Wed, 22 Mar 2023 19:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515002;
-        bh=3aVYDWmzpbb9KN/Q4bFfppLaKmIbQSdRnvS68o5FyZI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NiC5xhnHhmgBtWF+wklFpCueBln3wmpv8Khlb2RTXy2s/XXUhKDQaLOL/MR3ozidg
-         Q4s2ztPn6wMpv1nKInAvbiB35ZjBoqGhirNw9TU1xrQAYjCJsm+ieZsj2Gpk9N2YEl
-         UG84kNpEcIBA6m1NnV9hHOKqxwpvgkSVZlTI8/vtYuaDl6OfeOATrvZ5PORG5w9k9R
-         bqxKx0XFnRBllmh3XmX7Bl13BI9ls+NkReVwLhOnguQ7qoyqFLX1HsZ5f9zprQBJ18
-         RjEJ1VkkcYaO4H/EvvJp1r7/zasKTg/oYNoGcMEPMltidsY5Jc280BYMDsLni9AV6j
-         RbmmDF0dEO9Vg==
+        s=k20201202; t=1679515004;
+        bh=I5p+nFrt1hderaCIh4QWIYwi/J9OVB299B44AzHSw3I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=E+F98dBoCunSkg96oFbFI5q7RqHIv6gvXE2s+GU3QQxykQCIZQAk4uAOtfJEfBQx1
+         DJJjDt/sgr8HF25LD+2F3VJdh9Jn9vmWoIp4RFY6hg3+ePfSEJgI2fX5CQskEaC59T
+         YL3FhBpDJCVxMOKmf2Lll0u7K/5NZwHumb5C63McEcDJcbIlx49Lk2TqND2ysU0sP8
+         qgwy/lY+12Iy7q5uSKic41QaR7pQ6w9RDgaQ0GNHdEJpDUM33QASlj10T/UU/FBDeN
+         Zh4HTXaOhE8x7+VWIhTeB8ZppTuOo4GaEZtq2/BON5x8AGwHBFG1Nz/DiB0vh9HB/i
+         5h3pVbQBCh0jg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com,
-        Hyunwoo Kim <v4bel@theori.io>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 01/45] xfrm: Zero padding when dumping algos and encap
-Date:   Wed, 22 Mar 2023 15:55:55 -0400
-Message-Id: <20230322195639.1995821-1-sashal@kernel.org>
+Cc:     Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        srinivas.kandagatla@linaro.org, bgoswami@quicinc.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 02/45] ASoC: codecs: tx-macro: Fix for KASAN: slab-out-of-bounds
+Date:   Wed, 22 Mar 2023 15:55:56 -0400
+Message-Id: <20230322195639.1995821-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230322195639.1995821-1-sashal@kernel.org>
+References: <20230322195639.1995821-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,109 +58,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
 
-[ Upstream commit 8222d5910dae08213b6d9d4bc9a7f8502855e624 ]
+[ Upstream commit e5e7e398f6bb7918dab0612eb6991f7bae95520d ]
 
-When copying data to user-space we should ensure that only valid
-data is copied over.  Padding in structures may be filled with
-random (possibly sensitve) data and should never be given directly
-to user-space.
+When we run syzkaller we get below Out of Bound.
+    "KASAN: slab-out-of-bounds Read in regcache_flat_read"
 
-This patch fixes the copying of xfrm algorithms and the encap
-template in xfrm_user so that padding is zeroed.
+    Below is the backtrace of the issue:
 
-Reported-by: syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com
-Reported-by: Hyunwoo Kim <v4bel@theori.io>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+    dump_backtrace+0x0/0x4c8
+    show_stack+0x34/0x44
+    dump_stack_lvl+0xd8/0x118
+    print_address_description+0x30/0x2d8
+    kasan_report+0x158/0x198
+    __asan_report_load4_noabort+0x44/0x50
+    regcache_flat_read+0x10c/0x110
+    regcache_read+0xf4/0x180
+    _regmap_read+0xc4/0x278
+    _regmap_update_bits+0x130/0x290
+    regmap_update_bits_base+0xc0/0x15c
+    snd_soc_component_update_bits+0xa8/0x22c
+    snd_soc_component_write_field+0x68/0xd4
+    tx_macro_digital_mute+0xec/0x140
+
+    Actually There is no need to have decimator with 32 bits.
+    By limiting the variable with short type u8 issue is resolved.
+
+Signed-off-by: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
+Link: https://lore.kernel.org/r/20230304080702.609-1-quic_visr@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 45 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 41 insertions(+), 4 deletions(-)
+ sound/soc/codecs/lpass-tx-macro.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index cf5172d4ce68c..103af2b3e986f 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -1012,7 +1012,9 @@ static int copy_to_user_aead(struct xfrm_algo_aead *aead, struct sk_buff *skb)
- 		return -EMSGSIZE;
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 2449a2df66df0..8facdb922f076 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -242,7 +242,7 @@ enum {
  
- 	ap = nla_data(nla);
--	memcpy(ap, aead, sizeof(*aead));
-+	strscpy_pad(ap->alg_name, aead->alg_name, sizeof(ap->alg_name));
-+	ap->alg_key_len = aead->alg_key_len;
-+	ap->alg_icv_len = aead->alg_icv_len;
+ struct tx_mute_work {
+ 	struct tx_macro *tx;
+-	u32 decimator;
++	u8 decimator;
+ 	struct delayed_work dwork;
+ };
  
- 	if (redact_secret && aead->alg_key_len)
- 		memset(ap->alg_key, 0, (aead->alg_key_len + 7) / 8);
-@@ -1032,7 +1034,8 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
- 		return -EMSGSIZE;
- 
- 	ap = nla_data(nla);
--	memcpy(ap, ealg, sizeof(*ealg));
-+	strscpy_pad(ap->alg_name, ealg->alg_name, sizeof(ap->alg_name));
-+	ap->alg_key_len = ealg->alg_key_len;
- 
- 	if (redact_secret && ealg->alg_key_len)
- 		memset(ap->alg_key, 0, (ealg->alg_key_len + 7) / 8);
-@@ -1043,6 +1046,40 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
+@@ -635,7 +635,7 @@ static int tx_macro_mclk_enable(struct tx_macro *tx,
  	return 0;
  }
  
-+static int copy_to_user_calg(struct xfrm_algo *calg, struct sk_buff *skb)
-+{
-+	struct nlattr *nla = nla_reserve(skb, XFRMA_ALG_COMP, sizeof(*calg));
-+	struct xfrm_algo *ap;
-+
-+	if (!nla)
-+		return -EMSGSIZE;
-+
-+	ap = nla_data(nla);
-+	strscpy_pad(ap->alg_name, calg->alg_name, sizeof(ap->alg_name));
-+	ap->alg_key_len = 0;
-+
-+	return 0;
-+}
-+
-+static int copy_to_user_encap(struct xfrm_encap_tmpl *ep, struct sk_buff *skb)
-+{
-+	struct nlattr *nla = nla_reserve(skb, XFRMA_ENCAP, sizeof(*ep));
-+	struct xfrm_encap_tmpl *uep;
-+
-+	if (!nla)
-+		return -EMSGSIZE;
-+
-+	uep = nla_data(nla);
-+	memset(uep, 0, sizeof(*uep));
-+
-+	uep->encap_type = ep->encap_type;
-+	uep->encap_sport = ep->encap_sport;
-+	uep->encap_dport = ep->encap_dport;
-+	uep->encap_oa = ep->encap_oa;
-+
-+	return 0;
-+}
-+
- static int xfrm_smark_put(struct sk_buff *skb, struct xfrm_mark *m)
+-static bool is_amic_enabled(struct snd_soc_component *component, int decimator)
++static bool is_amic_enabled(struct snd_soc_component *component, u8 decimator)
  {
- 	int ret = 0;
-@@ -1098,12 +1135,12 @@ static int copy_to_user_state_extra(struct xfrm_state *x,
- 			goto out;
- 	}
- 	if (x->calg) {
--		ret = nla_put(skb, XFRMA_ALG_COMP, sizeof(*(x->calg)), x->calg);
-+		ret = copy_to_user_calg(x->calg, skb);
- 		if (ret)
- 			goto out;
- 	}
- 	if (x->encap) {
--		ret = nla_put(skb, XFRMA_ENCAP, sizeof(*x->encap), x->encap);
-+		ret = copy_to_user_encap(x->encap, skb);
- 		if (ret)
- 			goto out;
- 	}
+ 	u16 adc_mux_reg, adc_reg, adc_n;
+ 
+@@ -849,7 +849,7 @@ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
+ 			       struct snd_kcontrol *kcontrol, int event)
+ {
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+-	unsigned int decimator;
++	u8 decimator;
+ 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg, tx_gain_ctl_reg;
+ 	u8 hpf_cut_off_freq;
+ 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
+@@ -1064,7 +1064,8 @@ static int tx_macro_hw_params(struct snd_pcm_substream *substream,
+ 			      struct snd_soc_dai *dai)
+ {
+ 	struct snd_soc_component *component = dai->component;
+-	u32 decimator, sample_rate;
++	u32 sample_rate;
++	u8 decimator;
+ 	int tx_fs_rate;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+ 
+@@ -1128,7 +1129,7 @@ static int tx_macro_digital_mute(struct snd_soc_dai *dai, int mute, int stream)
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
+-	u16 decimator;
++	u8 decimator;
+ 
+ 	/* active decimator not set yet */
+ 	if (tx->active_decimator[dai->id] == -1)
 -- 
 2.39.2
 
