@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B42C96C5353
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 19:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5B66C5354
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 19:11:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229703AbjCVSK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 14:10:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55960 "EHLO
+        id S229635AbjCVSLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 14:11:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbjCVSK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 14:10:58 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1CC5F6D6
-        for <stable@vger.kernel.org>; Wed, 22 Mar 2023 11:10:57 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id le6so20019538plb.12
-        for <stable@vger.kernel.org>; Wed, 22 Mar 2023 11:10:57 -0700 (PDT)
+        with ESMTP id S229501AbjCVSK7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 14:10:59 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2E45BD98
+        for <stable@vger.kernel.org>; Wed, 22 Mar 2023 11:10:58 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id fb38so6752045pfb.7
+        for <stable@vger.kernel.org>; Wed, 22 Mar 2023 11:10:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679508656;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679508658;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=FRZrsAZ/4Z69J0IAtD8c2lD+G9w0Hyj3MFTObiM2HBM=;
-        b=4fAY13qJpqNIMBg6/0d2mrYZQMQc+owjcrLZg2K8AaaxXJ1w9S8+VRwn8zRVEm7jz5
-         kYJeyXaqU2kePxIpOFCdqvK6Uw20FATTrqkjdClGEb8dNJd2NVL9Odl9DAe8zjIP0CTL
-         ouPlmdbKS8GA19/VemIERJdJ1glLrdA6lbyGlRsRm2/z4g/g78E2h9+mUVjRrLTamO7i
-         hl0n13nEKyodXy60BaNeFalCjk6deJbRPGjosUghssktX5OsiX5kvFJYlmRnaS4QG1C+
-         FGSk0Eg2YysnvkiBm90Ma5dz4FckdI2NIn/PvoxrRaGDXGlqZYmmrGEezHw5/qLm6lsc
-         Ig6w==
+        bh=bod4g2w9DDZcGPpkx6EdCaazukT1224Nw1ig+7ETBuk=;
+        b=UBz6StJRt+UvTWm0T9ufQeq56pl0RTjPoJ4GhYPVHkV6sAec+ry0q4/LuFCdfGb5fa
+         H2TFxlZQMB6xneX2jQ9CLtUWnGx1Z0nd9ohJu86GbHM/Bl4QCvfdyIxifJIT0Kee0tKw
+         MyRKJTXU4kzNXyGJBwOmZ3oPro1MC/UqY6w0NZO/ZhXv5jfsmZgcIwWr95BHAgqapbn9
+         h+b98So7C071oSwcn/A1SqNzTLlgB/hjas6O7fPe26rz5G9GwakZcRbww2cJsdiUmfLT
+         6XKPOWZlE0OAVX5VWrJyCDRBP7ro80ER8kjte13C6JBbjlM/6OAoXLdrODKLJnC42y9j
+         wX5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679508656;
+        d=1e100.net; s=20210112; t=1679508658;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=FRZrsAZ/4Z69J0IAtD8c2lD+G9w0Hyj3MFTObiM2HBM=;
-        b=7aAHaqtrPCir8fnTgT6C+XPgpTxLRvYkrgs+tTB4jmdkdynpeAKUQvE4kjkY2v/8Ia
-         U7e85/EZaInEMoGrbzt8RUzEzWYV+dbJok1XENJ40aMJn9IHGzoBCo1KzrZLV2tdgDiO
-         XCkFEJ0oIogm92NsKWBulqxclAmidZ6gWRhLbMPBuq1Gh1uOjZS8WhSe1qOwYgUda1SZ
-         Pj8vRBFL41sRELZ1dFKUqiG70/aXPjyEBSnkiKTpF1qRaO7C4MDimxBzDp+FfCkV/fpa
-         wYPNZSZIWc1H66bhRFf4YUYCT41xTI76e6JFJQmPwl3yLYQQ2KSp8ifpl1E/k7zf0LD6
-         ZtPg==
-X-Gm-Message-State: AAQBX9dwTzEJWEDmvlY4nC5ySm4taz+uNX6N1lmajIf9REiXyKjECLoj
-        7Ium85GI6W6FoqgAddhu3fzK5t5dvU6qJRECDwA=
-X-Google-Smtp-Source: AKy350b3g5MSGWsd4UPUK4y1ikEXpyqaIXLn7vgBtSTwWtJhbn9lPr9ELJX7n0psh/6HOBGP8nkY4Q==
-X-Received: by 2002:a17:90a:31c6:b0:237:d867:2260 with SMTP id j6-20020a17090a31c600b00237d8672260mr2795400pjf.4.1679508656277;
-        Wed, 22 Mar 2023 11:10:56 -0700 (PDT)
+        bh=bod4g2w9DDZcGPpkx6EdCaazukT1224Nw1ig+7ETBuk=;
+        b=FMqMDnFgpvtkHBk5NJ/yZD3G9ZyxvxCfYdtrqjTikpODtSa4kl1+gdt4vbB8omD5XA
+         oXYTFR3dJxWlt+PFJHZz7S01qBI/AunJYfWGITeVY1Nx11h/XMxje/xI1x9a7QHtpLVA
+         H6PKEm2on0T+oqh2gKuV2DGh+rNB2hPX5NI5poIreSqcXeCtRMow18FQtuVTQoywPZhf
+         iAx9ix5teAYuaYtMkyVU8eD0Im5FVsKQ/c5hD9QbKLcCqZu+o+JYVsd1lV23f88P+SXE
+         xdEZ9ii3kxQOebG2Fpk3RchvZrJ8H2qpWkz4W6W9wpB4zrszzklXNWtNxXx9DfoW9u5y
+         7P3Q==
+X-Gm-Message-State: AO0yUKXtjSAff42aS9EqdxBaygT/rO9vgJon2UdFEhmA+5K+l0Hth2HV
+        PrDv0BMYNc/saR0hjxIVQhTQ2Kq0JCp5nK73cy4=
+X-Google-Smtp-Source: AK7set9f2uoiJODGdjwT/ZaggbqARGWvTszUCQL+Ltk/d2tC2Z+Jeq5i5KX0GRywmSHtxrG2/68hFQ==
+X-Received: by 2002:aa7:9597:0:b0:592:de72:4750 with SMTP id z23-20020aa79597000000b00592de724750mr3802710pfj.23.1679508657689;
+        Wed, 22 Mar 2023 11:10:57 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p19-20020a17090b011300b002376d85844dsm9946558pjz.51.2023.03.22.11.10.55
+        by smtp.gmail.com with ESMTPSA id i20-20020aa79094000000b005abbfa874d9sm9892866pfa.88.2023.03.22.11.10.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Mar 2023 11:10:55 -0700 (PDT)
-Message-ID: <641b44af.170a0220.c096d.1e74@mx.google.com>
-Date:   Wed, 22 Mar 2023 11:10:55 -0700 (PDT)
+        Wed, 22 Mar 2023 11:10:57 -0700 (PDT)
+Message-ID: <641b44b1.a70a0220.98183.1cda@mx.google.com>
+Date:   Wed, 22 Mar 2023 11:10:57 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
+X-Kernelci-Branch: queue/5.10
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.103-115-g84847751ee64b
-Subject: stable-rc/queue/5.15 baseline: 184 runs,
- 1 regressions (v5.15.103-115-g84847751ee64b)
+X-Kernelci-Kernel: v5.10.175-98-g07e9a8a803e3
+Subject: stable-rc/queue/5.10 baseline: 138 runs,
+ 5 regressions (v5.10.175-98-g07e9a8a803e3)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,30 +71,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 184 runs, 1 regressions (v5.15.103-115-g8484=
-7751ee64b)
+stable-rc/queue/5.10 baseline: 138 runs, 5 regressions (v5.10.175-98-g07e9a=
+8a803e3)
 
 Regressions Summary
 -------------------
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+beaglebone-black             | arm   | lab-broonie   | gcc-10   | omap2plus=
+_defconfig        | 1          =
+
+cubietruck                   | arm   | lab-baylibre  | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 2          =
+
+sun8i-h3-libretech-all-h3-cc | arm   | lab-baylibre  | gcc-10   | multi_v7_=
+defconfig         | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.103-115-g84847751ee64b/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.175-98-g07e9a8a803e3/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.103-115-g84847751ee64b
+  Branch:   queue/5.10
+  Describe: v5.10.175-98-g07e9a8a803e3
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      84847751ee64bf05c29931223ef31fd888d32366 =
+  SHA:      07e9a8a803e31f2285e45bfcc9ea3531e2f0d85e =
 
 
 
@@ -103,54 +112,212 @@ Test Regressions
 
 
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+beaglebone-black             | arm   | lab-broonie   | gcc-10   | omap2plus=
+_defconfig        | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/641b10e8ac1c20ca0b9c95a7
+  Details:     https://kernelci.org/test/plan/id/641b0a75ff8f7a75719c953c
 
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
+  Results:     51 PASS, 4 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
   Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
 10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.103=
--115-g84847751ee64b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cub=
-ietruck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.103=
--115-g84847751ee64b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cub=
-ietruck.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-beagl=
+ebone-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-beagl=
+ebone-black.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20230310.0/armel/rootfs.cpio.gz =
 
 
 
   * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/641b10e8ac1c20ca0b9c95b0
-        failing since 64 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
- fail: v5.15.87-100-ge215d5ead661)
+/641b0a75ff8f7a75719c9571
+        failing since 36 days (last pass: v5.10.167-127-g921934d621e4, firs=
+t fail: v5.10.167-139-gf9519a5a1701)
 
-    2023-03-22T14:29:46.091532  <8>[   10.014043] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3434883_1.5.2.4.1>
-    2023-03-22T14:29:46.202547  / # #
-    2023-03-22T14:29:46.306079  export SHELL=3D/bin/sh
-    2023-03-22T14:29:46.307218  #
-    2023-03-22T14:29:46.409343  / # export SHELL=3D/bin/sh. /lava-3434883/e=
+    2023-03-22T14:02:10.015557  <8>[   18.702714] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 207576_1.5.2.4.1>
+    2023-03-22T14:02:10.124427  / # #
+    2023-03-22T14:02:10.226336  export SHELL=3D/bin/sh
+    2023-03-22T14:02:10.226843  #
+    2023-03-22T14:02:10.328487  / # export SHELL=3D/bin/sh. /lava-207576/en=
+vironment
+    2023-03-22T14:02:10.328955  =
+
+    2023-03-22T14:02:10.430450  / # . /lava-207576/environment/lava-207576/=
+bin/lava-test-runner /lava-207576/1
+    2023-03-22T14:02:10.431270  =
+
+    2023-03-22T14:02:10.435837  / # /lava-207576/bin/lava-test-runner /lava=
+-207576/1
+    2023-03-22T14:02:10.546042  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+cubietruck                   | arm   | lab-baylibre  | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/641b0cde5193e051f29c9534
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/641b0cde5193e051f29c953d
+        failing since 55 days (last pass: v5.10.165-76-g5c2e982fcf18, first=
+ fail: v5.10.165-77-g4600242c13ed)
+
+    2023-03-22T14:12:38.300406  + set +x<8>[   11.108597] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 3434809_1.5.2.4.1>
+    2023-03-22T14:12:38.301119  =
+
+    2023-03-22T14:12:38.412865  / # #
+    2023-03-22T14:12:38.516369  export SHELL=3D/bin/sh
+    2023-03-22T14:12:38.517397  #<3>[   11.211154] Bluetooth: hci0: command=
+ 0xfc18 tx timeout
+    2023-03-22T14:12:38.518038  =
+
+    2023-03-22T14:12:38.620372  / # export SHELL=3D/bin/sh. /lava-3434809/e=
 nvironment
-    2023-03-22T14:29:46.410251  =
+    2023-03-22T14:12:38.621497  =
 
-    2023-03-22T14:29:46.410698  / # <3>[   10.273397] Bluetooth: hci0: comm=
-and 0x0c03 tx timeout
-    2023-03-22T14:29:46.512486  . /lava-3434883/environment/lava-3434883/bi=
-n/lava-test-runner /lava-3434883/1
-    2023-03-22T14:29:46.514092  =
+    2023-03-22T14:12:38.723943  / # . /lava-3434809/environment/lava-343480=
+9/bin/lava-test-runner /lava-3434809/1
+    2023-03-22T14:12:38.725693   =
 
-    2023-03-22T14:29:46.518530  / # /lava-3434883/bin/lava-test-runner /lav=
-a-3434883/1 =
+    ... (13 line(s) more)  =
 
-    ... (12 line(s) more)  =
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/641b0d5d07f1dca1b29c9505
+
+  Results:     84 PASS, 2 FAIL, 1 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-usb2phy1-probed: https://kernelci.org/test/cas=
+e/id/641b0d5d07f1dca1b29c950f
+        failing since 8 days (last pass: v5.10.172-529-g06956b9e9396, first=
+ fail: v5.10.173-69-gfcbe6bd469ed)
+
+    2023-03-22T14:14:39.518248  <8>[   34.828126] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-usb2phy0-probed RESULT=3Dfail>
+
+    2023-03-22T14:14:40.542482  /lava-9731162/1/../bin/lava-test-case
+
+    2023-03-22T14:14:40.553701  <8>[   35.864225] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-usb2phy1-probed RESULT=3Dfail>
+   =
+
+
+  * baseline.bootrr.rockchip-usb2phy0-probed: https://kernelci.org/test/cas=
+e/id/641b0d5d07f1dca1b29c9510
+        failing since 8 days (last pass: v5.10.172-529-g06956b9e9396, first=
+ fail: v5.10.173-69-gfcbe6bd469ed)
+
+    2023-03-22T14:14:39.507069  /lava-9731162/1/../bin/lava-test-case
+   =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+sun8i-h3-libretech-all-h3-cc | arm   | lab-baylibre  | gcc-10   | multi_v7_=
+defconfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/641b0c6e71f12ad5f29c953c
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
+-h3-libretech-all-h3-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.175=
+-98-g07e9a8a803e3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
+-h3-libretech-all-h3-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/641b0c6e71f12ad5f29c9545
+        failing since 48 days (last pass: v5.10.165-139-gefb57ce0f880, firs=
+t fail: v5.10.165-149-ge30e8271d674)
+
+    2023-03-22T14:10:32.633231  <8>[    8.390507] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3434806_1.5.2.4.1>
+    2023-03-22T14:10:32.738490  / # #
+    2023-03-22T14:10:32.840231  export SHELL=3D/bin/sh
+    2023-03-22T14:10:32.840884  #
+    2023-03-22T14:10:32.942350  / # export SHELL=3D/bin/sh. /lava-3434806/e=
+nvironment
+    2023-03-22T14:10:32.942717  =
+
+    2023-03-22T14:10:33.044035  / # . /lava-3434806/environment/lava-343480=
+6/bin/lava-test-runner /lava-3434806/1
+    2023-03-22T14:10:33.044941  =
+
+    2023-03-22T14:10:33.050595  / # /lava-3434806/bin/lava-test-runner /lav=
+a-3434806/1
+    2023-03-22T14:10:33.164610  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
 
  =20
