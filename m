@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B7F6C5793
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C63AE6C575E
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:19:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231343AbjCVU3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
+        id S232234AbjCVUTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbjCVU3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:29:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC5997B6E;
-        Wed, 22 Mar 2023 13:20:05 -0700 (PDT)
+        with ESMTP id S232221AbjCVUTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:19:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA64D97B59;
+        Wed, 22 Mar 2023 13:09:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31CAAB81DED;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9CE9622D7;
         Wed, 22 Mar 2023 20:03:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 098F7C433A8;
-        Wed, 22 Mar 2023 20:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76B20C433D2;
+        Wed, 22 Mar 2023 20:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515381;
-        bh=6rokH9GLmAw9pQ9NnM27sG29gpO9NXcRQRrZnvu2ovw=;
+        s=k20201202; t=1679515382;
+        bh=K0x3SRRa4HXHn+EKwSF6/erKOQgcKi+VGbc7NR6slpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvyv4Ojshg9c/SYadUvxMz3LMJJkfJtw0XMFtGR2TiSIaj5yUnxX/1KgHv1RGHm8n
-         JUymowzcm8ePvwUVzl7UO8w6MqsRf+aHf4OSv7fCYvJDLe+wSwxGWpOzNdlr0GlFzH
-         YK0oVEnvRCYbjpEza6whBfGLFXMR05PS1/yBinmdg7lvLmPUSHC33cduxXlWHLEcSV
-         qgMfgKGEOUMfxVv8hgH+08GnONEDiaAX7mgokS2S/IQwolUx1dd5/n+663bqUVNMgP
-         kFfjIULJLvGWh9t0HLjjFUEJR1gKqcD1wCFfTwzN5qf2m7/MlFGj/4CHjm2w6x1oiL
-         sBj/MztzSRKlQ==
+        b=masvDieUHSlaDB2/gVBMpy7mcvvHSAvwBKMt3rtOQZNXjElhDYFfwdxNGTDPcSIBy
+         AuBxyohL83isMoLa89TxH8eeo8Ivf8z1AC5yQqQDyizdNw4NpvkxDArqeFJmyhHfjI
+         ebN11+zxTxfCYqyMUMsnKIWc0NrFJ28bsGybYfwkA3fBG+VI8uix+iMSpTbmjbLeye
+         OoQffzh0mvROvD89A+XkgZbkW9AudibT+I66ybA4bhIgYR46Qnr7o1HnVZR+W9Ihv0
+         amiaUNTCG/6bWX4/NtWve3AM+Qi3OjfhcATKi30bEDk5QitwWXhWNnIUQDxWG/fSVX
+         go1eFYn70zaKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        peterz@infradead.org, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org
-Subject: [PATCH AUTOSEL 5.4 5/9] sched_getaffinity: don't assume 'cpumask_size()' is fully initialized
-Date:   Wed, 22 Mar 2023 16:02:37 -0400
-Message-Id: <20230322200242.1997527-5-sashal@kernel.org>
+Cc:     Wei Chen <harperchen1110@gmail.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, adaplas@gmail.com,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 6/9] fbdev: nvidia: Fix potential divide by zero
+Date:   Wed, 22 Mar 2023 16:02:38 -0400
+Message-Id: <20230322200242.1997527-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322200242.1997527-1-sashal@kernel.org>
 References: <20230322200242.1997527-1-sashal@kernel.org>
@@ -58,80 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit 92e2a00f2987483e1f9253625828622edd442e61 ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+variable var->pixclock can be set by user. In case it
+equals to zero, divide by zero would occur in nvidiafb_set_par.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
+Similar crashes have happened in other fbdev drivers. There
+is no check and modification on var->pixclock along the call
+chain to nvidia_check_var and nvidiafb_set_par. We believe it
+could also be triggered in driver nvidia from user site.
 
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
-
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
-
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
-
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
-
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/nvidia/nvidia.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index a2bc1d6ceb570..241516f326c04 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -240,7 +240,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
+diff --git a/drivers/video/fbdev/nvidia/nvidia.c b/drivers/video/fbdev/nvidia/nvidia.c
+index fbeeed5afe350..aa502b3ba25ae 100644
+--- a/drivers/video/fbdev/nvidia/nvidia.c
++++ b/drivers/video/fbdev/nvidia/nvidia.c
+@@ -766,6 +766,8 @@ static int nvidiafb_check_var(struct fb_var_screeninfo *var,
+ 	int pitch, err = 0;
  
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
+ 	NVTRACE_ENTER();
++	if (!var->pixclock)
++		return -EINVAL;
  
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 8ab239fd1c8d3..4db024f107777 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5658,14 +5658,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		unsigned int retlen = min(len, cpumask_size());
- 
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+ 	var->transp.offset = 0;
+ 	var->transp.length = 0;
 -- 
 2.39.2
 
