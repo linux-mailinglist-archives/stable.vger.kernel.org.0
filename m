@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B130F6C55CE
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12DE66C55C3
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231460AbjCVUBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
+        id S231376AbjCVUAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231277AbjCVT76 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:59:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B2A5BD9B;
-        Wed, 22 Mar 2023 12:58:22 -0700 (PDT)
+        with ESMTP id S231379AbjCVT7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:59:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD985C9D1;
+        Wed, 22 Mar 2023 12:58:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6081AB81B97;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8719622B3;
+        Wed, 22 Mar 2023 19:58:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D680FC433A4;
         Wed, 22 Mar 2023 19:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFE7C433A7;
-        Wed, 22 Mar 2023 19:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515099;
-        bh=mX+f6M4NzGYTdlnA/2Arcb1IOK+FIYPDFY/pPmN2tmo=;
+        s=k20201202; t=1679515102;
+        bh=S7xw1KZi9wgWBe4cQ7BxQezBNrU2pPn0w8A9pR4J7cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1x2gz0L5DKY0TZ2xNqJW0rkgbYlODKm+G3irJbDJF0HvFzYAQC99aSDwT2BazGgg
-         pXw1WSWoRK7qApd6qck0ZmIhNvoimgT/famCH8sBOWkBA8Xe47NhZG/yImpUZWwqXl
-         SmFTQpbWDlDdWA3Z2A9ZOgglrG6sqLtwLJfieMVzl0WEJrPhtZ48TJObFUGcuYPKCu
-         ASNuZgP9v1jsr8BnzFWv/tma9rBnh0ctxXWn/J2hItPWS6m2IDcBpan20XVd5IM56r
-         itarP+3vLPv7PoH5wHEIvTyS5sKjlZWXk9rDfYC5PlnL/s/eYffu6sreWxfankbFUY
-         3Y91Bfr9WA9Ow==
+        b=plJmx5Aiq+9nx+iTeESo0tAUoRiB+fnpwOj3zbvTbeowMtYNhmX9AvqQKp3Oiu9GM
+         ArvgCzh7IoGfWmhXhND0aBxNb87ZKBBbAluq3oeIIU6RSD4ppf/Xd5YCN6+nuymstP
+         lGU24l9yzllUSREWpudHR4lQz3pdLBDWfD++wiqXYiKvFo+frCJCjZCvPAZ0fB7QOj
+         Po0FBm5wmVhHyHg5ynLoQvdjgpGkXJeFg/N3jmtv1fowtAlZALryyK8eTKQ2Lintt0
+         Qg2cywCIdoVtOQU+9u+DdPDCqyIuGyKLtQ1rtJyhJA9mYpIOuddRSTOZU2aSJO2VFz
+         q35Ns6N81AAVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+Cc:     Emil Abildgaard Svendsen <EMAS@bang-olufsen.dk>,
+        Emil Svendsen <emas@bang-olufsen.dk>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 19/45] ASoC: SOF: IPC4: update gain ipc msg definition to align with fw
-Date:   Wed, 22 Mar 2023 15:56:13 -0400
-Message-Id: <20230322195639.1995821-19-sashal@kernel.org>
+        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
+        pierre-louis.bossart@linux.intel.com,
+        kuninori.morimoto.gx@renesas.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 20/45] ASoC: hdmi-codec: only startup/shutdown on supported streams
+Date:   Wed, 22 Mar 2023 15:56:14 -0400
+Message-Id: <20230322195639.1995821-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195639.1995821-1-sashal@kernel.org>
 References: <20230322195639.1995821-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,98 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+From: Emil Abildgaard Svendsen <EMAS@bang-olufsen.dk>
 
-[ Upstream commit e45cd86c3a78bfb9875a5eb8ab5dab459b59bbe2 ]
+[ Upstream commit e041a2a550582106cba6a7c862c90dfc2ad14492 ]
 
-Recent firmware changes modified the curve duration from 32 to 64 bits,
-which breaks volume ramps. A simple solution would be to change the
-definition, but unfortunately the ASoC topology framework only supports
-up to 32 bit tokens.
+Currently only one stream is supported. This isn't usally a problem
+until you have a multi codec audio card. Because the audio card will run
+startup and shutdown on both capture and playback streams. So if your
+hdmi-codec only support either playback or capture. Then ALSA can't open
+for playback and capture.
 
-This patch suggests breaking the 64 bit value in low and high parts, with
-only the low-part extracted from topology and high-part only zeroes. Since
-the curve duration is represented in hundred of nanoseconds, we can still
-represent a 400s ramp, which is just fine. The defacto ABI change has no
-effect on existing users since the IPC4 firmware has not been released just
-yet.
+This patch will ignore if startup and shutdown are called with a non
+supported stream. Thus, allowing an audio card like this:
 
-Link: https://github.com/thesofproject/linux/issues/4026
+           +-+
+ cpu1 <--@-| |-> codec1 (HDMI-CODEC)
+           | |<- codec2 (NOT HDMI-CODEC)
+           +-+
 
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307110656.1816-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Emil Svendsen <emas@bang-olufsen.dk>
+Link: https://lore.kernel.org/r/20230309065432.4150700-2-emas@bang-olufsen.dk
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/ipc4-control.c  | 3 ++-
- sound/soc/sof/ipc4-topology.c | 4 ++--
- sound/soc/sof/ipc4-topology.h | 6 ++++--
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ sound/soc/codecs/hdmi-codec.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/soc/sof/ipc4-control.c b/sound/soc/sof/ipc4-control.c
-index 0d5a578c34962..7442ec1c5a4d4 100644
---- a/sound/soc/sof/ipc4-control.c
-+++ b/sound/soc/sof/ipc4-control.c
-@@ -84,7 +84,8 @@ sof_ipc4_set_volume_data(struct snd_sof_dev *sdev, struct snd_sof_widget *swidge
- 		}
+diff --git a/sound/soc/codecs/hdmi-codec.c b/sound/soc/codecs/hdmi-codec.c
+index 74cbbe16f9aec..a22f2ec95901f 100644
+--- a/sound/soc/codecs/hdmi-codec.c
++++ b/sound/soc/codecs/hdmi-codec.c
+@@ -428,8 +428,13 @@ static int hdmi_codec_startup(struct snd_pcm_substream *substream,
+ {
+ 	struct hdmi_codec_priv *hcp = snd_soc_dai_get_drvdata(dai);
+ 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
++	bool has_capture = !hcp->hcd.no_i2s_capture;
++	bool has_playback = !hcp->hcd.no_i2s_playback;
+ 	int ret = 0;
  
- 		/* set curve type and duration from topology */
--		data.curve_duration = gain->data.curve_duration;
-+		data.curve_duration_l = gain->data.curve_duration_l;
-+		data.curve_duration_h = gain->data.curve_duration_h;
- 		data.curve_type = gain->data.curve_type;
++	if (!((has_playback && tx) || (has_capture && !tx)))
++		return 0;
++
+ 	mutex_lock(&hcp->lock);
+ 	if (hcp->busy) {
+ 		dev_err(dai->dev, "Only one simultaneous stream supported!\n");
+@@ -468,6 +473,12 @@ static void hdmi_codec_shutdown(struct snd_pcm_substream *substream,
+ 				struct snd_soc_dai *dai)
+ {
+ 	struct hdmi_codec_priv *hcp = snd_soc_dai_get_drvdata(dai);
++	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
++	bool has_capture = !hcp->hcd.no_i2s_capture;
++	bool has_playback = !hcp->hcd.no_i2s_playback;
++
++	if (!((has_playback && tx) || (has_capture && !tx)))
++		return;
  
- 		msg->data_ptr = &data;
-diff --git a/sound/soc/sof/ipc4-topology.c b/sound/soc/sof/ipc4-topology.c
-index 65da1cf790d9c..6da6137fa2cbc 100644
---- a/sound/soc/sof/ipc4-topology.c
-+++ b/sound/soc/sof/ipc4-topology.c
-@@ -107,7 +107,7 @@ static const struct sof_topology_token gain_tokens[] = {
- 		get_token_u32, offsetof(struct sof_ipc4_gain_data, curve_type)},
- 	{SOF_TKN_GAIN_RAMP_DURATION,
- 		SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
--		offsetof(struct sof_ipc4_gain_data, curve_duration)},
-+		offsetof(struct sof_ipc4_gain_data, curve_duration_l)},
- 	{SOF_TKN_GAIN_VAL, SND_SOC_TPLG_TUPLE_TYPE_WORD,
- 		get_token_u32, offsetof(struct sof_ipc4_gain_data, init_val)},
- };
-@@ -670,7 +670,7 @@ static int sof_ipc4_widget_setup_comp_pga(struct snd_sof_widget *swidget)
- 
- 	dev_dbg(scomp->dev,
- 		"pga widget %s: ramp type: %d, ramp duration %d, initial gain value: %#x, cpc %d\n",
--		swidget->widget->name, gain->data.curve_type, gain->data.curve_duration,
-+		swidget->widget->name, gain->data.curve_type, gain->data.curve_duration_l,
- 		gain->data.init_val, gain->base_config.cpc);
- 
- 	ret = sof_ipc4_widget_setup_msg(swidget, &gain->msg);
-diff --git a/sound/soc/sof/ipc4-topology.h b/sound/soc/sof/ipc4-topology.h
-index 0aa87a8add5d3..edf1638221a4b 100644
---- a/sound/soc/sof/ipc4-topology.h
-+++ b/sound/soc/sof/ipc4-topology.h
-@@ -217,14 +217,16 @@ struct sof_ipc4_control_data {
-  * @init_val: Initial value
-  * @curve_type: Curve type
-  * @reserved: reserved for future use
-- * @curve_duration: Curve duration
-+ * @curve_duration_l: Curve duration low part
-+ * @curve_duration_h: Curve duration high part
-  */
- struct sof_ipc4_gain_data {
- 	uint32_t channels;
- 	uint32_t init_val;
- 	uint32_t curve_type;
- 	uint32_t reserved;
--	uint32_t curve_duration;
-+	uint32_t curve_duration_l;
-+	uint32_t curve_duration_h;
- } __aligned(8);
- 
- /**
+ 	hcp->chmap_idx = HDMI_CODEC_CHMAP_IDX_UNKNOWN;
+ 	hcp->hcd.ops->audio_shutdown(dai->dev->parent, hcp->hcd.data);
 -- 
 2.39.2
 
