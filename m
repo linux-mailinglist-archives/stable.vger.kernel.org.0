@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A076C5659
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 584B76C565D
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231436AbjCVUFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59794 "EHLO
+        id S231695AbjCVUFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:05:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231766AbjCVUE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:04:58 -0400
+        with ESMTP id S231837AbjCVUFF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D86272B2B;
-        Wed, 22 Mar 2023 13:00:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C32273003;
+        Wed, 22 Mar 2023 13:00:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 560D3B81DC6;
-        Wed, 22 Mar 2023 20:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9549CC4339B;
-        Wed, 22 Mar 2023 20:00:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 999E2B81B97;
+        Wed, 22 Mar 2023 20:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8776C433D2;
+        Wed, 22 Mar 2023 20:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515209;
-        bh=WamK9sCvCYLHnmBW33jQHUEzfx0faqK9l3F9CwjpECc=;
+        s=k20201202; t=1679515219;
+        bh=9S1fCicaRG3d3lX/No9ATx7sKBwV0UjVkrklEWUwE18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DxsUVy0gFEHjZX0w3LJfVErIJLdmboAoVrHRqUeloMsnPAunYOSrSDBmEZQ9o4K7v
-         1wIzhzFb/CgR1TIsSRlHgDvpFoZii4I/CLx0TR39tUgwhzlmM9TTvX1X9O62CIl2pG
-         gtwQwaVeh38mSVWYwzo+NqMO0KRzDrkcD9HnjUM4hwbSmVMpDRp+5XVdJoZua17eYT
-         FnxElsUwLjNWSvditMY2MK0zjO0LvzPoohHq5Eyx4g2LzsdPb2Kt1Dd/RXu2IQ8ovd
-         ItA7GL4mPXDTcrv5EzAyPhGkPV1SJkJC4Xt2qEy7I6+txY5RA6UQPRTQOSsOPmxgJz
-         RNJ/yHwWiLeLA==
+        b=OibcPTajPRACxaVKxmt84DBDBjsUmM2BV/unuHiZJV5YQKR1eeIWL0pkmI6VmLXJy
+         Wwz9QH/6k06EcH/c05GGqUgA/etgN9Q6g9Jh1I+Zj0rERfCHaDftv8cYwo25oww+Ic
+         AUnEHvQWlgxHxJreTJoTiOaSnKlFZ/AEdl2e2KLFtwe5ncvTmh92yW2qdrsl4rLd0d
+         Y2d12+4VqDMITF+rCeX5/U3igsMWGkpT9CAJ4uR9LKIosMZ+NT2a515ac7R2UVdVkL
+         9HhjIquRnVZOTc4zzTAp4IzcynwxG19nt/q+n1jqVL0vSXJmM97d9GkvzA2NwwtaY1
+         hIIqPDOoL7E0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
@@ -43,9 +43,9 @@ Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
         yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
         kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 05/34] ASoC: Intel: avs: ssm4567: Remove nau8825 bits
-Date:   Wed, 22 Mar 2023 15:58:57 -0400
-Message-Id: <20230322195926.1996699-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 06/34] ASoC: Intel: avs: nau8825: Adjust clock control
+Date:   Wed, 22 Mar 2023 15:58:58 -0400
+Message-Id: <20230322195926.1996699-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
@@ -65,73 +65,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit 933de2d127281731166cf2880fa1e23c5a0f7faa ]
+[ Upstream commit 6206b2e787da2ed567922c37bb588a44f6fb6705 ]
 
-Some of the nau8825 clock control got into the ssm4567, remove it.
+Internal clock shall be adjusted also in cases when DAPM event other
+than 'ON' is triggered.
 
 Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
 Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230303134854.2277146-5-amadeuszx.slawinski@linux.intel.com
+Link: https://lore.kernel.org/r/20230303134854.2277146-6-amadeuszx.slawinski@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/ssm4567.c | 31 ----------------------------
- 1 file changed, 31 deletions(-)
+ sound/soc/intel/avs/boards/nau8825.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/intel/avs/boards/ssm4567.c b/sound/soc/intel/avs/boards/ssm4567.c
-index 9f84c8ab34478..51a8867326b47 100644
---- a/sound/soc/intel/avs/boards/ssm4567.c
-+++ b/sound/soc/intel/avs/boards/ssm4567.c
-@@ -15,7 +15,6 @@
- #include <sound/soc-acpi.h>
- #include "../../../codecs/nau8825.h"
+diff --git a/sound/soc/intel/avs/boards/nau8825.c b/sound/soc/intel/avs/boards/nau8825.c
+index f76909e9f990a..8392d8fac8f9c 100644
+--- a/sound/soc/intel/avs/boards/nau8825.c
++++ b/sound/soc/intel/avs/boards/nau8825.c
+@@ -33,15 +33,15 @@ avs_nau8825_clock_control(struct snd_soc_dapm_widget *w, struct snd_kcontrol *co
+ 		return -EINVAL;
+ 	}
  
--#define SKL_NUVOTON_CODEC_DAI	"nau8825-hifi"
- #define SKL_SSM_CODEC_DAI	"ssm4567-hifi"
- 
- static struct snd_soc_codec_conf card_codec_conf[] = {
-@@ -34,41 +33,11 @@ static const struct snd_kcontrol_new card_controls[] = {
- 	SOC_DAPM_PIN_SWITCH("Right Speaker"),
- };
- 
--static int
--platform_clock_control(struct snd_soc_dapm_widget *w, struct snd_kcontrol *control, int event)
--{
--	struct snd_soc_dapm_context *dapm = w->dapm;
--	struct snd_soc_card *card = dapm->card;
--	struct snd_soc_dai *codec_dai;
--	int ret;
--
--	codec_dai = snd_soc_card_get_codec_dai(card, SKL_NUVOTON_CODEC_DAI);
--	if (!codec_dai) {
--		dev_err(card->dev, "Codec dai not found\n");
--		return -EINVAL;
--	}
--
--	if (SND_SOC_DAPM_EVENT_ON(event)) {
--		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_MCLK, 24000000,
--					     SND_SOC_CLOCK_IN);
--		if (ret < 0)
+-	if (!SND_SOC_DAPM_EVENT_ON(event)) {
++	if (SND_SOC_DAPM_EVENT_ON(event))
++		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_MCLK, 24000000,
++					     SND_SOC_CLOCK_IN);
++	else
+ 		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_INTERNAL, 0, SND_SOC_CLOCK_IN);
+-		if (ret < 0) {
 -			dev_err(card->dev, "set sysclk err = %d\n", ret);
--	} else {
--		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_INTERNAL, 0, SND_SOC_CLOCK_IN);
--		if (ret < 0)
--			dev_err(card->dev, "set sysclk err = %d\n", ret);
+-			return ret;
+-		}
 -	}
--
--	return ret;
--}
--
- static const struct snd_soc_dapm_widget card_widgets[] = {
- 	SND_SOC_DAPM_SPK("Left Speaker", NULL),
- 	SND_SOC_DAPM_SPK("Right Speaker", NULL),
- 	SND_SOC_DAPM_SPK("DP1", NULL),
- 	SND_SOC_DAPM_SPK("DP2", NULL),
--	SND_SOC_DAPM_SUPPLY("Platform Clock", SND_SOC_NOPM, 0, 0, platform_clock_control,
--			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
- };
++	if (ret < 0)
++		dev_err(card->dev, "Set sysclk failed: %d\n", ret);
  
- static const struct snd_soc_dapm_route card_base_routes[] = {
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct snd_kcontrol_new card_controls[] = {
 -- 
 2.39.2
 
