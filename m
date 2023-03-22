@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C34796C56F4
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:11:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 132E96C5709
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:12:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232059AbjCVULD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:11:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51092 "EHLO
+        id S231893AbjCVUL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232194AbjCVUKO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84556C6A3;
-        Wed, 22 Mar 2023 13:03:35 -0700 (PDT)
+        with ESMTP id S231907AbjCVULb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:11:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E68E7E794;
+        Wed, 22 Mar 2023 13:03:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A17A2B81DEB;
-        Wed, 22 Mar 2023 20:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B5CBC433EF;
-        Wed, 22 Mar 2023 20:02:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9F246229C;
+        Wed, 22 Mar 2023 20:02:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C022C433EF;
+        Wed, 22 Mar 2023 20:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515338;
-        bh=I86NJCPu1+KiO59bQFYOpha356Tl4KQfy3wuYdiGe9c=;
+        s=k20201202; t=1679515342;
+        bh=ist7WuapNg5kr7wsA8uxyE/FnPgbh4z43JdsF8oAOD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkBRsrer3oaKUfO5yC1ysymSqCzvnOBJzkibPVCEkKniccUcb8515Y/A4rvWK4piq
-         r2G0pz32W6SCbjqK5wLEtPq88JyeXwcuss1ioKKEJo6g04nrfqUWsfzZ+8zNFQJZhz
-         +dtBeVI7420m/JuDgcFv2NCVgQDLgF2ZDd/XAh2UHOlpdCpQaYHvQL7YCwfS6mqjtl
-         5i1HP4TwOlDSPviUnW85zM5be/gh8MwMBXA+aAIU9ZF2zzcl9bhh6pyhkDfJUjYsF3
-         obqJPCGdcrswq7lrhiouRNTCxXaIfpd2uTXABOUlEyx5IHV7q27rl2bDXCQnj1UQF4
-         FBPyvXHjwcxEg==
+        b=EAJGcuFrijJ9Yyk2NvkgYKw/ScJYNccQsT25Xn5XuieHNaX4nUWFD4be7fGSbP3pq
+         ADVeGYqJh3Bj6VNPOQeaAYl1jELDqEh1JmWpAlhY+mKhFYtCIczq2Chwx2b5nKtV+U
+         nMdKbInLYhkJgEXB814d/4kFnSaxpCgY6lJaIFWZhN2kW8+qFl7kKua/zjgOugVK3o
+         Yi47HIOFrM6H7RWwBOK1soukmb9w2kg77pX4mUnlY8wJvQ5umTEgTnA/nuQTUtPyfb
+         qEG69sORaALmD4jDhgK9CY4zv5URUct+hdlBQoQGHVMTEPE/6jX8LBu1iClMzX2nz6
+         CzO5Xeiam9ILQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, dengshaomin@cdjrlc.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 03/12] ALSA: asihpi: check pao in control_message()
-Date:   Wed, 22 Mar 2023 16:01:57 -0400
-Message-Id: <20230322200207.1997367-3-sashal@kernel.org>
+        perex@perex.cz, tiwai@suse.com, ye.xingchen@zte.com.cn,
+        dev@xianwang.io, gremlin@altlinux.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 04/12] ALSA: hda/ca0132: fixup buffer overrun at tuning_ctl_set()
+Date:   Wed, 22 Mar 2023 16:01:58 -0400
+Message-Id: <20230322200207.1997367-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322200207.1997367-1-sashal@kernel.org>
 References: <20230322200207.1997367-1-sashal@kernel.org>
@@ -47,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,68 +58,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 9026c0bf233db53b86f74f4c620715e94eb32a09 ]
+[ Upstream commit 98e5eb110095ec77cb6d775051d181edbf9cd3cf ]
 
-control_message() might be called with pao = NULL.
-Here indicates control_message() as sample.
+tuning_ctl_set() might have buffer overrun at (X) if it didn't break
+from loop by matching (A).
 
-(B)	static void control_message(struct hpi_adapter_obj *pao, ...)
-	{                                                   ^^^
-		struct hpi_hw_obj *phw = pao->priv;
-		...                      ^^^
-	}
-
-(A)	void _HPI_6205(struct hpi_adapter_obj *pao, ...)
-	{                                      ^^^
-		...
-		case HPI_OBJ_CONTROL:
-(B)			control_message(pao, phm, phr);
-			break;          ^^^
-		...
-	}
-
-	void HPI_6205(...)
+	static int tuning_ctl_set(...)
 	{
-		...
-(A)		_HPI_6205(NULL, phm, phr);
-		...       ^^^^
+		for (i = 0; i < TUNING_CTLS_COUNT; i++)
+(A)			if (nid == ca0132_tuning_ctls[i].nid)
+				break;
+
+		snd_hda_power_up(...);
+(X)		dspio_set_param(..., ca0132_tuning_ctls[i].mid, ...);
+		snd_hda_power_down(...);                ^
+
+		return 1;
 	}
 
-Therefore, We will get too many warning via cppcheck, like below
+We will get below error by cppcheck
 
-	sound/pci/asihpi/hpi6205.c:238:27: warning: Possible null pointer dereference: pao [nullPointer]
-		 struct hpi_hw_obj *phw = pao->priv;
-		                          ^
-	sound/pci/asihpi/hpi6205.c:433:13: note: Calling function '_HPI_6205', 1st argument 'NULL' value is 0
-		  _HPI_6205(NULL, phm, phr);
-		            ^
-	sound/pci/asihpi/hpi6205.c:401:20: note: Calling function 'control_message', 1st argument 'pao' value is 0
-	   control_message(pao, phm, phr);
-	                   ^
-Set phr->error like many functions doing, and don't call _HPI_6205()
-with NULL.
+	sound/pci/hda/patch_ca0132.c:4229:2: note: After for loop, i has value 12
+	 for (i = 0; i < TUNING_CTLS_COUNT; i++)
+	 ^
+	sound/pci/hda/patch_ca0132.c:4234:43: note: Array index out of bounds
+	 dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
+	                                           ^
+This patch cares non match case.
 
 Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87ttypeaqz.wl-kuninori.morimoto.gx@renesas.com
+Link: https://lore.kernel.org/r/87sfe9eap7.wl-kuninori.morimoto.gx@renesas.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/asihpi/hpi6205.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_ca0132.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/asihpi/hpi6205.c b/sound/pci/asihpi/hpi6205.c
-index 3d6914c64c4a8..4cdaeefeb6885 100644
---- a/sound/pci/asihpi/hpi6205.c
-+++ b/sound/pci/asihpi/hpi6205.c
-@@ -430,7 +430,7 @@ void HPI_6205(struct hpi_message *phm, struct hpi_response *phr)
- 		pao = hpi_find_adapter(phm->adapter_index);
- 	} else {
- 		/* subsys messages don't address an adapter */
--		_HPI_6205(NULL, phm, phr);
-+		phr->error = HPI_ERROR_INVALID_OBJ_INDEX;
- 		return;
- 	}
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index 24c2638cde376..6057084da4cf8 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -4108,8 +4108,10 @@ static int tuning_ctl_set(struct hda_codec *codec, hda_nid_t nid,
  
+ 	for (i = 0; i < TUNING_CTLS_COUNT; i++)
+ 		if (nid == ca0132_tuning_ctls[i].nid)
+-			break;
++			goto found;
+ 
++	return -EINVAL;
++found:
+ 	snd_hda_power_up(codec);
+ 	dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
+ 			ca0132_tuning_ctls[i].req,
 -- 
 2.39.2
 
