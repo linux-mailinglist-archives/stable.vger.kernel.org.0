@@ -2,54 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B386E6C566C
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:06:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 866FF6C5666
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231665AbjCVUGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:06:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
+        id S230378AbjCVUFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231683AbjCVUFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:30 -0400
+        with ESMTP id S231552AbjCVUFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B9973380;
-        Wed, 22 Mar 2023 13:00:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A2573037;
+        Wed, 22 Mar 2023 13:00:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1DF4B81DEF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1412FB81DED;
+        Wed, 22 Mar 2023 20:00:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2137BC4339B;
         Wed, 22 Mar 2023 20:00:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F1EC433EF;
-        Wed, 22 Mar 2023 20:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515234;
-        bh=IbmhJWx5GghfMhnL6U8MVShoFs2QeOSnWFFZAlX1X2c=;
+        s=k20201202; t=1679515235;
+        bh=JY+nlAvYdrA+jh6+0sUS4CHwuwsmuuKcMjIF71zFUFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6GRR4RuGkL8ApEjwcpbhMlckc+/4DLYGbYDRNSTF8eKjlCdLWz6d1EjkPMVwJnXw
-         jVSqiYSJ8hSS0Y2pTr/GiV/bHXKMLVvPvk+Sq9o3cqeUW4ZjtAD4J7r7TytmIT+7lL
-         KVsRRoqODtn+YpvcnpwXOopiACDzdSQGEG8gAQb5nvNffuwmxeAXTqUP3iHBojmFg3
-         lKnPvxZhUri8V87LjFGG1IPOF080Tjgnup+Jn/fZ9PM3wFollfTpFdehXGb/y2KGpV
-         KdACjPBa+OLe1uZLZmuJa2QwvJMbnQmYA8J085XTUwTkYILz4t5fT8TDUvpHkjHr8n
-         aj1Da3Oxb+b7g==
+        b=PZ2Pjv29inje8Hv3cnfvZTDVVtcYBCg5iGzHaOSHEkt8egZPNxi0w1jGPdYboFvql
+         XS92XHOE1LeypiiuqpIIqbPpweSXNAeO/NIJahTauNrUQjV4vShGjlGe1i1utXFLrn
+         BhKU/Mi6A1nRWOZuGFt5o3OEwwB5od6rOJGSXYeIbVd7cpIrVNbfORMjHdPgF/qDIO
+         vTLlQcyvTjoU29vQwJjMGmmj+U52bQqREk15vDbR71JjTs6hydjP0DgDdBpWwl4Z7v
+         JixuduHZvkBr2+0OjiLDeeVzxhRgmr1gRVtZ08XEdeeUW/YyXkbbzrsWb/8Awu+nvL
+         jHySolycYFEuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 13/34] ASoC: SOF: IPC4: update gain ipc msg definition to align with fw
-Date:   Wed, 22 Mar 2023 15:59:05 -0400
-Message-Id: <20230322195926.1996699-13-sashal@kernel.org>
+Cc:     NeilBrown <neilb@suse.de>, Dan Carpenter <error27@gmail.com>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 14/34] md: avoid signed overflow in slot_store()
+Date:   Wed, 22 Mar 2023 15:59:06 -0400
+Message-Id: <20230322195926.1996699-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,98 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit e45cd86c3a78bfb9875a5eb8ab5dab459b59bbe2 ]
+[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
 
-Recent firmware changes modified the curve duration from 32 to 64 bits,
-which breaks volume ramps. A simple solution would be to change the
-definition, but unfortunately the ASoC topology framework only supports
-up to 32 bit tokens.
+slot_store() uses kstrtouint() to get a slot number, but stores the
+result in an "int" variable (by casting a pointer).
+This can result in a negative slot number if the unsigned int value is
+very large.
 
-This patch suggests breaking the 64 bit value in low and high parts, with
-only the low-part extracted from topology and high-part only zeroes. Since
-the curve duration is represented in hundred of nanoseconds, we can still
-represent a 400s ramp, which is just fine. The defacto ABI change has no
-effect on existing users since the IPC4 firmware has not been released just
-yet.
+A negative number means that the slot is empty, but setting a negative
+slot number this way will not remove the device from the array.  I don't
+think this is a serious problem, but it could cause confusion and it is
+best to fix it.
 
-Link: https://github.com/thesofproject/linux/issues/4026
-
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307110656.1816-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/ipc4-control.c  | 3 ++-
- sound/soc/sof/ipc4-topology.c | 4 ++--
- sound/soc/sof/ipc4-topology.h | 6 ++++--
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/md/md.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/sof/ipc4-control.c b/sound/soc/sof/ipc4-control.c
-index 0d5a578c34962..7442ec1c5a4d4 100644
---- a/sound/soc/sof/ipc4-control.c
-+++ b/sound/soc/sof/ipc4-control.c
-@@ -84,7 +84,8 @@ sof_ipc4_set_volume_data(struct snd_sof_dev *sdev, struct snd_sof_widget *swidge
- 		}
- 
- 		/* set curve type and duration from topology */
--		data.curve_duration = gain->data.curve_duration;
-+		data.curve_duration_l = gain->data.curve_duration_l;
-+		data.curve_duration_h = gain->data.curve_duration_h;
- 		data.curve_type = gain->data.curve_type;
- 
- 		msg->data_ptr = &data;
-diff --git a/sound/soc/sof/ipc4-topology.c b/sound/soc/sof/ipc4-topology.c
-index 41617569f50fb..49289932ba7e6 100644
---- a/sound/soc/sof/ipc4-topology.c
-+++ b/sound/soc/sof/ipc4-topology.c
-@@ -106,7 +106,7 @@ static const struct sof_topology_token gain_tokens[] = {
- 		get_token_u32, offsetof(struct sof_ipc4_gain_data, curve_type)},
- 	{SOF_TKN_GAIN_RAMP_DURATION,
- 		SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
--		offsetof(struct sof_ipc4_gain_data, curve_duration)},
-+		offsetof(struct sof_ipc4_gain_data, curve_duration_l)},
- 	{SOF_TKN_GAIN_VAL, SND_SOC_TPLG_TUPLE_TYPE_WORD,
- 		get_token_u32, offsetof(struct sof_ipc4_gain_data, init_val)},
- };
-@@ -682,7 +682,7 @@ static int sof_ipc4_widget_setup_comp_pga(struct snd_sof_widget *swidget)
- 
- 	dev_dbg(scomp->dev,
- 		"pga widget %s: ramp type: %d, ramp duration %d, initial gain value: %#x, cpc %d\n",
--		swidget->widget->name, gain->data.curve_type, gain->data.curve_duration,
-+		swidget->widget->name, gain->data.curve_type, gain->data.curve_duration_l,
- 		gain->data.init_val, gain->base_config.cpc);
- 
- 	ret = sof_ipc4_widget_setup_msg(swidget, &gain->msg);
-diff --git a/sound/soc/sof/ipc4-topology.h b/sound/soc/sof/ipc4-topology.h
-index 0aa87a8add5d3..edf1638221a4b 100644
---- a/sound/soc/sof/ipc4-topology.h
-+++ b/sound/soc/sof/ipc4-topology.h
-@@ -217,14 +217,16 @@ struct sof_ipc4_control_data {
-  * @init_val: Initial value
-  * @curve_type: Curve type
-  * @reserved: reserved for future use
-- * @curve_duration: Curve duration
-+ * @curve_duration_l: Curve duration low part
-+ * @curve_duration_h: Curve duration high part
-  */
- struct sof_ipc4_gain_data {
- 	uint32_t channels;
- 	uint32_t init_val;
- 	uint32_t curve_type;
- 	uint32_t reserved;
--	uint32_t curve_duration;
-+	uint32_t curve_duration_l;
-+	uint32_t curve_duration_h;
- } __aligned(8);
- 
- /**
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 0368b3c51c7f7..d5c362b1602b6 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -3152,6 +3152,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
+ 		if (err < 0)
+ 			return err;
++		if (slot < 0)
++			/* overflow */
++			return -ENOSPC;
+ 	}
+ 	if (rdev->mddev->pers && slot == -1) {
+ 		/* Setting 'slot' on an active array requires also
 -- 
 2.39.2
 
