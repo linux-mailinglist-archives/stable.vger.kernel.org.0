@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B88E96C532B
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 19:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FAEA6C534E
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 19:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230408AbjCVSBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 14:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
+        id S230401AbjCVSJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 14:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230396AbjCVSBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 14:01:31 -0400
+        with ESMTP id S230375AbjCVSJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 14:09:10 -0400
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1798B62FF4;
-        Wed, 22 Mar 2023 11:01:29 -0700 (PDT)
-Date:   Wed, 22 Mar 2023 18:01:28 -0000
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7EF464A98;
+        Wed, 22 Mar 2023 11:09:07 -0700 (PDT)
+Date:   Wed, 22 Mar 2023 18:09:04 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1679508088;
+        s=2020; t=1679508545;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=5PgEDmro4yjI2UKRUYxXDJNpNbStexhsQitnTZusH+Q=;
-        b=hDCQBhCO/OuDoULIKRwyVWns1Bj5daKW2trAzdA3ebmbUWm5/Qck/cQVUapCyRBIU4Vvy+
-        2T2I7oo+vKc+ApGwrlIZkzBFb7WZsFpLzP+cgJKzRdk79TeZSMAINb62STSqEEIpI56eE4
-        jb/cAntlU5j9eoNqEq4O3iqpllW5F8CLg5rxO+C18bBD8xVQSn0JxkHt3ujy3NZio3yBh7
-        nK63V2hQ62qNuZ+TDhkK8Ip62Dd2n66clkOmRtMBpckpFCKB3gFs7vmaidNPGy9qzNh8SH
-        5tYfDA6RhQ4DFeREnKnQSyn6L/o2rGZZNbCXXszcij8DxHQ26UnN7mFg4Slqyg==
+        bh=SG/WFdrtGeY3OOZAAMBgQN8FHAobrrdu1VyyimCtxig=;
+        b=UeBIyCkn3wsOjYm5QViLum6ho1kuOhNulszBT+JCn40RhWrpObTOATRT1NVJha+hDXGxaV
+        QlzZzuyxiiHC6enpNcUNVzvQ9cHZzo5IE6QRJ9ezFHaoMXCLQPG7Nkua//D1xyP1h2rrpx
+        x9ESMejXjinJRhh6vhkH2X/JwzAX20Eh9Vg7PCTxxYIv70q638uUp12Ttc09hG84Y6aWG4
+        qFLGdOe0lFNIi8kOI8nvWD4UulLA/uTYIBh7sPz1A/ECFMyY5NT49/AKF7N6BhQDkuOay9
+        gLj85K6Wc4ve5fEkqbuTY5ajln27Xwb0Gksfsyx4URzZ19jabNJjAYrwnk/nVg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1679508088;
+        s=2020e; t=1679508545;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=5PgEDmro4yjI2UKRUYxXDJNpNbStexhsQitnTZusH+Q=;
-        b=25xBVLzHo1BGnw8kKlEJyzYaHa79YGuoEANTrryyQlxc0bG2u2KXu1YL63o/X75FCRGBod
-        iLDijwa7kpsVSQDQ==
-From:   tip-bot2 for Michal =?utf-8?q?Koutn=C3=BD?= 
-        <tip-bot2@linutronix.de>
+        bh=SG/WFdrtGeY3OOZAAMBgQN8FHAobrrdu1VyyimCtxig=;
+        b=mvcukl2sdYRGUpH1qz6sUiI6hkUojdkTNGzeG4Hrzepo6TokurMUKUWr8UmaGJLpwAixL4
+        NHx/bK3MGYpMysCw==
+From:   "tip-bot2 for Chang S. Bae" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/mm: Do not shuffle CPU entry areas without KASLR
-Cc:     mkoutny@suse.com, Dave Hansen <dave.hansen@linux.intel.com>,
+Subject: [tip: x86/urgent] selftests/x86/amx: Add a ptrace test
+Cc:     "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         stable@vger.kernel.org, x86@kernel.org,
         linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-ID: <167950808805.5837.638304039500769110.tip-bot2@tip-bot2>
+Message-ID: <167950854480.5837.16057789901697956970.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
         DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,
         URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
@@ -60,60 +60,176 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     a3f547addcaa10df5a226526bc9e2d9a94542344
-Gitweb:        https://git.kernel.org/tip/a3f547addcaa10df5a226526bc9e2d9a945=
-42344
-Author:        Michal Koutn=C3=BD <mkoutny@suse.com>
-AuthorDate:    Mon, 06 Mar 2023 20:31:44 +01:00
+Commit-ID:     62faca1ca10cc84e99ae7f38aa28df2bc945369b
+Gitweb:        https://git.kernel.org/tip/62faca1ca10cc84e99ae7f38aa28df2bc945369b
+Author:        Chang S. Bae <chang.seok.bae@intel.com>
+AuthorDate:    Mon, 27 Feb 2023 13:05:04 -08:00
 Committer:     Dave Hansen <dave.hansen@linux.intel.com>
-CommitterDate: Wed, 22 Mar 2023 10:42:47 -07:00
+CommitterDate: Wed, 22 Mar 2023 11:00:49 -07:00
 
-x86/mm: Do not shuffle CPU entry areas without KASLR
+selftests/x86/amx: Add a ptrace test
 
-The commit 97e3d26b5e5f ("x86/mm: Randomize per-cpu entry area") fixed
-an omission of KASLR on CPU entry areas. It doesn't take into account
-KASLR switches though, which may result in unintended non-determinism
-when a user wants to avoid it (e.g. debugging, benchmarking).
+Include a test case to validate the XTILEDATA injection to the target.
 
-Generate only a single combination of CPU entry areas offsets -- the
-linear array that existed prior randomization when KASLR is turned off.
+Also, it ensures the kernel's ability to copy states between different
+XSAVE formats.
 
-Since we have 3f148f331814 ("x86/kasan: Map shadow for percpu pages on
-demand") and followups, we can use the more relaxed guard
-kasrl_enabled() (in contrast to kaslr_memory_enabled()).
+Refactor the memcmp() code to be usable for the state validation.
 
-Fixes: 97e3d26b5e5f ("x86/mm: Randomize per-cpu entry area")
-Signed-off-by: Michal Koutn=C3=BD <mkoutny@suse.com>
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
 Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20230306193144.24605-1-mkoutny%40suse.com
+Link: https://lore.kernel.org/all/20230227210504.18520-3-chang.seok.bae%40intel.com
 ---
- arch/x86/mm/cpu_entry_area.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/testing/selftests/x86/amx.c | 108 ++++++++++++++++++++++++++++-
+ 1 file changed, 105 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/mm/cpu_entry_area.c b/arch/x86/mm/cpu_entry_area.c
-index 7316a82..e91500a 100644
---- a/arch/x86/mm/cpu_entry_area.c
-+++ b/arch/x86/mm/cpu_entry_area.c
-@@ -10,6 +10,7 @@
- #include <asm/fixmap.h>
- #include <asm/desc.h>
- #include <asm/kasan.h>
-+#include <asm/setup.h>
-=20
- static DEFINE_PER_CPU_PAGE_ALIGNED(struct entry_stack_page, entry_stack_stor=
-age);
-=20
-@@ -29,6 +30,12 @@ static __init void init_cea_offsets(void)
- 	unsigned int max_cea;
- 	unsigned int i, j;
-=20
-+	if (!kaslr_enabled()) {
-+		for_each_possible_cpu(i)
-+			per_cpu(_cea_offset, i) =3D i;
-+		return;
+diff --git a/tools/testing/selftests/x86/amx.c b/tools/testing/selftests/x86/amx.c
+index 625e429..d884fd6 100644
+--- a/tools/testing/selftests/x86/amx.c
++++ b/tools/testing/selftests/x86/amx.c
+@@ -14,8 +14,10 @@
+ #include <sys/auxv.h>
+ #include <sys/mman.h>
+ #include <sys/shm.h>
++#include <sys/ptrace.h>
+ #include <sys/syscall.h>
+ #include <sys/wait.h>
++#include <sys/uio.h>
+ 
+ #include "../kselftest.h" /* For __cpuid_count() */
+ 
+@@ -583,6 +585,13 @@ static void test_dynamic_state(void)
+ 	_exit(0);
+ }
+ 
++static inline int __compare_tiledata_state(struct xsave_buffer *xbuf1, struct xsave_buffer *xbuf2)
++{
++	return memcmp(&xbuf1->bytes[xtiledata.xbuf_offset],
++		      &xbuf2->bytes[xtiledata.xbuf_offset],
++		      xtiledata.size);
++}
++
+ /*
+  * Save current register state and compare it to @xbuf1.'
+  *
+@@ -599,9 +608,7 @@ static inline bool __validate_tiledata_regs(struct xsave_buffer *xbuf1)
+ 		fatal_error("failed to allocate XSAVE buffer\n");
+ 
+ 	xsave(xbuf2, XFEATURE_MASK_XTILEDATA);
+-	ret = memcmp(&xbuf1->bytes[xtiledata.xbuf_offset],
+-		     &xbuf2->bytes[xtiledata.xbuf_offset],
+-		     xtiledata.size);
++	ret = __compare_tiledata_state(xbuf1, xbuf2);
+ 
+ 	free(xbuf2);
+ 
+@@ -826,6 +833,99 @@ static void test_context_switch(void)
+ 	free(finfo);
+ }
+ 
++/* Ptrace test */
++
++/*
++ * Make sure the ptracee has the expanded kernel buffer on the first
++ * use. Then, initialize the state before performing the state
++ * injection from the ptracer.
++ */
++static inline void ptracee_firstuse_tiledata(void)
++{
++	load_rand_tiledata(stashed_xsave);
++	init_xtiledata();
++}
++
++/*
++ * Ptracer injects the randomized tile data state. It also reads
++ * before and after that, which will execute the kernel's state copy
++ * functions. So, the tester is advised to double-check any emitted
++ * kernel messages.
++ */
++static void ptracer_inject_tiledata(pid_t target)
++{
++	struct xsave_buffer *xbuf;
++	struct iovec iov;
++
++	xbuf = alloc_xbuf();
++	if (!xbuf)
++		fatal_error("unable to allocate XSAVE buffer");
++
++	printf("\tRead the init'ed tiledata via ptrace().\n");
++
++	iov.iov_base = xbuf;
++	iov.iov_len = xbuf_size;
++
++	memset(stashed_xsave, 0, xbuf_size);
++
++	if (ptrace(PTRACE_GETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_GETREGSET");
++
++	if (!__compare_tiledata_state(stashed_xsave, xbuf))
++		printf("[OK]\tThe init'ed tiledata was read from ptracee.\n");
++	else
++		printf("[FAIL]\tThe init'ed tiledata was not read from ptracee.\n");
++
++	printf("\tInject tiledata via ptrace().\n");
++
++	load_rand_tiledata(xbuf);
++
++	memcpy(&stashed_xsave->bytes[xtiledata.xbuf_offset],
++	       &xbuf->bytes[xtiledata.xbuf_offset],
++	       xtiledata.size);
++
++	if (ptrace(PTRACE_SETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_SETREGSET");
++
++	if (ptrace(PTRACE_GETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_GETREGSET");
++
++	if (!__compare_tiledata_state(stashed_xsave, xbuf))
++		printf("[OK]\tTiledata was correctly written to ptracee.\n");
++	else
++		printf("[FAIL]\tTiledata was not correctly written to ptracee.\n");
++}
++
++static void test_ptrace(void)
++{
++	pid_t child;
++	int status;
++
++	child = fork();
++	if (child < 0) {
++		err(1, "fork");
++	} else if (!child) {
++		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL))
++			err(1, "PTRACE_TRACEME");
++
++		ptracee_firstuse_tiledata();
++
++		raise(SIGTRAP);
++		_exit(0);
 +	}
 +
- 	max_cea =3D (CPU_ENTRY_AREA_MAP_SIZE - PAGE_SIZE) / CPU_ENTRY_AREA_SIZE;
-=20
- 	/* O(sodding terrible) */
++	do {
++		wait(&status);
++	} while (WSTOPSIG(status) != SIGTRAP);
++
++	ptracer_inject_tiledata(child);
++
++	ptrace(PTRACE_DETACH, child, NULL, NULL);
++	wait(&status);
++	if (!WIFEXITED(status) || WEXITSTATUS(status))
++		err(1, "ptrace test");
++}
++
+ int main(void)
+ {
+ 	/* Check hardware availability at first */
+@@ -846,6 +946,8 @@ int main(void)
+ 	ctxtswtest_config.num_threads = 5;
+ 	test_context_switch();
+ 
++	test_ptrace();
++
+ 	clearhandler(SIGILL);
+ 	free_stashed_xsave();
+ 
