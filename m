@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E206C5669
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:06:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B386E6C566C
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbjCVUF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:05:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60196 "EHLO
+        id S231665AbjCVUGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:06:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231630AbjCVUFY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:24 -0400
+        with ESMTP id S231683AbjCVUFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157FA7303B;
-        Wed, 22 Mar 2023 13:00:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B9973380;
+        Wed, 22 Mar 2023 13:00:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2357B81DEC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1DF4B81DEF;
+        Wed, 22 Mar 2023 20:00:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F1EC433EF;
         Wed, 22 Mar 2023 20:00:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E73C4339C;
-        Wed, 22 Mar 2023 20:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515232;
-        bh=dLsDh4xH4aiYf9EooKnyH/jGCc4mPbktyPp1EHowaeE=;
+        s=k20201202; t=1679515234;
+        bh=IbmhJWx5GghfMhnL6U8MVShoFs2QeOSnWFFZAlX1X2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQP5dhJfrtHNa+3bJQobL86WXXUvjFBi+om2RlTKm161do74E1D5l1KhtKdybayN/
-         aKcDrz4su5kSsUgw9/trNf4Z5X4b4j/SqFuU05CF4oTwL5mSa1xc5NKHrZFsfz2gTV
-         JH7fUHNfUCFLIhpU2daoEY50lb/kYOXkvHoAjF9WGO4qSjt7kAh/F1Hw0/u76D0v6M
-         ZRyjIa6PKHCu+iQGbBZEZi8zi7V4J5okwH4y70/hK7IRcxZb10vVNTDwtvsHvMSW+Q
-         HVugZ5w7vBALY4JV+s9Iu5NkKir9nKHq7cHK7TZx02eGGGMAXR64UZCdRyP3kAlEDI
-         tuBYFJXPusL9A==
+        b=R6GRR4RuGkL8ApEjwcpbhMlckc+/4DLYGbYDRNSTF8eKjlCdLWz6d1EjkPMVwJnXw
+         jVSqiYSJ8hSS0Y2pTr/GiV/bHXKMLVvPvk+Sq9o3cqeUW4ZjtAD4J7r7TytmIT+7lL
+         KVsRRoqODtn+YpvcnpwXOopiACDzdSQGEG8gAQb5nvNffuwmxeAXTqUP3iHBojmFg3
+         lKnPvxZhUri8V87LjFGG1IPOF080Tjgnup+Jn/fZ9PM3wFollfTpFdehXGb/y2KGpV
+         KdACjPBa+OLe1uZLZmuJa2QwvJMbnQmYA8J085XTUwTkYILz4t5fT8TDUvpHkjHr8n
+         aj1Da3Oxb+b7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ferry Toth <fntoth@gmail.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+Cc:     Rander Wang <rander.wang@intel.com>,
         Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        yung-chuan.liao@linux.intel.com, daniel.baluta@nxp.com,
-        perex@perex.cz, tiwai@suse.com, rander.wang@intel.com,
-        zheyuma97@gmail.com, sound-open-firmware@alsa-project.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 12/34] ASoC: SOF: Intel: pci-tng: revert invalid bar size setting
-Date:   Wed, 22 Mar 2023 15:59:04 -0400
-Message-Id: <20230322195926.1996699-12-sashal@kernel.org>
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.1 13/34] ASoC: SOF: IPC4: update gain ipc msg definition to align with fw
+Date:   Wed, 22 Mar 2023 15:59:05 -0400
+Message-Id: <20230322195926.1996699-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
@@ -63,55 +62,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Rander Wang <rander.wang@intel.com>
 
-[ Upstream commit ca09e2a351fbc7836ba9418304ff0c3e72addfe0 ]
+[ Upstream commit e45cd86c3a78bfb9875a5eb8ab5dab459b59bbe2 ]
 
-The logic for the ioremap is to find the resource index 3 (IRAM) and
-infer the BAR address by subtracting the IRAM offset. The BAR size
-defined in hardware specifications is 2MB.
+Recent firmware changes modified the curve duration from 32 to 64 bits,
+which breaks volume ramps. A simple solution would be to change the
+definition, but unfortunately the ASoC topology framework only supports
+up to 32 bit tokens.
 
-The commit 5947b2726beb6 ("ASoC: SOF: Intel: Check the bar size before
-remapping") tried to find the BAR size by querying the resource length
-instead of a pre-canned value, but by requesting the size for index 3
-it only gets the size of the IRAM. That's obviously wrong and prevents
-the probe from proceeding.
+This patch suggests breaking the 64 bit value in low and high parts, with
+only the low-part extracted from topology and high-part only zeroes. Since
+the curve duration is represented in hundred of nanoseconds, we can still
+represent a 400s ramp, which is just fine. The defacto ABI change has no
+effect on existing users since the IPC4 firmware has not been released just
+yet.
 
-This commit attempted to fix an issue in a fuzzing/simulated
-environment but created another on actual devices, so the best course
-of action is to revert that change.
+Link: https://github.com/thesofproject/linux/issues/4026
 
-Reported-by: Ferry Toth <fntoth@gmail.com>
-Tested-by: Ferry Toth <fntoth@gmail.com> (Intel Edison-Arduino)
-Link: https://github.com/thesofproject/linux/issues/3901
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Signed-off-by: Rander Wang <rander.wang@intel.com>
 Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
 Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307095341.3222-1-peter.ujfalusi@linux.intel.com
+Link: https://lore.kernel.org/r/20230307110656.1816-1-peter.ujfalusi@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/pci-tng.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ sound/soc/sof/ipc4-control.c  | 3 ++-
+ sound/soc/sof/ipc4-topology.c | 4 ++--
+ sound/soc/sof/ipc4-topology.h | 6 ++++--
+ 3 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/sof/intel/pci-tng.c b/sound/soc/sof/intel/pci-tng.c
-index f0f6d9ba88037..0b17d1bb225e2 100644
---- a/sound/soc/sof/intel/pci-tng.c
-+++ b/sound/soc/sof/intel/pci-tng.c
-@@ -75,11 +75,7 @@ static int tangier_pci_probe(struct snd_sof_dev *sdev)
+diff --git a/sound/soc/sof/ipc4-control.c b/sound/soc/sof/ipc4-control.c
+index 0d5a578c34962..7442ec1c5a4d4 100644
+--- a/sound/soc/sof/ipc4-control.c
++++ b/sound/soc/sof/ipc4-control.c
+@@ -84,7 +84,8 @@ sof_ipc4_set_volume_data(struct snd_sof_dev *sdev, struct snd_sof_widget *swidge
+ 		}
  
- 	/* LPE base */
- 	base = pci_resource_start(pci, desc->resindex_lpe_base) - IRAM_OFFSET;
--	size = pci_resource_len(pci, desc->resindex_lpe_base);
--	if (size < PCI_BAR_SIZE) {
--		dev_err(sdev->dev, "error: I/O region is too small.\n");
--		return -ENODEV;
--	}
-+	size = PCI_BAR_SIZE;
+ 		/* set curve type and duration from topology */
+-		data.curve_duration = gain->data.curve_duration;
++		data.curve_duration_l = gain->data.curve_duration_l;
++		data.curve_duration_h = gain->data.curve_duration_h;
+ 		data.curve_type = gain->data.curve_type;
  
- 	dev_dbg(sdev->dev, "LPE PHY base at 0x%x size 0x%x", base, size);
- 	sdev->bar[DSP_BAR] = devm_ioremap(sdev->dev, base, size);
+ 		msg->data_ptr = &data;
+diff --git a/sound/soc/sof/ipc4-topology.c b/sound/soc/sof/ipc4-topology.c
+index 41617569f50fb..49289932ba7e6 100644
+--- a/sound/soc/sof/ipc4-topology.c
++++ b/sound/soc/sof/ipc4-topology.c
+@@ -106,7 +106,7 @@ static const struct sof_topology_token gain_tokens[] = {
+ 		get_token_u32, offsetof(struct sof_ipc4_gain_data, curve_type)},
+ 	{SOF_TKN_GAIN_RAMP_DURATION,
+ 		SND_SOC_TPLG_TUPLE_TYPE_WORD, get_token_u32,
+-		offsetof(struct sof_ipc4_gain_data, curve_duration)},
++		offsetof(struct sof_ipc4_gain_data, curve_duration_l)},
+ 	{SOF_TKN_GAIN_VAL, SND_SOC_TPLG_TUPLE_TYPE_WORD,
+ 		get_token_u32, offsetof(struct sof_ipc4_gain_data, init_val)},
+ };
+@@ -682,7 +682,7 @@ static int sof_ipc4_widget_setup_comp_pga(struct snd_sof_widget *swidget)
+ 
+ 	dev_dbg(scomp->dev,
+ 		"pga widget %s: ramp type: %d, ramp duration %d, initial gain value: %#x, cpc %d\n",
+-		swidget->widget->name, gain->data.curve_type, gain->data.curve_duration,
++		swidget->widget->name, gain->data.curve_type, gain->data.curve_duration_l,
+ 		gain->data.init_val, gain->base_config.cpc);
+ 
+ 	ret = sof_ipc4_widget_setup_msg(swidget, &gain->msg);
+diff --git a/sound/soc/sof/ipc4-topology.h b/sound/soc/sof/ipc4-topology.h
+index 0aa87a8add5d3..edf1638221a4b 100644
+--- a/sound/soc/sof/ipc4-topology.h
++++ b/sound/soc/sof/ipc4-topology.h
+@@ -217,14 +217,16 @@ struct sof_ipc4_control_data {
+  * @init_val: Initial value
+  * @curve_type: Curve type
+  * @reserved: reserved for future use
+- * @curve_duration: Curve duration
++ * @curve_duration_l: Curve duration low part
++ * @curve_duration_h: Curve duration high part
+  */
+ struct sof_ipc4_gain_data {
+ 	uint32_t channels;
+ 	uint32_t init_val;
+ 	uint32_t curve_type;
+ 	uint32_t reserved;
+-	uint32_t curve_duration;
++	uint32_t curve_duration_l;
++	uint32_t curve_duration_h;
+ } __aligned(8);
+ 
+ /**
 -- 
 2.39.2
 
