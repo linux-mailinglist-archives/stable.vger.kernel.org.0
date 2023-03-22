@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 542286C5670
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:06:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0457A6C5672
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbjCVUGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:06:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60976 "EHLO
+        id S231276AbjCVUGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230293AbjCVUFm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:42 -0400
+        with ESMTP id S231307AbjCVUFo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1992673398;
-        Wed, 22 Mar 2023 13:00:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B04A733AE;
+        Wed, 22 Mar 2023 13:00:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6543FB81DF1;
-        Wed, 22 Mar 2023 20:00:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A4CC433D2;
-        Wed, 22 Mar 2023 20:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3658CB81DF7;
+        Wed, 22 Mar 2023 20:00:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE2CC4339B;
+        Wed, 22 Mar 2023 20:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515239;
-        bh=cxVfjDcJ3o4/9WbrsHYV+z94c00ix0JIOKFcYYwCllg=;
+        s=k20201202; t=1679515241;
+        bh=DdZCJZugkSYbMO1idOyG2g7e45pM6mcohmV4VmEat0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbRjq2qAggn3dretjc4XyEgCrSZrnwNmIx1tDb2EcqW6HlZXMlFS7W4hKEisGPEbv
-         Hz2I7SHc+X1qiM8gtNGqSnGMwBsRkHuBXw70z3tyWv8qN12CBTHs2LKv2DFzzYfCNI
-         q7IfLS7166chzMjMKi41L8LJLwJSLocZ3aS+kBJNUKfMSMJqDjpP68jLaM/T6Gu1VN
-         4TX+Bh6arNaIqd81xXxJ0l8uEWIkIJMVyKBv4y5HBywva46KQobA9NRfQ9nhoAWTyq
-         e9biyvwhOoJNPpxGF0vyRM+FrHNTVCbbt6JUB/VmtbhAo8up+lNPyXmnLTUpXUnSQ2
-         nJh033id3ot5g==
+        b=Hsv2nN90d0LvROM7ZCqv2iw3t6exE1aPYhmUOjzG4s8la5kqHYAqsmWng3SOmCeWR
+         6Ydh/ytGlnQ7lKzpJh6G+TjIGrkZyg9s/CFVcKycAN1MSrMgraolMlPiW6UTJaFfO+
+         7fQiKGzlDA0DCNE2yrf5/VIm8q7904T7L98myPEarjr3LBIe/eLZ/Ajy/SzRaF9WvL
+         R7VybcoMaoy/tOb4MEHnGU+kaFQV2d9fkO0JgKZh4w4KjqGIC6YThNQCS5LAQb/iAK
+         SkNCbAgN2X3RMkmVyHKX5aDysmsOlnmMD495tzpfHJPcKOXCUX1KLpzsU8AuBHUU0k
+         2Fg7T89gUAXPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Beulich <jbeulich@suse.com>, Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, sstabellini@kernel.org,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 6.1 15/34] x86/PVH: obtain VGA console info in Dom0
-Date:   Wed, 22 Mar 2023 15:59:07 -0400
-Message-Id: <20230322195926.1996699-15-sashal@kernel.org>
+Cc:     Xiaogang Chen <Xiaogang.Chen@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 16/34] drm/amdkfd: Fix BO offset for multi-VMA page migration
+Date:   Wed, 22 Mar 2023 15:59:08 -0400
+Message-Id: <20230322195926.1996699-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
@@ -57,137 +58,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Xiaogang Chen <Xiaogang.Chen@amd.com>
 
-[ Upstream commit 934ef33ee75c3846f605f18b65048acd147e3918 ]
+[ Upstream commit b4ee9606378bb9520c94d8b96f0305c3696f5c29 ]
 
-A new platform-op was added to Xen to allow obtaining the same VGA
-console information PV Dom0 is handed. Invoke the new function and have
-the output data processed by xen_init_vga().
+svm_migrate_ram_to_vram migrates a prange from sys ram to vram. The prange may
+cross multiple vma. Need remember current dst vram offset in the TTM resource for
+each migration.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
+v2: squash in warning fix (Alex)
 
-Link: https://lore.kernel.org/r/8f315e92-7bda-c124-71cc-478ab9c5e610@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Xiaogang Chen <Xiaogang.Chen@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/Makefile            |  2 +-
- arch/x86/xen/enlighten_pv.c      |  3 ++-
- arch/x86/xen/enlighten_pvh.c     | 13 +++++++++++++
- arch/x86/xen/vga.c               |  5 ++---
- arch/x86/xen/xen-ops.h           |  7 ++++---
- include/xen/interface/platform.h |  3 +++
- 6 files changed, 25 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
-index 3c5b52fbe4a7f..a9ec8c9f5c5dd 100644
---- a/arch/x86/xen/Makefile
-+++ b/arch/x86/xen/Makefile
-@@ -45,6 +45,6 @@ obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= spinlock.o
- 
- obj-$(CONFIG_XEN_DEBUG_FS)	+= debugfs.o
- 
--obj-$(CONFIG_XEN_PV_DOM0)	+= vga.o
-+obj-$(CONFIG_XEN_DOM0)		+= vga.o
- 
- obj-$(CONFIG_XEN_EFI)		+= efi.o
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 8944726255c9c..333539bdbdaae 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1389,7 +1389,8 @@ asmlinkage __visible void __init xen_start_kernel(struct start_info *si)
- 
- 		x86_platform.set_legacy_features =
- 				xen_dom0_set_legacy_features;
--		xen_init_vga(info, xen_start_info->console.dom0.info_size);
-+		xen_init_vga(info, xen_start_info->console.dom0.info_size,
-+			     &boot_params.screen_info);
- 		xen_start_info->console.domU.mfn = 0;
- 		xen_start_info->console.domU.evtchn = 0;
- 
-diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
-index bcae606bbc5cf..1da44aca896c6 100644
---- a/arch/x86/xen/enlighten_pvh.c
-+++ b/arch/x86/xen/enlighten_pvh.c
-@@ -43,6 +43,19 @@ void __init xen_pvh_init(struct boot_params *boot_params)
- 	x86_init.oem.banner = xen_banner;
- 
- 	xen_efi_init(boot_params);
-+
-+	if (xen_initial_domain()) {
-+		struct xen_platform_op op = {
-+			.cmd = XENPF_get_dom0_console,
-+		};
-+		long ret = HYPERVISOR_platform_op(&op);
-+
-+		if (ret > 0)
-+			xen_init_vga(&op.u.dom0_console,
-+				     min(ret * sizeof(char),
-+					 sizeof(op.u.dom0_console)),
-+				     &boot_params->screen_info);
-+	}
- }
- 
- void __init mem_map_via_hcall(struct boot_params *boot_params_p)
-diff --git a/arch/x86/xen/vga.c b/arch/x86/xen/vga.c
-index 14ea32e734d59..d97adab8420f4 100644
---- a/arch/x86/xen/vga.c
-+++ b/arch/x86/xen/vga.c
-@@ -9,10 +9,9 @@
- 
- #include "xen-ops.h"
- 
--void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size)
-+void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size,
-+			 struct screen_info *screen_info)
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+index 22b077ac9a196..fad500dd224d8 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+@@ -295,7 +295,7 @@ static unsigned long svm_migrate_unsuccessful_pages(struct migrate_vma *migrate)
+ static int
+ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
+ 			 struct migrate_vma *migrate, struct dma_fence **mfence,
+-			 dma_addr_t *scratch)
++			 dma_addr_t *scratch, uint64_t ttm_res_offset)
  {
--	struct screen_info *screen_info = &boot_params.screen_info;
--
- 	/* This is drawn from a dump from vgacon:startup in
- 	 * standard Linux. */
- 	screen_info->orig_video_mode = 3;
-diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
-index 9a8bb972193d8..a10903785a338 100644
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -108,11 +108,12 @@ static inline void xen_uninit_lock_cpu(int cpu)
+ 	uint64_t npages = migrate->npages;
+ 	struct device *dev = adev->dev;
+@@ -305,8 +305,8 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
+ 	uint64_t i, j;
+ 	int r;
  
- struct dom0_vga_console_info;
+-	pr_debug("svms 0x%p [0x%lx 0x%lx]\n", prange->svms, prange->start,
+-		 prange->last);
++	pr_debug("svms 0x%p [0x%lx 0x%lx 0x%llx]\n", prange->svms, prange->start,
++		 prange->last, ttm_res_offset);
  
--#ifdef CONFIG_XEN_PV_DOM0
--void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size);
-+#ifdef CONFIG_XEN_DOM0
-+void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size,
-+			 struct screen_info *);
- #else
- static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
--				       size_t size)
-+				       size_t size, struct screen_info *si)
+ 	src = scratch;
+ 	dst = (uint64_t *)(scratch + npages);
+@@ -317,7 +317,7 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
+ 		goto out;
+ 	}
+ 
+-	amdgpu_res_first(prange->ttm_res, prange->offset << PAGE_SHIFT,
++	amdgpu_res_first(prange->ttm_res, ttm_res_offset,
+ 			 npages << PAGE_SHIFT, &cursor);
+ 	for (i = j = 0; i < npages; i++) {
+ 		struct page *spage;
+@@ -404,7 +404,7 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
+ static long
+ svm_migrate_vma_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
+ 			struct vm_area_struct *vma, uint64_t start,
+-			uint64_t end, uint32_t trigger)
++			uint64_t end, uint32_t trigger, uint64_t ttm_res_offset)
  {
- }
- #endif
-diff --git a/include/xen/interface/platform.h b/include/xen/interface/platform.h
-index 655d92e803e14..79a443c65ea93 100644
---- a/include/xen/interface/platform.h
-+++ b/include/xen/interface/platform.h
-@@ -483,6 +483,8 @@ struct xenpf_symdata {
- };
- DEFINE_GUEST_HANDLE_STRUCT(xenpf_symdata);
+ 	struct kfd_process *p = container_of(prange->svms, struct kfd_process, svms);
+ 	uint64_t npages = (end - start) >> PAGE_SHIFT;
+@@ -457,7 +457,7 @@ svm_migrate_vma_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
+ 	else
+ 		pr_debug("0x%lx pages migrated\n", cpages);
  
-+#define XENPF_get_dom0_console 64
-+
- struct xen_platform_op {
- 	uint32_t cmd;
- 	uint32_t interface_version; /* XENPF_INTERFACE_VERSION */
-@@ -506,6 +508,7 @@ struct xen_platform_op {
- 		struct xenpf_mem_hotadd        mem_add;
- 		struct xenpf_core_parking      core_parking;
- 		struct xenpf_symdata           symdata;
-+		struct dom0_vga_console_info   dom0_console;
- 		uint8_t                        pad[128];
- 	} u;
- };
+-	r = svm_migrate_copy_to_vram(adev, prange, &migrate, &mfence, scratch);
++	r = svm_migrate_copy_to_vram(adev, prange, &migrate, &mfence, scratch, ttm_res_offset);
+ 	migrate_vma_pages(&migrate);
+ 
+ 	pr_debug("successful/cpages/npages 0x%lx/0x%lx/0x%lx\n",
+@@ -505,6 +505,7 @@ svm_migrate_ram_to_vram(struct svm_range *prange, uint32_t best_loc,
+ 	unsigned long addr, start, end;
+ 	struct vm_area_struct *vma;
+ 	struct amdgpu_device *adev;
++	uint64_t ttm_res_offset;
+ 	unsigned long cpages = 0;
+ 	long r = 0;
+ 
+@@ -525,6 +526,7 @@ svm_migrate_ram_to_vram(struct svm_range *prange, uint32_t best_loc,
+ 
+ 	start = prange->start << PAGE_SHIFT;
+ 	end = (prange->last + 1) << PAGE_SHIFT;
++	ttm_res_offset = prange->offset << PAGE_SHIFT;
+ 
+ 	for (addr = start; addr < end;) {
+ 		unsigned long next;
+@@ -534,13 +536,14 @@ svm_migrate_ram_to_vram(struct svm_range *prange, uint32_t best_loc,
+ 			break;
+ 
+ 		next = min(vma->vm_end, end);
+-		r = svm_migrate_vma_to_vram(adev, prange, vma, addr, next, trigger);
++		r = svm_migrate_vma_to_vram(adev, prange, vma, addr, next, trigger, ttm_res_offset);
+ 		if (r < 0) {
+ 			pr_debug("failed %ld to migrate\n", r);
+ 			break;
+ 		} else {
+ 			cpages += r;
+ 		}
++		ttm_res_offset += next - addr;
+ 		addr = next;
+ 	}
+ 
 -- 
 2.39.2
 
