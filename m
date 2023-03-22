@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 866FF6C5666
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:05:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 542286C5670
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230378AbjCVUFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59906 "EHLO
+        id S231202AbjCVUGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231552AbjCVUFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:20 -0400
+        with ESMTP id S230293AbjCVUFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:05:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A2573037;
-        Wed, 22 Mar 2023 13:00:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1992673398;
+        Wed, 22 Mar 2023 13:00:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1412FB81DED;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6543FB81DF1;
+        Wed, 22 Mar 2023 20:00:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A4CC433D2;
         Wed, 22 Mar 2023 20:00:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2137BC4339B;
-        Wed, 22 Mar 2023 20:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515235;
-        bh=JY+nlAvYdrA+jh6+0sUS4CHwuwsmuuKcMjIF71zFUFw=;
+        s=k20201202; t=1679515239;
+        bh=cxVfjDcJ3o4/9WbrsHYV+z94c00ix0JIOKFcYYwCllg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZ2Pjv29inje8Hv3cnfvZTDVVtcYBCg5iGzHaOSHEkt8egZPNxi0w1jGPdYboFvql
-         XS92XHOE1LeypiiuqpIIqbPpweSXNAeO/NIJahTauNrUQjV4vShGjlGe1i1utXFLrn
-         BhKU/Mi6A1nRWOZuGFt5o3OEwwB5od6rOJGSXYeIbVd7cpIrVNbfORMjHdPgF/qDIO
-         vTLlQcyvTjoU29vQwJjMGmmj+U52bQqREk15vDbR71JjTs6hydjP0DgDdBpWwl4Z7v
-         JixuduHZvkBr2+0OjiLDeeVzxhRgmr1gRVtZ08XEdeeUW/YyXkbbzrsWb/8Awu+nvL
-         jHySolycYFEuA==
+        b=DbRjq2qAggn3dretjc4XyEgCrSZrnwNmIx1tDb2EcqW6HlZXMlFS7W4hKEisGPEbv
+         Hz2I7SHc+X1qiM8gtNGqSnGMwBsRkHuBXw70z3tyWv8qN12CBTHs2LKv2DFzzYfCNI
+         q7IfLS7166chzMjMKi41L8LJLwJSLocZ3aS+kBJNUKfMSMJqDjpP68jLaM/T6Gu1VN
+         4TX+Bh6arNaIqd81xXxJ0l8uEWIkIJMVyKBv4y5HBywva46KQobA9NRfQ9nhoAWTyq
+         e9biyvwhOoJNPpxGF0vyRM+FrHNTVCbbt6JUB/VmtbhAo8up+lNPyXmnLTUpXUnSQ2
+         nJh033id3ot5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     NeilBrown <neilb@suse.de>, Dan Carpenter <error27@gmail.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 14/34] md: avoid signed overflow in slot_store()
-Date:   Wed, 22 Mar 2023 15:59:06 -0400
-Message-Id: <20230322195926.1996699-14-sashal@kernel.org>
+Cc:     Jan Beulich <jbeulich@suse.com>, Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, sstabellini@kernel.org,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 6.1 15/34] x86/PVH: obtain VGA console info in Dom0
+Date:   Wed, 22 Mar 2023 15:59:07 -0400
+Message-Id: <20230322195926.1996699-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195926.1996699-1-sashal@kernel.org>
 References: <20230322195926.1996699-1-sashal@kernel.org>
@@ -55,42 +57,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
+[ Upstream commit 934ef33ee75c3846f605f18b65048acd147e3918 ]
 
-slot_store() uses kstrtouint() to get a slot number, but stores the
-result in an "int" variable (by casting a pointer).
-This can result in a negative slot number if the unsigned int value is
-very large.
+A new platform-op was added to Xen to allow obtaining the same VGA
+console information PV Dom0 is handed. Invoke the new function and have
+the output data processed by xen_init_vga().
 
-A negative number means that the slot is empty, but setting a negative
-slot number this way will not remove the device from the array.  I don't
-think this is a serious problem, but it could cause confusion and it is
-best to fix it.
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
 
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/8f315e92-7bda-c124-71cc-478ab9c5e610@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/xen/Makefile            |  2 +-
+ arch/x86/xen/enlighten_pv.c      |  3 ++-
+ arch/x86/xen/enlighten_pvh.c     | 13 +++++++++++++
+ arch/x86/xen/vga.c               |  5 ++---
+ arch/x86/xen/xen-ops.h           |  7 ++++---
+ include/xen/interface/platform.h |  3 +++
+ 6 files changed, 25 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 0368b3c51c7f7..d5c362b1602b6 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -3152,6 +3152,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
- 		if (err < 0)
- 			return err;
-+		if (slot < 0)
-+			/* overflow */
-+			return -ENOSPC;
- 	}
- 	if (rdev->mddev->pers && slot == -1) {
- 		/* Setting 'slot' on an active array requires also
+diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
+index 3c5b52fbe4a7f..a9ec8c9f5c5dd 100644
+--- a/arch/x86/xen/Makefile
++++ b/arch/x86/xen/Makefile
+@@ -45,6 +45,6 @@ obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= spinlock.o
+ 
+ obj-$(CONFIG_XEN_DEBUG_FS)	+= debugfs.o
+ 
+-obj-$(CONFIG_XEN_PV_DOM0)	+= vga.o
++obj-$(CONFIG_XEN_DOM0)		+= vga.o
+ 
+ obj-$(CONFIG_XEN_EFI)		+= efi.o
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 8944726255c9c..333539bdbdaae 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1389,7 +1389,8 @@ asmlinkage __visible void __init xen_start_kernel(struct start_info *si)
+ 
+ 		x86_platform.set_legacy_features =
+ 				xen_dom0_set_legacy_features;
+-		xen_init_vga(info, xen_start_info->console.dom0.info_size);
++		xen_init_vga(info, xen_start_info->console.dom0.info_size,
++			     &boot_params.screen_info);
+ 		xen_start_info->console.domU.mfn = 0;
+ 		xen_start_info->console.domU.evtchn = 0;
+ 
+diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
+index bcae606bbc5cf..1da44aca896c6 100644
+--- a/arch/x86/xen/enlighten_pvh.c
++++ b/arch/x86/xen/enlighten_pvh.c
+@@ -43,6 +43,19 @@ void __init xen_pvh_init(struct boot_params *boot_params)
+ 	x86_init.oem.banner = xen_banner;
+ 
+ 	xen_efi_init(boot_params);
++
++	if (xen_initial_domain()) {
++		struct xen_platform_op op = {
++			.cmd = XENPF_get_dom0_console,
++		};
++		long ret = HYPERVISOR_platform_op(&op);
++
++		if (ret > 0)
++			xen_init_vga(&op.u.dom0_console,
++				     min(ret * sizeof(char),
++					 sizeof(op.u.dom0_console)),
++				     &boot_params->screen_info);
++	}
+ }
+ 
+ void __init mem_map_via_hcall(struct boot_params *boot_params_p)
+diff --git a/arch/x86/xen/vga.c b/arch/x86/xen/vga.c
+index 14ea32e734d59..d97adab8420f4 100644
+--- a/arch/x86/xen/vga.c
++++ b/arch/x86/xen/vga.c
+@@ -9,10 +9,9 @@
+ 
+ #include "xen-ops.h"
+ 
+-void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size)
++void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size,
++			 struct screen_info *screen_info)
+ {
+-	struct screen_info *screen_info = &boot_params.screen_info;
+-
+ 	/* This is drawn from a dump from vgacon:startup in
+ 	 * standard Linux. */
+ 	screen_info->orig_video_mode = 3;
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index 9a8bb972193d8..a10903785a338 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -108,11 +108,12 @@ static inline void xen_uninit_lock_cpu(int cpu)
+ 
+ struct dom0_vga_console_info;
+ 
+-#ifdef CONFIG_XEN_PV_DOM0
+-void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size);
++#ifdef CONFIG_XEN_DOM0
++void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size,
++			 struct screen_info *);
+ #else
+ static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
+-				       size_t size)
++				       size_t size, struct screen_info *si)
+ {
+ }
+ #endif
+diff --git a/include/xen/interface/platform.h b/include/xen/interface/platform.h
+index 655d92e803e14..79a443c65ea93 100644
+--- a/include/xen/interface/platform.h
++++ b/include/xen/interface/platform.h
+@@ -483,6 +483,8 @@ struct xenpf_symdata {
+ };
+ DEFINE_GUEST_HANDLE_STRUCT(xenpf_symdata);
+ 
++#define XENPF_get_dom0_console 64
++
+ struct xen_platform_op {
+ 	uint32_t cmd;
+ 	uint32_t interface_version; /* XENPF_INTERFACE_VERSION */
+@@ -506,6 +508,7 @@ struct xen_platform_op {
+ 		struct xenpf_mem_hotadd        mem_add;
+ 		struct xenpf_core_parking      core_parking;
+ 		struct xenpf_symdata           symdata;
++		struct dom0_vga_console_info   dom0_console;
+ 		uint8_t                        pad[128];
+ 	} u;
+ };
 -- 
 2.39.2
 
