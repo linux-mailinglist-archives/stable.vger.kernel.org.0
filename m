@@ -2,120 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E89616C58EA
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 22:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8486C594C
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 23:09:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229964AbjCVVlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 17:41:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49198 "EHLO
+        id S229508AbjCVWJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 18:09:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229995AbjCVVlG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 17:41:06 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2065.outbound.protection.outlook.com [40.107.237.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA93C2C649
-        for <stable@vger.kernel.org>; Wed, 22 Mar 2023 14:41:05 -0700 (PDT)
+        with ESMTP id S229778AbjCVWJE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 18:09:04 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2078.outbound.protection.outlook.com [40.107.220.78])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012B720561
+        for <stable@vger.kernel.org>; Wed, 22 Mar 2023 15:09:01 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aorgj92NJj9nxUeFwkJcZJPJVmhVhbaUqpvA6ka86wqysHFG5JVjbabLfPDekENrw0nz9jZrVyhGeI/dkzK5zjXhJwV388zkv/ITxZqtL5wB2pIzK0PYjYGYZCPiirM7biQCBeQQfoDUvzk4DdNJBL3F1HoZCWGUSDZH+NbN14hWXzxF+wGNtuw5zWwkM4uJwWjaACn3wa9IZOBb0kWTWlLnRam+56txe25vtKNhDf/oiiwTDy2/S5LZ4knwdOoaoYigkrlSEsrfNrNr8eBw26KPo8CqplpozzJruOcyLpujFJS+dBlCdS2Sxv4CLE38dzC/hDuX4M1NuxumZLPmhA==
+ b=YK+L8z1dYpffTHIHh9L648lY6lpPdszPNqb9vWCGKL4jlZgi3gsJj57xtWUTly2ItoNbADA0l5E6bEopk48HRnU29QKh/2GnXZjtfJg4loSvCQ7y105Z6RStFkd8UjgVJhU+n8mDytRwHUpU92j5MvLfNkcMQnd4D8VEcfFo8Qte/hAudJvwLP8A5I+YziD4Ep+8a2+kmtstPq/0dmvYy2KFCNkWL6EidcLhXirucYr0jSFwKx7kfEsq4nydU1KW5I7hFS72g8jCbs2FLbYZFo+Et5FGD9khDWgxL4gNMPiCMn45rROe9jjFoggExGXKP3zdriVE/LmNlhJPGGpWjQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4AHIXNWlwuJYBPZiNE9tNlTYt4pcYQSXOkOk8HM4nhw=;
- b=Kruf9m3q7OI15lfHaCuHgbVlk0ZUDJ//YFh62zrM8O28eSA0Avm7x/tiWz1d8AP/y/1lTyDczbDPAIWc8k0FwrLJ9U5uORCQBT1QWTcl7s0z2z7wrwTYqvE+HWkxuWx1BVj3a1qSDtg4Rz+lynCp0K99uhsY3m8AbUDpTUyClgwBX14Bjb1KtW5H6W8hkNDWLm3FEuY0SM2gHr/nWxiNv/wtSqB64DOuNYZ/a1+Uxs1I9Lm5EdSX/CsWrCA7WFT0uPXAPrxdzA3zDUVAMLM1R4HCqg0JXoLCwrFHMFoOcHdLujQ3vVQgvEiq2tY2o3kTv/0Krb4DvzA9qBbONIu7YQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+ bh=NzitKwWUly/kaTnukWUNhW+H0+QtiYtoYNe6tD8n2Ow=;
+ b=ngY9zIsWy7CIdZK45yWSDJVgJ5VhzwDU8ZbRJFQlFHgi6EYNSXlum1FEPPyKWwql1n06ptpjuwILCgYp2zZMorpd7Y/xVN5LnBbUbvcoM1noi0V8iICaprt0jIAQVlxhUsrtT4IDP+z5O3mKFbOmUz4eQU+hMvlN7LPYlvkDP907mITXy2nFM6OFRokc7A59TgWq+e3qpLmmjRQBoIJjSaiSwMDxFu8Pt8HWt9XNnZCKwNdeaZzi3pkfuA0U+6NFQ9xpi0JVkAbGJbBa+q1sF63pIH2FTXAeh1k0fphfGnvvZt6GEmkWJXke+EEvwSTmaHlMxLntSLkjScXzJt3wSg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4AHIXNWlwuJYBPZiNE9tNlTYt4pcYQSXOkOk8HM4nhw=;
- b=NUuILgwyU6644c8B9Ncp7yNlWbPmvkeji8Z0z2Oos91ceuQJN9R94x3I/wVc0xyf8TpfAwvPXhm4AaqXgw0lKF3UaFt7P7/fEYRxD3t9ieZgXC56xiLhMe5oHsl/xZUZ6i9gfYgGg3of+eXZM0Q/IQxaBa2D5jLu7X+AWvt+Tso=
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
- by MW3PR12MB4443.namprd12.prod.outlook.com (2603:10b6:303:2d::15) with
+ bh=NzitKwWUly/kaTnukWUNhW+H0+QtiYtoYNe6tD8n2Ow=;
+ b=YEsMryF19PHaxJ/NYzISpcpkY0r4ArwT7RaXS1eI+6ftaBGZzMZbERj/s0tDg/Ap5caI1spEpsd8tNrzGcg9QBr6fTbOSUJHF1F3ugnyH15KKryEWtyQZKBk92IDe6i7wMKd6ivG+FvY83lWhzWILNCXVM/bfhUG3xHHubGYQtI=
+Received: from MW2PR16CA0045.namprd16.prod.outlook.com (2603:10b6:907:1::22)
+ by SJ0PR12MB6879.namprd12.prod.outlook.com (2603:10b6:a03:484::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37; Wed, 22 Mar
- 2023 21:41:00 +0000
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::a4e:62dd:d463:5614]) by MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::a4e:62dd:d463:5614%9]) with mapi id 15.20.6178.037; Wed, 22 Mar 2023
- 21:41:00 +0000
-From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Fixups for failed stable backport of "Remove OTG DIV register write
- for Virtual"
-Thread-Topic: Fixups for failed stable backport of "Remove OTG DIV register
- write for Virtual"
-Thread-Index: AdldBs93uxw0fV2iSMCpO6jXqmLv5w==
-Date:   Wed, 22 Mar 2023 21:41:00 +0000
-Message-ID: <MN0PR12MB610170899EAB526C383CB75EE2869@MN0PR12MB6101.namprd12.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Enabled=true;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SetDate=2023-03-22T21:40:58Z;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Method=Privileged;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Name=Public-AIP 2.0;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ActionId=0cff46c3-5bdd-4ab8-a5e8-162a47bd60c3;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ContentBits=1
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_enabled: true
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_setdate: 2023-03-22T21:40:58Z
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_method: Privileged
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_name: Public-AIP 2.0
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_actionid: c49acf29-7134-4ad9-bf7d-73892ae04b63
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_contentbits: 0
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MN0PR12MB6101:EE_|MW3PR12MB4443:EE_
-x-ms-office365-filtering-correlation-id: 0a6404c2-c9ba-4044-c060-08db2b1e20df
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: kC8StX5YhNNxRwsynolkoWe+hyI7CZmG2qog3hHRvnl5m8Gu8LwQbieESzFwZDmwf4/HSHkWNAtXTwoL7cjKYdTA5gYW9tzSzeo+eT13pF1nKK9E2SF3aIpLMQhJyGTmJu4FKvwTpqyxwmg2KI1uU86n9piH7z4KGMV5/B/DDi9fkk+cVajiXZWTympn5+R3N8oArRwUUVhYC4JfgaDZ9DzyDcmqYTJBcX3L18m4bT6CSRMvBYSvil94UVjpD7ymv2at1dO78HsPQxD7atoasBASffsf0tv9m/a5+1OxamHRKWDa7Kw4IpXGzFa+P06Iws26Zq/Txz4l8VRK+RVrOycMJqOGtN17+igAKOm1e69R78uofWKFprN2qOjPTaIZRj0/ZYnesuDON6+KVAOMCJgnaHoEvfq0Lq89vUneZSGOnpmihiLFsEVWhEsEoP/t1u+RippSYZWqjHEf6HOZbQAGSek9FHsSdhReJySHyxeg3ltj6kdsGp1oKExGFmBFBL6WQJTkHNGZaLa+aAtqhLsdq/V3Knrf/6MvKm6Yz2bP9gznqoNV6pLHS2RME5KGXAaOXTswOOJMqPpV9lI7IX7GqQZbOE1WIIsMfQEo6d5QNKqmpR2FHFhwDlOjN9qJReKfGvhln4MEfyJU9xGh0Vtp28SnSPia1Vn38ZAP74V6RdMV5BbiwQrmd9GDBrEnryLXHXOV1VdhUG7CcUwmVA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(396003)(39860400002)(346002)(136003)(376002)(366004)(451199018)(6506007)(9686003)(478600001)(66556008)(316002)(64756008)(186003)(66446008)(26005)(8676002)(6916009)(66946007)(4744005)(122000001)(2906002)(8936002)(41300700001)(52536014)(5660300002)(66476007)(38070700005)(7696005)(71200400001)(38100700002)(76116006)(86362001)(33656002)(55016003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?zfX8iGc7WBXV3uuQ0OZqGPen/BUKnlLVUgdHZuZHA9TTtfDflLOg9IB5IfwB?=
- =?us-ascii?Q?+/L3Sb18y89PJOub66B3hVFs543ctVI+ZN1W8P3BEmf4tkD6OqcfeZkBP4Mw?=
- =?us-ascii?Q?IycicFeShZsz+IHX/xXr471asCb0zvVplH4cV1RBXihapxWXKCF0/yLIZePy?=
- =?us-ascii?Q?7h8OQYyBJxcz6QGnAdYt5Gkmfa/L2HitYlR2LSd1rAKVqV2mZn9NXZPTQS/o?=
- =?us-ascii?Q?TRhyl1e2C84TmIImA+h//aAVy9Ho6nZwx4YHG/ajBXCyTuF0b2c5LtLFE6DZ?=
- =?us-ascii?Q?SpH/OhZS2LlYpyOmeCpXV6346AUJlhr4rFDoYpbCBZM3vY6VcsHI/mzT4OSU?=
- =?us-ascii?Q?EFtQNvpffvpqXBig8UJ675y7SY4fbzKIri0ZIlJHQj/jELBAhNMFZkbrSmSO?=
- =?us-ascii?Q?z40SeYniCP5esYaTHiVQO/JPyp1dw8xTnodSxdYvOQ7JtVZwkuyB1AgdUe0i?=
- =?us-ascii?Q?aSa+T2vfaDWdXtuEVM9s8G10Q/TARGwtrYReE2sZYZB4pdSpL4SSsoshUsxK?=
- =?us-ascii?Q?mQra13Zf4yDE0dh3TAzNy9f6BZ/nE9hwBVQpCC1kQG9FGzS6Hi8ITsiDCbPS?=
- =?us-ascii?Q?e6qTrlmDvkfGC2PaD8zWVr/B/HpBDPg0cf+Arl7dYUnfu5eXtFwo/Q7lI7LL?=
- =?us-ascii?Q?qg9ZU3d3rjxWgJOtTiPit1AH+H6X7xqkUYgd/n6Iavhx5QstgXxBSuByRFor?=
- =?us-ascii?Q?C0YBQz5GOtwaEHZR6RKDoMTaMktCPieUhJEpJwTgQvR4OAv0c8Ch7hQbcZPI?=
- =?us-ascii?Q?WEq/YbXjvx1ROBd/yEXBO/GLMWe9OLWEavck+AyGoMaQ8EPoBuCxZajIF47w?=
- =?us-ascii?Q?polUQdd+yt/YFrGCc7CK8w58CRXBWYk1k1erLY6eJfaVzG64yktb/Lg6+fZe?=
- =?us-ascii?Q?uIpUhht0gDjsrtt5vjutMiB5MHHd3aQMu87qlb5KUg/5KhIPa5h6h2wm2uTZ?=
- =?us-ascii?Q?eUdPuC1rSRsxdoR5g5uK6XHaDC1ts7SUqSBQkHKssO2XkUEY27qZ3FfWcvmm?=
- =?us-ascii?Q?AeeCpOl62bcfjKx1Es+qenmzs/SV5lSIGlqqSdNFGsuhDeS9fsXaLPf3qJED?=
- =?us-ascii?Q?tpG5z1gx2h9GYgbj63Pove6tWaD8DLRXj48I/ldFQ4FceX+NNlotsDnf3A8c?=
- =?us-ascii?Q?sZmhvHrE3mXLjdhn5g9bs/ljr4LTISsg9FVn+tlfy0FTOYXDi3E0UYAV3QUV?=
- =?us-ascii?Q?TkT9D8YTklJvmnjts3wMA8GFo6vMmGz0cAz/E5KcESafS9zu0nAC8nLYWsAh?=
- =?us-ascii?Q?qsF8eAzJtFQ+AKeQbKcAw1V0NpWt+1v6FJELPazMn8IAAZElXz/O8uwzi4bE?=
- =?us-ascii?Q?xdPsfBxoHx8FUMUNINVfvif1oY0OWOph4T/X7Uzo4opm7XNEPVh25zqSTTDQ?=
- =?us-ascii?Q?nT6nGcY/3EglkkWBX+wvZIEag3z7BeAJdmtOsY8cTzeO2XqdAqEiQHHNaNvJ?=
- =?us-ascii?Q?/0c2kzeRyrbXJz8TrfGuazpNq8YZ7rINneD1PJiRUcrI4hYtWFjFBLmqV609?=
- =?us-ascii?Q?lwfnmoSTAIAH0qMhu/WMRnq7JWJ6Zw7IsuOy43RoBxY0MLmopTz9pT2cwyNN?=
- =?us-ascii?Q?qHNKTdtLRn3t/8v5S+c=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ 2023 22:08:59 +0000
+Received: from CO1NAM11FT047.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:907:1:cafe::75) by MW2PR16CA0045.outlook.office365.com
+ (2603:10b6:907:1::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.37 via Frontend
+ Transport; Wed, 22 Mar 2023 22:08:59 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT047.mail.protection.outlook.com (10.13.174.132) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6222.17 via Frontend Transport; Wed, 22 Mar 2023 22:08:59 +0000
+Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 22 Mar
+ 2023 17:08:57 -0500
+From:   Mario Limonciello <mario.limonciello@amd.com>
+To:     <stable@vger.kernel.org>
+CC:     Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 6.2.y/6.1.y 0/1] Fixed stable backport for USB4 CM issue
+Date:   Wed, 22 Mar 2023 17:08:40 -0500
+Message-ID: <20230322220841.898-1-mario.limonciello@amd.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT047:EE_|SJ0PR12MB6879:EE_
+X-MS-Office365-Filtering-Correlation-Id: 46d4aad8-2c42-4954-adc9-08db2b22099b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 4j6O1fd7sCT+byB0imOfk+z9rmHCrmdF0e5rBdXmwXk/cVwDq6L90DeTCtH0UbKvTJkwRJBNlmi3vVedvVIICpilJe7wCoAwbdeRFK4yzKn7Yy8+9eAKo2ZqdqB0bf6UN9ZUpMyVnayuB/Td9srsCJmOQ0Un4iXiRvModFrUu9f8dAeicNgFuLjgpwgkh4WmcmzQxWIuPjFgwMEa7saXpNRnwJDNH1U9Xp+E0nuyz6Myw0UHI4Z7/0n8s1ymwgIyJJl6WmqgBYArxgSznSSA1AHojx3zfWQirvNvuEjdIH5TQM+2rXOZSW9y14bGkAjMzdZIErsm5pImpVFJr9bY3Lj7q5Q+wFn20UTqw6Sfxr5aTOLIlTJy6i8LAi1kSB3wW/fHQHdzqQVqjfhYocQXcbG9rIh/FKJQBcYHuEOQcZzHzELDXguJkAiTlqmAx1VC8sY0IKpw7D2zPpOZdbP8G3TH6RlPKL72WyMPibTNF+PuFQW7HUWQWlUU4+zEpxjGAAgCf/BFejNieDYYLpWLaXoMgtzDNCJSwn2d2SjdmgHNIgaT31Sl4rKcT741PzBNhhD7Ttuh6q/uVTc/nYGgifGSFyAgL0Ru7tRkwFarxNMubJJdmQ754PU76uzc/+IEfO9pFEoe4ZcRE2CX7PEzadG3mzmYeTq1ak9/TClK0nFjbMyggKl1t8N71lYZGVRRE83rSiGjP6EV1ISvzxCzUqdSlg23rXt+ZKgo0C1Szf4=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(396003)(39860400002)(346002)(376002)(136003)(451199018)(36840700001)(46966006)(40470700004)(356005)(478600001)(81166007)(2616005)(316002)(82310400005)(16526019)(186003)(2906002)(6916009)(70206006)(82740400003)(8676002)(70586007)(26005)(4326008)(86362001)(36756003)(1076003)(7696005)(44832011)(6666004)(40480700001)(41300700001)(5660300002)(47076005)(36860700001)(4744005)(336012)(40460700003)(426003)(8936002)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0a6404c2-c9ba-4044-c060-08db2b1e20df
-X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Mar 2023 21:41:00.3292
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Mar 2023 22:08:59.1574
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: iiKMjU/GtomzeTNs3rE+mVou+gncp6AROrAbzlu3Uwq7idIQMXFCdjInv7x+rb4qoD/375Qiy1gJxc1/x1d3aQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4443
+X-MS-Exchange-CrossTenant-Network-Message-Id: 46d4aad8-2c42-4954-adc9-08db2b22099b
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT047.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6879
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
         DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,RCVD_IN_DNSWL_NONE,
         RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,URIBL_BLOCKED
@@ -126,29 +95,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Public]
-
 Hi,
 
-The commit "Remove OTG DIV register write for Virtual" was CC to stable but=
- failed to apply 6.2.y and 6.1.y due to some small missing dependencies.
+This commit that landed in 6.3 was marked to got to stable, but it failed
+to apply to both 6.2.y and 6.1.y.
 
-Here is the series of commits for 6.2.y needed:
+cbd6c1b17d3b ("drm/amd/display: Fix DP MST sinks removal issue")
 
-3b214bb7185d ("drm/amd/display: fix k1 k2 divider programming for phantom s=
-treams")
-709671ffb15d ("drm/amd/display: Remove OTG DIV register write for Virtual s=
-ignals.")
+The code is needed for some timing issues with USB4 CM teardown.
 
-Here is the series of commits for 6.1.y needed:
+It failed to apply because the code it fixed was moved to a new file in
+6.3.  The code is otherwise unchanged in the old file, so this has been
+manually fixed up.
 
-368307cef69c ("drm/amd/display: Include virtual signal to set k1 and k2 val=
-ues")
-3b214bb7185d ("drm/amd/display: fix k1 k2 divider programming for phantom s=
-treams")
-709671ffb15d ("drm/amd/display: Remove OTG DIV register write for Virtual s=
-ignals.")
+Please apply for both 6.2.y and 6.1.y.
 
-Can you please apply for a future stable release?
+Thanks!
 
-Thanks!=
+Cruise Hung (1):
+  drm/amd/display: Fix DP MST sinks removal issue
+
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+-- 
+2.34.1
+
