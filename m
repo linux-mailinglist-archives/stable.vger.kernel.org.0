@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12DE66C55C3
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4636C55C6
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231376AbjCVUAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44448 "EHLO
+        id S231447AbjCVUA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbjCVT7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:59:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD985C9D1;
-        Wed, 22 Mar 2023 12:58:23 -0700 (PDT)
+        with ESMTP id S230410AbjCVT74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:59:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318385BC94;
+        Wed, 22 Mar 2023 12:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8719622B3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E30B622B0;
+        Wed, 22 Mar 2023 19:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B28C433AE;
         Wed, 22 Mar 2023 19:58:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D680FC433A4;
-        Wed, 22 Mar 2023 19:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515102;
-        bh=S7xw1KZi9wgWBe4cQ7BxQezBNrU2pPn0w8A9pR4J7cI=;
+        s=k20201202; t=1679515103;
+        bh=isO0RvN70ZcuYch9J00VGEUvSaWqdMj2Ho5yc7Tft/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plJmx5Aiq+9nx+iTeESo0tAUoRiB+fnpwOj3zbvTbeowMtYNhmX9AvqQKp3Oiu9GM
-         ArvgCzh7IoGfWmhXhND0aBxNb87ZKBBbAluq3oeIIU6RSD4ppf/Xd5YCN6+nuymstP
-         lGU24l9yzllUSREWpudHR4lQz3pdLBDWfD++wiqXYiKvFo+frCJCjZCvPAZ0fB7QOj
-         Po0FBm5wmVhHyHg5ynLoQvdjgpGkXJeFg/N3jmtv1fowtAlZALryyK8eTKQ2Lintt0
-         Qg2cywCIdoVtOQU+9u+DdPDCqyIuGyKLtQ1rtJyhJA9mYpIOuddRSTOZU2aSJO2VFz
-         q35Ns6N81AAVw==
+        b=bgYai6hcrUYfZN91+8xcVhVqmmHFuSprVQDyfcSvuSncqHIdQeCaIz9WPqDI93peX
+         BDivFBwRnC/Spv4VM6S/lAi73tyiVZKYeyhRIaTdwCNF/ggT6KSqJMc3W0d5apH4r5
+         x5ByLbfqBs1eVf1BEBznO5746cT6jDDSRiYejzpXBQ08m4ZZr0dgvaHedXDaToGqsX
+         pQDSx//wegPu9HE5AZV3r0QgHsDqOpvbyh8gX784TswEsDPBVr8z0RxBQnpguGbvyV
+         wmLp3mymoRHBndk0eavpOJz8Bf1IHQSvbHkLnSScc2nuNKs0E3KqUKW4s7jsc2bdHv
+         m6cVmCYCdr8yw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emil Abildgaard Svendsen <EMAS@bang-olufsen.dk>,
-        Emil Svendsen <emas@bang-olufsen.dk>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
-        pierre-louis.bossart@linux.intel.com,
-        kuninori.morimoto.gx@renesas.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 20/45] ASoC: hdmi-codec: only startup/shutdown on supported streams
-Date:   Wed, 22 Mar 2023 15:56:14 -0400
-Message-Id: <20230322195639.1995821-20-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 21/45] wifi: mac80211: check basic rates validity
+Date:   Wed, 22 Mar 2023 15:56:15 -0400
+Message-Id: <20230322195639.1995821-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195639.1995821-1-sashal@kernel.org>
 References: <20230322195639.1995821-1-sashal@kernel.org>
@@ -50,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,63 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Abildgaard Svendsen <EMAS@bang-olufsen.dk>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit e041a2a550582106cba6a7c862c90dfc2ad14492 ]
+[ Upstream commit ce04abc3fcc62cd5640af981ebfd7c4dc3bded28 ]
 
-Currently only one stream is supported. This isn't usally a problem
-until you have a multi codec audio card. Because the audio card will run
-startup and shutdown on both capture and playback streams. So if your
-hdmi-codec only support either playback or capture. Then ALSA can't open
-for playback and capture.
+When userspace sets basic rates, it might send us some rates
+list that's empty or consists of invalid values only. We're
+currently ignoring invalid values and then may end up with a
+rates bitmap that's empty, which later results in a warning.
 
-This patch will ignore if startup and shutdown are called with a non
-supported stream. Thus, allowing an audio card like this:
+Reject the call if there were no valid rates.
 
-           +-+
- cpu1 <--@-| |-> codec1 (HDMI-CODEC)
-           | |<- codec2 (NOT HDMI-CODEC)
-           +-+
-
-Signed-off-by: Emil Svendsen <emas@bang-olufsen.dk>
-Link: https://lore.kernel.org/r/20230309065432.4150700-2-emas@bang-olufsen.dk
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdmi-codec.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/mac80211/cfg.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/hdmi-codec.c b/sound/soc/codecs/hdmi-codec.c
-index 74cbbe16f9aec..a22f2ec95901f 100644
---- a/sound/soc/codecs/hdmi-codec.c
-+++ b/sound/soc/codecs/hdmi-codec.c
-@@ -428,8 +428,13 @@ static int hdmi_codec_startup(struct snd_pcm_substream *substream,
- {
- 	struct hdmi_codec_priv *hcp = snd_soc_dai_get_drvdata(dai);
- 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
-+	bool has_capture = !hcp->hcd.no_i2s_capture;
-+	bool has_playback = !hcp->hcd.no_i2s_playback;
- 	int ret = 0;
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index d611e15301839..e24d2d5b04ad0 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -2576,6 +2576,17 @@ static int ieee80211_change_bss(struct wiphy *wiphy,
+ 	if (!sband)
+ 		return -EINVAL;
  
-+	if (!((has_playback && tx) || (has_capture && !tx)))
-+		return 0;
++	if (params->basic_rates) {
++		if (!ieee80211_parse_bitrates(link->conf->chandef.width,
++					      wiphy->bands[sband->band],
++					      params->basic_rates,
++					      params->basic_rates_len,
++					      &link->conf->basic_rates))
++			return -EINVAL;
++		changed |= BSS_CHANGED_BASIC_RATES;
++		ieee80211_check_rate_mask(link);
++	}
 +
- 	mutex_lock(&hcp->lock);
- 	if (hcp->busy) {
- 		dev_err(dai->dev, "Only one simultaneous stream supported!\n");
-@@ -468,6 +473,12 @@ static void hdmi_codec_shutdown(struct snd_pcm_substream *substream,
- 				struct snd_soc_dai *dai)
- {
- 	struct hdmi_codec_priv *hcp = snd_soc_dai_get_drvdata(dai);
-+	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
-+	bool has_capture = !hcp->hcd.no_i2s_capture;
-+	bool has_playback = !hcp->hcd.no_i2s_playback;
-+
-+	if (!((has_playback && tx) || (has_capture && !tx)))
-+		return;
+ 	if (params->use_cts_prot >= 0) {
+ 		link->conf->use_cts_prot = params->use_cts_prot;
+ 		changed |= BSS_CHANGED_ERP_CTS_PROT;
+@@ -2597,16 +2608,6 @@ static int ieee80211_change_bss(struct wiphy *wiphy,
+ 		changed |= BSS_CHANGED_ERP_SLOT;
+ 	}
  
- 	hcp->chmap_idx = HDMI_CODEC_CHMAP_IDX_UNKNOWN;
- 	hcp->hcd.ops->audio_shutdown(dai->dev->parent, hcp->hcd.data);
+-	if (params->basic_rates) {
+-		ieee80211_parse_bitrates(link->conf->chandef.width,
+-					 wiphy->bands[sband->band],
+-					 params->basic_rates,
+-					 params->basic_rates_len,
+-					 &link->conf->basic_rates);
+-		changed |= BSS_CHANGED_BASIC_RATES;
+-		ieee80211_check_rate_mask(link);
+-	}
+-
+ 	if (params->ap_isolate >= 0) {
+ 		if (params->ap_isolate)
+ 			sdata->flags |= IEEE80211_SDATA_DONT_BRIDGE_PACKETS;
 -- 
 2.39.2
 
