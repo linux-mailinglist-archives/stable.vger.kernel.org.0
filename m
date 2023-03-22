@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EEC46C5704
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 632CD6C578D
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232014AbjCVULm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:11:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
+        id S230260AbjCVU2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232024AbjCVUKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58D956B310;
-        Wed, 22 Mar 2023 13:03:49 -0700 (PDT)
+        with ESMTP id S230179AbjCVU2O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:28:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46B83570A7;
+        Wed, 22 Mar 2023 13:18:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB4BC622C0;
-        Wed, 22 Mar 2023 20:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61500C433EF;
-        Wed, 22 Mar 2023 20:02:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 886D9622B9;
+        Wed, 22 Mar 2023 20:02:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CA87C433D2;
+        Wed, 22 Mar 2023 20:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515365;
-        bh=RuYnVTJwWCkgS5pZsTRyfgbm1jPX/9A6YF9I++YlZ7Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cBiSET3Fpf+y2+2BG/5QIGlDsq6wXl1gjfmAEIQR1bSS5NuH93cFUyyRlGrovxalV
-         mynPoJlajZReORER+DaY9sLMzM+4uorwzSRoDrKceUJKuqZEuhiXPghe9IDVLV/mJw
-         KfqTHGZnFWm/kGai3e1iAItLRj0dJypWY4qRX+t/Xl8ayKe565xj8jssCoYTzfgId9
-         h7Sus9FvHUPsJEMtyFGWbgjLGYh7ZoDrkc0m+eWfevPFkSd/mhq7YRtBDUuC8AiJER
-         reO5Bx31DfNshJVY9SZAZfgsKm5HdscdJDWLYxbwIPGt08bdu0iv2zu13fIK5MXgUh
-         a0wHuyzX7Bczw==
+        s=k20201202; t=1679515369;
+        bh=I86NJCPu1+KiO59bQFYOpha356Tl4KQfy3wuYdiGe9c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=D6z/CFHz3MANQf2wKE+BfFvJKrJ86DEoeyTzMRgwp7iE4ld8gR786QCi0h9EGRIUJ
+         PGBpDWpBTWCCig5ZiB+RreUpFIIjqwCZwcG1J0+UzJWNWXCIuNMjLD8IegbwcH6WgV
+         8+KhkDGUWvKqQSAmCxw7QMQigWRQ+g78q73AyLHDQWFu0MIUkxCmdpv/8fTQPicB5j
+         cTmbNPOtkwNkMcVZDmckdSdLI2OgpJqlUX95JfvDylSOyQKz3nFOoVWwBxrAvjon91
+         FdzS9xkLQVboVBVSdw3DLvhsCUEDgRSisLfVtc3IT5+5O4cY2QHS/uWAd871N1m9KI
+         Wg7f2xDGBBnSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     NeilBrown <neilb@suse.de>, Dan Carpenter <error27@gmail.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 1/9] md: avoid signed overflow in slot_store()
-Date:   Wed, 22 Mar 2023 16:02:33 -0400
-Message-Id: <20230322200242.1997527-1-sashal@kernel.org>
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, dengshaomin@cdjrlc.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 2/9] ALSA: asihpi: check pao in control_message()
+Date:   Wed, 22 Mar 2023 16:02:34 -0400
+Message-Id: <20230322200242.1997527-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230322200242.1997527-1-sashal@kernel.org>
+References: <20230322200242.1997527-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,42 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
+[ Upstream commit 9026c0bf233db53b86f74f4c620715e94eb32a09 ]
 
-slot_store() uses kstrtouint() to get a slot number, but stores the
-result in an "int" variable (by casting a pointer).
-This can result in a negative slot number if the unsigned int value is
-very large.
+control_message() might be called with pao = NULL.
+Here indicates control_message() as sample.
 
-A negative number means that the slot is empty, but setting a negative
-slot number this way will not remove the device from the array.  I don't
-think this is a serious problem, but it could cause confusion and it is
-best to fix it.
+(B)	static void control_message(struct hpi_adapter_obj *pao, ...)
+	{                                                   ^^^
+		struct hpi_hw_obj *phw = pao->priv;
+		...                      ^^^
+	}
 
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <song@kernel.org>
+(A)	void _HPI_6205(struct hpi_adapter_obj *pao, ...)
+	{                                      ^^^
+		...
+		case HPI_OBJ_CONTROL:
+(B)			control_message(pao, phm, phr);
+			break;          ^^^
+		...
+	}
+
+	void HPI_6205(...)
+	{
+		...
+(A)		_HPI_6205(NULL, phm, phr);
+		...       ^^^^
+	}
+
+Therefore, We will get too many warning via cppcheck, like below
+
+	sound/pci/asihpi/hpi6205.c:238:27: warning: Possible null pointer dereference: pao [nullPointer]
+		 struct hpi_hw_obj *phw = pao->priv;
+		                          ^
+	sound/pci/asihpi/hpi6205.c:433:13: note: Calling function '_HPI_6205', 1st argument 'NULL' value is 0
+		  _HPI_6205(NULL, phm, phr);
+		            ^
+	sound/pci/asihpi/hpi6205.c:401:20: note: Calling function 'control_message', 1st argument 'pao' value is 0
+	   control_message(pao, phm, phr);
+	                   ^
+Set phr->error like many functions doing, and don't call _HPI_6205()
+with NULL.
+
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87ttypeaqz.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/asihpi/hpi6205.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index aa2993d5d5d38..64558991ce0a0 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -3082,6 +3082,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
- 		if (err < 0)
- 			return err;
-+		if (slot < 0)
-+			/* overflow */
-+			return -ENOSPC;
+diff --git a/sound/pci/asihpi/hpi6205.c b/sound/pci/asihpi/hpi6205.c
+index 3d6914c64c4a8..4cdaeefeb6885 100644
+--- a/sound/pci/asihpi/hpi6205.c
++++ b/sound/pci/asihpi/hpi6205.c
+@@ -430,7 +430,7 @@ void HPI_6205(struct hpi_message *phm, struct hpi_response *phr)
+ 		pao = hpi_find_adapter(phm->adapter_index);
+ 	} else {
+ 		/* subsys messages don't address an adapter */
+-		_HPI_6205(NULL, phm, phr);
++		phr->error = HPI_ERROR_INVALID_OBJ_INDEX;
+ 		return;
  	}
- 	if (rdev->mddev->pers && slot == -1) {
- 		/* Setting 'slot' on an active array requires also
+ 
 -- 
 2.39.2
 
