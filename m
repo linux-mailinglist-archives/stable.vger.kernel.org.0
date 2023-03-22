@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D356C55A7
+	by mail.lfdr.de (Postfix) with ESMTP id 524636C55A5
 	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:00:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230427AbjCVT74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 15:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44414 "EHLO
+        id S230517AbjCVT75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 15:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230409AbjCVT72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:59:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E8662FE2;
-        Wed, 22 Mar 2023 12:58:06 -0700 (PDT)
+        with ESMTP id S231280AbjCVT7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 15:59:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170014D29B;
+        Wed, 22 Mar 2023 12:58:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD46622B0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9219B81DC6;
+        Wed, 22 Mar 2023 19:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A9CC4339E;
         Wed, 22 Mar 2023 19:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0880C433D2;
-        Wed, 22 Mar 2023 19:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515082;
-        bh=Tn66IFL7Td3Mux1UE6o01BUXTDt1Mkbu7IlLgwR2btk=;
+        s=k20201202; t=1679515084;
+        bh=QHiqBaDd7TKi3Fgb4EqKzNbkcwRu76OmI/eB7btnxU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7pu5BWiA31KGxpRJX6sIDdM2Q0YDhP5wiStpYeGbxBSHq/BY6AUwT5Fh72Ak3e43
-         c0eE1RvbZMb+o4+A13GFeMxLgjEyi9pWwZ9ea3VgRBUDDzBSPWs2ZdWGqwDCZe15zu
-         jJ3TsRiBQmLpXsNkj6pmHypVKaHYiuy58osaBZBT68aAeiIcEqH8Gz/3l2902DBPLh
-         da6kH5eVURgC7ZBaMj1tu0+pgdy/5Cx8/zRkeP+jdT5p6Bd1znj1ve4p/CWVsJBaIp
-         D53GJ8/8IjOYBh46R+FoZx9luqhEvw7CF/CRs9E7aOBarOHn7i+t03OHvOC/FUWp3z
-         NVg9dUFy3JhPw==
+        b=stl1Dk4j4cHTIZS18wpnhtdl4ZA5BQeWyYOS5OWLcDPF5vjzo5kEzmoDsL66xyCZW
+         Vm48bfnkc4xkJNd1B4AUoLdXBrUtGIyyDNL75027egR+mMGixuZqyoslfajPKu1TmT
+         MbDknoImBln26ObRFhndFKQ1QIcOYOWzfvkTNTkqN3GZphOLzgt0hoQ9v99NWUVd0/
+         kXlug8aHRfA4NwUWID3wobo11dwRcF9PnzXaZRpjhczBNSYiBifIYVmjyUdJjiT0MO
+         UT9DUQoRHe99z/GwgZUeC4+1VPULuotrfKPkezDAO1v+Jy0jlrJnX7PF7Zr6MEk58i
+         vOAC8i21KSD3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        andriy.shevchenko@linux.intel.com, mario.limonciello@amd.com,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 13/45] ACPI: x86: Add skip i2c clients quirk for Lenovo Yoga Book X90
-Date:   Wed, 22 Mar 2023 15:56:07 -0400
-Message-Id: <20230322195639.1995821-13-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Curtis Malainey <curtis@malainey.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.2 14/45] ASoC: SOF: ipc3: Check for upper size limit for the received message
+Date:   Wed, 22 Mar 2023 15:56:08 -0400
+Message-Id: <20230322195639.1995821-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322195639.1995821-1-sashal@kernel.org>
 References: <20230322195639.1995821-1-sashal@kernel.org>
@@ -57,50 +61,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit 1a1e7540cf501dd5c8b57a577a155cdd13c7e202 ]
+[ Upstream commit 989a3e4479177d0f4afab8be1960731bc0ffbbd0 ]
 
-The Lenovo Yoga Book X90 is a x86 tablet which ships with Android x86
-as factory OS. The Android x86 kernel fork ignores I2C devices described
-in the DSDT, except for the PMIC and Audio codecs.
+The sof_ipc3_rx_msg() checks for minimum size of a new rx message but it is
+missing the check for upper limit.
+Corrupted or compromised firmware might be able to take advantage of this
+to cause out of bounds reads outside of the message area.
 
-As usual the Lenovo Yoga Book X90's DSDT contains a bunch of extra I2C
-devices which are not actually there, causing various resource conflicts.
-Add an ACPI_QUIRK_SKIP_I2C_CLIENTS quirk for the Lenovo Yoga Book X90
-to the acpi_quirk_skip_dmi_ids table to woraround this.
-
-The DSDT also contains broken ACPI GPIO event handlers, disable those too.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rjw@rjwysocki.net>
+Reported-by: Curtis Malainey <cujomalainey@chromium.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Curtis Malainey <curtis@malainey.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230307114917.5124-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/utils.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/soc/sof/ipc3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
-index 644e2a7f4213b..4973a37843819 100644
---- a/drivers/acpi/x86/utils.c
-+++ b/drivers/acpi/x86/utils.c
-@@ -311,6 +311,17 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
- 					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
- 					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
- 	},
-+	{
-+		/* Lenovo Yoga Book X90F/L */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
-+		},
-+		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
-+					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
-+					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+diff --git a/sound/soc/sof/ipc3.c b/sound/soc/sof/ipc3.c
+index 1fef4dcc09368..fde8af5a1f485 100644
+--- a/sound/soc/sof/ipc3.c
++++ b/sound/soc/sof/ipc3.c
+@@ -970,8 +970,9 @@ static void sof_ipc3_rx_msg(struct snd_sof_dev *sdev)
+ 		return;
+ 	}
+ 
+-	if (hdr.size < sizeof(hdr)) {
+-		dev_err(sdev->dev, "The received message size is invalid\n");
++	if (hdr.size < sizeof(hdr) || hdr.size > SOF_IPC_MSG_MAX_SIZE) {
++		dev_err(sdev->dev, "The received message size is invalid: %u\n",
++			hdr.size);
+ 		return;
+ 	}
+ 
 -- 
 2.39.2
 
