@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B136C56E2
-	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:10:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B4F6C56E9
+	for <lists+stable@lfdr.de>; Wed, 22 Mar 2023 21:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbjCVUK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 16:10:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50122 "EHLO
+        id S231992AbjCVUKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 16:10:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232103AbjCVUKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:04 -0400
+        with ESMTP id S232132AbjCVUKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 16:10:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 056A160A8C;
-        Wed, 22 Mar 2023 13:03:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4E86547B;
+        Wed, 22 Mar 2023 13:03:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA698622D2;
-        Wed, 22 Mar 2023 20:03:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49586C433A0;
-        Wed, 22 Mar 2023 20:03:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCC86229E;
+        Wed, 22 Mar 2023 20:03:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 061F8C433D2;
+        Wed, 22 Mar 2023 20:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679515399;
-        bh=2d7wGBrkNTLru+WOroZkrHtfsI3EP5FJyFrurt62Y9M=;
+        s=k20201202; t=1679515403;
+        bh=0vnA3WU9n71Hksc/Fk2ECnvm3tBZSD5qLPZsrYMfSA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niw0k1aK5L10h1Yle4tB/8IVadcuJdc7Wxru0jEat6fw9kzf7ZCQMoXeW8za4TVg9
-         EJBOQfTDZuxlJnydcrDJwfw0iUSEUE/eB6AMqVVPm2uEsWsYcaNRvgxFvgihALX/Pa
-         RKkii+l2xWzco2KYF67gcajbGKm09EqJh9E/uzfFINR8q2GzAOhznFSi3JHvrEeky9
-         3eYq36s+QtGxM4qVxPEM9n2XvEGfZq/ZqeMPtMZlUJDNtpy+2RyMIJejQ6SOHZfrGm
-         YmZAmARdYQ3KG3OoIu9JJqdr7O2sfCO+fMYT23afIDgHR1oQUnrRPaS83VJ0D1Tu5C
-         9fNx3NiMdr8qA==
+        b=TzZtufsQBBPZM9IScUzruPMYp1D56vQZsO+CrIGahMZDdzenMyEEI39179XXPSLqG
+         V9tQLUmvRGi+F6aaSWSg46CaMEy0ta3W8lj7SchHkYQHL8ubxHMnEKHPbM+BBPJRdX
+         AFfNl2B1kXDn0UGhBPzPBH/g0isWqOYynWAwa3gSecvarD9ZLCG5NOUPA3OtIzr69x
+         Eqq/Y/7yXLA4YVMnteAoJVaQx1dB299AvjyzY/6gqkliyczrf4KRcArcDh3ro+78E2
+         iQURybzri5mex0+YisIhIVpSAkbB3axvn7JjIxU3GJVJbMX4uJFu31nKvTW6idJPTd
+         PhBWJBg8nYu4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, dev@xianwang.io,
-        ye.xingchen@zte.com.cn, gremlin@altlinux.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 3/9] ALSA: hda/ca0132: fixup buffer overrun at tuning_ctl_set()
-Date:   Wed, 22 Mar 2023 16:03:03 -0400
-Message-Id: <20230322200309.1997651-3-sashal@kernel.org>
+Cc:     Wei Chen <harperchen1110@gmail.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, tzimmermann@suse.de,
+        javierm@redhat.com, wsa+renesas@sang-engineering.com,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 4/9] fbdev: tgafb: Fix potential divide by zero
+Date:   Wed, 22 Mar 2023 16:03:04 -0400
+Message-Id: <20230322200309.1997651-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230322200309.1997651-1-sashal@kernel.org>
 References: <20230322200309.1997651-1-sashal@kernel.org>
@@ -57,60 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit 98e5eb110095ec77cb6d775051d181edbf9cd3cf ]
+[ Upstream commit f90bd245de82c095187d8c2cabb8b488a39eaecc ]
 
-tuning_ctl_set() might have buffer overrun at (X) if it didn't break
-from loop by matching (A).
+fb_set_var would by called when user invokes ioctl with cmd
+FBIOPUT_VSCREENINFO. User-provided data would finally reach
+tgafb_check_var. In case var->pixclock is assigned to zero,
+divide by zero would occur when checking whether reciprocal
+of var->pixclock is too high.
 
-	static int tuning_ctl_set(...)
-	{
-		for (i = 0; i < TUNING_CTLS_COUNT; i++)
-(A)			if (nid == ca0132_tuning_ctls[i].nid)
-				break;
+Similar crashes have happened in other fbdev drivers. There
+is no check and modification on var->pixclock along the call
+chain to tgafb_check_var. We believe it could also be triggered
+in driver tgafb from user site.
 
-		snd_hda_power_up(...);
-(X)		dspio_set_param(..., ca0132_tuning_ctls[i].mid, ...);
-		snd_hda_power_down(...);                ^
-
-		return 1;
-	}
-
-We will get below error by cppcheck
-
-	sound/pci/hda/patch_ca0132.c:4229:2: note: After for loop, i has value 12
-	 for (i = 0; i < TUNING_CTLS_COUNT; i++)
-	 ^
-	sound/pci/hda/patch_ca0132.c:4234:43: note: Array index out of bounds
-	 dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
-	                                           ^
-This patch cares non match case.
-
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87sfe9eap7.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/tgafb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index ca8a37388d565..9f0e6bbc523c3 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -3620,8 +3620,10 @@ static int tuning_ctl_set(struct hda_codec *codec, hda_nid_t nid,
+diff --git a/drivers/video/fbdev/tgafb.c b/drivers/video/fbdev/tgafb.c
+index 65ba9921506e2..9d2912947eef6 100644
+--- a/drivers/video/fbdev/tgafb.c
++++ b/drivers/video/fbdev/tgafb.c
+@@ -166,6 +166,9 @@ tgafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ {
+ 	struct tga_par *par = (struct tga_par *)info->par;
  
- 	for (i = 0; i < TUNING_CTLS_COUNT; i++)
- 		if (nid == ca0132_tuning_ctls[i].nid)
--			break;
-+			goto found;
- 
-+	return -EINVAL;
-+found:
- 	snd_hda_power_up(codec);
- 	dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
- 			ca0132_tuning_ctls[i].req,
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	if (par->tga_type == TGA_TYPE_8PLANE) {
+ 		if (var->bits_per_pixel != 8)
+ 			return -EINVAL;
 -- 
 2.39.2
 
