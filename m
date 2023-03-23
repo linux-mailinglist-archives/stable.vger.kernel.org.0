@@ -2,318 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF1E26C72D0
-	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 23:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E485D6C7323
+	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 23:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231271AbjCWWMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Mar 2023 18:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34278 "EHLO
+        id S230267AbjCWWeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Mar 2023 18:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231305AbjCWWMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Mar 2023 18:12:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1DDD22C92
-        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 15:12:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679609520;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BdUUJpvBYjmASyn2bJRVEYYq1jXnao8uWURPAVj9ZuA=;
-        b=M+kcaM1wrX57MuuuWJak74i5lQy1Vr9B3wtycL3KLAvPQy6xvPFB8s2L+/Kx/ebJBRcNFj
-        bWWhNI4nQdripCWskfmbGUYZxcukFFSu+hwygqKeapEHk4fizoEmlD08HhU1mlg4wbHGGB
-        hMMB196vPAbTBMsvZJQ2jX0P8vzxlcI=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-381-o0aqaE9PO_i1rqZEhfXMzw-1; Thu, 23 Mar 2023 18:11:58 -0400
-X-MC-Unique: o0aqaE9PO_i1rqZEhfXMzw-1
-Received: by mail-qt1-f198.google.com with SMTP id t15-20020a05622a180f00b003e37dd114e3so7016493qtc.10
-        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 15:11:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679609518;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BdUUJpvBYjmASyn2bJRVEYYq1jXnao8uWURPAVj9ZuA=;
-        b=Nmj4W8Q007jw2OzxIOhpUEcUx2KW3H/HaiwRnVhtp+PIMkU72rJWcTsZC0YOFbzGbe
-         wN/qmF8cqwWQv6Emf+Vux/Fc57KQi7RzzG3Ub/OSiffqrKgikWgMT1dIGuDTDPMPyOmg
-         mWqy1ZZZt1/g1rVZU00zyEAeu0f04ldv7HKpI+ylylZbCd677DUttMtKR5B6GIGvwK91
-         /BYv7v7UwOE04+ajJMhYscEJXu6+dyyQU98Pgu+LYy7IpSCFGNzCn2RiMKbN3QEbnF2i
-         mVwKYT7x8GzqtSLS5XPrjsOKLV/kbZJVMzkXfFlRkdvLUanc6S61A/c+QOqJY1i5sUoY
-         8m2Q==
-X-Gm-Message-State: AAQBX9cLafsyQPYwIrviWZQ4Rjn4Uke98bo7UAQe4g2oIIJG3j0VfuLA
-        ZiU4oBj0p4hvScJ81BN9Cpshrdy+2A7le9jLh0Pdi7NTOXkWzHp00n+EXZWkm2c/w/G83Hne22+
-        3K4IKfRm9PX5OkU1G
-X-Received: by 2002:a05:6214:5289:b0:572:54c1:c14e with SMTP id kj9-20020a056214528900b0057254c1c14emr698348qvb.5.1679609517710;
-        Thu, 23 Mar 2023 15:11:57 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YBlxw12POHwLjWBno5c2aXDai3cLQ8JVAyA6GrrMtmktG7KD8PtGtInbK3TmVArYNPVj7p4w==
-X-Received: by 2002:a05:6214:5289:b0:572:54c1:c14e with SMTP id kj9-20020a056214528900b0057254c1c14emr698317qvb.5.1679609517384;
-        Thu, 23 Mar 2023 15:11:57 -0700 (PDT)
-Received: from x1n (bras-base-aurron9127w-grc-40-70-52-229-124.dsl.bell.ca. [70.52.229.124])
-        by smtp.gmail.com with ESMTPSA id e7-20020ad450c7000000b005dd8b934592sm190729qvq.42.2023.03.23.15.11.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Mar 2023 15:11:56 -0700 (PDT)
-Date:   Thu, 23 Mar 2023 18:11:55 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Muhammad Usama Anjum <usama.anjum@collabora.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        linux-stable <stable@vger.kernel.org>,
-        David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] mm/hugetlb: Fix uffd wr-protection for CoW optimization
- path
-Message-ID: <ZBzOqwF2wrHgBVZb@x1n>
-References: <20230321191840.1897940-1-peterx@redhat.com>
- <44aae7fc-fb1f-b38e-bc17-504abf054e3f@redhat.com>
- <ZBoKod6+twRYvSYz@x1n>
- <f411b983-0c47-73f8-775b-928fcf61620a@collabora.com>
+        with ESMTP id S229586AbjCWWeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Mar 2023 18:34:00 -0400
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D0226594;
+        Thu, 23 Mar 2023 15:33:58 -0700 (PDT)
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32NM93cO001022;
+        Thu, 23 Mar 2023 22:33:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=qcppdkim1;
+ bh=Iknq7DbmCPa6NBoymiUBH+ykN+AAfltzX0txCoit3Hs=;
+ b=R44Kt7Her+aC5tByGhPDZAHE17tYb+7o0ZepTTVVgS+VXFmFl5r+rloqKq+KPXMij38e
+ 1xsrhxjhjeLlJ//GHLJMsZjlIJFvFNVXKGmKbI9X0vc0nzcqBc6vEa2xFPJFVYeCzFad
+ qD1Zki6Z5BffdC127VF365Y2WRYZeADYoVxC/qLTGFJ3xQEyjyRebabUc65dLEYqfMeY
+ AzObSH0Md21TolzR7vdB8VTn7aMDjwN46TRm1loM5KOOQkrw+sSeOlCzPqXC8kvEYkAa
+ /veCPm+tT0NWU/kjbljy4RIzIR0YipNURuzHgpa/qoIDC++fWxFcUNu7/nft9IlCRCFo bg== 
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3pgxrur3a0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Mar 2023 22:33:49 +0000
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+        by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 32NMXm0I005301
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Mar 2023 22:33:48 GMT
+Received: from hu-bjorande-lv.qualcomm.com (10.49.16.6) by
+ nalasex01c.na.qualcomm.com (10.47.97.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.41; Thu, 23 Mar 2023 15:33:48 -0700
+From:   Bjorn Andersson <quic_bjorande@quicinc.com>
+To:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Xuewen Yan <xuewen.yan@unisoc.com>
+CC:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        <linux-arm-msm@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH] cpufreq: qcom-cpufreq-hw: Revert adding cpufreq qos
+Date:   Thu, 23 Mar 2023 15:33:43 -0700
+Message-ID: <20230323223343.587210-1-quic_bjorande@quicinc.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="le5JTZlZZI66lfKs"
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <f411b983-0c47-73f8-775b-928fcf61620a@collabora.com>
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.49.16.6]
+X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: vy4OtcRPJPGg9At0hUZb5oJirT1hd6f3
+X-Proofpoint-GUID: vy4OtcRPJPGg9At0hUZb5oJirT1hd6f3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-23_13,2023-03-23_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ clxscore=1011 impostorscore=0 phishscore=0 adultscore=0 bulkscore=0
+ mlxlogscore=999 suspectscore=0 lowpriorityscore=0 mlxscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2303230162
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The OSM/EPSS hardware controls the frequency of each CPU cluster based
+on requests from the OS and various throttling events in the system.
+While throttling is in effect the related dcvs interrupt will be kept
+high. The purpose of the code handling this interrupt is to
+continuously report the thermal pressure based on the throttled
+frequency.
 
---le5JTZlZZI66lfKs
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+The reasoning for adding QoS control to this mechanism is not entirely
+clear, but the introduction of commit 'c4c0efb06f17 ("cpufreq:
+qcom-cpufreq-hw: Add cpufreq qos for LMh")' causes the
+scaling_max_frequncy to be set to the throttled frequency. On the next
+iteration of polling, the throttled frequency is above or equal to the
+newly requested frequency, so the polling is stopped.
 
-On Thu, Mar 23, 2023 at 08:33:07PM +0500, Muhammad Usama Anjum wrote:
-> Hi Peter,
-> 
-> Sorry for late reply.
-> 
-> On 3/22/23 12:50 AM, Peter Xu wrote:
-> > On Tue, Mar 21, 2023 at 08:36:35PM +0100, David Hildenbrand wrote:
-> >> On 21.03.23 20:18, Peter Xu wrote:
-> >>> This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
-> >>> writable even with uffd-wp bit set.  It only happens with all these
-> >>> conditions met: (1) hugetlb memory (2) private mapping (3) original mapping
-> >>> was missing, then (4) being wr-protected (IOW, pte marker installed).  Then
-> >>> write to the page to trigger.
-> >>>
-> >>> Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
-> >>> even reaching hugetlb_wp() to avoid taking more locks that userfault won't
-> >>> need.  However there's one CoW optimization path for missing hugetlb page
-> >>> that can trigger hugetlb_wp() inside hugetlb_no_page(), that can bypass the
-> >>> userfaultfd-wp traps.
-> >>>
-> >>> A few ways to resolve this:
-> >>>
-> >>>    (1) Skip the CoW optimization for hugetlb private mapping, considering
-> >>>    that private mappings for hugetlb should be very rare, so it may not
-> >>>    really be helpful to major workloads.  The worst case is we only skip the
-> >>>    optimization if userfaultfd_wp(vma)==true, because uffd-wp needs another
-> >>>    fault anyway.
-> >>>
-> >>>    (2) Move the userfaultfd-wp handling for hugetlb from hugetlb_fault()
-> >>>    into hugetlb_wp().  The major cons is there're a bunch of locks taken
-> >>>    when calling hugetlb_wp(), and that will make the changeset unnecessarily
-> >>>    complicated due to the lock operations.
-> >>>
-> >>>    (3) Carry over uffd-wp bit in hugetlb_wp(), so it'll need to fault again
-> >>>    for uffd-wp privately mapped pages.
-> >>>
-> >>> This patch chose option (3) which contains the minimum changeset (simplest
-> >>> for backport) and also make sure hugetlb_wp() itself will start to be
-> >>> always safe with uffd-wp ptes even if called elsewhere in the future.
-> >>>
-> >>> This patch will be needed for v5.19+ hence copy stable.
-> >>>
-> >>> Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-> >>> Cc: linux-stable <stable@vger.kernel.org>
-> >>> Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
-> >>> Signed-off-by: Peter Xu <peterx@redhat.com>
-> >>> ---
-> >>>   mm/hugetlb.c | 8 +++++---
-> >>>   1 file changed, 5 insertions(+), 3 deletions(-)
-> >>>
-> >>> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> >>> index 8bfd07f4c143..22337b191eae 100644
-> >>> --- a/mm/hugetlb.c
-> >>> +++ b/mm/hugetlb.c
-> >>> @@ -5478,7 +5478,7 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
-> >>>   		       struct folio *pagecache_folio, spinlock_t *ptl)
-> >>>   {
-> >>>   	const bool unshare = flags & FAULT_FLAG_UNSHARE;
-> >>> -	pte_t pte;
-> >>> +	pte_t pte, newpte;
-> >>>   	struct hstate *h = hstate_vma(vma);
-> >>>   	struct page *old_page;
-> >>>   	struct folio *new_folio;
-> >>> @@ -5622,8 +5622,10 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
-> >>>   		mmu_notifier_invalidate_range(mm, range.start, range.end);
-> >>>   		page_remove_rmap(old_page, vma, true);
-> >>>   		hugepage_add_new_anon_rmap(new_folio, vma, haddr);
-> >>> -		set_huge_pte_at(mm, haddr, ptep,
-> >>> -				make_huge_pte(vma, &new_folio->page, !unshare));
-> >>> +		newpte = make_huge_pte(vma, &new_folio->page, !unshare);
-> >>> +		if (huge_pte_uffd_wp(pte))
-> >>> +			newpte = huge_pte_mkuffd_wp(newpte);
-> >>> +		set_huge_pte_at(mm, haddr, ptep, newpte);
-> >>>   		folio_set_hugetlb_migratable(new_folio);
-> >>>   		/* Make the old page be freed below */
-> >>>   		new_folio = page_folio(old_page);
-> >>
-> >> Looks correct to me. Do we have a reproducer?
-> > 
-> > I used a reproducer for the async mode I wrote (patch 2 attached, need to
-> > change to VM_PRIVATE):
-> > 
-> > https://lore.kernel.org/all/ZBNr4nohj%2FTw4Zhw@x1n/
-> > 
-> > I don't think kernel kselftest can trigger it because we don't do strict
-> > checks yet with uffd-wp bits.  I've already started looking into cleanup
-> > the test cases and I do plan to add new tests to cover this.
-> > 
-> > Meanwhile, let's also wait for an ack from Muhammad.  Even though the async
-> > mode is not part of the code base, it'll be a good test for verifying every
-> > single uffd-wp bit being set or cleared as expected.
-> I've tested by applying this patch. But the bug is still there. Just like
-> Peter has mentioned, we are using our in progress patches related to
-> pagemap_scan ioctl and userfaultd wp async patches to reproduce it.
-> 
-> To reproduce please build kernel and run pagemap_ioctl test in mm in
-> hugetlb_mem_reproducer branch:
-> https://gitlab.collabora.com/usama.anjum/linux-mainline/-/tree/hugetlb_mem_reproducer
-> 
-> In case you have any question on how to reproduce, please let me know. I'll
-> try to provide a cleaner alternative.
+With cpufreq limiting the max frequency, the hardware no longer report a
+throttling state and no further updates to thermal pressure or qos
+state are made.
 
-Hmm, I think my current fix is incomplete if not wrong.  The root cause
-should still be valid, however I overlooked another path:
+The result of this is that scaling_max_frequency can only go down, and
+the system becomes slower and slower every time a thermal throttling
+event is reported by the hardware.
 
-	if (page_mapcount(old_page) == 1 && PageAnon(old_page)) {
-		if (!PageAnonExclusive(old_page))
-			page_move_anon_rmap(old_page, vma);
-		if (likely(!unshare))
-			set_huge_ptep_writable(vma, haddr, ptep);
+Even if the logic could be improved, there is no reason for software to
+limit the max freqency in response to the hardware limiting the max
+frequency. At best software will follow the reported hardware state, but
+typically it will cause slower backoff of the throttling.
 
-		delayacct_wpcopy_end();
-		return 0;
-	}
+This reverts commit c4c0efb06f17fa4a37ad99e7752b18a5405c76dc.
 
-We should bail out early in this path, and it'll be even easier we always
-bail out hugetlb_wp() as long as uffd-wp is detected because userfault
-should always be handled before any decision to CoW.
-
-v2 attached.. Please give it another shot.
-
-Thanks,
-
--- 
-Peter Xu
-
---le5JTZlZZI66lfKs
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: attachment;
-	filename="0001-mm-hugetlb-Fix-uffd-wr-protection-for-CoW-optimizati.patch"
-
-From 4a294f9ec5d2ba94a6a7ecf03bd096ea35902f2f Mon Sep 17 00:00:00 2001
-From: Peter Xu <peterx@redhat.com>
-Date: Tue, 21 Mar 2023 14:58:42 -0400
-Subject: [PATCH v2] mm/hugetlb: Fix uffd wr-protection for CoW optimization path
-
-This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
-writable even with uffd-wp bit set.  It only happens with hugetlb private
-mappings, when someone firstly wr-protects a missing pte (which will
-install a pte marker), followed by a write to the page.  That will trigger
-a missing fault and an optimized CoW in the same fault stack.
-
-Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
-even reaching hugetlb_wp() to avoid taking more locks that userfault won't
-need.  However there's one CoW optimization path for missing hugetlb page
-that can trigger hugetlb_wp() inside hugetlb_no_page(), that can bypass the
-userfaultfd-wp traps.
-
-A few ways to resolve this:
-
-  (1) Skip the CoW optimization for hugetlb private mapping, considering
-  that private mappings for hugetlb should be very rare, so it may not
-  really be helpful to major workloads.  The worst case is we only skip the
-  optimization if userfaultfd_wp(vma)==true, because uffd-wp needs another
-  fault anyway.
-
-  (2) Move the userfaultfd-wp handling for hugetlb from hugetlb_fault()
-  into hugetlb_wp().  The major cons is there're a bunch of locks taken
-  when calling hugetlb_wp(), and that will make the changeset unnecessarily
-  complicated due to the lock operations.
-
-  (3) Skip hugetlb_wp() when uffd-wp bit is still set.  It means it
-  requires another hugetlb_fault() to resolve the uffd-wp bit first.
-
-This patch chose option (3) which contains the minimum changeset (simplest
-for backport) and also make sure hugetlb_wp() itself will start to be
-always safe with uffd-wp ptes even if called elsewhere in the future.
-
-This patch will be needed for v5.19+ hence copy stable.
-
-Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
-Signed-off-by: Peter Xu <peterx@redhat.com>
+Fixes: c4c0efb06f17 ("cpufreq: qcom-cpufreq-hw: Add cpufreq qos for LMh")
+Cc: stable@vger.kernel.org
+Reported-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
 ---
- mm/hugetlb.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 8bfd07f4c143..b60959f2a3f0 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5478,7 +5478,7 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
- 		       struct folio *pagecache_folio, spinlock_t *ptl)
- {
- 	const bool unshare = flags & FAULT_FLAG_UNSHARE;
--	pte_t pte;
-+	pte_t pte = huge_ptep_get(ptep);
- 	struct hstate *h = hstate_vma(vma);
- 	struct page *old_page;
- 	struct folio *new_folio;
-@@ -5487,6 +5487,17 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
- 	unsigned long haddr = address & huge_page_mask(h);
- 	struct mmu_notifier_range range;
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index 575a4461c25a..1503d315fa7e 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -14,7 +14,6 @@
+ #include <linux/of_address.h>
+ #include <linux/of_platform.h>
+ #include <linux/pm_opp.h>
+-#include <linux/pm_qos.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/units.h>
+@@ -60,8 +59,6 @@ struct qcom_cpufreq_data {
+ 	struct clk_hw cpu_clk;
  
-+	/*
-+	 * Never handle CoW for uffd-wp protected pages.  It should be only
-+	 * handled when the uffd-wp protection is removed.
-+	 *
-+	 * Note that only the CoW optimization path can trigger this and
-+	 * got skipped, because hugetlb_fault() will always resolve uffd-wp
-+	 * bit first.
-+	 */
-+	if (huge_pte_uffd_wp(pte))
-+		return 0;
-+
- 	/*
- 	 * hugetlb does not support FOLL_FORCE-style write faults that keep the
- 	 * PTE mapped R/O such as maybe_mkwrite() would do.
-@@ -5500,7 +5511,6 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
- 		return 0;
- 	}
+ 	bool per_core_dcvs;
+-
+-	struct freq_qos_request throttle_freq_req;
+ };
  
--	pte = huge_ptep_get(ptep);
- 	old_page = pte_page(pte);
+ static struct {
+@@ -351,8 +348,6 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
  
- 	delayacct_wpcopy_start();
+ 	throttled_freq = freq_hz / HZ_PER_KHZ;
+ 
+-	freq_qos_update_request(&data->throttle_freq_req, throttled_freq);
+-
+ 	/* Update thermal pressure (the boost frequencies are accepted) */
+ 	arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
+ 
+@@ -445,14 +440,6 @@ static int qcom_cpufreq_hw_lmh_init(struct cpufreq_policy *policy, int index)
+ 	if (data->throttle_irq < 0)
+ 		return data->throttle_irq;
+ 
+-	ret = freq_qos_add_request(&policy->constraints,
+-				   &data->throttle_freq_req, FREQ_QOS_MAX,
+-				   FREQ_QOS_MAX_DEFAULT_VALUE);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Failed to add freq constraint (%d)\n", ret);
+-		return ret;
+-	}
+-
+ 	data->cancel_throttle = false;
+ 	data->policy = policy;
+ 
+@@ -519,7 +506,6 @@ static void qcom_cpufreq_hw_lmh_exit(struct qcom_cpufreq_data *data)
+ 	if (data->throttle_irq <= 0)
+ 		return;
+ 
+-	freq_qos_remove_request(&data->throttle_freq_req);
+ 	free_irq(data->throttle_irq, data);
+ }
+ 
 -- 
-2.39.1
-
-
---le5JTZlZZI66lfKs--
+2.25.1
 
