@@ -2,112 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8836C6898
-	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 13:39:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8478D6C6A1D
+	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 14:57:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbjCWMjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Mar 2023 08:39:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
+        id S229600AbjCWN51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Mar 2023 09:57:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231866AbjCWMjj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Mar 2023 08:39:39 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541BB26C15
-        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 05:39:38 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pfKEB-0007XV-1v; Thu, 23 Mar 2023 13:39:35 +0100
-Message-ID: <61065a7f-19ce-0308-57ed-4cd4c4d681a0@leemhuis.info>
-Date:   Thu, 23 Mar 2023 13:39:33 +0100
+        with ESMTP id S229461AbjCWN51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Mar 2023 09:57:27 -0400
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2023A3C0C
+        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 06:57:26 -0700 (PDT)
+Received: by mail-qt1-x836.google.com with SMTP id hf2so22409580qtb.3
+        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 06:57:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1679579845;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=0UGsNG9W2UNoFjKyA3o9SiIejcO47eu8yFQSpE9OdRs=;
+        b=PzDrElI8d//E88KzlNQY0S7DnaQI6jMaVTRjxQG2/24vqEDUl3v8eOFIFLbEhlMiCY
+         xbKk/iVjjqH17t43fDNG9ZxrXsA0fOomC6/jDawCYMHxOB9Y7gIKhYanOa0NdgQd0Tir
+         AP0ntaA0L5934i17YnX7azpE4YgRy7QRCNYTnWIWpvwmfCTMzxM/vU+LnRalrf4ykVQO
+         ++YP02zeGsmVJtvlXStzv3aQwkBQUAsCOTXqo3HDlOI3ohkDjPhv+JClrKOxx6zCvw9n
+         wpLRmjvaOhwjGJPe2E6CL+RS1Hn1k3pBWn0ufI+CQEN8t4zfATsciu3w+r2fbK6xcjZv
+         nVoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679579845;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0UGsNG9W2UNoFjKyA3o9SiIejcO47eu8yFQSpE9OdRs=;
+        b=Uw+Ukb9JP/CkeVVOlQzKCBN8kzj5K8jJ+50KBSzEI5niEwbZOLEqE17io9s86D1ng7
+         5Wsy5cVT3dOlXn1Qy88X8WM8D+/OSUiNTvHBXXhbtIn8xjYBmbupCk/txvjFTphuu1VU
+         nIPGJZfgYbUUV9orc3ExaJ2uDNx25QSW6H6hv05QLAhnQlJJRjcmKFhfmPOsA3Hcj2nw
+         KVG8sAnzPDxATosMySPq8XZQelHlO+keO8/maMGnQehA33yJHxqBOQDEzu0dI3fTRpSy
+         SR5o48BFc4iEdb/VbqXvqNHhVN7IioF86wYx1ab1EascKfLT8g1YJYam0RcET92quOT5
+         gR3A==
+X-Gm-Message-State: AO0yUKVccuJw5b1ixGWBHj7vu4t30h71zOkWZIbGeEQ+yl8lvJqVVGPU
+        xC4xcfzXxdUvQfA4YhvZsv4GQxaKsopRto3Uv0vb6w==
+X-Google-Smtp-Source: AK7set+ocAuMC9Lw34FR+ipU4tXGRuA5/YrqvfJbPUY/bllTbULe/XpImra+yz2e8OVOj3Ln8NUQqtOTrPqiteXXVKY=
+X-Received: by 2002:a05:622a:34d:b0:3e3:8a0e:495f with SMTP id
+ r13-20020a05622a034d00b003e38a0e495fmr2368502qtw.13.1679579845233; Thu, 23
+ Mar 2023 06:57:25 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [REGRESSION] kbl-r5514-5663-max hdmi no longer working
-Content-Language: en-US, de-DE
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Cc:     Jason Montleon <jmontleo@redhat.com>, stable@vger.kernel.org,
-        Linux regressions mailing list <regressions@lists.linux.dev>,
-        Mark Brown <broonie@kernel.org>,
-        Alsa-devel <alsa-devel@alsa-project.org>,
-        Takashi Iwai <tiwai@suse.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-References: <CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com>
- <f96431ee-abc0-ff76-3963-c45d3b092840@leemhuis.info>
-In-Reply-To: <f96431ee-abc0-ff76-3963-c45d3b092840@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1679575178;0a36e1c5;
-X-HE-SMSGID: 1pfKEB-0007XV-1v
-X-Spam-Status: No, score=-0.0 required=5.0 tests=NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+References: <20230323110125.23790-1-srinivas.kandagatla@linaro.org>
+In-Reply-To: <20230323110125.23790-1-srinivas.kandagatla@linaro.org>
+From:   Amit Pundir <amit.pundir@linaro.org>
+Date:   Thu, 23 Mar 2023 19:26:49 +0530
+Message-ID: <CAMi1Hd0Zg2nydXu0J_zGbcd9AwLbTWU2h_YNAb8ZRSOBRTWQbg@mail.gmail.com>
+Subject: Re: [RESEND PATCH] ASoC: codecs: lpass: fix the order or clks turn
+ off during suspend
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc:     broonie@kernel.org, perex@perex.cz, tiwai@suse.com,
+        lgirdwood@gmail.com, linux-kernel@vger.kernel.org,
+        alsa-devel@alsa-project.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13.03.23 18:32, Linux regression tracking (Thorsten Leemhuis) wrote:
-> [adding a push of people and lists to the recipients that dealt with the
-> culprit; leaving the stable list in CC for now, even if this is a
-> mainline issue (apart from the backport of the culprit to 5.10.y Takashi
-> asked for a while ago)]
-> 
-> On 13.03.23 17:34, Jason Montleon wrote:
->> It looks like HDMI audio stopped working in 5.17-rc1. I ran a bisect
->> which points to 636110411ca726f19ef8e87b0be51bb9a4cdef06.
-> 
-> FWIW, that's "ASoC: Intel/SOF: use set_stream() instead of
-> set_tdm_slots() for HDAudio" from Pierre-Louis Bossart.
+On Thu, 23 Mar 2023 at 16:31, Srinivas Kandagatla
+<srinivas.kandagatla@linaro.org> wrote:
+>
+> The order in which clocks are stopped matters as some of the clock
+> like NPL are derived from MCLK.
+>
+> Without this patch, Dragonboard RB5 DSP would crash with below error:
+>  qcom_q6v5_pas 17300000.remoteproc: fatal error received:
+>  ABT_dal.c:278:ABTimeout: AHB Bus hang is detected,
+>  Number of bus hang detected := 2 , addr0 = 0x3370000 , addr1 = 0x0!!!
+>
+> Turn off  fsgen first, followed by npl and then finally mclk, which is exactly
+> the opposite order of enable sequence.
+>
 
-Pierre-Louis Bossart, did you find time to look into this?
+Tested-by: Amit Pundir <amit.pundir@linaro.org>
+CC: stable@vger.kernel.org # v6.1.y
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
 
-#regzbot poke
-
->> I built
->> 5.17.14 with it reverted and it restored HDMI output, but it doesn't
->> revert cleanly from 5.18 onward.
->>
->> >From what I can tell it looks like -ENOTSUPP is returned from
->> snd_soc_dai_set_stream for hdmi1 and hdmi2 now. I'm not sure if that's
->> expected, but I made the following change and I have working HDMI
->> audio now. https://gist.github.com/jmontleon/4780154c309f956d97ca9a304a00da3f
-> 
-> Thanks for the report and the patch. I CCed the relevant people for this.
-> 
-> [TLDR For the rest of the mail: : I'm adding this report to the list of
-> tracked Linux kernel regressions; the text you find below is based on a
-> few templates paragraphs you might have encountered already in similar
-> form. See link in footer if these mails annoy you.]
-> 
-> To be sure the issue doesn't fall through the cracks unnoticed, I'm
-> adding it to regzbot, the Linux kernel regression tracking bot:
-> 
-> #regzbot ^introduced 636110411ca726f19ef8e87b0be51bb9a4cdef06
-> #regzbot title alsa/asoc: kbl-r5514-5663-max hdmi stopped working
-> #regzbot ignore-activity
-> 
-> This isn't a regression? This issue or a fix for it are already
-> discussed somewhere else? It was fixed already? You want to clarify when
-> the regression started to happen? Or point out I got the title or
-> something else totally wrong? Then just reply and tell me -- ideally
-> while also telling regzbot about it, as explained by the page listed in
-> the footer of this mail.
-> 
-> Developers: When fixing the issue, remember to add 'Link:' tags pointing
-> to the report (the parent of this mail). See page linked in footer for
-> details.
-> 
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+> Fixes: 1dc3459009c3 ("ASoC: codecs: lpass: register mclk after runtime pm")
+> Reported-by: Amit Pundir <amit.pundir@linaro.org>
+> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> ---
+>
+> Sorry for noise, resending this one, as I missed the asoc mailing list in my previous send.
+>
+>
+>  sound/soc/codecs/lpass-rx-macro.c  | 4 ++--
+>  sound/soc/codecs/lpass-tx-macro.c  | 4 ++--
+>  sound/soc/codecs/lpass-wsa-macro.c | 4 ++--
+>  3 files changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+> index 9e0a4e8a46c3..372bea8b3525 100644
+> --- a/sound/soc/codecs/lpass-rx-macro.c
+> +++ b/sound/soc/codecs/lpass-rx-macro.c
+> @@ -3668,9 +3668,9 @@ static int __maybe_unused rx_macro_runtime_suspend(struct device *dev)
+>         regcache_cache_only(rx->regmap, true);
+>         regcache_mark_dirty(rx->regmap);
+>
+> -       clk_disable_unprepare(rx->mclk);
+> -       clk_disable_unprepare(rx->npl);
+>         clk_disable_unprepare(rx->fsgen);
+> +       clk_disable_unprepare(rx->npl);
+> +       clk_disable_unprepare(rx->mclk);
+>
+>         return 0;
+>  }
+> diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+> index b044c9c6f89b..d9318799f6b7 100644
+> --- a/sound/soc/codecs/lpass-tx-macro.c
+> +++ b/sound/soc/codecs/lpass-tx-macro.c
+> @@ -2096,9 +2096,9 @@ static int __maybe_unused tx_macro_runtime_suspend(struct device *dev)
+>         regcache_cache_only(tx->regmap, true);
+>         regcache_mark_dirty(tx->regmap);
+>
+> -       clk_disable_unprepare(tx->mclk);
+> -       clk_disable_unprepare(tx->npl);
+>         clk_disable_unprepare(tx->fsgen);
+> +       clk_disable_unprepare(tx->npl);
+> +       clk_disable_unprepare(tx->mclk);
+>
+>         return 0;
+>  }
+> diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+> index 728f26d12ab0..6484c335bd5d 100644
+> --- a/sound/soc/codecs/lpass-wsa-macro.c
+> +++ b/sound/soc/codecs/lpass-wsa-macro.c
+> @@ -2504,9 +2504,9 @@ static int __maybe_unused wsa_macro_runtime_suspend(struct device *dev)
+>         regcache_cache_only(wsa->regmap, true);
+>         regcache_mark_dirty(wsa->regmap);
+>
+> -       clk_disable_unprepare(wsa->mclk);
+> -       clk_disable_unprepare(wsa->npl);
+>         clk_disable_unprepare(wsa->fsgen);
+> +       clk_disable_unprepare(wsa->npl);
+> +       clk_disable_unprepare(wsa->mclk);
+>
+>         return 0;
+>  }
 > --
-> Everything you wanna know about Linux kernel regression tracking:
-> https://linux-regtracking.leemhuis.info/about/#tldr
-> That page also explains what to do if mails like this annoy you.
+> 2.21.0
+>
