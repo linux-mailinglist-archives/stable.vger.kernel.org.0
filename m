@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C5B26C5C2A
-	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 02:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7416C5C29
+	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 02:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbjCWBei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Mar 2023 21:34:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33946 "EHLO
+        id S230390AbjCWBeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Mar 2023 21:34:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230202AbjCWBeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 21:34:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7A4FF3C;
-        Wed, 22 Mar 2023 18:33:34 -0700 (PDT)
+        with ESMTP id S230318AbjCWBd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Mar 2023 21:33:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902729D;
+        Wed, 22 Mar 2023 18:33:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E32E6236F;
-        Thu, 23 Mar 2023 01:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EFF9C433EF;
-        Thu, 23 Mar 2023 01:32:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B0F6B81EAA;
+        Thu, 23 Mar 2023 01:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCDAEC433D2;
+        Thu, 23 Mar 2023 01:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1679535136;
-        bh=Qt278rxyGI6bes0Hay6WXrp68PJzx1IS7v0L4PKIUb8=;
+        s=korg; t=1679535140;
+        bh=14M42uhV4zu4PgCmd3RQCvVN8RgkortgaFK7+XIfTk4=;
         h=Date:To:From:Subject:From;
-        b=lJaxScoxnKJNp3X3qbq3wnbW6wchIuGFHphLvxKlGAiXRkzfbjqrupyCaS6lIZ48X
-         LgWTX6Be3BjJSIG7pPWa17zvLP7nRYNL7EIOtMl+yZ26IHT1j7hD0ck6agahcPxWYQ
-         hvTfcFzvOAN5nc6QbI5tGOF+KPZHgwK1jTzIG85o=
-Date:   Wed, 22 Mar 2023 18:32:15 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, pengfei.xu@intel.com, heng.su@intel.com,
-        david@redhat.com, Liam.Howlett@oracle.com,
+        b=IBwjAyvUHVUfyonhhnHRsFc3i1k3jOVo+4NnAn+Ef3E8s1GXxY6GH4ndaPeedJx+d
+         M0j12BuQTbroL3GBtYxOPbrsKr2ZqcNHwUEnwJ6zC5yD92KvwWSSgo5x80TpDzGYEJ
+         f9SopkSJZHdLlUyrWhQCGuMwo9yUfZ1RJwflUgjU=
+Date:   Wed, 22 Mar 2023 18:32:19 -0700
+To:     mm-commits@vger.kernel.org, will@kernel.org,
+        vincenzo.frascino@arm.com, stable@vger.kernel.org,
+        ryabinin.a.a@gmail.com, eugenis@google.com,
+        catalin.marinas@arm.com, andreyknvl@gmail.com, pcc@google.com,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-ksm-fix-race-with-vma-iteration-and-mm_struct-teardown.patch removed from -mm tree
-Message-Id: <20230323013216.7EFF9C433EF@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch removed from -mm tree
+Message-Id: <20230323013219.DCDAEC433D2@smtp.kernel.org>
 X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
         DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
@@ -47,81 +48,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/ksm: fix race with VMA iteration and mm_struct teardown
+     Subject: Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
 has been removed from the -mm tree.  Its filename was
-     mm-ksm-fix-race-with-vma-iteration-and-mm_struct-teardown.patch
+     revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
-Subject: mm/ksm: fix race with VMA iteration and mm_struct teardown
-Date: Wed, 8 Mar 2023 17:03:10 -0500
+From: Peter Collingbourne <pcc@google.com>
+Subject: Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
+Date: Thu, 9 Mar 2023 20:29:13 -0800
 
-exit_mmap() will tear down the VMAs and maple tree with the mmap_lock held
-in write mode.  Ensure that the maple tree is still valid by checking
-ksm_test_exit() after taking the mmap_lock in read mode, but before the
-for_each_vma() iterator dereferences a destroyed maple tree.
+This reverts commit 487a32ec24be819e747af8c2ab0d5c515508086a.
 
-Since the maple tree is destroyed, the flags telling lockdep to check an
-external lock has been cleared.  Skip the for_each_vma() iterator to avoid
-dereferencing a maple tree without the external lock flag, which would
-create a lockdep warning.
+should_skip_kasan_poison() reads the PG_skip_kasan_poison flag from
+page->flags.  However, this line of code in free_pages_prepare():
 
-Link: https://lkml.kernel.org/r/20230308220310.3119196-1-Liam.Howlett@oracle.com
-Fixes: a5f18ba07276 ("mm/ksm: use vma iterators instead of vma linked list")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-  Link: https://lore.kernel.org/lkml/ZAdUUhSbaa6fHS36@xpf.sh.intel.com/
-Reported-by: syzbot+2ee18845e89ae76342c5@syzkaller.appspotmail.com
-  Link: https://syzkaller.appspot.com/bug?id=64a3e95957cd3deab99df7cd7b5a9475af92c93e
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: <heng.su@intel.com>
-Cc: <stable@vger.kernel.org>
+	page->flags &= ~PAGE_FLAGS_CHECK_AT_PREP;
+
+clears most of page->flags, including PG_skip_kasan_poison, before calling
+should_skip_kasan_poison(), which meant that it would never return true as
+a result of the page flag being set.  Therefore, fix the code to call
+should_skip_kasan_poison() before clearing the flags, as we were doing
+before the reverted patch.
+
+This fixes a measurable performance regression introduced in the reverted
+commit, where munmap() takes longer than intended if HW tags KASAN is
+supported and enabled at runtime.  Without this patch, we see a
+single-digit percentage performance regression in a particular
+mmap()-heavy benchmark when enabling HW tags KASAN, and with the patch,
+there is no statistically significant performance impact when enabling HW
+tags KASAN.
+
+Link: https://lkml.kernel.org/r/20230310042914.3805818-2-pcc@google.com
+Fixes: 487a32ec24be ("kasan: drop skip_kasan_poison variable in free_pages_prepare")
+  Link: https://linux-review.googlesource.com/id/Ic4f13affeebd20548758438bb9ed9ca40e312b79
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com> [arm64]
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: <stable@vger.kernel.org>	[6.1]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
 
---- a/mm/ksm.c~mm-ksm-fix-race-with-vma-iteration-and-mm_struct-teardown
-+++ a/mm/ksm.c
-@@ -988,9 +988,15 @@ static int unmerge_and_remove_all_rmap_i
+--- a/mm/page_alloc.c~revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare
++++ a/mm/page_alloc.c
+@@ -1398,6 +1398,7 @@ static __always_inline bool free_pages_p
+ 			unsigned int order, bool check_free, fpi_t fpi_flags)
+ {
+ 	int bad = 0;
++	bool skip_kasan_poison = should_skip_kasan_poison(page, fpi_flags);
+ 	bool init = want_init_on_free();
  
- 		mm = mm_slot->slot.mm;
- 		mmap_read_lock(mm);
-+
-+		/*
-+		 * Exit right away if mm is exiting to avoid lockdep issue in
-+		 * the maple tree
-+		 */
-+		if (ksm_test_exit(mm))
-+			goto mm_exiting;
-+
- 		for_each_vma(vmi, vma) {
--			if (ksm_test_exit(mm))
--				break;
- 			if (!(vma->vm_flags & VM_MERGEABLE) || !vma->anon_vma)
- 				continue;
- 			err = unmerge_ksm_pages(vma,
-@@ -999,6 +1005,7 @@ static int unmerge_and_remove_all_rmap_i
- 				goto error;
- 		}
+ 	VM_BUG_ON_PAGE(PageTail(page), page);
+@@ -1470,7 +1471,7 @@ static __always_inline bool free_pages_p
+ 	 * With hardware tag-based KASAN, memory tags must be set before the
+ 	 * page becomes unavailable via debug_pagealloc or arch_free_page.
+ 	 */
+-	if (!should_skip_kasan_poison(page, fpi_flags)) {
++	if (!skip_kasan_poison) {
+ 		kasan_poison_pages(page, order, init);
  
-+mm_exiting:
- 		remove_trailing_rmap_items(&mm_slot->rmap_list);
- 		mmap_read_unlock(mm);
- 
+ 		/* Memory is already initialized if KASAN did it internally. */
 _
 
-Patches currently in -mm which might be from Liam.Howlett@oracle.com are
+Patches currently in -mm which might be from pcc@google.com are
 
-maple_tree-be-more-cautious-about-dead-nodes.patch
-maple_tree-detect-dead-nodes-in-mas_start.patch
-maple_tree-fix-freeing-of-nodes-in-rcu-mode.patch
-maple_tree-remove-extra-smp_wmb-from-mas_dead_leaves.patch
-maple_tree-fix-write-memory-barrier-of-nodes-once-dead-for-rcu-mode.patch
-maple_tree-add-smp_rmb-to-dead-node-detection.patch
-maple_tree-add-rcu-lock-checking-to-rcu-callback-functions.patch
-mm-enable-maple-tree-rcu-mode-by-default.patch
+kasan-call-clear_page-with-a-match-all-tag-instead-of-changing-page-tag.patch
+kasan-remove-pg_skip_kasan_poison-flag.patch
 
