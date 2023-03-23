@@ -2,99 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 468FE6C6D51
-	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 17:23:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2D46C6E39
+	for <lists+stable@lfdr.de>; Thu, 23 Mar 2023 17:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231443AbjCWQXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Mar 2023 12:23:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59174 "EHLO
+        id S231857AbjCWQ6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Mar 2023 12:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbjCWQXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Mar 2023 12:23:22 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1182139
-        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 09:23:21 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id t15so21237108wrz.7
-        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 09:23:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1679588600;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HKTckmnik7ufAW5a/yVhvsjIsnn5L60QYo3mz1ajlxs=;
-        b=kHoLtxqgf7jG7SwPJ9galeH/jl/ma5FM50+xYHVkbe5PjisoqyfONoNmCVlMQ1ptSf
-         AMS8S8p9x66RtyZXbE8h0qAJnYLXcO8KqO7nk8BKE1fKgT0u3XoOloOZ2gJU/6ka3qZX
-         pQrMvjifOB5coEhpTSZObxPB/EsMs3KX1vP7TcxScOEm1UN3sV0jkZH0qAzPjg45Qfdk
-         9G6g6uXi16vTDQb0SOHCbqfZZmtARaHpopb/p5O9rHp0ErVdYMufxtvy2UsVnE4ATgKl
-         wcYb5Mj0PWOXUKX3EIKxI21vhAE7Insjr5DMv9jVhUMNJIFe+F2uVoDrJUyvE360LAc8
-         JKuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679588600;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HKTckmnik7ufAW5a/yVhvsjIsnn5L60QYo3mz1ajlxs=;
-        b=AjFwenRvBnfgck6M8hWqmqb02z0ACahOu29CuAeysPoVDugXn9xHWHpK92wnHJOoth
-         tT+4+6PtDbVhInu7o5iDRZ7J81TUzot7uZ8O3KynfIecyaXZOcJZqA5+FbEuCASBvnG3
-         tcsQv+j/BTOUwZn0SvOyKLoIP4XjxxmE36rr2BHhFmAEfw1aa7icqRH9YKrAJFseIYIL
-         fdcEMUMedJmOGXsSbaQq0Bn/WpHErCVfqN/q8J69tEQg3zVpAhrLcGAxTyhODNYcFqiv
-         Nz8aJnFHtdKeezm2UBI7QVxsAdbochURRY/dwengZgITsTqojMZa5cIDjUXDk4arazsB
-         Xr8w==
-X-Gm-Message-State: AAQBX9fwag6azCW15Gp+RQlVjvA/bjYw4rEoaArKvZam/4tUnpDg0U+R
-        EDBXXV4XHWiumYbvx6vasoSzHTDnOem0l7SfBo1IcDL47AHrikic22U=
-X-Google-Smtp-Source: AKy350bVjSqa5n16BmXYxK7ZatWZMjNBmyFAi1UakqdmT9ZZoMW46EG+UhoR7qRaeN20O/yY0A7M0YtY5bcMbvjQcaY=
-X-Received: by 2002:adf:ec4f:0:b0:2d9:6655:202c with SMTP id
- w15-20020adfec4f000000b002d96655202cmr866417wrn.8.1679588599772; Thu, 23 Mar
- 2023 09:23:19 -0700 (PDT)
+        with ESMTP id S232457AbjCWQ55 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Mar 2023 12:57:57 -0400
+Received: from ns2.wdyn.eu (ns2.wdyn.eu [IPv6:2a03:4000:40:5b2::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 87BDF1EBFF;
+        Thu, 23 Mar 2023 09:57:50 -0700 (PDT)
+From:   Alexander Wetzel <alexander@wetzel-home.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
+        s=wetzel-home; t=1679590667;
+        bh=b65rg+Ns9zniat0wIt6g2YkntDD1KWVkHkHtk40xSCk=;
+        h=From:To:Cc:Subject:Date;
+        b=FT7RrLICxvsBUjsNmMBwIsnO/PJxVYmQ+LBDrZnNPm0cDwDl3r1tVJVs0A72twOmq
+         lFE6ZkABxP0hzpDC/3H7CRQftfCSiqvY0ZCxtUyFsjpdvlG88k/bWQM3dWS1e4ik5M
+         3xpGqCmLVtCGGq3UK7tgOAAx4v9ZrXicTYtYC0pg=
+To:     ath10k@lists.infradead.org
+Cc:     linux-wireless@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Felix Fietkau <nbd@nbd.name>, stable@vger.kernel.org
+Subject: [PATCH] wifi: ath10k: Serialize wake_tx_queue ops
+Date:   Thu, 23 Mar 2023 17:55:27 +0100
+Message-Id: <20230323165527.156414-1-alexander@wetzel-home.de>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-References: <CAMVonLh0jPpZpczXFqVpZ0w41OBg97z+6ixZewWQg_2TxL5ttQ@mail.gmail.com>
- <ZBvXQJMIBkgw/gy/@kroah.com>
-In-Reply-To: <ZBvXQJMIBkgw/gy/@kroah.com>
-From:   Vaibhav Rustagi <vaibhavrustagi@google.com>
-Date:   Thu, 23 Mar 2023 09:23:08 -0700
-Message-ID: <CAMVonLhUyp2PY117OeqQaTGZ0TbmbDcV7iVL11yLuHxawETQJQ@mail.gmail.com>
-Subject: Re: Request for cherry-picking commit 4a625ce from Linus' tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
-        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 22, 2023 at 9:36=E2=80=AFPM Greg KH <gregkh@linuxfoundation.org=
-> wrote:
->
-> On Wed, Mar 22, 2023 at 04:07:21PM -0700, Vaibhav Rustagi wrote:
-> > Hello,
-> >
-> > In order to resolve CVE-2023-23005 in kernel v6.1 stable tree, I would
-> > like to request cherry-picking the below commit:
-> >
-> > mm/demotion: fix NULL vs IS_ERR checking in memory_tier_init (4a625ce)
->
-> This "fix" can never actually be hit in a real system, right?
->
+Serialize the ath10k implementation of the wake_tx_queue ops.
+ath10k_mac_op_wake_tx_queue() must not run concurrent since it's using
+ieee80211_txq_schedule_start().
 
-Based on NVD, yes it is shown as "DISPUTED" based on the reasoning
-that it can't be realistically reached.
+Fixes: bb2edb733586 ("ath10k: migrate to mac80211 txq scheduling")
+Reported-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/519b5bb9-8899-ae7c-4eff-f3116cdfdb56@nbd.name
+CC: <stable@vger.kernel.org>
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+---
 
-> So it would seem that this CVE is invalid, please work to invalidate it
-> with whatever group creates such bogus claims.
->
+The intend of this patch is to sort out an issue discovered in the discussion
+referred to by the Link tag.
 
-Sure, I will do so.
+I can't test it with real HW and thus just implemented the per-ac queue lock
+Felix suggested. One obvious alternative to the per-ac lock would be to
+bring back the txqs_lock commit bb2edb733586 ("ath10k: migrate to mac80211 txq
+scheduling") dropped.
 
-> thanks,
->
-> greg k-h
+Alexander
 
-Thanks,
-Vaibhav
+---
+ drivers/net/wireless/ath/ath10k/core.c | 3 +++
+ drivers/net/wireless/ath/ath10k/core.h | 3 +++
+ drivers/net/wireless/ath/ath10k/mac.c  | 6 ++++--
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index 5eb131ab916f..533ed7169e11 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -3643,6 +3643,9 @@ struct ath10k *ath10k_core_create(size_t priv_size, struct device *dev,
+ 	mutex_init(&ar->dump_mutex);
+ 	spin_lock_init(&ar->data_lock);
+ 
++	for (int ac = 0; ac < IEEE80211_NUM_ACS; ac++)
++		spin_lock_init(&ar->queue_lock[ac]);
++
+ 	INIT_LIST_HEAD(&ar->peers);
+ 	init_waitqueue_head(&ar->peer_mapping_wq);
+ 	init_waitqueue_head(&ar->htt.empty_tx_wq);
+diff --git a/drivers/net/wireless/ath/ath10k/core.h b/drivers/net/wireless/ath/ath10k/core.h
+index f5de8ce8fb45..4b5239de4018 100644
+--- a/drivers/net/wireless/ath/ath10k/core.h
++++ b/drivers/net/wireless/ath/ath10k/core.h
+@@ -1170,6 +1170,9 @@ struct ath10k {
+ 	/* protects shared structure data */
+ 	spinlock_t data_lock;
+ 
++	/* serialize wake_tx_queue calls per ac */
++	spinlock_t queue_lock[IEEE80211_NUM_ACS];
++
+ 	struct list_head arvifs;
+ 	struct list_head peers;
+ 	struct ath10k_peer *peer_map[ATH10K_MAX_NUM_PEER_IDS];
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 7675858f069b..9c4bf2fdbc0f 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -4732,13 +4732,14 @@ static void ath10k_mac_op_wake_tx_queue(struct ieee80211_hw *hw,
+ {
+ 	struct ath10k *ar = hw->priv;
+ 	int ret;
+-	u8 ac;
++	u8 ac = txq->ac;
+ 
+ 	ath10k_htt_tx_txq_update(hw, txq);
+ 	if (ar->htt.tx_q_state.mode != HTT_TX_MODE_SWITCH_PUSH)
+ 		return;
+ 
+-	ac = txq->ac;
++	spin_lock_bh(&ar->queue_lock[ac]);
++
+ 	ieee80211_txq_schedule_start(hw, ac);
+ 	txq = ieee80211_next_txq(hw, ac);
+ 	if (!txq)
+@@ -4753,6 +4754,7 @@ static void ath10k_mac_op_wake_tx_queue(struct ieee80211_hw *hw,
+ 	ath10k_htt_tx_txq_update(hw, txq);
+ out:
+ 	ieee80211_txq_schedule_end(hw, ac);
++	spin_unlock_bh(&ar->queue_lock[ac]);
+ }
+ 
+ /* Must not be called with conf_mutex held as workers can use that also. */
+-- 
+2.40.0
+
