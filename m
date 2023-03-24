@@ -2,48 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A72CC6C8059
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 15:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 369C76C81D8
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 16:53:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbjCXOxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 10:53:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48834 "EHLO
+        id S231898AbjCXPxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 11:53:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbjCXOxB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 10:53:01 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DD10CBA;
-        Fri, 24 Mar 2023 07:53:00 -0700 (PDT)
-Received: from localhost.localdomain (77-166-152-30.fixed.kpn.net [77.166.152.30])
-        by linux.microsoft.com (Postfix) with ESMTPSA id B308E20FC3DB;
-        Fri, 24 Mar 2023 07:52:58 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B308E20FC3DB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1679669580;
-        bh=XF1vbq7gokzNKZoPuMKmB97h2a+RXc+m3lJbm+yiyvc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GiSQbslBY0MTgFojIIhCGjaD1vg4TqycSGXd306uujyvRdb42251/imGyyDxsPXqi
-         +dBTPdc2kP7cEp4S7D9O07hLsIO/1Nw9Awq+5/wHhYESQimxHNkvvQiVPzZnRZyflv
-         KeQ3JQBfLtPhevXFRUk5eQ3QOCuL0FcKM8XiQVeg=
-From:   jpiotrowski@linux.microsoft.com
+        with ESMTP id S232091AbjCXPxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 11:53:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD3C5FD9
+        for <stable@vger.kernel.org>; Fri, 24 Mar 2023 08:52:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679673145;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=fPwPDdlv2LUiU7nI+R/JDQaCBzeZ/8ZN3G2D5wvnC8c=;
+        b=I2GfmtvJGQN00tXwS6UywWgaa7Suv1CgoejbvGHpeTMLLP/y+tjBIWuU5XMxnBzyERUthp
+        Eb+1QP9I6EFdyCoswePLXgiWhI4RHk9MdSJATTdlOPNtvFOY7WawUSVbMc+WmktV2ti9TW
+        IOYdozq+Q875CKmi5lgWTG27LV6NHvo=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-474-WH8ueojaOPm2p8Pk3-ubXw-1; Fri, 24 Mar 2023 11:52:24 -0400
+X-MC-Unique: WH8ueojaOPm2p8Pk3-ubXw-1
+Received: by mail-qk1-f200.google.com with SMTP id t21-20020a37aa15000000b00746b7fae197so971716qke.12
+        for <stable@vger.kernel.org>; Fri, 24 Mar 2023 08:52:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679673142; x=1682265142;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fPwPDdlv2LUiU7nI+R/JDQaCBzeZ/8ZN3G2D5wvnC8c=;
+        b=P4qhX/JmiQcMM13ZXoKHZ8nLEdLZOYeF7S5vVYD43OGTimohiROnWSisUi0sf0ejJx
+         62u/a4oCCWs7eZTwCo0T5AAWf5ctNrY5SsKI1isKZkAHsoHBHZBmxDGHLax1oiMKSvH4
+         +x0joksds1kehngBB+96n5duQ1tmsxCacFLJUPqyBavbSRtEDcjrDbj8M+QXTyEckzoL
+         KKeS+sz0wvEK+TwD7uO3DpRO1hu4UbAC/gqgLb4mIa6ISDMVDpuPoSRYizxgvj6E5lTi
+         htzz86uNVqFdWNvyBb/q6IeCLnMRorslFHhoIZOGD0T4YiZeEB3RmEalCgRF+dnQcost
+         GOKA==
+X-Gm-Message-State: AO0yUKVsqnvWwTLNGlYtNMpjmrvnGPDcyjIKIQRfLlO4QkgiYML8Ol1u
+        mAHv7NfskT5HM2pSXWWfIcaqUF9bmXvNPvkgMNyqjIuNzMFKyBHy03Clg2aFSYUh9IkLQbt4lys
+        q9VyIZQ05gp90K36m
+X-Received: by 2002:a05:622a:1a18:b0:3bf:a60d:43b9 with SMTP id f24-20020a05622a1a1800b003bfa60d43b9mr3863467qtb.4.1679673142039;
+        Fri, 24 Mar 2023 08:52:22 -0700 (PDT)
+X-Google-Smtp-Source: AK7set9dGMxPoYAht2ipk1CT6ra7hRPMomwAzWoRJH8HLImNw7qE2w09Gg/j8Gpym6lsbF+2QpvsDQ==
+X-Received: by 2002:a05:622a:1a18:b0:3bf:a60d:43b9 with SMTP id f24-20020a05622a1a1800b003bfa60d43b9mr3863443qtb.4.1679673141779;
+        Fri, 24 Mar 2023 08:52:21 -0700 (PDT)
+Received: from kherbst.pingu.com (ip1f1032bf.dynamic.kabel-deutschland.de. [31.16.50.191])
+        by smtp.gmail.com with ESMTPSA id do31-20020a05620a2b1f00b00746ac77366fsm670170qkb.12.2023.03.24.08.52.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Mar 2023 08:52:20 -0700 (PDT)
+From:   Karol Herbst <kherbst@redhat.com>
 To:     linux-kernel@vger.kernel.org
-Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Tianyu Lan <ltykernel@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Sean Christopherson <seanjc@google.com>, stable@vger.kernel.org
-Subject: [RESEND PATCH v2] KVM: SVM: Flush Hyper-V TLB when required
-Date:   Fri, 24 Mar 2023 15:52:33 +0100
-Message-Id: <20230324145233.4585-1-jpiotrowski@linux.microsoft.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20230324144500.4216-1-jpiotrowski@microsoft.com>
-References: <20230324144500.4216-1-jpiotrowski@microsoft.com>
+Cc:     Karol Herbst <kherbst@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@gmail.com>,
+        nouveau@lists.freedesktop.org, stable@vger.kernel.org
+Subject: [PATCH] drm/nouveau/gr: enable memory loads on helper invocation on all channels
+Date:   Fri, 24 Mar 2023 16:52:17 +0100
+Message-Id: <20230324155217.3548232-1-kherbst@redhat.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-17.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,170 +75,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+We have a lurking bug where Fragment Shader Helper Invocations can't load
+from memory. But this is actually required in OpenGL and is causing random
+hangs or failures in random shaders.
 
-The Hyper-V "EnlightenedNptTlb" enlightenment is always enabled when KVM
-is running on top of Hyper-V and Hyper-V exposes support for it (which
-is always). On AMD CPUs this enlightenment results in ASID invalidations
-not flushing TLB entries derived from the NPT. To force the underlying
-(L0) hypervisor to rebuild its shadow page tables, an explicit hypercall
-is needed.
+It is unknown how widespread this issue is, but shaders hitting this can
+end up with infinite loops.
 
-The original KVM implementation of Hyper-V's "EnlightenedNptTlb" on SVM
-only added remote TLB flush hooks. This worked out fine for a while, as
-sufficient remote TLB flushes where being issued in KVM to mask the
-problem. Since v5.17, changes in the TDP code reduced the number of
-flushes and the out-of-sync TLB prevents guests from booting
-successfully.
+We enable those only on all Kepler and newer GPUs where we use our own
+Firmware.
 
-Split svm_flush_tlb_current() into separate callbacks for the 3 cases
-(guest/all/current), and issue the required Hyper-V hypercall when a
-Hyper-V TLB flush is needed. The most important case where the TLB flush
-was missing is when loading a new PGD, which is followed by what is now
-svm_flush_tlb_current().
+Nvidia's firmware provides a way to set a kernelspace controlled list of
+mmio registers in the gr space from push buffers via MME macros.
 
-Cc: stable@vger.kernel.org # v5.17+
-Fixes: 1e0c7d40758b ("KVM: SVM: hyper-v: Remote TLB flush for SVM")
-Link: https://lore.kernel.org/lkml/43980946-7bbf-dcef-7e40-af904c456250@linux.microsoft.com/
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: David Airlie <airlied@gmail.com>
+Cc: nouveau@lists.freedesktop.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
 ---
-Resending because I accidentally used the wrong "From:" address and it bounced
-from some recipients.
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.c  |  2 ++
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.h  |  2 ++
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk104.c  |  4 +++-
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110.c  | 10 ++++++++++
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110b.c |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk208.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm107.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm200.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp100.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp102.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp104.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp107.c  |  1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgv100.c  | 10 ++++++++++
+ 13 files changed, 35 insertions(+), 1 deletion(-)
 
-Changes since v1:
-- lookup enlightened_npt_tlb in vmcb to determine whether to do the
-  flush
-- when KVM wants a hyperv_flush_guest_mapping() call, don't try to
-  optimize it out
-- don't hide hyperv flush behind helper, make it visible in
-  svm.c
-
- arch/x86/kvm/kvm_onhyperv.h     |  5 +++++
- arch/x86/kvm/svm/svm.c          | 37 ++++++++++++++++++++++++++++++---
- arch/x86/kvm/svm/svm_onhyperv.h | 15 +++++++++++++
- 3 files changed, 54 insertions(+), 3 deletions(-)
-
-diff --git a/arch/x86/kvm/kvm_onhyperv.h b/arch/x86/kvm/kvm_onhyperv.h
-index 287e98ef9df3..67b53057e41c 100644
---- a/arch/x86/kvm/kvm_onhyperv.h
-+++ b/arch/x86/kvm/kvm_onhyperv.h
-@@ -12,6 +12,11 @@ int hv_remote_flush_tlb_with_range(struct kvm *kvm,
- int hv_remote_flush_tlb(struct kvm *kvm);
- void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp);
- #else /* !CONFIG_HYPERV */
-+static inline int hv_remote_flush_tlb(struct kvm *kvm)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.c
+index cb390e0134a23..950ab7c82582f 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.c
+@@ -1332,6 +1332,8 @@ gf100_grctx_generate_floorsweep(struct gf100_gr *gr)
+ 		func->gpc_tpc_nr(gr);
+ 	if (func->r419f78)
+ 		func->r419f78(gr);
++	if (func->r419ba4)
++		func->r419ba4(gr);
+ 	if (func->tpc_mask)
+ 		func->tpc_mask(gr);
+ 	if (func->smid_config)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.h b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.h
+index 00dbeda7e3464..f31303efbc0ff 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.h
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgf100.h
+@@ -57,6 +57,7 @@ struct gf100_grctx_func {
+ 	void (*r406500)(struct gf100_gr *);
+ 	void (*gpc_tpc_nr)(struct gf100_gr *);
+ 	void (*r419f78)(struct gf100_gr *);
++	void (*r419ba4)(struct gf100_gr *);
+ 	void (*tpc_mask)(struct gf100_gr *);
+ 	void (*smid_config)(struct gf100_gr *);
+ 	/* misc other things */
+@@ -117,6 +118,7 @@ void gk104_grctx_generate_r418800(struct gf100_gr *);
+ 
+ extern const struct gf100_grctx_func gk110_grctx;
+ void gk110_grctx_generate_r419eb0(struct gf100_gr *);
++void gk110_grctx_generate_r419f78(struct gf100_gr *);
+ 
+ extern const struct gf100_grctx_func gk110b_grctx;
+ extern const struct gf100_grctx_func gk208_grctx;
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk104.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk104.c
+index 94233d0119dff..52a234b1ef010 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk104.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk104.c
+@@ -906,7 +906,9 @@ static void
+ gk104_grctx_generate_r419f78(struct gf100_gr *gr)
+ {
+ 	struct nvkm_device *device = gr->base.engine.subdev.device;
+-	nvkm_mask(device, 0x419f78, 0x00000001, 0x00000000);
++
++	/* bit 3 set disables loads in fp helper invocations, we need it enabled */
++	nvkm_mask(device, 0x419f78, 0x00000009, 0x00000000);
+ }
+ 
+ void
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110.c
+index 4391458e1fb2f..3acdd9eeb74a7 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110.c
+@@ -820,6 +820,15 @@ gk110_grctx_generate_r419eb0(struct gf100_gr *gr)
+ 	nvkm_mask(device, 0x419eb0, 0x00001000, 0x00001000);
+ }
+ 
++void
++gk110_grctx_generate_r419f78(struct gf100_gr *gr)
 +{
-+	return -1;
++	struct nvkm_device *device = gr->base.engine.subdev.device;
++
++	/* bit 3 set disables loads in fp helper invocations, we need it enabled */
++	nvkm_mask(device, 0x419f78, 0x00000008, 0x00000000);
 +}
 +
- static inline void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp)
- {
- }
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 252e7f37e4e2..f25bc3cbb250 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3729,7 +3729,7 @@ static void svm_enable_nmi_window(struct kvm_vcpu *vcpu)
- 	svm->vmcb->save.rflags |= (X86_EFLAGS_TF | X86_EFLAGS_RF);
+ const struct gf100_grctx_func
+ gk110_grctx = {
+ 	.main  = gf100_grctx_generate_main,
+@@ -854,4 +863,5 @@ gk110_grctx = {
+ 	.gpc_tpc_nr = gk104_grctx_generate_gpc_tpc_nr,
+ 	.r418800 = gk104_grctx_generate_r418800,
+ 	.r419eb0 = gk110_grctx_generate_r419eb0,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110b.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110b.c
+index 7b9a34f9ec3c7..5597e87624acd 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk110b.c
+@@ -103,4 +103,5 @@ gk110b_grctx = {
+ 	.gpc_tpc_nr = gk104_grctx_generate_gpc_tpc_nr,
+ 	.r418800 = gk104_grctx_generate_r418800,
+ 	.r419eb0 = gk110_grctx_generate_r419eb0,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk208.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk208.c
+index c78d07a8bb7df..612656496541d 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk208.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgk208.c
+@@ -568,4 +568,5 @@ gk208_grctx = {
+ 	.dist_skip_table = gf117_grctx_generate_dist_skip_table,
+ 	.gpc_tpc_nr = gk104_grctx_generate_gpc_tpc_nr,
+ 	.r418800 = gk104_grctx_generate_r418800,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm107.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm107.c
+index beac66eb2a803..9906974ac3f07 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm107.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm107.c
+@@ -988,4 +988,5 @@ gm107_grctx = {
+ 	.r406500 = gm107_grctx_generate_r406500,
+ 	.gpc_tpc_nr = gk104_grctx_generate_gpc_tpc_nr,
+ 	.r419e00 = gm107_grctx_generate_r419e00,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm200.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm200.c
+index 175da8ac656ce..839b706a86e86 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgm200.c
+@@ -127,4 +127,5 @@ gm200_grctx = {
+ 	.smid_config = gm200_grctx_generate_smid_config,
+ 	.r418e94 = gm200_grctx_generate_r418e94,
+ 	.r419a3c = gm200_grctx_generate_r419a3c,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp100.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp100.c
+index 8485aaeae7a92..068d36490d14c 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp100.c
+@@ -148,4 +148,5 @@ gp100_grctx = {
+ 	.tpc_mask = gm200_grctx_generate_tpc_mask,
+ 	.smid_config = gp100_grctx_generate_smid_config,
+ 	.r419a3c = gm200_grctx_generate_r419a3c,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp102.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp102.c
+index 7537979a54927..18a5b3ca7d8c5 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp102.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp102.c
+@@ -122,4 +122,5 @@ gp102_grctx = {
+ 	.smid_config = gp100_grctx_generate_smid_config,
+ 	.r419a3c = gm200_grctx_generate_r419a3c,
+ 	.r408840 = gp102_grctx_generate_r408840,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp104.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp104.c
+index 90b5f793e5676..5366f5b5ce80a 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp104.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp104.c
+@@ -47,4 +47,5 @@ gp104_grctx = {
+ 	.tpc_mask = gm200_grctx_generate_tpc_mask,
+ 	.smid_config = gp100_grctx_generate_smid_config,
+ 	.r419a3c = gm200_grctx_generate_r419a3c,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp107.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp107.c
+index d191761a04711..d658ff1ce7bbc 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp107.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgp107.c
+@@ -55,4 +55,5 @@ gp107_grctx = {
+ 	.tpc_mask = gm200_grctx_generate_tpc_mask,
+ 	.smid_config = gp100_grctx_generate_smid_config,
+ 	.r419a3c = gm200_grctx_generate_r419a3c,
++	.r419f78 = gk110_grctx_generate_r419f78,
+ };
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgv100.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgv100.c
+index 957ea9d6bad4b..dadc0ecd1722d 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgv100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/ctxgv100.c
+@@ -192,6 +192,15 @@ gv100_grctx_unkn88c(struct gf100_gr *gr, bool on)
+ 	nvkm_rd32(device, 0x408a14);
  }
  
--static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
-+static void svm_flush_tlb_asid(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
- 
-@@ -3753,6 +3753,37 @@ static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
- 		svm->current_vmcb->asid_generation--;
- }
- 
-+static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
++static void
++gv100_grctx_generate_r419ba4(struct gf100_gr *gr)
 +{
-+	hpa_t root_tdp = vcpu->arch.mmu->root.hpa;
++	struct nvkm_device *device = gr->base.engine.subdev.device;
 +
-+	/*
-+	 * When running on Hyper-V with EnlightenedNptTlb enabled, explicitly
-+	 * flush the NPT mappings via hypercall as flushing the ASID only
-+	 * affects virtual to physical mappings, it does not invalidate guest
-+	 * physical to host physical mappings.
-+	 */
-+	if (svm_hv_is_enlightened_tlb_enabled(vcpu) && VALID_PAGE(root_tdp))
-+		hyperv_flush_guest_mapping(root_tdp);
-+
-+	svm_flush_tlb_asid(vcpu);
++	/* bit 3 set disables loads in fp helper invocations, we need it enabled */
++	nvkm_mask(device, 0x419ba4, 0x00000008, 0x00000000);
 +}
 +
-+static void svm_flush_tlb_all(struct kvm_vcpu *vcpu)
-+{
-+	/*
-+	 * When running on Hyper-V with EnlightenedNptTlb enabled, remote TLB
-+	 * flushes should be routed to hv_remote_flush_tlb() without requesting
-+	 * a "regular" remote flush.  Reaching this point means either there's
-+	 * a KVM bug or a prior hv_remote_flush_tlb() call failed, both of
-+	 * which might be fatal to the guest.  Yell, but try to recover.
-+	 */
-+	if (WARN_ON_ONCE(svm_hv_is_enlightened_tlb_enabled(vcpu)))
-+		hv_remote_flush_tlb(vcpu->kvm);
-+
-+	svm_flush_tlb_asid(vcpu);
-+}
-+
- static void svm_flush_tlb_gva(struct kvm_vcpu *vcpu, gva_t gva)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
-@@ -4745,10 +4776,10 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
- 	.set_rflags = svm_set_rflags,
- 	.get_if_flag = svm_get_if_flag,
- 
--	.flush_tlb_all = svm_flush_tlb_current,
-+	.flush_tlb_all = svm_flush_tlb_all,
- 	.flush_tlb_current = svm_flush_tlb_current,
- 	.flush_tlb_gva = svm_flush_tlb_gva,
--	.flush_tlb_guest = svm_flush_tlb_current,
-+	.flush_tlb_guest = svm_flush_tlb_asid,
- 
- 	.vcpu_pre_run = svm_vcpu_pre_run,
- 	.vcpu_run = svm_vcpu_run,
-diff --git a/arch/x86/kvm/svm/svm_onhyperv.h b/arch/x86/kvm/svm/svm_onhyperv.h
-index cff838f15db5..786d46d73a8e 100644
---- a/arch/x86/kvm/svm/svm_onhyperv.h
-+++ b/arch/x86/kvm/svm/svm_onhyperv.h
-@@ -6,6 +6,8 @@
- #ifndef __ARCH_X86_KVM_SVM_ONHYPERV_H__
- #define __ARCH_X86_KVM_SVM_ONHYPERV_H__
- 
-+#include <asm/mshyperv.h>
-+
- #if IS_ENABLED(CONFIG_HYPERV)
- 
- #include "kvm_onhyperv.h"
-@@ -15,6 +17,14 @@ static struct kvm_x86_ops svm_x86_ops;
- 
- int svm_hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu);
- 
-+static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
-+{
-+	struct hv_vmcb_enlightenments *hve = &to_svm(vcpu)->vmcb->control.hv_enlightenments;
-+
-+	return ms_hyperv.nested_features & HV_X64_NESTED_ENLIGHTENED_TLB &&
-+	       !!hve->hv_enlightenments_control.enlightened_npt_tlb;
-+}
-+
- static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
- {
- 	struct hv_vmcb_enlightenments *hve = &vmcb->control.hv_enlightenments;
-@@ -80,6 +90,11 @@ static inline void svm_hv_update_vp_id(struct vmcb *vmcb, struct kvm_vcpu *vcpu)
- }
- #else
- 
-+static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
-+{
-+	return false;
-+}
-+
- static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
- {
- }
+ const struct gf100_grctx_func
+ gv100_grctx = {
+ 	.unkn88c = gv100_grctx_unkn88c,
+@@ -219,4 +228,5 @@ gv100_grctx = {
+ 	.gpc_tpc_nr = gk104_grctx_generate_gpc_tpc_nr,
+ 	.smid_config = gp100_grctx_generate_smid_config,
+ 	.r400088 = gv100_grctx_generate_r400088,
++	.r419ba4 = gv100_grctx_generate_r419ba4,
+ };
 -- 
-2.37.2
+2.39.2
 
