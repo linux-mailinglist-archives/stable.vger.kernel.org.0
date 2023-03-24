@@ -2,154 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A88F6C7FEC
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 15:33:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFBB16C802A
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 15:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbjCXOds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 10:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43604 "EHLO
+        id S232022AbjCXOpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 10:45:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbjCXOdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 10:33:47 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4B310EB;
-        Fri, 24 Mar 2023 07:33:46 -0700 (PDT)
-Received: from [192.168.10.39] (unknown [119.155.2.20])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: usama.anjum)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id D14B8660311C;
-        Fri, 24 Mar 2023 14:33:42 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679668425;
-        bh=FkSmg20lGxtuqjYpseIX/FjQ1FIGEcqzgaU/zd2MrUo=;
-        h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-        b=kYLya2ajCmE2jdUIJt8TOHQreOItjwPJs1N5zpwL9g7lu3tdG+3bAw7bJVi/U7d5J
-         N7gS+hwXqcwT1ieshp7bS/h/UaQl8iimcMMIxqVdOZN0HdIPe8nSTAxZ+ipZIzqzRV
-         HsnysM6pQ7XBr4NFnZLNKZuSSm/s44kOiKkMj9AYX5zzspEOemZY82AAz2QRLb4zf3
-         d+2eJ7+NmSSAMoWzqUhLA+pFP8GvqewE+UygnnyxoDXFa2iM4VHNyF6POgWKezuYl/
-         blyo9msPI9bBZh9Kyt6KQFNkjNrZTsazOP1uBsBKd0czT4TAY34Vu/H/9mp639Fd9l
-         cB3lQUt6toEDA==
-Message-ID: <b8bd4fd8-8066-f921-0bec-a5e7c684db77@collabora.com>
-Date:   Fri, 24 Mar 2023 19:33:38 +0500
+        with ESMTP id S231508AbjCXOpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 10:45:23 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 23F4523112;
+        Fri, 24 Mar 2023 07:45:13 -0700 (PDT)
+Received: from localhost.localdomain (77-166-152-30.fixed.kpn.net [77.166.152.30])
+        by linux.microsoft.com (Postfix) with ESMTPSA id E308820FC442;
+        Fri, 24 Mar 2023 07:45:10 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E308820FC442
+From:   Jeremi Piotrowski <jpiotrowski@microsoft.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Tianyu Lan <ltykernel@gmail.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Sean Christopherson <seanjc@google.com>, stable@vger.kernel.org
+Subject: [PATCH v2] KVM: SVM: Flush Hyper-V TLB when required
+Date:   Fri, 24 Mar 2023 15:45:00 +0100
+Message-Id: <20230324144500.4216-1-jpiotrowski@microsoft.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Cc:     Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        linux-stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm/hugetlb: Fix uffd wr-protection for CoW
- optimization path
-To:     Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-References: <20230324142620.2344140-1-peterx@redhat.com>
-Content-Language: en-US
-From:   Muhammad Usama Anjum <usama.anjum@collabora.com>
-In-Reply-To: <20230324142620.2344140-1-peterx@redhat.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=1.3 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_SORBS_WEB,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: *
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/24/23 7:26 PM, Peter Xu wrote:
-> This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
-> writable even with uffd-wp bit set.  It only happens with hugetlb private
-> mappings, when someone firstly wr-protects a missing pte (which will
-> install a pte marker), then a write to the same page without any prior
-> access to the page.
-> 
-> Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
-> reaching hugetlb_wp() to avoid taking more locks that userfault won't need.
-> However there's one CoW optimization path that can trigger hugetlb_wp()
-> inside hugetlb_no_page(), which will bypass the trap.
-> 
-> This patch skips hugetlb_wp() for CoW and retries the fault if uffd-wp bit
-> is detected.  The new path will only trigger in the CoW optimization path
-> because generic hugetlb_fault() (e.g. when a present pte was wr-protected)
-> will resolve the uffd-wp bit already.  Also make sure anonymous UNSHARE
-> won't be affected and can still be resolved, IOW only skip CoW not CoR.
-> 
-> This patch will be needed for v5.19+ hence copy stable.
-> 
-> Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-> Cc: linux-stable <stable@vger.kernel.org>
-> Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-Tested-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
 
-> ---
-> 
-> Notes:
-> 
-> v2 is not on the list but in an attachment in the reply; this v3 is mostly
-> to make sure it's not the same as the patch used to be attached.  Sorry
-> Andrew, we need to drop the queued one as I rewrote the commit message.
-> 
-> Muhammad, I didn't attach your T-b because of the slight functional change.
-> Please feel free to re-attach if it still works for you (which I believe
-> should).
-Thank you for the fix.
+The Hyper-V "EnlightenedNptTlb" enlightenment is always enabled when KVM
+is running on top of Hyper-V and Hyper-V exposes support for it (which
+is always). On AMD CPUs this enlightenment results in ASID invalidations
+not flushing TLB entries derived from the NPT. To force the underlying
+(L0) hypervisor to rebuild its shadow page tables, an explicit hypercall
+is needed.
 
-> 
-> thanks,
-> ---
->  mm/hugetlb.c | 14 ++++++++++++--
->  1 file changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index 8bfd07f4c143..a58b3739ed4b 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -5478,7 +5478,7 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
->  		       struct folio *pagecache_folio, spinlock_t *ptl)
->  {
->  	const bool unshare = flags & FAULT_FLAG_UNSHARE;
-> -	pte_t pte;
-> +	pte_t pte = huge_ptep_get(ptep);
->  	struct hstate *h = hstate_vma(vma);
->  	struct page *old_page;
->  	struct folio *new_folio;
-> @@ -5487,6 +5487,17 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
->  	unsigned long haddr = address & huge_page_mask(h);
->  	struct mmu_notifier_range range;
->  
-> +	/*
-> +	 * Never handle CoW for uffd-wp protected pages.  It should be only
-> +	 * handled when the uffd-wp protection is removed.
-> +	 *
-> +	 * Note that only the CoW optimization path (in hugetlb_no_page())
-> +	 * can trigger this, because hugetlb_fault() will always resolve
-> +	 * uffd-wp bit first.
-> +	 */
-> +	if (!unshare && huge_pte_uffd_wp(pte))
-> +		return 0;
-> +
->  	/*
->  	 * hugetlb does not support FOLL_FORCE-style write faults that keep the
->  	 * PTE mapped R/O such as maybe_mkwrite() would do.
-> @@ -5500,7 +5511,6 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
->  		return 0;
->  	}
->  
-> -	pte = huge_ptep_get(ptep);
->  	old_page = pte_page(pte);
->  
->  	delayacct_wpcopy_start();
+The original KVM implementation of Hyper-V's "EnlightenedNptTlb" on SVM
+only added remote TLB flush hooks. This worked out fine for a while, as
+sufficient remote TLB flushes where being issued in KVM to mask the
+problem. Since v5.17, changes in the TDP code reduced the number of
+flushes and the out-of-sync TLB prevents guests from booting
+successfully.
 
+Split svm_flush_tlb_current() into separate callbacks for the 3 cases
+(guest/all/current), and issue the required Hyper-V hypercall when a
+Hyper-V TLB flush is needed. The most important case where the TLB flush
+was missing is when loading a new PGD, which is followed by what is now
+svm_flush_tlb_current().
+
+Cc: stable@vger.kernel.org # v5.17+
+Fixes: 1e0c7d40758b ("KVM: SVM: hyper-v: Remote TLB flush for SVM")
+Link: https://lore.kernel.org/lkml/43980946-7bbf-dcef-7e40-af904c456250@linux.microsoft.com/
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+---
+Changes since v1:
+- lookup enlightened_npt_tlb in vmcb to determine whether to do the
+  flush
+- when KVM wants a hyperv_flush_guest_mapping() call, don't try to
+  optimize it out
+- don't hide hyperv flush behind helper, make it visible in
+  svm.c
+
+ arch/x86/kvm/kvm_onhyperv.h     |  5 +++++
+ arch/x86/kvm/svm/svm.c          | 37 ++++++++++++++++++++++++++++++---
+ arch/x86/kvm/svm/svm_onhyperv.h | 15 +++++++++++++
+ 3 files changed, 54 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/kvm/kvm_onhyperv.h b/arch/x86/kvm/kvm_onhyperv.h
+index 287e98ef9df3..67b53057e41c 100644
+--- a/arch/x86/kvm/kvm_onhyperv.h
++++ b/arch/x86/kvm/kvm_onhyperv.h
+@@ -12,6 +12,11 @@ int hv_remote_flush_tlb_with_range(struct kvm *kvm,
+ int hv_remote_flush_tlb(struct kvm *kvm);
+ void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp);
+ #else /* !CONFIG_HYPERV */
++static inline int hv_remote_flush_tlb(struct kvm *kvm)
++{
++	return -1;
++}
++
+ static inline void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp)
+ {
+ }
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 252e7f37e4e2..f25bc3cbb250 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3729,7 +3729,7 @@ static void svm_enable_nmi_window(struct kvm_vcpu *vcpu)
+ 	svm->vmcb->save.rflags |= (X86_EFLAGS_TF | X86_EFLAGS_RF);
+ }
+ 
+-static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
++static void svm_flush_tlb_asid(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+ 
+@@ -3753,6 +3753,37 @@ static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
+ 		svm->current_vmcb->asid_generation--;
+ }
+ 
++static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
++{
++	hpa_t root_tdp = vcpu->arch.mmu->root.hpa;
++
++	/*
++	 * When running on Hyper-V with EnlightenedNptTlb enabled, explicitly
++	 * flush the NPT mappings via hypercall as flushing the ASID only
++	 * affects virtual to physical mappings, it does not invalidate guest
++	 * physical to host physical mappings.
++	 */
++	if (svm_hv_is_enlightened_tlb_enabled(vcpu) && VALID_PAGE(root_tdp))
++		hyperv_flush_guest_mapping(root_tdp);
++
++	svm_flush_tlb_asid(vcpu);
++}
++
++static void svm_flush_tlb_all(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * When running on Hyper-V with EnlightenedNptTlb enabled, remote TLB
++	 * flushes should be routed to hv_remote_flush_tlb() without requesting
++	 * a "regular" remote flush.  Reaching this point means either there's
++	 * a KVM bug or a prior hv_remote_flush_tlb() call failed, both of
++	 * which might be fatal to the guest.  Yell, but try to recover.
++	 */
++	if (WARN_ON_ONCE(svm_hv_is_enlightened_tlb_enabled(vcpu)))
++		hv_remote_flush_tlb(vcpu->kvm);
++
++	svm_flush_tlb_asid(vcpu);
++}
++
+ static void svm_flush_tlb_gva(struct kvm_vcpu *vcpu, gva_t gva)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+@@ -4745,10 +4776,10 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
+ 	.set_rflags = svm_set_rflags,
+ 	.get_if_flag = svm_get_if_flag,
+ 
+-	.flush_tlb_all = svm_flush_tlb_current,
++	.flush_tlb_all = svm_flush_tlb_all,
+ 	.flush_tlb_current = svm_flush_tlb_current,
+ 	.flush_tlb_gva = svm_flush_tlb_gva,
+-	.flush_tlb_guest = svm_flush_tlb_current,
++	.flush_tlb_guest = svm_flush_tlb_asid,
+ 
+ 	.vcpu_pre_run = svm_vcpu_pre_run,
+ 	.vcpu_run = svm_vcpu_run,
+diff --git a/arch/x86/kvm/svm/svm_onhyperv.h b/arch/x86/kvm/svm/svm_onhyperv.h
+index cff838f15db5..786d46d73a8e 100644
+--- a/arch/x86/kvm/svm/svm_onhyperv.h
++++ b/arch/x86/kvm/svm/svm_onhyperv.h
+@@ -6,6 +6,8 @@
+ #ifndef __ARCH_X86_KVM_SVM_ONHYPERV_H__
+ #define __ARCH_X86_KVM_SVM_ONHYPERV_H__
+ 
++#include <asm/mshyperv.h>
++
+ #if IS_ENABLED(CONFIG_HYPERV)
+ 
+ #include "kvm_onhyperv.h"
+@@ -15,6 +17,14 @@ static struct kvm_x86_ops svm_x86_ops;
+ 
+ int svm_hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu);
+ 
++static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
++{
++	struct hv_vmcb_enlightenments *hve = &to_svm(vcpu)->vmcb->control.hv_enlightenments;
++
++	return ms_hyperv.nested_features & HV_X64_NESTED_ENLIGHTENED_TLB &&
++	       !!hve->hv_enlightenments_control.enlightened_npt_tlb;
++}
++
+ static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
+ {
+ 	struct hv_vmcb_enlightenments *hve = &vmcb->control.hv_enlightenments;
+@@ -80,6 +90,11 @@ static inline void svm_hv_update_vp_id(struct vmcb *vmcb, struct kvm_vcpu *vcpu)
+ }
+ #else
+ 
++static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
++{
++	return false;
++}
++
+ static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
+ {
+ }
 -- 
-BR,
-Muhammad Usama Anjum
+2.37.2
+
