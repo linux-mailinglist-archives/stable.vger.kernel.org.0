@@ -2,23 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBB16C802A
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 15:45:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A72CC6C8059
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 15:53:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232022AbjCXOpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 10:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34406 "EHLO
+        id S231272AbjCXOxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 10:53:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231508AbjCXOpX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 10:45:23 -0400
+        with ESMTP id S232151AbjCXOxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 10:53:01 -0400
 Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 23F4523112;
-        Fri, 24 Mar 2023 07:45:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DD10CBA;
+        Fri, 24 Mar 2023 07:53:00 -0700 (PDT)
 Received: from localhost.localdomain (77-166-152-30.fixed.kpn.net [77.166.152.30])
-        by linux.microsoft.com (Postfix) with ESMTPSA id E308820FC442;
-        Fri, 24 Mar 2023 07:45:10 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E308820FC442
-From:   Jeremi Piotrowski <jpiotrowski@microsoft.com>
+        by linux.microsoft.com (Postfix) with ESMTPSA id B308E20FC3DB;
+        Fri, 24 Mar 2023 07:52:58 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B308E20FC3DB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1679669580;
+        bh=XF1vbq7gokzNKZoPuMKmB97h2a+RXc+m3lJbm+yiyvc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GiSQbslBY0MTgFojIIhCGjaD1vg4TqycSGXd306uujyvRdb42251/imGyyDxsPXqi
+         +dBTPdc2kP7cEp4S7D9O07hLsIO/1Nw9Awq+5/wHhYESQimxHNkvvQiVPzZnRZyflv
+         KeQ3JQBfLtPhevXFRUk5eQ3QOCuL0FcKM8XiQVeg=
+From:   jpiotrowski@linux.microsoft.com
 To:     linux-kernel@vger.kernel.org
 Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
         Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
@@ -26,15 +33,18 @@ Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
         Tianyu Lan <ltykernel@gmail.com>,
         Michael Kelley <mikelley@microsoft.com>,
         Sean Christopherson <seanjc@google.com>, stable@vger.kernel.org
-Subject: [PATCH v2] KVM: SVM: Flush Hyper-V TLB when required
-Date:   Fri, 24 Mar 2023 15:45:00 +0100
-Message-Id: <20230324144500.4216-1-jpiotrowski@microsoft.com>
+Subject: [RESEND PATCH v2] KVM: SVM: Flush Hyper-V TLB when required
+Date:   Fri, 24 Mar 2023 15:52:33 +0100
+Message-Id: <20230324145233.4585-1-jpiotrowski@linux.microsoft.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230324144500.4216-1-jpiotrowski@microsoft.com>
+References: <20230324144500.4216-1-jpiotrowski@microsoft.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-17.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -69,6 +79,9 @@ Link: https://lore.kernel.org/lkml/43980946-7bbf-dcef-7e40-af904c456250@linux.mi
 Suggested-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
 ---
+Resending because I accidentally used the wrong "From:" address and it bounced
+from some recipients.
+
 Changes since v1:
 - lookup enlightened_npt_tlb in vmcb to determine whether to do the
   flush
