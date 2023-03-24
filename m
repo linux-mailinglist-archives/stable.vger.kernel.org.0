@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F356C86AA
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 21:19:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5B86C86AC
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 21:19:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230075AbjCXUTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 16:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
+        id S231656AbjCXUT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 16:19:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbjCXUTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 16:19:54 -0400
+        with ESMTP id S231196AbjCXUTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 16:19:55 -0400
 Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA8190;
-        Fri, 24 Mar 2023 13:19:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA2DC90;
+        Fri, 24 Mar 2023 13:19:54 -0700 (PDT)
 Received: from fpc.intra.ispras.ru (unknown [10.10.165.3])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 911D3406BB55;
-        Fri, 24 Mar 2023 20:19:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 911D3406BB55
+        by mail.ispras.ru (Postfix) with ESMTPSA id 19C2940737A8;
+        Fri, 24 Mar 2023 20:19:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 19C2940737A8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-        s=default; t=1679689188;
-        bh=zj2rSWb1TY4pRH2CJrKhLgINCPnlbpAhrLKT1TLUAhQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hcxtWdhx9QiidP8iLi2CC1m18bl6BOovSkmUIT8s+0DIVcNslobCalobZxfLSInP6
-         M/9Qm6phVYeHiDOCIkiPNYeJaLgLQts43ruFoe5JlnjWF2adD/PtwDmOq1p3LNcYSj
-         IH0BGU7vpeahG8g+QJ7opf/y0H+aznlxGXUUiS6s=
+        s=default; t=1679689193;
+        bh=QcyGJ9bDGDc2f7NKHrplRfNToMDPqANILV6S6j5wK3c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jkOh+A5lL5MMspopUCRQe4gy24gOZk24gg0dOqh3J5xWupOWB5g5W9c1oJuframkb
+         CKRudsDaRF0CfMq3ON7Y0JvIEXBdfwB9HVNsnQEEGgEG67vZvVmpGQpAB+4xZhvKWw
+         iGKNsnXQA0M8+k9nR42NNtpaDCDs65R8gEyG3M6E=
 From:   Fedor Pchelkin <pchelkin@ispras.ru>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
@@ -32,11 +32,14 @@ Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
         Andreas Gruenbacher <agruenba@redhat.com>,
         cluster-devel@redhat.com, linux-kernel@vger.kernel.org,
         Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        lvc-project@linuxtesting.org
-Subject: [PATCH 4.19/5.4/5.10 0/1] gfs2: Always check inode size of inline inodes
-Date:   Fri, 24 Mar 2023 23:19:32 +0300
-Message-Id: <20230324201933.329885-1-pchelkin@ispras.ru>
+        lvc-project@linuxtesting.org,
+        syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com
+Subject: [PATCH 4.19/5.4/5.10 1/1] gfs2: Always check inode size of inline inodes
+Date:   Fri, 24 Mar 2023 23:19:33 +0300
+Message-Id: <20230324201933.329885-2-pchelkin@ispras.ru>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230324201933.329885-1-pchelkin@ispras.ru>
+References: <20230324201933.329885-1-pchelkin@ispras.ru>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
@@ -48,11 +51,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Kernel bug in iomap_read_inline_data() fixed by the following patch is hit
-on older stables 4.19/5.4/5.10.
+commit 70376c7ff31221f1d21db5611d8209e677781d3a upstream.
 
-The patch failed to be initially backported into stable branches older
-than 5.15 due to the upstream commit 7db354444ad8 ("gfs2: Cosmetic
-gfs2_dinode_{in,out} cleanup").
+Check if the inode size of stuffed (inline) inodes is within the allowed
+range when reading inodes from disk (gfs2_dinode_in()).  This prevents
+us from on-disk corruption.
 
-Now it can be cleanly applied to the 4.19/5.4/5.10 stable branches.
+The two checks in stuffed_readpage() and gfs2_unstuffer_page() that just
+truncate inline data to the maximum allowed size don't actually make
+sense, and they can be removed now as well.
+
+Reported-by: syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+[pchelkin@ispras.ru: adjust the inode variable inside gfs2_dinode_in with
+the format used before upstream commit 7db354444ad8 ("gfs2: Cosmetic
+gfs2_dinode_{in,out} cleanup")]
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+---
+ fs/gfs2/aops.c  | 2 --
+ fs/gfs2/bmap.c  | 3 ---
+ fs/gfs2/glops.c | 3 +++
+ 3 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/fs/gfs2/aops.c b/fs/gfs2/aops.c
+index 530659554870..a0430da033b3 100644
+--- a/fs/gfs2/aops.c
++++ b/fs/gfs2/aops.c
+@@ -451,8 +451,6 @@ static int stuffed_readpage(struct gfs2_inode *ip, struct page *page)
+ 		return error;
+ 
+ 	kaddr = kmap_atomic(page);
+-	if (dsize > gfs2_max_stuffed_size(ip))
+-		dsize = gfs2_max_stuffed_size(ip);
+ 	memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
+ 	memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
+ 	kunmap_atomic(kaddr);
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index b4fde3a8eeb4..eaee95d2ad14 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -69,9 +69,6 @@ static int gfs2_unstuffer_page(struct gfs2_inode *ip, struct buffer_head *dibh,
+ 		void *kaddr = kmap(page);
+ 		u64 dsize = i_size_read(inode);
+  
+-		if (dsize > gfs2_max_stuffed_size(ip))
+-			dsize = gfs2_max_stuffed_size(ip);
+-
+ 		memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
+ 		memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
+ 		kunmap(page);
+diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
+index bf539eab92c6..db28c240dae3 100644
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -454,6 +454,9 @@ static int gfs2_dinode_in(struct gfs2_inode *ip, const void *buf)
+ 	ip->i_depth = (u8)depth;
+ 	ip->i_entries = be32_to_cpu(str->di_entries);
+ 
++	if (gfs2_is_stuffed(ip) && ip->i_inode.i_size > gfs2_max_stuffed_size(ip))
++		goto corrupt;
++
+ 	if (S_ISREG(ip->i_inode.i_mode))
+ 		gfs2_set_aops(&ip->i_inode);
+ 
+-- 
+2.34.1
+
