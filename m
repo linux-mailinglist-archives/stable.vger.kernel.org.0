@@ -2,198 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A936C77F2
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 07:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 054AD6C7833
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 07:51:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbjCXGco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 02:32:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57832 "EHLO
+        id S231137AbjCXGv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 02:51:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbjCXGcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 02:32:43 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1045E19F1A;
-        Thu, 23 Mar 2023 23:32:41 -0700 (PDT)
-Received: from [192.168.10.39] (unknown [39.37.168.222])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: usama.anjum)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 9FA0E660310B;
-        Fri, 24 Mar 2023 06:32:33 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679639559;
-        bh=IMA5rGCkVAVmMkQFMSp4zzFkYv6syLIF9LAmjyndPbE=;
-        h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-        b=hdM8mvf1+XN0U8kmYynVlztFJRmNGyTmYHC8/v6zAF+VHcsOMQVlIR8U5RZbNJr+u
-         Vx4ZMLRnf0Z3+TRBnlrlsVQUdQ+e2QyA/Z1ELTRRUjTnnBBKkMwm90rDwgBoB9WOtN
-         3piW2bW93Jh0bxcegtwgyJiT9B6N17c+JiPElngLMkL4VYYTD5iqp2lPZ+v/Um2W1X
-         IyRdQ6ZVVNWUMpuDsUmklcliu+izZHUxqG6l7Qb1NjpyY0oA5OK31BWFJyc3bUiC8q
-         OG3E9oUTPlSh5YmAmF+djmZdct/7XU0l5NM36RxMzkWDwH2tbElKTEvbOrJtW3OryG
-         ZqFEMYkoUb7GQ==
-Message-ID: <a9277ba3-f963-4fe3-a06f-d76e5deccb3b@collabora.com>
-Date:   Fri, 24 Mar 2023 11:32:27 +0500
+        with ESMTP id S230369AbjCXGvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 02:51:55 -0400
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2069.outbound.protection.outlook.com [40.107.212.69])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA9922A1E
+        for <stable@vger.kernel.org>; Thu, 23 Mar 2023 23:51:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZRJu1jg1t9E2aaqPrtn/T8asbrM6Wnlwi4C5j7Tp+G2tFpmMpISPcE8bo2BYJBdTAvwUMU0bRawssCzQJEVmNz0rca8fhcIyHr3JCC9RxICMHC8rSTSOYln2OtKCv9QT3ILi8fUouv4ta1fMClFV6mVmNjL3rI5fuB9aPOmx8c4H/h9uPJN9S/bUXRkcUv2M6gsd6SbmQELgInaj8cmHX2OZcVDE3hdly38UD1+cIYxAotz0Sq6Bb5EhPwcNC+Og3xrud6/WOjwoZ0704uLH8HYQfNWBsDa2ksNUZ9jQhew2DhAv9sjqXkLyyv3dbbrP4cNCzPQmhrEy5R89Ye/v1g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oShPCNGnvc4da7nttgZfvq/X2Pa2K/YMXQ6J3k3+3Sw=;
+ b=bVpZanmxlLWYcM83/H+7/izsaMCs+U4pHBQxCUwX9N4HJzkEpsTybaB96y9HSP0t1P/y9FRZvfDlj15sYBjbhKQTPAzxnnxT9GKZG4wYZR1uJsOV7dkpGVTwq+6uqX7rpdQ7/j7GovPOk50kRzvrRgAwkJwh1CknxsS0nhc0KyFhY7xiSiPy0Xr63vHapuyZKQB1qgLB8QVIOZ8f+GFoc2goNEhzcjnHOMp/bFHz47wVVXthXZBKjIPMV92Vq1M6BO/M/ZMBTdHkR05xvJkKNWX7AwNRsan7EePz4XY3llMtu5bDlNfiFACN5BJHJ8OXBPj2edL0J6h6uW1M/XpgOA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oShPCNGnvc4da7nttgZfvq/X2Pa2K/YMXQ6J3k3+3Sw=;
+ b=K3Iwv3Huy5QpmiQAENIvDBnFaQfJ7rM1cyKbD6VD01O7yLvMSDuUxpCia57FS10E5gFRphkrTQ6onGmz9s+AnTBcPZtwaARDsiijLwjGvXObwvMgZ+0/QAoUFPTW44DPmYWGsQARln9eI75/r0mWIGSNOrda4WxzllnbeRjh/HA=
+Received: from MW4PR03CA0288.namprd03.prod.outlook.com (2603:10b6:303:b5::23)
+ by CH3PR12MB7570.namprd12.prod.outlook.com (2603:10b6:610:149::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.38; Fri, 24 Mar
+ 2023 06:51:50 +0000
+Received: from CO1NAM11FT021.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:b5:cafe::57) by MW4PR03CA0288.outlook.office365.com
+ (2603:10b6:303:b5::23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.39 via Frontend
+ Transport; Fri, 24 Mar 2023 06:51:50 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT021.mail.protection.outlook.com (10.13.175.51) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6222.22 via Frontend Transport; Fri, 24 Mar 2023 06:51:50 +0000
+Received: from localhost.localdomain (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 24 Mar
+ 2023 01:51:43 -0500
+From:   Qingqing Zhuo <qingqing.zhuo@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
+        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
+        <Aurabindo.Pillai@amd.com>, <qingqing.zhuo@amd.com>,
+        <roman.li@amd.com>, <wayne.lin@amd.com>, <stylon.wang@amd.com>,
+        <solomon.chiu@amd.com>, <pavle.kotarac@amd.com>,
+        <agustin.gutierrez@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        <stable@vger.kernel.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>
+Subject: [PATCH 01/19] drm/amd/display: Add NULL plane_state check for cursor disable logic
+Date:   Fri, 24 Mar 2023 02:50:53 -0400
+Message-ID: <20230324065111.2782-2-qingqing.zhuo@amd.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230324065111.2782-1-qingqing.zhuo@amd.com>
+References: <20230324065111.2782-1-qingqing.zhuo@amd.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.2
-Cc:     Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        linux-stable <stable@vger.kernel.org>,
-        David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] mm/hugetlb: Fix uffd wr-protection for CoW optimization
- path
-Content-Language: en-US
-To:     Peter Xu <peterx@redhat.com>
-References: <20230321191840.1897940-1-peterx@redhat.com>
- <44aae7fc-fb1f-b38e-bc17-504abf054e3f@redhat.com> <ZBoKod6+twRYvSYz@x1n>
- <f411b983-0c47-73f8-775b-928fcf61620a@collabora.com> <ZBzOqwF2wrHgBVZb@x1n>
-From:   Muhammad Usama Anjum <usama.anjum@collabora.com>
-In-Reply-To: <ZBzOqwF2wrHgBVZb@x1n>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT021:EE_|CH3PR12MB7570:EE_
+X-MS-Office365-Filtering-Correlation-Id: 801bede4-f4e3-48ff-75ef-08db2c343ead
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: i/W5rO0MM0rDyRNlYCzSz2sft3v4njwSQEw7xts01SigjOF/ILjr0cKhmG9ENbXDfLyP/wjpmPaw3kmcVRnM6nxMZfaiNsKcnms2YGk80FJokeafE6xL+F0u6iIZ69o66d3SPA2SbL2L2F6Gl/yFwRn9s/am/uej6DonDwJSCaRCOerOGQ+5gNaX8JZMvFGugZj89INpC7WBaxwsGVGSK+9yrI2whLNwDJhuHmTx/zUpN06OjOWs0AaDLPzoE0z1iboAOyy6jsF8TSAHhi+C/RBNSGu0lTjiU5fUX90hz5P/ZksUw4ekZ7ideG7nEVbdupEFoGxJsiIocy/4qb7fwjI32OWKm8guARvuIQEizhhP0/7hcHfYp6a/XtT3bdCp1iA9+JRpsLJ6aejc3LODT/acajAPh5wgclYfec5dpr+ySV11djnzSPmegJAwLT4HhCwRkzKW6imlaXZUW1JOYstH/C1IkjxzTJPzwhpgLHa8MTFP449BF442JYjXXimmyhsflIX9kgDvBYiJUlHpT267lamvDv9dlQqZ7CHf27q/tEnlHA46PnnI51OxL/4n7e9iCGWICrQjT7ECZKEZl78ycLTfD+aLaaw+lKiZqn7/TxG95bJk+v/xJlwK1DZoUCqZqqcXckc3B+PaYfcHQHND//X3vw95XHEvp08BboxeUnazIIRwvoY9fP4frAUX/BzBBad3spWDNiP3zTBmmCVM0e5u95aV9aDRvOXWA9U=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(136003)(396003)(376002)(346002)(39860400002)(451199018)(36840700001)(46966006)(40470700004)(356005)(336012)(83380400001)(2616005)(16526019)(186003)(26005)(478600001)(47076005)(6666004)(426003)(4326008)(6916009)(8676002)(316002)(54906003)(70586007)(70206006)(1076003)(41300700001)(2906002)(5660300002)(8936002)(81166007)(44832011)(82740400003)(36860700001)(40460700003)(40480700001)(86362001)(82310400005)(36756003)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Mar 2023 06:51:50.2659
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 801bede4-f4e3-48ff-75ef-08db2c343ead
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT021.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB7570
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/24/23 3:11 AM, Peter Xu wrote:
-> On Thu, Mar 23, 2023 at 08:33:07PM +0500, Muhammad Usama Anjum wrote:
->> Hi Peter,
->>
->> Sorry for late reply.
->>
->> On 3/22/23 12:50 AM, Peter Xu wrote:
->>> On Tue, Mar 21, 2023 at 08:36:35PM +0100, David Hildenbrand wrote:
->>>> On 21.03.23 20:18, Peter Xu wrote:
->>>>> This patch fixes an issue that a hugetlb uffd-wr-protected mapping can be
->>>>> writable even with uffd-wp bit set.  It only happens with all these
->>>>> conditions met: (1) hugetlb memory (2) private mapping (3) original mapping
->>>>> was missing, then (4) being wr-protected (IOW, pte marker installed).  Then
->>>>> write to the page to trigger.
->>>>>
->>>>> Userfaultfd-wp trap for hugetlb was implemented in hugetlb_fault() before
->>>>> even reaching hugetlb_wp() to avoid taking more locks that userfault won't
->>>>> need.  However there's one CoW optimization path for missing hugetlb page
->>>>> that can trigger hugetlb_wp() inside hugetlb_no_page(), that can bypass the
->>>>> userfaultfd-wp traps.
->>>>>
->>>>> A few ways to resolve this:
->>>>>
->>>>>    (1) Skip the CoW optimization for hugetlb private mapping, considering
->>>>>    that private mappings for hugetlb should be very rare, so it may not
->>>>>    really be helpful to major workloads.  The worst case is we only skip the
->>>>>    optimization if userfaultfd_wp(vma)==true, because uffd-wp needs another
->>>>>    fault anyway.
->>>>>
->>>>>    (2) Move the userfaultfd-wp handling for hugetlb from hugetlb_fault()
->>>>>    into hugetlb_wp().  The major cons is there're a bunch of locks taken
->>>>>    when calling hugetlb_wp(), and that will make the changeset unnecessarily
->>>>>    complicated due to the lock operations.
->>>>>
->>>>>    (3) Carry over uffd-wp bit in hugetlb_wp(), so it'll need to fault again
->>>>>    for uffd-wp privately mapped pages.
->>>>>
->>>>> This patch chose option (3) which contains the minimum changeset (simplest
->>>>> for backport) and also make sure hugetlb_wp() itself will start to be
->>>>> always safe with uffd-wp ptes even if called elsewhere in the future.
->>>>>
->>>>> This patch will be needed for v5.19+ hence copy stable.
->>>>>
->>>>> Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
->>>>> Cc: linux-stable <stable@vger.kernel.org>
->>>>> Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
->>>>> Signed-off-by: Peter Xu <peterx@redhat.com>
->>>>> ---
->>>>>   mm/hugetlb.c | 8 +++++---
->>>>>   1 file changed, 5 insertions(+), 3 deletions(-)
->>>>>
->>>>> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
->>>>> index 8bfd07f4c143..22337b191eae 100644
->>>>> --- a/mm/hugetlb.c
->>>>> +++ b/mm/hugetlb.c
->>>>> @@ -5478,7 +5478,7 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
->>>>>   		       struct folio *pagecache_folio, spinlock_t *ptl)
->>>>>   {
->>>>>   	const bool unshare = flags & FAULT_FLAG_UNSHARE;
->>>>> -	pte_t pte;
->>>>> +	pte_t pte, newpte;
->>>>>   	struct hstate *h = hstate_vma(vma);
->>>>>   	struct page *old_page;
->>>>>   	struct folio *new_folio;
->>>>> @@ -5622,8 +5622,10 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
->>>>>   		mmu_notifier_invalidate_range(mm, range.start, range.end);
->>>>>   		page_remove_rmap(old_page, vma, true);
->>>>>   		hugepage_add_new_anon_rmap(new_folio, vma, haddr);
->>>>> -		set_huge_pte_at(mm, haddr, ptep,
->>>>> -				make_huge_pte(vma, &new_folio->page, !unshare));
->>>>> +		newpte = make_huge_pte(vma, &new_folio->page, !unshare);
->>>>> +		if (huge_pte_uffd_wp(pte))
->>>>> +			newpte = huge_pte_mkuffd_wp(newpte);
->>>>> +		set_huge_pte_at(mm, haddr, ptep, newpte);
->>>>>   		folio_set_hugetlb_migratable(new_folio);
->>>>>   		/* Make the old page be freed below */
->>>>>   		new_folio = page_folio(old_page);
->>>>
->>>> Looks correct to me. Do we have a reproducer?
->>>
->>> I used a reproducer for the async mode I wrote (patch 2 attached, need to
->>> change to VM_PRIVATE):
->>>
->>> https://lore.kernel.org/all/ZBNr4nohj%2FTw4Zhw@x1n/
->>>
->>> I don't think kernel kselftest can trigger it because we don't do strict
->>> checks yet with uffd-wp bits.  I've already started looking into cleanup
->>> the test cases and I do plan to add new tests to cover this.
->>>
->>> Meanwhile, let's also wait for an ack from Muhammad.  Even though the async
->>> mode is not part of the code base, it'll be a good test for verifying every
->>> single uffd-wp bit being set or cleared as expected.
->> I've tested by applying this patch. But the bug is still there. Just like
->> Peter has mentioned, we are using our in progress patches related to
->> pagemap_scan ioctl and userfaultd wp async patches to reproduce it.
->>
->> To reproduce please build kernel and run pagemap_ioctl test in mm in
->> hugetlb_mem_reproducer branch:
->> https://gitlab.collabora.com/usama.anjum/linux-mainline/-/tree/hugetlb_mem_reproducer
->>
->> In case you have any question on how to reproduce, please let me know. I'll
->> try to provide a cleaner alternative.
-> 
-> Hmm, I think my current fix is incomplete if not wrong.  The root cause
-> should still be valid, however I overlooked another path:
-> 
-> 	if (page_mapcount(old_page) == 1 && PageAnon(old_page)) {
-> 		if (!PageAnonExclusive(old_page))
-> 			page_move_anon_rmap(old_page, vma);
-> 		if (likely(!unshare))
-> 			set_huge_ptep_writable(vma, haddr, ptep);
-> 
-> 		delayacct_wpcopy_end();
-> 		return 0;
-> 	}
-> 
-> We should bail out early in this path, and it'll be even easier we always
-> bail out hugetlb_wp() as long as uffd-wp is detected because userfault
-> should always be handled before any decision to CoW.
-> 
-> v2 attached.. Please give it another shot.
-This attached v2 works. Please add:
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-Tested-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+[Why]
+While scanning the top_pipe connections we can run into a case where
+the bottom pipe is still connected to a top_pipe but with a NULL
+plane_state.
 
-> 
-> Thanks,
-> 
+[How]
+Treat a NULL plane_state the same as the plane being invisible for
+pipe cursor disable logic.
 
+Cc: stable@vger.kernel.org
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+---
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 7f9cceb49f4e..46ca88741cb8 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -3385,7 +3385,9 @@ static bool dcn10_can_pipe_disable_cursor(struct pipe_ctx *pipe_ctx)
+ 	for (test_pipe = pipe_ctx->top_pipe; test_pipe;
+ 	     test_pipe = test_pipe->top_pipe) {
+ 		// Skip invisible layer and pipe-split plane on same layer
+-		if (!test_pipe->plane_state->visible || test_pipe->plane_state->layer_index == cur_layer)
++		if (!test_pipe->plane_state ||
++		    !test_pipe->plane_state->visible ||
++		    test_pipe->plane_state->layer_index == cur_layer)
+ 			continue;
+ 
+ 		r2 = test_pipe->plane_res.scl_data.recout;
 -- 
-BR,
-Muhammad Usama Anjum
+2.34.1
+
