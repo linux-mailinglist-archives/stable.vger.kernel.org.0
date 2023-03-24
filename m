@@ -2,62 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0D66C8594
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 20:06:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A25426C85F8
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 20:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbjCXTGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 15:06:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
+        id S229900AbjCXT2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 15:28:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230079AbjCXTGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 15:06:09 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5224E1A642
-        for <stable@vger.kernel.org>; Fri, 24 Mar 2023 12:05:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679684729; x=1711220729;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=X9n+yet3Mi5pd0MngLxWhEELp+DUWqRTDu9B5UBwZKc=;
-  b=TvKD7vlV4WRV/a+qz4dACLIATghGdGEFyR0g7YKe0hTjWZqx/x4N5zLO
-   VuCOPLES14AYPXhlkFkVd7J9uMm6fwltEx5XslPZT2wUrU0zgJOJBGQ0F
-   AlFWzotTukQwIQRpbTVHgrIYUfBfKcb77aSjV0Q8LEK6VjZ+zhec+0xad
-   qMueR2zr7ZI/EAzhamDk6zY4+0BuZH1DSK0rb6m3uZ98HLJqYmvEg7hXP
-   qj2mRAw2beYEMdeCLjOP3XTKWhTycK/ORa9zn/yFZSDdI+HuH++IMFHpj
-   Lr5RIICjPQ7Y3V6rr+x6KQ+Zx7Z+lpNiMJumM6UsIdWt6irhWUIsMIVSF
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10659"; a="338585083"
-X-IronPort-AV: E=Sophos;i="5.98,288,1673942400"; 
-   d="scan'208";a="338585083"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2023 12:05:27 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10659"; a="632936329"
-X-IronPort-AV: E=Sophos;i="5.98,288,1673942400"; 
-   d="scan'208";a="632936329"
-Received: from kvnguye3-mobl1.amr.corp.intel.com (HELO [10.212.145.31]) ([10.212.145.31])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2023 12:05:26 -0700
-Message-ID: <060ebffd-6ecd-f2f7-6fdf-5e7b8c544d0a@linux.intel.com>
-Date:   Fri, 24 Mar 2023 14:05:25 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.8.0
-Subject: Re: [PATCH] ASoC: hdac_hdmi: use set_stream() instead of
- set_tdm_slots()
-To:     Jason Montleon <jmontleo@redhat.com>, alsa-devel@alsa-project.org,
-        regressions@lists.linux.dev, yung-chuan.liao@linux.intel.com,
-        broonie@kernel.org, tiwai@suse.com, bagasdotme@gmail.com
-Cc:     stable@vger.kernel.org
-References: <20230324170711.2526-1-jmontleo@redhat.com>
-Content-Language: en-US
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-In-Reply-To: <20230324170711.2526-1-jmontleo@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+        with ESMTP id S231433AbjCXT2G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 15:28:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4803A1BF;
+        Fri, 24 Mar 2023 12:27:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D946862C6A;
+        Fri, 24 Mar 2023 19:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B3B2C433D2;
+        Fri, 24 Mar 2023 19:27:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1679686077;
+        bh=NYA/ypeeAcEOPXKAoqmtxh5c/9Q4S1tB4PaXSKuTbuY=;
+        h=Date:To:From:Subject:From;
+        b=r+I3FpSuY+AWzT20DtXLJBpJpSvIv1GzFMWGA4fRWINSS4B54oANUvcu3W2zi72UM
+         FocGSjjWjdXXgSWa42ekaaaJSTfYVG+Alua0TnQ0WZZyD1JZyejDFVQP3smj5Y40CE
+         FqUbOiNQLDLRNFCCBojygOcqnyQaLyaQYKCUWaS0=
+Date:   Fri, 24 Mar 2023 12:27:56 -0700
+To:     mm-commits@vger.kernel.org, usama.anjum@collabora.com,
+        stable@vger.kernel.org, peterx@redhat.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230324192757.3B3B2C433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -65,16 +45,75 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch titled
+     Subject: mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch
 
-On 3/24/23 12:07, Jason Montleon wrote:
-> hdac_hdmi was not updated to use set_stream() instead of set_tdm_slots()
-> in the original commit so HDMI no longer produces audio.
-> 
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/regressions/CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com/
-> Fixes: 636110411ca7 ("ASoC: Intel/SOF: use set_stream() instead of set_tdm_slots() for HDAudio")
-> Signed-off-by: Jason Montleon <jmontleo@redhat.com>
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch
 
-Good catch indeed. Thanks Jason!
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3
+Date: Fri, 24 Mar 2023 10:26:20 -0400
+
+Link: https://lkml.kernel.org/r/20230324142620.2344140-1-peterx@redhat.com
+Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/hugetlb.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3
++++ a/mm/hugetlb.c
+@@ -5491,11 +5491,11 @@ static vm_fault_t hugetlb_wp(struct mm_s
+ 	 * Never handle CoW for uffd-wp protected pages.  It should be only
+ 	 * handled when the uffd-wp protection is removed.
+ 	 *
+-	 * Note that only the CoW optimization path can trigger this and
+-	 * got skipped, because hugetlb_fault() will always resolve uffd-wp
+-	 * bit first.
++	 * Note that only the CoW optimization path (in hugetlb_no_page())
++	 * can trigger this, because hugetlb_fault() will always resolve
++	 * uffd-wp bit first.
+ 	 */
+-	if (huge_pte_uffd_wp(pte))
++	if (!unshare && huge_pte_uffd_wp(pte))
+ 		return 0;
+ 
+ 	/*
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path.patch
+mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v2.patch
+mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch
+mm-khugepaged-alloc_charge_hpage-take-care-of-mem-charge-errors.patch
+mm-khugepaged-cleanup-memcg-uncharge-for-failure-path.patch
+mm-uffd-uffd_feature_wp_unpopulated.patch
+mm-uffd-uffd_feature_wp_unpopulated-fix.patch
+selftests-mm-smoke-test-uffd_feature_wp_unpopulated.patch
+mm-thp-rename-transparent_hugepage_never_dax-to-_unsupported.patch
+mm-thp-rename-transparent_hugepage_never_dax-to-_unsupported-fix.patch
+
