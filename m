@@ -2,48 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 282E76C8215
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 17:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 915666C822C
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 17:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229468AbjCXQES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 12:04:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35548 "EHLO
+        id S229917AbjCXQNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 12:13:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229864AbjCXQES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 12:04:18 -0400
-Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F8149D6
-        for <stable@vger.kernel.org>; Fri, 24 Mar 2023 09:04:17 -0700 (PDT)
-Received: from [213.219.167.32] (helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1pfjtj-0007wN-3A; Fri, 24 Mar 2023 17:04:11 +0100
-Received: from ben by deadeye with local (Exim 4.96)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1pfjth-006hhE-2P;
-        Fri, 24 Mar 2023 17:04:09 +0100
-Message-ID: <b646aaccc85b06c63c824bfd5c5c2249d8ce1de0.camel@decadent.org.uk>
-Subject: Re: [PATCH 4.19 161/252] x86/microcode/amd: Remove
- load_microcode_amd()s bsp parameter
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Borislav Petkov (AMD)" <bp@alien8.de>, patches@lists.linux.dev,
-        stable <stable@vger.kernel.org>
-Date:   Fri, 24 Mar 2023 17:04:05 +0100
-In-Reply-To: <ZBhb21/xkOC1dyIH@kroah.com>
-References: <20230310133718.803482157@linuxfoundation.org>
-         <20230310133723.713256658@linuxfoundation.org>
-         <e2af9b33fb0f6e22146388a186cf0152abbac629.camel@decadent.org.uk>
-         <ZBhb21/xkOC1dyIH@kroah.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-ueSA0XmjEF5wmV+RdF4D"
-User-Agent: Evolution 3.46.4-1 
+        with ESMTP id S229441AbjCXQNX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 12:13:23 -0400
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4F565BA;
+        Fri, 24 Mar 2023 09:13:21 -0700 (PDT)
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32OFsSFf020593;
+        Fri, 24 Mar 2023 16:13:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=qcppdkim1;
+ bh=Dak5fQL83ddtMorWQzb+nyjRnP7QPKmm1aK9TibiOds=;
+ b=B79NgJrmP6IchXQB3CSVuhlltoGY8v1G6pcTXyyxat5LILL9lw0cXq3sReTwsOkzCnqL
+ BdgN82qZSciUyeoly/Sbp9/GFQg7ok5LBsscZcX7/xX3lwhgqa8i6DRpYKVeXy5pVX7k
+ xde+AkdltuotkHw4epq2Q73hnyGgg4xTs+rElRyhYw+FgK5cboA3BxPjRnI7brNnURbF
+ 3lcJQl4xpkpoT9SThcVj28gBiQ+zOGOAd0p8q1XeP1A7iGu4xDm1aAHEplpelcm0d8W8
+ WeO8gnuyW9f2beZmt5fu7sFQvTkMnvDRm/JbjDAPBGzysOrhF+M3iq6nNSNhUn5o613H SA== 
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3phev481wb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Mar 2023 16:13:17 +0000
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+        by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 32OGDGVl031843
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Mar 2023 16:13:16 GMT
+Received: from jhugo-lnx.qualcomm.com (10.80.80.8) by
+ nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.41; Fri, 24 Mar 2023 09:13:16 -0700
+From:   Jeffrey Hugo <quic_jhugo@quicinc.com>
+To:     <mani@kernel.org>
+CC:     <mhi@lists.linux.dev>, <linux-arm-msm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Jeffrey Hugo <quic_jhugo@quicinc.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] bus: mhi: host: Range check CHDBOFF and ERDBOFF
+Date:   Fri, 24 Mar 2023 10:13:04 -0600
+Message-ID: <1679674384-27209-1-git-send-email-quic_jhugo@quicinc.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 213.219.167.32
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
-X-Spam-Status: No, score=0.0 required=5.0 tests=SPF_HELO_NONE,SPF_PASS
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: ZjDPMGJx0U0YDY6wT8kJ7ZeYuhhFlbs3
+X-Proofpoint-GUID: ZjDPMGJx0U0YDY6wT8kJ7ZeYuhhFlbs3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-24_10,2023-03-24_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
+ phishscore=0 priorityscore=1501 mlxlogscore=999 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 mlxscore=0 adultscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2303240128
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,60 +74,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+If the value read from the CHDBOFF and ERDBOFF registers is outside the
+range of the MHI register space then an invalid address might be computed
+which later causes a kernel panic.  Range check the read value to prevent
+a crash due to bad data from the device.
 
---=-ueSA0XmjEF5wmV+RdF4D
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Fixes: 6cd330ae76ff ("bus: mhi: core: Add support for ringing channel/event ring doorbells")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Reviewed-by: Pranjal Ramajor Asha Kanojiya <quic_pkanojiy@quicinc.com>
+---
 
-On Mon, 2023-03-20 at 14:12 +0100, Greg Kroah-Hartman wrote:
-> On Sat, Mar 18, 2023 at 02:49:53AM +0100, Ben Hutchings wrote:
-> > On Fri, 2023-03-10 at 14:38 +0100, Greg Kroah-Hartman wrote:
-> > > From: Borislav Petkov (AMD) <bp@alien8.de>
-> > >=20
-> > > commit 2355370cd941cbb20882cc3f34460f9f2b8f9a18 upstream.
-> > >=20
-> > > It is always the BSP.
-> > >=20
-> > > No functional changes.
-> > >=20
-> >=20
-> > Does this not depend on commit 2071c0aeda22 "x86/microcode: Simplify
-> > init path even more"?  That hasn't been backported to any stable
-> > branches.
->=20
-> It didn't seem to need it to at least build properly.  And it doesn't
-> apply to the stable branches, so are you sure it's needed?
+v2:
+-CC stable
+-Use ERANGE for the error code
 
-This commit message says that load_microcode_amd() is always called
-with bsp=3Dtrue.  That doesn't seem to have been true before commit
-2071c0aeda22, though I haven't tested it.
+ drivers/bus/mhi/host/init.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-Ben.
+diff --git a/drivers/bus/mhi/host/init.c b/drivers/bus/mhi/host/init.c
+index 3d779ee..b46a082 100644
+--- a/drivers/bus/mhi/host/init.c
++++ b/drivers/bus/mhi/host/init.c
+@@ -516,6 +516,12 @@ int mhi_init_mmio(struct mhi_controller *mhi_cntrl)
+ 		return -EIO;
+ 	}
+ 
++	if (val >= mhi_cntrl->reg_len - (8 * MHI_DEV_WAKE_DB)) {
++		dev_err(dev, "CHDB offset: 0x%x is out of range: 0x%zx\n",
++			val, mhi_cntrl->reg_len - (8 * MHI_DEV_WAKE_DB));
++		return -ERANGE;
++	}
++
+ 	/* Setup wake db */
+ 	mhi_cntrl->wake_db = base + val + (8 * MHI_DEV_WAKE_DB);
+ 	mhi_cntrl->wake_set = false;
+@@ -532,6 +538,12 @@ int mhi_init_mmio(struct mhi_controller *mhi_cntrl)
+ 		return -EIO;
+ 	}
+ 
++	if (val >= mhi_cntrl->reg_len - (8 * mhi_cntrl->total_ev_rings)) {
++		dev_err(dev, "ERDB offset: 0x%x is out of range: 0x%zx\n",
++			val, mhi_cntrl->reg_len - (8 * mhi_cntrl->total_ev_rings));
++		return -ERANGE;
++	}
++
+ 	/* Setup event db address for each ev_ring */
+ 	mhi_event = mhi_cntrl->mhi_event;
+ 	for (i = 0; i < mhi_cntrl->total_ev_rings; i++, val += 8, mhi_event++) {
+-- 
+2.7.4
 
---=20
-Ben Hutchings
-Usenet is essentially a HUGE group of people passing notes in class.
-                 - Rachel Kadel, `A Quick Guide to Newsgroup Etiquette'
-
---=-ueSA0XmjEF5wmV+RdF4D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmQdyfUACgkQ57/I7JWG
-EQmVFQ/+LphgpHWx619d4sYkxJa3dPtWckBWaMVSRtKofBc90Wl4c91uXo13N7pe
-SmeClsvobLsnmDX46542DW1JJx3L0KFlNXBPC8+3PnjOVfyDYdpKmdcqUB/Ht0TN
-Fpv7fnYYcHxriopb/OOXQPcpLZAQ2kPP4RakVwgvcmG119IQOE8dE/HXuiw0ytO3
-rAStqlACcoudlRAcNh5VbZSTolXr3CG+3T+GxCl5ZM1bZb6KQ7YHPCzUir44AVXe
-t5OM6WjQ1weaoWNPdSo0bydkqkHIUOktNRPoBl5WyNdeguFAbLEAjLDfgahb6Iss
-hqjiMr5/QGw3uymagMinITZSqV+QKfMf24M1izjgzb94T2cROx3wcg91eP4nt+Vx
-5DP0SWqrwG4Skqn0B14Fg2AJtbDaFsM1nJoc9NdXF4kmWPMyh2sMYv3lWTJ6/Gk8
-A+ebP7xe0sDbrfJ5IMX9NLg8impMknt379PIzf9xKYWFmJU/QqWFm4hU54jSzV43
-2I+a6XJVzIXLssKL3lKGpngsi/2dxPR7Byv1MWrOQ/4oIzjlrp/XWsTdMmO3KBHd
-M0LHxUOrmhBDQjOXgLbjMG82Jmn/OA0lvaCRQNnQQRN7Cx/zNtAcjg37yzakO5zL
-ty/9TzdpKgC6Zf/F8FiWlPWrDocGTgRPMr2wFoPK4uAu+R/J4bA=
-=IAmY
------END PGP SIGNATURE-----
-
---=-ueSA0XmjEF5wmV+RdF4D--
