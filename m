@@ -2,118 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A25426C85F8
-	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 20:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B74CD6C8692
+	for <lists+stable@lfdr.de>; Fri, 24 Mar 2023 21:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229900AbjCXT2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Mar 2023 15:28:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52686 "EHLO
+        id S230088AbjCXUMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Mar 2023 16:12:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbjCXT2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 15:28:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4803A1BF;
-        Fri, 24 Mar 2023 12:27:58 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D946862C6A;
-        Fri, 24 Mar 2023 19:27:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B3B2C433D2;
-        Fri, 24 Mar 2023 19:27:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1679686077;
-        bh=NYA/ypeeAcEOPXKAoqmtxh5c/9Q4S1tB4PaXSKuTbuY=;
-        h=Date:To:From:Subject:From;
-        b=r+I3FpSuY+AWzT20DtXLJBpJpSvIv1GzFMWGA4fRWINSS4B54oANUvcu3W2zi72UM
-         FocGSjjWjdXXgSWa42ekaaaJSTfYVG+Alua0TnQ0WZZyD1JZyejDFVQP3smj5Y40CE
-         FqUbOiNQLDLRNFCCBojygOcqnyQaLyaQYKCUWaS0=
-Date:   Fri, 24 Mar 2023 12:27:56 -0700
-To:     mm-commits@vger.kernel.org, usama.anjum@collabora.com,
-        stable@vger.kernel.org, peterx@redhat.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230324192757.3B3B2C433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        with ESMTP id S231501AbjCXUMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Mar 2023 16:12:15 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25D719102;
+        Fri, 24 Mar 2023 13:12:13 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id bt19so2012876pfb.3;
+        Fri, 24 Mar 2023 13:12:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679688733;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yaavObOWzHRvJy2JM91YkUKlJ/WIEwIWML4qoWi7FEI=;
+        b=orIdYEplRNwQiKg7avw+Yw1CMIHIbZqmvuxpyoAwqC2WiYOiJrPLGwfsIodVwaeZ4F
+         VxUeYFTWvu7hP3fFnKo7IkHvM2R7tkuR5C3R7VgnvN/iOhRWGqtbiGB5W4kwJZKoNW8s
+         uhqy3XaUTZO8Wj+N8GHb3QHVrKiyLqBLJRIe+1nTPWEa/sJRitphHBoKo7FBnHIKjrZv
+         amREXR7mFpgtqoGF16N7bdt9TTVG4Qx3braoxn5Yfk7X8lvTdzf2a+k9XwTGp6NrjSf4
+         PZECsxjwIOrVgM+eIcjFhMjJV18X9jkMTwpXzSqYaut+JWwwSkCmvtQvjrL9xxRU1whD
+         5iKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679688733;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yaavObOWzHRvJy2JM91YkUKlJ/WIEwIWML4qoWi7FEI=;
+        b=XvJXOf82UA39VVEirtiPtyLWamUqvETBe3OeyfD8FFoKcm/7VYKKqs23Xkx9lFNG81
+         YHs2D0VWqb2+wH3IcUkXnLobUkOqUcKgp238aU6peF+Vg4ssh585T+JEU5ZSKdRhpxV1
+         wUvBN8RjXWsl8rOjeYZYOhoI4zbtYBxoBsp224r3tbgn3kZHvbIa8PxY8dUK0Opn2b3Q
+         R1eR+83+IY8bWcRTicgyt6lZSebfZXMUfaclOmtF/NN07rZQ/zYEbmcPeQuLyV6x7v6p
+         mjIYz0PlKj1KPN90BZPu/rZlj6bYb1bBwyizaDFmtPUtndbQeDrqMtwft9t882eDaj+V
+         zxNA==
+X-Gm-Message-State: AAQBX9cCeyuNqM2RpjTCluJvKVliAlaKVadAPcJDGliDif8IVADBEfjv
+        wxzRwwDucOfX5YqcRege8uvGHFWbngBx6Qmwt9A=
+X-Google-Smtp-Source: AKy350bmLPJFtuX3lJO6ZUzJk8S0hGYzGagCcVbStVFTm0oD36plkeQv3bwT0ZDg0yEKHa7Y46o/Pio3ZO4D1PeoAzM=
+X-Received: by 2002:a05:6a00:1344:b0:625:a545:3292 with SMTP id
+ k4-20020a056a00134400b00625a5453292mr2245607pfu.0.1679688733556; Fri, 24 Mar
+ 2023 13:12:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220203182641.824731-1-shy828301@gmail.com> <132ba4a4-3b1d-329d-1db4-f102eea2fd08@suse.cz>
+ <9ba70a5e-4e12-0e9f-a6a4-d955bf25d0fe@redhat.com> <64ec7939-0733-7925-0ec0-d333e62c5f21@suse.cz>
+ <CAHbLzkoZctsJf92Lw3wKMuSqT7-aje0SiAjc6JVW5Z3bNS1JNg@mail.gmail.com> <efab25ef-c29c-3671-5f26-060bba76d481@suse.cz>
+In-Reply-To: <efab25ef-c29c-3671-5f26-060bba76d481@suse.cz>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Fri, 24 Mar 2023 13:12:02 -0700
+Message-ID: <CAHbLzkomXCwabFrNaNyuGBozmindHqVD0ki4n75XJ2V8Uw=9rw@mail.gmail.com>
+Subject: Re: [v4 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+To:     Vlastimil Babka <vbabka@suse.cz>
+Cc:     David Hildenbrand <david@redhat.com>,
+        kirill.shutemov@linux.intel.com, jannh@google.com,
+        willy@infradead.org, akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Mar 24, 2023 at 4:25=E2=80=AFAM Vlastimil Babka <vbabka@suse.cz> wr=
+ote:
+>
+> On 3/23/23 21:45, Yang Shi wrote:
+> > On Thu, Mar 23, 2023 at 3:11=E2=80=AFAM Vlastimil Babka <vbabka@suse.cz=
+> wrote:
+> >
+> > Out of curiosity, is there any public link for this CVE? Google search
+> > can't find it.
+>
+> Only this one is live so far, AFAIK
+>
+> https://bugzilla.redhat.com/show_bug.cgi?id=3D2180936
 
-The patch titled
-     Subject: mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch
+Thank you.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3
-Date: Fri, 24 Mar 2023 10:26:20 -0400
-
-Link: https://lkml.kernel.org/r/20230324142620.2344140-1-peterx@redhat.com
-Reported-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Fixes: 166f3ecc0daf ("mm/hugetlb: hook page faults for uffd write protection")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3
-+++ a/mm/hugetlb.c
-@@ -5491,11 +5491,11 @@ static vm_fault_t hugetlb_wp(struct mm_s
- 	 * Never handle CoW for uffd-wp protected pages.  It should be only
- 	 * handled when the uffd-wp protection is removed.
- 	 *
--	 * Note that only the CoW optimization path can trigger this and
--	 * got skipped, because hugetlb_fault() will always resolve uffd-wp
--	 * bit first.
-+	 * Note that only the CoW optimization path (in hugetlb_no_page())
-+	 * can trigger this, because hugetlb_fault() will always resolve
-+	 * uffd-wp bit first.
- 	 */
--	if (huge_pte_uffd_wp(pte))
-+	if (!unshare && huge_pte_uffd_wp(pte))
- 		return 0;
- 
- 	/*
-_
-
-Patches currently in -mm which might be from peterx@redhat.com are
-
-mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path.patch
-mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v2.patch
-mm-hugetlb-fix-uffd-wr-protection-for-cow-optimization-path-v3.patch
-mm-khugepaged-alloc_charge_hpage-take-care-of-mem-charge-errors.patch
-mm-khugepaged-cleanup-memcg-uncharge-for-failure-path.patch
-mm-uffd-uffd_feature_wp_unpopulated.patch
-mm-uffd-uffd_feature_wp_unpopulated-fix.patch
-selftests-mm-smoke-test-uffd_feature_wp_unpopulated.patch
-mm-thp-rename-transparent_hugepage_never_dax-to-_unsupported.patch
-mm-thp-rename-transparent_hugepage_never_dax-to-_unsupported-fix.patch
-
+>
+> >>
+> >> That's good to know so at least my bogus mail was useful for that, tha=
+nks!
+>
