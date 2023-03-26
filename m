@@ -2,121 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2DF6C9495
-	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 15:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D406C95C0
+	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 16:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229763AbjCZNrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Mar 2023 09:47:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47302 "EHLO
+        id S231987AbjCZOrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Mar 2023 10:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229573AbjCZNrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 09:47:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456657689;
-        Sun, 26 Mar 2023 06:47:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 52255CE0EB3;
-        Sun, 26 Mar 2023 13:47:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C6DC433D2;
-        Sun, 26 Mar 2023 13:47:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679838437;
-        bh=s2QYAdjbUYQBkX1WyFcFHz0Vhba1CYaExhV8K6Xm6iE=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To:From;
-        b=WlczRvY58+j7UqiQ0n27gc7fKfvprvdjanglAmNZrCG/VjSo5ZpvNgsN9mKbFRbGu
-         M3cvoO1b6F7UzA0QCXq0SylaVtJKLGzBXeSa04nYzRWSyQdGVUwnxj553nXE2dL3Rb
-         An34Z7ymKIhJi1n2WhwLZ6NkNb/tGxIPotAx+ngpi/NzuwIHblXvZ4bMH9ARUeM3dE
-         qQ6WZ4y08cRTVb7xVoK2oyl/DHDQ2WsnuXMysrZFqB4Wm9r8vA+qzj4HFkrxU2KlPS
-         xtmkYzV2gtbY9dFGHUC2Yn1/HjgdnjjA67jOlhm7D40Jb1Y5djR5zVuiEOfPNQvcWn
-         SmEaSnCWmiM3Q==
-Message-ID: <8aea02b0-86f9-539a-02e9-27b381e68b66@kernel.org>
-Date:   Sun, 26 Mar 2023 21:47:14 +0800
+        with ESMTP id S232020AbjCZOrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 10:47:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05549468E
+        for <stable@vger.kernel.org>; Sun, 26 Mar 2023 07:46:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679841987;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=NCwOxvpkJi/AFwFKPQO+eqD2wLsuChYdcKGvoGw4Tsg=;
+        b=Lg5t5cvTOKmuZ2hG0tMHvhn51sbYjW7adE2UzK+wf0mjSHiBK1ul87WnTra8Ig+B4bAgTe
+        +Q9xM0OjFjqqPWDRNHDP9idVHf15+lBIJuklcDmvmuzZCyXIO1TSIZJIH4UusY6RzjJEVZ
+        jYX5cQycnhDqy61yaCBSx8nLzmSXh0k=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-14-ELwHKYbMNqubAVZWVCNj4Q-1; Sun, 26 Mar 2023 10:46:26 -0400
+X-MC-Unique: ELwHKYbMNqubAVZWVCNj4Q-1
+Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-ae8fa653140so51631276.1
+        for <stable@vger.kernel.org>; Sun, 26 Mar 2023 07:46:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679841985;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NCwOxvpkJi/AFwFKPQO+eqD2wLsuChYdcKGvoGw4Tsg=;
+        b=cbKEiZwvc0kNkESGhaEm7D9Ab9+uA1Ifv1qrbt6J44KPaCX5mZ6K4tsJbcnaZ5rGSb
+         48p7tb94CeR+QqegzFkGvEGhbPLMKru7ZlGk2VD5890o/kT/vRoUZC4wAKguPe6654tJ
+         Gl0oQhY/p/+1s+4X+F8OMtyeS4sg/CmDLW9dPckhMB63iWBNiJQCLxebo5rEBjyJoMs2
+         lvX//g+XTyDZmi2nR8AbucBtTMmJQ/CirVzOGO6uopx92n/ePnr3nR+bu/JOIq7L2JP2
+         aXA8ez3GVZpmtKs453gK6+Vtp0i7J3GIHDE+uqQvaXj9fT+fO8qhULMUr3X/tMQPy5Ij
+         3iXA==
+X-Gm-Message-State: AAQBX9fLzLw0EUDDX13uRfdkykWULV7Xb4dOzSDI2xr+n7Ra4KOLw+0x
+        2GuoP4TUkF4UYGWi40QEZrA/z+elpQncrFttqlG3rdoV6hgyXLFeCsZOYByq6OMJDJ1S6T8X2Fs
+        Z3RNMsY7OBMRHL6BM
+X-Received: by 2002:a25:aca5:0:b0:b74:4bff:53fa with SMTP id x37-20020a25aca5000000b00b744bff53famr7539674ybi.6.1679841985576;
+        Sun, 26 Mar 2023 07:46:25 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YwUtNBIndgSxYzqwugmAmBRIBhZIM5sj8jN4/1PlF/IgGjICiMvRd09ICIR43QOI24xOaQ8A==
+X-Received: by 2002:a25:aca5:0:b0:b74:4bff:53fa with SMTP id x37-20020a25aca5000000b00b744bff53famr7539662ybi.6.1679841985233;
+        Sun, 26 Mar 2023 07:46:25 -0700 (PDT)
+Received: from x1n (bras-base-aurron9127w-grc-40-70-52-229-124.dsl.bell.ca. [70.52.229.124])
+        by smtp.gmail.com with ESMTPSA id v130-20020a252f88000000b00b7767ca7490sm1755262ybv.45.2023.03.26.07.46.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Mar 2023 07:46:24 -0700 (PDT)
+Date:   Sun, 26 Mar 2023 10:46:22 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        linux-stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] mm/hugetlb: Fix uffd wr-protection for CoW
+ optimization path
+Message-ID: <ZCBavqZE2cyVOzaW@x1n>
+References: <20230324142620.2344140-1-peterx@redhat.com>
+ <20230324222707.GA3046@monkey>
+ <8a06be33-1b44-b992-f80a-8764810ebf3f@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Content-Language: en-US
-To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     stable@vger.kernel.org
-References: <20230323213919.1876157-1-jaegeuk@kernel.org>
-From:   Chao Yu <chao@kernel.org>
-Subject: Re: [f2fs-dev] [PATCH] f2fs: get out of a repeat loop when getting a
- locked data page
-In-Reply-To: <20230323213919.1876157-1-jaegeuk@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <8a06be33-1b44-b992-f80a-8764810ebf3f@redhat.com>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/3/24 5:39, Jaegeuk Kim wrote:
-> https://bugzilla.kernel.org/show_bug.cgi?id=216050
+On Fri, Mar 24, 2023 at 11:36:53PM +0100, David Hildenbrand wrote:
+> > > @@ -5487,6 +5487,17 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
+> > >   	unsigned long haddr = address & huge_page_mask(h);
+> > >   	struct mmu_notifier_range range;
+> > > +	/*
+> > > +	 * Never handle CoW for uffd-wp protected pages.  It should be only
+> > > +	 * handled when the uffd-wp protection is removed.
+> > > +	 *
+> > > +	 * Note that only the CoW optimization path (in hugetlb_no_page())
+> > > +	 * can trigger this, because hugetlb_fault() will always resolve
+> > > +	 * uffd-wp bit first.
+> > > +	 */
+> > > +	if (!unshare && huge_pte_uffd_wp(pte))
+> > > +		return 0;
+> > 
+> > This looks correct.  However, since the previous version looked correct I must
+> > ask.  Can we have unshare set and huge_pte_uffd_wp true?  If so, then it seems
+> > we would need to possibly propogate that uffd_wp to the new pte as in v2
+
+Good point, thanks for spotting!
+
 > 
-> Somehow we're getting a page which has a different mapping.
-> Let's avoid the infinite loop.
-> 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> ---
->   fs/f2fs/data.c | 8 ++------
->   1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-> index bf51e6e4eb64..80702c93e885 100644
-> --- a/fs/f2fs/data.c
-> +++ b/fs/f2fs/data.c
-> @@ -1329,18 +1329,14 @@ struct page *f2fs_get_lock_data_page(struct inode *inode, pgoff_t index,
->   {
->   	struct address_space *mapping = inode->i_mapping;
->   	struct page *page;
-> -repeat:
-> +
->   	page = f2fs_get_read_data_page(inode, index, 0, for_write, NULL);
->   	if (IS_ERR(page))
->   		return page;
->   
->   	/* wait for read completion */
->   	lock_page(page);
-> -	if (unlikely(page->mapping != mapping)) {
+> We can. A reproducer would share an anon hugetlb page because parent and
+> child. In the parent, we would uffd-wp that page. We could trigger unsharing
+> by R/O-pinning that page.
 
-How about using such logic only for move_data_page() to limit affect for
-other paths?
+Right.  This seems to be a separate bug..  It should be triggered in
+totally different context and much harder due to rare use of RO pins,
+meanwhile used with userfault-wp.
 
-Jaegeuk, any thoughts about why mapping is mismatch in between page's one and
-inode->i_mapping?
+If both of you agree, I can prepare a separate patch for this bug, and I'll
+better prepare a reproducer/selftest with it.
 
-After several times code review, I didn't get any clue about why f2fs always
-get the different mapping in a loop.
+-- 
+Peter Xu
 
-Maybe we can loop MM guys to check whether below folio_file_page() may return
-page which has different mapping?
-
-struct page *pagecache_get_page(struct address_space *mapping, pgoff_t index,
-		int fgp_flags, gfp_t gfp)
-{
-	struct folio *folio;
-
-	folio = __filemap_get_folio(mapping, index, fgp_flags, gfp);
-	if (IS_ERR(folio))
-		return NULL;
-	return folio_file_page(folio, index);
-}
-
-Thanks,
-
-> -		f2fs_put_page(page, 1);
-> -		goto repeat;
-> -	}
-> -	if (unlikely(!PageUptodate(page))) {
-> +	if (unlikely(page->mapping != mapping || !PageUptodate(page))) {
->   		f2fs_put_page(page, 1);
->   		return ERR_PTR(-EIO);
->   	}
