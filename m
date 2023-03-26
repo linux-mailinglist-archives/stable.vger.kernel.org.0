@@ -2,83 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D406C95C0
-	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 16:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3D7F6C962B
+	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 17:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231987AbjCZOrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Mar 2023 10:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
+        id S232141AbjCZPfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Mar 2023 11:35:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232020AbjCZOrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 10:47:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05549468E
-        for <stable@vger.kernel.org>; Sun, 26 Mar 2023 07:46:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1679841987;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NCwOxvpkJi/AFwFKPQO+eqD2wLsuChYdcKGvoGw4Tsg=;
-        b=Lg5t5cvTOKmuZ2hG0tMHvhn51sbYjW7adE2UzK+wf0mjSHiBK1ul87WnTra8Ig+B4bAgTe
-        +Q9xM0OjFjqqPWDRNHDP9idVHf15+lBIJuklcDmvmuzZCyXIO1TSIZJIH4UusY6RzjJEVZ
-        jYX5cQycnhDqy61yaCBSx8nLzmSXh0k=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-14-ELwHKYbMNqubAVZWVCNj4Q-1; Sun, 26 Mar 2023 10:46:26 -0400
-X-MC-Unique: ELwHKYbMNqubAVZWVCNj4Q-1
-Received: by mail-yb1-f199.google.com with SMTP id 3f1490d57ef6-ae8fa653140so51631276.1
-        for <stable@vger.kernel.org>; Sun, 26 Mar 2023 07:46:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679841985;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NCwOxvpkJi/AFwFKPQO+eqD2wLsuChYdcKGvoGw4Tsg=;
-        b=cbKEiZwvc0kNkESGhaEm7D9Ab9+uA1Ifv1qrbt6J44KPaCX5mZ6K4tsJbcnaZ5rGSb
-         48p7tb94CeR+QqegzFkGvEGhbPLMKru7ZlGk2VD5890o/kT/vRoUZC4wAKguPe6654tJ
-         Gl0oQhY/p/+1s+4X+F8OMtyeS4sg/CmDLW9dPckhMB63iWBNiJQCLxebo5rEBjyJoMs2
-         lvX//g+XTyDZmi2nR8AbucBtTMmJQ/CirVzOGO6uopx92n/ePnr3nR+bu/JOIq7L2JP2
-         aXA8ez3GVZpmtKs453gK6+Vtp0i7J3GIHDE+uqQvaXj9fT+fO8qhULMUr3X/tMQPy5Ij
-         3iXA==
-X-Gm-Message-State: AAQBX9fLzLw0EUDDX13uRfdkykWULV7Xb4dOzSDI2xr+n7Ra4KOLw+0x
-        2GuoP4TUkF4UYGWi40QEZrA/z+elpQncrFttqlG3rdoV6hgyXLFeCsZOYByq6OMJDJ1S6T8X2Fs
-        Z3RNMsY7OBMRHL6BM
-X-Received: by 2002:a25:aca5:0:b0:b74:4bff:53fa with SMTP id x37-20020a25aca5000000b00b744bff53famr7539674ybi.6.1679841985576;
-        Sun, 26 Mar 2023 07:46:25 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YwUtNBIndgSxYzqwugmAmBRIBhZIM5sj8jN4/1PlF/IgGjICiMvRd09ICIR43QOI24xOaQ8A==
-X-Received: by 2002:a25:aca5:0:b0:b74:4bff:53fa with SMTP id x37-20020a25aca5000000b00b744bff53famr7539662ybi.6.1679841985233;
-        Sun, 26 Mar 2023 07:46:25 -0700 (PDT)
-Received: from x1n (bras-base-aurron9127w-grc-40-70-52-229-124.dsl.bell.ca. [70.52.229.124])
-        by smtp.gmail.com with ESMTPSA id v130-20020a252f88000000b00b7767ca7490sm1755262ybv.45.2023.03.26.07.46.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Mar 2023 07:46:24 -0700 (PDT)
-Date:   Sun, 26 Mar 2023 10:46:22 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        linux-stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm/hugetlb: Fix uffd wr-protection for CoW
- optimization path
-Message-ID: <ZCBavqZE2cyVOzaW@x1n>
-References: <20230324142620.2344140-1-peterx@redhat.com>
- <20230324222707.GA3046@monkey>
- <8a06be33-1b44-b992-f80a-8764810ebf3f@redhat.com>
+        with ESMTP id S229621AbjCZPff (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 11:35:35 -0400
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F493C03;
+        Sun, 26 Mar 2023 08:35:27 -0700 (PDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id E8DA35C0097;
+        Sun, 26 Mar 2023 11:35:19 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Sun, 26 Mar 2023 11:35:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+        :cc:content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1679844919; x=1679931319; bh=yoT/5dYYqL
+        s4VW9DjOm5vJu5zkmQqNSHt74uigodyG0=; b=DcZ8FFH+ZKH5Cc/KPXyQ6095+J
+        FZRtvDPa/cwFzEybbsCEo67TJTLbJjKI32Agk+2/Ta7JP1bVMjB6H6pQuYL1YYGe
+        OM7+8hHmWdvcCNnAQE8CqEh9VcTjJ0iajDhMkDKsb5aKsAcz8m3oLevEmSfmRtJx
+        vXtw3tKwrNi+Q6upRcWR4TLDKAQ8r4OxsgC8bEfz078fMl4kBFiknFa2xqYE7Knp
+        gy2fB9SJvq78kd6bTwrw7j6kPZDc7LiFvY/UjyjfvBWu1LLwCHoiAXZNsUsYnPOP
+        vIZh+d7vcSs/KhwF7irakcBe08zzoeduyAeId4rgcs44WUYrDuvrRBKOge/A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:date:date:feedback-id:feedback-id:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1679844919; x=1679931319; bh=yoT/5dYYqLs4V
+        W9DjOm5vJu5zkmQqNSHt74uigodyG0=; b=mhZV1XekrPJxvBxD+08qQSkVdeuHR
+        S6BLfD8jUebaNfB/6llIvVPeE+iVnyc+8i0ZrUISs9EGu3FEhDc9tXfbbiDg6/Rp
+        t7Cn82Z9jTTNrKuBE65KTl4sedDz2sbHCW2KWC7oOV4ccZ7er1pKGXX/0kZ6JuLE
+        phrZpaorSOV7tFazWTLIWhvoq4vAEwK8kE89kb1ZVvkxstNRGtqy4YUQ4g7AhDTc
+        sipaGzN+dOV63OWWAUGdRIaEgxHBe8U5Vdd8GTgt3UrVrbwgTYJX5DB4jtd0b6lT
+        c+5BPvcCm4lcd9mmTPIBApSqYbAZaLyN8GJs9/tHci8u6L/N45yQgwYzA==
+X-ME-Sender: <xms:NmYgZAM8DwGMN29GdqG2obCVpaousxTdJZa6vkygu7TjX902y_UrIQ>
+    <xme:NmYgZG9bIVhl6RlvVfKGXSiUp2XKl1W7jBH30f9LUUXKeycGjahB1tQdThnWsNNgV
+    uBmN3Tn6ETHuUZOtA>
+X-ME-Received: <xmr:NmYgZHQADgJ9KkqK31FnxV0-RBbzBDE3czPXOKHDuYSNYD5XClVJaTpJvxw3qT2VPdIa60q8kgUM_CHHhlEWHSGFbVN-yFdrIQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdehtddgleduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehlhihsshgr
+    ucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecuggftrfgrthhtvghrnhepheekgf
+    dtveettdekuddugeeugfdujeehuefgleegtedthfffudfhheduhfduuefhnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrg
+    drihhs
+X-ME-Proxy: <xmx:NmYgZIvVMbyCHcHQxKTyvg8vqLI4GiwVwP7PATduFkE3bs1DW-ltag>
+    <xmx:NmYgZIeSeol3dytw8tE4J0nI_2MO4_sd3JolAgVRPukBHgA8Attc8Q>
+    <xmx:NmYgZM1JMFDh7Ug-WGuZ-l_VeLkZvoe9YaSntQwKbDxl7NnIO8HrtQ>
+    <xmx:N2YgZM1pUExcWP24azkIfCk7vwjrJZspEDwALDyH0_ShsoBlT4Foyw>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 26 Mar 2023 11:35:18 -0400 (EDT)
+Received: by x220.qyliss.net (Postfix, from userid 1000)
+        id 8850F1FD0; Sun, 26 Mar 2023 15:35:16 +0000 (UTC)
+From:   Alyssa Ross <hi@alyssa.is>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Nick Cao <nickcao@nichi.co>, linux-kbuild@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+        linux-riscv@lists.infradead.org, Tom Rix <trix@redhat.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Alyssa Ross <hi@alyssa.is>, stable@vger.kernel.org
+Subject: [PATCH] purgatory: fix disabling debug info
+Date:   Sun, 26 Mar 2023 15:34:12 +0000
+Message-Id: <20230326153412.63128-1-hi@alyssa.is>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <8a06be33-1b44-b992-f80a-8764810ebf3f@redhat.com>
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -86,39 +89,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 24, 2023 at 11:36:53PM +0100, David Hildenbrand wrote:
-> > > @@ -5487,6 +5487,17 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
-> > >   	unsigned long haddr = address & huge_page_mask(h);
-> > >   	struct mmu_notifier_range range;
-> > > +	/*
-> > > +	 * Never handle CoW for uffd-wp protected pages.  It should be only
-> > > +	 * handled when the uffd-wp protection is removed.
-> > > +	 *
-> > > +	 * Note that only the CoW optimization path (in hugetlb_no_page())
-> > > +	 * can trigger this, because hugetlb_fault() will always resolve
-> > > +	 * uffd-wp bit first.
-> > > +	 */
-> > > +	if (!unshare && huge_pte_uffd_wp(pte))
-> > > +		return 0;
-> > 
-> > This looks correct.  However, since the previous version looked correct I must
-> > ask.  Can we have unshare set and huge_pte_uffd_wp true?  If so, then it seems
-> > we would need to possibly propogate that uffd_wp to the new pte as in v2
+Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
+Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
+-Wa versions of both of those if building with Clang and GNU as.  As a
+result, debug info was being generated for the purgatory objects, even
+though the intention was that it not be.
 
-Good point, thanks for spotting!
+Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Cc: stable@vger.kernel.org
+---
+ arch/riscv/purgatory/Makefile | 12 ++++++------
+ arch/x86/purgatory/Makefile   |  4 ++--
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-> 
-> We can. A reproducer would share an anon hugetlb page because parent and
-> child. In the parent, we would uffd-wp that page. We could trigger unsharing
-> by R/O-pinning that page.
+diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
+index d16bf715a586..97001798fa19 100644
+--- a/arch/riscv/purgatory/Makefile
++++ b/arch/riscv/purgatory/Makefile
+@@ -84,12 +84,12 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
+ 
+-AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_strcmp.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_strlen.o		+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_strncmp.o		+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_entry.o		+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
++AFLAGS_REMOVE_memcpy.o		+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
++AFLAGS_REMOVE_memset.o		+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
++AFLAGS_REMOVE_strcmp.o		+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
++AFLAGS_REMOVE_strlen.o		+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
++AFLAGS_REMOVE_strncmp.o		+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
+ 
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 17f09dc26381..f1b1ef6c4cbf 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -69,8 +69,8 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
+ CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
+ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
+ 
+-AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
+-AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
++AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
++AFLAGS_REMOVE_entry64.o			+= -g -gdwarf-4 -gdwarf-5 -Wa,-g -Wa,-gdwarf4 -Wa,-gdwarf-5
+ 
+ $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
+ 		$(call if_changed,ld)
 
-Right.  This seems to be a separate bug..  It should be triggered in
-totally different context and much harder due to rare use of RO pins,
-meanwhile used with userfault-wp.
-
-If both of you agree, I can prepare a separate patch for this bug, and I'll
-better prepare a reproducer/selftest with it.
-
+base-commit: da8e7da11e4ba758caf4c149cc8d8cd555aefe5f
 -- 
-Peter Xu
+2.37.1
 
