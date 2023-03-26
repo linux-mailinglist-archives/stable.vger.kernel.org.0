@@ -2,125 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEDF76C947B
-	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 15:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2DF6C9495
+	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 15:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbjCZNYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Mar 2023 09:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59292 "EHLO
+        id S229763AbjCZNrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Mar 2023 09:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230243AbjCZNYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 09:24:02 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0037D82;
-        Sun, 26 Mar 2023 06:24:00 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id ix20so6030046plb.3;
-        Sun, 26 Mar 2023 06:24:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679837040;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=pnOOlLKoWlVB67gp3RPUD05wT//LBY3yFpES74W1Vkc=;
-        b=qJ0qSreIpqg7n1M2RJjBDhJZNct/hh4eDFZw5tBFyTNWY3W/g8AYQZSPdR0vIiFA8i
-         JCA/D3T2q8BkY7jKPCRaJRH6ne7OzfhKZ18nN4jPztDcLZQASNS1YOP78h9cxdwHftKN
-         pG3dcGw8VKpbZDXsBClvssSgdr+gusQnrJLtld9M0u7ysTwWD99Ut8cT9xepT8G7cs+v
-         yyd6j85VBKXGPGe96u6zafNRWT9O3yQ9BsmY9I8KISTqEVhIVMNxxyiNjFwr6TCAuJnv
-         wArLHUpczHBiNXymvTma3ovhG+iAtWm1+dIyGCM8hpSpMy2Rvjqk27a9Ri4kw3d8PYLj
-         OWGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679837040;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pnOOlLKoWlVB67gp3RPUD05wT//LBY3yFpES74W1Vkc=;
-        b=Xi0lzizpot1LlGdsY5wkNv4NZavg+8HdAlfYuPM29xiPOptPEFSxZntGDrDS3XmcxQ
-         1mSNPrD8XV7oh0oXnOBgWfcyldJDcHwruSW63A5D0iFJWulncph9jliKHDAit9HfOFY1
-         sYjG6GdWG9pWnSDURXkcYo7mVQkgouWSSUQSxo/Eh5bYrN8frBBsfZnY4hY86+AVjuWG
-         YgoIzk4cVa6dX469p6Qn3PZCqi3OLzPrjgVIK0EmkpucgB2m0bezbMlmIheTaDoaMBrh
-         vaOlYXRHmpPiQ+Fj58bQSO3Chy/t4v4M8HQd6lNwyrCqO8Fq4ofwMUIZmpre8oC+mOWb
-         +/eA==
-X-Gm-Message-State: AO0yUKVUQejOjOOo4g8+4k8giIvp1/oKyB3Cdp4WNX2PNoqZycAKedIs
-        hBl2RIzPDo6DlF2yy5NcfmpbSrHbbb4=
-X-Google-Smtp-Source: AK7set9OzCDMKxr2gAfR4Tvv6pTg1Zs5M12Fp4wZblK+PYXBW0DBvuChv43wUrBkPscskOMgLpZZeA==
-X-Received: by 2002:a05:6a20:8b14:b0:da:fa65:cd89 with SMTP id l20-20020a056a208b1400b000dafa65cd89mr8874490pzh.9.1679837040117;
-        Sun, 26 Mar 2023 06:24:00 -0700 (PDT)
-Received: from [192.168.43.80] (subs28-116-206-12-54.three.co.id. [116.206.12.54])
-        by smtp.gmail.com with ESMTPSA id b23-20020aa78117000000b005ac8a51d591sm17108200pfi.21.2023.03.26.06.23.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 26 Mar 2023 06:23:59 -0700 (PDT)
-Message-ID: <d14fb08c-70e3-4cc7-caf9-87e73eab9194@gmail.com>
-Date:   Sun, 26 Mar 2023 20:23:53 +0700
+        with ESMTP id S229573AbjCZNrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 09:47:22 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456657689;
+        Sun, 26 Mar 2023 06:47:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 52255CE0EB3;
+        Sun, 26 Mar 2023 13:47:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C6DC433D2;
+        Sun, 26 Mar 2023 13:47:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679838437;
+        bh=s2QYAdjbUYQBkX1WyFcFHz0Vhba1CYaExhV8K6Xm6iE=;
+        h=Date:To:Cc:References:From:Subject:In-Reply-To:From;
+        b=WlczRvY58+j7UqiQ0n27gc7fKfvprvdjanglAmNZrCG/VjSo5ZpvNgsN9mKbFRbGu
+         M3cvoO1b6F7UzA0QCXq0SylaVtJKLGzBXeSa04nYzRWSyQdGVUwnxj553nXE2dL3Rb
+         An34Z7ymKIhJi1n2WhwLZ6NkNb/tGxIPotAx+ngpi/NzuwIHblXvZ4bMH9ARUeM3dE
+         qQ6WZ4y08cRTVb7xVoK2oyl/DHDQ2WsnuXMysrZFqB4Wm9r8vA+qzj4HFkrxU2KlPS
+         xtmkYzV2gtbY9dFGHUC2Yn1/HjgdnjjA67jOlhm7D40Jb1Y5djR5zVuiEOfPNQvcWn
+         SmEaSnCWmiM3Q==
+Message-ID: <8aea02b0-86f9-539a-02e9-27b381e68b66@kernel.org>
+Date:   Sun, 26 Mar 2023 21:47:14 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: kernel error at led trigger "phy0tpt"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
 Content-Language: en-US
-To:     Tobias Dahms <dahms.tobias@web.de>,
-        Sean Wang <sean.wang@mediatek.com>,
-        angelogioacchino.delregno@collabora.com
-Cc:     stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        Lee Jones <lee@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, linux-leds@vger.kernel.org,
-        linux-wireless@vger.kernel.org,
-        Linux regressions mailing list <regressions@lists.linux.dev>
-References: <91feceb2-0df4-19b9-5ffa-d37e3d344fdf@web.de>
- <3fcc707b-f757-e74b-2800-3b6314217868@leemhuis.info>
- <fcecf6fc-bf18-73a0-9fc1-6850e183323a@web.de>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <fcecf6fc-bf18-73a0-9fc1-6850e183323a@web.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     stable@vger.kernel.org
+References: <20230323213919.1876157-1-jaegeuk@kernel.org>
+From:   Chao Yu <chao@kernel.org>
+Subject: Re: [f2fs-dev] [PATCH] f2fs: get out of a repeat loop when getting a
+ locked data page
+In-Reply-To: <20230323213919.1876157-1-jaegeuk@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/26/23 02:20, Tobias Dahms wrote:
-> Hello,
+On 2023/3/24 5:39, Jaegeuk Kim wrote:
+> https://bugzilla.kernel.org/show_bug.cgi?id=216050
 > 
-> the bisection gives following result:
-> --------------------------------------------------------------------
-> 18c7deca2b812537aa4d928900e208710f1300aa is the first bad commit
-> commit 18c7deca2b812537aa4d928900e208710f1300aa
-> Author: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-> Date:   Tue May 17 12:47:08 2022 +0200
+> Somehow we're getting a page which has a different mapping.
+> Let's avoid the infinite loop.
 > 
->     soc: mediatek: pwrap: Use readx_poll_timeout() instead of custom
-> function
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> ---
+>   fs/f2fs/data.c | 8 ++------
+>   1 file changed, 2 insertions(+), 6 deletions(-)
 > 
->     Function pwrap_wait_for_state() is a function that polls an address
->     through a helper function, but this is the very same operation that
->     the readx_poll_timeout macro means to do.
->     Convert all instances of calling pwrap_wait_for_state() to instead
->     use the read_poll_timeout macro.
-> 
->     Signed-off-by: AngeloGioacchino Del Regno
-> <angelogioacchino.delregno@collabora.com>
->     Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
->     Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
->     Link:
-> https://lore.kernel.org/r/20220517104712.24579-2-angelogioacchino.delregno@collabora.com
->     Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
-> 
->  drivers/soc/mediatek/mtk-pmic-wrap.c | 60
-> ++++++++++++++++++++----------------
->  1 file changed, 33 insertions(+), 27 deletions(-)
-> --------------------------------------------------------------------
-> 
+> diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+> index bf51e6e4eb64..80702c93e885 100644
+> --- a/fs/f2fs/data.c
+> +++ b/fs/f2fs/data.c
+> @@ -1329,18 +1329,14 @@ struct page *f2fs_get_lock_data_page(struct inode *inode, pgoff_t index,
+>   {
+>   	struct address_space *mapping = inode->i_mapping;
+>   	struct page *page;
+> -repeat:
+> +
+>   	page = f2fs_get_read_data_page(inode, index, 0, for_write, NULL);
+>   	if (IS_ERR(page))
+>   		return page;
+>   
+>   	/* wait for read completion */
+>   	lock_page(page);
+> -	if (unlikely(page->mapping != mapping)) {
 
-OK, I'm updating the regression status:
+How about using such logic only for move_data_page() to limit affect for
+other paths?
 
-#regzbot introduced: 18c7deca2b8125
+Jaegeuk, any thoughts about why mapping is mismatch in between page's one and
+inode->i_mapping?
 
-And for replying, don't top-post, but rather reply inline with
-appropriate context instead; hence I cut the replied context.
+After several times code review, I didn't get any clue about why f2fs always
+get the different mapping in a loop.
 
--- 
-An old man doll... just what I always wanted! - Clara
+Maybe we can loop MM guys to check whether below folio_file_page() may return
+page which has different mapping?
 
+struct page *pagecache_get_page(struct address_space *mapping, pgoff_t index,
+		int fgp_flags, gfp_t gfp)
+{
+	struct folio *folio;
+
+	folio = __filemap_get_folio(mapping, index, fgp_flags, gfp);
+	if (IS_ERR(folio))
+		return NULL;
+	return folio_file_page(folio, index);
+}
+
+Thanks,
+
+> -		f2fs_put_page(page, 1);
+> -		goto repeat;
+> -	}
+> -	if (unlikely(!PageUptodate(page))) {
+> +	if (unlikely(page->mapping != mapping || !PageUptodate(page))) {
+>   		f2fs_put_page(page, 1);
+>   		return ERR_PTR(-EIO);
+>   	}
