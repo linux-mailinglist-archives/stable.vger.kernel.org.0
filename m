@@ -2,155 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA626C93A2
-	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 11:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDF76C947B
+	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 15:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232190AbjCZJrT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 26 Mar 2023 05:47:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37912 "EHLO
+        id S231946AbjCZNYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Mar 2023 09:24:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231840AbjCZJrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 05:47:18 -0400
-Received: from eggs.gnu.org (eggs.gnu.org [IPv6:2001:470:142:3::10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BE872B7
-        for <stable@vger.kernel.org>; Sun, 26 Mar 2023 02:47:16 -0700 (PDT)
-Received: from linux-libre.fsfla.org ([209.51.188.54] helo=free.home)
-        by eggs.gnu.org with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <oliva@gnu.org>)
-        id 1pgMxw-0007yn-JQ; Sun, 26 Mar 2023 05:47:08 -0400
-Received: from livre (livre.home [172.31.160.2])
-        by free.home (8.15.2/8.15.2) with ESMTPS id 32Q9kqhG1381859
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Sun, 26 Mar 2023 06:46:54 -0300
-From:   Alexandre Oliva <oliva@gnu.org>
-To:     John Harrison <john.c.harrison@intel.com>
-Cc:     <intel-gfx@lists.freedesktop.org>, <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] [i915] avoid infinite retries in GuC/HuC loading
-Organization: Free thinker, not speaking for the GNU Project
-References: <orjzzlhhg8.fsf@lxoliva.fsfla.org>
-        <b9a2746f-bace-3a1e-eb82-8e8eecddb6ae@intel.com>
-Date:   Sun, 26 Mar 2023 06:46:24 -0300
-In-Reply-To: <b9a2746f-bace-3a1e-eb82-8e8eecddb6ae@intel.com> (John Harrison's
-        message of "Fri, 24 Mar 2023 11:45:07 -0700")
-Message-ID: <or1qlbvo9b.fsf@lxoliva.fsfla.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        with ESMTP id S230243AbjCZNYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 09:24:02 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0037D82;
+        Sun, 26 Mar 2023 06:24:00 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id ix20so6030046plb.3;
+        Sun, 26 Mar 2023 06:24:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1679837040;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=pnOOlLKoWlVB67gp3RPUD05wT//LBY3yFpES74W1Vkc=;
+        b=qJ0qSreIpqg7n1M2RJjBDhJZNct/hh4eDFZw5tBFyTNWY3W/g8AYQZSPdR0vIiFA8i
+         JCA/D3T2q8BkY7jKPCRaJRH6ne7OzfhKZ18nN4jPztDcLZQASNS1YOP78h9cxdwHftKN
+         pG3dcGw8VKpbZDXsBClvssSgdr+gusQnrJLtld9M0u7ysTwWD99Ut8cT9xepT8G7cs+v
+         yyd6j85VBKXGPGe96u6zafNRWT9O3yQ9BsmY9I8KISTqEVhIVMNxxyiNjFwr6TCAuJnv
+         wArLHUpczHBiNXymvTma3ovhG+iAtWm1+dIyGCM8hpSpMy2Rvjqk27a9Ri4kw3d8PYLj
+         OWGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679837040;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pnOOlLKoWlVB67gp3RPUD05wT//LBY3yFpES74W1Vkc=;
+        b=Xi0lzizpot1LlGdsY5wkNv4NZavg+8HdAlfYuPM29xiPOptPEFSxZntGDrDS3XmcxQ
+         1mSNPrD8XV7oh0oXnOBgWfcyldJDcHwruSW63A5D0iFJWulncph9jliKHDAit9HfOFY1
+         sYjG6GdWG9pWnSDURXkcYo7mVQkgouWSSUQSxo/Eh5bYrN8frBBsfZnY4hY86+AVjuWG
+         YgoIzk4cVa6dX469p6Qn3PZCqi3OLzPrjgVIK0EmkpucgB2m0bezbMlmIheTaDoaMBrh
+         vaOlYXRHmpPiQ+Fj58bQSO3Chy/t4v4M8HQd6lNwyrCqO8Fq4ofwMUIZmpre8oC+mOWb
+         +/eA==
+X-Gm-Message-State: AO0yUKVUQejOjOOo4g8+4k8giIvp1/oKyB3Cdp4WNX2PNoqZycAKedIs
+        hBl2RIzPDo6DlF2yy5NcfmpbSrHbbb4=
+X-Google-Smtp-Source: AK7set9OzCDMKxr2gAfR4Tvv6pTg1Zs5M12Fp4wZblK+PYXBW0DBvuChv43wUrBkPscskOMgLpZZeA==
+X-Received: by 2002:a05:6a20:8b14:b0:da:fa65:cd89 with SMTP id l20-20020a056a208b1400b000dafa65cd89mr8874490pzh.9.1679837040117;
+        Sun, 26 Mar 2023 06:24:00 -0700 (PDT)
+Received: from [192.168.43.80] (subs28-116-206-12-54.three.co.id. [116.206.12.54])
+        by smtp.gmail.com with ESMTPSA id b23-20020aa78117000000b005ac8a51d591sm17108200pfi.21.2023.03.26.06.23.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 26 Mar 2023 06:23:59 -0700 (PDT)
+Message-ID: <d14fb08c-70e3-4cc7-caf9-87e73eab9194@gmail.com>
+Date:   Sun, 26 Mar 2023 20:23:53 +0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Scanned-By: MIMEDefang 2.84
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: kernel error at led trigger "phy0tpt"
+Content-Language: en-US
+To:     Tobias Dahms <dahms.tobias@web.de>,
+        Sean Wang <sean.wang@mediatek.com>,
+        angelogioacchino.delregno@collabora.com
+Cc:     stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Lee Jones <lee@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, linux-leds@vger.kernel.org,
+        linux-wireless@vger.kernel.org,
+        Linux regressions mailing list <regressions@lists.linux.dev>
+References: <91feceb2-0df4-19b9-5ffa-d37e3d344fdf@web.de>
+ <3fcc707b-f757-e74b-2800-3b6314217868@leemhuis.info>
+ <fcecf6fc-bf18-73a0-9fc1-6850e183323a@web.de>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <fcecf6fc-bf18-73a0-9fc1-6850e183323a@web.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, John,
+On 3/26/23 02:20, Tobias Dahms wrote:
+> Hello,
+> 
+> the bisection gives following result:
+> --------------------------------------------------------------------
+> 18c7deca2b812537aa4d928900e208710f1300aa is the first bad commit
+> commit 18c7deca2b812537aa4d928900e208710f1300aa
+> Author: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> Date:   Tue May 17 12:47:08 2022 +0200
+> 
+>     soc: mediatek: pwrap: Use readx_poll_timeout() instead of custom
+> function
+> 
+>     Function pwrap_wait_for_state() is a function that polls an address
+>     through a helper function, but this is the very same operation that
+>     the readx_poll_timeout macro means to do.
+>     Convert all instances of calling pwrap_wait_for_state() to instead
+>     use the read_poll_timeout macro.
+> 
+>     Signed-off-by: AngeloGioacchino Del Regno
+> <angelogioacchino.delregno@collabora.com>
+>     Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+>     Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+>     Link:
+> https://lore.kernel.org/r/20220517104712.24579-2-angelogioacchino.delregno@collabora.com
+>     Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+> 
+>  drivers/soc/mediatek/mtk-pmic-wrap.c | 60
+> ++++++++++++++++++++----------------
+>  1 file changed, 33 insertions(+), 27 deletions(-)
+> --------------------------------------------------------------------
+> 
 
-On Mar 24, 2023, John Harrison <john.c.harrison@intel.com> wrote:
+OK, I'm updating the regression status:
 
-> On 3/12/2023 12:56, Alexandre Oliva wrote:
->> If two or more suitable entries with the same filename are found in
->> __uc_fw_auto_select's fw_blobs, and that filename fails to load in the
->> first attempt and in the retry, when __uc_fw_auto_select is called for
->> the third time, the coincidence of strings will cause it to clear
->> file_selected.path at the first hit, so it will return the second hit
->> over and over again, indefinitely.
->> 
->> Of course this doesn't occur with the pristine blob lists, but a
->> modified version could run into this, e.g., patching in a duplicate
->> entry, or (as in our case) disarming blob loading by remapping their
->> names to "/*(DEBLOBBED)*/", given a toolchain that unifies identical
->> string literals.
-> Not sure what you mean by disarming?
+#regzbot introduced: 18c7deca2b8125
 
-Our users find loading nonfree firmware harmful.
-
-> I think what you are saying is that you made a change similar to this?
->     #define __MAKE_UC_FW_PATH_MMP(prefix_, name_, major_, minor_,
-> patch_) "i915/invalid_file_name.bin"
-
-Yeah, that's the jist of it.  The name we use is "/*(DEBLOBBED)*/", so
-that it can't possibly be satisfied.
-
-> So all entries in the table have the exact same filename.
-
-*nod*
-
-> And with the toolchain unification comment, that means not just a
-> matching string but the same string pointer. Thus, the search code is
-> getting confused.
-
-Exactly
-
-> I'm not sure that is really a valid use case that the driver code
-> should be expected to support.
-
-It's most certainly not.  As I wrote, I'd be happy to keep on carrying
-the patch that adjusts the code to cope with our changes.  I just
-thought the same issue could come up by, say, mistakenly applying a
-patch twice to add support for a new card, a circumstance in which one
-might not have the card readily available to try it out.
-
-> Even without the infinite loop, the driver is not
-> going to load because you have removed the firmware files?
-
-Oh, no, the driver loads just fine even without those blobs, and that's
-much nicer of you than other drivers for hardware that doesn't really
-require blobs, but that insist on bailing out if the firmware can't be
-loaded.  i915 hasn't been hostile like that.
-
-When you override the firmware filenames, and it fails to load, the
-driver makes it a (reasonable IMHO) hard fail, but when it just fails to
-find the regular firmware files, it's nice that it proceeds that does
-the best it can.
-
-> However, I think you are saying that the problem would also exist if
-> there was some kind of genuine duplication in the table?
-
-Yes.  Not the kind you mention, for different platforms, but an actual
-duplicate entry, such as what you might get if you applied a patch that
-added an entry for a new card, and then applied it again, resolving the
-conflicts in a way that retained the duplicate entries.
-
-> So there can only be a problem if a single platform specifies the same
-> filename multiple times? Which would be a bug in the table because
-> why? It would be redundant entries that have no purpose.
-
-Agreed.
-
-> Note that I'm not saying we don't want to take your change. But I
-> would like to understand if there is a genuine issue that maybe needs
-> a better fix. E.g. should the table verification code be enhanced to
-> just reject the table entirely if there are such errors present.
-
-Table verification might wish to detect and report duplicate filenames
-for the same platform, to catch even alternating duplicates (e.g. "a",
-then "b", then "a" again), but it would be kind if you didn't make that
-a hard error, otherwise we'd have to tweak it to cope with our own
-"/*(DEBLOBBED)*/" duplicates.
-
-Another approach, that would probably be more efficient as the table
-grows, is to store in uc_fw a pointer to or index of the current or next
-entry to be searched, so that the code doesn't have to iterate over the
-table at every try (O(n^2)), and instead takes it from exactly where it
-left off, running overall a single time over the whole table (O(n)), at
-the cost of a pointer or index in uc_fw.  Then, duplicates in the table
-wouldn't matter at all.
-
-> Also, is this string unification thing a part of the current gcc
-> toolchain?
-
-Yeah, compilers and linkers have been unifying (read-only) string
-literals for a very long time.
-
-Thanks,
+And for replying, don't top-post, but rather reply inline with
+appropriate context instead; hence I cut the replied context.
 
 -- 
-Alexandre Oliva, happy hacker                https://FSFLA.org/blogs/lxo/
-   Free Software Activist                       GNU Toolchain Engineer
-Disinformation flourishes because many people care deeply about injustice
-but very few check the facts.  Ask me about <https://stallmansupport.org>
+An old man doll... just what I always wanted! - Clara
+
