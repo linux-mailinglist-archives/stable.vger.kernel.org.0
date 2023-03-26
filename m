@@ -2,55 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD33D6C9244
-	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 05:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA626C93A2
+	for <lists+stable@lfdr.de>; Sun, 26 Mar 2023 11:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbjCZDuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Mar 2023 23:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52308 "EHLO
+        id S232190AbjCZJrT convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 26 Mar 2023 05:47:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231706AbjCZDuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Mar 2023 23:50:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4824B465;
-        Sat, 25 Mar 2023 20:50:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 421D1CE0DFD;
-        Sun, 26 Mar 2023 03:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61959C433EF;
-        Sun, 26 Mar 2023 03:50:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679802611;
-        bh=LAvyz1060gPts0GjgiePob4/2gg+XoL6lIGQJ0eqymE=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=oMdWRUCI7vyRF/7sNx7BmpUPSljpIETnIY4NiA5GAzheECGpBk25/7+7o5295RqXN
-         DblR5G3MGypfWmRuNjyyW29ieZeuOK8s4oDNEJYfnjGpn61Sg5iptF+dDdYLBF5R5W
-         ZlOfd2KgN0PjDV1hrQHIhuq89CVpyEOnVrdwQ7u5ohISUNrHYV3rJT8FWu8r/U6hwl
-         q/KVL3UcaUzN4Gz3QXU17b+Rd5QA/1c/t1cRSp9dUy0sBwIpuxcTWpwuxtz4joAXus
-         IZwYJf53Mesk3Mu75e3lP5ytIdTQItjZ1xGlCjvSqI/Z0N71cwXwkogfC18PXqhcVk
-         84vpePlJe7rUg==
-Message-ID: <c6a70066-6b23-a1a0-1762-d4b740af1283@kernel.org>
-Date:   Sun, 26 Mar 2023 11:50:08 +0800
+        with ESMTP id S231840AbjCZJrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Mar 2023 05:47:18 -0400
+Received: from eggs.gnu.org (eggs.gnu.org [IPv6:2001:470:142:3::10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BE872B7
+        for <stable@vger.kernel.org>; Sun, 26 Mar 2023 02:47:16 -0700 (PDT)
+Received: from linux-libre.fsfla.org ([209.51.188.54] helo=free.home)
+        by eggs.gnu.org with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.90_1)
+        (envelope-from <oliva@gnu.org>)
+        id 1pgMxw-0007yn-JQ; Sun, 26 Mar 2023 05:47:08 -0400
+Received: from livre (livre.home [172.31.160.2])
+        by free.home (8.15.2/8.15.2) with ESMTPS id 32Q9kqhG1381859
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Sun, 26 Mar 2023 06:46:54 -0300
+From:   Alexandre Oliva <oliva@gnu.org>
+To:     John Harrison <john.c.harrison@intel.com>
+Cc:     <intel-gfx@lists.freedesktop.org>, <stable@vger.kernel.org>
+Subject: Re: [Intel-gfx] [PATCH] [i915] avoid infinite retries in GuC/HuC loading
+Organization: Free thinker, not speaking for the GNU Project
+References: <orjzzlhhg8.fsf@lxoliva.fsfla.org>
+        <b9a2746f-bace-3a1e-eb82-8e8eecddb6ae@intel.com>
+Date:   Sun, 26 Mar 2023 06:46:24 -0300
+In-Reply-To: <b9a2746f-bace-3a1e-eb82-8e8eecddb6ae@intel.com> (John Harrison's
+        message of "Fri, 24 Mar 2023 11:45:07 -0700")
+Message-ID: <or1qlbvo9b.fsf@lxoliva.fsfla.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [f2fs-dev] [PATCH 2/3 v2] f2fs: factor out discard_cmd usage from
- general rb_tree use
-Content-Language: en-US
-To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     stable@vger.kernel.org
-References: <20230313201216.924234-1-jaegeuk@kernel.org>
- <20230313201216.924234-3-jaegeuk@kernel.org> <ZB3Wc6jdbvLiZNl5@google.com>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <ZB3Wc6jdbvLiZNl5@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Scanned-By: MIMEDefang 2.84
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,27 +48,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/3/25 0:57, Jaegeuk Kim wrote:
-> This is a second part to remove the mixed use of rb_tree in discard_cmd from
-> extent_cache.
-> 
-> This should also fix arm32 memory alignment issue caused by shared rb_entry.
-> 
-> [struct discard_cmd]               [struct rb_entry]
-> [0] struct rb_node rb_node;        [0] struct rb_node rb_node;
->    union {                              union {
->      struct {                             struct {
-> [16]  block_t lstart;              [12]    unsigned int ofs;
->        block_t len;                         unsigned int len;
->                                           };
->                                           unsigned long long key;
->                                         } __packed;
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: 004b68621897 ("f2fs: use rb-tree to track pending discard commands")
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Hello, John,
 
-Reviewed-by: Chao Yu <chao@kernel.org>
+On Mar 24, 2023, John Harrison <john.c.harrison@intel.com> wrote:
+
+> On 3/12/2023 12:56, Alexandre Oliva wrote:
+>> If two or more suitable entries with the same filename are found in
+>> __uc_fw_auto_select's fw_blobs, and that filename fails to load in the
+>> first attempt and in the retry, when __uc_fw_auto_select is called for
+>> the third time, the coincidence of strings will cause it to clear
+>> file_selected.path at the first hit, so it will return the second hit
+>> over and over again, indefinitely.
+>> 
+>> Of course this doesn't occur with the pristine blob lists, but a
+>> modified version could run into this, e.g., patching in a duplicate
+>> entry, or (as in our case) disarming blob loading by remapping their
+>> names to "/*(DEBLOBBED)*/", given a toolchain that unifies identical
+>> string literals.
+> Not sure what you mean by disarming?
+
+Our users find loading nonfree firmware harmful.
+
+> I think what you are saying is that you made a change similar to this?
+>     #define __MAKE_UC_FW_PATH_MMP(prefix_, name_, major_, minor_,
+> patch_) "i915/invalid_file_name.bin"
+
+Yeah, that's the jist of it.  The name we use is "/*(DEBLOBBED)*/", so
+that it can't possibly be satisfied.
+
+> So all entries in the table have the exact same filename.
+
+*nod*
+
+> And with the toolchain unification comment, that means not just a
+> matching string but the same string pointer. Thus, the search code is
+> getting confused.
+
+Exactly
+
+> I'm not sure that is really a valid use case that the driver code
+> should be expected to support.
+
+It's most certainly not.  As I wrote, I'd be happy to keep on carrying
+the patch that adjusts the code to cope with our changes.  I just
+thought the same issue could come up by, say, mistakenly applying a
+patch twice to add support for a new card, a circumstance in which one
+might not have the card readily available to try it out.
+
+> Even without the infinite loop, the driver is not
+> going to load because you have removed the firmware files?
+
+Oh, no, the driver loads just fine even without those blobs, and that's
+much nicer of you than other drivers for hardware that doesn't really
+require blobs, but that insist on bailing out if the firmware can't be
+loaded.  i915 hasn't been hostile like that.
+
+When you override the firmware filenames, and it fails to load, the
+driver makes it a (reasonable IMHO) hard fail, but when it just fails to
+find the regular firmware files, it's nice that it proceeds that does
+the best it can.
+
+> However, I think you are saying that the problem would also exist if
+> there was some kind of genuine duplication in the table?
+
+Yes.  Not the kind you mention, for different platforms, but an actual
+duplicate entry, such as what you might get if you applied a patch that
+added an entry for a new card, and then applied it again, resolving the
+conflicts in a way that retained the duplicate entries.
+
+> So there can only be a problem if a single platform specifies the same
+> filename multiple times? Which would be a bug in the table because
+> why? It would be redundant entries that have no purpose.
+
+Agreed.
+
+> Note that I'm not saying we don't want to take your change. But I
+> would like to understand if there is a genuine issue that maybe needs
+> a better fix. E.g. should the table verification code be enhanced to
+> just reject the table entirely if there are such errors present.
+
+Table verification might wish to detect and report duplicate filenames
+for the same platform, to catch even alternating duplicates (e.g. "a",
+then "b", then "a" again), but it would be kind if you didn't make that
+a hard error, otherwise we'd have to tweak it to cope with our own
+"/*(DEBLOBBED)*/" duplicates.
+
+Another approach, that would probably be more efficient as the table
+grows, is to store in uc_fw a pointer to or index of the current or next
+entry to be searched, so that the code doesn't have to iterate over the
+table at every try (O(n^2)), and instead takes it from exactly where it
+left off, running overall a single time over the whole table (O(n)), at
+the cost of a pointer or index in uc_fw.  Then, duplicates in the table
+wouldn't matter at all.
+
+> Also, is this string unification thing a part of the current gcc
+> toolchain?
+
+Yeah, compilers and linkers have been unifying (read-only) string
+literals for a very long time.
 
 Thanks,
 
+-- 
+Alexandre Oliva, happy hacker                https://FSFLA.org/blogs/lxo/
+   Free Software Activist                       GNU Toolchain Engineer
+Disinformation flourishes because many people care deeply about injustice
+but very few check the facts.  Ask me about <https://stallmansupport.org>
