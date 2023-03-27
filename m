@@ -2,157 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D83076CA233
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 13:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 769226CA24F
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 13:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbjC0LMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 07:12:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
+        id S230070AbjC0LZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 07:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbjC0LMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 07:12:00 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A1010D0;
-        Mon, 27 Mar 2023 04:11:58 -0700 (PDT)
-Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4PlVRv3jqJz17KJF;
-        Mon, 27 Mar 2023 19:08:43 +0800 (CST)
-Received: from [10.174.177.174] (10.174.177.174) by
- dggpeml500021.china.huawei.com (7.185.36.21) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Mon, 27 Mar 2023 19:11:55 +0800
-Message-ID: <7144edc4-b771-7c92-5ec3-ac78a123d37c@huawei.com>
-Date:   Mon, 27 Mar 2023 19:11:55 +0800
+        with ESMTP id S229640AbjC0LZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 07:25:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EB31423A;
+        Mon, 27 Mar 2023 04:25:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD5AFB810DC;
+        Mon, 27 Mar 2023 11:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4099EC433EF;
+        Mon, 27 Mar 2023 11:25:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679916348;
+        bh=MXjfr1ztZM/qPArTGl5+3aYKkvb9xk9LTYVhR8LjnI4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kPAUuHNvBq9UD8MajLJCn8yHl/oB/D3m2nZeczSUnh97ZA3VrT0CRAR5RJJGz/XAO
+         iw1SfVZ+qGvlYArlVRMlSldooy8CmYxgB42jr9Wz1MMDDKldzJIby0SXV5dzOsyJcZ
+         m9mdHAKFx2ihppQqX1dPMbMrGKvmKNJRpaTKnUHgZFyTwnm3c5+APfj4Uw3BvBt8iG
+         h9RDa14mrJLRNBC2o9LiXAlf+grA5acawYXR0AU8eWAUkhktKtS8Wc/PKSWY+J2eo/
+         JJlp2DBbzGD3wmEwasAN8kLRmN0CFriEyc0LS83F7l7PhRbSn7tg+dLnWMIKV09LA0
+         KHf9DLWH4un5g==
+Date:   Mon, 27 Mar 2023 07:25:47 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.10 12/15] platform/x86: ISST: Increase range of
+ valid mail box commands
+Message-ID: <ZCF9OxyAnn8UT6w0@sashalap>
+References: <20230320005559.1429040-1-sashal@kernel.org>
+ <20230320005559.1429040-12-sashal@kernel.org>
+ <ZBhkpDB5xSfP+MAK@duo.ucw.cz>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
-Subject: Re: [PATCH 3/3] ext4: fix race between writepages and remount
-Content-Language: en-US
-To:     Jan Kara <jack@suse.cz>
-CC:     <linux-ext4@vger.kernel.org>, <tytso@mit.edu>,
-        <adilger.kernel@dilger.ca>, <ritesh.list@gmail.com>,
-        <linux-kernel@vger.kernel.org>, <yi.zhang@huawei.com>,
-        <yangerkun@huawei.com>, <yukuai3@huawei.com>,
-        <stable@vger.kernel.org>, Baokun Li <libaokun1@huawei.com>
-References: <20230316112832.2711783-1-libaokun1@huawei.com>
- <20230316112832.2711783-4-libaokun1@huawei.com>
- <20230323114407.xenntblzv4ewfqkk@quack3>
- <269d37fd-d3f2-d059-b71f-acaea2e7ce4b@huawei.com>
- <20230327093553.up7dhoyqe4ecpn7y@quack3>
-From:   Baokun Li <libaokun1@huawei.com>
-In-Reply-To: <20230327093553.up7dhoyqe4ecpn7y@quack3>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.174]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpeml500021.china.huawei.com (7.185.36.21)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-2.3 required=5.0 tests=NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <ZBhkpDB5xSfP+MAK@duo.ucw.cz>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/3/27 17:35, Jan Kara wrote:
-> On Thu 23-03-23 22:18:53, Baokun Li wrote:
->> On 2023/3/23 19:44, Jan Kara wrote:
->>>> ---
->>>>    fs/ext4/ext4.h      |  3 ++-
->>>>    fs/ext4/ext4_jbd2.h |  9 +++++----
->>>>    fs/ext4/super.c     | 14 ++++++++++++++
->>>>    3 files changed, 21 insertions(+), 5 deletions(-)
->>>>
->>>> diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
->>>> index 08b29c289da4..f60967fa648f 100644
->>>> --- a/fs/ext4/ext4.h
->>>> +++ b/fs/ext4/ext4.h
->>>> @@ -1703,7 +1703,8 @@ struct ext4_sb_info {
->>>>    	/*
->>>>    	 * Barrier between writepages ops and changing any inode's JOURNAL_DATA
->>>> -	 * or EXTENTS flag.
->>>> +	 * or EXTENTS flag or between changing SHOULD_DIOREAD_NOLOCK flag on
->>>> +	 * remount and writepages ops.
->>>>    	 */
->>>>    	struct percpu_rw_semaphore s_writepages_rwsem;
->>>>    	struct dax_device *s_daxdev;
->>>> diff --git a/fs/ext4/ext4_jbd2.h b/fs/ext4/ext4_jbd2.h
->>>> index 0c77697d5e90..d82bfcdd56e5 100644
->>>> --- a/fs/ext4/ext4_jbd2.h
->>>> +++ b/fs/ext4/ext4_jbd2.h
->>>> @@ -488,6 +488,9 @@ static inline int ext4_free_data_revoke_credits(struct inode *inode, int blocks)
->>>>    	return blocks + 2*(EXT4_SB(inode->i_sb)->s_cluster_ratio - 1);
->>>>    }
->>>> +/* delalloc is a temporary fix to prevent generic/422 test failures*/
->>>> +#define EXT4_MOUNT_SHOULD_DIOREAD_NOLOCK (EXT4_MOUNT_DIOREAD_NOLOCK | \
->>>> +					  EXT4_MOUNT_DELALLOC)
->>>>    /*
->>>>     * This function controls whether or not we should try to go down the
->>>>     * dioread_nolock code paths, which makes it safe to avoid taking
->>>> @@ -499,7 +502,8 @@ static inline int ext4_free_data_revoke_credits(struct inode *inode, int blocks)
->>>>     */
->>>>    static inline int ext4_should_dioread_nolock(struct inode *inode)
->>>>    {
->>>> -	if (!test_opt(inode->i_sb, DIOREAD_NOLOCK))
->>>> +	if (test_opt(inode->i_sb, SHOULD_DIOREAD_NOLOCK) !=
->>>> +	    EXT4_MOUNT_SHOULD_DIOREAD_NOLOCK)
->>>>    		return 0;
->>>>    	if (!S_ISREG(inode->i_mode))
->>>>    		return 0;
->>>> @@ -507,9 +511,6 @@ static inline int ext4_should_dioread_nolock(struct inode *inode)
->>>>    		return 0;
->>>>    	if (ext4_should_journal_data(inode))
->>>>    		return 0;
->>>> -	/* temporary fix to prevent generic/422 test failures */
->>>> -	if (!test_opt(inode->i_sb, DELALLOC))
->>>> -		return 0;
->>>>    	return 1;
->>>>    }
->>> Is there a need for this SHOULD_DIOREAD_NOLOCK? When called from writeback
->>> we will be protected by s_writepages_rwsem anyway. When called from other
->>> places, we either decide to do dioread_nolock or don't but the situation
->>> can change at any instant so I don't see how unifying this check would
->>> help. And the new SHOULD_DIOREAD_NOLOCK somewhat obfuscates what's going
->>> on.
->> We're thinking that the mount-related flags in
->> ext4_should_dioread_nolock() might be modified, such as DELALLOC being
->> removed because generic/422 test failures were fixed in some other way,
->> resulting in some unnecessary locking during remount, or for whatever
->> reason a mount-related flag was added to ext4_should_dioread_nolock(),
->> and we didn't make a synchronization change in __ext4_remount() that
->> would cause the problem to recur.  So we added this flag to this function
->> (instead of in ext4.h), so that when we change the mount option in
->> ext4_should_dioread_nolock(), we directly change this flag, and we don't
->> have to consider making synchronization changes in __ext4_remount().
->>
->> We have checked where this function is called and there are two types of
->> calls to this function:
->> 1. One category is ext4_do_writepages() and mpage_map_one_extent(), which
->> are protected by s_writepages_rwsem, the location of the problem;
->> 2. The other type is in ext4_page_mkwrite(),
->> ext4_convert_inline_data_to_extent(), ext4_write_begin() to determine
->> whether to get the block using ext4_get_block_unwritten() or
->> ext4_get_block().
->>
->>      1) If we just started fetching written blocks, it looks like there is no
->> problem;
->>      2) If we start getting unwritten blocks, when DIOREAD_NOLOCK is cleared
->> by remount,
->>          we will convert the blocks to written in ext4_map_blocks(). The
->> data=ordered mode ensures that we don't see stale data.
-> Yes. So do you agree that EXT4_MOUNT_SHOULD_DIOREAD_NOLOCK is not really
-> needed?
+On Mon, Mar 20, 2023 at 02:50:28PM +0100, Pavel Machek wrote:
+>Hi!
 >
-> 								Honza
-Yes, I totally agree!
-If we unconditionally grabbed s_writepages_rwsem when remounting,
-there would be no mount option synchronization problem, and the flag
-would be completely unnecessary.
+>> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+>>
+>> [ Upstream commit 95ecf90158522269749f1b7ce98b1eed66ca087b ]
+>>
+>> A new command CONFIG_TDP_GET_RATIO_INFO is added, with sub command type
+>> of 0x0C. The previous range of valid sub commands was from 0x00 to 0x0B.
+>> Change the valid range from 0x00 to 0x0C.
+>
+>Not sure why this was selected for stable.
+>
+>We don't have CONFIG_TDP_GET_RATIO_INFO in 5.10, so we should not have
+>this.
 
-I will send a patch V2 with the changes suggested by you.
+I'll drop it, thanks!
+
 -- 
-With Best Regards,
-Baokun Li
-.
+Thanks,
+Sasha
