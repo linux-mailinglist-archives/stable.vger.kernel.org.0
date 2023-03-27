@@ -2,149 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29C7C6CA482
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 14:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C241B6CA580
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 15:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbjC0MsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 08:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
+        id S232225AbjC0NW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 09:22:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231834AbjC0MsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 08:48:17 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C03E040FD
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 05:48:16 -0700 (PDT)
-Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1pgmGl-0000bt-28
-        for stable@vger.kernel.org; Mon, 27 Mar 2023 14:48:15 +0200
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 54CBF19D3BF
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 12:48:14 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 4FF1319D3A8;
-        Mon, 27 Mar 2023 12:48:11 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 36511783;
-        Mon, 27 Mar 2023 12:48:09 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Oleksij Rempel <o.rempel@pengutronix.de>,
-        syzbot+ee1cd780f69483a8616b@syzkaller.appspotmail.com,
-        Hillf Danton <hdanton@sina.com>, stable@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 1/2] can: j1939: prevent deadlock by moving j1939_sk_errqueue()
-Date:   Mon, 27 Mar 2023 14:48:06 +0200
-Message-Id: <20230327124807.1157134-2-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230327124807.1157134-1-mkl@pengutronix.de>
-References: <20230327124807.1157134-1-mkl@pengutronix.de>
+        with ESMTP id S232134AbjC0NWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 09:22:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62328212F
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 06:22:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FA09B81038
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 13:22:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DDDCC433EF;
+        Mon, 27 Mar 2023 13:22:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1679923371;
+        bh=+fcZvxX97vA2m/ogwTBOs9kzLHaA+njNUSUDR7zOHSI=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=u6fo6LTAQ4RARP9+kbRX0ydvNepTHHiRWm/Tj4NshewYQlu20tDwhn8nIFgF+5ugK
+         xQQIv6l/fh3IVPUt0CLVD4NEQfi3KOL7e6heeFCqTRBNGSr8PWDI7KT//yWclspGAb
+         p+8Mp0tkk3KM//ycR5G3kseORuFTitwQq2VMeWbYgB+v4Xxyu+W8sAHwhGv/T+l6G1
+         +zHajyiCECTfNbYXVJ6vdk1aODzQsDU/+bgfBxSgYo9xl3jKUmZ8TDAzXIi9c/j0jd
+         ZSUSoWwRbeZ+ioXMtcp1x3P8ZdlgYqAWTGrDYGgkGcRlke7ii0EI7JTa+4NJJh44Ry
+         ncOxQekI9ae3g==
+From:   Mark Brown <broonie@kernel.org>
+To:     alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        yung-chuan.liao@linux.intel.com, tiwai@suse.com,
+        bagasdotme@gmail.com, pierre-louis.bossart@linux.intel.com,
+        Jason Montleon <jmontleo@redhat.com>
+Cc:     stable@vger.kernel.org
+In-Reply-To: <20230324170711.2526-1-jmontleo@redhat.com>
+References: <20230324170711.2526-1-jmontleo@redhat.com>
+Subject: Re: [PATCH] ASoC: hdac_hdmi: use set_stream() instead of
+ set_tdm_slots()
+Message-Id: <167992336898.3162140.14844931662953043048.b4-ty@kernel.org>
+Date:   Mon, 27 Mar 2023 14:22:48 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:b01:1d::7b
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13-dev-2eb1a
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+On Fri, 24 Mar 2023 13:07:11 -0400, Jason Montleon wrote:
+> hdac_hdmi was not updated to use set_stream() instead of set_tdm_slots()
+> in the original commit so HDMI no longer produces audio.
+> 
+> 
 
-This commit addresses a deadlock situation that can occur in certain
-scenarios, such as when running data TP/ETP transfer and subscribing to
-the error queue while receiving a net down event. The deadlock involves
-locks in the following order:
+Applied to
 
-3
-  j1939_session_list_lock ->  active_session_list_lock
-  j1939_session_activate
-  ...
-  j1939_sk_queue_activate_next -> sk_session_queue_lock
-  ...
-  j1939_xtp_rx_eoma_one
+   broonie/sound.git for-next
 
-2
-  j1939_sk_queue_drop_all  ->  sk_session_queue_lock
-  ...
-  j1939_sk_netdev_event_netdown -> j1939_socks_lock
-  j1939_netdev_notify
+Thanks!
 
-1
-  j1939_sk_errqueue -> j1939_socks_lock
-  __j1939_session_cancel -> active_session_list_lock
-  j1939_tp_rxtimer
+[1/1] ASoC: hdac_hdmi: use set_stream() instead of set_tdm_slots()
+      commit: f6887a71bdd2f0dcba9b8180dd2223cfa8637e85
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(&priv->active_session_list_lock);
-                               lock(&jsk->sk_session_queue_lock);
-                               lock(&priv->active_session_list_lock);
-  lock(&priv->j1939_socks_lock);
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
-The solution implemented in this commit is to move the
-j1939_sk_errqueue() call out of the active_session_list_lock context,
-thus preventing the deadlock situation.
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-Reported-by: syzbot+ee1cd780f69483a8616b@syzkaller.appspotmail.com
-Fixes: 5b9272e93f2e ("can: j1939: extend UAPI to notify about RX status")
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20230324130141.2132787-1-o.rempel@pengutronix.de
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- net/can/j1939/transport.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index fce9b9ebf13f..fb92c3609e17 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1124,8 +1124,6 @@ static void __j1939_session_cancel(struct j1939_session *session,
- 
- 	if (session->sk)
- 		j1939_sk_send_loop_abort(session->sk, session->err);
--	else
--		j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
- }
- 
- static void j1939_session_cancel(struct j1939_session *session,
-@@ -1140,6 +1138,9 @@ static void j1939_session_cancel(struct j1939_session *session,
- 	}
- 
- 	j1939_session_list_unlock(session->priv);
-+
-+	if (!session->sk)
-+		j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
- }
- 
- static enum hrtimer_restart j1939_tp_txtimer(struct hrtimer *hrtimer)
-@@ -1253,6 +1254,9 @@ static enum hrtimer_restart j1939_tp_rxtimer(struct hrtimer *hrtimer)
- 			__j1939_session_cancel(session, J1939_XTP_ABORT_TIMEOUT);
- 		}
- 		j1939_session_list_unlock(session->priv);
-+
-+		if (!session->sk)
-+			j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
- 	}
- 
- 	j1939_session_put(session);
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-base-commit: 45977e58ce65ed0459edc9a0466d9dfea09463f5
--- 
-2.39.2
-
+Thanks,
+Mark
 
