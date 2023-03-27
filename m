@@ -2,196 +2,264 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B644D6CA978
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 17:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A444E6CA9B9
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 17:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbjC0Pqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 11:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43844 "EHLO
+        id S232043AbjC0P6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 11:58:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232789AbjC0PqW (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 27 Mar 2023 11:46:22 -0400
-Received: from domac.alu.hr (domac.alu.unizg.hr [161.53.235.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE83A55B2;
-        Mon, 27 Mar 2023 08:46:13 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by domac.alu.hr (Postfix) with ESMTP id 193A8604F2;
-        Mon, 27 Mar 2023 17:46:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
-        t=1679931971; bh=kB+P1N+4RPMDv1e2HhvD7kV2dHk0AT6TukSryazX3DE=;
-        h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-        b=Eyr8b73JusPM6z5Chc9NqqC2+gaiZRscBym0NU2YYx4LW/bO/VrSANSYUsFcCs2J2
-         b530fvVDjGZni80EHEziQwO2Civw9b7FIgfiMd1prHjSuBirvi8IQ5H/NVCHgEKEr9
-         dVJXEk+jBXsiTdE6BFtjnQU4CPW+rMxNAvHUBi+hbd+m0CCeDq45Dada6x0gxopPYL
-         2M2OFHGWj3E91kIU2vuBJM7FT9C/TFCpmc2yUCAw9saY0RkpzIZoToeRQ9PdTrdF+w
-         Ec24DljmIIeUV9IcgTthebMzV+X+w9fj3MF664Kgo/NKwmuRgi9zJihyAI+sHdarbK
-         w3CMOfDw+vJYw==
-X-Virus-Scanned: Debian amavisd-new at domac.alu.hr
-Received: from domac.alu.hr ([127.0.0.1])
-        by localhost (domac.alu.hr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id cAvTwWYXfs8c; Mon, 27 Mar 2023 17:46:08 +0200 (CEST)
-Received: from [192.168.1.3] (unknown [77.237.101.225])
-        by domac.alu.hr (Postfix) with ESMTPSA id F2036604EF;
-        Mon, 27 Mar 2023 17:46:07 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
-        t=1679931968; bh=kB+P1N+4RPMDv1e2HhvD7kV2dHk0AT6TukSryazX3DE=;
-        h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-        b=woegmFr6GR0EFaPiZl4H6TkNI3ZKmIIsVgTumO4FTp2vIFJKxtBzX7pezpuTN9h5r
-         gEWuyYsSxpPW7sdQliXjbDzp1Mj6cDQqGLczMUSc6rb3De3dXEPvzcXesaYRpKqCT2
-         4Wf5WOSnW6FCmyKi7lTHA+xBsmsoTufJZLSYqmWWPgfsID0Vanb7t8+8+VuSeSZvmq
-         Bw1d18SH3QJX9MpgZaLfjEg7dwUiCsBbVQbn2P/PtRPPyT3gOgHbvpIq6botcVg/L5
-         pBB4SIAB0v9Aa2zYeUi1Qw656a6a3/nDdhv9b2Zin55XHifDo4hEVmdv9qepBJyQKp
-         DErLrUWEIsvjg==
-Message-ID: <cd5d13c8-10b5-af8f-03b7-2a8e919e058a@alu.unizg.hr>
-Date:   Mon, 27 Mar 2023 17:46:07 +0200
+        with ESMTP id S232349AbjC0P6G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 11:58:06 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D895A3A8F
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 08:58:04 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id ja10so8863189plb.5
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 08:58:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679932684;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=MtmnXfqxvTp8b7u84DOHgJz7gYMWz8Oc0qilY8dluVA=;
+        b=NBvbsZBlpt2qgiRf0cgglu7l2btWHQfPgatpZrr0N77TtnNm984Ixf4HEGJPNFRDhn
+         OVJ4134Lwld/et2ItkExBBGW+e7mCy1xKzCHMUxnkbQFAPExn2W57rgfIlyXzSV9SrXn
+         sNjT06Fhc2J3OcY94ehm4LF9voN6fVTRpxz+idRt2CLuwQGsb4TS2itfLM8Vfs0//JXr
+         f67E3ZSAb67v/vY3fu9DAUyIRgpkM5wg3x55cB2X98mfy5qXp5czgtvEGOW0F1dieb4A
+         fLZaK2G3NE3wKr+w50PXUUhSqBZseAHqxeKgq56F4lQzhPPckBNugJY4PtqY1DQiPSDg
+         hMwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679932684;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MtmnXfqxvTp8b7u84DOHgJz7gYMWz8Oc0qilY8dluVA=;
+        b=ZZCv7x9sLaxSE1nTrEGz7nbdl+vmuxlgkIUwBQU0B6MdgGWb4XVkYy2etjEe5UdAH4
+         Idsc9crqi0paO7SaRsnFlxGVmOfxQXgCXPmHjZwxusEcCIbQ7Wq047x1zqDpIgzCceIu
+         sxQ50WXoErnMqfCr0VXF5i9SrpcyATfRCywUhivoWS9Csdj4pYBYyD4xRN+yC8xGa5Nd
+         jQ7Aa17eAOqCU4zU7svVFOzC0zC1iZ6A57j2wAZHIcKF/EjE6M7kqa+fvqpQdcSRaXYs
+         Zf8bExxUCCC5OjfL3snhNVcEtUdGMXzrwq0N/aeJQTlswLbGWguX4cHGFbCl7W5KH6Pi
+         jFuA==
+X-Gm-Message-State: AAQBX9f5bvw6+yklSerNDWb6Lvp4NqIWuqIUXwe+bl/1r38qJrfOJ5sa
+        RGpcGeRcwaFepuXDETFiLDqIi/kXzjCbdxFO5MZ8cg==
+X-Google-Smtp-Source: AKy350YP/Ib2AeH3Vmeox9/bl4S6XFkvO/5kPHin6ZIGPxysREwba6kffo6inIiQUi+14nbxtaN2Mg==
+X-Received: by 2002:a17:90b:314e:b0:23d:286:47d3 with SMTP id ip14-20020a17090b314e00b0023d028647d3mr13875904pjb.40.1679932683706;
+        Mon, 27 Mar 2023 08:58:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mn13-20020a17090b188d00b002372106a5casm7717926pjb.44.2023.03.27.08.58.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Mar 2023 08:58:03 -0700 (PDT)
+Message-ID: <6421bd0b.170a0220.6c8c0.d375@mx.google.com>
+Date:   Mon, 27 Mar 2023 08:58:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-From:   Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Subject: Re: [PATCH] xhci: Free the command allocated for setting LPM if we
- return early
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ubuntu-devel-discuss@lists.ubuntu.com, stern@rowland.harvard.edu,
-        arnd@arndb.de, Stable@vger.kernel.org
-References: <b86fcdbd-f1c6-846f-838f-b7679ec4e2b4@linux.intel.com>
- <20230327095019.1017159-1-mathias.nyman@linux.intel.com>
- <ZCGDRrT4Bo3-UYOZ@kroah.com>
- <70474413-fcb0-7527-d7a3-67c3e55d0f1b@linux.intel.com>
-Content-Language: en-US, hr
-In-Reply-To: <70474413-fcb0-7527-d7a3-67c3e55d0f1b@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.238-29-g39c31e43e3b2b
+Subject: stable-rc/queue/5.4 baseline: 120 runs,
+ 3 regressions (v5.4.238-29-g39c31e43e3b2b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=0.0 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27. 03. 2023. 15:31, Mathias Nyman wrote:
-> On 27.3.2023 14.51, Greg KH wrote:
->> On Mon, Mar 27, 2023 at 12:50:19PM +0300, Mathias Nyman wrote:
->>> The command allocated to set exit latency LPM values need to be freed in
->>> case the command is never queued. This would be the case if there is no
->>> change in exit latency values, or device is missing.
->>>
->>> Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
->>> Cc: <Stable@vger.kernel.org>
->>> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
->>> ---
->>>   drivers/usb/host/xhci.c | 1 +
->>>   1 file changed, 1 insertion(+)
->>
->> Do you want me to take this now, or will you be sending this to me in a
->> separate series of xhci fixes?  Either is fine with me.
-> 
-> I can send a separate series this week, there are some other fixes as well.
+stable-rc/queue/5.4 baseline: 120 runs, 3 regressions (v5.4.238-29-g39c31e4=
+3e3b2b)
 
-Hi, Mathias,
+Regressions Summary
+-------------------
 
-I can confirm from the original setup that triggered the bug:
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+cubietruck                   | arm   | lab-baylibre | gcc-10   | multi_v7_d=
+efconfig | 1          =
 
-root@marvin-IdeaPad-3-15ITL6:~# uname -rms
-Linux 6.3.0-rc3-kobj-rlse-00317-g65aca32efdcb-dirty x86_64
-root@marvin-IdeaPad-3-15ITL6:~# 
+hifive-unleashed-a00         | riscv | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
 
-The version without the patch still manifests the issue:
+sun8i-h3-libretech-all-h3-cc | arm   | lab-baylibre | gcc-10   | multi_v7_d=
+efconfig | 1          =
 
-root@marvin-IdeaPad-3-15ITL6:/home/marvin# uname -rms
-Linux 6.3.0-rc3-kobj-rlse-wop-00317-g65aca32efdcb x86_64
-root@marvin-IdeaPad-3-15ITL6:/home/marvin# echo scan > /sys/kernel/debug/kmemleak 
-root@marvin-IdeaPad-3-15ITL6:/home/marvin# cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffff96e59c4e1400 (size 64):
-  comm "systemd-udevd", pid 420, jiffies 4294893221 (age 260.340s)
-  hex dump (first 32 bytes):
-    c0 8b c3 98 e5 96 ff ff 00 00 00 00 00 00 00 00  ................
-    60 8c c3 98 e5 96 ff ff 00 00 00 00 00 00 00 00  `...............
-  backtrace:
-    [<ffffffffacbde94c>] slab_post_alloc_hook+0x8c/0x320
-    [<ffffffffacbe5107>] __kmem_cache_alloc_node+0x1c7/0x2b0
-    [<ffffffffacb62f3b>] kmalloc_node_trace+0x2b/0xa0
-    [<ffffffffad3af2ec>] xhci_alloc_command+0x7c/0x1b0
-    [<ffffffffad3af451>] xhci_alloc_command_with_ctx+0x21/0x70
-    [<ffffffffad3a8a3e>] xhci_change_max_exit_latency+0x2e/0x1c0
-    [<ffffffffad3a8c5b>] xhci_disable_usb3_lpm_timeout+0x7b/0xb0
-    [<ffffffffad3457a7>] usb_disable_link_state+0x57/0xe0
-    [<ffffffffad345f46>] usb_disable_lpm+0x86/0xc0
-    [<ffffffffad345fc1>] usb_unlocked_disable_lpm+0x31/0x60
-    [<ffffffffad355db6>] usb_disable_device+0x136/0x250
-    [<ffffffffad356b23>] usb_set_configuration+0x583/0xa70
-    [<ffffffffad364c6d>] usb_generic_driver_disconnect+0x2d/0x40
-    [<ffffffffad358612>] usb_unbind_device+0x32/0x90
-    [<ffffffffad222295>] device_remove+0x65/0x70
-    [<ffffffffad223903>] device_release_driver_internal+0xc3/0x140
-unreferenced object 0xffff96e598c38c60 (size 32):
-  comm "systemd-udevd", pid 420, jiffies 4294893221 (age 260.340s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    70 8c c3 98 e5 96 ff ff 70 8c c3 98 e5 96 ff ff  p.......p.......
-  backtrace:
-    [<ffffffffacbde94c>] slab_post_alloc_hook+0x8c/0x320
-    [<ffffffffacbe5107>] __kmem_cache_alloc_node+0x1c7/0x2b0
-    [<ffffffffacb62f3b>] kmalloc_node_trace+0x2b/0xa0
-    [<ffffffffad3af364>] xhci_alloc_command+0xf4/0x1b0
-    [<ffffffffad3af451>] xhci_alloc_command_with_ctx+0x21/0x70
-    [<ffffffffad3a8a3e>] xhci_change_max_exit_latency+0x2e/0x1c0
-    [<ffffffffad3a8c5b>] xhci_disable_usb3_lpm_timeout+0x7b/0xb0
-    [<ffffffffad3457a7>] usb_disable_link_state+0x57/0xe0
-    [<ffffffffad345f46>] usb_disable_lpm+0x86/0xc0
-    [<ffffffffad345fc1>] usb_unlocked_disable_lpm+0x31/0x60
-    [<ffffffffad355db6>] usb_disable_device+0x136/0x250
-    [<ffffffffad356b23>] usb_set_configuration+0x583/0xa70
-    [<ffffffffad364c6d>] usb_generic_driver_disconnect+0x2d/0x40
-    [<ffffffffad358612>] usb_unbind_device+0x32/0x90
-    [<ffffffffad222295>] device_remove+0x65/0x70
-    [<ffffffffad223903>] device_release_driver_internal+0xc3/0x140
-unreferenced object 0xffff96e598c38bc0 (size 32):
-  comm "systemd-udevd", pid 420, jiffies 4294893221 (age 260.340s)
-  hex dump (first 32 bytes):
-    02 00 00 00 20 04 00 00 00 90 79 9c e5 96 ff ff  .... .....y.....
-    00 90 79 1c 01 00 00 00 00 00 00 00 00 00 00 00  ..y.............
-  backtrace:
-    [<ffffffffacbde94c>] slab_post_alloc_hook+0x8c/0x320
-    [<ffffffffacbe5107>] __kmem_cache_alloc_node+0x1c7/0x2b0
-    [<ffffffffacb62f3b>] kmalloc_node_trace+0x2b/0xa0
-    [<ffffffffad3ad86e>] xhci_alloc_container_ctx+0x7e/0x140
-    [<ffffffffad3af469>] xhci_alloc_command_with_ctx+0x39/0x70
-    [<ffffffffad3a8a3e>] xhci_change_max_exit_latency+0x2e/0x1c0
-    [<ffffffffad3a8c5b>] xhci_disable_usb3_lpm_timeout+0x7b/0xb0
-    [<ffffffffad3457a7>] usb_disable_link_state+0x57/0xe0
-    [<ffffffffad345f46>] usb_disable_lpm+0x86/0xc0
-    [<ffffffffad345fc1>] usb_unlocked_disable_lpm+0x31/0x60
-    [<ffffffffad355db6>] usb_disable_device+0x136/0x250
-    [<ffffffffad356b23>] usb_set_configuration+0x583/0xa70
-    [<ffffffffad364c6d>] usb_generic_driver_disconnect+0x2d/0x40
-.
-.
-.
 
-It is completely the same commit save to the difference of applying your patch
-kobj-rlse-dirty version and removing it and rebuilding -kobj-rlse-wop- version
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.238-29-g39c31e43e3b2b/plan/baseline/
 
-Congratulations, for further bisect appears obsoleted.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.238-29-g39c31e43e3b2b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      39c31e43e3b2b8f6c1df6976c97d96a9b707aa94 =
 
-I haven't been able to iterate the bug, or cause more leaks by unplugging and
-plugging in again USB devices, so I cannot estimate severity of this bug, but
-I really wouldn't have an idea without bisecting first.
 
-Best regards,
-Mirsad
 
--- 
-Mirsad Goran Todorovac
-Sistem inženjer
-Grafički fakultet | Akademija likovnih umjetnosti
-Sveučilište u Zagrebu
- 
-System engineer
-Faculty of Graphic Arts | Academy of Fine Arts
-University of Zagreb, Republic of Croatia
-The European Union
+Test Regressions
+---------------- =
 
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+cubietruck                   | arm   | lab-baylibre | gcc-10   | multi_v7_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/642181daf25d6123749c9505
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
+9-g39c31e43e3b2b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubiet=
+ruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
+9-g39c31e43e3b2b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubiet=
+ruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/642181daf25d6123749c950e
+        failing since 55 days (last pass: v5.4.230-81-g2ad0dc06d587, first =
+fail: v5.4.230-108-g761a8268d868)
+
+    2023-03-27T11:45:12.708725  <8>[    9.899705] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3449208_1.5.2.4.1>
+    2023-03-27T11:45:12.818853  / # #
+    2023-03-27T11:45:12.922635  export SHELL=3D/bin/sh
+    2023-03-27T11:45:12.922976  #
+    2023-03-27T11:45:13.024094  / # export SHELL=3D/bin/sh. /lava-3449208/e=
+nvironment
+    2023-03-27T11:45:13.024518  =
+
+    2023-03-27T11:45:13.125737  / # . /lava-3449208/environment/lava-344920=
+8/bin/lava-test-runner /lava-3449208/1
+    2023-03-27T11:45:13.126257  =
+
+    2023-03-27T11:45:13.131242  / # /lava-3449208/bin/lava-test-runner /lav=
+a-3449208/1
+    2023-03-27T11:45:13.208719  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+hifive-unleashed-a00         | riscv | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/642184314b5fff6a0d9c9505
+
+  Results:     3 PASS, 2 FAIL, 2 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
+9-g39c31e43e3b2b/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleas=
+hed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
+9-g39c31e43e3b2b/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleas=
+hed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/642184314b5fff6a=
+0d9c950a
+        failing since 159 days (last pass: v5.4.219-270-gde284a6cd1e4, firs=
+t fail: v5.4.219-266-g5eb28a6c7901)
+        3 lines
+
+    2023-03-27T11:55:13.394890  / # =
+
+    2023-03-27T11:55:13.406409  =
+
+    2023-03-27T11:55:13.508901  / # #
+    2023-03-27T11:55:13.518406  #
+    2023-03-27T11:55:13.619734  / # export SHELL=3D/bin/sh
+    2023-03-27T11:55:13.630386  export SHELL=3D/bin/sh
+    2023-03-27T11:55:13.731557  / # . /lava-3449243/environment
+    2023-03-27T11:55:13.742408  . /lava-3449243/environment
+    2023-03-27T11:55:13.843658  / # /lava-3449243/bin/lava-test-runner /lav=
+a-3449243/0
+    2023-03-27T11:55:13.854619  /lava-3449243/bin/lava-test-runner /lava-34=
+49243/0 =
+
+    ... (9 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+sun8i-h3-libretech-all-h3-cc | arm   | lab-baylibre | gcc-10   | multi_v7_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/642181828774b0430f9c9514
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
+9-g39c31e43e3b2b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i-=
+h3-libretech-all-h3-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.238-2=
+9-g39c31e43e3b2b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i-=
+h3-libretech-all-h3-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230310.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/642181828774b0430f9c951d
+        failing since 54 days (last pass: v5.4.230-108-g761a8268d868, first=
+ fail: v5.4.230-109-g0a6085bff265)
+
+    2023-03-27T11:43:37.530081  / # #
+    2023-03-27T11:43:37.631838  export SHELL=3D/bin/sh
+    2023-03-27T11:43:37.632207  #
+    2023-03-27T11:43:37.733539  / # export SHELL=3D/bin/sh. /lava-3449215/e=
+nvironment
+    2023-03-27T11:43:37.733916  =
+
+    2023-03-27T11:43:37.835300  / # . /lava-3449215/environment/lava-344921=
+5/bin/lava-test-runner /lava-3449215/1
+    2023-03-27T11:43:37.836021  =
+
+    2023-03-27T11:43:37.841123  / # /lava-3449215/bin/lava-test-runner /lav=
+a-3449215/1
+    2023-03-27T11:43:37.928959  + export 'TESTRUN_ID=3D1_bootrr'
+    2023-03-27T11:43:37.929268  + cd /lava-3449215/1/tests/1_bootrr =
+
+    ... (10 line(s) more)  =
+
+ =20
