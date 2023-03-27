@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 936C66CAB20
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 18:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7CA6CAB1F
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 18:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230135AbjC0Qzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 12:55:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
+        id S229971AbjC0Qzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 12:55:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbjC0Qzx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 12:55:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C0C2711
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 09:55:52 -0700 (PDT)
+        with ESMTP id S229946AbjC0Qzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 12:55:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14ED310D1
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 09:55:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C1CD613F8
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 16:55:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC35C433D2;
-        Mon, 27 Mar 2023 16:55:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD1E4B817B0
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 16:55:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 201ECC433EF;
+        Mon, 27 Mar 2023 16:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679936151;
-        bh=K4hcw666GMf8M+1hyoxzcIdZULqcAB8/24CdCI9Vj1I=;
+        s=korg; t=1679936148;
+        bh=EZAfUn7UjTfl7lvB6gcXne6wFyhP3Q029ke5wcl5LkI=;
         h=Subject:To:Cc:From:Date:From;
-        b=jexHitOXVYUUe0N65bar4SzBSIhrsuietseS+oIvOsGjHRMZq3EmzZN1stsKvuXkJ
-         jpDw8Nk4ZjWt12PjSJaJ1ZxOQtMv5PBUxVBL8JMBH+Ggh8rwEs7Y4tzZzAPZlx1O50
-         Fe2qOKsi0QY/z4PmmLkWAZRhiEcotAeMqwCyK51Y=
-Subject: FAILED: patch "[PATCH] thunderbolt: Limit USB3 bandwidth of certain Intel USB4 host" failed to apply to 6.1-stable tree
+        b=lR9b9AstDxXu4MpV+5KYNgnTMzWo8UuZ+Y+Ej+g4MeYl5/p3hm4uWhA/kuk/8t28b
+         4+qUM4S1tMb8uOraZBVVN4EsHYVxa/ofoPG4SnI8edx/uy9kbWTAo46zLJfQxsBK4F
+         p6g9V5FVLm9KLtVxOsdUKhnB+dB8ZYw96CL1/cpU=
+Subject: FAILED: patch "[PATCH] thunderbolt: Limit USB3 bandwidth of certain Intel USB4 host" failed to apply to 5.15-stable tree
 To:     gil.fine@linux.intel.com, mika.westerberg@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 Mar 2023 18:55:37 +0200
-Message-ID: <167993613776154@kroah.com>
+Message-ID: <167993613759241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,25 +47,36 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x f0a57dd33b3eadf540912cd130db727ea824d174
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167993613776154@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167993613759241@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 f0a57dd33b3e ("thunderbolt: Limit USB3 bandwidth of certain Intel USB4 host routers")
 7af9da8ce8f9 ("thunderbolt: Add quirk to disable CLx")
 6ce3563520be ("thunderbolt: Add support for DisplayPort bandwidth allocation mode")
+aef9c693e7e5 ("thunderbolt: Move vendor specific NVM handling into nvm.c")
+8b02b2da77c8 ("thunderbolt: Provide tb_retimer_nvm_read() analogous to tb_switch_nvm_read()")
+7bfafaa5185b ("thunderbolt: Rename and make nvm_read() available for other files")
+5424e1bf16f9 ("thunderbolt: Extend NVM version fields to 32-bits")
+7f333ace0257 ("thunderbolt: Move tb_xdomain_parent() to tb.h")
+3084b48fa139 ("thunderbolt: Change TMU mode to HiFi uni-directional once DisplayPort tunneled")
+43f977bc60b1 ("thunderbolt: Enable CL0s for Intel Titan Ridge")
+23ccd21ccb56 ("thunderbolt: Implement TMU time disruption for Intel Titan Ridge")
+8a90e4fa3b4d ("thunderbolt: Add CL0s support for USB4 routers")
+a28ec0e165ba ("thunderbolt: Add TMU uni-directional mode")
+43bddb26e20a ("thunderbolt: Tear down existing tunnels when resuming from hibernate")
 
 thanks,
 
