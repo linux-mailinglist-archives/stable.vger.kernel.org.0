@@ -2,69 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8F46CAFB0
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 22:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BF26CB02E
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 22:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231716AbjC0UQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 16:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42720 "EHLO
+        id S229456AbjC0U6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 16:58:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232417AbjC0UP7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 16:15:59 -0400
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EAC3A6
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 13:15:57 -0700 (PDT)
-Received: by mail-yb1-xb2b.google.com with SMTP id z83so12310485ybb.2
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 13:15:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1679948156;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=uIvcDIjHMfUvOFRj+LO1wozFuW9lS+8UFaDeYuBoqV0=;
-        b=VPfvQPv94hLQtld1nY8t/kVR1zMp5PMikUjCrrW9IJfb7DGX2Rq0B1nsWyX4UEusES
-         6k2uPKYfkn91P65R5bHU7+yj0+XeSBTzmZrhy3zNQyQf6Q5MNoTpxmkfKsAkGk/kRbxE
-         5OnBj5+FaYQGqffLxuF1XILjlOqohrV7nqSU1IYxjYOE5g6+UCSY6DG6qZLiC9RjdjqT
-         Pc28rburbng2gm2sn/m9uZc7bCpGzSz5nF6ZWtIstCG/PmE2vDkm0WP26h1S5susB2Us
-         6PpEyPKBzpbA/s8Xoskf6U/nkyOpGrV75Dt2N26StF4/na0Sz0Y/UteVcMU/AriIH2DC
-         mq4A==
+        with ESMTP id S229610AbjC0U6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 16:58:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB9D172C
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 13:57:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679950672;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=l0k5HQijZZiTI5JKuN0wulOwFUsOATJ37PiPOJOEgWU=;
+        b=W0U2bM8eND8fVvLvN7yl26bJvYrZETNCt1niRiEVOYkXh8lqbMIPBthXxhaGSlyyvFZUDU
+        hbakCgS1JUAKPH0svCPdmuG9RYNFq1wmv46Vanpkl5THguHVslIu4mByMTMg2JrZ9d3hQa
+        KxhL7nCXmtwcL9ea4G8iIq/mK1C7bfk=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-53-pN-srTyrMG2StVXbzKCr1Q-1; Mon, 27 Mar 2023 16:57:49 -0400
+X-MC-Unique: pN-srTyrMG2StVXbzKCr1Q-1
+Received: by mail-pf1-f199.google.com with SMTP id 16-20020a056a00073000b006260bbaa3a4so4834778pfm.16
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 13:57:48 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679948156;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=uIvcDIjHMfUvOFRj+LO1wozFuW9lS+8UFaDeYuBoqV0=;
-        b=b2f+a5MLyf/VwNpKCGSygTbNJ4yLnGkHg/rNQ66GmgjNcLrFWU/Zc3ICS/uHCpyctY
-         x3QfM6qNqLrSjvPxingLVolafkfVIV/wg7tEvkan7T2lJegHCh2em1AfKnYcbboORfZk
-         iilavkcPOGPg/HHWaeTwPEJ2Fig654WKAEWgR/cc8/nt1qg4s6hwjYnsOQdfF4ZGsN+c
-         d6Zz7pq21/ygB9lcFGNSsn8fl8bcipWh5pp0zXwKIz4r4aOXwn2fQ/PmrGc8Qo4I1rt0
-         6TxF8DyJXKg2TROFY5sSY6HMdDbV5d9ZXgufqceR0OFOInD/f8spIfIEL9VXCFQ33YNi
-         phtg==
-X-Gm-Message-State: AAQBX9f1QwW7N07LYiDXaZMPWRWGUkG2xHq+vRnFcsbCD0qxrq4dxorv
-        bPv8+pq/mzbZM2+ZC2BYxsYOVinJs7eiey5Oh7c2Vu2eLF0C/WsVUQldefuV
-X-Google-Smtp-Source: AKy350Z7F0PUXN2f7qUEFAmcZSLQJlhlAaBS8bKPyscnHoPKIg2Gb1MiovXdYIfUaic80GLCSPw4xKonpL1nzod/ceE=
-X-Received: by 2002:a05:6902:1201:b0:b6c:4d60:1bd6 with SMTP id
- s1-20020a056902120100b00b6c4d601bd6mr8517167ybu.9.1679948156478; Mon, 27 Mar
- 2023 13:15:56 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1679950668;
+        h=content-transfer-encoding:in-reply-to:organization:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=l0k5HQijZZiTI5JKuN0wulOwFUsOATJ37PiPOJOEgWU=;
+        b=gB8R/Gh9UEI6eoaJ6keycYYFs/H/keXMp+ggHo0TRJtqa9YUPCEbNkzZbU5txJA6/y
+         VkMkgipdf5CNlWDEJfuZr3wSpkMlQGAM4JHb3RBNpdxnqdnZDqC8vfMx5Lew9BY9GMhr
+         O6sQfT23gfTNvrTkrCvPXoF3I2lbgSdf7DIRkI17XDy6lCiB6aVXV/GLtMiorFHlwml9
+         8ai7ogioPtA4IseG7gYxyjG17mx2hnrQm8AkQ/XYhh0JY5tcPSHa1UAsInC9oskZ4bto
+         mx2qkgz7BpNu+wXD1xScSAfptfvqS53HtI8HMK9vP6zw5o4VbTYjp3JhqoKXQkXX+fhI
+         UxnQ==
+X-Gm-Message-State: AO0yUKW9ncVhHGxmWv9t75RGWbJMzTmhjKxcIOUEgOtuHO+76Y/udEL2
+        TRo3tcQtj82PyA8+YMrOajMokx/hjY3mlUYeSHOzK/yfDdfMNQWvF70s0wS53JKJAXzOtdf7gga
+        C50d3BImeV2mGvx1S
+X-Received: by 2002:a17:90b:2243:b0:23f:7176:df32 with SMTP id hk3-20020a17090b224300b0023f7176df32mr13751414pjb.40.1679950667912;
+        Mon, 27 Mar 2023 13:57:47 -0700 (PDT)
+X-Google-Smtp-Source: AKy350a0pTeUjTnPuwRDsnKWfscYaKPzIjcxZsvU3tPZsN9ULXGT5CBiCjeFnwCwJ4yaAP2G4njNvw==
+X-Received: by 2002:a17:90b:2243:b0:23f:7176:df32 with SMTP id hk3-20020a17090b224300b0023f7176df32mr13751400pjb.40.1679950667631;
+        Mon, 27 Mar 2023 13:57:47 -0700 (PDT)
+Received: from [172.16.65.120] ([64.114.255.114])
+        by smtp.gmail.com with ESMTPSA id j8-20020a17090a060800b0023d01900d7bsm7675288pjj.0.2023.03.27.13.57.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Mar 2023 13:57:47 -0700 (PDT)
+Message-ID: <c762297d-5c65-f20a-4c11-90d2f966c675@redhat.com>
+Date:   Mon, 27 Mar 2023 22:57:46 +0200
 MIME-Version: 1.0
-From:   Nobel Barakat <nobelbarakat@google.com>
-Date:   Mon, 27 Mar 2023 13:15:45 -0700
-Message-ID: <CANZXNgPN=yNchM00fn0-7nd5xs_6DEgTFng0zS96J+tGnntynQ@mail.gmail.com>
-Subject: 6.1 Backport Request: act_mirred: use the backlog for nested calls to
- mirred ingress
-To:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
-        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH v3] mm/hugetlb: Fix uffd wr-protection for CoW
+ optimization path
+Content-Language: en-US
+To:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        linux-stable <stable@vger.kernel.org>
+References: <20230324142620.2344140-1-peterx@redhat.com>
+ <20230324222707.GA3046@monkey>
+ <8a06be33-1b44-b992-f80a-8764810ebf3f@redhat.com> <ZCBavqZE2cyVOzaW@x1n>
+ <20230327183438.GC4184@monkey>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20230327183438.GC4184@monkey>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SUBJECT: act_mirred: use the backlog for nested calls to mirred ingress
-COMMIT: commit ca22da2fbd693b54dc8e3b7b54ccc9f7e9ba3640
+On 27.03.23 20:34, Mike Kravetz wrote:
+> On 03/26/23 10:46, Peter Xu wrote:
+>> On Fri, Mar 24, 2023 at 11:36:53PM +0100, David Hildenbrand wrote:
+>>>>> @@ -5487,6 +5487,17 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
+>>>>>    	unsigned long haddr = address & huge_page_mask(h);
+>>>>>    	struct mmu_notifier_range range;
+>>>>> +	/*
+>>>>> +	 * Never handle CoW for uffd-wp protected pages.  It should be only
+>>>>> +	 * handled when the uffd-wp protection is removed.
+>>>>> +	 *
+>>>>> +	 * Note that only the CoW optimization path (in hugetlb_no_page())
+>>>>> +	 * can trigger this, because hugetlb_fault() will always resolve
+>>>>> +	 * uffd-wp bit first.
+>>>>> +	 */
+>>>>> +	if (!unshare && huge_pte_uffd_wp(pte))
+>>>>> +		return 0;
+>>>>
+>>>> This looks correct.  However, since the previous version looked correct I must
+>>>> ask.  Can we have unshare set and huge_pte_uffd_wp true?  If so, then it seems
+>>>> we would need to possibly propogate that uffd_wp to the new pte as in v2
+>>
+>> Good point, thanks for spotting!
+>>
+>>>
+>>> We can. A reproducer would share an anon hugetlb page because parent and
+>>> child. In the parent, we would uffd-wp that page. We could trigger unsharing
+>>> by R/O-pinning that page.
+>>
+>> Right.  This seems to be a separate bug..  It should be triggered in
+>> totally different context and much harder due to rare use of RO pins,
+>> meanwhile used with userfault-wp.
+>>
+>> If both of you agree, I can prepare a separate patch for this bug, and I'll
+>> better prepare a reproducer/selftest with it.
+>>
+> 
+> I am OK with separate patches, and agree that the R/O pinning case is less
+> likely to happen.
 
-Reason for request:
-The commit above resolves CVE-2022-4269.
+Yes, the combination should be rather rare and we can fix that 
+separately. Ideally, we'd try to mimic the same uffd code flow in 
+hugetlb cow/unshare handling that we use in memory.c
+
+> 
+> Since this patch addresses the issue found by Muhammad,
+> 
+> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+
+Hopefully we didn't forget about yet another case :D
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
+
