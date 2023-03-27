@@ -2,81 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B63D96C9EDE
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 11:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EFA26C9F18
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 11:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233009AbjC0JFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 05:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43376 "EHLO
+        id S233036AbjC0JNN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 27 Mar 2023 05:13:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbjC0JEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 05:04:39 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FFD90;
-        Mon, 27 Mar 2023 02:04:05 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id v1so7894938wrv.1;
-        Mon, 27 Mar 2023 02:04:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679907844;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=PXHUgllCiE+YVplh4F0vC+TIMQgHYLAcdKhqqMncm+M=;
-        b=UjgOhIU/pavH2tlMiWKycQqAigQYIjgXPIu4oocRPGzCa6LiVMGOvqObrg/PRgkmVu
-         9Xnhg4WGVJjU3lOJoCVQ3UYykePZC+rJIGQhsMn5smPo/OHUQWgnk0LqVyle5s5lsPX9
-         ToiZQ+OZguuNokmfrIAl2lS9WK4Q4SvyYi+2GIqflDRN3t4HaR+m2AfzLnCmhcdjb9vl
-         p5o8JEG89pLh5h9zUx7yYvO8WMqBtMnjVx7B6Bhhv0/XcI8FcsMimYzxslgt9LrfgO6H
-         KJEquB69ob74KiHksS94yNZveY1kMYPS4TsXHra/0UD5uSQkXuOjOOe2Vh/wn+YamevJ
-         t5jQ==
+        with ESMTP id S232276AbjC0JNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 05:13:07 -0400
+Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ACC949D7;
+        Mon, 27 Mar 2023 02:12:54 -0700 (PDT)
+Received: by mail-yb1-f170.google.com with SMTP id b18so9631264ybp.1;
+        Mon, 27 Mar 2023 02:12:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679907844;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:user-agent:mime-version:date
-         :message-id:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PXHUgllCiE+YVplh4F0vC+TIMQgHYLAcdKhqqMncm+M=;
-        b=PsZq4NB9F1NcAtwodSoEAUIEO1XKL5Seg8oPIkCU3J6AYjyUz01lXHmOgUBXbtB99K
-         GHCcU2XxMxl8e28FYrIp/K1jxcw15hcVx+EjyupCDGgQfPcWDK5VW/XQZ/g4D2mi4mnr
-         fxnsK0CXE7MomOkLtGP6srbWFOFRxMBcpMKh1CRAluxQ1XPWCDF6MSENU+Uy0UlPODnc
-         vyCISz2Pi7eWAncdYmuj0JiqJDTMflLpTOEgawOZMJlcoYf6eLbL5cBMIFlJAQ+Pam9V
-         f5P1AnXTid1voqmhYPeT+GGeOhWfAPup70Bf2Nfs8Bcr0TtJZ9hB4Ddjfuy1DxdyPDvE
-         Ay+g==
-X-Gm-Message-State: AAQBX9da2c+j4h4NTyOK5jpZyWQ/fCDsR/7OJf3pgwkNPpGFIPTdMtse
-        hBMGtrBJmLX60ZA/MVIicDDNh8wmCo+otQ==
-X-Google-Smtp-Source: AKy350ZCDxEOhvB06k/8nFr/OHWO5YAaSfzuL2Y8qzIAkmCg7c3/PINVfRoQvVapYrT+OqZlGSCrbw==
-X-Received: by 2002:a5d:63cb:0:b0:2d5:2436:b584 with SMTP id c11-20020a5d63cb000000b002d52436b584mr8944362wrw.42.1679907844064;
-        Mon, 27 Mar 2023 02:04:04 -0700 (PDT)
-Received: from [192.168.26.216] (54-240-197-238.amazon.com. [54.240.197.238])
-        by smtp.gmail.com with ESMTPSA id u13-20020adfdb8d000000b002d2b117a6a6sm24567852wri.41.2023.03.27.02.04.03
+        d=1e100.net; s=20210112; t=1679908373;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=39v8GGfodhYmnqk1H1AgJMeOw8tM+/daTtEK7WYqt90=;
+        b=8Iugbv7T0o94bi94zHQcjq0Jdum+aXNoWpmTpSr6aYWzqDv9CXBRnVJsSku6TlAX62
+         4+me5ppZH8Ow0HSvi07kd3uhsFqL0YeXHM4vUPfao70pg8Gi2///Ip8kk7JwTKOGgunr
+         tyGZsWzEvra4uFqIa+2KP5XXuWJtZg83JAf/nFNrHPmXr2ccIvXdkUsCxdaNop2XNJyt
+         2gH0SSh50abrM29vzG6xA4YrhfAQ3Spx5i4ytWDCsBovaqgMN+4uGqYPHXUXRcJOV8ZG
+         h90UgBDTt35m+K+mU/LKZia50CU+ayofXqVJo0qDc7x+Dh7necgz4a+3qCKqJBKAvu1C
+         l86A==
+X-Gm-Message-State: AAQBX9e7gjJdPwnltm77R1cyypFmnhmnXtojsK3xe1A9BM3m7QsA7jlv
+        nkRrMGLoCxH8Xf2dGH2at/oF1IgSmTLOMA==
+X-Google-Smtp-Source: AKy350ZbiD2DZfC9lB73Jn30riKilr2X8uT0nw1RBArcpv0MEa87JI4UZ6FCRDOxAhjbmInKJTJjXw==
+X-Received: by 2002:a25:b096:0:b0:b6e:3a15:403 with SMTP id f22-20020a25b096000000b00b6e3a150403mr11388524ybj.60.1679908373354;
+        Mon, 27 Mar 2023 02:12:53 -0700 (PDT)
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com. [209.85.219.172])
+        by smtp.gmail.com with ESMTPSA id p142-20020a25d894000000b00b7767ca746fsm2168764ybg.12.2023.03.27.02.12.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Mar 2023 02:04:03 -0700 (PDT)
-From:   Paul Durrant <xadimgnik@gmail.com>
-X-Google-Original-From: Paul Durrant <paul@xen.org>
-Message-ID: <04f7b88c-a7dd-6d63-4938-06e71a194aa3@xen.org>
-Date:   Mon, 27 Mar 2023 10:04:02 +0100
+        Mon, 27 Mar 2023 02:12:53 -0700 (PDT)
+Received: by mail-yb1-f172.google.com with SMTP id n125so9594935ybg.7;
+        Mon, 27 Mar 2023 02:12:52 -0700 (PDT)
+X-Received: by 2002:a05:6902:154e:b0:b77:d2db:5f8f with SMTP id
+ r14-20020a056902154e00b00b77d2db5f8fmr6443739ybu.12.1679908372769; Mon, 27
+ Mar 2023 02:12:52 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Reply-To: paul@xen.org
-Subject: Re: [PATCH 1/2] xen/netback: don't do grant copy across page boundary
-Content-Language: en-US
-To:     Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc:     Wei Liu <wei.liu@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org
-References: <20230327083646.18690-1-jgross@suse.com>
- <20230327083646.18690-2-jgross@suse.com>
-Organization: Xen Project
-In-Reply-To: <20230327083646.18690-2-jgross@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+References: <20230321114753.75038-1-biju.das.jz@bp.renesas.com> <20230321114753.75038-2-biju.das.jz@bp.renesas.com>
+In-Reply-To: <20230321114753.75038-2-biju.das.jz@bp.renesas.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 27 Mar 2023 11:12:41 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdV1kE3bBj2xPhahmW-LVMNgp6=eHOJE0AgmV2vHrQYArA@mail.gmail.com>
+Message-ID: <CAMuHMdV1kE3bBj2xPhahmW-LVMNgp6=eHOJE0AgmV2vHrQYArA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/5] tty: serial: sh-sci: Fix transmit end interrupt handler
+To:     Biju Das <biju.das.jz@bp.renesas.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-serial@vger.kernel.org,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=0.5 required=5.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+        FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,21 +69,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27/03/2023 09:36, Juergen Gross wrote:
-> Fix xenvif_get_requests() not to do grant copy operations across local
-> page boundaries. This requires to double the maximum number of copy
-> operations per queue, as each copy could now be split into 2.
-> 
-> Make sure that struct xenvif_tx_cb doesn't grow too large.
-> 
+On Tue, Mar 21, 2023 at 12:48 PM Biju Das <biju.das.jz@bp.renesas.com> wrote:
+> The fourth interrupt on SCI port is transmit end interrupt compared to
+> the break interrupt on other port types. So, shuffle the interrupts to fix
+> the transmit end interrupt handler.
+>
+> Fixes: e1d0be616186 ("sh-sci: Add h8300 SCI")
 > Cc: stable@vger.kernel.org
-> Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 > ---
->   drivers/net/xen-netback/common.h  |  2 +-
->   drivers/net/xen-netback/netback.c | 25 +++++++++++++++++++++++--
->   2 files changed, 24 insertions(+), 3 deletions(-)
-> 
+> v3->v4:
+>  * No change.
 
-Reviewed-by: Paul Durrant <paul@xen.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
