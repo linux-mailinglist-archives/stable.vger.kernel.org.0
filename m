@@ -2,138 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D846A6CA851
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 16:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B85556CA894
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 17:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233008AbjC0O45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 10:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
+        id S232225AbjC0PHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 11:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbjC0O4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 10:56:54 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B14130F8;
-        Mon, 27 Mar 2023 07:56:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1679929003; x=1711465003;
-  h=message-id:date:mime-version:to:cc:references:from:
-   subject:in-reply-to:content-transfer-encoding;
-  bh=BRqQ/P0VMt4c6LS9SziOR7bbAmyIDfw7eWqlAV9D8cc=;
-  b=L55txLuimMA25e4m5A0LQeof3omTRmqYC5ffh7duKOIX3X34QGx2SyYR
-   KucuknSSDQypflfrO8aw9DbvMU/b8vZfeyZEKECRm2sUU+t96XHJEtlN3
-   dlSoRMfMGxnoMZpz5qOZgO84fzwk4qflPRR+zGCJBSejQv2gwPH+PEvLK
-   XwfNGV7kAuMVeza+zGhMMkVQhcw1SCK7mgkiscYRxDHOqDDFcTSe7ObJ5
-   A6GtisK+zRu7vUcetroxFS31cq5Ken3DLO0cBp+siCyC9ulBjGSXYXt8m
-   ZnZ7fXtDAZiR9J/YrcAsHn4Mo/sXa6oHrhz9xHG6qu3Z1jBVoktRGtDOw
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10662"; a="426547735"
-X-IronPort-AV: E=Sophos;i="5.98,294,1673942400"; 
-   d="scan'208";a="426547735"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2023 07:56:42 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10662"; a="794368272"
-X-IronPort-AV: E=Sophos;i="5.98,294,1673942400"; 
-   d="scan'208";a="794368272"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
-  by fmsmga002.fm.intel.com with ESMTP; 27 Mar 2023 07:56:40 -0700
-Message-ID: <086a7af9-0a33-1a37-2bf3-1338adf96b12@linux.intel.com>
-Date:   Mon, 27 Mar 2023 17:58:02 +0300
+        with ESMTP id S232636AbjC0PHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 11:07:09 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1773AB1
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 08:07:08 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id ew6so37457998edb.7
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 08:07:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1679929626;
+        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
+         :subject:from:to:cc:subject:date:message-id:reply-to;
+        bh=0UFEbGRqt7rcAskYsh6grJN74iOCdchpE+7TjNCjkL4=;
+        b=Uk5DlJVQiFOCAyO438dQ7y0Ej9U8TJAs8QHDwkE8teva/DjvMijj58U7AhXnoBjQ/G
+         sMbocm7tv2KfAU+4waZe+mvPneY1Q5hEX1Lrpg0DRJGJd1CjrR9Hl3L7lkeZ4wQa8ODj
+         aODv3RNO6FnmDWelqP9k6fnKiRWop4LOPMcPY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679929626;
+        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
+         :subject:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0UFEbGRqt7rcAskYsh6grJN74iOCdchpE+7TjNCjkL4=;
+        b=44CJyAqSrHub6yhzrcHDus11/d/dXdBvRz3GRtbhPj4tbN00NtrFFVXSIu+osTtSZ+
+         ATgbY/4tqB9wtAn4HerdDAIg0Strd/hOyr634uxztJyEyciolAKIfrFYkY+j1H7Xc/n2
+         blZNYMMN0qw0KGWl/7vCBKSUbPt94bYzaVivambtCNOMGYf2qwb9Qp0gm5KzC/aLX9pu
+         5VMJ2Okwc26Zh3M+If/EhBFdeJs3tn6lEtae5ndm0g2e6FbFxaA9DCEO7tEmYt3oNGc8
+         AtjDxKkSNv/xJnu51MwUon9zHEbzOpSmOqFpGsc/rfDiyA+YUnidTivy1EVA2HZV554Y
+         EH5w==
+X-Gm-Message-State: AAQBX9dln12hHyM5LhoYQIrA9Ciqm7vxwKrC2GvmWV6mF3gzMWJe0eAm
+        3CcLZFW9D0yjQhWd/oiL5yDJow==
+X-Google-Smtp-Source: AKy350actXROnpcdn2lmx5wDV0TPEejAcfimbqFaHL731CO4ATVjrEQu1XuGrt9lvpNKvZKC6/f/Nw==
+X-Received: by 2002:aa7:c609:0:b0:4fa:ecdc:e44b with SMTP id h9-20020aa7c609000000b004faecdce44bmr12080742edq.24.1679929626563;
+        Mon, 27 Mar 2023 08:07:06 -0700 (PDT)
+Received: from alco.roam.corp.google.com ([2620:0:1059:10:ed3c:5e9e:b8e4:8695])
+        by smtp.gmail.com with ESMTPSA id t9-20020a50c249000000b005021d1ae6adsm5312428edf.28.2023.03.27.08.07.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Mar 2023 08:07:06 -0700 (PDT)
+Subject: [PATCH v4 0/2] kexec: Fix kexec_file_load for llvm16
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.7.1
-Content-Language: en-US
-To:     Hongyu Xie <xiehongyu1@kylinos.cn>, mathias.nyman@intel.com,
-        gregkh@linuxfoundation.org
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, sunke <sunke@kylinos.cn>
-References: <20230327011117.33953-1-xiehongyu1@kylinos.cn>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: [PATCH -next v2] usb: xhci: do not free an empty cmd ring
-In-Reply-To: <20230327011117.33953-1-xiehongyu1@kylinos.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+X-B4-Tracking: v=1; b=H4sIAAyxIWQC/33N3Q6CMAwF4Fchu3Zm3fj1yvcwxkBXYBFGsgnREN
+ 7dxkujXDWnzfm6ikjBURSnZBWBFhfd5Dmkh0RgX/uOpLOchVbaKKNB3ulJeMOBb5DLNAOF2ljQFQ
+ ruNHUk2YTaY88tPw8DL3sXH1N4fX4swOPyj1tAKlkXedmixgJTe8Y+TKObx+MUOnFlbNG7gGbAgq
+ LMZlCUefUDMLuAYSBrFeRYWkVl8QVs2/YGHtmubzQBAAA=
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Mon, 27 Mar 2023 17:06:52 +0200
+Message-Id: <20230321-kexec_clang16-v4-0-1340518f98e9@chromium.org>
+To:     Eric Biederman <ebiederm@xmission.com>
+Cc:     linux-kernel@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Philipp Rudo <prudo@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>, kexec@lists.infradead.org
+X-Mailer: b4 0.11.0-dev-696ae
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1624; i=ribalda@chromium.org;
+ h=from:subject:message-id; bh=c/Cef+C3wMgRslM3TKLYo/Fx7R2kWnifW8QXo2DyqYc=;
+ b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBkIbEOxUf1VwPNCpjkoRxJUrAGmu9A9fnWdmb5L5VA
+ wW+pMCGJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCZCGxDgAKCRDRN9E+zzrEiOjND/
+ 9IHDPa+BnNrrVbx15zUGOg/Puq2djPp0nMs1Bjy5OtucU4d8Mm5xg0Q9TwgufJuZ0NqYk8kGbja9Nu
+ y6/2suuXEdMr9W0Zi1rxHlYgO2XAklZR15uUjk73Cx97mKWDt68p+VLcnNS967KJjB/6+Pi5uiLQ3l
+ 3XKSfKrN/XZeqMzbViurzi0mWw7lO8/EwIgd23jYeButR4rSdqUWm3sdVLbm6PSgkAVdfOvP+BFvu9
+ 1ytum13E5pu08RpMV8Zpj6tA0lcZTnAZ+2y+z2CL9BqemWA2PHfUtuS8jjOpUpmJyyjVQuOmznnEys
+ gQ15HtMS2lVAYuG3g5oRk2mPjqEzkfkuql8384sq1uKzJ4HswLj4qRckUb+JQwE8NsNtHWvPXiX73g
+ EyNoTPxWWp1I2uLyd9OhEWD1qGyKXhG5o5OuL+lOH7tIOw8P7xsLmKNz0jc5b3ASdjrUEgsWVo2QMF
+ 0WTg5oXJ+GybniwJaGqZf6tq1LgzBXEtbVLYc4wMPg46eyALDK/pXJkW8mt7snIYk85cVBj6kHWnmH
+ DIDC86y0ogc4WKXaqRcg7Srs9pPWWVes9VAKbTthTWMkM+Oev09qbdFB1M9Upic9XYO8kWt7Mz11l9
+ cnjS2Lt/NrLGwv14oa5zOpPSV495yV2BSx5ko0aGP+Xy8NdYt+73I0yHsxXg==
+X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
+ fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27.3.2023 4.11, Hongyu Xie wrote:
-> It was first found on HUAWEI Kirin 9006C platform with a builtin xhci
-> controller during stress cycle test(stress-ng, glmark2, x11perf, S4...).
-> 
-> phase one:
-> [26788.706878] PM: dpm_run_callback(): platform_pm_thaw+0x0/0x68 returns -12
-> [26788.706878] PM: Device xhci-hcd.1.auto failed to thaw async: error -12
-> ...
-> phase two:
-> [28650.583496] [2023:01:19 04:43:29]Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
-> ...
-> [28650.583526] user pgtable: 4k pages, 39-bit VAs, pgdp=000000027862a000
-> [28650.583557] [0000000000000028] pgd=0000000000000000
-> ...
-> [28650.583587] pc : xhci_suspend+0x154/0x5b0
-> [28650.583618] lr : xhci_suspend+0x148/0x5b0
-> [28650.583618] sp : ffffffc01c7ebbd0
-> [28650.583618] x29: ffffffc01c7ebbd0 x28: ffffffec834d0000
-> [28650.583618] x27: ffffffc0106a3cc8 x26: ffffffb2c540c848
-> [28650.583618] x25: 0000000000000000 x24: ffffffec82ee30b0
-> [28650.583618] x23: ffffffb43b31c2f8 x22: 0000000000000000
-> [28650.583618] x21: 0000000000000000 x20: ffffffb43b31c000
-> [28650.583648] x19: ffffffb43b31c2a8 x18: 0000000000000001
-> [28650.583648] x17: 0000000000000803 x16: 00000000fffffffe
-> [28650.583648] x15: 0000000000001000 x14: ffffffb150b67e00
-> [28650.583648] x13: 00000000f0000000 x12: 0000000000000001
-> [28650.583648] x11: 0000000000000000 x10: 0000000000000a80
-> [28650.583648] x9 : ffffffc01c7eba00 x8 : ffffffb43ad10ae0
-> [28650.583648] x7 : ffffffb84cd98dc0 x6 : 0000000cceb6a101
-> [28650.583679] x5 : 00ffffffffffffff x4 : 0000000000000001
-> [28650.583679] x3 : 0000000000000011 x2 : 0000000000e2cfa8
-> [28650.583679] x1 : 00000000823535e1 x0 : 0000000000000000
-> 
-> gdb:
-> (gdb) l *(xhci_suspend+0x154)
-> 0xffffffc010b6cd44 is in xhci_suspend (/.../drivers/usb/host/xhci.c:854).
-> 849	{
-> 850		struct xhci_ring *ring;
-> 851		struct xhci_segment *seg;
-> 852
-> 853		ring = xhci->cmd_ring;
-> 854		seg = ring->deq_seg;
-> (gdb) disassemble 0xffffffc010b6cd44
-> ...
-> 0xffffffc010b6cd40 <+336>:	ldr	x22, [x19, #160]
-> 0xffffffc010b6cd44 <+340>:	ldr	x20, [x22, #40]
-> 0xffffffc010b6cd48 <+344>:	mov	w1, #0x0                   	// #0
-> 
-> During phase one, platform_pm_thaw called xhci_plat_resume which called
-> xhci_resume. The rest possible calling routine might be
-> xhci_resume->xhci_init->xhci_mem_init, and xhci->cmd_ring was cleaned in
-> xhci_mem_cleanup before xhci_mem_init returned -ENOMEM.
-> 
-> During phase two, systemd was tring to hibernate again and called
-> xhci_suspend, then xhci_clear_command_ring dereferenced xhci->cmd_ring
-> which was already NULL.
-> 
+When upreving llvm I realised that kexec stopped working on my test
+platform. This patch fixes it.
 
-Any comments on the questions I had on the first version of the patch?
+To: Eric Biederman <ebiederm@xmission.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Philipp Rudo <prudo@redhat.com>
+Cc: kexec@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Ross Zwisler <zwisler@google.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 
-xhci_mem_init() failing with -ENOMEM looks like the real problem here.
+---
+Changes in v4:
+- Add Cc: stable
+- Add linker script for x86
+- Add a warning when the kernel image has overlapping sections.
+- Link to v3: https://lore.kernel.org/r/20230321-kexec_clang16-v3-0-5f016c8d0e87@chromium.org
 
-Are we really running out of memory? does kmemleak say anything?
+Changes in v3:
+- Fix initial value. Thanks Ross!
+- Link to v2: https://lore.kernel.org/r/20230321-kexec_clang16-v2-0-d10e5d517869@chromium.org
 
-Any chance you could look into where exactly xhci_mem_init() fails as
-xhci_mem_init() always returns -ENOMEM on failure?
+Changes in v2:
+- Fix if condition. Thanks Steven!.
+- Update Philipp email. Thanks Baoquan.
+- Link to v1: https://lore.kernel.org/r/20230321-kexec_clang16-v1-0-a768fc2c7c4d@chromium.org
 
-> So if xhci->cmd_ring is NULL, xhci_clear_command_ring just return.
+---
+Ricardo Ribalda (2):
+      kexec: Support purgatories with .text.hot sections
+      x86/purgatory: Add linker script
 
-This hides the problem more than solves it. Root cause is still unknown
+ arch/x86/purgatory/.gitignore        |  2 ++
+ arch/x86/purgatory/Makefile          | 20 +++++++++----
+ arch/x86/purgatory/kexec-purgatory.S |  2 +-
+ arch/x86/purgatory/purgatory.lds.S   | 57 ++++++++++++++++++++++++++++++++++++
+ kernel/kexec_file.c                  | 13 +++++++-
+ 5 files changed, 86 insertions(+), 8 deletions(-)
+---
+base-commit: 17214b70a159c6547df9ae204a6275d983146f6b
+change-id: 20230321-kexec_clang16-4510c23d129c
 
-Thanks
-Mathias
-
+Best regards,
+-- 
+Ricardo Ribalda <ribalda@chromium.org>
