@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB216CAB1E
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 18:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 936C66CAB20
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 18:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbjC0Qzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 12:55:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47972 "EHLO
+        id S230135AbjC0Qzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 12:55:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbjC0Qzm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 12:55:42 -0400
+        with ESMTP id S229946AbjC0Qzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 12:55:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BF01719
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 09:55:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C0C2711
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 09:55:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB5C261300
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 16:55:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B8E5C433D2;
-        Mon, 27 Mar 2023 16:55:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C1CD613F8
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 16:55:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC35C433D2;
+        Mon, 27 Mar 2023 16:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1679936140;
-        bh=GDu3zWIrQckAcC+Wt5/0LUjrrfBzv5Oe9AWAc7BSfLg=;
+        s=korg; t=1679936151;
+        bh=K4hcw666GMf8M+1hyoxzcIdZULqcAB8/24CdCI9Vj1I=;
         h=Subject:To:Cc:From:Date:From;
-        b=R4IV2sikw+bjODlpUE8hGMWagmyOZVhC/KJQklJe2k8cx9SR7FWUuUh9ylI2TTfhf
-         mPQKU1/CUGFMhY/BVXngE/HB381disqbuR04R5pvHHdespHn4LEC54mkPDueOeMLRz
-         RhTBX+9hiygeyDX8oIfR/u+fnUFQnciWvRVfDAFE=
-Subject: FAILED: patch "[PATCH] thunderbolt: Limit USB3 bandwidth of certain Intel USB4 host" failed to apply to 6.2-stable tree
+        b=jexHitOXVYUUe0N65bar4SzBSIhrsuietseS+oIvOsGjHRMZq3EmzZN1stsKvuXkJ
+         jpDw8Nk4ZjWt12PjSJaJ1ZxOQtMv5PBUxVBL8JMBH+Ggh8rwEs7Y4tzZzAPZlx1O50
+         Fe2qOKsi0QY/z4PmmLkWAZRhiEcotAeMqwCyK51Y=
+Subject: FAILED: patch "[PATCH] thunderbolt: Limit USB3 bandwidth of certain Intel USB4 host" failed to apply to 6.1-stable tree
 To:     gil.fine@linux.intel.com, mika.westerberg@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Mar 2023 18:55:36 +0200
-Message-ID: <1679936136244141@kroah.com>
+Date:   Mon, 27 Mar 2023 18:55:37 +0200
+Message-ID: <167993613776154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
 git cherry-pick -x f0a57dd33b3eadf540912cd130db727ea824d174
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1679936136244141@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167993613776154@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
