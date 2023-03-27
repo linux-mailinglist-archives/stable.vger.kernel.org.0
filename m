@@ -2,68 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C56B6C9E75
-	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 10:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD846C9ECA
+	for <lists+stable@lfdr.de>; Mon, 27 Mar 2023 11:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbjC0Ioe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Mar 2023 04:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41426 "EHLO
+        id S233232AbjC0JBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Mar 2023 05:01:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232868AbjC0IoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 04:44:11 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E34F6189
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 01:40:23 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id z19so7724366plo.2
-        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 01:40:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1679906422;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=dQLK/hW7AKbgHNUEK4B79MVPIoXBvbJB6toLc77jEzw=;
-        b=Zim8k0vzUE+khl9AfAYch5AnoKeHfUvh+wD2EOIdnpV04EfV/aB7Ibottf3TWjofAA
-         Jrn2C5u7FtoMo07xehbH/jWfhvE0ldZNK8Y0SuatDSEiAn4GfTvUcRKLNSDY75cmXT9g
-         zNN3r2Svm15ZLeb8zwFduKSEzXg7vodaFqTwWXVPJHnOqRkP9n2pFnhaqqLWA6nzRAOR
-         rOQbK/yBq2UfozGToLifTiuKwS6hZ7TSaJwTlEv2T4uZUgYGfuvvgsZTCuGjiFtH2Ao/
-         RopAU73Cymok7Gc1BLsDmckYxZIiL+2aywVV0AGklqWzEl/g7GZCzYWeT8k06uAmXvtO
-         e5ZA==
+        with ESMTP id S233313AbjC0JAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Mar 2023 05:00:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5406187
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 01:58:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679907483;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=u0K5CZY+NXJwZw0Rihp1Vuy/uuADkaGO2qThx55jqJM=;
+        b=hj5lodzorapih3n8WqL3hPm+Fks26hswx0fRM9fT8VW984K74FIavUTO4lecywPX5FUX6u
+        BIRk84eFAfBkE6loFs+xPbjPUHmfj6WZl/jyTccg177fVNOlSHLh565l8lgIqwfUOHhxgY
+        D1O8ppqNodzDihUDZAfoxDxyBci03rU=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-131-nbc4WLioM2uvwYSAzGpDiA-1; Mon, 27 Mar 2023 04:58:01 -0400
+X-MC-Unique: nbc4WLioM2uvwYSAzGpDiA-1
+Received: by mail-ed1-f72.google.com with SMTP id k12-20020a50c8cc000000b004accf30f6d3so11611711edh.14
+        for <stable@vger.kernel.org>; Mon, 27 Mar 2023 01:58:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679906422;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dQLK/hW7AKbgHNUEK4B79MVPIoXBvbJB6toLc77jEzw=;
-        b=HYZmpbKMiWKUDwWLI4DPYtfflUZgm/hJXtRmj52yJLR+60MNEPQs1VMz+dIflxVak6
-         9z9z7d/DWGa2lbQ1Q45OGZtPnJM0RJLfUHHrRwABsonaKt4PTvCNJl3zhWxdky+n3C0+
-         62SphFSO8HprjSZ/yQ0drkQEcq9VwGCdCCzlG40ybOnUFKyz5VUDR1dokWDgTd1ahEYu
-         TZ04Qb4iJ/w8pvomtZSXkPdj7+WE2gvozioZgiH8bCl+RoyvXCgPzs49H8BnEK1yKYzO
-         XSk/vVEHSK/KIYF+dyW5g0imAGIUIoEa/5NnO/uIsgYQbiJDhm2ZSevznm9eUg0PlBHZ
-         UArw==
-X-Gm-Message-State: AAQBX9faNkJUV5ngLMaJe87fOzQlyivBa6rd/45XyeM0ISDPRS9fo2jq
-        wb1Wa9OBX8tgMTBR9let5udveKkIfEsgP7f9aX4=
-X-Google-Smtp-Source: AKy350ad9qkZrCaCM+IViq/MKLLo/teXcfcmHvdT5yY4tGYv5jxXI5ywP7CRYXbuSh511dKNKB772A==
-X-Received: by 2002:a17:902:f543:b0:1a1:ce5d:5a15 with SMTP id h3-20020a170902f54300b001a1ce5d5a15mr11769818plf.50.1679906422513;
-        Mon, 27 Mar 2023 01:40:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x1-20020a1709028ec100b0019f0ef910f7sm18571433plo.123.2023.03.27.01.40.21
+        d=1e100.net; s=20210112; t=1679907481;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=u0K5CZY+NXJwZw0Rihp1Vuy/uuADkaGO2qThx55jqJM=;
+        b=VExmJoxoSzVmydwBtOJNJhG4HuVsWL+BlJ1WsD4lbBXG2lOqZs8KyidRvR+BzTuWjS
+         vT+Ooq1TMyT4ApYMdi/SKj2SAn9+6ImAqOD4E1AUDBt1Mu7j9RGt40qCEOeCTxlnDnUn
+         kdV81XqTffxSEMMNZLlOOxYRHIm3qVwikPBruq5HbGlJJG8ALnpL4d28DE2ZDNHasU6x
+         tAGsdo6p+9ylBYtT+ZSvkIlENvIxQ9GgnqHjf1rdFpMB9iEowjSWucI+mW0/ptcLtG39
+         LeACIKw+cmvEhdrU7OHHZcik99JSMxEkLk3b0BX/1f0Z3LgEWOdNSkqbJgioV+R7UN9W
+         vMvw==
+X-Gm-Message-State: AAQBX9f9uUsZe5iyCIXh3LRqDPcmhm7AIL7a3L4aKvBk3Ndv0dmeWWnB
+        23rNRHsVqfA6FIrpJNuhYEGfcIckLs4rWpUMoyi2WuSeJt8dBkVLLRDKc9Gh6C3Xh5Zr+3jjPyR
+        DNHsROCL3pO3O75Zy13b03R65PqJKwwQfjJ3pvtKCydxVczskbE7f7OQBzXjPgCYACIt8mJsEs7
+        BY
+X-Received: by 2002:a17:906:14cf:b0:8a6:e075:e364 with SMTP id y15-20020a17090614cf00b008a6e075e364mr11729383ejc.26.1679907480857;
+        Mon, 27 Mar 2023 01:58:00 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YzXx1awvwkX+fEgvumj6+GHSmG5iDCpAd/o9IgdsARmwwcbXihmYzwXAeNrNoX5lt7Z9UZOA==
+X-Received: by 2002:a17:906:14cf:b0:8a6:e075:e364 with SMTP id y15-20020a17090614cf00b008a6e075e364mr11729360ejc.26.1679907480529;
+        Mon, 27 Mar 2023 01:58:00 -0700 (PDT)
+Received: from fedora (g2.ign.cz. [91.219.240.8])
+        by smtp.gmail.com with ESMTPSA id d7-20020a1709067f0700b00882f9130eafsm13772654ejr.26.2023.03.27.01.57.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Mar 2023 01:40:22 -0700 (PDT)
-Message-ID: <64215676.170a0220.a7a57.1fdc@mx.google.com>
-Date:   Mon, 27 Mar 2023 01:40:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 27 Mar 2023 01:57:59 -0700 (PDT)
+From:   Vitaly Kuznetsov <vkuznets@redhat.com>
+To:     jpiotrowski@linux.microsoft.com, linux-kernel@vger.kernel.org
+Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+        Tianyu Lan <ltykernel@gmail.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Sean Christopherson <seanjc@google.com>, stable@vger.kernel.org
+Subject: Re: [RESEND PATCH v2] KVM: SVM: Flush Hyper-V TLB when required
+In-Reply-To: <20230324145233.4585-1-jpiotrowski@linux.microsoft.com>
+References: <20230324144500.4216-1-jpiotrowski@microsoft.com>
+ <20230324145233.4585-1-jpiotrowski@linux.microsoft.com>
+Date:   Mon, 27 Mar 2023 10:57:58 +0200
+Message-ID: <87tty6o9k9.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.176-60-gfc355b25292e
-Subject: stable-rc/queue/5.10 baseline: 119 runs,
- 3 regressions (v5.10.176-60-gfc355b25292e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=0.0 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+Content-Type: text/plain
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,196 +79,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 119 runs, 3 regressions (v5.10.176-60-gfc355=
-b25292e)
+jpiotrowski@linux.microsoft.com writes:
 
-Regressions Summary
--------------------
+> From: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+>
+> The Hyper-V "EnlightenedNptTlb" enlightenment is always enabled when KVM
+> is running on top of Hyper-V and Hyper-V exposes support for it (which
+> is always). On AMD CPUs this enlightenment results in ASID invalidations
+> not flushing TLB entries derived from the NPT. To force the underlying
+> (L0) hypervisor to rebuild its shadow page tables, an explicit hypercall
+> is needed.
+>
+> The original KVM implementation of Hyper-V's "EnlightenedNptTlb" on SVM
+> only added remote TLB flush hooks. This worked out fine for a while, as
+> sufficient remote TLB flushes where being issued in KVM to mask the
+> problem. Since v5.17, changes in the TDP code reduced the number of
+> flushes and the out-of-sync TLB prevents guests from booting
+> successfully.
+>
+> Split svm_flush_tlb_current() into separate callbacks for the 3 cases
+> (guest/all/current), and issue the required Hyper-V hypercall when a
+> Hyper-V TLB flush is needed. The most important case where the TLB flush
+> was missing is when loading a new PGD, which is followed by what is now
+> svm_flush_tlb_current().
+>
+> Cc: stable@vger.kernel.org # v5.17+
+> Fixes: 1e0c7d40758b ("KVM: SVM: hyper-v: Remote TLB flush for SVM")
+> Link: https://lore.kernel.org/lkml/43980946-7bbf-dcef-7e40-af904c456250@linux.microsoft.com/
+> Suggested-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+> ---
+> Resending because I accidentally used the wrong "From:" address and it bounced
+> from some recipients.
+>
+> Changes since v1:
+> - lookup enlightened_npt_tlb in vmcb to determine whether to do the
+>   flush
+> - when KVM wants a hyperv_flush_guest_mapping() call, don't try to
+>   optimize it out
+> - don't hide hyperv flush behind helper, make it visible in
+>   svm.c
+>
+>  arch/x86/kvm/kvm_onhyperv.h     |  5 +++++
+>  arch/x86/kvm/svm/svm.c          | 37 ++++++++++++++++++++++++++++++---
+>  arch/x86/kvm/svm/svm_onhyperv.h | 15 +++++++++++++
+>  3 files changed, 54 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/x86/kvm/kvm_onhyperv.h b/arch/x86/kvm/kvm_onhyperv.h
+> index 287e98ef9df3..67b53057e41c 100644
+> --- a/arch/x86/kvm/kvm_onhyperv.h
+> +++ b/arch/x86/kvm/kvm_onhyperv.h
+> @@ -12,6 +12,11 @@ int hv_remote_flush_tlb_with_range(struct kvm *kvm,
+>  int hv_remote_flush_tlb(struct kvm *kvm);
+>  void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp);
+>  #else /* !CONFIG_HYPERV */
+> +static inline int hv_remote_flush_tlb(struct kvm *kvm)
+> +{
+> +	return -1;
+> +}
 
-platform                     | arch | lab          | compiler | defconfig  =
-         | regressions
------------------------------+------+--------------+----------+------------=
----------+------------
-beaglebone-black             | arm  | lab-broonie  | gcc-10   | omap2plus_d=
-efconfig | 1          =
+Nitpick: -ENOTSUPP?
 
-cubietruck                   | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig  | 1          =
+> +
+>  static inline void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp)
+>  {
+>  }
+> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> index 252e7f37e4e2..f25bc3cbb250 100644
+> --- a/arch/x86/kvm/svm/svm.c
+> +++ b/arch/x86/kvm/svm/svm.c
+> @@ -3729,7 +3729,7 @@ static void svm_enable_nmi_window(struct kvm_vcpu *vcpu)
+>  	svm->vmcb->save.rflags |= (X86_EFLAGS_TF | X86_EFLAGS_RF);
+>  }
+>  
+> -static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
+> +static void svm_flush_tlb_asid(struct kvm_vcpu *vcpu)
+>  {
+>  	struct vcpu_svm *svm = to_svm(vcpu);
+>  
+> @@ -3753,6 +3753,37 @@ static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
+>  		svm->current_vmcb->asid_generation--;
+>  }
+>  
+> +static void svm_flush_tlb_current(struct kvm_vcpu *vcpu)
+> +{
+> +	hpa_t root_tdp = vcpu->arch.mmu->root.hpa;
+> +
+> +	/*
+> +	 * When running on Hyper-V with EnlightenedNptTlb enabled, explicitly
+> +	 * flush the NPT mappings via hypercall as flushing the ASID only
+> +	 * affects virtual to physical mappings, it does not invalidate guest
+> +	 * physical to host physical mappings.
+> +	 */
+> +	if (svm_hv_is_enlightened_tlb_enabled(vcpu) && VALID_PAGE(root_tdp))
+> +		hyperv_flush_guest_mapping(root_tdp);
 
-sun8i-h3-libretech-all-h3-cc | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig  | 1          =
+Nitpick: it could also make sense to yell with a WARN_ON_ONCE() or
+something if hyperv_flush_guest_mapping() ever fails.
 
+> +
+> +	svm_flush_tlb_asid(vcpu);
+> +}
+> +
+> +static void svm_flush_tlb_all(struct kvm_vcpu *vcpu)
+> +{
+> +	/*
+> +	 * When running on Hyper-V with EnlightenedNptTlb enabled, remote TLB
+> +	 * flushes should be routed to hv_remote_flush_tlb() without requesting
+> +	 * a "regular" remote flush.  Reaching this point means either there's
+> +	 * a KVM bug or a prior hv_remote_flush_tlb() call failed, both of
+> +	 * which might be fatal to the guest.  Yell, but try to recover.
+> +	 */
+> +	if (WARN_ON_ONCE(svm_hv_is_enlightened_tlb_enabled(vcpu)))
+> +		hv_remote_flush_tlb(vcpu->kvm);
+> +
+> +	svm_flush_tlb_asid(vcpu);
+> +}
+> +
+>  static void svm_flush_tlb_gva(struct kvm_vcpu *vcpu, gva_t gva)
+>  {
+>  	struct vcpu_svm *svm = to_svm(vcpu);
+> @@ -4745,10 +4776,10 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
+>  	.set_rflags = svm_set_rflags,
+>  	.get_if_flag = svm_get_if_flag,
+>  
+> -	.flush_tlb_all = svm_flush_tlb_current,
+> +	.flush_tlb_all = svm_flush_tlb_all,
+>  	.flush_tlb_current = svm_flush_tlb_current,
+>  	.flush_tlb_gva = svm_flush_tlb_gva,
+> -	.flush_tlb_guest = svm_flush_tlb_current,
+> +	.flush_tlb_guest = svm_flush_tlb_asid,
+>  
+>  	.vcpu_pre_run = svm_vcpu_pre_run,
+>  	.vcpu_run = svm_vcpu_run,
+> diff --git a/arch/x86/kvm/svm/svm_onhyperv.h b/arch/x86/kvm/svm/svm_onhyperv.h
+> index cff838f15db5..786d46d73a8e 100644
+> --- a/arch/x86/kvm/svm/svm_onhyperv.h
+> +++ b/arch/x86/kvm/svm/svm_onhyperv.h
+> @@ -6,6 +6,8 @@
+>  #ifndef __ARCH_X86_KVM_SVM_ONHYPERV_H__
+>  #define __ARCH_X86_KVM_SVM_ONHYPERV_H__
+>  
+> +#include <asm/mshyperv.h>
+> +
+>  #if IS_ENABLED(CONFIG_HYPERV)
+>  
+>  #include "kvm_onhyperv.h"
+> @@ -15,6 +17,14 @@ static struct kvm_x86_ops svm_x86_ops;
+>  
+>  int svm_hv_enable_l2_tlb_flush(struct kvm_vcpu *vcpu);
+>  
+> +static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
+> +{
+> +	struct hv_vmcb_enlightenments *hve = &to_svm(vcpu)->vmcb->control.hv_enlightenments;
+> +
+> +	return ms_hyperv.nested_features & HV_X64_NESTED_ENLIGHTENED_TLB &&
+> +	       !!hve->hv_enlightenments_control.enlightened_npt_tlb;
+> +}
+> +
+>  static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
+>  {
+>  	struct hv_vmcb_enlightenments *hve = &vmcb->control.hv_enlightenments;
+> @@ -80,6 +90,11 @@ static inline void svm_hv_update_vp_id(struct vmcb *vmcb, struct kvm_vcpu *vcpu)
+>  }
+>  #else
+>  
+> +static inline bool svm_hv_is_enlightened_tlb_enabled(struct kvm_vcpu *vcpu)
+> +{
+> +	return false;
+> +}
+> +
+>  static inline void svm_hv_init_vmcb(struct vmcb *vmcb)
+>  {
+>  }
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.176-60-gfc355b25292e/plan/baseline/
+Apart from the two nitpicks above,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.176-60-gfc355b25292e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fc355b25292e68d1b33300fc30681ec374502ed3 =
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 
+-- 
+Vitaly
 
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch | lab          | compiler | defconfig  =
-         | regressions
------------------------------+------+--------------+----------+------------=
----------+------------
-beaglebone-black             | arm  | lab-broonie  | gcc-10   | omap2plus_d=
-efconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64211f3d63c7c40e0b9c954d
-
-  Results:     51 PASS, 4 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
--60-gfc355b25292e/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-beagl=
-ebone-black.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
--60-gfc355b25292e/arm/omap2plus_defconfig/gcc-10/lab-broonie/baseline-beagl=
-ebone-black.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64211f3d63c7c40e0b9c9585
-        failing since 41 days (last pass: v5.10.167-127-g921934d621e4, firs=
-t fail: v5.10.167-139-gf9519a5a1701)
-
-    2023-03-27T04:44:26.949456  <8>[   20.702586] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 233590_1.5.2.4.1>
-    2023-03-27T04:44:27.060721  / # #
-    2023-03-27T04:44:27.163669  export SHELL=3D/bin/sh
-    2023-03-27T04:44:27.164303  #
-    2023-03-27T04:44:27.266162  / # export SHELL=3D/bin/sh. /lava-233590/en=
-vironment
-    2023-03-27T04:44:27.266943  =
-
-    2023-03-27T04:44:27.369158  / # . /lava-233590/environment/lava-233590/=
-bin/lava-test-runner /lava-233590/1
-    2023-03-27T04:44:27.370196  =
-
-    2023-03-27T04:44:27.374382  / # /lava-233590/bin/lava-test-runner /lava=
--233590/1
-    2023-03-27T04:44:27.485354  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =
-
-
-
-platform                     | arch | lab          | compiler | defconfig  =
-         | regressions
------------------------------+------+--------------+----------+------------=
----------+------------
-cubietruck                   | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64211d652e4971f5459c9540
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
--60-gfc355b25292e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
--60-gfc355b25292e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64211d652e4971f5459c9549
-        failing since 59 days (last pass: v5.10.165-76-g5c2e982fcf18, first=
- fail: v5.10.165-77-g4600242c13ed)
-
-    2023-03-27T04:36:43.366197  + set +x<8>[   10.988897] <LAVA_SIGNAL_ENDR=
-UN 0_dmesg 3448076_1.5.2.4.1>
-    2023-03-27T04:36:43.366513  =
-
-    2023-03-27T04:36:43.473722  / # #
-    2023-03-27T04:36:43.575362  export SHELL=3D/bin/sh
-    2023-03-27T04:36:43.575706  #
-    2023-03-27T04:36:43.677046  / # export SHELL=3D/bin/sh. /lava-3448076/e=
-nvironment
-    2023-03-27T04:36:43.677466  =
-
-    2023-03-27T04:36:43.677656  <3>[   11.210988] Bluetooth: hci0: command =
-0xfc18 tx timeout
-    2023-03-27T04:36:43.778792  / # . /lava-3448076/environment/lava-344807=
-6/bin/lava-test-runner /lava-3448076/1
-    2023-03-27T04:36:43.779324   =
-
-    ... (13 line(s) more)  =
-
- =
-
-
-
-platform                     | arch | lab          | compiler | defconfig  =
-         | regressions
------------------------------+------+--------------+----------+------------=
----------+------------
-sun8i-h3-libretech-all-h3-cc | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/64211d49cf05faed769c9570
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
--60-gfc355b25292e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
--h3-libretech-all-h3-cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.176=
--60-gfc355b25292e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
--h3-libretech-all-h3-cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230310.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/64211d49cf05faed769c9579
-        failing since 53 days (last pass: v5.10.165-139-gefb57ce0f880, firs=
-t fail: v5.10.165-149-ge30e8271d674)
-
-    2023-03-27T04:36:02.150371  / # #
-    2023-03-27T04:36:02.252179  export SHELL=3D/bin/sh
-    2023-03-27T04:36:02.252622  #
-    2023-03-27T04:36:02.353914  / # export SHELL=3D/bin/sh. /lava-3448079/e=
-nvironment
-    2023-03-27T04:36:02.354341  =
-
-    2023-03-27T04:36:02.455691  / # . /lava-3448079/environment/lava-344807=
-9/bin/lava-test-runner /lava-3448079/1
-    2023-03-27T04:36:02.456336  =
-
-    2023-03-27T04:36:02.462687  / # /lava-3448079/bin/lava-test-runner /lav=
-a-3448079/1
-    2023-03-27T04:36:02.560615  + export 'TESTRUN_ID=3D1_bootrr'
-    2023-03-27T04:36:02.560962  + cd /lava-3448079/1/tests/1_bootrr =
-
-    ... (10 line(s) more)  =
-
- =20
