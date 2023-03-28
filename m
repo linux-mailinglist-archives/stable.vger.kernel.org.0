@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650CD6CBDED
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 160F16CBDEE
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232354AbjC1Lhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 07:37:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60202 "EHLO
+        id S232518AbjC1Lhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 07:37:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230245AbjC1Lhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 07:37:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B192959E9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 04:37:35 -0700 (PDT)
+        with ESMTP id S230245AbjC1Lhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 07:37:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535855BA1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 04:37:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58184B81BDF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 11:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B038AC433EF;
-        Tue, 28 Mar 2023 11:37:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA355B81C14
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 11:37:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5776FC433EF;
+        Tue, 28 Mar 2023 11:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680003453;
-        bh=jWJaNJ1WCGlLky9IjylndoOibpXqoabQ1jFzbUpRw4I=;
+        s=korg; t=1680003455;
+        bh=azHKM0hMYewXGPgwTzW/YVed1vseDaOqWSm2cFpmIos=;
         h=Subject:To:Cc:From:Date:From;
-        b=QJvGNmTJc/xG3OxokZnu4yKl+f44APPrU7nrA7NRsJyjhSD2Zv1npRZN+Fw7+7phQ
-         jnocUXjrmg5ewi5xTRmiJXXg5VpJpI9fI58X0wJjWr2b8gFVgIQ7UnnThtaAUNOGoM
-         HpxejSBQh/wAYM6MBelX94pMhHxM/g/cGUgJopsU=
-Subject: FAILED: patch "[PATCH] cifs: avoid race conditions with parallel reconnects" failed to apply to 6.1-stable tree
+        b=XD7lkQSqY22v8HoQQqirMtd/qzmUfYNouUitiDUl725zdq0pBmc6rNd02q+mTaIuT
+         Mi1LpaBuEWecZVJsKV7hyoL25VW4C+CWVWVgEGrgsjmQ9hs1y07PLapLyxH75yd8Yf
+         ardcERhFTfogKw9PfedAV8Y4eP7W+3KRuGOJEfDw=
+Subject: FAILED: patch "[PATCH] cifs: avoid race conditions with parallel reconnects" failed to apply to 5.15-stable tree
 To:     sprasad@microsoft.com, pc@manguebit.com, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 13:37:22 +0200
-Message-ID: <168000344221854@kroah.com>
+Date:   Tue, 28 Mar 2023 13:37:23 +0200
+Message-ID: <168000344359180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x bc962159e8e326af634a506508034a375bf2b858
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '168000344221854@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '168000344359180@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
@@ -68,6 +68,17 @@ bc962159e8e3 ("cifs: avoid race conditions with parallel reconnects")
 e77978de4765 ("cifs: update ip_addr for ses only for primary chan setup")
 3c0070f54b31 ("cifs: prevent data race in smb2_reconnect()")
 25cf01b7c920 ("cifs: set correct status of tcon ipc when reconnecting")
+d7d7a66aacd6 ("cifs: avoid use of global locks for high contention data")
+9543c8ab3016 ("cifs: list_for_each() -> list_for_each_entry()")
+af3a6d1018f0 ("cifs: update cifs_ses::ip_addr after failover")
+b54034a73baf ("cifs: during reconnect, update interface if necessary")
+cc391b694ff0 ("cifs: fix potential deadlock in direct reclaim")
+5752bf645f9d ("cifs: avoid parallel session setups on same channel")
+dd3cd8709ed5 ("cifs: use new enum for ses_status")
+1a6a41d4cedd ("cifs: do not use tcpStatus after negotiate completes")
+cd70a3e8988a ("cifs: use correct lock type in cifs_reconnect()")
+fb39d30e2272 ("cifs: force new session setup and tcon for dfs")
+9a005bea4f59 ("Merge tag '5.18-smb3-fixes-part2' of git://git.samba.org/sfrench/cifs-2.6")
 
 thanks,
 
