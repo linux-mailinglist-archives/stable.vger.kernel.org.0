@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CFC6CC4A5
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9446CC540
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233877AbjC1PGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:06:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46374 "EHLO
+        id S232349AbjC1PNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbjC1PGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:48 -0400
+        with ESMTP id S232625AbjC1PMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220EEEC70
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C59FF18
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8279B81D7B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E140C4339E;
-        Tue, 28 Mar 2023 15:05:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D293B81DA3
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA9CC433EF;
+        Tue, 28 Mar 2023 15:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015936;
-        bh=mb30MmMqLx6wKvtPb0vCuNT6eDvY4Y5bNrls1gbpZJQ=;
+        s=korg; t=1680016276;
+        bh=9Cqg7EE6fgIcy0MD/+BAdo15L4uXU/3cjC18T5fXqZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejkX1w/JvLI7YJZE1sk56M/ythTAVkRd4uPCE7xmy5oKANd9UcSl9TSHrDmWt+jKZ
-         CdSYFeQquo+arn5o5tUlmuy3mF5WPFbsLHYrc/z9yDFpcBO57CYTyCNKwzA7NShlHn
-         Uq1YzDW3M/WEgAaxOVUBwrsyJ1m/axQee7oQjvjg=
+        b=B/fOOmEPVtfHMrPsttDQgRAdJtnJD9OLiMUTjkviS8c4ulqIQNyelb5RjrAOn/xNe
+         L2cdT8vvbWmCtk5jnGL0dNlp5d42xIDZAAOsDTpqZquYt6t+Hh/UH6iEsWDiSxbdWS
+         gbMs5PIf/TTYWNSj8G0RIbr90koJik9jWt6BP71Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Prike Liang <Prike.Liang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 6.1 221/224] drm/amdkfd: introduce dummy cache info for property asic
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+132fdd2f1e1805fdc591@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 128/146] nilfs2: fix kernel-infoleak in nilfs_ioctl_wrap_copy()
 Date:   Tue, 28 Mar 2023 16:43:37 +0200
-Message-Id: <20230328142626.505133663@linuxfoundation.org>
+Message-Id: <20230328142607.996667697@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prike Liang <Prike.Liang@amd.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit fd72e2cb2f9dd2734e8013b3e185a21f0d605d3e upstream.
+commit 003587000276f81d0114b5ce773d80c119d8cb30 upstream.
 
-This dummy cache info will enable kfd base function support.
+The ioctl helper function nilfs_ioctl_wrap_copy(), which exchanges a
+metadata array to/from user space, may copy uninitialized buffer regions
+to user space memory for read-only ioctl commands NILFS_IOCTL_GET_SUINFO
+and NILFS_IOCTL_GET_CPINFO.
 
-Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+This can occur when the element size of the user space metadata given by
+the v_size member of the argument nilfs_argv structure is larger than the
+size of the metadata element (nilfs_suinfo structure or nilfs_cpinfo
+structure) on the file system side.
+
+KMSAN-enabled kernels detect this issue as follows:
+
+ BUG: KMSAN: kernel-infoleak in instrument_copy_to_user
+ include/linux/instrumented.h:121 [inline]
+ BUG: KMSAN: kernel-infoleak in _copy_to_user+0xc0/0x100 lib/usercopy.c:33
+  instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+  _copy_to_user+0xc0/0x100 lib/usercopy.c:33
+  copy_to_user include/linux/uaccess.h:169 [inline]
+  nilfs_ioctl_wrap_copy+0x6fa/0xc10 fs/nilfs2/ioctl.c:99
+  nilfs_ioctl_get_info fs/nilfs2/ioctl.c:1173 [inline]
+  nilfs_ioctl+0x2402/0x4450 fs/nilfs2/ioctl.c:1290
+  nilfs_compat_ioctl+0x1b8/0x200 fs/nilfs2/ioctl.c:1343
+  __do_compat_sys_ioctl fs/ioctl.c:968 [inline]
+  __se_compat_sys_ioctl+0x7dd/0x1000 fs/ioctl.c:910
+  __ia32_compat_sys_ioctl+0x93/0xd0 fs/ioctl.c:910
+  do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+  __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+  do_fast_syscall_32+0x37/0x80 arch/x86/entry/common.c:203
+  do_SYSENTER_32+0x1f/0x30 arch/x86/entry/common.c:246
+  entry_SYSENTER_compat_after_hwframe+0x70/0x82
+
+ Uninit was created at:
+  __alloc_pages+0x9f6/0xe90 mm/page_alloc.c:5572
+  alloc_pages+0xab0/0xd80 mm/mempolicy.c:2287
+  __get_free_pages+0x34/0xc0 mm/page_alloc.c:5599
+  nilfs_ioctl_wrap_copy+0x223/0xc10 fs/nilfs2/ioctl.c:74
+  nilfs_ioctl_get_info fs/nilfs2/ioctl.c:1173 [inline]
+  nilfs_ioctl+0x2402/0x4450 fs/nilfs2/ioctl.c:1290
+  nilfs_compat_ioctl+0x1b8/0x200 fs/nilfs2/ioctl.c:1343
+  __do_compat_sys_ioctl fs/ioctl.c:968 [inline]
+  __se_compat_sys_ioctl+0x7dd/0x1000 fs/ioctl.c:910
+  __ia32_compat_sys_ioctl+0x93/0xd0 fs/ioctl.c:910
+  do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+  __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+  do_fast_syscall_32+0x37/0x80 arch/x86/entry/common.c:203
+  do_SYSENTER_32+0x1f/0x30 arch/x86/entry/common.c:246
+  entry_SYSENTER_compat_after_hwframe+0x70/0x82
+
+ Bytes 16-127 of 3968 are uninitialized
+ ...
+
+This eliminates the leak issue by initializing the page allocated as
+buffer using get_zeroed_page().
+
+Link: https://lkml.kernel.org/r/20230307085548.6290-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+132fdd2f1e1805fdc591@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/000000000000a5bd2d05f63f04ae@google.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_crat.c |   53 +++++++++++++++++++++++++++++++++-
- 1 file changed, 52 insertions(+), 1 deletion(-)
+ fs/nilfs2/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
-@@ -891,6 +891,54 @@ static struct kfd_gpu_cache_info gc_10_3
- 	},
- };
+--- a/fs/nilfs2/ioctl.c
++++ b/fs/nilfs2/ioctl.c
+@@ -71,7 +71,7 @@ static int nilfs_ioctl_wrap_copy(struct
+ 	if (argv->v_index > ~(__u64)0 - argv->v_nmembs)
+ 		return -EINVAL;
  
-+static struct kfd_gpu_cache_info dummy_cache_info[] = {
-+	{
-+		/* TCP L1 Cache per CU */
-+		.cache_size = 16,
-+		.cache_level = 1,
-+		.flags = (CRAT_CACHE_FLAGS_ENABLED |
-+				CRAT_CACHE_FLAGS_DATA_CACHE |
-+				CRAT_CACHE_FLAGS_SIMD_CACHE),
-+		.num_cu_shared = 1,
-+	},
-+	{
-+		/* Scalar L1 Instruction Cache per SQC */
-+		.cache_size = 32,
-+		.cache_level = 1,
-+		.flags = (CRAT_CACHE_FLAGS_ENABLED |
-+				CRAT_CACHE_FLAGS_INST_CACHE |
-+				CRAT_CACHE_FLAGS_SIMD_CACHE),
-+		.num_cu_shared = 2,
-+	},
-+	{
-+		/* Scalar L1 Data Cache per SQC */
-+		.cache_size = 16,
-+		.cache_level = 1,
-+		.flags = (CRAT_CACHE_FLAGS_ENABLED |
-+				CRAT_CACHE_FLAGS_DATA_CACHE |
-+				CRAT_CACHE_FLAGS_SIMD_CACHE),
-+		.num_cu_shared = 2,
-+	},
-+	{
-+		/* GL1 Data Cache per SA */
-+		.cache_size = 128,
-+		.cache_level = 1,
-+		.flags = (CRAT_CACHE_FLAGS_ENABLED |
-+				CRAT_CACHE_FLAGS_DATA_CACHE |
-+				CRAT_CACHE_FLAGS_SIMD_CACHE),
-+		.num_cu_shared = 6,
-+	},
-+	{
-+		/* L2 Data Cache per GPU (Total Tex Cache) */
-+		.cache_size = 2048,
-+		.cache_level = 2,
-+		.flags = (CRAT_CACHE_FLAGS_ENABLED |
-+				CRAT_CACHE_FLAGS_DATA_CACHE |
-+				CRAT_CACHE_FLAGS_SIMD_CACHE),
-+		.num_cu_shared = 6,
-+	},
-+};
-+
- static void kfd_populated_cu_info_cpu(struct kfd_topology_device *dev,
- 		struct crat_subtype_computeunit *cu)
- {
-@@ -1630,7 +1678,10 @@ static int kfd_fill_gpu_cache_info(struc
- 				kfd_fill_gpu_cache_info_from_gfx_config(kdev, pcache_info);
- 			break;
- 		default:
--			return -EINVAL;
-+			pcache_info = dummy_cache_info;
-+			num_of_cache_types = ARRAY_SIZE(dummy_cache_info);
-+			pr_warn("dummy cache info is used temporarily and real cache info need update later.\n");
-+			break;
- 		}
- 	}
- 
+-	buf = (void *)__get_free_pages(GFP_NOFS, 0);
++	buf = (void *)get_zeroed_page(GFP_NOFS);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+ 	maxmembs = PAGE_SIZE / argv->v_size;
 
 
