@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF196CC3FC
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5E36CC2ED
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233675AbjC1O64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
+        id S233272AbjC1Ot4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:49:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233739AbjC1O6p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 395ECEB4D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:38 -0700 (PDT)
+        with ESMTP id S233215AbjC1Otk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F808DBD4
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C308D6181D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1023C433D2;
-        Tue, 28 Mar 2023 14:58:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8D6AB81D67
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE79C433EF;
+        Tue, 28 Mar 2023 14:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015517;
-        bh=vaGhSC8T0G9BJOqcIOTHJlLKndBRc4+vdUOiwZE7LtE=;
+        s=korg; t=1680014941;
+        bh=rBkdW1y5B7zp6feinD9rC2EV8ecq3IfIX2h2UfbawzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ot2nMEN+X00/7HpIJQu3NeYNt3foZBMvg40eCHDNdx5gQltEhL2s0QIm3sIAm2l3Q
-         VV3xMShijtAwlHhT+iFK07jSnXa2NTgR4iJ4Mmu0lYvuHBBecwIPZ9yGBhhe+DEtxZ
-         wiKIdl+06vKG5SvczfgGdKNma8+37VOk2dRB1kYk=
+        b=w5LwDrAsFE6eo8PpHm8X4cvsio2jrnmMNEpJGzXOv7auc+WxOUbbWjWWUs8drHnS7
+         PoFbBSLszkGgS8GkrzUmFTer4OoabPpklcqRTxiOsPe4lqwRObHIKCwW99eAoKwVA9
+         b11qIDm/8yjagqNcUgzBwBK60O1Oxg1DI7nZpz/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Breno Leitao <leitao@debian.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sandipan Das <sandipan.das@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 076/224] hvc/xen: prevent concurrent accesses to the shared ring
+Subject: [PATCH 6.2 109/240] perf/x86/amd/core: Always clear status for idx
 Date:   Tue, 28 Mar 2023 16:41:12 +0200
-Message-Id: <20230328142620.501615396@linuxfoundation.org>
+Message-Id: <20230328142624.327351397@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,142 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit 6214894f49a967c749ee6c07cb00f9cede748df4 ]
+[ Upstream commit 263f5ecaf7080513efc248ec739b6d9e00f4129f ]
 
-The hvc machinery registers both a console and a tty device based on
-the hv ops provided by the specific implementation.  Those two
-interfaces however have different locks, and there's no single locks
-that's shared between the tty and the console implementations, hence
-the driver needs to protect itself against concurrent accesses.
-Otherwise concurrent calls using the split interfaces are likely to
-corrupt the ring indexes, leaving the console unusable.
+The variable 'status' (which contains the unhandled overflow bits) is
+not being properly masked in some cases, displaying the following
+warning:
 
-Introduce a lock to xencons_info to serialize accesses to the shared
-ring.  This is only required when using the shared memory console,
-concurrent accesses to the hypercall based console implementation are
-not an issue.
+  WARNING: CPU: 156 PID: 475601 at arch/x86/events/amd/core.c:972 amd_pmu_v2_handle_irq+0x216/0x270
 
-Note the conditional logic in domU_read_console() is slightly modified
-so the notify_daemon() call can be done outside of the locked region:
-it's an hypercall and there's no need for it to be done with the lock
-held.
+This seems to be happening because the loop is being continued before
+the status bit being unset, in case x86_perf_event_set_period()
+returns 0. This is also causing an inconsistency because the "handled"
+counter is incremented, but the status bit is not cleaned.
 
-Fixes: b536b4b96230 ('xen: use the hvc console infrastructure for Xen console')
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221130150919.13935-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Move the bit cleaning together above, together when the "handled"
+counter is incremented.
+
+Fixes: 7685665c390d ("perf/x86/amd/core: Add PerfMonV2 overflow handling")
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Sandipan Das <sandipan.das@amd.com>
+Link: https://lore.kernel.org/r/20230321113338.1669660-1-leitao@debian.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_xen.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ arch/x86/events/amd/core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
-index 37809c6c027fc..d9d0232753286 100644
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -43,6 +43,7 @@ struct xencons_info {
- 	int irq;
- 	int vtermno;
- 	grant_ref_t gntref;
-+	spinlock_t ring_lock;
- };
+diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
+index 4386b10682ce4..8ca5e827f30b2 100644
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -923,6 +923,7 @@ static int amd_pmu_v2_handle_irq(struct pt_regs *regs)
  
- static LIST_HEAD(xenconsoles);
-@@ -89,12 +90,15 @@ static int __write_console(struct xencons_info *xencons,
- 	XENCONS_RING_IDX cons, prod;
- 	struct xencons_interface *intf = xencons->intf;
- 	int sent = 0;
-+	unsigned long flags;
+ 		/* Event overflow */
+ 		handled++;
++		status &= ~mask;
+ 		perf_sample_data_init(&data, 0, hwc->last_period);
  
-+	spin_lock_irqsave(&xencons->ring_lock, flags);
- 	cons = intf->out_cons;
- 	prod = intf->out_prod;
- 	mb();			/* update queue values before going on */
+ 		if (!x86_perf_event_set_period(event))
+@@ -935,8 +936,6 @@ static int amd_pmu_v2_handle_irq(struct pt_regs *regs)
  
- 	if ((prod - cons) > sizeof(intf->out)) {
-+		spin_unlock_irqrestore(&xencons->ring_lock, flags);
- 		pr_err_once("xencons: Illegal ring page indices");
- 		return -EINVAL;
- 	}
-@@ -104,6 +108,7 @@ static int __write_console(struct xencons_info *xencons,
- 
- 	wmb();			/* write ring before updating pointer */
- 	intf->out_prod = prod;
-+	spin_unlock_irqrestore(&xencons->ring_lock, flags);
- 
- 	if (sent)
- 		notify_daemon(xencons);
-@@ -146,16 +151,19 @@ static int domU_read_console(uint32_t vtermno, char *buf, int len)
- 	int recv = 0;
- 	struct xencons_info *xencons = vtermno_to_xencons(vtermno);
- 	unsigned int eoiflag = 0;
-+	unsigned long flags;
- 
- 	if (xencons == NULL)
- 		return -EINVAL;
- 	intf = xencons->intf;
- 
-+	spin_lock_irqsave(&xencons->ring_lock, flags);
- 	cons = intf->in_cons;
- 	prod = intf->in_prod;
- 	mb();			/* get pointers before reading ring */
- 
- 	if ((prod - cons) > sizeof(intf->in)) {
-+		spin_unlock_irqrestore(&xencons->ring_lock, flags);
- 		pr_err_once("xencons: Illegal ring page indices");
- 		return -EINVAL;
- 	}
-@@ -179,10 +187,13 @@ static int domU_read_console(uint32_t vtermno, char *buf, int len)
- 		xencons->out_cons = intf->out_cons;
- 		xencons->out_cons_same = 0;
- 	}
-+	if (!recv && xencons->out_cons_same++ > 1) {
-+		eoiflag = XEN_EOI_FLAG_SPURIOUS;
-+	}
-+	spin_unlock_irqrestore(&xencons->ring_lock, flags);
-+
- 	if (recv) {
- 		notify_daemon(xencons);
--	} else if (xencons->out_cons_same++ > 1) {
--		eoiflag = XEN_EOI_FLAG_SPURIOUS;
+ 		if (perf_event_overflow(event, &data, regs))
+ 			x86_pmu_stop(event, 0);
+-
+-		status &= ~mask;
  	}
  
- 	xen_irq_lateeoi(xencons->irq, eoiflag);
-@@ -239,6 +250,7 @@ static int xen_hvm_console_init(void)
- 		info = kzalloc(sizeof(struct xencons_info), GFP_KERNEL);
- 		if (!info)
- 			return -ENOMEM;
-+		spin_lock_init(&info->ring_lock);
- 	} else if (info->intf != NULL) {
- 		/* already configured */
- 		return 0;
-@@ -275,6 +287,7 @@ static int xen_hvm_console_init(void)
- 
- static int xencons_info_pv_init(struct xencons_info *info, int vtermno)
- {
-+	spin_lock_init(&info->ring_lock);
- 	info->evtchn = xen_start_info->console.domU.evtchn;
- 	/* GFN == MFN for PV guest */
- 	info->intf = gfn_to_virt(xen_start_info->console.domU.mfn);
-@@ -325,6 +338,7 @@ static int xen_initial_domain_console_init(void)
- 		info = kzalloc(sizeof(struct xencons_info), GFP_KERNEL);
- 		if (!info)
- 			return -ENOMEM;
-+		spin_lock_init(&info->ring_lock);
- 	}
- 
- 	info->irq = bind_virq_to_irq(VIRQ_CONSOLE, 0, false);
-@@ -482,6 +496,7 @@ static int xencons_probe(struct xenbus_device *dev,
- 	info = kzalloc(sizeof(struct xencons_info), GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
-+	spin_lock_init(&info->ring_lock);
- 	dev_set_drvdata(&dev->dev, info);
- 	info->xbdev = dev;
- 	info->vtermno = xenbus_devid_to_vtermno(devid);
+ 	/*
 -- 
 2.39.2
 
