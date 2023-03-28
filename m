@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E49316CC3FF
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ADF96CC400
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233724AbjC1O7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:59:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34932 "EHLO
+        id S233699AbjC1O7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233726AbjC1O6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7FEEB5A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:45 -0700 (PDT)
+        with ESMTP id S233700AbjC1O66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9055AE392
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1A546177C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA49BC433D2;
-        Tue, 28 Mar 2023 14:58:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12C10B81CAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8332AC433D2;
+        Tue, 28 Mar 2023 14:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015525;
-        bh=JOqsN6ZFMoynlO9tS75sayp7mIV9h9Vo+ExBZkm8P1Y=;
+        s=korg; t=1680015527;
+        bh=H13oUMTu6UH6DJRlWhlSVQ4Yj6Ut4X1/Ebkvnh0F5iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJAkgMQDYmkVcwRY33i/DI4j4FsLIfWNlq9vRLTsWCdH4HYJzS4g1lkCH7AqB2HI4
-         NjoDVGoTDehDQ66Uieg17ruaGKkIMps+QVYl5mJ1yqMn/nSenxqeZ/Iifhf+BN6JW7
-         aM99bHUKBmMtRxvKcWbIIafopNkY/x9IheFw4y7A=
+        b=A0/u4bq0TddpNzkNDcwipZxdieOCbC4U0oh4evr+h2ab0AIacAlMZ2LxDuapiXaCf
+         sAI784ASIHV9v/i78ShPnFRqpG5EBDhNA1IPzY/9csyeHBNZfeMvoKboCdTgHeVtG0
+         64yvpFy7UdhBEnQECJQcSHU+5eyRtBbSE+EqjMuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris.p.wilson@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Tejas Upadhyay <tejas.upadhyay@intel.com>,
-        Radhakrishna Sripada <radhakrishna.sripada@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 049/224] drm/i915/fbdev: lock the fbdev obj before vma pin
-Date:   Tue, 28 Mar 2023 16:40:45 +0200
-Message-Id: <20230328142619.427816960@linuxfoundation.org>
+Subject: [PATCH 6.1 050/224] drm/i915/guc: Rename GuC register state capture node to be more obvious
+Date:   Tue, 28 Mar 2023 16:40:46 +0200
+Message-Id: <20230328142619.459820738@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
 References: <20230328142617.205414124@linuxfoundation.org>
@@ -49,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,75 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejas Upadhyay <tejas.upadhyay@intel.com>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-[ Upstream commit ed00eba03474adbf525ff03d69705d8c78b76456 ]
+[ Upstream commit 583ebae783b8241a30581c084ad6226051b594c5 ]
 
-lock the fbdev obj before calling into
-i915_vma_pin_iomap(). This helps to solve below :
+The GuC specific register state entry in the error capture object was
+just called 'capture'. Although the companion 'node' entry was called
+'guc_capture_node'. Rename the base entry to be 'guc_capture' instead
+so that it is a) more consistent and b) more obvious what it is.
 
-<7>[   93.563308] i915 0000:00:02.0: [drm:intelfb_create [i915]] no BIOS fb, allocating a new one
-<4>[   93.581844] ------------[ cut here ]------------
-<4>[   93.581855] WARNING: CPU: 12 PID: 625 at drivers/gpu/drm/i915/gem/i915_gem_pages.c:424 i915_gem_object_pin_map+0x152/0x1c0 [i915]
-
-Fixes: f0b6b01b3efe ("drm/i915: Add ww context to intel_dpt_pin, v2.")
-Cc: Chris Wilson <chris.p.wilson@intel.com>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Tejas Upadhyay <tejas.upadhyay@intel.com>
-Signed-off-by: Radhakrishna Sripada <radhakrishna.sripada@intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230301201053.928709-5-radhakrishna.sripada@intel.com
-(cherry picked from commit 561b31acfd65502a2cda2067513240fc57ccdbdc)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230127002842.3169194-9-John.C.Harrison@Intel.com
+Stable-dep-of: 8df23e4c4f72 ("drm/i915/guc: Fix missing ecodes")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_fbdev.c | 24 ++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c | 8 ++++----
+ drivers/gpu/drm/i915/i915_gpu_error.h          | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_fbdev.c b/drivers/gpu/drm/i915/display/intel_fbdev.c
-index d9b42905bad84..968915000519f 100644
---- a/drivers/gpu/drm/i915/display/intel_fbdev.c
-+++ b/drivers/gpu/drm/i915/display/intel_fbdev.c
-@@ -208,6 +208,7 @@ static int intelfb_create(struct drm_fb_helper *helper,
- 	bool prealloc = false;
- 	void __iomem *vaddr;
- 	struct drm_i915_gem_object *obj;
-+	struct i915_gem_ww_ctx ww;
- 	int ret;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+index 685ddccc0f26a..13118609339ac 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+@@ -1491,7 +1491,7 @@ int intel_guc_capture_print_engine_node(struct drm_i915_error_state_buf *ebuf,
  
- 	mutex_lock(&ifbdev->hpd_lock);
-@@ -288,13 +289,24 @@ static int intelfb_create(struct drm_fb_helper *helper,
- 		info->fix.smem_len = vma->size;
+ 	if (!ebuf || !ee)
+ 		return -EINVAL;
+-	cap = ee->capture;
++	cap = ee->guc_capture;
+ 	if (!cap || !ee->engine)
+ 		return -ENODEV;
+ 
+@@ -1561,8 +1561,8 @@ void intel_guc_capture_free_node(struct intel_engine_coredump *ee)
+ 	if (!ee || !ee->guc_capture_node)
+ 		return;
+ 
+-	guc_capture_add_node_to_cachelist(ee->capture, ee->guc_capture_node);
+-	ee->capture = NULL;
++	guc_capture_add_node_to_cachelist(ee->guc_capture, ee->guc_capture_node);
++	ee->guc_capture = NULL;
+ 	ee->guc_capture_node = NULL;
+ }
+ 
+@@ -1596,7 +1596,7 @@ void intel_guc_capture_get_matching_node(struct intel_gt *gt,
+ 		    (ce->lrc.lrca & CTX_GTT_ADDRESS_MASK)) {
+ 			list_del(&n->link);
+ 			ee->guc_capture_node = n;
+-			ee->capture = guc->capture;
++			ee->guc_capture = guc->capture;
+ 			return;
+ 		}
  	}
+diff --git a/drivers/gpu/drm/i915/i915_gpu_error.h b/drivers/gpu/drm/i915/i915_gpu_error.h
+index efc75cc2ffdb9..56027ffbce51f 100644
+--- a/drivers/gpu/drm/i915/i915_gpu_error.h
++++ b/drivers/gpu/drm/i915/i915_gpu_error.h
+@@ -94,7 +94,7 @@ struct intel_engine_coredump {
+ 	struct intel_instdone instdone;
  
--	vaddr = i915_vma_pin_iomap(vma);
--	if (IS_ERR(vaddr)) {
--		drm_err(&dev_priv->drm,
--			"Failed to remap framebuffer into virtual memory (%pe)\n", vaddr);
--		ret = PTR_ERR(vaddr);
--		goto out_unpin;
-+	for_i915_gem_ww(&ww, ret, false) {
-+		ret = i915_gem_object_lock(vma->obj, &ww);
-+
-+		if (ret)
-+			continue;
-+
-+		vaddr = i915_vma_pin_iomap(vma);
-+		if (IS_ERR(vaddr)) {
-+			drm_err(&dev_priv->drm,
-+				"Failed to remap framebuffer into virtual memory (%pe)\n", vaddr);
-+			ret = PTR_ERR(vaddr);
-+			continue;
-+		}
- 	}
-+
-+	if (ret)
-+		goto out_unpin;
-+
- 	info->screen_base = vaddr;
- 	info->screen_size = vma->size;
+ 	/* GuC matched capture-lists info */
+-	struct intel_guc_state_capture *capture;
++	struct intel_guc_state_capture *guc_capture;
+ 	struct __guc_capture_parsed_output *guc_capture_node;
  
+ 	struct i915_gem_context_coredump {
 -- 
 2.39.2
 
