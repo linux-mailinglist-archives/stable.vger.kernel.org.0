@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F183F6CC42C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92A06CC2F2
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233648AbjC1PAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:00:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40148 "EHLO
+        id S233368AbjC1OuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233707AbjC1PAj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD68BE079
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:38 -0700 (PDT)
+        with ESMTP id S233433AbjC1Otr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB420E040
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6900461820
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E3C7C433D2;
-        Tue, 28 Mar 2023 15:00:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6C54ACE1DAE
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E87AC433A0;
+        Tue, 28 Mar 2023 14:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015637;
-        bh=nY5wMEAjf17Cj3Bkpkgam5vh8mcfisWNVi/j51Izv0U=;
+        s=korg; t=1680014949;
+        bh=E3f5CO2Pd5Nru0Fhy3TS3qaKvgDNqHpWMAJkRW1MqFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZ+J2vSbbgg2ArRoFnexuXrvicpmZZ/r3TFOfRaxtoebVYak/AmTYvrg6F5GCbpGc
-         /NIoES+S70LncIEudPwe0ZeKceHFBJZUEubLYNSaVGrHWvA+VUnabulOB9h9wvVocs
-         wxIS46XpJ1WMc3Uq/SEAR2KexGrKopPK0Ztbf9V4=
+        b=m959KE1HGnagoNEN1VzCjCDo7BJvAe758+npRMGmcTrTIg9iVxYx3QifUPQk7Gu2U
+         VsnBl8cnkJcWy3IHy07oZEqv95IcbysYMeGEqIEp9E4B8sSzgnhu8On29ddf5G2D88
+         CnqR5qfhsCBu4l7Gc1P8O1pvQxaLcR9KeOwtWL44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 079/224] ksmbd: fix possible refcount leak in smb2_open()
+Subject: [PATCH 6.2 112/240] hwmon (it87): Fix voltage scaling for chips with 10.9mV  ADCs
 Date:   Tue, 28 Mar 2023 16:41:15 +0200
-Message-Id: <20230328142620.612271657@linuxfoundation.org>
+Message-Id: <20230328142624.446836814@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,39 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Frank Crawford <frank@crawford.emu.id.au>
 
-[ Upstream commit 2624b445544ffc1472ccabfb6ec867c199d4c95c ]
+[ Upstream commit 968b66ffeb7956acc72836a7797aeb7b2444ec51 ]
 
-Reference count of acls will leak when memory allocation fails. Fix this
-by adding the missing posix_acl_release().
+Fix voltage scaling for chips that have 10.9mV ADCs, where scaling was
+not performed.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: ead8080351c9 ("hwmon: (it87) Add support for IT8732F")
+Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
+Link: https://lore.kernel.org/r/20230318080543.1226700-2-frank@crawford.emu.id.au
+[groeck: Update subject and description to focus on bug fix]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hwmon/it87.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 61d12eab0be15..e8c051a3329ec 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -2994,8 +2994,11 @@ int smb2_open(struct ksmbd_work *work)
- 							sizeof(struct smb_acl) +
- 							sizeof(struct smb_ace) * ace_num * 2,
- 							GFP_KERNEL);
--					if (!pntsd)
-+					if (!pntsd) {
-+						posix_acl_release(fattr.cf_acls);
-+						posix_acl_release(fattr.cf_dacls);
- 						goto err_out;
-+					}
+diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
+index 9997f76b1f4aa..b7c7cf2157018 100644
+--- a/drivers/hwmon/it87.c
++++ b/drivers/hwmon/it87.c
+@@ -490,6 +490,8 @@ static const struct it87_devices it87_devices[] = {
+ #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
+ #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
+ #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
++#define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
++						     FEAT_10_9MV_ADC))
  
- 					rc = build_sec_desc(user_ns,
- 							    pntsd, NULL, 0,
+ struct it87_sio_data {
+ 	int sioaddr;
+@@ -3100,7 +3102,7 @@ static int it87_probe(struct platform_device *pdev)
+ 			 "Detected broken BIOS defaults, disabling PWM interface\n");
+ 
+ 	/* Starting with IT8721F, we handle scaling of internal voltages */
+-	if (has_12mv_adc(data)) {
++	if (has_scaling(data)) {
+ 		if (sio_data->internal & BIT(0))
+ 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
+ 		if (sio_data->internal & BIT(1))
 -- 
 2.39.2
 
