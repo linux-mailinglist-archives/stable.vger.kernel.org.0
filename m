@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 157596CC325
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3EB6CC4E9
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233379AbjC1Ovi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41498 "EHLO
+        id S232200AbjC1PKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:10:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233496AbjC1OvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:24 -0400
+        with ESMTP id S232693AbjC1PKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B51E076
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5B519D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:09:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C976461820
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8127C433EF;
-        Tue, 28 Mar 2023 14:51:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F77C61839
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71C0FC433D2;
+        Tue, 28 Mar 2023 15:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015063;
-        bh=LpnRW/UaSi4n7Emhs3bTrY4ZahkicVJRdQ3WmVnngPo=;
+        s=korg; t=1680015993;
+        bh=mTHvykb9S9i2Nf50DtLGyA2cpUPlmzrpP+CxnQwswM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziiByGpYKpd/oS4z6ICtGN00QuOXyf9tDTrqiBHL+zpI0OrgnwPRV2KUaeO04Nk7V
-         P3c8ZX52pQd0TgICT1EVr2u43xw3lQyJ1fjLJqb0k9J8Jh+UQJdhqpLVfy+Awhy7E5
-         ++Tf+HmBchpXfCyiR9213iHIeeTSPJlOgvXDtfU8=
+        b=JVzRtHkn7PBBa3camByI569j4JUW9uqYTdriDvdU6ifmWlvkUZdkLnfpYcb8dLkKK
+         DvcXWttO6pD5FFrPmF5CYQ1e/4PB7XMkI2ObNL3xFZvBReoktQmWCG92YrYZlU4opW
+         ebk34sf/61jvsZVeBYfEzkFQgMtCOqztuUbCLfgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 152/240] scsi: storvsc: Handle BlockSize change in Hyper-V VHD/VHDX file
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 026/146] i2c: imx-lpi2c: check only for enabled interrupt flags
 Date:   Tue, 28 Mar 2023 16:41:55 +0200
-Message-Id: <20230328142626.032596809@linuxfoundation.org>
+Message-Id: <20230328142603.827905810@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 11d9874c4204a785f43d899a1ab12f9dc8d9de3e ]
+[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
 
-Hyper-V uses a VHD or VHDX file on the host as the underlying storage for a
-virtual disk.  The VHD/VHDX file format is a sparse format where real disk
-space on the host is assigned in chunks that the VHD/VHDX file format calls
-the BlockSize.  This BlockSize is not to be confused with the 512-byte (or
-4096-byte) sector size of the underlying storage device.  The default block
-size for a new VHD/VHDX file is 32 Mbytes.  When a guest VM touches any
-disk space within a 32 Mbyte chunk of the VHD/VHDX file, Hyper-V allocates
-32 Mbytes of real disk space for that section of the VHD/VHDX. Similarly,
-if a discard operation is done that covers an entire 32 Mbyte chunk,
-Hyper-V will free the real disk space for that portion of the VHD/VHDX.
-This BlockSize is surfaced in Linux as the "discard_granularity" in
-/sys/block/sd<x>/queue, which makes sense.
+When reading from I2C, the Tx watermark is set to 0. Unfortunately the
+TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
+than watermark. So it is set in every case, hence the reset default of 1.
+This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
+to send Tx data on a read message.
+Mask the IRQ status to filter for wanted flags only.
 
-Hyper-V also has differencing disks that can overlay a VHD/VHDX file to
-capture changes to the VHD/VHDX while preserving the original VHD/VHDX.
-One example of this differencing functionality is for VM snapshots.  When a
-snapshot is created, a differencing disk is created.  If the snapshot is
-rolled back, Hyper-V can just delete the differencing disk, and the VM will
-see the original disk contents at the time the snapshot was taken.
-Differencing disks are used in other scenarios as well.
-
-The BlockSize for a differencing disk defaults to 2 Mbytes, not 32 Mbytes.
-The smaller default is used because changes to differencing disks are
-typically scattered all over, and Hyper-V doesn't want to allocate 32
-Mbytes of real disk space for a stray write here or there.  The smaller
-BlockSize provides more efficient use of real disk space.
-
-When a differencing disk is added to a VHD/VHDX, Hyper-V reports
-UNIT_ATTENTION with a sense code indicating "Operating parameters have
-changed", because the value of discard_granularity should be changed to 2
-Mbytes. When the differencing disk is removed, discard_granularity should
-be changed back to 32 Mbytes.  However, current code simply reports a
-message from scsi_report_sense() and the value of
-/sys/block/sd<x>/queue/discard_granularity is not updated. The message
-isn't very actionable by a sysadmin.
-
-Fix this by having the storvsc driver check for the sense code indicating
-that the underly VHD/VHDX block size has changed, and do a rescan of the
-device to pick up the new discard_granularity.  With this change the entire
-transition to/from differencing disks is handled automatically and
-transparently, with no confusing messages being output.
-
-Link: https://lore.kernel.org/r/1677516514-86060-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 22705eb781b0e..2bf25e80b29a8 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -987,6 +987,22 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 				goto do_work;
- 			}
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 8b9ba055c4186..2018dbcf241e9 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -502,10 +502,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
+ {
+ 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
++	unsigned int enabled;
+ 	unsigned int temp;
  
-+			/*
-+			 * Check for "Operating parameters have changed"
-+			 * due to Hyper-V changing the VHD/VHDX BlockSize
-+			 * when adding/removing a differencing disk. This
-+			 * causes discard_granularity to change, so do a
-+			 * rescan to pick up the new granularity. We don't
-+			 * want scsi_report_sense() to output a message
-+			 * that a sysadmin wouldn't know what to do with.
-+			 */
-+			if ((asc == 0x3f) && (ascq != 0x03) &&
-+					(ascq != 0x0e)) {
-+				process_err_fn = storvsc_device_scan;
-+				set_host_byte(scmnd, DID_REQUEUE);
-+				goto do_work;
-+			}
++	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
 +
- 			/*
- 			 * Otherwise, let upper layer deal with the
- 			 * error when sense message is present
+ 	lpi2c_imx_intctrl(lpi2c_imx, 0);
+ 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
++	temp &= enabled;
+ 
+ 	if (temp & MSR_RDF)
+ 		lpi2c_imx_read_rxfifo(lpi2c_imx);
 -- 
 2.39.2
 
