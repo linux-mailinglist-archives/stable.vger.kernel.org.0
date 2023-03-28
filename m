@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E656CC3E5
+	by mail.lfdr.de (Postfix) with ESMTP id C2C946CC3E6
 	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233647AbjC1O6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34108 "EHLO
+        id S233652AbjC1O6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233662AbjC1O6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FEB6E184
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:04 -0700 (PDT)
+        with ESMTP id S233654AbjC1O6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F3FE053
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0831A6182A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FE06C433D2;
-        Tue, 28 Mar 2023 14:58:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79080B81D68
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF062C433EF;
+        Tue, 28 Mar 2023 14:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015483;
-        bh=OLpg/fofh7xVcZZzTKj8UkknWGqOgGMautab5OLQqoA=;
+        s=korg; t=1680015486;
+        bh=vNroh2QMGhc7OWr35QoLlknnbeLPoR+fwLeH48ibTO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGIwMMFtrNOVPUMU4ZvLjbEeMkdXvf3PSdGoP6ocohguuReUidbLIOavNaW4hzSHo
-         8mAs8q3l5+D7JKmZt4Q+uSQ6BGPzfTrqh4TFj3USg9wxQYldyzA4bUkxDo0zk6RPgW
-         GxAMWsU7XuVTGr0ohkh+89640PKqJ1znUxM7kYh8=
+        b=qfo9JpGdVm/L6ZBJovjt+jHujdHqsxeeoUwBDmWx4t7wKrlUFBCxXP9KHiawrcsVU
+         ZOAP0anY528XLOjAb2MjLv8ajG+lqArVEyO+FSkvXZwAOKinAvKGVezZAboaXEcuAo
+         mdMjpHet7EasLb4qAIheR0ZL7B67P4imZK0Oerlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gavin Li <gavinl@nvidia.com>,
-        Gavi Teitz <gavi@nvidia.com>,
+        patches@lists.linux.dev, Huy Nguyen <huyn@mellanox.com>,
+        Lama Kayal <lkayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 065/224] net/mlx5e: Block entering switchdev mode with ns inconsistency
-Date:   Tue, 28 Mar 2023 16:41:01 +0200
-Message-Id: <20230328142620.055155380@linuxfoundation.org>
+Subject: [PATCH 6.1 066/224] net/mlx5: Fix steering rules cleanup
+Date:   Tue, 28 Mar 2023 16:41:02 +0200
+Message-Id: <20230328142620.094929803@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
 References: <20230328142617.205414124@linuxfoundation.org>
@@ -54,67 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <gavinl@nvidia.com>
+From: Lama Kayal <lkayal@nvidia.com>
 
-[ Upstream commit 662404b24a4c4d839839ed25e3097571f5938b9b ]
+[ Upstream commit 922f56e9a795d6f3dd72d3428ebdd7ee040fa855 ]
 
-Upon entering switchdev mode, VF/SF representors are spawned in the
-devlink instance's net namespace, whereas the PF net device transforms
-into the uplink representor, remaining in the net namespace the PF net
-device was in. Therefore, if a PF net device's namespace is different from
-its parent devlink net namespace, entering switchdev mode can create an
-illegal situation where all representors sharing the same core device
-are NOT in the same net namespace.
+vport's mc, uc and multicast rules are not deleted in teardown path when
+EEH happens. Since the vport's promisc settings(uc, mc and all) in
+firmware are reset after EEH, mlx5 driver will try to delete the above
+rules in the initialization path. This cause kernel crash because these
+software rules are no longer valid.
 
-To avoid this issue, block entering switchdev mode for devices whose child
-netdev net namespace has diverged from the parent devlink's.
+Fix by nullifying these rules right after delete to avoid accessing any dangling
+pointers.
 
-Fixes: 7768d1971de6 ("net/mlx5: E-Switch, Add control for encapsulation")
-Signed-off-by: Gavin Li <gavinl@nvidia.com>
-Reviewed-by: Gavi Teitz <gavi@nvidia.com>
+Call Trace:
+__list_del_entry_valid+0xcc/0x100 (unreliable)
+tree_put_node+0xf4/0x1b0 [mlx5_core]
+tree_remove_node+0x30/0x70 [mlx5_core]
+mlx5_del_flow_rules+0x14c/0x1f0 [mlx5_core]
+esw_apply_vport_rx_mode+0x10c/0x200 [mlx5_core]
+esw_update_vport_rx_mode+0xb4/0x180 [mlx5_core]
+esw_vport_change_handle_locked+0x1ec/0x230 [mlx5_core]
+esw_enable_vport+0x130/0x260 [mlx5_core]
+mlx5_eswitch_enable_sriov+0x2a0/0x2f0 [mlx5_core]
+mlx5_device_enable_sriov+0x74/0x440 [mlx5_core]
+mlx5_load_one+0x114c/0x1550 [mlx5_core]
+mlx5_pci_resume+0x68/0xf0 [mlx5_core]
+eeh_report_resume+0x1a4/0x230
+eeh_pe_dev_traverse+0x98/0x170
+eeh_handle_normal_event+0x3e4/0x640
+eeh_handle_event+0x4c/0x370
+eeh_event_handler+0x14c/0x210
+kthread+0x168/0x1b0
+ret_from_kernel_thread+0x5c/0x84
+
+Fixes: a35f71f27a61 ("net/mlx5: E-Switch, Implement promiscuous rx modes vf request handling")
+Signed-off-by: Huy Nguyen <huyn@mellanox.com>
+Signed-off-by: Lama Kayal <lkayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mellanox/mlx5/core/eswitch_offloads.c     | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index 34790a82a0976..64e5b9f29206e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -3488,6 +3488,18 @@ static int esw_inline_mode_to_devlink(u8 mlx5_mode, u8 *mode)
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 43ba00d5e36ec..4b9d567c8f473 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -916,6 +916,7 @@ void mlx5_esw_vport_disable(struct mlx5_eswitch *esw, u16 vport_num)
+ 	 */
+ 	esw_vport_change_handle_locked(vport);
+ 	vport->enabled_events = 0;
++	esw_apply_vport_rx_mode(esw, vport, false, false);
+ 	esw_vport_cleanup(esw, vport);
+ 	esw->enabled_vports--;
  
-+static bool esw_offloads_devlink_ns_eq_netdev_ns(struct devlink *devlink)
-+{
-+	struct net *devl_net, *netdev_net;
-+	struct mlx5_eswitch *esw;
-+
-+	esw = mlx5_devlink_eswitch_get(devlink);
-+	netdev_net = dev_net(esw->dev->mlx5e_res.uplink_netdev);
-+	devl_net = devlink_net(devlink);
-+
-+	return net_eq(devl_net, netdev_net);
-+}
-+
- int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
- 				  struct netlink_ext_ack *extack)
- {
-@@ -3502,6 +3514,13 @@ int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
- 	if (esw_mode_from_devlink(mode, &mlx5_mode))
- 		return -EINVAL;
- 
-+	if (mode == DEVLINK_ESWITCH_MODE_SWITCHDEV &&
-+	    !esw_offloads_devlink_ns_eq_netdev_ns(devlink)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Can't change E-Switch mode to switchdev when netdev net namespace has diverged from the devlink's.");
-+		return -EPERM;
-+	}
-+
- 	mlx5_lag_disable_change(esw->dev);
- 	err = mlx5_esw_try_lock(esw);
- 	if (err < 0) {
 -- 
 2.39.2
 
