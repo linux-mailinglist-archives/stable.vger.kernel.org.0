@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9718D6CC29E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E70476CC3C3
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbjC1OrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:47:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
+        id S233597AbjC1O5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233313AbjC1Oqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D431DDBDA
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:22 -0700 (PDT)
+        with ESMTP id S233593AbjC1O5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:57:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E922E061
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:57:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F45561839
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081B2C433D2;
-        Tue, 28 Mar 2023 14:46:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11166B81D68
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68922C433D2;
+        Tue, 28 Mar 2023 14:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014777;
-        bh=Bf8r+lBaYO4Qd16Br9uPru4EPAgU/2weusegXFFDtlg=;
+        s=korg; t=1680015431;
+        bh=AYQK/nW9l4cl/DtggUNloxtu/0Ez46kxbDH+CvduZ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbED6D7oj1VFbhxC+ZIhVrxrVcdokzjhNkRqVPLCECToxLmYRkhVnLxt56YZACebI
-         FfwLEbHalpBTHVCtXTc6lELNwFt8leIFzRSRPcO0JkPY3dRZdIWEHwNwLa/7hIN/6Q
-         YbwTBZtYQe4KNYnoUanOQ3KIFqnhbJhH4TMEjR/Q=
+        b=tU26IrpwAeTBwVCsXJSTj/nJMcb0zw4uJNNH8+sb668sfx72iEdROcxEKHFyb91Ot
+         vkCqgZnJ9WU+OvSguE1lgEVv7rf8XExomni2Rmcjh7XuhKyMKRHYETRyqQdMS9xirE
+         lJsCD7RgJxSA4PoUmq2xSSfOA9hj/ydKEDtbQVCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxime Bizon <mbizon@freebox.fr>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 049/240] net: mdio: fix owner field for mdio buses registered using ACPI
+Subject: [PATCH 6.1 016/224] power: supply: da9150: Fix use after free bug in da9150_charger_remove due to race condition
 Date:   Tue, 28 Mar 2023 16:40:12 +0200
-Message-Id: <20230328142621.746202151@linuxfoundation.org>
+Message-Id: <20230328142617.951846246@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 30b605b8501e321f79e19c3238aa6ca31da6087c ]
+[ Upstream commit 06615d11cc78162dfd5116efb71f29eb29502d37 ]
 
-Bus ownership is wrong when using acpi_mdiobus_register() to register an
-mdio bus. That function is not inline, so when it calls
-mdiobus_register() the wrong THIS_MODULE value is captured.
+In da9150_charger_probe, &charger->otg_work is bound with
+da9150_charger_otg_work. da9150_charger_otg_ncb may be
+called to start the work.
 
-CC: Maxime Bizon <mbizon@freebox.fr>
-Fixes: 803ca24d2f92 ("net: mdio: Add ACPI support code for mdio")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+If we remove the module which will call da9150_charger_remove
+to make cleanup, there may be a unfinished work. The possible
+sequence is as follows:
+
+Fix it by canceling the work before cleanup in the da9150_charger_remove
+
+CPU0                  CPUc1
+
+                    |da9150_charger_otg_work
+da9150_charger_remove      |
+power_supply_unregister  |
+device_unregister   |
+power_supply_dev_release|
+kfree(psy)          |
+                    |
+                    | 	power_supply_changed(charger->usb);
+                    |   //use
+
+Fixes: c1a281e34dae ("power: Add support for DA9150 Charger")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/acpi_mdio.c | 10 ++++++----
- include/linux/acpi_mdio.h    |  9 ++++++++-
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/power/supply/da9150-charger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/mdio/acpi_mdio.c b/drivers/net/mdio/acpi_mdio.c
-index d77c987fda9cd..4630dde019749 100644
---- a/drivers/net/mdio/acpi_mdio.c
-+++ b/drivers/net/mdio/acpi_mdio.c
-@@ -18,16 +18,18 @@ MODULE_AUTHOR("Calvin Johnson <calvin.johnson@oss.nxp.com>");
- MODULE_LICENSE("GPL");
+diff --git a/drivers/power/supply/da9150-charger.c b/drivers/power/supply/da9150-charger.c
+index f9314cc0cd75f..6b987da586556 100644
+--- a/drivers/power/supply/da9150-charger.c
++++ b/drivers/power/supply/da9150-charger.c
+@@ -662,6 +662,7 @@ static int da9150_charger_remove(struct platform_device *pdev)
  
- /**
-- * acpi_mdiobus_register - Register mii_bus and create PHYs from the ACPI ASL.
-+ * __acpi_mdiobus_register - Register mii_bus and create PHYs from the ACPI ASL.
-  * @mdio: pointer to mii_bus structure
-  * @fwnode: pointer to fwnode of MDIO bus. This fwnode is expected to represent
-+ * @owner: module owning this @mdio object.
-  * an ACPI device object corresponding to the MDIO bus and its children are
-  * expected to correspond to the PHY devices on that bus.
-  *
-  * This function registers the mii_bus structure and registers a phy_device
-  * for each child node of @fwnode.
-  */
--int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
-+int __acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode,
-+			    struct module *owner)
- {
- 	struct fwnode_handle *child;
- 	u32 addr;
-@@ -35,7 +37,7 @@ int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
+ 	if (!IS_ERR_OR_NULL(charger->usb_phy))
+ 		usb_unregister_notifier(charger->usb_phy, &charger->otg_nb);
++	cancel_work_sync(&charger->otg_work);
  
- 	/* Mask out all PHYs from auto probing. */
- 	mdio->phy_mask = GENMASK(31, 0);
--	ret = mdiobus_register(mdio);
-+	ret = __mdiobus_register(mdio, owner);
- 	if (ret)
- 		return ret;
- 
-@@ -55,4 +57,4 @@ int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL(acpi_mdiobus_register);
-+EXPORT_SYMBOL(__acpi_mdiobus_register);
-diff --git a/include/linux/acpi_mdio.h b/include/linux/acpi_mdio.h
-index 0a24ab7cb66fa..8e2eefa9fbc0f 100644
---- a/include/linux/acpi_mdio.h
-+++ b/include/linux/acpi_mdio.h
-@@ -9,7 +9,14 @@
- #include <linux/phy.h>
- 
- #if IS_ENABLED(CONFIG_ACPI_MDIO)
--int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode);
-+int __acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode,
-+			    struct module *owner);
-+
-+static inline int
-+acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *handle)
-+{
-+	return __acpi_mdiobus_register(mdio, handle, THIS_MODULE);
-+}
- #else /* CONFIG_ACPI_MDIO */
- static inline int
- acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
+ 	power_supply_unregister(charger->battery);
+ 	power_supply_unregister(charger->usb);
 -- 
 2.39.2
 
