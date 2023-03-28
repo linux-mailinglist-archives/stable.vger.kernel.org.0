@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BBD26CC316
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF176CC41F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233322AbjC1OvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
+        id S233607AbjC1PAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233325AbjC1Oux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D9AE075
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:29 -0700 (PDT)
+        with ESMTP id S233756AbjC1PAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5633B183
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83418B81D70
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF06C433D2;
-        Tue, 28 Mar 2023 14:50:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E675261804
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01B18C433EF;
+        Tue, 28 Mar 2023 15:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015027;
-        bh=kd3I86PrIC7k51nBbmX2aqW4UrtqO59BZXYJM5ujk2o=;
+        s=korg; t=1680015601;
+        bh=yo/GowJspS9xIPJZdpuPQJlHVyI1uHUr04sRIKrsvcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAEBN6FkFtb3JljxSL0N2PhyltUelrZl2opebGaZyHC17VKhmN1dFsrGlFXhAcGK4
-         6My0YIbMAs4kPXADEeOs9QpguxhqNH1sWgkAo69qmDcAC2zg0ycOuRUUAcJ8e3ZIuw
-         U8XQmsedg4uWR7JUn9FkKWZt+UpcsnkDxnctmtsI=
+        b=rxQx3oadTziwyewX7kmZr+XLQHZCCWUSrvxvcQV9j8deuJItGycVunmsUdsaEDUEc
+         X4emKy5ogZnpAw54rlO4a8DywPzoSSyyVL0/1ghq+C//sYS1jtkiIFrAy2IsoAa7T1
+         eljX+9z74OR2AscjvXjz+S2NcK3tgMe4TnQZ9fFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 140/240] selftests/bpf: check that modifier resolves after pointer
+        patches@lists.linux.dev, Yaroslav Furman <yaro330@gmail.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 6.1 107/224] uas: Add US_FL_NO_REPORT_OPCODES for JMicron JMS583Gen 2
 Date:   Tue, 28 Mar 2023 16:41:43 +0200
-Message-Id: <20230328142625.579625167@linuxfoundation.org>
+Message-Id: <20230328142621.797101205@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lorenz.bauer@isovalent.com>
+From: Yaroslav Furman <yaro330@gmail.com>
 
-[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
+commit a37eb61b6ec064ac794b8a1e89fd33eb582fe51d upstream.
 
-Add a regression test that ensures that a VAR pointing at a
-modifier which follows a PTR (or STRUCT or ARRAY) is resolved
-correctly by the datasec validator.
+Just like other JMicron JMS5xx enclosures, it chokes on report-opcodes,
+let's avoid them.
 
-Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
-Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yaroslav Furman <yaro330@gmail.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230312090745.47962-1-yaro330@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/prog_tests/btf.c | 28 ++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index de1b5b9eb93a8..d8d1292e73b53 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -879,6 +879,34 @@ static struct btf_raw_test raw_tests[] = {
- 	.btf_load_err = true,
- 	.err_str = "Invalid elem",
- },
-+{
-+	.descr = "var after datasec, ptr followed by modifier",
-+	.raw_types = {
-+		/* .bss section */				/* [1] */
-+		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
-+			sizeof(void*)+4),
-+		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
-+		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
-+		/* int */					/* [2] */
-+		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
-+		/* int* */					/* [3] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
-+		/* const int */					/* [5] */
-+		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
-+		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
-+		BTF_END_RAW,
-+	},
-+	.str_sec = "\0a\0b\0c\0",
-+	.str_sec_size = sizeof("\0a\0b\0c\0"),
-+	.map_type = BPF_MAP_TYPE_ARRAY,
-+	.map_name = ".bss",
-+	.key_size = sizeof(int),
-+	.value_size = sizeof(void*)+4,
-+	.key_type_id = 0,
-+	.value_type_id = 1,
-+	.max_entries = 1,
-+},
- /* Test member exceeds the size of struct.
-  *
-  * struct A {
--- 
-2.39.2
-
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -111,6 +111,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BROKEN_FUA),
+ 
++/* Reported by: Yaroslav Furman <yaro330@gmail.com> */
++UNUSUAL_DEV(0x152d, 0x0583, 0x0000, 0x9999,
++		"JMicron",
++		"JMS583Gen 2",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_REPORT_OPCODES),
++
+ /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
+ UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
+ 		"PNY",
 
 
