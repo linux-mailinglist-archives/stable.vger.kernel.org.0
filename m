@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E786CC537
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C978F6CC49F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232582AbjC1PMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53826 "EHLO
+        id S233875AbjC1PGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232274AbjC1PMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:34 -0400
+        with ESMTP id S233874AbjC1PGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B592710256
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D42EB57
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45D4FB81D8B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87512C433D2;
-        Tue, 28 Mar 2023 15:10:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB7C7B81D8F
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE09C433D2;
+        Tue, 28 Mar 2023 15:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016243;
-        bh=j4jKcJqBsVg1T7zKJBrYXuMxAuTocnUWvRcNBPceYkU=;
+        s=korg; t=1680015885;
+        bh=ri310TNQZ0iwgcAG9yZjwZxQ1eVID1iW+e5DPdfxJB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsZur4Hofvrrd5tL/1C06goHFWJf8giWllmIvp9wlgzIto8Xn/y73I0VuQxkLzMjD
-         esUPgCPoHTnRcscPpD9DMVUcjYIGHGYjxYgR48pYMyzf3hV5cMktMGuA+HZ2W22XmL
-         kUt0Fr+HDtmWHtmBv43MzD5Fwn07pm2xAw77ifsE=
+        b=Grso+CEboq/R9K3MEMJf4HSpDdM+4YTswatzHPneHKLWUfVCnUSjCsxv3j0soUPmh
+         0NtnLjo5cRAOpX/JfdH+EruaG4C4NZgvnQclI3TCkxO6HUmHH76TbNybGpe6K5iaTk
+         5buzj9DgHomey/qCSK4wyxUsN4AkefQDE/H46Bgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>
-Subject: [PATCH 5.15 117/146] usb: cdnsp: Fixes issue with redundant Status Stage
+        patches@lists.linux.dev,
+        Krishna chaitanya chundru <quic_krichai@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 210/224] arm64: dts: qcom: sc7280: Mark PCIe controller as cache coherent
 Date:   Tue, 28 Mar 2023 16:43:26 +0200
-Message-Id: <20230328142607.526556188@linuxfoundation.org>
+Message-Id: <20230328142626.097841314@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,67 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Krishna chaitanya chundru <quic_krichai@quicinc.com>
 
-commit 5bc38d33a5a1209fd4de65101d1ae8255ea12c6e upstream.
+commit 8a63441e83724fee1ef3fd37b237d40d90780766 upstream.
 
-In some cases, driver trees to send Status Stage twice.
-The first one from upper layer of gadget usb subsystem and
-second time from controller driver.
-This patch fixes this issue and remove tricky handling of
-SET_INTERFACE from controller driver which is no longer
-needed.
+If the controller is not marked as cache coherent, then kernel will
+try to ensure coherency during dma-ops and that may cause data corruption.
+So, mark the PCIe node as dma-coherent as the devices on PCIe bus are
+cache coherent.
 
-cc: <stable@vger.kernel.org>
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20230307111420.376056-1-pawell@cadence.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 92e0ee9f83b3 ("arm64: dts: qcom: sc7280: Add PCIe and PHY related node")
+Signed-off-by: Krishna chaitanya chundru <quic_krichai@quicinc.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/1677584952-17496-1-git-send-email-quic_krichai@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-ep0.c |   19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/cdns3/cdnsp-ep0.c
-+++ b/drivers/usb/cdns3/cdnsp-ep0.c
-@@ -403,20 +403,6 @@ static int cdnsp_ep0_std_request(struct
- 	case USB_REQ_SET_ISOCH_DELAY:
- 		ret = cdnsp_ep0_set_isoch_delay(pdev, ctrl);
- 		break;
--	case USB_REQ_SET_INTERFACE:
--		/*
--		 * Add request into pending list to block sending status stage
--		 * by libcomposite.
--		 */
--		list_add_tail(&pdev->ep0_preq.list,
--			      &pdev->ep0_preq.pep->pending_list);
--
--		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
--		if (ret == -EBUSY)
--			ret = 0;
--
--		list_del(&pdev->ep0_preq.list);
--		break;
- 	default:
- 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
- 		break;
-@@ -474,9 +460,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
- 	else
- 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -2077,6 +2077,8 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pcie1_clkreq_n>;
  
--	if (!len)
--		pdev->ep0_stage = CDNSP_STATUS_STAGE;
--
- 	if (ret == USB_GADGET_DELAYED_STATUS) {
- 		trace_cdnsp_ep0_status_stage("delayed");
- 		return;
-@@ -484,6 +467,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
- out:
- 	if (ret < 0)
- 		cdnsp_ep0_stall(pdev);
--	else if (pdev->ep0_stage == CDNSP_STATUS_STAGE)
-+	else if (!len && pdev->ep0_stage != CDNSP_STATUS_STAGE)
- 		cdnsp_status_stage(pdev);
- }
++			dma-coherent;
++
+ 			iommus = <&apps_smmu 0x1c80 0x1>;
+ 
+ 			iommu-map = <0x0 &apps_smmu 0x1c80 0x1>,
 
 
