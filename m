@@ -2,94 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 540736CC19C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:00:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF646CC1C6
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232933AbjC1OAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:00:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39504 "EHLO
+        id S232318AbjC1ONi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233157AbjC1OAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:00:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1764419C;
-        Tue, 28 Mar 2023 06:59:33 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A71B2B81D5B;
-        Tue, 28 Mar 2023 13:59:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE48FC433EF;
-        Tue, 28 Mar 2023 13:59:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680011970;
-        bh=7d9PVKwq4fSFcNvrchiGI92QiSv0vEPNvjbEycB5mBI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CUX0vuehyo0rHtdD+gOFi+s52HGAY2qXbj78jn3dwm4EmGnvrvzhrQ8lin1DbEd4v
-         +yfeIAuNlsaEcsPsuD9MzWYSbyweAsz5cea19C1d8SBQcud3U8+/Z2cj/pEnDqCHoi
-         qHICtGDXvL+SnwWLnFAsVZxXBBXNtSKOLhyN4JFxY6tZq6lyS52NZqBAPPzsjDBM/e
-         etSGcouGq/HOcUIta5yNewUizOm9HY9qwktE1Epotg9/bocS/sjZ+JZbIp27HHYg3k
-         iMU5FCKm5kPzl58vy4jTJk8hhs/Hz+hBuHQ4toSW/+VKaWqqPKr9wfmmvqxKvxqqDj
-         liS7yp0pYGiSQ==
-Date:   Tue, 28 Mar 2023 14:59:24 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Thomas Gleixner <tglx@linotronix.de>, stable@vger.kernel.org,
-        Yogesh Lal <quic_ylal@quicinc.com>
-Subject: Re: [PATCH] clocksource/drivers/arm_arch_timer: Update sched_clock
- when non-boot CPUs need counter workaround
-Message-ID: <20230328135923.GB1333@willie-the-truck>
-References: <20230113111648.1977473-1-maz@kernel.org>
+        with ESMTP id S232276AbjC1ONh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:13:37 -0400
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C3DCDFD
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:12:38 -0700 (PDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id B8D9B5C005C;
+        Tue, 28 Mar 2023 10:11:45 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Tue, 28 Mar 2023 10:11:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; t=1680012705; x=1680099105; bh=HA
+        8Qu6+B/fZNk38DDEdiVcaXfkrKbiq/xKn5l8tfllk=; b=Tp5byWAS8UpKkU6S5e
+        rjEdRY9+oxtzZ1P+vyQLppjrG8DrfRvzM3mKpVKE/rzcmDsAn7DkM9eceBllPfOw
+        CIP6IOYFO9X+53cDY4vvh9fe49kM3IyGDLJ184yAY2MO/ETQC368mEY4ow0ljR+K
+        OK+aNJ4adMD0Yq2EZbHTTso+uIQiSQs7OR5cl6nawZQzGpK2XMrouMYduq6l+Cpy
+        Pmtzpzg16jQ0/1zGVvihJlfJH6DmhJo6ZtSRCDKN9WCOhGuqER5j/UK1cs2FecW+
+        D0bw2A+BuRekkpGf/uD49snm0LR0bZ8v1ynfWz3Jk3h8nNEtkjDZG/cvZvWw7K9e
+        Okng==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1680012705; x=1680099105; bh=HA8Qu6+B/fZNk
+        38DDEdiVcaXfkrKbiq/xKn5l8tfllk=; b=K7oCibKzj40X8PF6IgNni4bXHLG9n
+        aPxTuQ1YQXXUg96q6Y30/b035SZG3zl4kVtuzyyt6xReQ4b7+Uyv2Y40PNBN9AxQ
+        4ywgCi1NGtfyVgHWyJfHswp7V7e9Jb5P+QIB51VALotzTz/gxl4oJkZqsbOn6xak
+        GKI5O8jBpTuMU5iKhRYalndt2yI/nXWqTk0IfyqgvdEs29V2cZJyH2p5nhA5bCIX
+        mAR7v84lX7PvV+YStboZgQKnv+aixQtnGcW14MljG5tfir2m8Or4iMEYtdn+w3+O
+        J50TshyqvAsRmAFHRMHQKLB5UxqrjYDiTANrrgDaH5cjqwQR56fQnegIw==
+X-ME-Sender: <xms:oPUiZAwJP4tVsNRef-XuWzgDbWmp9CPNPVmlWEIATnRfaCpCEwQx5g>
+    <xme:oPUiZES-_fLI_T9YvI-RvN4MVqyi73S0JA3XsjixiRUq_GzlVJVIhVgAMdAC-Ko4W
+    89dENeSzeEquA>
+X-ME-Received: <xmr:oPUiZCVzC8Vk2DFPgCh5cHYRQ2vqEWiz329StoL91r3eOVQ0yfKuXfL9zOk9zD286ZKFS-qPJdcjfuqAnlwaTQtTqLwOC78D-ydazA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdehgedgjedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:ofUiZOiwUrAV_All0nAShKGEfGNoHBC7EiY-LDRV8UkAD7tu5VnT_g>
+    <xmx:ofUiZCCHSeCXb09ZfcfOCQU-p8DdbKaUcNlMMpYJmI8WG2k9Mto7Qw>
+    <xmx:ofUiZPLkG2EV9kjrWuhJ-xpltD_dfppVmZbiTVzd1fOGWOYhWYpDTQ>
+    <xmx:ofUiZG4hoFAwoMBsCUfnctsQy3jqh_TK9_xp9W5-KgcTpZdLbsYcqg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 28 Mar 2023 10:11:44 -0400 (EDT)
+Date:   Tue, 28 Mar 2023 16:11:42 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Ovidiu Panait <ovidiu.panait@eng.windriver.com>
+Cc:     stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Xingyuan Mo <hdthky0@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: Re: [PATCH 5.15/5.10 1/1] NFSD: fix use-after-free in
+ __nfs42_ssc_open()
+Message-ID: <ZCL1notX-7ICuqDH@kroah.com>
+References: <20230328134759.401789-1-ovidiu.panait@eng.windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230113111648.1977473-1-maz@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <20230328134759.401789-1-ovidiu.panait@eng.windriver.com>
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marc,
-
-On Fri, Jan 13, 2023 at 11:16:48AM +0000, Marc Zyngier wrote:
-> When booting on a CPU that has a countertum on the counter read,
-> we use the arch_counter_get_cnt{v,p}ct_stable() backend which
-> applies the workaround.
+On Tue, Mar 28, 2023 at 04:47:59PM +0300, Ovidiu Panait wrote:
+> From: Dai Ngo <dai.ngo@oracle.com>
 > 
-> However, we don't do the same thing when an affected CPU is
-> a secondary CPU, and we're stuck with the standard sched_clock()
-> backend that knows nothing about the workaround.
+> commit 75333d48f92256a0dec91dbf07835e804fc411c0 upstream.
 > 
-> Fix it by always indirecting sched_clock(), making arch_timer_read_counter
-> a function instead of a function pointer. In turn, we update the
-> pointer (now private to the driver code) when detecting a new
-> workaround.
+> Problem caused by source's vfsmount being unmounted but remains
+> on the delayed unmount list. This happens when nfs42_ssc_open()
+> return errors.
 > 
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Daniel Lezcano <daniel.lezcano@kernel.org>
-> Cc: Thomas Gleixner <tglx@linotronix.de>
-> Cc: stable@vger.kernel.org
-> Reported-by: Yogesh Lal <quic_ylal@quicinc.com>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Fixes: 0ea415390cd3 ("clocksource/arm_arch_timer: Use arch_timer_read_counter to access stable counters")
-> Link: https://lore.kernel.org/r/ca4679a0-7f29-65f4-54b9-c575248192f1@quicinc.com
+> Fixed by removing nfsd4_interssc_connect(), leave the vfsmount
+> for the laundromat to unmount when idle time expires.
+> 
+> We don't need to call nfs_do_sb_deactive when nfs42_ssc_open
+> return errors since the file was not opened so nfs_server->active
+> was not incremented. Same as in nfsd4_copy, if we fail to
+> launch nfsd4_do_async_copy thread then there's no need to
+> call nfs_do_sb_deactive
+> 
+> Reported-by: Xingyuan Mo <hdthky0@gmail.com>
+> Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+> Tested-by: Xingyuan Mo <hdthky0@gmail.com>
+> Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+> Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 > ---
->  drivers/clocksource/arm_arch_timer.c | 56 +++++++++++++++++-----------
->  include/clocksource/arm_arch_timer.h |  2 +-
->  2 files changed, 36 insertions(+), 22 deletions(-)
+>  fs/nfsd/nfs4proc.c | 22 ++++++----------------
+>  1 file changed, 6 insertions(+), 16 deletions(-)
+> 
 
-I'm just going through the patch backlog and I think this thread ended
-with Mark's review. Do you intend to post an updated version?
+Now queued up, thanks.
 
-Cheers,
-
-Will
+greg k-h
