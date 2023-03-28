@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3753D6CC546
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B516CC382
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbjC1PNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55000 "EHLO
+        id S233456AbjC1Oyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233141AbjC1PMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1663C1027B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:30 -0700 (PDT)
+        with ESMTP id S233442AbjC1Oya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF954E9
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4ADFEB81C24
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B620C4339B;
-        Tue, 28 Mar 2023 15:11:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A0286182C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684B1C4339B;
+        Tue, 28 Mar 2023 14:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016285;
-        bh=qMnWrXKuighu+RvNAWQ0RgPUA/UjUR4mXIfUB3Us8nU=;
+        s=korg; t=1680015268;
+        bh=auzT78B8sTYFbmdAMJSvXW38zALVULSPkuQHYRo5wJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d8Wa/cR+3pxU1LYsBmfPkqm3RjN9Smz70lRLApiE4zEOlWoqxpc3V73GKIxXn4vYg
-         dKdF1DkPyjxjBsmQtodDY/Z5TrL1pzfD6H73GQxjSU70x2XqX/E9Hrejofk1EN6DVv
-         ANb/dKurucQloZg/nz4y3M2tuNFyEnR0TgXmBF1c=
+        b=l/FQuIMqHRy4fIwa2BuHBtqy+Ky1tJ+mfhqLS74qgkMlnyZ7oFUoYyl6RRWe2bM8X
+         xAf1nkbOUEuwmG/WSz0yQjJwMuwIqpdOCG15CgPQTvmJN4fqLAa98ZXhaA9OvD5Jts
+         RL6eNDZ13BoUNvgcG2E+uB6g+n48DetSDBvJXMKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, William Zhao <wizhao@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 101/146] act_mirred: use the backlog for nested calls to mirred ingress
+        patches@lists.linux.dev, Rijo Thomas <Rijo-john.Thomas@amd.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Subject: [PATCH 6.2 227/240] tee: amdtee: fix race condition in amdtee_open_session
 Date:   Tue, 28 Mar 2023 16:43:10 +0200
-Message-Id: <20230328142606.885501276@linuxfoundation.org>
+Message-Id: <20230328142629.187600434@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,139 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Rijo Thomas <Rijo-john.Thomas@amd.com>
 
-[ Upstream commit ca22da2fbd693b54dc8e3b7b54ccc9f7e9ba3640 ]
+commit f8502fba45bd30e1a6a354d9d898bc99d1a11e6d upstream.
 
-William reports kernel soft-lockups on some OVS topologies when TC mirred
-egress->ingress action is hit by local TCP traffic [1].
-The same can also be reproduced with SCTP (thanks Xin for verifying), when
-client and server reach themselves through mirred egress to ingress, and
-one of the two peers sends a "heartbeat" packet (from within a timer).
+There is a potential race condition in amdtee_open_session that may
+lead to use-after-free. For instance, in amdtee_open_session() after
+sess->sess_mask is set, and before setting:
 
-Enqueueing to backlog proved to fix this soft lockup; however, as Cong
-noticed [2], we should preserve - when possible - the current mirred
-behavior that counts as "overlimits" any eventual packet drop subsequent to
-the mirred forwarding action [3]. A compromise solution might use the
-backlog only when tcf_mirred_act() has a nest level greater than one:
-change tcf_mirred_forward() accordingly.
+    sess->session_info[i] = session_info;
 
-Also, add a kselftest that can reproduce the lockup and verifies TC mirred
-ability to account for further packet drops after TC mirred egress->ingress
-(when the nest level is 1).
+if amdtee_close_session() closes this same session, then 'sess' data
+structure will be released, causing kernel panic when 'sess' is
+accessed within amdtee_open_session().
 
- [1] https://lore.kernel.org/netdev/33dc43f587ec1388ba456b4915c75f02a8aae226.1663945716.git.dcaratti@redhat.com/
- [2] https://lore.kernel.org/netdev/Y0w%2FWWY60gqrtGLp@pop-os.localdomain/
- [3] such behavior is not guaranteed: for example, if RPS or skb RX
-     timestamping is enabled on the mirred target device, the kernel
-     can defer receiving the skb and return NET_RX_SUCCESS inside
-     tcf_mirred_forward().
+The solution is to set the bit sess->sess_mask as the last step in
+amdtee_open_session().
 
-Reported-by: William Zhao <wizhao@redhat.com>
-CC: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 757cc3e9ff1d ("tee: add AMD-TEE driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
+Acked-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_mirred.c                        |  7 +++
- .../selftests/net/forwarding/tc_actions.sh    | 49 ++++++++++++++++++-
- 2 files changed, 55 insertions(+), 1 deletion(-)
+ drivers/tee/amdtee/core.c |   29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
-index b28d49495de09..6f39789d9d14b 100644
---- a/net/sched/act_mirred.c
-+++ b/net/sched/act_mirred.c
-@@ -204,12 +204,19 @@ static int tcf_mirred_init(struct net *net, struct nlattr *nla,
- 	return err;
- }
+--- a/drivers/tee/amdtee/core.c
++++ b/drivers/tee/amdtee/core.c
+@@ -267,35 +267,34 @@ int amdtee_open_session(struct tee_conte
+ 		goto out;
+ 	}
  
-+static bool is_mirred_nested(void)
-+{
-+	return unlikely(__this_cpu_read(mirred_nest_level) > 1);
-+}
++	/* Open session with loaded TA */
++	handle_open_session(arg, &session_info, param);
++	if (arg->ret != TEEC_SUCCESS) {
++		pr_err("open_session failed %d\n", arg->ret);
++		handle_unload_ta(ta_handle);
++		kref_put(&sess->refcount, destroy_session);
++		goto out;
++	}
 +
- static int tcf_mirred_forward(bool want_ingress, struct sk_buff *skb)
- {
- 	int err;
+ 	/* Find an empty session index for the given TA */
+ 	spin_lock(&sess->lock);
+ 	i = find_first_zero_bit(sess->sess_mask, TEE_NUM_SESSIONS);
+-	if (i < TEE_NUM_SESSIONS)
++	if (i < TEE_NUM_SESSIONS) {
++		sess->session_info[i] = session_info;
++		set_session_id(ta_handle, i, &arg->session);
+ 		set_bit(i, sess->sess_mask);
++	}
+ 	spin_unlock(&sess->lock);
  
- 	if (!want_ingress)
- 		err = tcf_dev_queue_xmit(skb, dev_queue_xmit);
-+	else if (is_mirred_nested())
-+		err = netif_rx(skb);
- 	else
- 		err = netif_receive_skb(skb);
+ 	if (i >= TEE_NUM_SESSIONS) {
+ 		pr_err("reached maximum session count %d\n", TEE_NUM_SESSIONS);
++		handle_close_session(ta_handle, session_info);
+ 		handle_unload_ta(ta_handle);
+ 		kref_put(&sess->refcount, destroy_session);
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
  
-diff --git a/tools/testing/selftests/net/forwarding/tc_actions.sh b/tools/testing/selftests/net/forwarding/tc_actions.sh
-index d9eca227136bb..22a1e4c9553a3 100755
---- a/tools/testing/selftests/net/forwarding/tc_actions.sh
-+++ b/tools/testing/selftests/net/forwarding/tc_actions.sh
-@@ -3,7 +3,7 @@
- 
- ALL_TESTS="gact_drop_and_ok_test mirred_egress_redirect_test \
- 	mirred_egress_mirror_test matchall_mirred_egress_mirror_test \
--	gact_trap_test"
-+	gact_trap_test mirred_egress_to_ingress_tcp_test"
- NUM_NETIFS=4
- source tc_common.sh
- source lib.sh
-@@ -153,6 +153,53 @@ gact_trap_test()
- 	log_test "trap ($tcflags)"
- }
- 
-+mirred_egress_to_ingress_tcp_test()
-+{
-+	local tmpfile=$(mktemp) tmpfile1=$(mktemp)
-+
-+	RET=0
-+	dd conv=sparse status=none if=/dev/zero bs=1M count=2 of=$tmpfile
-+	tc filter add dev $h1 protocol ip pref 100 handle 100 egress flower \
-+		$tcflags ip_proto tcp src_ip 192.0.2.1 dst_ip 192.0.2.2 \
-+			action ct commit nat src addr 192.0.2.2 pipe \
-+			action ct clear pipe \
-+			action ct commit nat dst addr 192.0.2.1 pipe \
-+			action ct clear pipe \
-+			action skbedit ptype host pipe \
-+			action mirred ingress redirect dev $h1
-+	tc filter add dev $h1 protocol ip pref 101 handle 101 egress flower \
-+		$tcflags ip_proto icmp \
-+			action mirred ingress redirect dev $h1
-+	tc filter add dev $h1 protocol ip pref 102 handle 102 ingress flower \
-+		ip_proto icmp \
-+			action drop
-+
-+	ip vrf exec v$h1 nc --recv-only -w10 -l -p 12345 -o $tmpfile1  &
-+	local rpid=$!
-+	ip vrf exec v$h1 nc -w1 --send-only 192.0.2.2 12345 <$tmpfile
-+	wait -n $rpid
-+	cmp -s $tmpfile $tmpfile1
-+	check_err $? "server output check failed"
-+
-+	$MZ $h1 -c 10 -p 64 -a $h1mac -b $h1mac -A 192.0.2.1 -B 192.0.2.1 \
-+		-t icmp "ping,id=42,seq=5" -q
-+	tc_check_packets "dev $h1 egress" 101 10
-+	check_err $? "didn't mirred redirect ICMP"
-+	tc_check_packets "dev $h1 ingress" 102 10
-+	check_err $? "didn't drop mirred ICMP"
-+	local overlimits=$(tc_rule_stats_get ${h1} 101 egress .overlimits)
-+	test ${overlimits} = 10
-+	check_err $? "wrong overlimits, expected 10 got ${overlimits}"
-+
-+	tc filter del dev $h1 egress protocol ip pref 100 handle 100 flower
-+	tc filter del dev $h1 egress protocol ip pref 101 handle 101 flower
-+	tc filter del dev $h1 ingress protocol ip pref 102 handle 102 flower
-+
-+	rm -f $tmpfile $tmpfile1
-+	log_test "mirred_egress_to_ingress_tcp ($tcflags)"
-+}
-+
-+>>>>>>> e921d05033293 (act_mirred: use the backlog for nested calls to mirred ingress)
- setup_prepare()
- {
- 	h1=${NETIFS[p1]}
--- 
-2.39.2
-
+-	/* Open session with loaded TA */
+-	handle_open_session(arg, &session_info, param);
+-	if (arg->ret != TEEC_SUCCESS) {
+-		pr_err("open_session failed %d\n", arg->ret);
+-		spin_lock(&sess->lock);
+-		clear_bit(i, sess->sess_mask);
+-		spin_unlock(&sess->lock);
+-		handle_unload_ta(ta_handle);
+-		kref_put(&sess->refcount, destroy_session);
+-		goto out;
+-	}
+-
+-	sess->session_info[i] = session_info;
+-	set_session_id(ta_handle, i, &arg->session);
+ out:
+ 	free_pages((u64)ta, get_order(ta_size));
+ 	return rc;
 
 
