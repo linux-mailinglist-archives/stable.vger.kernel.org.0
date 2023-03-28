@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 689CA6CBDBC
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65AC56CBDBF
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229975AbjC1Lby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 07:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50676 "EHLO
+        id S232467AbjC1LcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 07:32:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230423AbjC1Lbr (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 28 Mar 2023 07:31:47 -0400
+        with ESMTP id S230296AbjC1Lbz (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 28 Mar 2023 07:31:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719B655A4
-        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 04:31:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1839D7A8A
+        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 04:31:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F05AC616E2
-        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 11:31:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A002C433D2;
-        Tue, 28 Mar 2023 11:31:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87CCA616D5
+        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 11:31:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D491C433EF;
+        Tue, 28 Mar 2023 11:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680003087;
-        bh=zA+w3wpZf7wOYhfHOWf+RxJd5Cq4UDLwQVk+B3JxeQ8=;
+        s=korg; t=1680003093;
+        bh=tZWtYLkug1majkcQDxJST7xwQtT6C1Ey9k8hNLzbk/g=;
         h=Subject:To:From:Date:From;
-        b=wJM7UyZyv5evwMKB22ZLZooNhdV6IhvgsHVTFxnhexc5Xm73e45Ax3qQ0K0paFh6t
-         zlghXy8r6tC5PxDMIolggJjHPawZ6TMExQpPCWxvbbynOohn7lkr7ZKKrjJ9agZpdT
-         NlG3e7e4IiiP2ffNWmt1pNAPpBXhwEeGD1Gs2OX8=
-Subject: patch "iio: adc: qcom-spmi-adc5: Fix the channel name" added to char-misc-linus
-To:     andriy.shevchenko@linux.intel.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, marijn.suijten@somainline.org
+        b=etB6R/Jfso8a3Gr20BiwbQF/hk8cD9aHdalGKKpAVsTk+n06Y9icujh6HVBaFjAyL
+         dFfI1MGyMyyRjNoFyc8gP0WvO0FaZMoRzCy7eIimJ7WieiMoPMcbIO4LaGCaq1/tp+
+         6gizz9Qy2/yeiVqAPijJG4jgNvkOYh3NeUNIOSDM=
+Subject: patch "iio: adis16480: select CONFIG_CRC32" added to char-misc-linus
+To:     arnd@arndb.de, Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        nuno.sa@analog.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 13:31:24 +0200
-Message-ID: <1680003084224250@kroah.com>
+Date:   Tue, 28 Mar 2023 13:31:25 +0200
+Message-ID: <1680003085171153@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: qcom-spmi-adc5: Fix the channel name
+    iio: adis16480: select CONFIG_CRC32
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,54 +64,43 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 701c875aded880013aacac608832995c4b052257 Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Wed, 18 Jan 2023 12:06:23 +0200
-Subject: iio: adc: qcom-spmi-adc5: Fix the channel name
+From d9b540ee461cca7edca0dd2c2a42625c6b9ffb8f Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 31 Jan 2023 10:46:11 +0100
+Subject: iio: adis16480: select CONFIG_CRC32
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-The node name can contain an address part which is unused
-by the driver. Moreover, this string is propagated into
-the userspace label, sysfs filenames *and breaking ABI*.
+In rare randconfig builds, the missing CRC32 helper causes
+a link error:
 
-Cut the address part out before assigning the channel name.
+ld.lld: error: undefined symbol: crc32_le
+>>> referenced by usercopy_64.c
+>>>               vmlinux.o:(adis16480_trigger_handler)
 
-Fixes: 4f47a236a23d ("iio: adc: qcom-spmi-adc5: convert to device properties")
-Reported-by: Marijn Suijten <marijn.suijten@somainline.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Link: https://lore.kernel.org/r/20230118100623.42255-1-andriy.shevchenko@linux.intel.com
+Fixes: 941f130881fa ("iio: adis16480: support burst read function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20230131094616.130238-1-arnd@kernel.org
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/qcom-spmi-adc5.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/iio/imu/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/qcom-spmi-adc5.c b/drivers/iio/adc/qcom-spmi-adc5.c
-index 821fee60a765..d1b86570768a 100644
---- a/drivers/iio/adc/qcom-spmi-adc5.c
-+++ b/drivers/iio/adc/qcom-spmi-adc5.c
-@@ -626,12 +626,20 @@ static int adc5_get_fw_channel_data(struct adc5_chip *adc,
- 				    struct fwnode_handle *fwnode,
- 				    const struct adc5_data *data)
- {
--	const char *name = fwnode_get_name(fwnode), *channel_name;
-+	const char *channel_name;
-+	char *name;
- 	u32 chan, value, varr[2];
- 	u32 sid = 0;
- 	int ret;
- 	struct device *dev = adc->dev;
- 
-+	name = devm_kasprintf(dev, GFP_KERNEL, "%pfwP", fwnode);
-+	if (!name)
-+		return -ENOMEM;
-+
-+	/* Cut the address part */
-+	name[strchrnul(name, '@') - name] = '\0';
-+
- 	ret = fwnode_property_read_u32(fwnode, "reg", &chan);
- 	if (ret) {
- 		dev_err(dev, "invalid channel number %s\n", name);
+diff --git a/drivers/iio/imu/Kconfig b/drivers/iio/imu/Kconfig
+index f1d7d4b5e222..c2f97629e9cd 100644
+--- a/drivers/iio/imu/Kconfig
++++ b/drivers/iio/imu/Kconfig
+@@ -47,6 +47,7 @@ config ADIS16480
+ 	depends on SPI
+ 	select IIO_ADIS_LIB
+ 	select IIO_ADIS_LIB_BUFFER if IIO_BUFFER
++	select CRC32
+ 	help
+ 	  Say yes here to build support for Analog Devices ADIS16375, ADIS16480,
+ 	  ADIS16485, ADIS16488 inertial sensors.
 -- 
 2.40.0
 
