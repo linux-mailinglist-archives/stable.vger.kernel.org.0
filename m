@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 751BA6CC455
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F1B66CC354
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233784AbjC1PDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:03:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43796 "EHLO
+        id S233287AbjC1OxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233776AbjC1PDs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:48 -0400
+        with ESMTP id S233406AbjC1Ow4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F869E1A3
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E71BBA8
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AD22B81D7A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A628DC433EF;
-        Tue, 28 Mar 2023 15:02:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 716C0B81D79
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5778C433D2;
+        Tue, 28 Mar 2023 14:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015733;
-        bh=UCOUbbinkANOkKeBF2oBYAEPjBNp5ACM0g1MCyUk5RY=;
+        s=korg; t=1680015168;
+        bh=sRGFf43QbpCOhF8T3iMsrGAGJcquxPawIyZ9s16t4aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzeJKYtlOBTktfUH027uGTMTCIzdU22uCwsaQDO6R5SP67GuhmvT7P7p40uruvwqD
-         AGJ5srnu1XnqWPDZiKoPdTfz5TRde7tcb0phPXvJJ+NHQamZLRluizbLGRE0PzdeQU
-         fdp3f4Lctygqdq89Kewkct1BMCJ5h+57TLSpoBis=
+        b=pRkoNKuyVaY+DZ0fxkrtqlDiEjYNijAffxp0M+zszp9hwyCuqSJGfB6cokdfWwwNb
+         DTctQa/7b+wJWRHLSghgFn8hfNy5upGdqpcwdfd97uJOC3bplRkCRfsKTcKOmaHZpc
+         VlS9nbbmdoGteLLCjR5rhmNgyM7BvfV6cHEVyb9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 156/224] cifs: fix dentry lookups in directory handle cache
-Date:   Tue, 28 Mar 2023 16:42:32 +0200
-Message-Id: <20230328142623.885551538@linuxfoundation.org>
+        patches@lists.linux.dev, Coly Li <colyli@suse.de>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.2 190/240] dm thin: fix deadlock when swapping to thin device
+Date:   Tue, 28 Mar 2023 16:42:33 +0200
+Message-Id: <20230328142627.563101694@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@manguebit.com>
+From: Coly Li <colyli@suse.de>
 
-commit be4fde79812f02914e350bde0bc4cfeae8429378 upstream.
+commit 9bbf5feecc7eab2c370496c1c161bbfe62084028 upstream.
 
-Get rid of any prefix paths in @path before lookup_positive_unlocked()
-as it will call ->lookup() which already adds those prefix paths
-through build_path_from_dentry().
+This is an already known issue that dm-thin volume cannot be used as
+swap, otherwise a deadlock may happen when dm-thin internal memory
+demand triggers swap I/O on the dm-thin volume itself.
 
-This has caused a performance regression when mounting shares with a
-prefix path where readdir(2) would end up retrying several times to
-open bad directory names that contained duplicate prefix paths.
+But thanks to commit a666e5c05e7c ("dm: fix deadlock when swapping to
+encrypted device"), the limit_swap_bios target flag can also be used
+for dm-thin to avoid the recursive I/O when it is used as swap.
 
-Fix this by skipping any prefix paths in @path before calling
-lookup_positive_unlocked().
+Fix is to simply set ti->limit_swap_bios to true in both pool_ctr()
+and thin_ctr().
 
-Fixes: e4029e072673 ("cifs: find and use the dentry for cached non-root directories also")
-Cc: stable@vger.kernel.org # 6.1+
-Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+In my test, I create a dm-thin volume /dev/vg/swap and use it as swap
+device. Then I run fio on another dm-thin volume /dev/vg/main and use
+large --blocksize to trigger swap I/O onto /dev/vg/swap.
+
+The following fio command line is used in my test,
+  fio --name recursive-swap-io --lockmem 1 --iodepth 128 \
+     --ioengine libaio --filename /dev/vg/main --rw randrw \
+    --blocksize 1M --numjobs 32 --time_based --runtime=12h
+
+Without this fix, the whole system can be locked up within 15 seconds.
+
+With this fix, there is no any deadlock or hung task observed after
+2 hours of running fio.
+
+Furthermore, if blocksize is changed from 1M to 128M, after around 30
+seconds fio has no visible I/O, and the out-of-memory killer message
+shows up in kernel message. After around 20 minutes all fio processes
+are killed and the whole system is back to being alive.
+
+This is exactly what is expected when recursive I/O happens on dm-thin
+volume when it is used as swap.
+
+Depends-on: a666e5c05e7c ("dm: fix deadlock when swapping to encrypted device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cached_dir.c |   36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
+ drivers/md/dm-thin.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/cifs/cached_dir.c
-+++ b/fs/cifs/cached_dir.c
-@@ -99,6 +99,23 @@ path_to_dentry(struct cifs_sb_info *cifs
- 	return dentry;
- }
- 
-+static const char *path_no_prefix(struct cifs_sb_info *cifs_sb,
-+				  const char *path)
-+{
-+	size_t len = 0;
-+
-+	if (!*path)
-+		return path;
-+
-+	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
-+	    cifs_sb->prepath) {
-+		len = strlen(cifs_sb->prepath) + 1;
-+		if (unlikely(len > strlen(path)))
-+			return ERR_PTR(-EINVAL);
-+	}
-+	return path + len;
-+}
-+
- /*
-  * Open the and cache a directory handle.
-  * If error then *cfid is not initialized.
-@@ -125,6 +142,7 @@ int open_cached_dir(unsigned int xid, st
- 	struct dentry *dentry = NULL;
- 	struct cached_fid *cfid;
- 	struct cached_fids *cfids;
-+	const char *npath;
- 
- 	if (tcon == NULL || tcon->cfids == NULL || tcon->nohandlecache ||
- 	    is_smb1_server(tcon->ses->server))
-@@ -161,6 +179,20 @@ int open_cached_dir(unsigned int xid, st
- 	}
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3357,6 +3357,7 @@ static int pool_ctr(struct dm_target *ti
+ 	pt->low_water_blocks = low_water_blocks;
+ 	pt->adjusted_pf = pt->requested_pf = pf;
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
  
  	/*
-+	 * Skip any prefix paths in @path as lookup_positive_unlocked() ends up
-+	 * calling ->lookup() which already adds those through
-+	 * build_path_from_dentry().  Also, do it earlier as we might reconnect
-+	 * below when trying to send compounded request and then potentially
-+	 * having a different prefix path (e.g. after DFS failover).
-+	 */
-+	npath = path_no_prefix(cifs_sb, path);
-+	if (IS_ERR(npath)) {
-+		rc = PTR_ERR(npath);
-+		kfree(utf16_path);
-+		return rc;
-+	}
-+
-+	/*
- 	 * We do not hold the lock for the open because in case
- 	 * SMB2_open needs to reconnect.
- 	 * This is safe because no other thread will be able to get a ref
-@@ -252,10 +284,10 @@ int open_cached_dir(unsigned int xid, st
- 				(char *)&cfid->file_all_info))
- 		cfid->file_all_info_is_valid = true;
+ 	 * Only need to enable discards if the pool should pass
+@@ -4235,6 +4236,7 @@ static int thin_ctr(struct dm_target *ti
+ 		goto bad;
  
--	if (!path[0])
-+	if (!npath[0])
- 		dentry = dget(cifs_sb->root);
- 	else {
--		dentry = path_to_dentry(cifs_sb, path);
-+		dentry = path_to_dentry(cifs_sb, npath);
- 		if (IS_ERR(dentry)) {
- 			rc = -ENOENT;
- 			goto oshr_free;
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
+ 	ti->flush_supported = true;
+ 	ti->accounts_remapped_io = true;
+ 	ti->per_io_data_size = sizeof(struct dm_thin_endio_hook);
 
 
