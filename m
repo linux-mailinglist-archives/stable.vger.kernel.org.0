@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F726CC266
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9AFD6CC267
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbjC1OpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34650 "EHLO
+        id S233087AbjC1OpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233250AbjC1Oo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:44:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76A06C142
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:44:44 -0700 (PDT)
+        with ESMTP id S233020AbjC1OpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D321BD31D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:44:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A12D56181B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEFE3C433D2;
-        Tue, 28 Mar 2023 14:44:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B5B061828
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DAE3C433EF;
+        Tue, 28 Mar 2023 14:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014683;
-        bh=BzwoLEgEmjlQxZ6RaWl2xqKjtBWjOmUiNfAcfOcdHxk=;
+        s=korg; t=1680014685;
+        bh=AYQK/nW9l4cl/DtggUNloxtu/0Ez46kxbDH+CvduZ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykIfOe0pJE/UMv6VdoLM9rIS7B0Q6r4vyd0WoPiazqgo8+NoX61Ba7tS37du50GRa
-         vZ0dfGBJDPwTlgqEdrNG7naBdn8nCdzdzgdbUejsZvMEKlWT2LqhZFkKFUHHLeI4NB
-         +5c7I0Dy6PZf/ik3MhmC73W/DgFNemskQFTXE+WY=
+        b=V5XtUJxd3yh7Kv4zN49RjUcbQXsSTS1ZXjScZfgb9oABZej74TzD+lhqerRvI9PjI
+         8yHxHiv43rtGLj+Jen6FP96V2oGSX9MhuNpxPA5GkI36MgNM5b/4Ojs2EdRw+v66FL
+         eKZ1s9lv585DN9DbKAHE1KMhh3+AQPtq+JOrwmfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 015/240] power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition
-Date:   Tue, 28 Mar 2023 16:39:38 +0200
-Message-Id: <20230328142620.288780822@linuxfoundation.org>
+Subject: [PATCH 6.2 016/240] power: supply: da9150: Fix use after free bug in da9150_charger_remove due to race condition
+Date:   Tue, 28 Mar 2023 16:39:39 +0200
+Message-Id: <20230328142620.323334485@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,51 +55,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 47c29d69212911f50bdcdd0564b5999a559010d4 ]
+[ Upstream commit 06615d11cc78162dfd5116efb71f29eb29502d37 ]
 
-In bq24190_probe, &bdi->input_current_limit_work is bound
-with bq24190_input_current_limit_work. When external power
-changed, it will call bq24190_charger_external_power_changed
- to start the work.
+In da9150_charger_probe, &charger->otg_work is bound with
+da9150_charger_otg_work. da9150_charger_otg_ncb may be
+called to start the work.
 
-If we remove the module which will call bq24190_remove to make
-cleanup, there may be a unfinished work. The possible
+If we remove the module which will call da9150_charger_remove
+to make cleanup, there may be a unfinished work. The possible
 sequence is as follows:
+
+Fix it by canceling the work before cleanup in the da9150_charger_remove
 
 CPU0                  CPUc1
 
-                    |bq24190_input_current_limit_work
-bq24190_remove      |
+                    |da9150_charger_otg_work
+da9150_charger_remove      |
 power_supply_unregister  |
 device_unregister   |
 power_supply_dev_release|
 kfree(psy)          |
                     |
-                    | power_supply_get_property_from_supplier
+                    | 	power_supply_changed(charger->usb);
                     |   //use
 
-Fix it by finishing the work before cleanup in the bq24190_remove
-
-Fixes: 97774672573a ("power_supply: Initialize changed_work before calling device_add")
+Fixes: c1a281e34dae ("power: Add support for DA9150 Charger")
 Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq24190_charger.c | 1 +
+ drivers/power/supply/da9150-charger.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
-index 2b2c3a4391c19..6bd711932e06d 100644
---- a/drivers/power/supply/bq24190_charger.c
-+++ b/drivers/power/supply/bq24190_charger.c
-@@ -1906,6 +1906,7 @@ static void bq24190_remove(struct i2c_client *client)
- 	struct bq24190_dev_info *bdi = i2c_get_clientdata(client);
- 	int error;
+diff --git a/drivers/power/supply/da9150-charger.c b/drivers/power/supply/da9150-charger.c
+index f9314cc0cd75f..6b987da586556 100644
+--- a/drivers/power/supply/da9150-charger.c
++++ b/drivers/power/supply/da9150-charger.c
+@@ -662,6 +662,7 @@ static int da9150_charger_remove(struct platform_device *pdev)
  
-+	cancel_delayed_work_sync(&bdi->input_current_limit_work);
- 	error = pm_runtime_resume_and_get(bdi->dev);
- 	if (error < 0)
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
+ 	if (!IS_ERR_OR_NULL(charger->usb_phy))
+ 		usb_unregister_notifier(charger->usb_phy, &charger->otg_nb);
++	cancel_work_sync(&charger->otg_work);
+ 
+ 	power_supply_unregister(charger->battery);
+ 	power_supply_unregister(charger->usb);
 -- 
 2.39.2
 
