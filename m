@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E22E46CC542
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B02C96CC4B2
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233908AbjC1PNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53514 "EHLO
+        id S233890AbjC1PHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:07:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231536AbjC1PMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:50 -0400
+        with ESMTP id S233891AbjC1PHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA4DFF0B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0F5EB58
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57B8A6186A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:12:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A9F8C433D2;
-        Tue, 28 Mar 2023 15:12:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88DC261856
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941A1C433D2;
+        Tue, 28 Mar 2023 15:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016344;
-        bh=OjNn6WSh4hs9Cyx0kFZzTNIWrb45m0nTCMTXC8Z3TLY=;
+        s=korg; t=1680015915;
+        bh=OeeU9YgiFx8fz9MuFWqWfSigrs8q2ZzOsr+sISGjjM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAaSk8uTgz6JtaQzQGCtjOsxrPWe6DPBV4wDnpYsn09sPQgklcAiRLa2gnOWpIsz9
-         ebS5kXi3ECjbNQ5KO/9MO60sG28k0jJt5ipLUAl8wKtVm6HQAV0XFZ8QF8TXyff3Oz
-         L6YMeq5IvjJH4YM0a5DT6ds8e3T3xZ2RPRHfzT4o=
+        b=Cq3n87cN3LNR7sNiTgoZlXg6b+6IYymYd4rsbJ/n84mJ3w6qrb+BUz2hEKLo4nStK
+         k087GXwIN8snWzdzLoRa1s9ZE87YU8c+DJV8yaQ6WdUuKX53So+xqmvHpz6TWzq8F2
+         8Iv24IiBzQ1sTVFypc17+8GcBx5xgW9ggciyK5As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matheus Castello <matheus.castello@toradex.com>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>
-Subject: [PATCH 5.15 129/146] drm/bridge: lt8912b: return EPROBE_DEFER if bridge is not found
-Date:   Tue, 28 Mar 2023 16:43:38 +0200
-Message-Id: <20230328142608.038704916@linuxfoundation.org>
+        patches@lists.linux.dev, Yifan Zhang <yifan1.zhang@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.1 223/224] drm/amdkfd: add GC 11.0.4 KFD support
+Date:   Tue, 28 Mar 2023 16:43:39 +0200
+Message-Id: <20230328142626.579706827@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matheus Castello <matheus.castello@toradex.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-commit 1a70ca89d59c7c8af006d29b965a95ede0abb0da upstream.
+commit 88c21c2b56aa21dd34290d43ada74033dc3bfe35 upstream.
 
-Returns EPROBE_DEFER when of_drm_find_bridge() fails, this is consistent
-with what all the other DRM bridge drivers are doing and this is
-required since the bridge might not be there when the driver is probed
-and this should not be a fatal failure.
+Add initial support for GC 11.0.4 in KFD compute driver.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
-Signed-off-by: Matheus Castello <matheus.castello@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230322143821.109744-1-francesco@dolcini.it
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt8912b.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_crat.c   |    1 +
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c |    2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
-@@ -670,8 +670,8 @@ static int lt8912_parse_dt(struct lt8912
- 
- 	lt->hdmi_port = of_drm_find_bridge(port_node);
- 	if (!lt->hdmi_port) {
--		dev_err(lt->dev, "%s: Failed to get hdmi port\n", __func__);
--		ret = -ENODEV;
-+		ret = -EPROBE_DEFER;
-+		dev_err_probe(lt->dev, ret, "%s: Failed to get hdmi port\n", __func__);
- 		goto err_free_host_node;
- 	}
- 
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+@@ -1522,6 +1522,7 @@ int kfd_get_gpu_cache_info(struct kfd_de
+ 		case IP_VERSION(11, 0, 1):
+ 		case IP_VERSION(11, 0, 2):
+ 		case IP_VERSION(11, 0, 3):
++		case IP_VERSION(11, 0, 4):
+ 			num_of_cache_types =
+ 				kfd_fill_gpu_cache_info_from_gfx_config(kdev, *pcache_info);
+ 			break;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -154,6 +154,7 @@ static void kfd_device_info_set_event_in
+ 	case IP_VERSION(11, 0, 1):
+ 	case IP_VERSION(11, 0, 2):
+ 	case IP_VERSION(11, 0, 3):
++	case IP_VERSION(11, 0, 4):
+ 		kfd->device_info.event_interrupt_class = &event_interrupt_class_v11;
+ 		break;
+ 	default:
+@@ -396,6 +397,7 @@ struct kfd_dev *kgd2kfd_probe(struct amd
+ 			f2g = &gfx_v11_kfd2kgd;
+ 			break;
+ 		case IP_VERSION(11, 0, 1):
++		case IP_VERSION(11, 0, 4):
+ 			gfx_target_version = 110003;
+ 			f2g = &gfx_v11_kfd2kgd;
+ 			break;
 
 
