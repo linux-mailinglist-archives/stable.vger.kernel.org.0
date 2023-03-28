@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA336CC422
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAF36CC5EA
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233641AbjC1PAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
+        id S234011AbjC1PTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233666AbjC1PAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:12 -0400
+        with ESMTP id S234003AbjC1PTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:19:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C84E079
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75FE113D7
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:17:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B6E761804
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51DA1C433EF;
-        Tue, 28 Mar 2023 15:00:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DCF861851
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 523E7C433EF;
+        Tue, 28 Mar 2023 15:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015609;
-        bh=fBz92v9YhjUdwzznze4CNEBjdFnvqCppo2AMjOgJZeQ=;
+        s=korg; t=1680015963;
+        bh=AYQK/nW9l4cl/DtggUNloxtu/0Ez46kxbDH+CvduZ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h4g+q6LPlS8AsXNoGglKc5G3bgCoyx59Fehl6ukusUHd7SE+D9o0Zz+GlqpbPCSbc
-         rfjz/NmZfko/OZBKZnQy/CTtuXy9T9CS9y6c+xwzQzXxjUsYxd781jeIrEvafAVcdQ
-         Po4rljwwk8iRsoVSW7sDhEJyHETr6Aa8MImZVFJM=
+        b=wYXYIEibbUXAkBLzKdFpp0CN2kC1SBXLQJbp3eOOKFpuKU0rA7XkKYbh4YpVWjLyF
+         YEMcK+Enctf4zaPhDWqwftPWmH/qMkailAOMeuY2n+KKBAuZidj60YFBhZtupI6puE
+         uaEXHhGunxpdkGoHgeJX/Ag+V5I8chWKxORqwDNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 6.1 109/224] thunderbolt: Call tb_check_quirks() after initializing adapters
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 016/146] power: supply: da9150: Fix use after free bug in da9150_charger_remove due to race condition
 Date:   Tue, 28 Mar 2023 16:41:45 +0200
-Message-Id: <20230328142621.884972129@linuxfoundation.org>
+Message-Id: <20230328142603.395799516@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-commit d2d6ddf188f609861489d5d188d545856a3ed399 upstream.
+[ Upstream commit 06615d11cc78162dfd5116efb71f29eb29502d37 ]
 
-In order to apply quirks based on certain adapter types move call to
-tb_check_quirks() happen after the adapters are initialized. This should
-not affect the existing quirks.
+In da9150_charger_probe, &charger->otg_work is bound with
+da9150_charger_otg_work. da9150_charger_otg_ncb may be
+called to start the work.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If we remove the module which will call da9150_charger_remove
+to make cleanup, there may be a unfinished work. The possible
+sequence is as follows:
+
+Fix it by canceling the work before cleanup in the da9150_charger_remove
+
+CPU0                  CPUc1
+
+                    |da9150_charger_otg_work
+da9150_charger_remove      |
+power_supply_unregister  |
+device_unregister   |
+power_supply_dev_release|
+kfree(psy)          |
+                    |
+                    | 	power_supply_changed(charger->usb);
+                    |   //use
+
+Fixes: c1a281e34dae ("power: Add support for DA9150 Charger")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/switch.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/da9150-charger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -2959,8 +2959,6 @@ int tb_switch_add(struct tb_switch *sw)
- 			dev_warn(&sw->dev, "reading DROM failed: %d\n", ret);
- 		tb_sw_dbg(sw, "uid: %#llx\n", sw->uid);
+diff --git a/drivers/power/supply/da9150-charger.c b/drivers/power/supply/da9150-charger.c
+index f9314cc0cd75f..6b987da586556 100644
+--- a/drivers/power/supply/da9150-charger.c
++++ b/drivers/power/supply/da9150-charger.c
+@@ -662,6 +662,7 @@ static int da9150_charger_remove(struct platform_device *pdev)
  
--		tb_check_quirks(sw);
--
- 		ret = tb_switch_set_uuid(sw);
- 		if (ret) {
- 			dev_err(&sw->dev, "failed to set UUID\n");
-@@ -2979,6 +2977,8 @@ int tb_switch_add(struct tb_switch *sw)
- 			}
- 		}
+ 	if (!IS_ERR_OR_NULL(charger->usb_phy))
+ 		usb_unregister_notifier(charger->usb_phy, &charger->otg_nb);
++	cancel_work_sync(&charger->otg_work);
  
-+		tb_check_quirks(sw);
-+
- 		tb_switch_default_link_ports(sw);
- 
- 		ret = tb_switch_update_link_attributes(sw);
+ 	power_supply_unregister(charger->battery);
+ 	power_supply_unregister(charger->usb);
+-- 
+2.39.2
+
 
 
