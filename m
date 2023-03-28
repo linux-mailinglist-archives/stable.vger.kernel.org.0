@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8A56CC451
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157596CC325
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233782AbjC1PDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
+        id S233379AbjC1Ovi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233776AbjC1PD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC31EEC69
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:17 -0700 (PDT)
+        with ESMTP id S233496AbjC1OvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B51E076
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42AD86184B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52305C433D2;
-        Tue, 28 Mar 2023 15:01:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C976461820
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8127C433EF;
+        Tue, 28 Mar 2023 14:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015716;
-        bh=NP0Ls7B1aIxpGe0fZTWet09qyPVhMgouoYrI9T3wV+0=;
+        s=korg; t=1680015063;
+        bh=LpnRW/UaSi4n7Emhs3bTrY4ZahkicVJRdQ3WmVnngPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Oj+aGEDOQrXH/7lzvOTRcHo+k4p/9b8NxYGvBi/dgQBO3bbw9PT3zBtWFIxyx8iJ
-         ll4I6DmOkni7DNffEBPjChvnVi2LwMqbN9iLblLng8LPiAkA1X856GFL9WBFgig89T
-         2qrbLS/m55iZ8y2I2xVoGO9jIYYfgu2dflVVLFic=
+        b=ziiByGpYKpd/oS4z6ICtGN00QuOXyf9tDTrqiBHL+zpI0OrgnwPRV2KUaeO04Nk7V
+         P3c8ZX52pQd0TgICT1EVr2u43xw3lQyJ1fjLJqb0k9J8Jh+UQJdhqpLVfy+Awhy7E5
+         ++Tf+HmBchpXfCyiR9213iHIeeTSPJlOgvXDtfU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anson Tsao <anson.tsao@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 119/224] ACPI: x86: Drop quirk for HP Elitebook
+Subject: [PATCH 6.2 152/240] scsi: storvsc: Handle BlockSize change in Hyper-V VHD/VHDX file
 Date:   Tue, 28 Mar 2023 16:41:55 +0200
-Message-Id: <20230328142622.321509585@linuxfoundation.org>
+Message-Id: <20230328142626.032596809@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,72 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit e32d546c483a2a0f607687f5b521c2a2f942ffbe ]
+[ Upstream commit 11d9874c4204a785f43d899a1ab12f9dc8d9de3e ]
 
-There was a quirk in `acpi/x86/s2idle.c` for an HP Elitebook G9
-platforms to force AMD GUID codepath instead of Microsoft codepath.
+Hyper-V uses a VHD or VHDX file on the host as the underlying storage for a
+virtual disk.  The VHD/VHDX file format is a sparse format where real disk
+space on the host is assigned in chunks that the VHD/VHDX file format calls
+the BlockSize.  This BlockSize is not to be confused with the 512-byte (or
+4096-byte) sector size of the underlying storage device.  The default block
+size for a new VHD/VHDX file is 32 Mbytes.  When a guest VM touches any
+disk space within a 32 Mbyte chunk of the VHD/VHDX file, Hyper-V allocates
+32 Mbytes of real disk space for that section of the VHD/VHDX. Similarly,
+if a discard operation is done that covers an entire 32 Mbyte chunk,
+Hyper-V will free the real disk space for that portion of the VHD/VHDX.
+This BlockSize is surfaced in Linux as the "discard_granularity" in
+/sys/block/sd<x>/queue, which makes sense.
 
-This was due to a bug with WCN6855 WLAN firmware interaction with
-the system.
+Hyper-V also has differencing disks that can overlay a VHD/VHDX file to
+capture changes to the VHD/VHDX while preserving the original VHD/VHDX.
+One example of this differencing functionality is for VM snapshots.  When a
+snapshot is created, a differencing disk is created.  If the snapshot is
+rolled back, Hyper-V can just delete the differencing disk, and the VM will
+see the original disk contents at the time the snapshot was taken.
+Differencing disks are used in other scenarios as well.
 
-This bug is fixed by WCN6855 firmware:
-WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.23
+The BlockSize for a differencing disk defaults to 2 Mbytes, not 32 Mbytes.
+The smaller default is used because changes to differencing disks are
+typically scattered all over, and Hyper-V doesn't want to allocate 32
+Mbytes of real disk space for a stray write here or there.  The smaller
+BlockSize provides more efficient use of real disk space.
 
-Remove the quirk as it's no longer necessary with this firmware.
+When a differencing disk is added to a VHD/VHDX, Hyper-V reports
+UNIT_ATTENTION with a sense code indicating "Operating parameters have
+changed", because the value of discard_granularity should be changed to 2
+Mbytes. When the differencing disk is removed, discard_granularity should
+be changed back to 32 Mbytes.  However, current code simply reports a
+message from scsi_report_sense() and the value of
+/sys/block/sd<x>/queue/discard_granularity is not updated. The message
+isn't very actionable by a sysadmin.
 
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/commit/?id=c7a57ef688f7d99d8338a5d8edddc8836ff0e6de
-Tested-by: Anson Tsao <anson.tsao@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix this by having the storvsc driver check for the sense code indicating
+that the underly VHD/VHDX block size has changed, and do a rescan of the
+device to pick up the new discard_granularity.  With this change the entire
+transition to/from differencing disks is handled automatically and
+transparently, with no confusing messages being output.
+
+Link: https://lore.kernel.org/r/1677516514-86060-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/s2idle.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ drivers/scsi/storvsc_drv.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index c7afce465a071..e499c60c45791 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -384,29 +384,6 @@ static const struct acpi_device_id amd_hid_ids[] = {
- 	{}
- };
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index 22705eb781b0e..2bf25e80b29a8 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -987,6 +987,22 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 				goto do_work;
+ 			}
  
--static int lps0_prefer_amd(const struct dmi_system_id *id)
--{
--	pr_debug("Using AMD GUID w/ _REV 2.\n");
--	rev_id = 2;
--	return 0;
--}
--static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
--	{
--		/*
--		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
--		 * Contains specialized AML in AMD/_REV 2 path to avoid
--		 * triggering a bug in Qualcomm WLAN firmware. This may be
--		 * removed in the future if that firmware is fixed.
--		 */
--		.callback = lps0_prefer_amd,
--		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
--			DMI_MATCH(DMI_BOARD_NAME, "8990"),
--		},
--	},
--	{}
--};
--
- static int lps0_device_attach(struct acpi_device *adev,
- 			      const struct acpi_device_id *not_used)
- {
-@@ -586,7 +563,6 @@ static const struct platform_s2idle_ops acpi_s2idle_ops_lps0 = {
- 
- void __init acpi_s2idle_setup(void)
- {
--	dmi_check_system(s2idle_dmi_table);
- 	acpi_scan_add_handler(&lps0_handler);
- 	s2idle_set_ops(&acpi_s2idle_ops_lps0);
- }
++			/*
++			 * Check for "Operating parameters have changed"
++			 * due to Hyper-V changing the VHD/VHDX BlockSize
++			 * when adding/removing a differencing disk. This
++			 * causes discard_granularity to change, so do a
++			 * rescan to pick up the new granularity. We don't
++			 * want scsi_report_sense() to output a message
++			 * that a sysadmin wouldn't know what to do with.
++			 */
++			if ((asc == 0x3f) && (ascq != 0x03) &&
++					(ascq != 0x0e)) {
++				process_err_fn = storvsc_device_scan;
++				set_host_byte(scmnd, DID_REQUEUE);
++				goto do_work;
++			}
++
+ 			/*
+ 			 * Otherwise, let upper layer deal with the
+ 			 * error when sense message is present
 -- 
 2.39.2
 
