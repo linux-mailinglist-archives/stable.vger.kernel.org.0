@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A837D6CC345
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 400EA6CC4D1
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbjC1Owp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
+        id S229452AbjC1PJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbjC1OwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82FCD306
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:10 -0700 (PDT)
+        with ESMTP id S229935AbjC1PJC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:09:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AD3CEB56
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C60561820
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E8BC4339B;
-        Tue, 28 Mar 2023 14:52:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C1F0B81D76
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AA33C433D2;
+        Tue, 28 Mar 2023 15:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015129;
-        bh=wwWCR8E0JSOtIAgTdxsT7Db9RJIYHCXIxgK03XXWh+o=;
+        s=korg; t=1680016066;
+        bh=slt0HCsl3lZXhz6fw32XWBDCZwgq/1wNJeudly/TQvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAy6s0XgoAMUro3vJ/fIDqkzUdQMAnlNv0Mb0cLhWA4CXrp6KoiMUR3twtClfZFgL
-         YRe4M0ooxdkKW0TDUAZ8WZN2p7wUhgrChne3ePUzEAclMkMTjMvfQYeGTu5YZ7IHS6
-         2LNF+n4iRNZikOs1wDb/yaMufTFquav/LITXRRVc=
+        b=nyE6DPu6jcKk69M8x9wyMqJ1J/OAjrM6d9IBRtSkhEPLQNYO+9F11ixsQvKfuweF9
+         oVdIigJ2MzckVhEb5m1MFdxkqZGYt/FvBJPIiyYN9Gn39UnXJBMoLn/fTt8kePImYe
+         z8Yi9jDABDVzIBxDm/UEgcdNC4Lv6V+KAECRI4iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.2 177/240] block/io_uring: pass in issue_flags for uring_cmd task_work handling
-Date:   Tue, 28 Mar 2023 16:42:20 +0200
-Message-Id: <20230328142627.008518107@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 052/146] erspan: do not use skb_mac_header() in ndo_start_xmit()
+Date:   Tue, 28 Mar 2023 16:42:21 +0200
+Message-Id: <20230328142604.874649231@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,269 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 9d2789ac9d60c049d26ef6d3005d9c94c5a559e9 upstream.
+[ Upstream commit 8e50ed774554f93d55426039b27b1e38d7fa64d8 ]
 
-io_uring_cmd_done() currently assumes that the uring_lock is held
-when invoked, and while it generally is, this is not guaranteed.
-Pass in the issue_flags associated with it, so that we have
-IO_URING_F_UNLOCKED available to be able to lock the CQ ring
-appropriately when completing events.
+Drivers should not assume skb_mac_header(skb) == skb->data in their
+ndo_start_xmit().
 
-Cc: stable@vger.kernel.org
-Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use skb_network_offset() and skb_transport_offset() which
+better describe what is needed in erspan_fb_xmit() and
+ip6erspan_tunnel_xmit()
+
+syzbot reported:
+WARNING: CPU: 0 PID: 5083 at include/linux/skbuff.h:2873 skb_mac_header include/linux/skbuff.h:2873 [inline]
+WARNING: CPU: 0 PID: 5083 at include/linux/skbuff.h:2873 ip6erspan_tunnel_xmit+0x1d9c/0x2d90 net/ipv6/ip6_gre.c:962
+Modules linked in:
+CPU: 0 PID: 5083 Comm: syz-executor406 Not tainted 6.3.0-rc2-syzkaller-00866-gd4671cb96fa3 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/02/2023
+RIP: 0010:skb_mac_header include/linux/skbuff.h:2873 [inline]
+RIP: 0010:ip6erspan_tunnel_xmit+0x1d9c/0x2d90 net/ipv6/ip6_gre.c:962
+Code: 04 02 41 01 de 84 c0 74 08 3c 03 0f 8e 1c 0a 00 00 45 89 b4 24 c8 00 00 00 c6 85 77 fe ff ff 01 e9 33 e7 ff ff e8 b4 27 a1 f8 <0f> 0b e9 b6 e7 ff ff e8 a8 27 a1 f8 49 8d bf f0 0c 00 00 48 b8 00
+RSP: 0018:ffffc90003b2f830 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 000000000000ffff RCX: 0000000000000000
+RDX: ffff888021273a80 RSI: ffffffff88e1bd4c RDI: 0000000000000003
+RBP: ffffc90003b2f9d8 R08: 0000000000000003 R09: 000000000000ffff
+R10: 000000000000ffff R11: 0000000000000000 R12: ffff88802b28da00
+R13: 00000000000000d0 R14: ffff88807e25b6d0 R15: ffff888023408000
+FS: 0000555556a61300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055e5b11eb6e8 CR3: 0000000027c1b000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+__netdev_start_xmit include/linux/netdevice.h:4900 [inline]
+netdev_start_xmit include/linux/netdevice.h:4914 [inline]
+__dev_direct_xmit+0x504/0x730 net/core/dev.c:4300
+dev_direct_xmit include/linux/netdevice.h:3088 [inline]
+packet_xmit+0x20a/0x390 net/packet/af_packet.c:285
+packet_snd net/packet/af_packet.c:3075 [inline]
+packet_sendmsg+0x31a0/0x5150 net/packet/af_packet.c:3107
+sock_sendmsg_nosec net/socket.c:724 [inline]
+sock_sendmsg+0xde/0x190 net/socket.c:747
+__sys_sendto+0x23a/0x340 net/socket.c:2142
+__do_sys_sendto net/socket.c:2154 [inline]
+__se_sys_sendto net/socket.c:2150 [inline]
+__x64_sys_sendto+0xe1/0x1b0 net/socket.c:2150
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f123aaa1039
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 b1 14 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffc15d12058 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f123aaa1039
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000020000040 R09: 0000000000000014
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f123aa648c0
+R13: 431bde82d7b634db R14: 0000000000000000 R15: 0000000000000000
+
+Fixes: 1baf5ebf8954 ("erspan: auto detect truncated packets.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230320163427.8096-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ublk_drv.c  |   31 ++++++++++++++++++-------------
- drivers/nvme/host/ioctl.c |   14 ++++++++------
- include/linux/io_uring.h  |   11 ++++++-----
- io_uring/uring_cmd.c      |   10 ++++++----
- 4 files changed, 38 insertions(+), 28 deletions(-)
+ net/ipv4/ip_gre.c  | 4 ++--
+ net/ipv6/ip6_gre.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -656,7 +656,8 @@ static void __ublk_fail_req(struct ublk_
- 	}
- }
- 
--static void ubq_complete_io_cmd(struct ublk_io *io, int res)
-+static void ubq_complete_io_cmd(struct ublk_io *io, int res,
-+				unsigned issue_flags)
- {
- 	/* mark this cmd owned by ublksrv */
- 	io->flags |= UBLK_IO_FLAG_OWNED_BY_SRV;
-@@ -668,7 +669,7 @@ static void ubq_complete_io_cmd(struct u
- 	io->flags &= ~UBLK_IO_FLAG_ACTIVE;
- 
- 	/* tell ublksrv one io request is coming */
--	io_uring_cmd_done(io->cmd, res, 0);
-+	io_uring_cmd_done(io->cmd, res, 0, issue_flags);
- }
- 
- #define UBLK_REQUEUE_DELAY_MS	3
-@@ -685,7 +686,8 @@ static inline void __ublk_abort_rq(struc
- 	mod_delayed_work(system_wq, &ubq->dev->monitor_work, 0);
- }
- 
--static inline void __ublk_rq_task_work(struct request *req)
-+static inline void __ublk_rq_task_work(struct request *req,
-+				       unsigned issue_flags)
- {
- 	struct ublk_queue *ubq = req->mq_hctx->driver_data;
- 	int tag = req->tag;
-@@ -723,7 +725,7 @@ static inline void __ublk_rq_task_work(s
- 			pr_devel("%s: need get data. op %d, qid %d tag %d io_flags %x\n",
- 					__func__, io->cmd->cmd_op, ubq->q_id,
- 					req->tag, io->flags);
--			ubq_complete_io_cmd(io, UBLK_IO_RES_NEED_GET_DATA);
-+			ubq_complete_io_cmd(io, UBLK_IO_RES_NEED_GET_DATA, issue_flags);
- 			return;
- 		}
- 		/*
-@@ -761,17 +763,18 @@ static inline void __ublk_rq_task_work(s
- 			mapped_bytes >> 9;
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 454c4357a2979..c094963a86f1e 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -552,7 +552,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		truncate = true;
  	}
  
--	ubq_complete_io_cmd(io, UBLK_IO_RES_OK);
-+	ubq_complete_io_cmd(io, UBLK_IO_RES_OK, issue_flags);
- }
+-	nhoff = skb_network_header(skb) - skb_mac_header(skb);
++	nhoff = skb_network_offset(skb);
+ 	if (skb->protocol == htons(ETH_P_IP) &&
+ 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
+ 		truncate = true;
+@@ -561,7 +561,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		int thoff;
  
--static inline void ublk_forward_io_cmds(struct ublk_queue *ubq)
-+static inline void ublk_forward_io_cmds(struct ublk_queue *ubq,
-+					unsigned issue_flags)
- {
- 	struct llist_node *io_cmds = llist_del_all(&ubq->io_cmds);
- 	struct ublk_rq_data *data, *tmp;
- 
- 	io_cmds = llist_reverse_order(io_cmds);
- 	llist_for_each_entry_safe(data, tmp, io_cmds, node)
--		__ublk_rq_task_work(blk_mq_rq_from_pdu(data));
-+		__ublk_rq_task_work(blk_mq_rq_from_pdu(data), issue_flags);
- }
- 
- static inline void ublk_abort_io_cmds(struct ublk_queue *ubq)
-@@ -783,12 +786,12 @@ static inline void ublk_abort_io_cmds(st
- 		__ublk_abort_rq(ubq, blk_mq_rq_from_pdu(data));
- }
- 
--static void ublk_rq_task_work_cb(struct io_uring_cmd *cmd)
-+static void ublk_rq_task_work_cb(struct io_uring_cmd *cmd, unsigned issue_flags)
- {
- 	struct ublk_uring_cmd_pdu *pdu = ublk_get_uring_cmd_pdu(cmd);
- 	struct ublk_queue *ubq = pdu->ubq;
- 
--	ublk_forward_io_cmds(ubq);
-+	ublk_forward_io_cmds(ubq, issue_flags);
- }
- 
- static void ublk_rq_task_work_fn(struct callback_head *work)
-@@ -797,8 +800,9 @@ static void ublk_rq_task_work_fn(struct
- 			struct ublk_rq_data, work);
- 	struct request *req = blk_mq_rq_from_pdu(data);
- 	struct ublk_queue *ubq = req->mq_hctx->driver_data;
-+	unsigned issue_flags = IO_URING_F_UNLOCKED;
- 
--	ublk_forward_io_cmds(ubq);
-+	ublk_forward_io_cmds(ubq, issue_flags);
- }
- 
- static void ublk_queue_cmd(struct ublk_queue *ubq, struct request *rq)
-@@ -1052,7 +1056,8 @@ static void ublk_cancel_queue(struct ubl
- 		struct ublk_io *io = &ubq->ios[i];
- 
- 		if (io->flags & UBLK_IO_FLAG_ACTIVE)
--			io_uring_cmd_done(io->cmd, UBLK_IO_RES_ABORT, 0);
-+			io_uring_cmd_done(io->cmd, UBLK_IO_RES_ABORT, 0,
-+						IO_URING_F_UNLOCKED);
+ 		if (skb_transport_header_was_set(skb))
+-			thoff = skb_transport_header(skb) - skb_mac_header(skb);
++			thoff = skb_transport_offset(skb);
+ 		else
+ 			thoff = nhoff + sizeof(struct ipv6hdr);
+ 		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 13b1748b8b465..a91f93ec7d2b4 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -959,7 +959,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 		truncate = true;
  	}
  
- 	/* all io commands are canceled */
-@@ -1295,7 +1300,7 @@ static int ublk_ch_uring_cmd(struct io_u
- 	return -EIOCBQUEUED;
+-	nhoff = skb_network_header(skb) - skb_mac_header(skb);
++	nhoff = skb_network_offset(skb);
+ 	if (skb->protocol == htons(ETH_P_IP) &&
+ 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
+ 		truncate = true;
+@@ -968,7 +968,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 		int thoff;
  
-  out:
--	io_uring_cmd_done(cmd, ret, 0);
-+	io_uring_cmd_done(cmd, ret, 0, issue_flags);
- 	pr_devel("%s: complete: cmd op %d, tag %d ret %x io_flags %x\n",
- 			__func__, cmd_op, tag, ret, io->flags);
- 	return -EIOCBQUEUED;
-@@ -2053,7 +2058,7 @@ static int ublk_ctrl_uring_cmd(struct io
- 		break;
- 	}
-  out:
--	io_uring_cmd_done(cmd, ret, 0);
-+	io_uring_cmd_done(cmd, ret, 0, issue_flags);
- 	pr_devel("%s: cmd done ret %d cmd_op %x, dev id %d qid %d\n",
- 			__func__, ret, cmd->cmd_op, header->dev_id, header->queue_id);
- 	return -EIOCBQUEUED;
---- a/drivers/nvme/host/ioctl.c
-+++ b/drivers/nvme/host/ioctl.c
-@@ -463,7 +463,8 @@ static inline struct nvme_uring_cmd_pdu
- 	return (struct nvme_uring_cmd_pdu *)&ioucmd->pdu;
- }
- 
--static void nvme_uring_task_meta_cb(struct io_uring_cmd *ioucmd)
-+static void nvme_uring_task_meta_cb(struct io_uring_cmd *ioucmd,
-+				    unsigned issue_flags)
- {
- 	struct nvme_uring_cmd_pdu *pdu = nvme_uring_cmd_pdu(ioucmd);
- 	struct request *req = pdu->req;
-@@ -484,17 +485,18 @@ static void nvme_uring_task_meta_cb(stru
- 		blk_rq_unmap_user(req->bio);
- 	blk_mq_free_request(req);
- 
--	io_uring_cmd_done(ioucmd, status, result);
-+	io_uring_cmd_done(ioucmd, status, result, issue_flags);
- }
- 
--static void nvme_uring_task_cb(struct io_uring_cmd *ioucmd)
-+static void nvme_uring_task_cb(struct io_uring_cmd *ioucmd,
-+			       unsigned issue_flags)
- {
- 	struct nvme_uring_cmd_pdu *pdu = nvme_uring_cmd_pdu(ioucmd);
- 
- 	if (pdu->bio)
- 		blk_rq_unmap_user(pdu->bio);
- 
--	io_uring_cmd_done(ioucmd, pdu->nvme_status, pdu->u.result);
-+	io_uring_cmd_done(ioucmd, pdu->nvme_status, pdu->u.result, issue_flags);
- }
- 
- static enum rq_end_io_ret nvme_uring_cmd_end_io(struct request *req,
-@@ -516,7 +518,7 @@ static enum rq_end_io_ret nvme_uring_cmd
- 	 * Otherwise, move the completion to task work.
- 	 */
- 	if (cookie != NULL && blk_rq_is_poll(req))
--		nvme_uring_task_cb(ioucmd);
-+		nvme_uring_task_cb(ioucmd, IO_URING_F_UNLOCKED);
- 	else
- 		io_uring_cmd_complete_in_task(ioucmd, nvme_uring_task_cb);
- 
-@@ -538,7 +540,7 @@ static enum rq_end_io_ret nvme_uring_cmd
- 	 * Otherwise, move the completion to task work.
- 	 */
- 	if (cookie != NULL && blk_rq_is_poll(req))
--		nvme_uring_task_meta_cb(ioucmd);
-+		nvme_uring_task_meta_cb(ioucmd, IO_URING_F_UNLOCKED);
- 	else
- 		io_uring_cmd_complete_in_task(ioucmd, nvme_uring_task_meta_cb);
- 
---- a/include/linux/io_uring.h
-+++ b/include/linux/io_uring.h
-@@ -27,7 +27,7 @@ struct io_uring_cmd {
- 	const void	*cmd;
- 	union {
- 		/* callback to defer completions to task context */
--		void (*task_work_cb)(struct io_uring_cmd *cmd);
-+		void (*task_work_cb)(struct io_uring_cmd *cmd, unsigned);
- 		/* used for polled completion */
- 		void *cookie;
- 	};
-@@ -39,9 +39,10 @@ struct io_uring_cmd {
- #if defined(CONFIG_IO_URING)
- int io_uring_cmd_import_fixed(u64 ubuf, unsigned long len, int rw,
- 			      struct iov_iter *iter, void *ioucmd);
--void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret, ssize_t res2);
-+void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret, ssize_t res2,
-+			unsigned issue_flags);
- void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
--			void (*task_work_cb)(struct io_uring_cmd *));
-+			void (*task_work_cb)(struct io_uring_cmd *, unsigned));
- struct sock *io_uring_get_socket(struct file *file);
- void __io_uring_cancel(bool cancel_all);
- void __io_uring_free(struct task_struct *tsk);
-@@ -72,11 +73,11 @@ static inline int io_uring_cmd_import_fi
- 	return -EOPNOTSUPP;
- }
- static inline void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret,
--		ssize_t ret2)
-+		ssize_t ret2, unsigned issue_flags)
- {
- }
- static inline void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
--			void (*task_work_cb)(struct io_uring_cmd *))
-+			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
- {
- }
- static inline struct sock *io_uring_get_socket(struct file *file)
---- a/io_uring/uring_cmd.c
-+++ b/io_uring/uring_cmd.c
-@@ -15,12 +15,13 @@
- static void io_uring_cmd_work(struct io_kiocb *req, bool *locked)
- {
- 	struct io_uring_cmd *ioucmd = io_kiocb_to_cmd(req, struct io_uring_cmd);
-+	unsigned issue_flags = *locked ? 0 : IO_URING_F_UNLOCKED;
- 
--	ioucmd->task_work_cb(ioucmd);
-+	ioucmd->task_work_cb(ioucmd, issue_flags);
- }
- 
- void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
--			void (*task_work_cb)(struct io_uring_cmd *))
-+			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
- {
- 	struct io_kiocb *req = cmd_to_io_kiocb(ioucmd);
- 
-@@ -42,7 +43,8 @@ static inline void io_req_set_cqe32_extr
-  * Called by consumers of io_uring_cmd, if they originally returned
-  * -EIOCBQUEUED upon receiving the command.
-  */
--void io_uring_cmd_done(struct io_uring_cmd *ioucmd, ssize_t ret, ssize_t res2)
-+void io_uring_cmd_done(struct io_uring_cmd *ioucmd, ssize_t ret, ssize_t res2,
-+		       unsigned issue_flags)
- {
- 	struct io_kiocb *req = cmd_to_io_kiocb(ioucmd);
- 
-@@ -56,7 +58,7 @@ void io_uring_cmd_done(struct io_uring_c
- 		/* order with io_iopoll_req_issued() checking ->iopoll_complete */
- 		smp_store_release(&req->iopoll_completed, 1);
- 	else
--		io_req_complete_post(req, 0);
-+		io_req_complete_post(req, issue_flags);
- }
- EXPORT_SYMBOL_GPL(io_uring_cmd_done);
- 
+ 		if (skb_transport_header_was_set(skb))
+-			thoff = skb_transport_header(skb) - skb_mac_header(skb);
++			thoff = skb_transport_offset(skb);
+ 		else
+ 			thoff = nhoff + sizeof(struct ipv6hdr);
+ 		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
+-- 
+2.39.2
+
 
 
