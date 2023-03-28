@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E216CC2F8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AAF26CC426
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233451AbjC1OuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
+        id S233688AbjC1PAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233472AbjC1Oty (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0988DE053
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:24 -0700 (PDT)
+        with ESMTP id S233707AbjC1PAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D8DE38A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2EDFB81D7B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68230C433D2;
-        Tue, 28 Mar 2023 14:49:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E830B81D63
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3EAC4339E;
+        Tue, 28 Mar 2023 15:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014960;
-        bh=FMlprNX8hPo/gJqoM7YfxZkBpN0TAI3lenpNYjq9jNw=;
+        s=korg; t=1680015621;
+        bh=MB7WDN5adSUha9q65zFW4jVt0mM2k89/hQamKyAk090=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoE5NW3X65Ac0XErVG3UKxcj8sVqmWRCgSFg+wTwv0eK2HmvSIOXQf4c01mOTjNc2
-         5tWTd9VRXruo/JAT6ulq5onL0H//BLKqnDYZ7OuB2MpAFTDqEfniGn5e4vDWGmTCfI
-         TOSUpLWitjxk77CmSun0EgB9lSwgCpHsKYQVPZj0=
+        b=InE72qcH1OuWEY+SlhSw9JlCkTeBRfZlOnaA6nNDGzCDQwZHh2tMD+RUoMi57oLfE
+         Vkzx9D+G1QloMJEp1PqNvo0fPPTkUPwyk1SI62LKxk4P3t3aac2Tx/rSlT2Ja/C6XN
+         AAbcbqipDWtvRuhpyosw9oHlgTn+NtKGCy+6BIqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 116/240] smb3: fix unusable share after force unmount failure
+        patches@lists.linux.dev, Pauli Virtanen <pav@iki.fi>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 083/224] Bluetooth: ISO: fix timestamped HCI ISO data packet parsing
 Date:   Tue, 28 Mar 2023 16:41:19 +0200
-Message-Id: <20230328142624.634920893@linuxfoundation.org>
+Message-Id: <20230328142620.737702704@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,104 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Pauli Virtanen <pav@iki.fi>
 
-commit 491eafce1a51c457701351a4bf40733799745314 upstream.
+[ Upstream commit 2f10e40a948e8a2abe7f983df3959a333ca8955f ]
 
-If user does forced unmount ("umount -f") while files are still open
-on the share (as was seen in a Kubernetes example running on SMB3.1.1
-mount) then we were marking the share as "TID_EXITING" in umount_begin()
-which caused all subsequent operations (except write) to fail ... but
-unfortunately when umount_begin() is called we do not know yet that
-there are open files or active references on the share that would prevent
-unmount from succeeding.  Kubernetes had example when they were doing
-umount -f when files were open which caused the share to become
-unusable until the files were closed (and the umount retried).
+Use correct HCI ISO data packet header struct when the packet has
+timestamp. The timestamp, when present, goes before the other fields
+(Core v5.3 4E 5.4.5), so the structs are not compatible.
 
-Fix this so that TID_EXITING is not set until we are about to send
-the tree disconnect (not at the beginning of forced umounts in
-umount_begin) so that if "umount -f" fails (due to open files or
-references) the mount is still usable.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ccf74f2390d6 ("Bluetooth: Add BTPROTO_ISO socket type")
+Signed-off-by: Pauli Virtanen <pav@iki.fi>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c  |    9 ++++++---
- fs/cifs/cifssmb.c |    6 ++----
- fs/cifs/connect.c |    1 +
- fs/cifs/smb2pdu.c |    8 ++------
- 4 files changed, 11 insertions(+), 13 deletions(-)
+ net/bluetooth/iso.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -730,13 +730,16 @@ static void cifs_umount_begin(struct sup
- 	spin_lock(&tcon->tc_lock);
- 	if ((tcon->tc_count > 1) || (tcon->status == TID_EXITING)) {
- 		/* we have other mounts to same share or we have
--		   already tried to force umount this and woken up
-+		   already tried to umount this and woken up
- 		   all waiting network requests, nothing to do */
- 		spin_unlock(&tcon->tc_lock);
- 		spin_unlock(&cifs_tcp_ses_lock);
- 		return;
--	} else if (tcon->tc_count == 1)
--		tcon->status = TID_EXITING;
-+	}
-+	/*
-+	 * can not set tcon->status to TID_EXITING yet since we don't know if umount -f will
-+	 * fail later (e.g. due to open files).  TID_EXITING will be set just before tdis req sent
-+	 */
- 	spin_unlock(&tcon->tc_lock);
- 	spin_unlock(&cifs_tcp_ses_lock);
+diff --git a/net/bluetooth/iso.c b/net/bluetooth/iso.c
+index 2dabef488eaae..cb959e8eac185 100644
+--- a/net/bluetooth/iso.c
++++ b/net/bluetooth/iso.c
+@@ -1621,7 +1621,6 @@ static void iso_disconn_cfm(struct hci_conn *hcon, __u8 reason)
+ void iso_recv(struct hci_conn *hcon, struct sk_buff *skb, u16 flags)
+ {
+ 	struct iso_conn *conn = hcon->iso_data;
+-	struct hci_iso_data_hdr *hdr;
+ 	__u16 pb, ts, len;
  
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -85,13 +85,11 @@ cifs_reconnect_tcon(struct cifs_tcon *tc
+ 	if (!conn)
+@@ -1643,6 +1642,8 @@ void iso_recv(struct hci_conn *hcon, struct sk_buff *skb, u16 flags)
+ 		}
  
- 	/*
- 	 * only tree disconnect, open, and write, (and ulogoff which does not
--	 * have tcon) are allowed as we start force umount
-+	 * have tcon) are allowed as we start umount
- 	 */
- 	spin_lock(&tcon->tc_lock);
- 	if (tcon->status == TID_EXITING) {
--		if (smb_command != SMB_COM_WRITE_ANDX &&
--		    smb_command != SMB_COM_OPEN_ANDX &&
--		    smb_command != SMB_COM_TREE_DISCONNECT) {
-+		if (smb_command != SMB_COM_TREE_DISCONNECT) {
- 			spin_unlock(&tcon->tc_lock);
- 			cifs_dbg(FYI, "can not send cmd %d while umounting\n",
- 				 smb_command);
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2363,6 +2363,7 @@ cifs_put_tcon(struct cifs_tcon *tcon)
- 	WARN_ON(tcon->tc_count < 0);
+ 		if (ts) {
++			struct hci_iso_ts_data_hdr *hdr;
++
+ 			/* TODO: add timestamp to the packet? */
+ 			hdr = skb_pull_data(skb, HCI_ISO_TS_DATA_HDR_SIZE);
+ 			if (!hdr) {
+@@ -1650,15 +1651,19 @@ void iso_recv(struct hci_conn *hcon, struct sk_buff *skb, u16 flags)
+ 				goto drop;
+ 			}
  
- 	list_del_init(&tcon->tcon_list);
-+	tcon->status = TID_EXITING;
- 	spin_unlock(&tcon->tc_lock);
- 	spin_unlock(&cifs_tcp_ses_lock);
++			len = __le16_to_cpu(hdr->slen);
+ 		} else {
++			struct hci_iso_data_hdr *hdr;
++
+ 			hdr = skb_pull_data(skb, HCI_ISO_DATA_HDR_SIZE);
+ 			if (!hdr) {
+ 				BT_ERR("Frame is too short (len %d)", skb->len);
+ 				goto drop;
+ 			}
++
++			len = __le16_to_cpu(hdr->slen);
+ 		}
  
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -225,13 +225,9 @@ smb2_reconnect(__le16 smb2_command, stru
- 	spin_lock(&tcon->tc_lock);
- 	if (tcon->status == TID_EXITING) {
- 		/*
--		 * only tree disconnect, open, and write,
--		 * (and ulogoff which does not have tcon)
--		 * are allowed as we start force umount.
-+		 * only tree disconnect allowed when disconnecting ...
- 		 */
--		if ((smb2_command != SMB2_WRITE) &&
--		   (smb2_command != SMB2_CREATE) &&
--		   (smb2_command != SMB2_TREE_DISCONNECT)) {
-+		if (smb2_command != SMB2_TREE_DISCONNECT) {
- 			spin_unlock(&tcon->tc_lock);
- 			cifs_dbg(FYI, "can not send cmd %d while umounting\n",
- 				 smb2_command);
+-		len    = __le16_to_cpu(hdr->slen);
+ 		flags  = hci_iso_data_flags(len);
+ 		len    = hci_iso_data_len(len);
+ 
+-- 
+2.39.2
+
 
 
