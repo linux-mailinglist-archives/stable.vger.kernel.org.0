@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D55C6CC29B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA276CC3B4
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233182AbjC1Oq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:46:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37882 "EHLO
+        id S233576AbjC1O4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:56:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233306AbjC1Oqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45074D53F
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:17 -0700 (PDT)
+        with ESMTP id S233562AbjC1O4i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AD93E061
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9F1661824
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF89C4339B;
-        Tue, 28 Mar 2023 14:46:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17CD8B81D7A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7981BC433EF;
+        Tue, 28 Mar 2023 14:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014771;
-        bh=7nH1SfMLsmFvzMYqWA0S09qNLB8YoPOu83zhScXOO3E=;
+        s=korg; t=1680015390;
+        bh=NmPC/IbYsiCIboUzhU8tgd3NWjpBJgWKgOox4hjERVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yXqkrq6eYrAIrYoUFTqxyllbGPG6T5BUZEouHu0zCEq3S4ZkNKK2Q6WZ8JlwYszD
-         HksLR28/MhyhrVapXCcq7XpRXu2GWiF512oTd/dfRxrRvkKYCRreDypR8GDD6Tpbj+
-         70V6J71V4/Tf0XbJQ40X8fWbgsjfmUkGrf+11o+A=
+        b=vWRAlx6It2oA63RjzwksONd6lEqPkkKCXvD1Eq+V4dgtgArLlWRu6jd9q8uKreQqm
+         DXkfznGQDFZna412v1k23NKpxFQd3dTR0qCwwaXLztNrkkOWW3WRvGTIqr6dh/lVGI
+         69sjkPdrF63jwsfOJhyroTGGPzZZkOgELWsR2wLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 047/240] net: phy: Ensure state transitions are processed from phy_stop()
+Subject: [PATCH 6.1 014/224] arm64: dts: qcom: sm8450: Mark UFS controller as cache coherent
 Date:   Tue, 28 Mar 2023 16:40:10 +0200
-Message-Id: <20230328142621.660940473@linuxfoundation.org>
+Message-Id: <20230328142617.859456348@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 4203d84032e28f893594a453bd8bc9c3b15c7334 ]
+[ Upstream commit 8ba961d4339c5db0e69ff6627606fe1f34c838e5 ]
 
-In the phy_disconnect() -> phy_stop() path, we will be forcibly setting
-the PHY state machine to PHY_HALTED. This invalidates the old_state !=
-phydev->state condition in phy_state_machine() such that we will neither
-display the state change for debugging, nor will we invoke the
-link_change_notify() callback.
+The UFS controller on SM8450 supports cache coherency, hence add the
+"dma-coherent" property to mark it as such.
 
-Factor the code by introducing phy_process_state_change(), and ensure
-that we process the state change from phy_stop() as well.
-
-Fixes: 5c5f626bcace ("net: phy: improve handling link_change_notify callback")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 07fa917a335e ("arm64: dts: qcom: sm8450: add ufs nodes")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230307153201.180626-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8450.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index e5b6cb1a77f95..a8bf3c752c8a2 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -57,6 +57,18 @@ static const char *phy_state_to_str(enum phy_state st)
- 	return NULL;
- }
+diff --git a/arch/arm64/boot/dts/qcom/sm8450.dtsi b/arch/arm64/boot/dts/qcom/sm8450.dtsi
+index df0d888ffc008..4714d7bf03b9f 100644
+--- a/arch/arm64/boot/dts/qcom/sm8450.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8450.dtsi
+@@ -3104,6 +3104,7 @@ ufs_mem_hc: ufshc@1d84000 {
+ 			power-domains = <&gcc UFS_PHY_GDSC>;
  
-+static void phy_process_state_change(struct phy_device *phydev,
-+				     enum phy_state old_state)
-+{
-+	if (old_state != phydev->state) {
-+		phydev_dbg(phydev, "PHY state change %s -> %s\n",
-+			   phy_state_to_str(old_state),
-+			   phy_state_to_str(phydev->state));
-+		if (phydev->drv && phydev->drv->link_change_notify)
-+			phydev->drv->link_change_notify(phydev);
-+	}
-+}
-+
- static void phy_link_up(struct phy_device *phydev)
- {
- 	phydev->phy_link_change(phydev, true);
-@@ -1094,6 +1106,7 @@ EXPORT_SYMBOL(phy_free_interrupt);
- void phy_stop(struct phy_device *phydev)
- {
- 	struct net_device *dev = phydev->attached_dev;
-+	enum phy_state old_state;
+ 			iommus = <&apps_smmu 0xe0 0x0>;
++			dma-coherent;
  
- 	if (!phy_is_started(phydev) && phydev->state != PHY_DOWN) {
- 		WARN(1, "called from state %s\n",
-@@ -1102,6 +1115,7 @@ void phy_stop(struct phy_device *phydev)
- 	}
- 
- 	mutex_lock(&phydev->lock);
-+	old_state = phydev->state;
- 
- 	if (phydev->state == PHY_CABLETEST) {
- 		phy_abort_cable_test(phydev);
-@@ -1112,6 +1126,7 @@ void phy_stop(struct phy_device *phydev)
- 		sfp_upstream_stop(phydev->sfp_bus);
- 
- 	phydev->state = PHY_HALTED;
-+	phy_process_state_change(phydev, old_state);
- 
- 	mutex_unlock(&phydev->lock);
- 
-@@ -1229,13 +1244,7 @@ void phy_state_machine(struct work_struct *work)
- 	if (err < 0)
- 		phy_error(phydev);
- 
--	if (old_state != phydev->state) {
--		phydev_dbg(phydev, "PHY state change %s -> %s\n",
--			   phy_state_to_str(old_state),
--			   phy_state_to_str(phydev->state));
--		if (phydev->drv && phydev->drv->link_change_notify)
--			phydev->drv->link_change_notify(phydev);
--	}
-+	phy_process_state_change(phydev, old_state);
- 
- 	/* Only re-schedule a PHY state machine change if we are polling the
- 	 * PHY, if PHY_MAC_INTERRUPT is set, then we will be moving
+ 			interconnects = <&aggre1_noc MASTER_UFS_MEM 0 &mc_virt SLAVE_EBI1 0>,
+ 					<&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_UFS_MEM_CFG 0>;
 -- 
 2.39.2
 
