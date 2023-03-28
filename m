@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DE16CC45B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9956CC387
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233790AbjC1PEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:04:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
+        id S233517AbjC1Oyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:54:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233786AbjC1PEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13444EB7E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:55 -0700 (PDT)
+        with ESMTP id S233519AbjC1Oyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94289E9
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 163BA6182C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2273FC433D2;
-        Tue, 28 Mar 2023 15:02:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF6E8B81D76
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22772C433EF;
+        Tue, 28 Mar 2023 14:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015771;
-        bh=gdEm5J4Mtqm5LqsYok6JRVjOpH96rzPv4a0zcCmHN1E=;
+        s=korg; t=1680015282;
+        bh=yKt3/aQWkdaBiordIdPNQ9ot6DI5eRTmxt+Mt8gdIYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POTy7+ZsC0VxAu2X76Xnf1we2NLJA8ugimsDZf8T3O8wX4U6iIGVVMrUB9vc9n+A4
-         nm4rLRUutFsF4kTYWGLbfJvkfvhdEuSWjI5y34LHMgSShhxQCLfHFDi0c7ZzuBjkkN
-         FXWjH+OTQgximZJtDsROMPfiZJJ3vEywYVKqrC1A=
+        b=oZ3C2teYY+iD7I54oBzTWS1Al5LAwrnMfbfi4Mcrb5LaV7wKbeqaIpkR9Wsse/PBN
+         koiWbqWAhHavsKW6/ZwFLR2U58WojLkDjENxS2c/WciDtP2Vh6s5l2J98DSUFY3ZvU
+         Nlyr2WJF/WOJZUrPDeuqC65VXpiPwh5T5wfKmqLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 6.1 169/224] fsverity: Remove WQ_UNBOUND from fsverity read workqueue
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 202/240] kfence: avoid passing -g for test
 Date:   Tue, 28 Mar 2023 16:42:45 +0200
-Message-Id: <20230328142624.418895445@linuxfoundation.org>
+Message-Id: <20230328142628.094495448@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Marco Elver <elver@google.com>
 
-commit f959325e6ac3f499450088b8d9c626d1177be160 upstream.
+commit 2e08ca1802441224f5b7cc6bffbb687f7406de95 upstream.
 
-WQ_UNBOUND causes significant scheduler latency on ARM64/Android.  This
-is problematic for latency sensitive workloads, like I/O
-post-processing.
+Nathan reported that when building with GNU as and a version of clang that
+defaults to DWARF5:
 
-Removing WQ_UNBOUND gives a 96% reduction in fsverity workqueue related
-scheduler latency and improves app cold startup times by ~30ms.
-WQ_UNBOUND was also removed from the dm-verity workqueue for the same
-reason [1].
+  $ make -skj"$(nproc)" ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- \
+			LLVM=1 LLVM_IAS=0 O=build \
+			mrproper allmodconfig mm/kfence/kfence_test.o
+  /tmp/kfence_test-08a0a0.s: Assembler messages:
+  /tmp/kfence_test-08a0a0.s:14627: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14628: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14632: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14633: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14639: Error: non-constant .uleb128 is not supported
+  ...
 
-This code was tested by running Android app startup benchmarks and
-measuring how long the fsverity workqueue spent in the runnable state.
+This is because `-g` defaults to the compiler debug info default.  If the
+assembler does not support some of the directives used, the above errors
+occur.  To fix, remove the explicit passing of `-g`.
 
-Before
-Total workqueue scheduler latency: 553800us
-After
-Total workqueue scheduler latency: 18962us
+All the test wants is that stack traces print valid function names, and
+debug info is not required for that.  (I currently cannot recall why I
+added the explicit `-g`.)
 
-[1]: https://lore.kernel.org/all/20230202012348.885402-1-nhuck@google.com/
-
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Fixes: 8a1d0f9cacc9 ("fs-verity: add data verification hooks for ->readpages()")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230310193325.620493-1-nhuck@google.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lkml.kernel.org/r/20230316224705.709984-1-elver@google.com
+Fixes: bc8fbc5f305a ("kfence: add test suite")
+Signed-off-by: Marco Elver <elver@google.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/verity/verify.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ mm/kfence/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/verity/verify.c
-+++ b/fs/verity/verify.c
-@@ -269,15 +269,15 @@ EXPORT_SYMBOL_GPL(fsverity_enqueue_verif
- int __init fsverity_init_workqueue(void)
- {
- 	/*
--	 * Use an unbound workqueue to allow bios to be verified in parallel
--	 * even when they happen to complete on the same CPU.  This sacrifices
--	 * locality, but it's worthwhile since hashing is CPU-intensive.
-+	 * Use a high-priority workqueue to prioritize verification work, which
-+	 * blocks reads from completing, over regular application tasks.
- 	 *
--	 * Also use a high-priority workqueue to prioritize verification work,
--	 * which blocks reads from completing, over regular application tasks.
-+	 * For performance reasons, don't use an unbound workqueue.  Using an
-+	 * unbound workqueue for crypto operations causes excessive scheduler
-+	 * latency on ARM64.
- 	 */
- 	fsverity_read_workqueue = alloc_workqueue("fsverity_read_queue",
--						  WQ_UNBOUND | WQ_HIGHPRI,
-+						  WQ_HIGHPRI,
- 						  num_online_cpus());
- 	if (!fsverity_read_workqueue)
- 		return -ENOMEM;
+--- a/mm/kfence/Makefile
++++ b/mm/kfence/Makefile
+@@ -2,5 +2,5 @@
+ 
+ obj-y := core.o report.o
+ 
+-CFLAGS_kfence_test.o := -g -fno-omit-frame-pointer -fno-optimize-sibling-calls
++CFLAGS_kfence_test.o := -fno-omit-frame-pointer -fno-optimize-sibling-calls
+ obj-$(CONFIG_KFENCE_KUNIT_TEST) += kfence_test.o
 
 
