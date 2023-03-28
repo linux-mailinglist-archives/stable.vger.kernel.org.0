@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3433A6CC533
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52C26CC4BC
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232950AbjC1PMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54762 "EHLO
+        id S233891AbjC1PIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232565AbjC1PMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317741026E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:18 -0700 (PDT)
+        with ESMTP id S233894AbjC1PIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEA0CA39
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C40BBB81D90
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 260CFC433D2;
-        Tue, 28 Mar 2023 15:11:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54E76B81D83
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7FD8C433EF;
+        Tue, 28 Mar 2023 15:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016271;
-        bh=7uXWMyUfG/5GXAWXfxBjSquS9TQOW6tup6R5y7WXung=;
+        s=korg; t=1680015931;
+        bh=30yUiCIR7kvZmqHVtJabUGkamG2sg128ofOFLF/QjV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0k0NXG6LEX/hTrXczDN02qwpOz+DqDVwBDT7gclUx1t6DLBfpXYyabDawi3mzqHaa
-         2AWeLIkr1o+VUo1WxAHl50LgeLCpL1fk4gawxa9gBd2AbEHyx0HnOjVaaFLRPj0A+u
-         zNkZzG2uI3OpNUhIxCNtyoD5KIXg0jmESXm3bBLs=
+        b=T1TnstEieyB1M7gNh0TFXvru92KlmmDKsmTVb72KH0myPnjjKB8v1NWSlUDvLUh7l
+         eEZtT+51ZasKd+GxHSrS0hW34XHbdx80/Z0gsCJ2BC1REG+Vcl5gW17kILyXzRCUeI
+         xZXMGFX105Tg4kpQVPjnanGS264eBvtXb2sITeIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steve French <stfrench@microsoft.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH 5.15 126/146] ksmbd: return unsupported error on smb1 mount
+        patches@lists.linux.dev, Zhang Qiao <zhangqiao22@huawei.com>,
+        Roman Kagan <rkagan@amazon.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 6.1 219/224] sched/fair: sanitize vruntime of entity being placed
 Date:   Tue, 28 Mar 2023 16:43:35 +0200
-Message-Id: <20230328142607.902775698@linuxfoundation.org>
+Message-Id: <20230328142626.441772809@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,124 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Zhang Qiao <zhangqiao22@huawei.com>
 
-commit 39b291b86b5988bf8753c3874d5c773399d09b96 upstream.
+commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc upstream.
 
-ksmbd disconnect connection when mounting with vers=smb1.
-ksmbd should send smb1 negotiate response to client for correct
-unsupported error return. This patch add needed SMB1 macros and fill
-NegProt part of the response for smb1 negotiate response.
+When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
+to the base level (around cfs_rq->min_vruntime), so that the entity
+doesn't gain extra boost when placed backwards.
 
-Cc: stable@vger.kernel.org
-Reported-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+However, if the entity being placed wasn't executed for a long time, its
+vruntime may get too far behind (e.g. while cfs_rq was executing a
+low-weight hog), which can inverse the vruntime comparison due to s64
+overflow.  This results in the entity being placed with its original
+vruntime way forwards, so that it will effectively never get to the cpu.
+
+To prevent that, ignore the vruntime of the entity being placed if it
+didn't execute for much longer than the characteristic sheduler time
+scale.
+
+[rkagan: formatted, adjusted commit log, comments, cutoff value]
+Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
+Co-developed-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/connection.c |    7 ++-----
- fs/ksmbd/smb_common.c |   23 ++++++++++++++++++++---
- fs/ksmbd/smb_common.h |   30 ++++++++----------------------
- 3 files changed, 30 insertions(+), 30 deletions(-)
+ kernel/sched/fair.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -313,13 +313,10 @@ int ksmbd_conn_handler_loop(void *p)
- 		}
- 
- 		/*
--		 * Check if pdu size is valid (min : smb header size,
--		 * max : 0x00FFFFFF).
-+		 * Check maximum pdu size(0x00FFFFFF).
- 		 */
--		if (pdu_size < __SMB2_HEADER_STRUCTURE_SIZE ||
--		    pdu_size > MAX_STREAM_PROT_LEN) {
-+		if (pdu_size > MAX_STREAM_PROT_LEN)
- 			break;
--		}
- 
- 		/* 4 for rfc1002 length field */
- 		size = pdu_size + 4;
---- a/fs/ksmbd/smb_common.c
-+++ b/fs/ksmbd/smb_common.c
-@@ -442,9 +442,26 @@ static int smb_handle_negotiate(struct k
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4640,6 +4640,7 @@ static void
+ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
  {
- 	struct smb_negotiate_rsp *neg_rsp = work->response_buf;
+ 	u64 vruntime = cfs_rq->min_vruntime;
++	u64 sleep_time;
  
--	ksmbd_debug(SMB, "Unsupported SMB protocol\n");
--	neg_rsp->hdr.Status.CifsError = STATUS_INVALID_LOGON_TYPE;
--	return -EINVAL;
-+	ksmbd_debug(SMB, "Unsupported SMB1 protocol\n");
-+
+ 	/*
+ 	 * The 'current' period is already promised to the current tasks,
+@@ -4669,8 +4670,18 @@ place_entity(struct cfs_rq *cfs_rq, stru
+ 		vruntime -= thresh;
+ 	}
+ 
+-	/* ensure we never gain time by being placed backwards. */
+-	se->vruntime = max_vruntime(se->vruntime, vruntime);
 +	/*
-+	 * Remove 4 byte direct TCP header, add 2 byte bcc and
-+	 * 2 byte DialectIndex.
++	 * Pull vruntime of the entity being placed to the base level of
++	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
++	 * slept for a long time, don't even try to compare its vruntime with
++	 * the base as it may be too far off and the comparison may get
++	 * inversed due to s64 overflow.
 +	 */
-+	*(__be32 *)work->response_buf =
-+		cpu_to_be32(sizeof(struct smb_hdr) - 4 + 2 + 2);
-+	neg_rsp->hdr.Status.CifsError = STATUS_SUCCESS;
-+
-+	neg_rsp->hdr.Command = SMB_COM_NEGOTIATE;
-+	*(__le32 *)neg_rsp->hdr.Protocol = SMB1_PROTO_NUMBER;
-+	neg_rsp->hdr.Flags = SMBFLG_RESPONSE;
-+	neg_rsp->hdr.Flags2 = SMBFLG2_UNICODE | SMBFLG2_ERR_STATUS |
-+		SMBFLG2_EXT_SEC | SMBFLG2_IS_LONG_NAME;
-+
-+	neg_rsp->hdr.WordCount = 1;
-+	neg_rsp->DialectIndex = cpu_to_le16(work->conn->dialect);
-+	neg_rsp->ByteCount = 0;
-+	return 0;
++	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
++	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
++		se->vruntime = vruntime;
++	else
++		se->vruntime = max_vruntime(se->vruntime, vruntime);
  }
  
- int ksmbd_smb_negotiate_common(struct ksmbd_work *work, unsigned int command)
---- a/fs/ksmbd/smb_common.h
-+++ b/fs/ksmbd/smb_common.h
-@@ -205,8 +205,15 @@
- 
- #define SMB1_PROTO_NUMBER		cpu_to_le32(0x424d53ff)
- #define SMB_COM_NEGOTIATE		0x72
--
- #define SMB1_CLIENT_GUID_SIZE		(16)
-+
-+#define SMBFLG_RESPONSE 0x80	/* this PDU is a response from server */
-+
-+#define SMBFLG2_IS_LONG_NAME	cpu_to_le16(0x40)
-+#define SMBFLG2_EXT_SEC		cpu_to_le16(0x800)
-+#define SMBFLG2_ERR_STATUS	cpu_to_le16(0x4000)
-+#define SMBFLG2_UNICODE		cpu_to_le16(0x8000)
-+
- struct smb_hdr {
- 	__be32 smb_buf_length;
- 	__u8 Protocol[4];
-@@ -246,28 +253,7 @@ struct smb_negotiate_req {
- struct smb_negotiate_rsp {
- 	struct smb_hdr hdr;     /* wct = 17 */
- 	__le16 DialectIndex; /* 0xFFFF = no dialect acceptable */
--	__u8 SecurityMode;
--	__le16 MaxMpxCount;
--	__le16 MaxNumberVcs;
--	__le32 MaxBufferSize;
--	__le32 MaxRawSize;
--	__le32 SessionKey;
--	__le32 Capabilities;    /* see below */
--	__le32 SystemTimeLow;
--	__le32 SystemTimeHigh;
--	__le16 ServerTimeZone;
--	__u8 EncryptionKeyLength;
- 	__le16 ByteCount;
--	union {
--		unsigned char EncryptionKey[8]; /* cap extended security off */
--		/* followed by Domain name - if extended security is off */
--		/* followed by 16 bytes of server GUID */
--		/* then security blob if cap_extended_security negotiated */
--		struct {
--			unsigned char GUID[SMB1_CLIENT_GUID_SIZE];
--			unsigned char SecurityBlob[1];
--		} __packed extended_response;
--	} __packed u;
- } __packed;
- 
- struct filesystem_attribute_info {
+ static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
 
 
