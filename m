@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3EB6CC4E9
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 729536CC44B
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232200AbjC1PKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:10:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50234 "EHLO
+        id S233775AbjC1PC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232693AbjC1PKp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:45 -0400
+        with ESMTP id S233770AbjC1PC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:02:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5B519D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:09:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D175EC51
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F77C61839
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71C0FC433D2;
-        Tue, 28 Mar 2023 15:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 022E26177C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A07C433D2;
+        Tue, 28 Mar 2023 15:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015993;
-        bh=mTHvykb9S9i2Nf50DtLGyA2cpUPlmzrpP+CxnQwswM8=;
+        s=korg; t=1680015719;
+        bh=O60AlAK0dYuFe6kh+EJ3AfCHCZSame9FzEHfiT+hQ9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVzRtHkn7PBBa3camByI569j4JUW9uqYTdriDvdU6ifmWlvkUZdkLnfpYcb8dLkKK
-         DvcXWttO6pD5FFrPmF5CYQ1e/4PB7XMkI2ObNL3xFZvBReoktQmWCG92YrYZlU4opW
-         ebk34sf/61jvsZVeBYfEzkFQgMtCOqztuUbCLfgQ=
+        b=KKjesIDxPtTAV5Q5KrdidygDjotKYXqSOMsA8VHAHYEKnlT7jdRD2b6fKmewffZ3w
+         Y8uCWrB6Pb2KCDxbMe5WB6/HmVf6bqnSDpNV5RNk9rzuKoDkXAwAATotJWty2xTqZ2
+         +vA56RCxL2n3Go8BXMa+w6q4K/R/ZYiQ0GO4/vs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/146] i2c: imx-lpi2c: check only for enabled interrupt flags
-Date:   Tue, 28 Mar 2023 16:41:55 +0200
-Message-Id: <20230328142603.827905810@linuxfoundation.org>
+        David Alvarez Lombardi <dqalombardi@proton.me>,
+        dbilios@stdio.gr, victor.bonnelle@proton.me,
+        hurricanepootis@protonmail.com,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Elvis Angelaccio <elvis.angelaccio@kde.org>
+Subject: [PATCH 6.1 120/224] ACPI: x86: utils: Add Cezanne to the list for forcing StorageD3Enable
+Date:   Tue, 28 Mar 2023 16:41:56 +0200
+Message-Id: <20230328142622.366302608@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
+[ Upstream commit e2a56364485e7789e7b8f342637c7f3a219f7ede ]
 
-When reading from I2C, the Tx watermark is set to 0. Unfortunately the
-TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
-than watermark. So it is set in every case, hence the reset default of 1.
-This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
-to send Tx data on a read message.
-Mask the IRQ status to filter for wanted flags only.
+commit 018d6711c26e4 ("ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1
+for StorageD3Enable") introduced a quirk to allow a system with ambiguous
+use of _ADR 0 to force StorageD3Enable.
 
-Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+It was reported that several more Dell systems suffered the same symptoms.
+As the list is continuing to grow but these are all Cezanne systems,
+instead add Cezanne to the CPU list to apply the StorageD3Enable property
+and remove the whole list.
+
+It was also reported that an HP system only has StorageD3Enable on the ACPI
+device for the first NVME disk, not the second.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217003
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216773
+Reported-by: David Alvarez Lombardi <dqalombardi@proton.me>
+Reported-by: dbilios@stdio.gr
+Reported-and-tested-by: Elvis Angelaccio <elvis.angelaccio@kde.org>
+Tested-by: victor.bonnelle@proton.me
+Tested-by: hurricanepootis@protonmail.com
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/acpi/x86/utils.c | 37 +++++++++++++------------------------
+ 1 file changed, 13 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 8b9ba055c4186..2018dbcf241e9 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -502,10 +502,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
- static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 4e816bb402f68..e45285d4e62a4 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -200,39 +200,28 @@ bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *s
+  * a hardcoded allowlist for D3 support, which was used for these platforms.
+  *
+  * This allows quirking on Linux in a similar fashion.
++ *
++ * Cezanne systems shouldn't *normally* need this as the BIOS includes
++ * StorageD3Enable.  But for two reasons we have added it.
++ * 1) The BIOS on a number of Dell systems have ambiguity
++ *    between the same value used for _ADR on ACPI nodes GPP1.DEV0 and GPP1.NVME.
++ *    GPP1.NVME is needed to get StorageD3Enable node set properly.
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=216440
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=216773
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=217003
++ * 2) On at least one HP system StorageD3Enable is missing on the second NVME
++      disk in the system.
+  */
+ static const struct x86_cpu_id storage_d3_cpu_ids[] = {
+ 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 96, NULL),	/* Renoir */
+ 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 104, NULL),	/* Lucienne */
+-	{}
+-};
+-
+-static const struct dmi_system_id force_storage_d3_dmi[] = {
+-	{
+-		/*
+-		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
+-		 * but .NVME is needed to get StorageD3Enable node
+-		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
+-		 */
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
+-		}
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 16 5625"),
+-		}
+-	},
++	X86_MATCH_VENDOR_FAM_MODEL(AMD, 25, 80, NULL),	/* Cezanne */
+ 	{}
+ };
+ 
+ bool force_storage_d3(void)
  {
- 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
-+	unsigned int enabled;
- 	unsigned int temp;
+-	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
+-
+-	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
++	return x86_match_cpu(storage_d3_cpu_ids);
+ }
  
-+	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
-+
- 	lpi2c_imx_intctrl(lpi2c_imx, 0);
- 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+	temp &= enabled;
- 
- 	if (temp & MSR_RDF)
- 		lpi2c_imx_read_rxfifo(lpi2c_imx);
+ /*
 -- 
 2.39.2
 
