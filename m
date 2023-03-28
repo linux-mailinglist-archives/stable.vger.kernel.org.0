@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C2B66CC333
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 458ED6CC438
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233459AbjC1OwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43088 "EHLO
+        id S233709AbjC1PBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:01:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233523AbjC1Ovu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40D1E04B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:37 -0700 (PDT)
+        with ESMTP id S233722AbjC1PBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:01:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609BBEB6C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4769D61824
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F210C433EF;
-        Tue, 28 Mar 2023 14:51:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED2E761828
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06D0CC433EF;
+        Tue, 28 Mar 2023 15:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015096;
-        bh=F70xpuRTfbn70PM4MjyEQbyymuQTGtNCxCdHZcIT7tc=;
+        s=korg; t=1680015662;
+        bh=dedyIN+QCvBkCBfVWpXsX2Tzfh/6ufEr3d4L7AHy/PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xg4zza5m9gutRFdZHhSES+LUNGMVcnWUw2iATgNGZ9O9z1bqbq+N5qy5aedyN+6bu
-         1eQPTKJ7y2VNUeuKeUiBmlTWJIFJ4PF0aRHNexu+lIPMNZbKXBS7gUQubbLGkJEwb4
-         QiRO42DcaKv0g16hkbNi+yTkuzAlkPZm/CBnELJc=
+        b=og4q9k+HnG2KhETn3QgwFdPjjMS89HZBsM+6aAwHLuxwl+F8+t6NQqQqmNdNUAai5
+         spersWgYTGx/XGjcMi0CTFdsM99zkuq65j2f5j4DvGFYHG+asbW+9UQatBfaKZbPhK
+         WEyY93BtiKluhtDg+QkscjFfqX3JIPW+NzTWhO5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 163/240] cifs: append path to open_enter trace event
+        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 130/224] scsi: target: iscsi: Fix an error message in iscsi_check_key()
 Date:   Tue, 28 Mar 2023 16:42:06 +0200
-Message-Id: <20230328142626.468882415@linuxfoundation.org>
+Message-Id: <20230328142622.787829111@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,226 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-commit fddc6ccc487e5de07b98df8d04118d5dcb5e0407 upstream.
+[ Upstream commit 6cc55c969b7ce8d85e09a636693d4126c3676c11 ]
 
-We do not dump the file path for smb3_open_enter ftrace
-calls, which is a severe handicap while debugging
-using ftrace evens. This change adds that info.
+The first half of the error message is printed by pr_err(), the second half
+is printed by pr_debug(). The user will therefore see only the first part
+of the message and will miss some useful information.
 
-Unfortunately, we're not updating the path in open params
-in many places; which I had to do as a part of this change.
-SMB2_open gets path in utf16 format, but it's easier of
-path is supplied as char pointer in oparms.
-
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230214141556.762047-1-mlombard@redhat.com
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cached_dir.c |    1 +
- fs/cifs/link.c       |    2 ++
- fs/cifs/smb2inode.c  |    1 +
- fs/cifs/smb2ops.c    |   11 +++++++++++
- fs/cifs/smb2pdu.c    |    4 ++--
- fs/cifs/trace.h      |   12 ++++++++----
- 6 files changed, 25 insertions(+), 6 deletions(-)
+ drivers/target/iscsi/iscsi_target_parameters.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/cifs/cached_dir.c
-+++ b/fs/cifs/cached_dir.c
-@@ -184,6 +184,7 @@ int open_cached_dir(unsigned int xid, st
+diff --git a/drivers/target/iscsi/iscsi_target_parameters.c b/drivers/target/iscsi/iscsi_target_parameters.c
+index 2317fb077db0e..557516c642c3b 100644
+--- a/drivers/target/iscsi/iscsi_target_parameters.c
++++ b/drivers/target/iscsi/iscsi_target_parameters.c
+@@ -1262,18 +1262,20 @@ static struct iscsi_param *iscsi_check_key(
+ 		return param;
  
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = path,
- 		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_FILE),
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
---- a/fs/cifs/link.c
-+++ b/fs/cifs/link.c
-@@ -360,6 +360,7 @@ smb3_query_mf_symlink(unsigned int xid,
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
- 		.cifs_sb = cifs_sb,
-+		.path = path,
- 		.desired_access = GENERIC_READ,
- 		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
- 		.disposition = FILE_OPEN,
-@@ -427,6 +428,7 @@ smb3_create_mf_symlink(unsigned int xid,
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
- 		.cifs_sb = cifs_sb,
-+		.path = path,
- 		.desired_access = GENERIC_WRITE,
- 		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
- 		.disposition = FILE_CREATE,
---- a/fs/cifs/smb2inode.c
-+++ b/fs/cifs/smb2inode.c
-@@ -107,6 +107,7 @@ static int smb2_compound_op(const unsign
+ 	if (!(param->phase & phase)) {
+-		pr_err("Key \"%s\" may not be negotiated during ",
+-				param->name);
++		char *phase_name;
++
+ 		switch (phase) {
+ 		case PHASE_SECURITY:
+-			pr_debug("Security phase.\n");
++			phase_name = "Security";
+ 			break;
+ 		case PHASE_OPERATIONAL:
+-			pr_debug("Operational phase.\n");
++			phase_name = "Operational";
+ 			break;
+ 		default:
+-			pr_debug("Unknown phase.\n");
++			phase_name = "Unknown";
+ 		}
++		pr_err("Key \"%s\" may not be negotiated during %s phase.\n",
++				param->name, phase_name);
+ 		return NULL;
+ 	}
  
- 	vars->oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = full_path,
- 		.desired_access = desired_access,
- 		.disposition = create_disposition,
- 		.create_options = cifs_create_options(cifs_sb, create_options),
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -731,6 +731,7 @@ smb3_qfs_tcon(const unsigned int xid, st
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = "",
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -774,6 +775,7 @@ smb2_qfs_tcon(const unsigned int xid, st
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = "",
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -821,6 +823,7 @@ smb2_is_path_accessible(const unsigned i
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = full_path,
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -1105,6 +1108,7 @@ smb2_set_ea(const unsigned int xid, stru
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = path,
- 		.desired_access = FILE_WRITE_EA,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -2096,6 +2100,7 @@ smb3_notify(const unsigned int xid, stru
- 	tcon = cifs_sb_master_tcon(cifs_sb);
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = path,
- 		.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -2168,6 +2173,7 @@ smb2_query_dir_first(const unsigned int
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = path,
- 		.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -2500,6 +2506,7 @@ smb2_query_info_compound(const unsigned
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = path,
- 		.desired_access = desired_access,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -2634,6 +2641,7 @@ smb311_queryfs(const unsigned int xid, s
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = "",
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, 0),
-@@ -2928,6 +2936,7 @@ smb2_query_symlink(const unsigned int xi
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = full_path,
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, create_options),
-@@ -3068,6 +3077,7 @@ smb2_query_reparse_tag(const unsigned in
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = full_path,
- 		.desired_access = FILE_READ_ATTRIBUTES,
- 		.disposition = FILE_OPEN,
- 		.create_options = cifs_create_options(cifs_sb, OPEN_REPARSE_POINT),
-@@ -3208,6 +3218,7 @@ get_smb2_acl_by_path(struct cifs_sb_info
- 
- 	oparms = (struct cifs_open_parms) {
- 		.tcon = tcon,
-+		.path = path,
- 		.desired_access = READ_CONTROL,
- 		.disposition = FILE_OPEN,
- 		/*
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -2742,7 +2742,7 @@ int smb311_posix_mkdir(const unsigned in
- 	rqst.rq_nvec = n_iov;
- 
- 	/* no need to inc num_remote_opens because we close it just below */
--	trace_smb3_posix_mkdir_enter(xid, tcon->tid, ses->Suid, CREATE_NOT_FILE,
-+	trace_smb3_posix_mkdir_enter(xid, tcon->tid, ses->Suid, full_path, CREATE_NOT_FILE,
- 				    FILE_WRITE_ATTRIBUTES);
- 	/* resource #4: response buffer */
- 	rc = cifs_send_recv(xid, ses, server,
-@@ -3010,7 +3010,7 @@ SMB2_open(const unsigned int xid, struct
- 	if (rc)
- 		goto creat_exit;
- 
--	trace_smb3_open_enter(xid, tcon->tid, tcon->ses->Suid,
-+	trace_smb3_open_enter(xid, tcon->tid, tcon->ses->Suid, oparms->path,
- 		oparms->create_options, oparms->desired_access);
- 
- 	rc = cifs_send_recv(xid, ses, server,
---- a/fs/cifs/trace.h
-+++ b/fs/cifs/trace.h
-@@ -701,13 +701,15 @@ DECLARE_EVENT_CLASS(smb3_open_enter_clas
- 	TP_PROTO(unsigned int xid,
- 		__u32	tid,
- 		__u64	sesid,
-+		const char *full_path,
- 		int	create_options,
- 		int	desired_access),
--	TP_ARGS(xid, tid, sesid, create_options, desired_access),
-+	TP_ARGS(xid, tid, sesid, full_path, create_options, desired_access),
- 	TP_STRUCT__entry(
- 		__field(unsigned int, xid)
- 		__field(__u32, tid)
- 		__field(__u64, sesid)
-+		__string(path, full_path)
- 		__field(int, create_options)
- 		__field(int, desired_access)
- 	),
-@@ -715,11 +717,12 @@ DECLARE_EVENT_CLASS(smb3_open_enter_clas
- 		__entry->xid = xid;
- 		__entry->tid = tid;
- 		__entry->sesid = sesid;
-+		__assign_str(path, full_path);
- 		__entry->create_options = create_options;
- 		__entry->desired_access = desired_access;
- 	),
--	TP_printk("xid=%u sid=0x%llx tid=0x%x cr_opts=0x%x des_access=0x%x",
--		__entry->xid, __entry->sesid, __entry->tid,
-+	TP_printk("xid=%u sid=0x%llx tid=0x%x path=%s cr_opts=0x%x des_access=0x%x",
-+		__entry->xid, __entry->sesid, __entry->tid, __get_str(path),
- 		__entry->create_options, __entry->desired_access)
- )
- 
-@@ -728,9 +731,10 @@ DEFINE_EVENT(smb3_open_enter_class, smb3
- 	TP_PROTO(unsigned int xid,		\
- 		__u32	tid,			\
- 		__u64	sesid,			\
-+		const char *full_path,		\
- 		int	create_options,		\
- 		int	desired_access),	\
--	TP_ARGS(xid, tid, sesid, create_options, desired_access))
-+	TP_ARGS(xid, tid, sesid, full_path, create_options, desired_access))
- 
- DEFINE_SMB3_OPEN_ENTER_EVENT(open_enter);
- DEFINE_SMB3_OPEN_ENTER_EVENT(posix_mkdir_enter);
+-- 
+2.39.2
+
 
 
