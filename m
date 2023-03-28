@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DA896CC887
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 18:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C1B6CC8B7
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 19:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231536AbjC1QwD convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 28 Mar 2023 12:52:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38024 "EHLO
+        id S229971AbjC1RCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 13:02:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbjC1QwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 12:52:01 -0400
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7763F61B5;
-        Tue, 28 Mar 2023 09:51:59 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 64FC161989E6;
-        Tue, 28 Mar 2023 18:51:57 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id rSqEHlFbiw2K; Tue, 28 Mar 2023 18:51:56 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id A0DF061989F6;
-        Tue, 28 Mar 2023 18:51:56 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id G1mmPBPF4NNz; Tue, 28 Mar 2023 18:51:56 +0200 (CEST)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 75C9361989E6;
-        Tue, 28 Mar 2023 18:51:56 +0200 (CEST)
-Date:   Tue, 28 Mar 2023 18:51:56 +0200 (CEST)
-From:   Richard Weinberger <richard@nod.at>
-To:     Bang Li <libang.linuxer@gmail.com>
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <1646372169.361736.1680022316353.JavaMail.zimbra@nod.at>
-In-Reply-To: <20230328163012.4264-1-libang.linuxer@gmail.com>
-References: <20230328163012.4264-1-libang.linuxer@gmail.com>
-Subject: Re: [PATCH v2] mtdblock: tolerate corrected bit-flips
+        with ESMTP id S229806AbjC1RCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 13:02:12 -0400
+Received: from mail.antaris-organics.com (mail.antaris-organics.com [91.227.220.155])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C459ECF;
+        Tue, 28 Mar 2023 10:02:11 -0700 (PDT)
+Date:   Tue, 28 Mar 2023 19:02:09 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mareichelt.com;
+        s=202107; t=1680022929;
+        bh=WlyrVyWWgyyjbRTXsDBXNHSjIHTp5NR+F+mBA92jthI=;
+        h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+         Content-Type:In-Reply-To:Cc:Cc:content-type:content-type:date:date:
+         From:from:in-reply-to:in-reply-to:message-id:mime-version:
+         references:reply-to:Sender:Subject:Subject:To:To;
+        b=fXlHkcfe8bkRLKyJKkgjN6Weg8NbpHAw2aHGS62p5nOTgZiVlD3ksPb8sNvxTKMnW
+         2iNhEast4YhFm9AXk6X32B7ePInky+xmLHwCgxkJthODO8cO63ddarvzWEa6ib3iaA
+         R4qQOxDqdOD5DjIxHDYxD6h/cS3p2cIExv/K+057k7Tdr7rSVoyvxq2pTGqdwnXzd9
+         nlVk47ZIiP2IHZeRZmNEZJ9mq6s0w+d3C0S4vAWFryKgloL0yGNhMGr+Ue1dFeycjK
+         whHE/YWsa+wjarxqjDQ4nhfqkXyZ+Z7PCnVajnpx7edYmYl5NbJPicCpKVkg488icC
+         x0dHj8t0QzYGA==
+From:   Markus Reichelt <lkt+2023@mareichelt.com>
+To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6.2 000/240] 6.2.9-rc1 review
+Message-ID: <20230328170209.GA5469@pc21.mareichelt.com>
+Mail-Followup-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230328142619.643313678@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF97 (Linux)/8.8.12_GA_3809)
-Thread-Topic: mtdblock: tolerate corrected bit-flips
-Thread-Index: ouKfcIuIMflG9wXsCuCDxoFYiHDGng==
-X-Spam-Status: No, score=0.0 required=5.0 tests=SPF_HELO_NONE,T_SPF_PERMERROR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+Organization: still stuck in reorganization mode
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,23 +48,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ Ursprüngliche Mail -----
-> Von: "Bang Li" <libang.linuxer@gmail.com>
-> An: "Miquel Raynal" <miquel.raynal@bootlin.com>, "richard" <richard@nod.at>, "Vignesh Raghavendra" <vigneshr@ti.com>
-> CC: "linux-mtd" <linux-mtd@lists.infradead.org>, "linux-kernel" <linux-kernel@vger.kernel.org>, "Bang Li"
-> <libang.linuxer@gmail.com>, "stable" <stable@vger.kernel.org>
-> Gesendet: Dienstag, 28. März 2023 18:30:12
-> Betreff: [PATCH v2] mtdblock: tolerate corrected bit-flips
+* Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-> mtd_read() may return -EUCLEAN in case of corrected bit-flips.This
-> particular condition should not be treated like an error.
+> This is the start of the stable review cycle for the 6.2.9 release.
+> There are 240 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Signed-off-by: Bang Li <libang.linuxer@gmail.com>
-> Fixes: e47f68587b82 ("mtd: check for max_bitflips in mtd_read_oob()")
-> Cc: <stable@vger.kernel.org> # v3.7
-> ---
+> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
+> Anything received after that time might be too late.
 
-Acked-by: Richard Weinberger <richard@nod.at>
+Hi Greg
 
-Thanks,
-//richard
+6.2.9-rc1
+
+compiles, boots and runs here on x86_64
+(AMD Ryzen 5 PRO 4650G, Slackware64-15.0)
+
+Tested-by: Markus Reichelt <lkt+2023@mareichelt.com>
