@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B6F6CBE32
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7718F6CBE34
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232801AbjC1L4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 07:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47922 "EHLO
+        id S232950AbjC1L4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 07:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232658AbjC1Lzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 07:55:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D029386AA
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 04:55:51 -0700 (PDT)
+        with ESMTP id S232797AbjC1L4I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 07:56:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8498A79
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 04:56:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CA69616F1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 11:55:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60464C4339B;
-        Tue, 28 Mar 2023 11:55:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F8B3B81C1B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 11:56:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04014C433EF;
+        Tue, 28 Mar 2023 11:55:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680004550;
-        bh=rprREI146PVclusUMngS3iAKgqWtSrmDu6hA0yPJcLA=;
+        s=korg; t=1680004559;
+        bh=Gr39zaLeNtybRaunaEmuSupMd3GT7NHuzOD7kfOkCSk=;
         h=Subject:To:Cc:From:Date:From;
-        b=LREoK0BuoAkYg1MPWGSQ0IxPSYHG05/vLIzBxY+X4yj1P0xq996YJdWnwL0/WV0Un
-         ktbrQ3PXzGV94Vz5O/pyABbzLUssaSFT69xYMDJrelMJDCX7/whMxnMyPjjhSNo3Zf
-         1jGhbDDMNlzoyVIc2n5NyA9+ez7jA3lhhINfwsq8=
-Subject: FAILED: patch "[PATCH] fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY" failed to apply to 5.10-stable tree
+        b=CD348GMeyGhg67YkLM+lwbarD/FaAADVYg/3XT4UC3cxAN3w88v+sL+uoCu7PdHog
+         IX1sNRITsOpu27VjK11JPWLWhN397A6I4aeoTSnxXPAm8FB1fW4ml4i5Mmjwi2JKRA
+         pnyCojRIreoqFTCC4EyknJM+ipmGexBDxlYxnpFE=
+Subject: FAILED: patch "[PATCH] fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY" failed to apply to 5.4-stable tree
 To:     ebiggers@google.com, victorhsieh@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 13:55:47 +0200
-Message-ID: <168000454721840@kroah.com>
+Date:   Tue, 28 Mar 2023 13:55:48 +0200
+Message-ID: <168000454829207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x a075bacde257f755bea0e53400c9f1cdd1b8e8e6
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '168000454721840@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '168000454829207@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -67,6 +67,9 @@ a075bacde257 ("fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY")
 ed45e2016493 ("fs-verity: rename "file measurement" to "file digest"")
 9e90f30e7857 ("fs-verity: rename fsverity_signed_digest to fsverity_formatted_digest")
 7bf765dd8442 ("fs-verity: remove filenames from file comments")
+6377a38bd345 ("fs-verity: fix all kerneldoc warnings")
+439bea104c3d ("fs-verity: use mempool for hash requests")
+fd39073dba86 ("fs-verity: implement readahead of Merkle tree pages")
 
 thanks,
 
