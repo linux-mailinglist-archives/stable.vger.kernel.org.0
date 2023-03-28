@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 008176CC36C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8427B6CC620
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbjC1Oxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55220 "EHLO
+        id S232647AbjC1PXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:23:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232888AbjC1Oxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5FDCA33
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:44 -0700 (PDT)
+        with ESMTP id S232590AbjC1PX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:23:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 377BE1205E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:21:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37332B81CAF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3383C433EF;
-        Tue, 28 Mar 2023 14:53:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id ACFCBCE1D3B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B99B7C433EF;
+        Tue, 28 Mar 2023 15:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015222;
-        bh=IcPqGMhvHTalH1PfA6xanNWPq+lGcIvvWJDn6QEKnqw=;
+        s=korg; t=1680016156;
+        bh=+hI0EX1Y/j+AMA/T6C5h+0aoDUP1nfK6Qa6Evui8qmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qUUt3kV4Jv34DurbSL3pqDTYc61BgVUTj15BYeGlX1tuJpDRwtwW1r4yviBdaISK
-         gFogI5dY+CSE9/1fpkdP2sT7qQr/KIYiOGA/xp/YIkU5t6iD/Y3xW4xBcLDlo47p1z
-         8fQ2dEJaGbo/wMCyC9Ykorrmi5zeAPtddaeC5Ofo=
+        b=xK6XxKw6XVY91uz0fPzmChPZldGXMfAHhxNbg3b8BVL89KHokaI+IWIt5dZZKxFcH
+         K62kroN1nfWu35jobd4rMjTYaBAIgwRLqanGsS7Hye4uaeCO5j952clyX+E0BURTUF
+         QYxglODj4rBdA19xdzmv+6uItjU66FlMcM+fJnoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steve French <stfrench@microsoft.com>,
-        Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH 6.2 211/240] ksmbd: dont terminate inactive sessions after a few seconds
+        patches@lists.linux.dev, Alexandr Sapozhnikov <alsp705@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 085/146] drm/cirrus: NULL-check pipe->plane.state->fb in cirrus_pipe_update()
 Date:   Tue, 28 Mar 2023 16:42:54 +0200
-Message-Id: <20230328142628.484816994@linuxfoundation.org>
+Message-Id: <20230328142606.222203364@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,150 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Alexandr Sapozhnikov <alsp705@gmail.com>
 
-commit be6f42fad5f5fd1fea9d562df82c38ad6ed3bfe9 upstream.
+[ Upstream commit 7245e629dcaaf308f1868aeffa218e9849c77893 ]
 
-Steve reported that inactive sessions are terminated after a few
-seconds. ksmbd terminate when receiving -EAGAIN error from
-kernel_recvmsg(). -EAGAIN means there is no data available in timeout.
-So ksmbd should keep connection with unlimited retries instead of
-terminating inactive sessions.
+After having been compared to NULL value at cirrus.c:455, pointer
+'pipe->plane.state->fb' is passed as 1st parameter in call to function
+'cirrus_fb_blit_rect' at cirrus.c:461, where it is dereferenced at
+cirrus.c:316.
 
-Cc: stable@vger.kernel.org
-Reported-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+v2:
+	* aligned commit message to line-length limits
+
+Signed-off-by: Alexandr Sapozhnikov <alsp705@gmail.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230215171549.16305-1-alsp705@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/connection.c     |    4 ++--
- fs/ksmbd/connection.h     |    3 ++-
- fs/ksmbd/transport_rdma.c |    2 +-
- fs/ksmbd/transport_tcp.c  |   35 +++++++++++++++++++++++------------
- 4 files changed, 28 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/tiny/cirrus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -298,7 +298,7 @@ int ksmbd_conn_handler_loop(void *p)
- 		kvfree(conn->request_buf);
- 		conn->request_buf = NULL;
+diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+index 4611ec408506b..2a81311b22172 100644
+--- a/drivers/gpu/drm/tiny/cirrus.c
++++ b/drivers/gpu/drm/tiny/cirrus.c
+@@ -450,7 +450,7 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	if (state->fb && cirrus->cpp != cirrus_cpp(state->fb))
+ 		cirrus_mode_set(cirrus, &crtc->mode, state->fb);
  
--		size = t->ops->read(t, hdr_buf, sizeof(hdr_buf));
-+		size = t->ops->read(t, hdr_buf, sizeof(hdr_buf), -1);
- 		if (size != sizeof(hdr_buf))
- 			break;
- 
-@@ -344,7 +344,7 @@ int ksmbd_conn_handler_loop(void *p)
- 		 * We already read 4 bytes to find out PDU size, now
- 		 * read in PDU
- 		 */
--		size = t->ops->read(t, conn->request_buf + 4, pdu_size);
-+		size = t->ops->read(t, conn->request_buf + 4, pdu_size, 2);
- 		if (size < 0) {
- 			pr_err("sock_read failed: %d\n", size);
- 			break;
---- a/fs/ksmbd/connection.h
-+++ b/fs/ksmbd/connection.h
-@@ -114,7 +114,8 @@ struct ksmbd_transport_ops {
- 	int (*prepare)(struct ksmbd_transport *t);
- 	void (*disconnect)(struct ksmbd_transport *t);
- 	void (*shutdown)(struct ksmbd_transport *t);
--	int (*read)(struct ksmbd_transport *t, char *buf, unsigned int size);
-+	int (*read)(struct ksmbd_transport *t, char *buf,
-+		    unsigned int size, int max_retries);
- 	int (*writev)(struct ksmbd_transport *t, struct kvec *iovs, int niov,
- 		      int size, bool need_invalidate_rkey,
- 		      unsigned int remote_key);
---- a/fs/ksmbd/transport_rdma.c
-+++ b/fs/ksmbd/transport_rdma.c
-@@ -670,7 +670,7 @@ static int smb_direct_post_recv(struct s
+-	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
++	if (state->fb && drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		cirrus_fb_blit_rect(state->fb, &shadow_plane_state->data[0], &rect);
  }
  
- static int smb_direct_read(struct ksmbd_transport *t, char *buf,
--			   unsigned int size)
-+			   unsigned int size, int unused)
- {
- 	struct smb_direct_recvmsg *recvmsg;
- 	struct smb_direct_data_transfer *data_transfer;
---- a/fs/ksmbd/transport_tcp.c
-+++ b/fs/ksmbd/transport_tcp.c
-@@ -291,16 +291,18 @@ static int ksmbd_tcp_run_kthread(struct
- 
- /**
-  * ksmbd_tcp_readv() - read data from socket in given iovec
-- * @t:		TCP transport instance
-- * @iov_orig:	base IO vector
-- * @nr_segs:	number of segments in base iov
-- * @to_read:	number of bytes to read from socket
-+ * @t:			TCP transport instance
-+ * @iov_orig:		base IO vector
-+ * @nr_segs:		number of segments in base iov
-+ * @to_read:		number of bytes to read from socket
-+ * @max_retries:	maximum retry count
-  *
-  * Return:	on success return number of bytes read from socket,
-  *		otherwise return error number
-  */
- static int ksmbd_tcp_readv(struct tcp_transport *t, struct kvec *iov_orig,
--			   unsigned int nr_segs, unsigned int to_read)
-+			   unsigned int nr_segs, unsigned int to_read,
-+			   int max_retries)
- {
- 	int length = 0;
- 	int total_read;
-@@ -308,7 +310,6 @@ static int ksmbd_tcp_readv(struct tcp_tr
- 	struct msghdr ksmbd_msg;
- 	struct kvec *iov;
- 	struct ksmbd_conn *conn = KSMBD_TRANS(t)->conn;
--	int max_retry = 2;
- 
- 	iov = get_conn_iovec(t, nr_segs);
- 	if (!iov)
-@@ -335,14 +336,23 @@ static int ksmbd_tcp_readv(struct tcp_tr
- 		} else if (conn->status == KSMBD_SESS_NEED_RECONNECT) {
- 			total_read = -EAGAIN;
- 			break;
--		} else if ((length == -ERESTARTSYS || length == -EAGAIN) &&
--			   max_retry) {
-+		} else if (length == -ERESTARTSYS || length == -EAGAIN) {
-+			/*
-+			 * If max_retries is negative, Allow unlimited
-+			 * retries to keep connection with inactive sessions.
-+			 */
-+			if (max_retries == 0) {
-+				total_read = length;
-+				break;
-+			} else if (max_retries > 0) {
-+				max_retries--;
-+			}
-+
- 			usleep_range(1000, 2000);
- 			length = 0;
--			max_retry--;
- 			continue;
- 		} else if (length <= 0) {
--			total_read = -EAGAIN;
-+			total_read = length;
- 			break;
- 		}
- 	}
-@@ -358,14 +368,15 @@ static int ksmbd_tcp_readv(struct tcp_tr
-  * Return:	on success return number of bytes read from socket,
-  *		otherwise return error number
-  */
--static int ksmbd_tcp_read(struct ksmbd_transport *t, char *buf, unsigned int to_read)
-+static int ksmbd_tcp_read(struct ksmbd_transport *t, char *buf,
-+			  unsigned int to_read, int max_retries)
- {
- 	struct kvec iov;
- 
- 	iov.iov_base = buf;
- 	iov.iov_len = to_read;
- 
--	return ksmbd_tcp_readv(TCP_TRANS(t), &iov, 1, to_read);
-+	return ksmbd_tcp_readv(TCP_TRANS(t), &iov, 1, to_read, max_retries);
- }
- 
- static int ksmbd_tcp_writev(struct ksmbd_transport *t, struct kvec *iov,
+-- 
+2.39.2
+
 
 
