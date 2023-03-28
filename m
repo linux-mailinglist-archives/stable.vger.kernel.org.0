@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D909B6CC428
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E96A56CC2FB
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233606AbjC1PAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:00:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40054 "EHLO
+        id S233311AbjC1OuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbjC1PAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBAEE079
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:29 -0700 (PDT)
+        with ESMTP id S233324AbjC1Ot7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CC86E04C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D41CB81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7DCDC4339B;
-        Tue, 28 Mar 2023 15:00:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 397D361820
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E759C433EF;
+        Tue, 28 Mar 2023 14:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015627;
-        bh=Ch8xmVFoFAeB8JWHwlyotTwrME0To3rFSw8EEP2tmWI=;
+        s=korg; t=1680014971;
+        bh=6533pZA8P+3NraJqqN7msuAhzPQsnUM19RaSYFVyKUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nOjS4B8IpuL2d2TyNrxA31nhc8cBySUoMUrEDdQLiBDV54WEAbIl8wOEB3mPnxhj
-         /O5VCYkJ3KXCGGdtuMjgSvNTeBSg9CPTmfoIxPhpOnky4B0iECbVGyeTCM9PrspdMA
-         iaa3UxuUaejsDXKftDg91r50otDytgWWSFQMKjOI=
+        b=o6HGbJyaCKL3/B4tIK0NPNQNHgllDI+4ug0YXN2MaMjPLNQFaeSafOg7r+ObSpD+d
+         yG34RYrZ8LfLEm0tEUr8zYAjnPMFgG4/voZN0HflH4D8IkMC1hw3YdV+dSHDDCgdkq
+         zYD9erdYuZvYvL0Q65FoP3idp9kXLZuWgPotpOis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joshua Washington <joshwash@google.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 085/224] gve: Cache link_speed value from device
-Date:   Tue, 28 Mar 2023 16:41:21 +0200
-Message-Id: <20230328142620.813987850@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 6.2 119/240] thunderbolt: Call tb_check_quirks() after initializing adapters
+Date:   Tue, 28 Mar 2023 16:41:22 +0200
+Message-Id: <20230328142624.741474656@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua Washington <joshwash@google.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 68c3e4fc8628b1487c965aabb29207249657eb5f ]
+commit d2d6ddf188f609861489d5d188d545856a3ed399 upstream.
 
-The link speed is never changed for the uptime of a VM, and the current
-implementation sends an admin queue command for each call. Admin queue
-command invocations have nontrivial overhead (e.g., VM exits), which can
-be disruptive to users if triggered frequently. Our telemetry data shows
-that there are VMs that make frequent calls to this admin queue command.
-Caching the result of the original admin queue command would eliminate
-the need to send multiple admin queue commands on subsequent calls to
-retrieve link speed.
+In order to apply quirks based on certain adapter types move call to
+tb_check_quirks() happen after the adapters are initialized. This should
+not affect the existing quirks.
 
-Fixes: 7e074d5a76ca ("gve: Enable Link Speed Reporting in the driver.")
-Signed-off-by: Joshua Washington <joshwash@google.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230321172332.91678-1-joshwash@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/google/gve/gve_ethtool.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/thunderbolt/switch.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_ethtool.c b/drivers/net/ethernet/google/gve/gve_ethtool.c
-index 7b9a2d9d96243..38df602f2869c 100644
---- a/drivers/net/ethernet/google/gve/gve_ethtool.c
-+++ b/drivers/net/ethernet/google/gve/gve_ethtool.c
-@@ -535,7 +535,10 @@ static int gve_get_link_ksettings(struct net_device *netdev,
- 				  struct ethtool_link_ksettings *cmd)
- {
- 	struct gve_priv *priv = netdev_priv(netdev);
--	int err = gve_adminq_report_link_speed(priv);
-+	int err = 0;
-+
-+	if (priv->link_speed == 0)
-+		err = gve_adminq_report_link_speed(priv);
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2960,8 +2960,6 @@ int tb_switch_add(struct tb_switch *sw)
+ 			dev_warn(&sw->dev, "reading DROM failed: %d\n", ret);
+ 		tb_sw_dbg(sw, "uid: %#llx\n", sw->uid);
  
- 	cmd->base.speed = priv->link_speed;
- 	return err;
--- 
-2.39.2
-
+-		tb_check_quirks(sw);
+-
+ 		ret = tb_switch_set_uuid(sw);
+ 		if (ret) {
+ 			dev_err(&sw->dev, "failed to set UUID\n");
+@@ -2980,6 +2978,8 @@ int tb_switch_add(struct tb_switch *sw)
+ 			}
+ 		}
+ 
++		tb_check_quirks(sw);
++
+ 		tb_switch_default_link_ports(sw);
+ 
+ 		ret = tb_switch_update_link_attributes(sw);
 
 
