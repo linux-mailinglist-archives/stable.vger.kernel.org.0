@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E42D6CC448
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 759916CC4D0
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233771AbjC1PCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
+        id S231172AbjC1PI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233770AbjC1PCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:02:39 -0400
+        with ESMTP id S229452AbjC1PI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1C1E3B1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA18EF94
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6835F61856
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DED6C4339B;
-        Tue, 28 Mar 2023 15:01:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C8F86184B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F697C433EF;
+        Tue, 28 Mar 2023 15:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015697;
-        bh=jgqAc7iZHAa0GR2DPbVeeL1gHqNdIY3gDSJ9wzC7zxU=;
+        s=korg; t=1680016057;
+        bh=o4v7KK1w+iiB5ffWcIbt3HtJHhbF2k75kO7ns1P550M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tUcTUvinygl8ae5I11jnkOOXD8B9/VlL73VLo38FcCD4glA+0QS4fllg1YFICPYZ
-         L3zkwE5BukBi04QaXlDt6gJBlkyTlGgzztBgqqk5AV12iK0VQpFFxi3P8EZ3UJMnKi
-         fxIRLOp64gthbU9AoiO0LGunUbvhObcTNhMh2U+8=
+        b=caKCibfp9JnLvIJjWqgBqUwQBBmNbx/pnSsXF8vO02Yf2/3jBKWPW1jBk5DSdHhTQ
+         SI7U6qYBmNNGCdgz/LZRaQyu55PHktODF11aQCff4z8BcSPhwHmU0oVieBKtYy4Lgq
+         bDdFLs9PzqXBl+RxjdKnNOuR3vmaN3U2jgHiyKhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 142/224] net: usb: cdc_mbim: avoid altsetting toggling for Telit FE990
+Subject: [PATCH 5.15 049/146] net/mlx5: E-Switch, Fix an Oops in error handling code
 Date:   Tue, 28 Mar 2023 16:42:18 +0200
-Message-Id: <20230328142623.308337311@linuxfoundation.org>
+Message-Id: <20230328142604.745460690@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enrico Sau <enrico.sau@gmail.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 418383e6ed6b4624a54ec05c535f13d184fbf33b ]
+[ Upstream commit 640fcdbcf27fc62de9223f958ceb4e897a00e791 ]
 
-Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit FE990
-0x1081 composition in order to avoid bind error.
+The error handling dereferences "vport".  There is nothing we can do if
+it is an error pointer except returning the error code.
 
-Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
-Link: https://lore.kernel.org/r/20230306115933.198259-1-enrico.sau@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 133dcfc577ea ("net/mlx5: E-Switch, Alloc and free unique metadata for match")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_mbim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
-index c89639381eca3..cd4083e0b3b9e 100644
---- a/drivers/net/usb/cdc_mbim.c
-+++ b/drivers/net/usb/cdc_mbim.c
-@@ -665,6 +665,11 @@ static const struct usb_device_id mbim_devs[] = {
- 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
- 	},
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
+index 39e948bc12041..34a6542c03f61 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
+@@ -301,8 +301,7 @@ int mlx5_esw_acl_ingress_vport_bond_update(struct mlx5_eswitch *esw, u16 vport_n
  
-+	/* Telit FE990 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1081, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
-+	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
-+	},
-+
- 	/* default entry */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
- 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
+ 	if (WARN_ON_ONCE(IS_ERR(vport))) {
+ 		esw_warn(esw->dev, "vport(%d) invalid!\n", vport_num);
+-		err = PTR_ERR(vport);
+-		goto out;
++		return PTR_ERR(vport);
+ 	}
+ 
+ 	esw_acl_ingress_ofld_rules_destroy(esw, vport);
 -- 
 2.39.2
 
