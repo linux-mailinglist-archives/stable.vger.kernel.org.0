@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 515A26CC2BA
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DD2C6CC405
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbjC1OsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S233725AbjC1O70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233298AbjC1OsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:05 -0400
+        with ESMTP id S233726AbjC1O7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C85D513
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C7CEC41
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AC49B80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD36C433D2;
-        Tue, 28 Mar 2023 14:47:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9021CB81D68
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF45BC433EF;
+        Tue, 28 Mar 2023 14:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014854;
-        bh=hJ4l7JUTVTqlATiJbcAtigE/DDuQ7kAisRpaLbaDXoA=;
+        s=korg; t=1680015541;
+        bh=A9rMXkyJGvInhKI2p3zauWRhOYOAJsB+iaGMj0QsrWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOkzgGDd6znyLx51eMIK3rBDaJkpsPgNrHw+ZLd6M0AdNRgFUTsMPKNJFuXTLUZVC
-         8tfTyy2foDihJkM67drjWOU9FuulkdKgallYyQGRoCDeP7cBGcIvX20KCrZ5j+fmha
-         GcEae5Nk8WQFdcXVHMD2lTjz+pLx7ezyUSSqFEV8=
+        b=QPkYw5QTXQg651nGrv2YikjdjBNkT7yQ9g2EN+t91Y62bipMpY8BlSR93Oq/uHOkT
+         6r54F8vnsAgJFmmENI/a1V6bVjBjvLVX00iuuyQ9FLjc5mLbJUSYkbbjw757h5D9Bd
+         V0JmIQscke/zhhXryfLjrUCilb2eK9RsJahRTOYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev,
+        Jochen Henneberg <jh@henneberg-systemdesign.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 077/240] net/mlx5: E-Switch, Fix an Oops in error handling code
-Date:   Tue, 28 Mar 2023 16:40:40 +0200
-Message-Id: <20230328142622.990408207@linuxfoundation.org>
+Subject: [PATCH 6.1 045/224] net: stmmac: Fix for mismatched host/device DMA address width
+Date:   Tue, 28 Mar 2023 16:40:41 +0200
+Message-Id: <20230328142619.249006376@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Jochen Henneberg <jh@henneberg-systemdesign.com>
 
-[ Upstream commit 640fcdbcf27fc62de9223f958ceb4e897a00e791 ]
+[ Upstream commit 070246e4674b125860d311c18ce2623e73e2bd51 ]
 
-The error handling dereferences "vport".  There is nothing we can do if
-it is an error pointer except returning the error code.
+Currently DMA address width is either read from a RO device register
+or force set from the platform data. This breaks DMA when the host DMA
+address width is <=32it but the device is >32bit.
 
-Fixes: 133dcfc577ea ("net/mlx5: E-Switch, Alloc and free unique metadata for match")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Right now the driver may decide to use a 2nd DMA descriptor for
+another buffer (happens in case of TSO xmit) assuming that 32bit
+addressing is used due to platform configuration but the device will
+still use both descriptor addresses as one address.
+
+This can be observed with the Intel EHL platform driver that sets
+32bit for addr64 but the MAC reports 40bit. The TX queue gets stuck in
+case of TCP with iptables NAT configuration on TSO packets.
+
+The logic should be like this: Whatever we do on the host side (memory
+allocation GFP flags) should happen with the host DMA width, whenever
+we decide how to set addresses on the device registers we must use the
+device DMA address width.
+
+This patch renames the platform address width field from addr64 (term
+used in device datasheet) to host_addr and uses this value exclusively
+for host side operations while all chip operations consider the device
+DMA width as read from the device register.
+
+Fixes: 7cfc4486e7ea ("stmmac: intel: Configure EHL PSE0 GbE and PSE1 GbE to 32 bits DMA addressing")
+Signed-off-by: Jochen Henneberg <jh@henneberg-systemdesign.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/common.h  |  1 +
+ .../net/ethernet/stmicro/stmmac/dwmac-imx.c   |  2 +-
+ .../net/ethernet/stmicro/stmmac/dwmac-intel.c |  4 +--
+ .../ethernet/stmicro/stmmac/dwmac-mediatek.c  |  2 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 30 ++++++++++---------
+ include/linux/stmmac.h                        |  2 +-
+ 6 files changed, 22 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-index a994e71e05c11..db578a7e7008a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-@@ -364,8 +364,7 @@ int mlx5_esw_acl_ingress_vport_bond_update(struct mlx5_eswitch *esw, u16 vport_n
- 
- 	if (WARN_ON_ONCE(IS_ERR(vport))) {
- 		esw_warn(esw->dev, "vport(%d) invalid!\n", vport_num);
--		err = PTR_ERR(vport);
--		goto out;
-+		return PTR_ERR(vport);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/common.h b/drivers/net/ethernet/stmicro/stmmac/common.h
+index 6b5d96bced475..ec9c130276d89 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/common.h
++++ b/drivers/net/ethernet/stmicro/stmmac/common.h
+@@ -418,6 +418,7 @@ struct dma_features {
+ 	unsigned int frpbs;
+ 	unsigned int frpes;
+ 	unsigned int addr64;
++	unsigned int host_dma_width;
+ 	unsigned int rssen;
+ 	unsigned int vlhash;
+ 	unsigned int sphen;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c
+index bd52fb7cf4860..0d6a84199fd8a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c
+@@ -251,7 +251,7 @@ static int imx_dwmac_probe(struct platform_device *pdev)
+ 		goto err_parse_dt;
  	}
  
- 	esw_acl_ingress_ofld_rules_destroy(esw, vport);
+-	plat_dat->addr64 = dwmac->ops->addr_width;
++	plat_dat->host_dma_width = dwmac->ops->addr_width;
+ 	plat_dat->init = imx_dwmac_init;
+ 	plat_dat->exit = imx_dwmac_exit;
+ 	plat_dat->clks_config = imx_dwmac_clks_config;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+index 7deb1f817dacc..13aa919633b47 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -684,7 +684,7 @@ static int ehl_pse0_common_data(struct pci_dev *pdev,
+ 
+ 	intel_priv->is_pse = true;
+ 	plat->bus_id = 2;
+-	plat->addr64 = 32;
++	plat->host_dma_width = 32;
+ 
+ 	plat->clk_ptp_rate = 200000000;
+ 
+@@ -725,7 +725,7 @@ static int ehl_pse1_common_data(struct pci_dev *pdev,
+ 
+ 	intel_priv->is_pse = true;
+ 	plat->bus_id = 3;
+-	plat->addr64 = 32;
++	plat->host_dma_width = 32;
+ 
+ 	plat->clk_ptp_rate = 200000000;
+ 
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
+index 2f7d8e4561d92..9ae31e3dc8218 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
+@@ -591,7 +591,7 @@ static int mediatek_dwmac_common_data(struct platform_device *pdev,
+ 	plat->use_phy_wol = priv_plat->mac_wol ? 0 : 1;
+ 	plat->riwt_off = 1;
+ 	plat->maxmtu = ETH_DATA_LEN;
+-	plat->addr64 = priv_plat->variant->dma_bit_mask;
++	plat->host_dma_width = priv_plat->variant->dma_bit_mask;
+ 	plat->bsp_priv = priv_plat;
+ 	plat->init = mediatek_dwmac_init;
+ 	plat->clks_config = mediatek_dwmac_clks_config;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 3c1d4b27668fe..93321437f0933 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1429,7 +1429,7 @@ static int stmmac_init_rx_buffers(struct stmmac_priv *priv,
+ 	struct stmmac_rx_buffer *buf = &rx_q->buf_pool[i];
+ 	gfp_t gfp = (GFP_ATOMIC | __GFP_NOWARN);
+ 
+-	if (priv->dma_cap.addr64 <= 32)
++	if (priv->dma_cap.host_dma_width <= 32)
+ 		gfp |= GFP_DMA32;
+ 
+ 	if (!buf->page) {
+@@ -4585,7 +4585,7 @@ static inline void stmmac_rx_refill(struct stmmac_priv *priv, u32 queue)
+ 	unsigned int entry = rx_q->dirty_rx;
+ 	gfp_t gfp = (GFP_ATOMIC | __GFP_NOWARN);
+ 
+-	if (priv->dma_cap.addr64 <= 32)
++	if (priv->dma_cap.host_dma_width <= 32)
+ 		gfp |= GFP_DMA32;
+ 
+ 	while (dirty-- > 0) {
+@@ -6201,7 +6201,7 @@ static int stmmac_dma_cap_show(struct seq_file *seq, void *v)
+ 	seq_printf(seq, "\tFlexible RX Parser: %s\n",
+ 		   priv->dma_cap.frpsel ? "Y" : "N");
+ 	seq_printf(seq, "\tEnhanced Addressing: %d\n",
+-		   priv->dma_cap.addr64);
++		   priv->dma_cap.host_dma_width);
+ 	seq_printf(seq, "\tReceive Side Scaling: %s\n",
+ 		   priv->dma_cap.rssen ? "Y" : "N");
+ 	seq_printf(seq, "\tVLAN Hash Filtering: %s\n",
+@@ -7171,20 +7171,22 @@ int stmmac_dvr_probe(struct device *device,
+ 		dev_info(priv->device, "SPH feature enabled\n");
+ 	}
+ 
+-	/* The current IP register MAC_HW_Feature1[ADDR64] only define
+-	 * 32/40/64 bit width, but some SOC support others like i.MX8MP
+-	 * support 34 bits but it map to 40 bits width in MAC_HW_Feature1[ADDR64].
+-	 * So overwrite dma_cap.addr64 according to HW real design.
++	/* Ideally our host DMA address width is the same as for the
++	 * device. However, it may differ and then we have to use our
++	 * host DMA width for allocation and the device DMA width for
++	 * register handling.
+ 	 */
+-	if (priv->plat->addr64)
+-		priv->dma_cap.addr64 = priv->plat->addr64;
++	if (priv->plat->host_dma_width)
++		priv->dma_cap.host_dma_width = priv->plat->host_dma_width;
++	else
++		priv->dma_cap.host_dma_width = priv->dma_cap.addr64;
+ 
+-	if (priv->dma_cap.addr64) {
++	if (priv->dma_cap.host_dma_width) {
+ 		ret = dma_set_mask_and_coherent(device,
+-				DMA_BIT_MASK(priv->dma_cap.addr64));
++				DMA_BIT_MASK(priv->dma_cap.host_dma_width));
+ 		if (!ret) {
+-			dev_info(priv->device, "Using %d bits DMA width\n",
+-				 priv->dma_cap.addr64);
++			dev_info(priv->device, "Using %d/%d bits DMA host/device width\n",
++				 priv->dma_cap.host_dma_width, priv->dma_cap.addr64);
+ 
+ 			/*
+ 			 * If more than 32 bits can be addressed, make sure to
+@@ -7199,7 +7201,7 @@ int stmmac_dvr_probe(struct device *device,
+ 				goto error_hw_init;
+ 			}
+ 
+-			priv->dma_cap.addr64 = 32;
++			priv->dma_cap.host_dma_width = 32;
+ 		}
+ 	}
+ 
+diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
+index 313edd19bf545..d82ff9fa1a6e8 100644
+--- a/include/linux/stmmac.h
++++ b/include/linux/stmmac.h
+@@ -215,7 +215,7 @@ struct plat_stmmacenet_data {
+ 	int unicast_filter_entries;
+ 	int tx_fifo_size;
+ 	int rx_fifo_size;
+-	u32 addr64;
++	u32 host_dma_width;
+ 	u32 rx_queues_to_use;
+ 	u32 tx_queues_to_use;
+ 	u8 rx_sched_algorithm;
 -- 
 2.39.2
 
