@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 844106CC2CD
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135556CC404
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233373AbjC1OtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S233694AbjC1O7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:59:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233380AbjC1Os3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:29 -0400
+        with ESMTP id S233693AbjC1O7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8A7D527
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6061E395
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C30F61804
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D162C433D2;
-        Tue, 28 Mar 2023 14:48:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CFF46182A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC99C433EF;
+        Tue, 28 Mar 2023 14:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014881;
-        bh=dDUk6bMwc3bUKOEEs3+JmCEZTNU36urNuA3djw5fv8o=;
+        s=korg; t=1680015538;
+        bh=BVtxsmtcpvbvJZQxTRNlHwtbhkWm99TROxK6CHRu3Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DzSM1zbuayxCYbMz0digMQTGeImy4hnRafGlfCpONTDgN1wGXGBcECiIhJ6FbE9/i
-         wsdmMHb5cPoxr81KvyRR9/SjH5px4pdXxnyNAb7pClQrPqoKDc5VVRVTPZyBZjlO8k
-         5yh/yKlHcelSK+Xg1K17QROzheI0D5EgrjaWrRGE=
+        b=1xnVflY4FZik8P4kISFm1NlIEzpSWOTa3sTOSwy3bqfWtWPUIMvfQQqP2vJifaa8I
+         UJFRqBozUXn23IZTFEzEBMYr/gaw4LM+zScIqhbzlJzjcTY9ZMPyL1GKlfb+xh3DGs
+         Yo6mTAaLlvqAd8+svtwFU3zSgN5FfgCcKCZfAjIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 086/240] ksmbd: add low bound validation to FSCTL_SET_ZERO_DATA
-Date:   Tue, 28 Mar 2023 16:40:49 +0200
-Message-Id: <20230328142623.356299473@linuxfoundation.org>
+Subject: [PATCH 6.1 054/224] net: usb: lan78xx: Limit packet length to skb->len
+Date:   Tue, 28 Mar 2023 16:40:50 +0200
+Message-Id: <20230328142619.624950807@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit 2d74ec97131b1179a373b6d521f195c84e894eb6 ]
+[ Upstream commit 7f247f5a2c18b3f21206cdd51193df4f38e1b9f5 ]
 
-Smatch static checker warning:
- fs/ksmbd/smb2pdu.c:7759 smb2_ioctl()
- warn: no lower bound on 'off'
+Packet length retrieved from descriptor may be larger than
+the actual socket buffer length. In such case the cloned
+skb passed up the network stack will leak kernel memory contents.
 
-Fix unexpected result that could caused from negative off and bfz.
+Additionally prevent integer underflow when size is less than
+ETH_FCS_LEN.
 
-Fixes: b5e5f9dfc915 ("ksmbd: check invalid FileOffset and BeyondFinalZero in FSCTL_ZERO_DATA")
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/lan78xx.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 875eecc6b95e7..abe7ea1c8a2f5 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -7770,7 +7770,7 @@ int smb2_ioctl(struct ksmbd_work *work)
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 068488890d57b..c458c030fadf6 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3579,13 +3579,29 @@ static int lan78xx_rx(struct lan78xx_net *dev, struct sk_buff *skb,
+ 		size = (rx_cmd_a & RX_CMD_A_LEN_MASK_);
+ 		align_count = (4 - ((size + RXW_PADDING) % 4)) % 4;
  
- 		off = le64_to_cpu(zero_data->FileOffset);
- 		bfz = le64_to_cpu(zero_data->BeyondFinalZero);
--		if (off > bfz) {
-+		if (off < 0 || bfz < 0 || off > bfz) {
- 			ret = -EINVAL;
- 			goto out;
- 		}
++		if (unlikely(size > skb->len)) {
++			netif_dbg(dev, rx_err, dev->net,
++				  "size err rx_cmd_a=0x%08x\n",
++				  rx_cmd_a);
++			return 0;
++		}
++
+ 		if (unlikely(rx_cmd_a & RX_CMD_A_RED_)) {
+ 			netif_dbg(dev, rx_err, dev->net,
+ 				  "Error rx_cmd_a=0x%08x", rx_cmd_a);
+ 		} else {
+-			u32 frame_len = size - ETH_FCS_LEN;
++			u32 frame_len;
+ 			struct sk_buff *skb2;
+ 
++			if (unlikely(size < ETH_FCS_LEN)) {
++				netif_dbg(dev, rx_err, dev->net,
++					  "size err rx_cmd_a=0x%08x\n",
++					  rx_cmd_a);
++				return 0;
++			}
++
++			frame_len = size - ETH_FCS_LEN;
++
+ 			skb2 = napi_alloc_skb(&dev->napi, frame_len);
+ 			if (!skb2)
+ 				return 0;
 -- 
 2.39.2
 
