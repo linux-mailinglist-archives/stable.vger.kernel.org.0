@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB0876CC373
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F19FC6CC51A
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbjC1OyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:54:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55824 "EHLO
+        id S230466AbjC1PMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233475AbjC1OyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89DE1D32A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:58 -0700 (PDT)
+        with ESMTP id S230462AbjC1PMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4FDAFF10
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5F89B80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DBF5C433EF;
-        Tue, 28 Mar 2023 14:53:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB80A61867
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00598C433D2;
+        Tue, 28 Mar 2023 15:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015235;
-        bh=9Cqg7EE6fgIcy0MD/+BAdo15L4uXU/3cjC18T5fXqZk=;
+        s=korg; t=1680016172;
+        bh=HVVtXfcA78ZJBe3W8NDeYREteQHGkVhMlf1yApDL8mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGSpDFhHqU0GvoXqGHmnkUjyXUnW3PMXKs2iTOZhIgWyTzTiEenY0pxVJF3gh2UFS
-         eGxna0vUjuiRlICC2gKSuHLQs5jOQQEQqcfx3AP5/m7F0niiW63rQ6zdmuK0ZiXxZU
-         A0kdGJb/6ZFxpwkxzCYXTSGs81+ExE+P/XP319i4=
+        b=HtWrs0l1PqKcRuZteLv65Es9WIk2mgfoHR1iopmAx7P5Qg10ltTspnvu0J+jHeg1q
+         MNxQha4NkazKoEudRsRc8BvHpPNS/vNB7lRmMszORAOpm9yMo7mCHjMkDnG27CwkKJ
+         Z2C+qU4HUdi2j0JSEUptl/COMWhTzrKwYWNBvHjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+132fdd2f1e1805fdc591@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 216/240] nilfs2: fix kernel-infoleak in nilfs_ioctl_wrap_copy()
-Date:   Tue, 28 Mar 2023 16:42:59 +0200
-Message-Id: <20230328142628.700611797@linuxfoundation.org>
+        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 091/146] scsi: target: iscsi: Fix an error message in iscsi_check_key()
+Date:   Tue, 28 Mar 2023 16:43:00 +0200
+Message-Id: <20230328142606.492492161@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,86 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-commit 003587000276f81d0114b5ce773d80c119d8cb30 upstream.
+[ Upstream commit 6cc55c969b7ce8d85e09a636693d4126c3676c11 ]
 
-The ioctl helper function nilfs_ioctl_wrap_copy(), which exchanges a
-metadata array to/from user space, may copy uninitialized buffer regions
-to user space memory for read-only ioctl commands NILFS_IOCTL_GET_SUINFO
-and NILFS_IOCTL_GET_CPINFO.
+The first half of the error message is printed by pr_err(), the second half
+is printed by pr_debug(). The user will therefore see only the first part
+of the message and will miss some useful information.
 
-This can occur when the element size of the user space metadata given by
-the v_size member of the argument nilfs_argv structure is larger than the
-size of the metadata element (nilfs_suinfo structure or nilfs_cpinfo
-structure) on the file system side.
-
-KMSAN-enabled kernels detect this issue as follows:
-
- BUG: KMSAN: kernel-infoleak in instrument_copy_to_user
- include/linux/instrumented.h:121 [inline]
- BUG: KMSAN: kernel-infoleak in _copy_to_user+0xc0/0x100 lib/usercopy.c:33
-  instrument_copy_to_user include/linux/instrumented.h:121 [inline]
-  _copy_to_user+0xc0/0x100 lib/usercopy.c:33
-  copy_to_user include/linux/uaccess.h:169 [inline]
-  nilfs_ioctl_wrap_copy+0x6fa/0xc10 fs/nilfs2/ioctl.c:99
-  nilfs_ioctl_get_info fs/nilfs2/ioctl.c:1173 [inline]
-  nilfs_ioctl+0x2402/0x4450 fs/nilfs2/ioctl.c:1290
-  nilfs_compat_ioctl+0x1b8/0x200 fs/nilfs2/ioctl.c:1343
-  __do_compat_sys_ioctl fs/ioctl.c:968 [inline]
-  __se_compat_sys_ioctl+0x7dd/0x1000 fs/ioctl.c:910
-  __ia32_compat_sys_ioctl+0x93/0xd0 fs/ioctl.c:910
-  do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
-  __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
-  do_fast_syscall_32+0x37/0x80 arch/x86/entry/common.c:203
-  do_SYSENTER_32+0x1f/0x30 arch/x86/entry/common.c:246
-  entry_SYSENTER_compat_after_hwframe+0x70/0x82
-
- Uninit was created at:
-  __alloc_pages+0x9f6/0xe90 mm/page_alloc.c:5572
-  alloc_pages+0xab0/0xd80 mm/mempolicy.c:2287
-  __get_free_pages+0x34/0xc0 mm/page_alloc.c:5599
-  nilfs_ioctl_wrap_copy+0x223/0xc10 fs/nilfs2/ioctl.c:74
-  nilfs_ioctl_get_info fs/nilfs2/ioctl.c:1173 [inline]
-  nilfs_ioctl+0x2402/0x4450 fs/nilfs2/ioctl.c:1290
-  nilfs_compat_ioctl+0x1b8/0x200 fs/nilfs2/ioctl.c:1343
-  __do_compat_sys_ioctl fs/ioctl.c:968 [inline]
-  __se_compat_sys_ioctl+0x7dd/0x1000 fs/ioctl.c:910
-  __ia32_compat_sys_ioctl+0x93/0xd0 fs/ioctl.c:910
-  do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
-  __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
-  do_fast_syscall_32+0x37/0x80 arch/x86/entry/common.c:203
-  do_SYSENTER_32+0x1f/0x30 arch/x86/entry/common.c:246
-  entry_SYSENTER_compat_after_hwframe+0x70/0x82
-
- Bytes 16-127 of 3968 are uninitialized
- ...
-
-This eliminates the leak issue by initializing the page allocated as
-buffer using get_zeroed_page().
-
-Link: https://lkml.kernel.org/r/20230307085548.6290-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+132fdd2f1e1805fdc591@syzkaller.appspotmail.com
-  Link: https://lkml.kernel.org/r/000000000000a5bd2d05f63f04ae@google.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230214141556.762047-1-mlombard@redhat.com
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/iscsi/iscsi_target_parameters.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/nilfs2/ioctl.c
-+++ b/fs/nilfs2/ioctl.c
-@@ -71,7 +71,7 @@ static int nilfs_ioctl_wrap_copy(struct
- 	if (argv->v_index > ~(__u64)0 - argv->v_nmembs)
- 		return -EINVAL;
+diff --git a/drivers/target/iscsi/iscsi_target_parameters.c b/drivers/target/iscsi/iscsi_target_parameters.c
+index 6bc3aaf655fc4..62004e3fe1ccc 100644
+--- a/drivers/target/iscsi/iscsi_target_parameters.c
++++ b/drivers/target/iscsi/iscsi_target_parameters.c
+@@ -1262,18 +1262,20 @@ static struct iscsi_param *iscsi_check_key(
+ 		return param;
  
--	buf = (void *)__get_free_pages(GFP_NOFS, 0);
-+	buf = (void *)get_zeroed_page(GFP_NOFS);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
- 	maxmembs = PAGE_SIZE / argv->v_size;
+ 	if (!(param->phase & phase)) {
+-		pr_err("Key \"%s\" may not be negotiated during ",
+-				param->name);
++		char *phase_name;
++
+ 		switch (phase) {
+ 		case PHASE_SECURITY:
+-			pr_debug("Security phase.\n");
++			phase_name = "Security";
+ 			break;
+ 		case PHASE_OPERATIONAL:
+-			pr_debug("Operational phase.\n");
++			phase_name = "Operational";
+ 			break;
+ 		default:
+-			pr_debug("Unknown phase.\n");
++			phase_name = "Unknown";
+ 		}
++		pr_err("Key \"%s\" may not be negotiated during %s phase.\n",
++				param->name, phase_name);
+ 		return NULL;
+ 	}
+ 
+-- 
+2.39.2
+
 
 
