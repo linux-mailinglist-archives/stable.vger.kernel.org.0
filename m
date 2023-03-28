@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A466CC52C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B956CC393
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232933AbjC1PMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
+        id S233521AbjC1OzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232571AbjC1PMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1B310254
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:08 -0700 (PDT)
+        with ESMTP id S233462AbjC1OzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B13D510
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9782B81D7C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4403EC433D2;
-        Tue, 28 Mar 2023 15:10:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 123FD61840
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FFAAC433D2;
+        Tue, 28 Mar 2023 14:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016227;
-        bh=zg2c/FSVUFn/CPXCpcH5g870gS5lESsetMtSoso/0ss=;
+        s=korg; t=1680015317;
+        bh=k1N7dHmalUzQgKvoTbPJ0heyvLSaRgpyQcstFsWvkUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTxYH+0GBxqcdu2Ah3hvFpOhspwqxxquaE2S2ZZTWZJrKcxsvL9QHEX6G68hy34jO
-         GztcWqBDT/Z+mEYe2mRTT0tyoFdwZUVhKjArZHRy04LzskZthYTpXBMqFE3CnFUboz
-         adw4EDtC3YBtPTLRgMmMcM63Si9teAO64WGqx09s=
+        b=cj7s4KjZU2bliGhRN3dKl5IMoK+jbbGi/Q86ztt9CWGhJM5TjS20hp36RZzzjHIFp
+         zs/DVeBobnyWsugi9QlxG7MRiCoFLIf56TLodZuhuMvAK5ixZJGTdUK7Qct9czfxPk
+         m8RfKoszIiT+/mYKnH59LhefCLUMPbnkfhpJS5J4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.15 112/146] arm64: dts: imx8mm-nitrogen-r2: fix WM8960 clock name
+        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
+        Ignat Korchagin <ignat@cloudflare.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.2 238/240] dm crypt: avoid accessing uninitialized tasklet
 Date:   Tue, 28 Mar 2023 16:43:21 +0200
-Message-Id: <20230328142607.341061837@linuxfoundation.org>
+Message-Id: <20230328142629.607611853@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,37 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Mike Snitzer <snitzer@kernel.org>
 
-commit 32f86da7c86b27ebed31c24453a0713f612e43fb upstream.
+commit d9a02e016aaf5a57fb44e9a5e6da8ccd3b9e2e70 upstream.
 
-The WM8960 Linux driver expects the clock to be named "mclk".  Otherwise
-the clock will be ignored and not prepared/enabled by the driver.
+When neither "no_read_workqueue" nor "no_write_workqueue" are enabled,
+tasklet_trylock() in crypt_dec_pending() may still return false due to
+an uninitialized state, and dm-crypt will unnecessarily do io completion
+in io_queue workqueue instead of current context.
 
-Fixes: 40ba2eda0a7b ("arm64: dts: imx8mm-nitrogen-r2: add audio")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fix this by adding an 'in_tasklet' flag to dm_crypt_io struct and
+initialize it to false in crypt_io_init(). Set this flag to true in
+kcryptd_queue_crypt() before calling tasklet_schedule(). If set
+crypt_dec_pending() will punt io completion to a workqueue.
+
+This also nicely avoids the tasklet_trylock/unlock hack when tasklets
+aren't in use.
+
+Fixes: 8e14f610159d ("dm crypt: do not call bio_endio() from the dm-crypt tasklet")
+Cc: stable@vger.kernel.org
+Reported-by: Hou Tao <houtao1@huawei.com>
+Suggested-by: Ignat Korchagin <ignat@cloudflare.com>
+Reviewed-by: Ignat Korchagin <ignat@cloudflare.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-crypt.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts b/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
-index 6357078185ed..0e8f0d7161ad 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
-@@ -247,7 +247,7 @@ wm8960: codec@1a {
- 		compatible = "wlf,wm8960";
- 		reg = <0x1a>;
- 		clocks = <&clk IMX8MM_CLK_SAI1_ROOT>;
--		clock-names = "mclk1";
-+		clock-names = "mclk";
- 		wlf,shared-lrclk;
- 		#sound-dai-cells = <0>;
- 	};
--- 
-2.40.0
-
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -71,7 +71,9 @@ struct dm_crypt_io {
+ 	struct crypt_config *cc;
+ 	struct bio *base_bio;
+ 	u8 *integrity_metadata;
+-	bool integrity_metadata_from_pool;
++	bool integrity_metadata_from_pool:1;
++	bool in_tasklet:1;
++
+ 	struct work_struct work;
+ 	struct tasklet_struct tasklet;
+ 
+@@ -1728,6 +1730,7 @@ static void crypt_io_init(struct dm_cryp
+ 	io->ctx.r.req = NULL;
+ 	io->integrity_metadata = NULL;
+ 	io->integrity_metadata_from_pool = false;
++	io->in_tasklet = false;
+ 	atomic_set(&io->io_pending, 0);
+ }
+ 
+@@ -1773,14 +1776,13 @@ static void crypt_dec_pending(struct dm_
+ 	 * our tasklet. In this case we need to delay bio_endio()
+ 	 * execution to after the tasklet is done and dequeued.
+ 	 */
+-	if (tasklet_trylock(&io->tasklet)) {
+-		tasklet_unlock(&io->tasklet);
+-		bio_endio(base_bio);
++	if (io->in_tasklet) {
++		INIT_WORK(&io->work, kcryptd_io_bio_endio);
++		queue_work(cc->io_queue, &io->work);
+ 		return;
+ 	}
+ 
+-	INIT_WORK(&io->work, kcryptd_io_bio_endio);
+-	queue_work(cc->io_queue, &io->work);
++	bio_endio(base_bio);
+ }
+ 
+ /*
+@@ -2229,6 +2231,7 @@ static void kcryptd_queue_crypt(struct d
+ 		 * it is being executed with irqs disabled.
+ 		 */
+ 		if (in_hardirq() || irqs_disabled()) {
++			io->in_tasklet = true;
+ 			tasklet_init(&io->tasklet, kcryptd_crypt_tasklet, (unsigned long)&io->work);
+ 			tasklet_schedule(&io->tasklet);
+ 			return;
 
 
