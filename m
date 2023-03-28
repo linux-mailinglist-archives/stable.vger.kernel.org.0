@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0DF6CC361
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5B46CC444
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233397AbjC1Oxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54040 "EHLO
+        id S233758AbjC1PCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233509AbjC1OxT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB4746A4E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:18 -0700 (PDT)
+        with ESMTP id S233765AbjC1PCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:02:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806FBEC77
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 768BB61828
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A41C4339B;
-        Tue, 28 Mar 2023 14:53:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AFEDBCE1D3B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B867BC433D2;
+        Tue, 28 Mar 2023 15:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015197;
-        bh=UbuUN3KSzDuMN6TkFM0V/FPldvR4d6VQ/uFQrR0BVew=;
+        s=korg; t=1680015687;
+        bh=5VMwDl1Jsw26GjyXU8bTq4Dwad0lh0CCc32p19PzZOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0HvRe9eQcF63M+JfpTS15SxlFBiErWa6zR6p4Or5nGLNDA6TRsGvQ1UXuPQiKx2r
-         fUEm8mXlJi7hlNBDxqHa7eqCC5C2tP1L6bKoXAIOmuG4y1m7E9Ky5iiknoRWyUyzUt
-         CeNQ8r3sgqKX1B1lpFgMvEqWSzbWVTCCo8hPFpF0=
+        b=uu5cL3ZNEc9O8EWRIt2XOnqyAXdpH1U2FhW+fpv4XtLdgl0Q/GL6KDUMtGbo4GyF8
+         yesi5nSnvWl8Q21p08aRkmeKDizFUpR7cng28MnRB/fT7CIPm88S2/PtmwzOjQf50v
+         WY4VgqW4EQ4/dQgtBhT29gBMeMd4jx+h8r050sZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mingwei Zhang <mizhang@google.com>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 6.2 170/240] x86/fpu/xstate: Prevent false-positive warning in __copy_xstate_uabi_buf()
-Date:   Tue, 28 Mar 2023 16:42:13 +0200
-Message-Id: <20230328142626.742801691@linuxfoundation.org>
+        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 138/224] scsi: mpi3mr: NVMe command size greater than 8K fails
+Date:   Tue, 28 Mar 2023 16:42:14 +0200
+Message-Id: <20230328142623.131678791@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,89 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chang S. Bae <chang.seok.bae@intel.com>
+From: Ranjan Kumar <ranjan.kumar@broadcom.com>
 
-commit b15888840207c2bfe678dd1f68a32db54315e71f upstream.
+[ Upstream commit 4f297e856a7b5da2f2c66a12e739666e23943560 ]
 
-__copy_xstate_to_uabi_buf() copies either from the tasks XSAVE buffer
-or from init_fpstate into the ptrace buffer. Dynamic features, like
-XTILEDATA, have an all zeroes init state and are not saved in
-init_fpstate, which means the corresponding bit is not set in the
-xfeatures bitmap of the init_fpstate header.
+A wrong variable is checked while populating PRP entries in the PRP page
+and this results in failure. No PRP entries in the PRP page were
+successfully created and any NVMe Encapsulated commands with PRP of size
+greater than 8K failed.
 
-But __copy_xstate_to_uabi_buf() retrieves addresses for both the tasks
-xstate and init_fpstate unconditionally via __raw_xsave_addr().
-
-So if the tasks XSAVE buffer has a dynamic feature set, then the
-address retrieval for init_fpstate triggers the warning in
-__raw_xsave_addr() which checks the feature bit in the init_fpstate
-header.
-
-Remove the address retrieval from init_fpstate for extended features.
-They have an all zeroes init state so init_fpstate has zeros for them.
-Then zeroing the user buffer for the init state is the same as copying
-them from init_fpstate.
-
-Fixes: 2308ee57d93d ("x86/fpu/amx: Enable the AMX feature in 64-bit mode")
-Reported-by: Mingwei Zhang <mizhang@google.com>
-Link: https://lore.kernel.org/kvm/20230221163655.920289-2-mizhang@google.com/
-Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Mingwei Zhang <mizhang@google.com>
-Link: https://lore.kernel.org/all/20230227210504.18520-2-chang.seok.bae%40intel.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Link: https://lore.kernel.org/r/20230228140835.4075-6-ranjan.kumar@broadcom.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/xstate.c |   30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ drivers/scsi/mpi3mr/mpi3mr_app.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1118,21 +1118,20 @@ void __copy_xstate_to_uabi_buf(struct me
- 	zerofrom = offsetof(struct xregs_state, extended_state_area);
- 
- 	/*
--	 * The ptrace buffer is in non-compacted XSAVE format.  In
--	 * non-compacted format disabled features still occupy state space,
--	 * but there is no state to copy from in the compacted
--	 * init_fpstate. The gap tracking will zero these states.
-+	 * This 'mask' indicates which states to copy from fpstate.
-+	 * Those extended states that are not present in fpstate are
-+	 * either disabled or initialized:
-+	 *
-+	 * In non-compacted format, disabled features still occupy
-+	 * state space but there is no state to copy from in the
-+	 * compacted init_fpstate. The gap tracking will zero these
-+	 * states.
-+	 *
-+	 * The extended features have an all zeroes init state. Thus,
-+	 * remove them from 'mask' to zero those features in the user
-+	 * buffer instead of retrieving them from init_fpstate.
- 	 */
--	mask = fpstate->user_xfeatures;
--
--	/*
--	 * Dynamic features are not present in init_fpstate. When they are
--	 * in an all zeros init state, remove those from 'mask' to zero
--	 * those features in the user buffer instead of retrieving them
--	 * from init_fpstate.
--	 */
--	if (fpu_state_size_dynamic())
--		mask &= (header.xfeatures | xinit->header.xcomp_bv);
-+	mask = header.xfeatures;
- 
- 	for_each_extended_xfeature(i, mask) {
- 		/*
-@@ -1151,9 +1150,8 @@ void __copy_xstate_to_uabi_buf(struct me
- 			pkru.pkru = pkru_val;
- 			membuf_write(&to, &pkru, sizeof(pkru));
- 		} else {
--			copy_feature(header.xfeatures & BIT_ULL(i), &to,
-+			membuf_write(&to,
- 				     __raw_xsave_addr(xsave, i),
--				     __raw_xsave_addr(xinit, i),
- 				     xstate_sizes[i]);
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_app.c b/drivers/scsi/mpi3mr/mpi3mr_app.c
+index bff6377023979..d10c6afb7f9cd 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_app.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_app.c
+@@ -886,7 +886,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
+ 			 * each time through the loop.
+ 			 */
+ 			*prp_entry = cpu_to_le64(dma_addr);
+-			if (*prp1_entry & sgemod_mask) {
++			if (*prp_entry & sgemod_mask) {
+ 				dprint_bsg_err(mrioc,
+ 				    "%s: PRP address collides with SGE modifier\n",
+ 				    __func__);
+@@ -895,7 +895,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
+ 			*prp_entry &= ~sgemod_mask;
+ 			*prp_entry |= sgemod_val;
+ 			prp_entry++;
+-			prp_entry_dma++;
++			prp_entry_dma += prp_size;
  		}
+ 
  		/*
+-- 
+2.39.2
+
 
 
