@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 720F36CC4EF
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 255F26CC46B
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229728AbjC1PKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:10:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49808 "EHLO
+        id S233809AbjC1PFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:05:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbjC1PKS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73598EB7D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:09:04 -0700 (PDT)
+        with ESMTP id S233813AbjC1PE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA11EC44
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51B09B81D8B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA05BC433EF;
-        Tue, 28 Mar 2023 15:08:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DB4F61856
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3B5C433D2;
+        Tue, 28 Mar 2023 15:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016093;
-        bh=2ugIpgZWfoczCcji9FGaE/sx8krgUjPvMbqUA8GKhl4=;
+        s=korg; t=1680015814;
+        bh=ul87sj7nJ4YuQNJ+xb00VdZGib9AHvTVcsvc7mvh1a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGaIUiKaEDHuRFVOYg5d+pQln2doVat5ikcFIyxmf0JVCu0HEIfPhfeV5s4b1fEih
-         XAad6P6Zpr0nLS0nInNkUj3Z2rAk4ps2usA1iozd/MK2Gr0t/qXFOdoqO+5WEoNuK0
-         EcyXGiXRpMHFixyleVkNUD72YZNtB6+8TzEO8giE=
+        b=S4uoGLMH4F2bl1T9xIUEXMxW2KxV2UP2BK0UqaXvQhFa5Z7XgkE3FWBSzLyFhvs+P
+         /pNcf8v6/9Y4o0tYrIKPfvypiZKcaDp9B0vgEj7c1qk8sQ7Hxzr6kCduRjzkGDhwnu
+         H6jg0WD6NXGaBs7Ph+evlPjxj9nyRhZJ6mcU/0vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/146] net: dsa: mt7530: move lowering TRGMII driving to mt7530_setup()
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 154/224] cifs: dump pending mids for all channels in DebugData
 Date:   Tue, 28 Mar 2023 16:42:30 +0200
-Message-Id: <20230328142605.261778620@linuxfoundation.org>
+Message-Id: <20230328142623.796878362@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-[ Upstream commit fdcc8ccd823740c18e803b886cec461bc0e64201 ]
+commit d12bc6d26f92c51b28e8f4a146ffcc630b688198 upstream.
 
-Move lowering the TRGMII Tx clock driving to mt7530_setup(), after setting
-the core clock, as seen on the U-Boot MediaTek ethernet driver.
+Currently, we only dump the pending mid information only
+on the primary channel in /proc/fs/cifs/DebugData.
+If multichannel is active, we do not print the pending MID
+list on secondary channels.
 
-Move the code which looks like it lowers the TRGMII Rx clock driving to
-after the TRGMII Tx clock driving is lowered. This is run after lowering
-the Tx clock driving on the U-Boot MediaTek ethernet driver as well.
+This change will dump the pending mids for all the channels
+based on server->conn_id.
 
-This way, the switch should consume less power regardless of port 6 being
-used.
-
-Update the comment explaining mt7530_pad_clk_setup().
-
-Tested rgmii and trgmii modes of port 6 and rgmii mode of port 5 on MCM
-MT7530 on MT7621AT Unielec U7621-06 and standalone MT7530 on MT7623NI
-Bananapi BPI-R2.
-
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Link: https://source.denx.de/u-boot/u-boot/-/blob/29a48bf9ccba45a5e560bb564bbe76e42629325f/drivers/net/mtk_eth.c#L682
-Tested-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20230320190520.124513-2-arinc.unal@arinc9.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mt7530.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ fs/cifs/cifs_debug.c |   41 +++++++++++++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 1ad6c8b44183c..314770515018c 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -414,12 +414,12 @@ static void mt7530_pll_setup(struct mt7530_priv *priv)
- 	core_set(priv, CORE_TRGMII_GSW_CLK_CG, REG_GSWCK_EN);
- }
- 
--/* Setup TX circuit including relevant PAD and driving */
-+/* Setup port 6 interface mode and TRGMII TX circuit */
- static int
- mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
+--- a/fs/cifs/cifs_debug.c
++++ b/fs/cifs/cifs_debug.c
+@@ -215,6 +215,7 @@ static int cifs_debug_data_proc_show(str
  {
- 	struct mt7530_priv *priv = ds->priv;
--	u32 ncpo1, ssc_delta, trgint, i, xtal;
-+	u32 ncpo1, ssc_delta, trgint, xtal;
- 
- 	xtal = mt7530_read(priv, MT7530_MHWTRAP) & HWTRAP_XTAL_MASK;
- 
-@@ -464,11 +464,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 		   P6_INTF_MODE(trgint));
- 
- 	if (trgint) {
--		/* Lower Tx Driving for TRGMII path */
--		for (i = 0 ; i < NUM_TRGMII_CTRL ; i++)
--			mt7530_write(priv, MT7530_TRGMII_TD_ODT(i),
--				     TD_DM_DRVP(8) | TD_DM_DRVN(8));
+ 	struct mid_q_entry *mid_entry;
+ 	struct TCP_Server_Info *server;
++	struct TCP_Server_Info *chan_server;
+ 	struct cifs_ses *ses;
+ 	struct cifs_tcon *tcon;
+ 	struct cifs_server_iface *iface;
+@@ -458,23 +459,35 @@ skip_rdma:
+ 					seq_puts(m, "\t\t[CONNECTED]\n");
+ 			}
+ 			spin_unlock(&ses->iface_lock);
++
++			seq_puts(m, "\n\n\tMIDs: ");
++			spin_lock(&ses->chan_lock);
++			for (j = 0; j < ses->chan_count; j++) {
++				chan_server = ses->chans[j].server;
++				if (!chan_server)
++					continue;
++
++				if (list_empty(&chan_server->pending_mid_q))
++					continue;
++
++				seq_printf(m, "\n\tServer ConnectionId: 0x%llx",
++					   chan_server->conn_id);
++				spin_lock(&chan_server->mid_lock);
++				list_for_each_entry(mid_entry, &chan_server->pending_mid_q, qhead) {
++					seq_printf(m, "\n\t\tState: %d com: %d pid: %d cbdata: %p mid %llu",
++						   mid_entry->mid_state,
++						   le16_to_cpu(mid_entry->command),
++						   mid_entry->pid,
++						   mid_entry->callback_data,
++						   mid_entry->mid);
++				}
++				spin_unlock(&chan_server->mid_lock);
++			}
++			spin_unlock(&ses->chan_lock);
++			seq_puts(m, "\n--\n");
+ 		}
+ 		if (i == 0)
+ 			seq_printf(m, "\n\t\t[NONE]");
 -
- 		/* Disable the MT7530 TRGMII clocks */
- 		core_clear(priv, CORE_TRGMII_GSW_CLK_CG, REG_TRGMIICK_EN);
- 
-@@ -489,10 +484,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 
- 		/* Enable the MT7530 TRGMII clocks */
- 		core_set(priv, CORE_TRGMII_GSW_CLK_CG, REG_TRGMIICK_EN);
--	} else {
--		for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
--			mt7530_rmw(priv, MT7530_TRGMII_RD(i),
--				   RD_TAP_MASK, RD_TAP(16));
+-		seq_puts(m, "\n\n\tMIDs: ");
+-		spin_lock(&server->mid_lock);
+-		list_for_each_entry(mid_entry, &server->pending_mid_q, qhead) {
+-			seq_printf(m, "\n\tState: %d com: %d pid:"
+-					" %d cbdata: %p mid %llu\n",
+-					mid_entry->mid_state,
+-					le16_to_cpu(mid_entry->command),
+-					mid_entry->pid,
+-					mid_entry->callback_data,
+-					mid_entry->mid);
+-		}
+-		spin_unlock(&server->mid_lock);
+-		seq_printf(m, "\n--\n");
  	}
- 
- 	return 0;
-@@ -2174,6 +2165,15 @@ mt7530_setup(struct dsa_switch *ds)
- 
- 	mt7530_pll_setup(priv);
- 
-+	/* Lower Tx driving for TRGMII path */
-+	for (i = 0; i < NUM_TRGMII_CTRL; i++)
-+		mt7530_write(priv, MT7530_TRGMII_TD_ODT(i),
-+			     TD_DM_DRVP(8) | TD_DM_DRVN(8));
-+
-+	for (i = 0; i < NUM_TRGMII_CTRL; i++)
-+		mt7530_rmw(priv, MT7530_TRGMII_RD(i),
-+			   RD_TAP_MASK, RD_TAP(16));
-+
- 	/* Enable port 6 */
- 	val = mt7530_read(priv, MT7530_MHWTRAP);
- 	val &= ~MHWTRAP_P6_DIS & ~MHWTRAP_PHY_ACCESS;
--- 
-2.39.2
-
+ 	if (c == 0)
+ 		seq_printf(m, "\n\t[NONE]");
 
 
