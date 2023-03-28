@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93AB26CC3E0
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D876CC2EA
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233638AbjC1O6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
+        id S233430AbjC1Otq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233645AbjC1O6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F61E19F
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:00 -0700 (PDT)
+        with ESMTP id S233357AbjC1Ota (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B02FBDEB
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6FEFB81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1D7C433EF;
-        Tue, 28 Mar 2023 14:57:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA13861826
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 099B4C4339E;
+        Tue, 28 Mar 2023 14:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015477;
-        bh=k6OmYOmLhqmfzJrRhMiLBTNfItdgeSv3qgSrMNFenPs=;
+        s=korg; t=1680014933;
+        bh=QQGD4vS3oXg+Cpry5cuJxE5dN6sg2kiSatWSlv9MhPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuaLHhS3T2ZZzIgOHRV4laOcIMr8leMLPXn7FdMeDvqfFIUI8xVEKmMU2Al9HvBZO
-         i7sfrVvIog6z6r3elIJcjgOK/vMiUOpo4+HF2eHJlrc5CH6XngnqoEZySM6WkHqc8E
-         +rCms5xZR+P7w40UQQi/Q1jVwTT7ePnzX1Od8xkk=
+        b=wIqNnYffVVCdV1lilpqSWWQ7zYCqEzMxiu+JxTkZr7xvYxiOE7uJyAPUu4kNFHpdO
+         2m9w0Zbt0Et3lVUbwgJcMBaWl9tYLM+PjN7mH0AsGDHF9bZAVu0vofWWleiFvxaaBi
+         n3+Wc32Bxq1auVXCfZVXUee2V2qiMLESqZj3mcHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gavin Li <gavinl@nvidia.com>,
-        Gavi Teitz <gavi@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 064/224] net/mlx5e: Set uplink rep as NETNS_LOCAL
-Date:   Tue, 28 Mar 2023 16:41:00 +0200
-Message-Id: <20230328142620.016809494@linuxfoundation.org>
+Subject: [PATCH 6.2 098/240] net: dsa: mt7530: move setting ssc_delta to PHY_INTERFACE_MODE_TRGMII case
+Date:   Tue, 28 Mar 2023 16:41:01 +0200
+Message-Id: <20230328142623.852872836@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <gavinl@nvidia.com>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-[ Upstream commit c83172b0639c8a005c0dd3b36252dc22ddd9f19c ]
+[ Upstream commit 407b508bdd70b6848993843d96ed49ac4108fb52 ]
 
-Previously, NETNS_LOCAL was not set for uplink representors, inconsistent
-with VF representors, and allowed the uplink representor to be moved
-between net namespaces and separated from the VF representors it shares
-the core device with. Such usage would break the isolation model of
-namespaces, as devices in different namespaces would have access to
-shared memory.
+Move setting the ssc_delta variable to under the PHY_INTERFACE_MODE_TRGMII
+case as it's only needed when trgmii is used.
 
-To solve this issue, set NETNS_LOCAL for uplink representors if eswitch is
-in switchdev mode.
-
-Fixes: 7a9fb35e8c3a ("net/mlx5e: Do not reload ethernet ports when changing eswitch mode")
-Signed-off-by: Gavin Li <gavinl@nvidia.com>
-Reviewed-by: Gavi Teitz <gavi@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Link: https://lore.kernel.org/r/20230320190520.124513-3-arinc.unal@arinc9.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/dsa/mt7530.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 609a49c1e09e6..3b5c5064cfafc 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4081,8 +4081,12 @@ static netdev_features_t mlx5e_fix_features(struct net_device *netdev,
- 		}
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index b0d6ca18ec2f3..326f992536a7e 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -441,6 +441,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
+ 		break;
+ 	case PHY_INTERFACE_MODE_TRGMII:
+ 		trgint = 1;
++		if (xtal == HWTRAP_XTAL_25MHZ)
++			ssc_delta = 0x57;
++		else
++			ssc_delta = 0x87;
+ 		if (priv->id == ID_MT7621) {
+ 			/* PLL frequency: 150MHz: 1.2GBit */
+ 			if (xtal == HWTRAP_XTAL_40MHZ)
+@@ -460,11 +464,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
+ 		return -EINVAL;
  	}
  
--	if (mlx5e_is_uplink_rep(priv))
-+	if (mlx5e_is_uplink_rep(priv)) {
- 		features = mlx5e_fix_uplink_rep_features(netdev, features);
-+		features |= NETIF_F_NETNS_LOCAL;
-+	} else {
-+		features &= ~NETIF_F_NETNS_LOCAL;
-+	}
- 
- 	mutex_unlock(&priv->state_lock);
+-	if (xtal == HWTRAP_XTAL_25MHZ)
+-		ssc_delta = 0x57;
+-	else
+-		ssc_delta = 0x87;
+-
+ 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
+ 		   P6_INTF_MODE(trgint));
  
 -- 
 2.39.2
