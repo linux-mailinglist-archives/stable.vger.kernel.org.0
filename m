@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4F36CC468
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE5146CC4D6
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbjC1PEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:04:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44548 "EHLO
+        id S229975AbjC1PJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:09:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbjC1PEs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583CAEB4D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:33 -0700 (PDT)
+        with ESMTP id S230260AbjC1PJZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:09:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A61DC163
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:08:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E3A3B81D63
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8C88C433EF;
-        Tue, 28 Mar 2023 15:02:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CC756181D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE87C433EF;
+        Tue, 28 Mar 2023 15:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015730;
-        bh=o2hSVSgxLu9H00c5eClJaIkDhqs030/SP8ijcu8C2BU=;
+        s=korg; t=1680016071;
+        bh=TMxWy7W4G7H+8Bf/fT9Q3JmFCESugBABHkH4m+efxbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdu1SWWBH/7myCWS7yC40Et6vgP3qbNz4y3GOftcGvjF/67id/+pKNr/cs+JZbcJT
-         yTnM1cmSJWdBjyS4YadFKUYRBoWHWYxvzkIUlNa5pC+3dQYKX0NW4YjgP0DCayswbU
-         SgtrEdAKuurIULquX4YN4v7qQqWvuh8kylai8O3M=
+        b=bQRi4LfsciMY73zsVS4pToLY+bUD8uDEwdDFoJBeQWz5IM0bNxhuz1fHelL3yomRB
+         xZk391zb5R6NT1bUZVjikq4xVyo2Pu5ywd8xgy/I7C/II7c/aXlnru6YzT7Gi000E0
+         GkVjdMlseEq5JIFGcQ5ebTiYWlRLxmRFnt5W1ZfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Glanzmann <thomas@glanzmann.de>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 147/224] drm/amd: Fix initialization mistake for NBIO 7.3.0
+        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Caleb Sander <csander@purestorage.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 054/146] nvme-tcp: fix nvme_tcp_term_pdu to match spec
 Date:   Tue, 28 Mar 2023 16:42:23 +0200
-Message-Id: <20230328142623.483002770@linuxfoundation.org>
+Message-Id: <20230328142604.947462696@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,61 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Caleb Sander <csander@purestorage.com>
 
-[ Upstream commit 1717cc5f2962a4652c76ed3858b499ccae6c277c ]
+[ Upstream commit aa01c67de5926fdb276793180564f172c55fb0d7 ]
 
-The same strapping initialization issue that happened on NBIO 7.5.1
-appears to be happening on NBIO 7.3.0.
-Apply the same fix to 7.3.0 as well.
+The FEI field of C2HTermReq/H2CTermReq is 4 bytes but not 4-byte-aligned
+in the NVMe/TCP specification (it is located at offset 10 in the PDU).
+Split it into two 16-bit integers in struct nvme_tcp_term_pdu
+so no padding is inserted. There should also be 10 reserved bytes after.
+There are currently no users of this type.
 
-Note: This workaround relies upon the integrated GPU being enabled
-in BIOS. If the integrated GPU is disabled in BIOS a different
-workaround will be required.
-
-Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
-Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: fc221d05447aa6db ("nvme-tcp: Add protocol header")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Caleb Sander <csander@purestorage.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ include/linux/nvme-tcp.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-index 4b0d563c6522c..4ef1fa4603c8e 100644
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-@@ -382,11 +382,6 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
- 		if (def != data)
- 			WREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regBIF1_PCIE_MST_CTRL_3), data);
- 		break;
--	case IP_VERSION(7, 5, 1):
--		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
--		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
--		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
--		fallthrough;
- 	default:
- 		def = data = RREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regPCIE_CONFIG_CNTL));
- 		data = REG_SET_FIELD(data, PCIE_CONFIG_CNTL,
-@@ -399,6 +394,15 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
- 		break;
- 	}
+diff --git a/include/linux/nvme-tcp.h b/include/linux/nvme-tcp.h
+index 959e0bd9a913e..73364ae916890 100644
+--- a/include/linux/nvme-tcp.h
++++ b/include/linux/nvme-tcp.h
+@@ -114,8 +114,9 @@ struct nvme_tcp_icresp_pdu {
+ struct nvme_tcp_term_pdu {
+ 	struct nvme_tcp_hdr	hdr;
+ 	__le16			fes;
+-	__le32			fei;
+-	__u8			rsvd[8];
++	__le16			feil;
++	__le16			feiu;
++	__u8			rsvd[10];
+ };
  
-+	switch (adev->ip_versions[NBIO_HWIP][0]) {
-+	case IP_VERSION(7, 3, 0):
-+	case IP_VERSION(7, 5, 1):
-+		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
-+		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
-+		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
-+		break;
-+	}
-+
- 	if (amdgpu_sriov_vf(adev))
- 		adev->rmmio_remap.reg_offset = SOC15_REG_OFFSET(NBIO, 0,
- 			regBIF_BX_PF0_HDP_MEM_COHERENCY_FLUSH_CNTL) << 2;
+ /**
 -- 
 2.39.2
 
