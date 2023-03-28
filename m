@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5B46CC444
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A18906CC362
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233758AbjC1PCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
+        id S233038AbjC1Oxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:53:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233765AbjC1PCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:02:25 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 806FBEC77
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:30 -0700 (PDT)
+        with ESMTP id S233270AbjC1OxW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B637D19C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AFEDBCE1D3B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B867BC433D2;
-        Tue, 28 Mar 2023 15:01:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C00D6181B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF7CC433EF;
+        Tue, 28 Mar 2023 14:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015687;
-        bh=5VMwDl1Jsw26GjyXU8bTq4Dwad0lh0CCc32p19PzZOs=;
+        s=korg; t=1680015200;
+        bh=Rws4IoTyzMXKlSKdC9oln+/HmUZ+0VC8t40sNPeVbIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uu5cL3ZNEc9O8EWRIt2XOnqyAXdpH1U2FhW+fpv4XtLdgl0Q/GL6KDUMtGbo4GyF8
-         yesi5nSnvWl8Q21p08aRkmeKDizFUpR7cng28MnRB/fT7CIPm88S2/PtmwzOjQf50v
-         WY4VgqW4EQ4/dQgtBhT29gBMeMd4jx+h8r050sZE=
+        b=Gb6xxPGGIpCViXqD26Aht1vhR5xcX2282R5GksIPJWnJeNxAxWwbBkUU+WWJgB/AS
+         BEXWU6pgQ2NP78PPlGBGBo84b+rfZyVoVGAyP9EXU0/9l+hwVk7tp6rQGgQXLTUW+X
+         9hU/Qr55ObS8wUCVT7pxVfTSZzBHxRAFmXLMQGsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 138/224] scsi: mpi3mr: NVMe command size greater than 8K fails
+        patches@lists.linux.dev, "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 6.2 171/240] selftests/x86/amx: Add a ptrace test
 Date:   Tue, 28 Mar 2023 16:42:14 +0200
-Message-Id: <20230328142623.131678791@linuxfoundation.org>
+Message-Id: <20230328142626.776861250@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,48 +52,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjan Kumar <ranjan.kumar@broadcom.com>
+From: Chang S. Bae <chang.seok.bae@intel.com>
 
-[ Upstream commit 4f297e856a7b5da2f2c66a12e739666e23943560 ]
+commit 62faca1ca10cc84e99ae7f38aa28df2bc945369b upstream.
 
-A wrong variable is checked while populating PRP entries in the PRP page
-and this results in failure. No PRP entries in the PRP page were
-successfully created and any NVMe Encapsulated commands with PRP of size
-greater than 8K failed.
+Include a test case to validate the XTILEDATA injection to the target.
 
-Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Link: https://lore.kernel.org/r/20230228140835.4075-6-ranjan.kumar@broadcom.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also, it ensures the kernel's ability to copy states between different
+XSAVE formats.
+
+Refactor the memcmp() code to be usable for the state validation.
+
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/20230227210504.18520-3-chang.seok.bae%40intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_app.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/x86/amx.c |  108 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 105 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_app.c b/drivers/scsi/mpi3mr/mpi3mr_app.c
-index bff6377023979..d10c6afb7f9cd 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_app.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_app.c
-@@ -886,7 +886,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
- 			 * each time through the loop.
- 			 */
- 			*prp_entry = cpu_to_le64(dma_addr);
--			if (*prp1_entry & sgemod_mask) {
-+			if (*prp_entry & sgemod_mask) {
- 				dprint_bsg_err(mrioc,
- 				    "%s: PRP address collides with SGE modifier\n",
- 				    __func__);
-@@ -895,7 +895,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
- 			*prp_entry &= ~sgemod_mask;
- 			*prp_entry |= sgemod_val;
- 			prp_entry++;
--			prp_entry_dma++;
-+			prp_entry_dma += prp_size;
- 		}
+--- a/tools/testing/selftests/x86/amx.c
++++ b/tools/testing/selftests/x86/amx.c
+@@ -14,8 +14,10 @@
+ #include <sys/auxv.h>
+ #include <sys/mman.h>
+ #include <sys/shm.h>
++#include <sys/ptrace.h>
+ #include <sys/syscall.h>
+ #include <sys/wait.h>
++#include <sys/uio.h>
  
- 		/*
--- 
-2.39.2
-
+ #include "../kselftest.h" /* For __cpuid_count() */
+ 
+@@ -583,6 +585,13 @@ static void test_dynamic_state(void)
+ 	_exit(0);
+ }
+ 
++static inline int __compare_tiledata_state(struct xsave_buffer *xbuf1, struct xsave_buffer *xbuf2)
++{
++	return memcmp(&xbuf1->bytes[xtiledata.xbuf_offset],
++		      &xbuf2->bytes[xtiledata.xbuf_offset],
++		      xtiledata.size);
++}
++
+ /*
+  * Save current register state and compare it to @xbuf1.'
+  *
+@@ -599,9 +608,7 @@ static inline bool __validate_tiledata_r
+ 		fatal_error("failed to allocate XSAVE buffer\n");
+ 
+ 	xsave(xbuf2, XFEATURE_MASK_XTILEDATA);
+-	ret = memcmp(&xbuf1->bytes[xtiledata.xbuf_offset],
+-		     &xbuf2->bytes[xtiledata.xbuf_offset],
+-		     xtiledata.size);
++	ret = __compare_tiledata_state(xbuf1, xbuf2);
+ 
+ 	free(xbuf2);
+ 
+@@ -826,6 +833,99 @@ static void test_context_switch(void)
+ 	free(finfo);
+ }
+ 
++/* Ptrace test */
++
++/*
++ * Make sure the ptracee has the expanded kernel buffer on the first
++ * use. Then, initialize the state before performing the state
++ * injection from the ptracer.
++ */
++static inline void ptracee_firstuse_tiledata(void)
++{
++	load_rand_tiledata(stashed_xsave);
++	init_xtiledata();
++}
++
++/*
++ * Ptracer injects the randomized tile data state. It also reads
++ * before and after that, which will execute the kernel's state copy
++ * functions. So, the tester is advised to double-check any emitted
++ * kernel messages.
++ */
++static void ptracer_inject_tiledata(pid_t target)
++{
++	struct xsave_buffer *xbuf;
++	struct iovec iov;
++
++	xbuf = alloc_xbuf();
++	if (!xbuf)
++		fatal_error("unable to allocate XSAVE buffer");
++
++	printf("\tRead the init'ed tiledata via ptrace().\n");
++
++	iov.iov_base = xbuf;
++	iov.iov_len = xbuf_size;
++
++	memset(stashed_xsave, 0, xbuf_size);
++
++	if (ptrace(PTRACE_GETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_GETREGSET");
++
++	if (!__compare_tiledata_state(stashed_xsave, xbuf))
++		printf("[OK]\tThe init'ed tiledata was read from ptracee.\n");
++	else
++		printf("[FAIL]\tThe init'ed tiledata was not read from ptracee.\n");
++
++	printf("\tInject tiledata via ptrace().\n");
++
++	load_rand_tiledata(xbuf);
++
++	memcpy(&stashed_xsave->bytes[xtiledata.xbuf_offset],
++	       &xbuf->bytes[xtiledata.xbuf_offset],
++	       xtiledata.size);
++
++	if (ptrace(PTRACE_SETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_SETREGSET");
++
++	if (ptrace(PTRACE_GETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_GETREGSET");
++
++	if (!__compare_tiledata_state(stashed_xsave, xbuf))
++		printf("[OK]\tTiledata was correctly written to ptracee.\n");
++	else
++		printf("[FAIL]\tTiledata was not correctly written to ptracee.\n");
++}
++
++static void test_ptrace(void)
++{
++	pid_t child;
++	int status;
++
++	child = fork();
++	if (child < 0) {
++		err(1, "fork");
++	} else if (!child) {
++		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL))
++			err(1, "PTRACE_TRACEME");
++
++		ptracee_firstuse_tiledata();
++
++		raise(SIGTRAP);
++		_exit(0);
++	}
++
++	do {
++		wait(&status);
++	} while (WSTOPSIG(status) != SIGTRAP);
++
++	ptracer_inject_tiledata(child);
++
++	ptrace(PTRACE_DETACH, child, NULL, NULL);
++	wait(&status);
++	if (!WIFEXITED(status) || WEXITSTATUS(status))
++		err(1, "ptrace test");
++}
++
+ int main(void)
+ {
+ 	/* Check hardware availability at first */
+@@ -846,6 +946,8 @@ int main(void)
+ 	ctxtswtest_config.num_threads = 5;
+ 	test_context_switch();
+ 
++	test_ptrace();
++
+ 	clearhandler(SIGILL);
+ 	free_stashed_xsave();
+ 
 
 
