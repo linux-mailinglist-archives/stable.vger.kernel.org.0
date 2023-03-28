@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D71D6CC30A
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7173A6CC3EB
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbjC1Ouz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:50:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
+        id S233671AbjC1O6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233367AbjC1Oul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:41 -0400
+        with ESMTP id S233674AbjC1O6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3C2E381
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE27E399
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64823B80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9221C4339B;
-        Tue, 28 Mar 2023 14:50:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DD41B81D74
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DBB5C433EF;
+        Tue, 28 Mar 2023 14:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015005;
-        bh=54cBY40PFgIQNENk+a5ZkIQjbcAinJrxFV+hck1/Wb8=;
+        s=korg; t=1680015492;
+        bh=/B6HketS8DGhnTb2vBre6YOka+PcIzs+7NMTQhSiJ2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgwaFFnA6JHIMAnPRFsMQL8n4LF6DHg1oHjBhsMNNUMSisMSvjb5RL6c05TjNvwf+
-         bsD7e0LeU2xL/wvA08XbQTtZ20O6yBcbvSdABNsW3/yJfjEZsS54u5aKYvT5+3W7Qh
-         yC4d1h8PyHuuZcr/e7Gvkqs600n83JPTUTCqmmEg=
+        b=ajehP/JGxLHLqxp8LZxKrJ3ENg5nSnB5VyuTZqSNAq78jneSCNq6qtV4Q+sZlReuW
+         rdyPgJCpZUv2p9pTlh7Jn1fS+bcFrDYZot9Tw4qff64wi9EiFrzexd74LWM6s0o61y
+         Oy4fqrXX6g4ocvTBdI6oiP4AmC4uibcRkGy5bOkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 101/240] drm/amd/display: Set dcn32 caps.seamless_odm
+Subject: [PATCH 6.1 068/224] net/mlx5: Read the TC mapping of all priorities on ETS query
 Date:   Tue, 28 Mar 2023 16:41:04 +0200
-Message-Id: <20230328142623.974274834@linuxfoundation.org>
+Message-Id: <20230328142620.184133762@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hersen Wu <hersenxs.wu@amd.com>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit f9537b1fa7fb51c2162bc15ce469cbbf1ca0fbfe ]
+[ Upstream commit 44d553188c38ac74b799dfdcebafef2f7bb70942 ]
 
-[Why & How]
-seamless_odm set was not picked up while
-merging commit 2d017189e2b3 ("drm/amd/display:
-Blank eDP on enable drv if odm enabled")
+When ETS configurations are queried by the user to get the mapping
+assignment between packet priority and traffic class, only priorities up
+to maximum TCs are queried from QTCT register in FW to retrieve their
+assigned TC, leaving the rest of the priorities mapped to the default
+TC #0 which might be misleading.
 
-Fixes: 2d017189e2b3 ("drm/amd/display: Blank eDP on enable drv if odm enabled")
-Reviewed-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix by querying the TC mapping of all priorities on each ETS query,
+regardless of the maximum number of TCs configured in FW.
+
+Fixes: 820c2c5e773d ("net/mlx5e: Read ETS settings directly from firmware")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-index 252356a8160fa..6187aba1362b8 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-@@ -2186,6 +2186,7 @@ static bool dcn32_resource_construct(
- 	dc->caps.edp_dsc_support = true;
- 	dc->caps.extended_aux_timeout_support = true;
- 	dc->caps.dmcub_support = true;
-+	dc->caps.seamless_odm = true;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+index 2449731b7d79a..89de92d064836 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+@@ -117,12 +117,14 @@ static int mlx5e_dcbnl_ieee_getets(struct net_device *netdev,
+ 	if (!MLX5_CAP_GEN(priv->mdev, ets))
+ 		return -EOPNOTSUPP;
  
- 	/* Color pipeline capabilities */
- 	dc->caps.color.dpp.dcn_arch = 1;
+-	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
+-	for (i = 0; i < ets->ets_cap; i++) {
++	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+ 		err = mlx5_query_port_prio_tc(mdev, i, &ets->prio_tc[i]);
+ 		if (err)
+ 			return err;
++	}
+ 
++	ets->ets_cap = mlx5_max_tc(priv->mdev) + 1;
++	for (i = 0; i < ets->ets_cap; i++) {
+ 		err = mlx5_query_port_tc_group(mdev, i, &tc_group[i]);
+ 		if (err)
+ 			return err;
 -- 
 2.39.2
 
