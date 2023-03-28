@@ -2,103 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB33F6CC751
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 18:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9976CC804
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 18:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232530AbjC1QAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 12:00:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
+        id S233480AbjC1QbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 12:31:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233055AbjC1QAv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 12:00:51 -0400
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F038109;
-        Tue, 28 Mar 2023 09:00:50 -0700 (PDT)
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32SE44rd000485;
-        Tue, 28 Mar 2023 18:00:42 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=selector1;
- bh=1KoJfQkxDvqB7Qmm6LrkF/J0EXp00kAedWPRi4RBeYs=;
- b=w/z7cIDSRra8hWLk6emdR9DxXpv4T8R19YPaDhQmzRV1Yaiu4m/qmvM1E+JeIK3zM0Iz
- 3G0BaIBTfRthsN+cLqDDh1DQFBGSvEzj9ENLnEzdo59KuaTzGvP7fgZTiaOhMboTbKb7
- hyGIeCMmlybhas3vkRgF6K+AeasGeMBjfDUdYnaY3UWKO1m4Sbs6EulzhhPJhIULprMU
- MVM58nDF7sNgWj2VcMpO40O8WHidu1QZ0pkEiA3FYseGmr0Tk1yKMGn8EAIltuVeshU2
- fXmR/UmVtIWMGXFUJVxDuRD7VPt3rlVmANvl3tuqDv2cFNchXua3Pc3dtcdfu3gomxoL Bw== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3pkvs4u1xt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Mar 2023 18:00:42 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 6B25510002A;
-        Tue, 28 Mar 2023 18:00:41 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node3.st.com [10.75.129.71])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 6424221A210;
-        Tue, 28 Mar 2023 18:00:41 +0200 (CEST)
-Received: from localhost (10.48.0.175) by SHFDAG1NODE3.st.com (10.75.129.71)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.17; Tue, 28 Mar
- 2023 18:00:41 +0200
-From:   Christophe Kerello <christophe.kerello@foss.st.com>
-To:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>
-CC:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        <stable@vger.kernel.org>, Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH v3 2/2] mtd: rawnand: stm32_fmc2: use timings.mode instead of checking tRC_min
-Date:   Tue, 28 Mar 2023 17:58:19 +0200
-Message-ID: <20230328155819.225521-3-christophe.kerello@foss.st.com>
+        with ESMTP id S233281AbjC1Qag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 12:30:36 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659AACDE7;
+        Tue, 28 Mar 2023 09:30:35 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id z19so12244694plo.2;
+        Tue, 28 Mar 2023 09:30:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680021035;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6cp3hZpmMkj3LJBeC/SGV9aCh/7ARFpl+ERfyritQVU=;
+        b=NI8a+SZgZ2/8RILumxLjqGrYUxI7+Misxwqzcbo3JtDUMYM4N0UMIM8gJwbsIhc6WB
+         reHEU3+jREon5ZIlLEolgafDb2UExAbxbiAmxhDvnobMI0J882SBjoOxqxVNQNFHh1S2
+         0taTKxthhehl8TOvsUs8/EPWznDMJWUAbkiePnXrwbUSnl0RZg5jlSah/OWvVphaOkfJ
+         5dVHm5cAv84Bqji+Lgr2RtxfXOfBjlmvo1fiXpASeDm1bA5vQ0ghEaqSTbpSDVKSbqKz
+         jzpNg3uRrJnOk88X7gUFYN1QlXFS8qlnz/SYCH2KJ9PMqq5gQGDM2c1ZVYkNN5ueO8cm
+         MTPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680021035;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6cp3hZpmMkj3LJBeC/SGV9aCh/7ARFpl+ERfyritQVU=;
+        b=mbiCQgRZAqe1k9Z6HoIY9CtjyozPV4OGqnCegH/OBeK7/Kbf1lB6WAdnVjEV8/+CsV
+         En3WriQzzzPhbG0GxsjFnSQ3kAG+F4Z9i/QdqfjcOVTMG7vDEcB6qRKJ2dCTdL57YukI
+         AVYDcB1vondqI1X1SBwNNJEnVqJ159n/v1Sl9rvF3B4VkE1u/1771BPmnwjLYppFG2LI
+         bGKzp/A25w5v5/ElYHtjHLSDn0VahICtCMDhhz4xJAFbeMupbv4mo7yfLHvfbWwBA456
+         NP7wBUIqP8qucm8aZ26Ha9vfd4SqyPHkE85tNGyQno0mjXkOXZD4EFSyOj7NBQ7nc/8s
+         oMKw==
+X-Gm-Message-State: AO0yUKW7MZ3Lc+rSyUJd9zb183+SSnO4zimIfratcRzmh4B/5ODok+1N
+        UYwGuERvboo5mRhrYs/5dw0=
+X-Google-Smtp-Source: AK7set9pDNfylTlDix0ysd/Jj09hT3+N6/Wb/qgtWNiN3xtFp6pVScb+Ln5C2/3K+rULqhF81hV/nw==
+X-Received: by 2002:a05:6a20:6695:b0:cc:6699:dd8a with SMTP id o21-20020a056a20669500b000cc6699dd8amr15589058pzh.45.1680021034781;
+        Tue, 28 Mar 2023 09:30:34 -0700 (PDT)
+Received: from localhost.localdomain ([60.177.121.211])
+        by smtp.gmail.com with ESMTPSA id n26-20020aa78a5a000000b006260e5bdd81sm21107337pfa.45.2023.03.28.09.30.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Mar 2023 09:30:34 -0700 (PDT)
+From:   Bang Li <libang.linuxer@gmail.com>
+To:     miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com
+Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Bang Li <libang.linuxer@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2] mtdblock: tolerate corrected bit-flips
+Date:   Wed, 29 Mar 2023 00:30:12 +0800
+Message-Id: <20230328163012.4264-1-libang.linuxer@gmail.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230328155819.225521-1-christophe.kerello@foss.st.com>
-References: <20230328155819.225521-1-christophe.kerello@foss.st.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.48.0.175]
-X-ClientProxiedBy: EQNCAS1NODE4.st.com (10.75.129.82) To SHFDAG1NODE3.st.com
- (10.75.129.71)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-24_11,2023-03-28_02,2023-02-09_01
-X-Spam-Status: No, score=-0.8 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use timings.mode value instead of checking tRC_min timing
-for EDO mode support.
+mtd_read() may return -EUCLEAN in case of corrected bit-flips.This
+particular condition should not be treated like an error.
 
-Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash controller driver")
-Cc: stable@vger.kernel.org #v5.10+
-Reviewed-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Signed-off-by: Bang Li <libang.linuxer@gmail.com>
+Fixes: e47f68587b82 ("mtd: check for max_bitflips in mtd_read_oob()")
+Cc: <stable@vger.kernel.org> # v3.7
 ---
-Changes in v3:
- - Fixes added
- - Cc to stable added
- - Tudor Reviewed-by added
+Changes since v1:
+- Resend this patch with Cc and Fixes tags
+---
+ drivers/mtd/mtdblock.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
- drivers/mtd/nand/raw/stm32_fmc2_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/mtd/nand/raw/stm32_fmc2_nand.c b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-index 3abb63d00a0b..9e74bcd90aaa 100644
---- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-+++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-@@ -1531,7 +1531,7 @@ static int stm32_fmc2_nfc_setup_interface(struct nand_chip *chip, int chipnr,
- 	if (IS_ERR(sdrt))
- 		return PTR_ERR(sdrt);
+diff --git a/drivers/mtd/mtdblock.c b/drivers/mtd/mtdblock.c
+index 1e94e7d10b8b..a0a1194dc1d9 100644
+--- a/drivers/mtd/mtdblock.c
++++ b/drivers/mtd/mtdblock.c
+@@ -153,7 +153,7 @@ static int do_cached_write (struct mtdblk_dev *mtdblk, unsigned long pos,
+ 				mtdblk->cache_state = STATE_EMPTY;
+ 				ret = mtd_read(mtd, sect_start, sect_size,
+ 					       &retlen, mtdblk->cache_data);
+-				if (ret)
++				if (ret && !mtd_is_bitflip(ret))
+ 					return ret;
+ 				if (retlen != sect_size)
+ 					return -EIO;
+@@ -188,8 +188,12 @@ static int do_cached_read (struct mtdblk_dev *mtdblk, unsigned long pos,
+ 	pr_debug("mtdblock: read on \"%s\" at 0x%lx, size 0x%x\n",
+ 			mtd->name, pos, len);
  
--	if (sdrt->tRC_min < 30000)
-+	if (conf->timings.mode > 3)
- 		return -EOPNOTSUPP;
+-	if (!sect_size)
+-		return mtd_read(mtd, pos, len, &retlen, buf);
++	if (!sect_size) {
++		ret = mtd_read(mtd, pos, len, &retlen, buf);
++		if (ret && !mtd_is_bitflip(ret))
++			return ret;
++		return 0;
++	}
  
- 	if (chipnr == NAND_DATA_IFACE_CHECK_ONLY)
+ 	while (len > 0) {
+ 		unsigned long sect_start = (pos/sect_size)*sect_size;
+@@ -209,7 +213,7 @@ static int do_cached_read (struct mtdblk_dev *mtdblk, unsigned long pos,
+ 			memcpy (buf, mtdblk->cache_data + offset, size);
+ 		} else {
+ 			ret = mtd_read(mtd, pos, size, &retlen, buf);
+-			if (ret)
++			if (ret && !mtd_is_bitflip(ret))
+ 				return ret;
+ 			if (retlen != size)
+ 				return -EIO;
 -- 
 2.25.1
 
