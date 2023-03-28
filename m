@@ -2,58 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 071116CC2A4
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DC66CC3AE
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232676AbjC1OrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
+        id S233567AbjC1O4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:56:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233305AbjC1Oq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:59 -0400
+        with ESMTP id S233581AbjC1O4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505AFE05B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4966E07D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9F36B81D6E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4858C433EF;
-        Tue, 28 Mar 2023 14:46:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B6F9B81D74
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E7BC4339E;
+        Tue, 28 Mar 2023 14:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014799;
-        bh=UlRK//Qc6V0DgzUuLVpQtfcfRn/yLSljGaaKQ0xlYE0=;
+        s=korg; t=1680015369;
+        bh=zfPODjKtu3HdiMjTnIcccTGnyDmY7ImOHYYbBZV6DX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEwVnbIiF10LsKFDCKgllsDBSg10d3TftQlK5dfiCMe/hRj11Gpg2dfbyG+5SfgWa
-         6g94ws/TlfV1J4cK22bY1WBjfCzLGmassjeao0t+Tx+rFdQjQwXMCmCZbh4eN5aUVH
-         3Ls7NJJbTGeekfbSIB8oiNfsB/TRDd+as88r1eUw=
+        b=XzexpjaICx8UZKIo/y2dWiue9jLmQC0qHWH+AXWTw8Lby4jyNWXMx/z8gDcaRmzEI
+         RMtF8VCvm2GjSKOuUmfJkNOggHZnXr0LjLlx/KwKhT47ETNPGcxXUQB4yoaj/uc+Wt
+         eNDsE+fuP8sZOOHjbKl3sL3F0Zop/yVMXaHbmJ3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Aravind Iddamsetty <aravind.iddamsetty@intel.com>,
-        Michael Cheng <michael.cheng@intel.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        Bruce Chang <yu.bruce.chang@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        patches@lists.linux.dev, Dave Wysochanski <dwysocha@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 056/240] drm/i915/guc: Fix missing ecodes
-Date:   Tue, 28 Mar 2023 16:40:19 +0200
-Message-Id: <20230328142622.055991962@linuxfoundation.org>
+Subject: [PATCH 6.1 024/224] NFS: Fix /proc/PID/io read_bytes for buffered reads
+Date:   Tue, 28 Mar 2023 16:40:20 +0200
+Message-Id: <20230328142618.294176884@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,86 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Harrison <John.C.Harrison@Intel.com>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit 8df23e4c4f72f4e201c28e6fb0a67e2dbf30628a ]
+[ Upstream commit 9c88ea00fef03031ce6554531e89be82f6a42835 ]
 
-Error captures are tagged with an 'ecode'. This is a pseduo-unique magic
-number that is meant to distinguish similar seeming bugs with
-different underlying signatures. It is a combination of two ring state
-registers. Unfortunately, the register state being used is only valid
-in execlist mode. In GuC mode, the register state exists in a separate
-list of arbitrary register address/value pairs rather than the named
-entry structure. So, search through that list to find the two exciting
-registers and copy them over to the structure's named members.
+Prior to commit 8786fde8421c ("Convert NFS from readpages to
+readahead"), nfs_readpages() used the old mm interface read_cache_pages()
+which called task_io_account_read() for each NFS page read.  After
+this commit, nfs_readpages() is converted to nfs_readahead(), which
+now uses the new mm interface readahead_page().  The new interface
+requires callers to call task_io_account_read() themselves.
+In addition, to nfs_readahead() task_io_account_read() should also
+be called from nfs_read_folio().
 
-v2: if else if instead of if if (Alan)
-
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Reviewed-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Fixes: a6f0f9cf330a ("drm/i915/guc: Plumb GuC-capture into gpu_coredump")
-Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
-Cc: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Aravind Iddamsetty <aravind.iddamsetty@intel.com>
-Cc: Michael Cheng <michael.cheng@intel.com>
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: Bruce Chang <yu.bruce.chang@intel.com>
-Cc: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230311063714.570389-2-John.C.Harrison@Intel.com
-(cherry picked from commit 9724ecdbb9ddd6da3260e4a442574b90fc75188a)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 8786fde8421c ("Convert NFS from readpages to readahead")
+Link: https://lore.kernel.org/linux-nfs/CAPt2mGNEYUk5u8V4abe=5MM5msZqmvzCVrtCP4Qw1n=gCHCnww@mail.gmail.com/
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/i915/gt/uc/intel_guc_capture.c    | 22 +++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ fs/nfs/read.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-index fc3b994626a4f..710999d7189ee 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
-@@ -1571,6 +1571,27 @@ int intel_guc_capture_print_engine_node(struct drm_i915_error_state_buf *ebuf,
+diff --git a/fs/nfs/read.c b/fs/nfs/read.c
+index 8ae2c8d1219d8..cd970ce62786b 100644
+--- a/fs/nfs/read.c
++++ b/fs/nfs/read.c
+@@ -15,6 +15,7 @@
+ #include <linux/stat.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
++#include <linux/task_io_accounting_ops.h>
+ #include <linux/pagemap.h>
+ #include <linux/sunrpc/clnt.h>
+ #include <linux/nfs_fs.h>
+@@ -338,6 +339,7 @@ int nfs_read_folio(struct file *file, struct folio *folio)
  
- #endif //CONFIG_DRM_I915_CAPTURE_ERROR
+ 	trace_nfs_aop_readpage(inode, page);
+ 	nfs_inc_stats(inode, NFSIOS_VFSREADPAGE);
++	task_io_account_read(folio_size(folio));
  
-+static void guc_capture_find_ecode(struct intel_engine_coredump *ee)
-+{
-+	struct gcap_reg_list_info *reginfo;
-+	struct guc_mmio_reg *regs;
-+	i915_reg_t reg_ipehr = RING_IPEHR(0);
-+	i915_reg_t reg_instdone = RING_INSTDONE(0);
-+	int i;
-+
-+	if (!ee->guc_capture_node)
-+		return;
-+
-+	reginfo = ee->guc_capture_node->reginfo + GUC_CAPTURE_LIST_TYPE_ENGINE_INSTANCE;
-+	regs = reginfo->regs;
-+	for (i = 0; i < reginfo->num_regs; i++) {
-+		if (regs[i].offset == reg_ipehr.reg)
-+			ee->ipehr = regs[i].value;
-+		else if (regs[i].offset == reg_instdone.reg)
-+			ee->instdone.instdone = regs[i].value;
-+	}
-+}
-+
- void intel_guc_capture_free_node(struct intel_engine_coredump *ee)
- {
- 	if (!ee || !ee->guc_capture_node)
-@@ -1612,6 +1633,7 @@ void intel_guc_capture_get_matching_node(struct intel_gt *gt,
- 			list_del(&n->link);
- 			ee->guc_capture_node = n;
- 			ee->guc_capture = guc->capture;
-+			guc_capture_find_ecode(ee);
- 			return;
- 		}
- 	}
+ 	/*
+ 	 * Try to flush any pending writes to the file..
+@@ -400,6 +402,7 @@ void nfs_readahead(struct readahead_control *ractl)
+ 
+ 	trace_nfs_aop_readahead(inode, readahead_pos(ractl), nr_pages);
+ 	nfs_inc_stats(inode, NFSIOS_VFSREADPAGES);
++	task_io_account_read(readahead_length(ractl));
+ 
+ 	ret = -ESTALE;
+ 	if (NFS_STALE(inode))
 -- 
 2.39.2
 
