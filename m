@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D876CC2EA
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E656CC3E5
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbjC1Otq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
+        id S233647AbjC1O6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233357AbjC1Ota (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:30 -0400
+        with ESMTP id S233662AbjC1O6H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B02FBDEB
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FEB6E184
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA13861826
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 099B4C4339E;
-        Tue, 28 Mar 2023 14:48:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0831A6182A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FE06C433D2;
+        Tue, 28 Mar 2023 14:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014933;
-        bh=QQGD4vS3oXg+Cpry5cuJxE5dN6sg2kiSatWSlv9MhPA=;
+        s=korg; t=1680015483;
+        bh=OLpg/fofh7xVcZZzTKj8UkknWGqOgGMautab5OLQqoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIqNnYffVVCdV1lilpqSWWQ7zYCqEzMxiu+JxTkZr7xvYxiOE7uJyAPUu4kNFHpdO
-         2m9w0Zbt0Et3lVUbwgJcMBaWl9tYLM+PjN7mH0AsGDHF9bZAVu0vofWWleiFvxaaBi
-         n3+Wc32Bxq1auVXCfZVXUee2V2qiMLESqZj3mcHU=
+        b=tGIwMMFtrNOVPUMU4ZvLjbEeMkdXvf3PSdGoP6ocohguuReUidbLIOavNaW4hzSHo
+         8mAs8q3l5+D7JKmZt4Q+uSQ6BGPzfTrqh4TFj3USg9wxQYldyzA4bUkxDo0zk6RPgW
+         GxAMWsU7XuVTGr0ohkh+89640PKqJ1znUxM7kYh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Gavin Li <gavinl@nvidia.com>,
+        Gavi Teitz <gavi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 098/240] net: dsa: mt7530: move setting ssc_delta to PHY_INTERFACE_MODE_TRGMII case
+Subject: [PATCH 6.1 065/224] net/mlx5e: Block entering switchdev mode with ns inconsistency
 Date:   Tue, 28 Mar 2023 16:41:01 +0200
-Message-Id: <20230328142623.852872836@linuxfoundation.org>
+Message-Id: <20230328142620.055155380@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Gavin Li <gavinl@nvidia.com>
 
-[ Upstream commit 407b508bdd70b6848993843d96ed49ac4108fb52 ]
+[ Upstream commit 662404b24a4c4d839839ed25e3097571f5938b9b ]
 
-Move setting the ssc_delta variable to under the PHY_INTERFACE_MODE_TRGMII
-case as it's only needed when trgmii is used.
+Upon entering switchdev mode, VF/SF representors are spawned in the
+devlink instance's net namespace, whereas the PF net device transforms
+into the uplink representor, remaining in the net namespace the PF net
+device was in. Therefore, if a PF net device's namespace is different from
+its parent devlink net namespace, entering switchdev mode can create an
+illegal situation where all representors sharing the same core device
+are NOT in the same net namespace.
 
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20230320190520.124513-3-arinc.unal@arinc9.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+To avoid this issue, block entering switchdev mode for devices whose child
+netdev net namespace has diverged from the parent devlink's.
+
+Fixes: 7768d1971de6 ("net/mlx5: E-Switch, Add control for encapsulation")
+Signed-off-by: Gavin Li <gavinl@nvidia.com>
+Reviewed-by: Gavi Teitz <gavi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ .../mellanox/mlx5/core/eswitch_offloads.c     | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index b0d6ca18ec2f3..326f992536a7e 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -441,6 +441,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 		break;
- 	case PHY_INTERFACE_MODE_TRGMII:
- 		trgint = 1;
-+		if (xtal == HWTRAP_XTAL_25MHZ)
-+			ssc_delta = 0x57;
-+		else
-+			ssc_delta = 0x87;
- 		if (priv->id == ID_MT7621) {
- 			/* PLL frequency: 150MHz: 1.2GBit */
- 			if (xtal == HWTRAP_XTAL_40MHZ)
-@@ -460,11 +464,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 34790a82a0976..64e5b9f29206e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -3488,6 +3488,18 @@ static int esw_inline_mode_to_devlink(u8 mlx5_mode, u8 *mode)
+ 	return 0;
+ }
+ 
++static bool esw_offloads_devlink_ns_eq_netdev_ns(struct devlink *devlink)
++{
++	struct net *devl_net, *netdev_net;
++	struct mlx5_eswitch *esw;
++
++	esw = mlx5_devlink_eswitch_get(devlink);
++	netdev_net = dev_net(esw->dev->mlx5e_res.uplink_netdev);
++	devl_net = devlink_net(devlink);
++
++	return net_eq(devl_net, netdev_net);
++}
++
+ int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
+ 				  struct netlink_ext_ack *extack)
+ {
+@@ -3502,6 +3514,13 @@ int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
+ 	if (esw_mode_from_devlink(mode, &mlx5_mode))
  		return -EINVAL;
- 	}
  
--	if (xtal == HWTRAP_XTAL_25MHZ)
--		ssc_delta = 0x57;
--	else
--		ssc_delta = 0x87;
--
- 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
- 		   P6_INTF_MODE(trgint));
- 
++	if (mode == DEVLINK_ESWITCH_MODE_SWITCHDEV &&
++	    !esw_offloads_devlink_ns_eq_netdev_ns(devlink)) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Can't change E-Switch mode to switchdev when netdev net namespace has diverged from the devlink's.");
++		return -EPERM;
++	}
++
+ 	mlx5_lag_disable_change(esw->dev);
+ 	err = mlx5_esw_try_lock(esw);
+ 	if (err < 0) {
 -- 
 2.39.2
 
