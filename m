@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDCD6CC4B9
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A8A56CC451
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbjC1PHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
+        id S233782AbjC1PDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:03:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232679AbjC1PHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DADA5ED
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:48 -0700 (PDT)
+        with ESMTP id S233776AbjC1PD3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC31EEC69
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78336617F1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83AABC433D2;
-        Tue, 28 Mar 2023 15:06:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42AD86184B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52305C433D2;
+        Tue, 28 Mar 2023 15:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015990;
-        bh=j6gNgyQLg/2VSkMWDMxOu+xJRC67UehqpNRfVInIRDU=;
+        s=korg; t=1680015716;
+        bh=NP0Ls7B1aIxpGe0fZTWet09qyPVhMgouoYrI9T3wV+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l5sXakm86B+u0FEHqGrAAhSTMggv3BPkg4peZ1CdzGIpdwiPl/wPIyS9hPEWnf0Ve
-         7XVwcAd9UUDN0e28pw/Dco3yLPAQcJcfgzZDKKauFAB45Gqptk3vNHesPtpRRiGP8M
-         oNRdcD6tXUAO3+K1GvOdvl/o5s3DoSZJhBn7wvgc=
+        b=0Oj+aGEDOQrXH/7lzvOTRcHo+k4p/9b8NxYGvBi/dgQBO3bbw9PT3zBtWFIxyx8iJ
+         ll4I6DmOkni7DNffEBPjChvnVi2LwMqbN9iLblLng8LPiAkA1X856GFL9WBFgig89T
+         2qrbLS/m55iZ8y2I2xVoGO9jIYYfgu2dflVVLFic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Anson Tsao <anson.tsao@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 025/146] igc: fix the validation logic for taprios gate list
-Date:   Tue, 28 Mar 2023 16:41:54 +0200
-Message-Id: <20230328142603.787702805@linuxfoundation.org>
+Subject: [PATCH 6.1 119/224] ACPI: x86: Drop quirk for HP Elitebook
+Date:   Tue, 28 Mar 2023 16:41:55 +0200
+Message-Id: <20230328142622.321509585@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,74 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 2b4cc3d3f4d8ec42961e98568a0afeee96a943ab ]
+[ Upstream commit e32d546c483a2a0f607687f5b521c2a2f942ffbe ]
 
-The check introduced in the commit a5fd39464a40 ("igc: Lift TAPRIO schedule
-restriction") can detect a false positive error in some corner case.
-For instance,
-    tc qdisc replace ... taprio num_tc 4
-	...
-	sched-entry S 0x01 100000	# slot#1
-	sched-entry S 0x03 100000	# slot#2
-	sched-entry S 0x04 100000	# slot#3
-	sched-entry S 0x08 200000	# slot#4
-	flags 0x02			# hardware offload
+There was a quirk in `acpi/x86/s2idle.c` for an HP Elitebook G9
+platforms to force AMD GUID codepath instead of Microsoft codepath.
 
-Here the queue#0 (the first queue) is on at the slot#1 and #2,
-and off at the slot#3 and #4. Under the current logic, when the slot#4
-is examined, validate_schedule() returns *false* since the enablement
-count for the queue#0 is two and it is already off at the previous slot
-(i.e. #3). But this definition is truely correct.
+This was due to a bug with WCN6855 WLAN firmware interaction with
+the system.
 
-Let's fix the logic to enforce a strict validation for consecutively-opened
-slots.
+This bug is fixed by WCN6855 firmware:
+WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.23
 
-Fixes: a5fd39464a40 ("igc: Lift TAPRIO schedule restriction")
-Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Remove the quirk as it's no longer necessary with this firmware.
+
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/commit/?id=c7a57ef688f7d99d8338a5d8edddc8836ff0e6de
+Tested-by: Anson Tsao <anson.tsao@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/acpi/x86/s2idle.c | 24 ------------------------
+ 1 file changed, 24 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index bde3fea2c442e..e255b0a004f88 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -5951,18 +5951,18 @@ static bool validate_schedule(struct igc_adapter *adapter,
- 		if (e->command != TC_TAPRIO_CMD_SET_GATES)
- 			return false;
+diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
+index c7afce465a071..e499c60c45791 100644
+--- a/drivers/acpi/x86/s2idle.c
++++ b/drivers/acpi/x86/s2idle.c
+@@ -384,29 +384,6 @@ static const struct acpi_device_id amd_hid_ids[] = {
+ 	{}
+ };
  
--		for (i = 0; i < adapter->num_tx_queues; i++) {
--			if (e->gate_mask & BIT(i))
-+		for (i = 0; i < adapter->num_tx_queues; i++)
-+			if (e->gate_mask & BIT(i)) {
- 				queue_uses[i]++;
+-static int lps0_prefer_amd(const struct dmi_system_id *id)
+-{
+-	pr_debug("Using AMD GUID w/ _REV 2.\n");
+-	rev_id = 2;
+-	return 0;
+-}
+-static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
+-	{
+-		/*
+-		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
+-		 * Contains specialized AML in AMD/_REV 2 path to avoid
+-		 * triggering a bug in Qualcomm WLAN firmware. This may be
+-		 * removed in the future if that firmware is fixed.
+-		 */
+-		.callback = lps0_prefer_amd,
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
+-			DMI_MATCH(DMI_BOARD_NAME, "8990"),
+-		},
+-	},
+-	{}
+-};
+-
+ static int lps0_device_attach(struct acpi_device *adev,
+ 			      const struct acpi_device_id *not_used)
+ {
+@@ -586,7 +563,6 @@ static const struct platform_s2idle_ops acpi_s2idle_ops_lps0 = {
  
--			/* There are limitations: A single queue cannot be
--			 * opened and closed multiple times per cycle unless the
--			 * gate stays open. Check for it.
--			 */
--			if (queue_uses[i] > 1 &&
--			    !(prev->gate_mask & BIT(i)))
--				return false;
--		}
-+				/* There are limitations: A single queue cannot
-+				 * be opened and closed multiple times per cycle
-+				 * unless the gate stays open. Check for it.
-+				 */
-+				if (queue_uses[i] > 1 &&
-+				    !(prev->gate_mask & BIT(i)))
-+					return false;
-+			}
- 	}
- 
- 	return true;
+ void __init acpi_s2idle_setup(void)
+ {
+-	dmi_check_system(s2idle_dmi_table);
+ 	acpi_scan_add_handler(&lps0_handler);
+ 	s2idle_set_ops(&acpi_s2idle_ops_lps0);
+ }
 -- 
 2.39.2
 
