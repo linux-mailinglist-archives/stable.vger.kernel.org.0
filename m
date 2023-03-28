@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6216CC4B7
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 165D96CC449
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbjC1PHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:07:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
+        id S233773AbjC1PCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232679AbjC1PHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DBDBEB56
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:41 -0700 (PDT)
+        with ESMTP id S233772AbjC1PCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:02:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05654EB65
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 020ED6181D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18698C433D2;
-        Tue, 28 Mar 2023 15:06:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16DC461851
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2931BC433EF;
+        Tue, 28 Mar 2023 15:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015985;
-        bh=jS0MwtGNfx69hmuA55ikvt4s4fEqBddWxcG6GmsFhsk=;
+        s=korg; t=1680015700;
+        bh=ioD3xUhnDD/kN66mIEPreBlmwTQml2JuCHXZJ35GMJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k98YjQz7k1xKZV6APE9KmxKBkkYQGDskfb3EOmjF3aqg2RoSJY7VvG1bvjhbXfqSm
-         JJLa8M7QFXw+KO0z02Zfd1f6dr99fu8vjuCxc0K14EsVzd40qc0zh6nbSXUrnh8Gz3
-         DrLKO8T3bUyc79cV8dvpk2qGQtyeDARS4uwIkm2I=
+        b=JbtBxPepWFPE08nfZTYJAf64jT/72V4iJPo9wWYIBny4fgnHJMgLBQ1yPcOWQH0wV
+         sll1SaghMkAC5EtJc0iSoSZ+XTMnKgtnAPAibp4qpkPnO3PVX3xj+HX44jENz3OJk3
+         NyAhefZ/cOjUJJlgdMViTBoTluP+cRo7dEYcvtVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Marek Szlosek <marek.szlosek@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Joseph Hunkeler <jhunkeler@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/146] intel/igbvf: free irq on the error path in igbvf_request_msix()
+Subject: [PATCH 6.1 116/224] ASoC: amd: yp: Add OMEN by HP Gaming Laptop 16z-n000 to quirks
 Date:   Tue, 28 Mar 2023 16:41:52 +0200
-Message-Id: <20230328142603.698532062@linuxfoundation.org>
+Message-Id: <20230328142622.194331575@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,52 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Joseph Hunkeler <jhunkeler@gmail.com>
 
-[ Upstream commit 85eb39bb39cbb5c086df1e19ba67cc1366693a77 ]
+[ Upstream commit 22ce6843abec19270bf69b176d7ee0a4ef781da5 ]
 
-In igbvf_request_msix(), irqs have not been freed on the err path,
-we need to free it. Fix it.
+Enables display microphone on the HP OMEN 16z-n000 (8A42) laptop
 
-Fixes: d4e0fe01a38a ("igbvf: add new driver to support 82576 virtual functions")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Joseph Hunkeler <jhunkeler@gmail.com>
+Link: https://lore.kernel.org/r/20230216155007.26143-1-jhunkeler@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igbvf/netdev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index d051918dfdff9..ebd6d464fa0cf 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -1074,7 +1074,7 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
- 			  igbvf_intr_msix_rx, 0, adapter->rx_ring->name,
- 			  netdev);
- 	if (err)
--		goto out;
-+		goto free_irq_tx;
+diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
+index 36314753923b8..4e681e9c08fe5 100644
+--- a/sound/soc/amd/yc/acp6x-mach.c
++++ b/sound/soc/amd/yc/acp6x-mach.c
+@@ -255,6 +255,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "15NBC1011"),
+ 		}
+ 	},
++	{
++		.driver_data = &acp6x_card,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "OMEN by HP Gaming Laptop 16z-n000"),
++		}
++	},
+ 	{}
+ };
  
- 	adapter->rx_ring->itr_register = E1000_EITR(vector);
- 	adapter->rx_ring->itr_val = adapter->current_itr;
-@@ -1083,10 +1083,14 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
- 	err = request_irq(adapter->msix_entries[vector].vector,
- 			  igbvf_msix_other, 0, netdev->name, netdev);
- 	if (err)
--		goto out;
-+		goto free_irq_rx;
- 
- 	igbvf_configure_msix(adapter);
- 	return 0;
-+free_irq_rx:
-+	free_irq(adapter->msix_entries[--vector].vector, netdev);
-+free_irq_tx:
-+	free_irq(adapter->msix_entries[--vector].vector, netdev);
- out:
- 	return err;
- }
 -- 
 2.39.2
 
