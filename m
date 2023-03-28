@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 514506CC2A3
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306796CC3AB
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233102AbjC1OrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38762 "EHLO
+        id S233585AbjC1O4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232676AbjC1Oq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B4CE05F
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:42 -0700 (PDT)
+        with ESMTP id S233571AbjC1O4R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 009BCE061
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA6016181D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCBFC433D2;
-        Tue, 28 Mar 2023 14:46:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75AB561804
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82B1EC433D2;
+        Tue, 28 Mar 2023 14:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014802;
-        bh=h+rM9Ro5SWa307yziHccNUDK8JRR76SfqOnp9Wtk7vQ=;
+        s=korg; t=1680015371;
+        bh=1T4oCbpL4olymy5HHnM3R8wtulupV3PZ+9Z8tnpU6Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBnROsskiclqiAk9HbhnSxMgmvXJPxS1Yrhg0Hi2XwaQNKUBFTiO+mSQAN5rkN4Rl
-         liTbO8Hz/N3VLstTz69iHsyBADZQpjCdn5Zjjp8Q47/I2uZ54yWsPBCY4xcQDdcuCn
-         enbw4gV5gxiRr3hT8a35/TgWd9Y8huHrZoUgRLd0=
+        b=ffGVuPTXV4Q5O5yp43ztJLIFlSk0FgQlsgpfOohvCaGgnafq/NYhOxU4kgk+Kc1pA
+         Ppg+D5370RO0N21dYK+imPX/i0Ho59g5HNR9LQJhphyvVzYITffKb1ipNkUiT0r9vL
+         4o3hwqw5dVwV8Pvos0GHg2ljEEv2xrrf9qXnH5do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nirmoy Das <nirmoy.das@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        patches@lists.linux.dev, Kal Conley <kal.conley@dectris.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 057/240] drm/i915/gt: perform uc late init after probe error injection
-Date:   Tue, 28 Mar 2023 16:40:20 +0200
-Message-Id: <20230328142622.091001181@linuxfoundation.org>
+Subject: [PATCH 6.1 025/224] xsk: Add missing overflow check in xdp_umem_reg
+Date:   Tue, 28 Mar 2023 16:40:21 +0200
+Message-Id: <20230328142618.337941867@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,47 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrzej Hajda <andrzej.hajda@intel.com>
+From: Kal Conley <kal.conley@dectris.com>
 
-[ Upstream commit 150784f9285e656373cf3953ef4a7663f1e1a0f2 ]
+[ Upstream commit c7df4813b149362248d6ef7be41a311e27bf75fe ]
 
-Probe pseudo errors should be injected only in places where real errors
-can be encountered, otherwise unwinding code can be broken.
-Placing intel_uc_init_late before i915_inject_probe_error violated
-this rule, resulting in following bug:
-__intel_gt_disable:655 GEM_BUG_ON(intel_gt_pm_is_awake(gt))
+The number of chunks can overflow u32. Make sure to return -EINVAL on
+overflow. Also remove a redundant u32 cast assigning umem->npgs.
 
-Fixes: 481d458caede ("drm/i915/guc: Add golden context to GuC ADS")
-Acked-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230314151920.1065847-1-andrzej.hajda@intel.com
-(cherry picked from commit c4252a11131c7f27a158294241466e2a4e7ff94e)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: bbff2f321a86 ("xsk: new descriptor addressing scheme")
+Signed-off-by: Kal Conley <kal.conley@dectris.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Link: https://lore.kernel.org/bpf/20230308174013.1114745-1-kal.conley@dectris.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xdp/xdp_umem.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index 9c18b5f2e7892..7868da20d5ea3 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -745,12 +745,12 @@ int intel_gt_init(struct intel_gt *gt)
- 	if (err)
- 		goto err_gt;
+diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
+index 4681e8e8ad943..02207e852d796 100644
+--- a/net/xdp/xdp_umem.c
++++ b/net/xdp/xdp_umem.c
+@@ -150,10 +150,11 @@ static int xdp_umem_account_pages(struct xdp_umem *umem)
  
--	intel_uc_init_late(&gt->uc);
--
- 	err = i915_inject_probe_error(gt->i915, -EIO);
- 	if (err)
- 		goto err_gt;
+ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ {
+-	u32 npgs_rem, chunk_size = mr->chunk_size, headroom = mr->headroom;
+ 	bool unaligned_chunks = mr->flags & XDP_UMEM_UNALIGNED_CHUNK_FLAG;
+-	u64 npgs, addr = mr->addr, size = mr->len;
+-	unsigned int chunks, chunks_rem;
++	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
++	u64 addr = mr->addr, size = mr->len;
++	u32 chunks_rem, npgs_rem;
++	u64 chunks, npgs;
+ 	int err;
  
-+	intel_uc_init_late(&gt->uc);
-+
- 	intel_migrate_init(&gt->migrate, gt);
+ 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
+@@ -188,8 +189,8 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 	if (npgs > U32_MAX)
+ 		return -EINVAL;
  
- 	intel_pxp_init(&gt->pxp);
+-	chunks = (unsigned int)div_u64_rem(size, chunk_size, &chunks_rem);
+-	if (chunks == 0)
++	chunks = div_u64_rem(size, chunk_size, &chunks_rem);
++	if (!chunks || chunks > U32_MAX)
+ 		return -EINVAL;
+ 
+ 	if (!unaligned_chunks && chunks_rem)
+@@ -202,7 +203,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 	umem->headroom = headroom;
+ 	umem->chunk_size = chunk_size;
+ 	umem->chunks = chunks;
+-	umem->npgs = (u32)npgs;
++	umem->npgs = npgs;
+ 	umem->pgs = NULL;
+ 	umem->user = NULL;
+ 	umem->flags = mr->flags;
 -- 
 2.39.2
 
