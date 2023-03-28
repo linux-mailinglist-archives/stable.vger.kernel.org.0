@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61A4B6CC3C8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:57:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A466CC2AA
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233595AbjC1O52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
+        id S233192AbjC1Orc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233602AbjC1O51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:57:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D9FE070
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:57:26 -0700 (PDT)
+        with ESMTP id S233280AbjC1OrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:47:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0644E180
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B760961840
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE20C433EF;
-        Tue, 28 Mar 2023 14:57:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2817B80976
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36133C433EF;
+        Tue, 28 Mar 2023 14:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015445;
-        bh=9bNd+SvYKWz1q6tOqdWGY8VrVTBIVfnRTM6qYmzIQAY=;
+        s=korg; t=1680014796;
+        bh=8hJs4irOd9ONevjLAggjeL67VWqc7arIchz/fOKIzKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mM6Ta+gXE1k7AvpzRSmceElwflMO8U/qnM3XJll/NOYbyMYsDWmC45FtFh7yQtZaV
-         6ZG4vWB7p3JICaljGobSv64gTfPqc77b17OcK54ZqG8w/Wo1J9J45/4Qn7thEhJt8v
-         LexTj9VYQ6okv0GmAJAsi5kPzxm9WFmG9QSxb4SY=
+        b=y9ld9B7fVa9DELASkiE6dXlj1a1Hlnpze7ujFL8ilxEpL1u8NIEkFlHT1eaqQk6ed
+         4IXBLSAxex3ji3TEhwlKKPIQPG9ZfhCwDc3OYMme/EZ7P07+0/r8elKCEYYU/HPxd4
+         3BoPearLTNC8hKqngP1xoNprnZP6ojvxkQIFhHfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 021/224] ARM: dts: imx6sl: tolino-shine2hd: fix usbotg1 pinctrl
-Date:   Tue, 28 Mar 2023 16:40:17 +0200
-Message-Id: <20230328142618.172140135@linuxfoundation.org>
+Subject: [PATCH 6.2 055/240] drm/i915/guc: Rename GuC register state capture node to be more obvious
+Date:   Tue, 28 Mar 2023 16:40:18 +0200
+Message-Id: <20230328142622.008242977@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,32 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-[ Upstream commit 1cd489e1ada1cffa56bd06fd4609f5a60a985d43 ]
+[ Upstream commit 583ebae783b8241a30581c084ad6226051b594c5 ]
 
-usb@2184000: 'pinctrl-0' is a dependency of 'pinctrl-names'
+The GuC specific register state entry in the error capture object was
+just called 'capture'. Although the companion 'node' entry was called
+'guc_capture_node'. Rename the base entry to be 'guc_capture' instead
+so that it is a) more consistent and b) more obvious what it is.
 
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Fixes: 9c7016f1ca6d ("ARM: dts: imx: add devicetree for Tolino Shine 2 HD")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230127002842.3169194-9-John.C.Harrison@Intel.com
+Stable-dep-of: 8df23e4c4f72 ("drm/i915/guc: Fix missing ecodes")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c | 8 ++++----
+ drivers/gpu/drm/i915/i915_gpu_error.h          | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts b/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts
-index 663ee9df79e67..d6eee157c63b7 100644
---- a/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts
-+++ b/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts
-@@ -597,6 +597,7 @@ &usdhc3 {
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+index 1c1b85073b4bd..fc3b994626a4f 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+@@ -1506,7 +1506,7 @@ int intel_guc_capture_print_engine_node(struct drm_i915_error_state_buf *ebuf,
  
- &usbotg1 {
- 	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_usbotg1>;
- 	disable-over-current;
- 	srp-disable;
- 	hnp-disable;
+ 	if (!ebuf || !ee)
+ 		return -EINVAL;
+-	cap = ee->capture;
++	cap = ee->guc_capture;
+ 	if (!cap || !ee->engine)
+ 		return -ENODEV;
+ 
+@@ -1576,8 +1576,8 @@ void intel_guc_capture_free_node(struct intel_engine_coredump *ee)
+ 	if (!ee || !ee->guc_capture_node)
+ 		return;
+ 
+-	guc_capture_add_node_to_cachelist(ee->capture, ee->guc_capture_node);
+-	ee->capture = NULL;
++	guc_capture_add_node_to_cachelist(ee->guc_capture, ee->guc_capture_node);
++	ee->guc_capture = NULL;
+ 	ee->guc_capture_node = NULL;
+ }
+ 
+@@ -1611,7 +1611,7 @@ void intel_guc_capture_get_matching_node(struct intel_gt *gt,
+ 		    (ce->lrc.lrca & CTX_GTT_ADDRESS_MASK)) {
+ 			list_del(&n->link);
+ 			ee->guc_capture_node = n;
+-			ee->capture = guc->capture;
++			ee->guc_capture = guc->capture;
+ 			return;
+ 		}
+ 	}
+diff --git a/drivers/gpu/drm/i915/i915_gpu_error.h b/drivers/gpu/drm/i915/i915_gpu_error.h
+index efc75cc2ffdb9..56027ffbce51f 100644
+--- a/drivers/gpu/drm/i915/i915_gpu_error.h
++++ b/drivers/gpu/drm/i915/i915_gpu_error.h
+@@ -94,7 +94,7 @@ struct intel_engine_coredump {
+ 	struct intel_instdone instdone;
+ 
+ 	/* GuC matched capture-lists info */
+-	struct intel_guc_state_capture *capture;
++	struct intel_guc_state_capture *guc_capture;
+ 	struct __guc_capture_parsed_output *guc_capture_node;
+ 
+ 	struct i915_gem_context_coredump {
 -- 
 2.39.2
 
