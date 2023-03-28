@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4DA16CC2B0
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C351E6CC39C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbjC1Orl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39248 "EHLO
+        id S233321AbjC1Ozn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232502AbjC1Ork (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:47:40 -0400
+        with ESMTP id S233544AbjC1Ozn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F40DBF1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A98DBE6
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC316B81D70
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BC51C4339B;
-        Tue, 28 Mar 2023 14:47:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBF0EB81D77
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192B0C433EF;
+        Tue, 28 Mar 2023 14:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014823;
-        bh=ig+iACCvl6AVUvaSrovL2u2Qojn6fXNBaB+kjFB9A34=;
+        s=korg; t=1680015339;
+        bh=AhKZeW1kP5KyMlZufFL9M2/BCDQj5XPVmrPtge7ixa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WtVUoDo52FO9lxc0qDmWXs+sVySREihT1oxpdfSOQhWhNkHhl5IfW4FIaHoR7Sifb
-         Np6Vcj6/Py2qkyeoJV8Udue/aSmmmp6mzDLMukSo1ur8wnhCZDk7D4W+DpddcxHy9a
-         8l4ieTxrKLDDsgDZM9HQQsiwa9qZgJjN8AycRydU=
+        b=AxTkDtbEo331B7CcRBgrUNtcn0dADhc4zNSO6p4Hv11NZal6BMBTQOoPDkvVPB5is
+         FI7X9fItDAytT/0z+DRpo4YSyBTMiTsLe2CPJlgtrTMR8Yj06wygJoU081AM9u4wv7
+         C3mj3Cp2d0ZTztktSnGQsMwE9/ZMxSLhoacPB6d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Shawn Guo <shawn.guo@linaro.org>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 035/240] igc: fix the validation logic for taprios gate list
-Date:   Tue, 28 Mar 2023 16:39:58 +0200
-Message-Id: <20230328142621.073359161@linuxfoundation.org>
+Subject: [PATCH 6.1 003/224] interconnect: qcom: qcm2290: Fix MASTER_SNOC_BIMC_NRT
+Date:   Tue, 28 Mar 2023 16:39:59 +0200
+Message-Id: <20230328142617.351911604@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,74 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 2b4cc3d3f4d8ec42961e98568a0afeee96a943ab ]
+[ Upstream commit 633a12fda6536a1a17bcea29502e777e86a4547e ]
 
-The check introduced in the commit a5fd39464a40 ("igc: Lift TAPRIO schedule
-restriction") can detect a false positive error in some corner case.
-For instance,
-    tc qdisc replace ... taprio num_tc 4
-	...
-	sched-entry S 0x01 100000	# slot#1
-	sched-entry S 0x03 100000	# slot#2
-	sched-entry S 0x04 100000	# slot#3
-	sched-entry S 0x08 200000	# slot#4
-	flags 0x02			# hardware offload
+Due to what seems to be a copy-paste error, the _NRT master was
+identical to the _RT master, which should not be the case.. Fix it
+using the values available from the downstream kernel [1].
 
-Here the queue#0 (the first queue) is on at the slot#1 and #2,
-and off at the slot#3 and #4. Under the current logic, when the slot#4
-is examined, validate_schedule() returns *false* since the enablement
-count for the queue#0 is two and it is already off at the previous slot
-(i.e. #3). But this definition is truely correct.
-
-Let's fix the logic to enforce a strict validation for consecutively-opened
-slots.
-
-Fixes: a5fd39464a40 ("igc: Lift TAPRIO schedule restriction")
-Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+[1] https://android.googlesource.com/kernel/msm-extra/devicetree/+/refs/heads/android-msm-bramble-4.19-android11-qpr1/qcom/scuba-bus.dtsi#127
+Fixes: 1a14b1ac3935 ("interconnect: qcom: Add QCM2290 driver support")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Acked-by: Shawn Guo <shawn.guo@linaro.org>
+Link: https://lore.kernel.org/r/20230103142120.15605-1-konrad.dybcio@linaro.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/interconnect/qcom/qcm2290.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 1dd2a7fee8d46..bcd62b36fd7a7 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -6007,18 +6007,18 @@ static bool validate_schedule(struct igc_adapter *adapter,
- 		if (e->command != TC_TAPRIO_CMD_SET_GATES)
- 			return false;
- 
--		for (i = 0; i < adapter->num_tx_queues; i++) {
--			if (e->gate_mask & BIT(i))
-+		for (i = 0; i < adapter->num_tx_queues; i++)
-+			if (e->gate_mask & BIT(i)) {
- 				queue_uses[i]++;
- 
--			/* There are limitations: A single queue cannot be
--			 * opened and closed multiple times per cycle unless the
--			 * gate stays open. Check for it.
--			 */
--			if (queue_uses[i] > 1 &&
--			    !(prev->gate_mask & BIT(i)))
--				return false;
--		}
-+				/* There are limitations: A single queue cannot
-+				 * be opened and closed multiple times per cycle
-+				 * unless the gate stays open. Check for it.
-+				 */
-+				if (queue_uses[i] > 1 &&
-+				    !(prev->gate_mask & BIT(i)))
-+					return false;
-+			}
- 	}
- 
- 	return true;
+diff --git a/drivers/interconnect/qcom/qcm2290.c b/drivers/interconnect/qcom/qcm2290.c
+index 0da612d6398c5..a29cdb4fac03f 100644
+--- a/drivers/interconnect/qcom/qcm2290.c
++++ b/drivers/interconnect/qcom/qcm2290.c
+@@ -147,9 +147,9 @@ static struct qcom_icc_node mas_snoc_bimc_nrt = {
+ 	.name = "mas_snoc_bimc_nrt",
+ 	.buswidth = 16,
+ 	.qos.ap_owned = true,
+-	.qos.qos_port = 2,
++	.qos.qos_port = 3,
+ 	.qos.qos_mode = NOC_QOS_MODE_BYPASS,
+-	.mas_rpm_id = 163,
++	.mas_rpm_id = 164,
+ 	.slv_rpm_id = -1,
+ 	.num_links = ARRAY_SIZE(mas_snoc_bimc_nrt_links),
+ 	.links = mas_snoc_bimc_nrt_links,
 -- 
 2.39.2
 
