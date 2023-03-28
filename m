@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 163176CC4EA
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1656CC477
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229635AbjC1PKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:10:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49346 "EHLO
+        id S233794AbjC1PFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:05:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230002AbjC1PJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:09:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36FCE3B1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:08:44 -0700 (PDT)
+        with ESMTP id S233812AbjC1PFP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D30EB57
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CED786177C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6967C433EF;
-        Tue, 28 Mar 2023 15:08:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76153B81D81
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC5E5C433EF;
+        Tue, 28 Mar 2023 15:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016120;
-        bh=uHpjj/ym8vQaHVhvoo9ksBa1nPLaCu0dDm6r6m4xVOI=;
+        s=korg; t=1680015763;
+        bh=y7TT18OqeEh5SRtmCxn5WnkaCLIuzAnGnu3VDtfrb5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nf/t3p8GMSRw8LveE03SqgqgWHNRXV1wEqPZgIPJkFGdw+L7U+mKZrPdewW/aqxf2
-         GG+5yM0qug1J6Qu14ybWU6qdmUifmAfBw4bxVAUjgi+jAwU9g21h4nimbTXmgcAkoB
-         tG6c11BuhAgueUkQW0J9PCkd3+q6+UjGCdKTN/MM=
+        b=KQR/HpzZr2I8JqibbVXR8q1xUJklHbNiBy3Mf4jXGCpH89x7ebctVNUqf9A4Tbk61
+         v3/Fju4B199bjcZHjB6ST7JuOwnpATpph/PmBReul8s1RCP2gYdlLUlasPvGGVb4Oa
+         cSOlqVcfl2WdrrYkEU+3uTBhA9Ch65Sn3HXtlqT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        Lin Li <lilin@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 073/146] scsi: qla2xxx: Synchronize the IOCB count to be in order
+        patches@lists.linux.dev,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 6.1 166/224] efi: sysfb_efi: Fix DMI quirks not working for simpledrm
 Date:   Tue, 28 Mar 2023 16:42:42 +0200
-Message-Id: <20230328142605.778331530@linuxfoundation.org>
+Message-Id: <20230328142624.297501907@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,94 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit d3affdeb400f3adc925bd996f3839481f5291839 upstream.
+commit 3615c78673c332b69aaacefbcde5937c5c706686 upstream.
 
-A system hang was observed with the following call trace:
+Commit 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup
+for all arches") moved the sysfb_apply_efi_quirks() call in sysfb_init()
+from before the [sysfb_]parse_mode() call to after it.
+But sysfb_apply_efi_quirks() modifies the global screen_info struct which
+[sysfb_]parse_mode() parses, so doing it later is too late.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 0 P4D 0
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 15 PID: 86747 Comm: nvme Kdump: loaded Not tainted 6.2.0+ #1
-Hardware name: Dell Inc. PowerEdge R6515/04F3CJ, BIOS 2.7.3 03/31/2022
-RIP: 0010:__wake_up_common+0x55/0x190
-Code: 41 f6 01 04 0f 85 b2 00 00 00 48 8b 43 08 4c 8d
-      40 e8 48 8d 43 08 48 89 04 24 48 89 c6\
-      49 8d 40 18 48 39 c6 0f 84 e9 00 00 00 <49> 8b 40 18 89 6c 24 14 31
-      ed 4c 8d 60 e8 41 8b 18 f6 c3 04 75 5d
-RSP: 0018:ffffb05a82afbba0 EFLAGS: 00010082
-RAX: 0000000000000000 RBX: ffff8f9b83a00018 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffff8f9b83a00020 RDI: ffff8f9b83a00018
-RBP: 0000000000000001 R08: ffffffffffffffe8 R09: ffffb05a82afbbf8
-R10: 70735f7472617473 R11: 5f30307832616c71 R12: 0000000000000001
-R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
-FS:  00007f815cf4c740(0000) GS:ffff8f9eeed80000(0000)
-	knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000000 CR3: 000000010633a000 CR4: 0000000000350ee0
-Call Trace:
-    <TASK>
-    __wake_up_common_lock+0x83/0xd0
-    qla_nvme_ls_req+0x21b/0x2b0 [qla2xxx]
-    __nvme_fc_send_ls_req+0x1b5/0x350 [nvme_fc]
-    nvme_fc_xmt_disconnect_assoc+0xca/0x110 [nvme_fc]
-    nvme_fc_delete_association+0x1bf/0x220 [nvme_fc]
-    ? nvme_remove_namespaces+0x9f/0x140 [nvme_core]
-    nvme_do_delete_ctrl+0x5b/0xa0 [nvme_core]
-    nvme_sysfs_delete+0x5f/0x70 [nvme_core]
-    kernfs_fop_write_iter+0x12b/0x1c0
-    vfs_write+0x2a3/0x3b0
-    ksys_write+0x5f/0xe0
-    do_syscall_64+0x5c/0x90
-    ? syscall_exit_work+0x103/0x130
-    ? syscall_exit_to_user_mode+0x12/0x30
-    ? do_syscall_64+0x69/0x90
-    ? exit_to_user_mode_loop+0xd0/0x130
-    ? exit_to_user_mode_prepare+0xec/0x100
-    ? syscall_exit_to_user_mode+0x12/0x30
-    ? do_syscall_64+0x69/0x90
-    ? syscall_exit_to_user_mode+0x12/0x30
-    ? do_syscall_64+0x69/0x90
-    entry_SYSCALL_64_after_hwframe+0x72/0xdc
-    RIP: 0033:0x7f815cd3eb97
+This has broken all DMI based quirks for correcting wrong firmware efifb
+settings when simpledrm is used.
 
-The IOCB counts are out of order and that would block any commands from
-going out and subsequently hang the system. Synchronize the IOCB count to
-be in correct order.
+To fix this move the sysfb_apply_efi_quirks() call back to its old place
+and split the new setup of the efifb_fwnode (which requires
+the platform_device) into its own function and call that at
+the place of the moved sysfb_apply_efi_quirks(pd) calls.
 
-Fixes: 5f63a163ed2f ("scsi: qla2xxx: Fix exchange oversubscription for management commands")
+Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
 Cc: stable@vger.kernel.org
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Link: https://lore.kernel.org/r/20230313043711.13500-3-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: John Meneghini <jmeneghi@redhat.com>
-Tested-by: Lin Li <lilin@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/sysfb_efi.c  |    5 ++++-
+ drivers/firmware/sysfb.c          |    4 +++-
+ drivers/firmware/sysfb_simplefb.c |    2 +-
+ include/linux/sysfb.h             |    9 +++++++--
+ 4 files changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -1897,6 +1897,8 @@ qla2x00_get_sp_from_handle(scsi_qla_host
+--- a/drivers/firmware/efi/sysfb_efi.c
++++ b/drivers/firmware/efi/sysfb_efi.c
+@@ -341,7 +341,7 @@ static const struct fwnode_operations ef
+ #ifdef CONFIG_EFI
+ static struct fwnode_handle efifb_fwnode;
+ 
+-__init void sysfb_apply_efi_quirks(struct platform_device *pd)
++__init void sysfb_apply_efi_quirks(void)
+ {
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
+ 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
+@@ -355,7 +355,10 @@ __init void sysfb_apply_efi_quirks(struc
+ 		screen_info.lfb_height = temp;
+ 		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
+ 	}
++}
+ 
++__init void sysfb_set_efifb_fwnode(struct platform_device *pd)
++{
+ 	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI && IS_ENABLED(CONFIG_PCI)) {
+ 		fwnode_init(&efifb_fwnode, &efifb_fwnode_ops);
+ 		pd->dev.fwnode = &efifb_fwnode;
+--- a/drivers/firmware/sysfb.c
++++ b/drivers/firmware/sysfb.c
+@@ -81,6 +81,8 @@ static __init int sysfb_init(void)
+ 	if (disabled)
+ 		goto unlock_mutex;
+ 
++	sysfb_apply_efi_quirks();
++
+ 	/* try to create a simple-framebuffer device */
+ 	compatible = sysfb_parse_mode(si, &mode);
+ 	if (compatible) {
+@@ -107,7 +109,7 @@ static __init int sysfb_init(void)
+ 		goto unlock_mutex;
  	}
  
- 	req->outstanding_cmds[index] = NULL;
+-	sysfb_apply_efi_quirks(pd);
++	sysfb_set_efifb_fwnode(pd);
+ 
+ 	ret = platform_device_add_data(pd, si, sizeof(*si));
+ 	if (ret)
+--- a/drivers/firmware/sysfb_simplefb.c
++++ b/drivers/firmware/sysfb_simplefb.c
+@@ -110,7 +110,7 @@ __init struct platform_device *sysfb_cre
+ 	if (!pd)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	sysfb_apply_efi_quirks(pd);
++	sysfb_set_efifb_fwnode(pd);
+ 
+ 	ret = platform_device_add_resources(pd, &res, 1);
+ 	if (ret)
+--- a/include/linux/sysfb.h
++++ b/include/linux/sysfb.h
+@@ -70,11 +70,16 @@ static inline void sysfb_disable(void)
+ #ifdef CONFIG_EFI
+ 
+ extern struct efifb_dmi_info efifb_dmi_list[];
+-void sysfb_apply_efi_quirks(struct platform_device *pd);
++void sysfb_apply_efi_quirks(void);
++void sysfb_set_efifb_fwnode(struct platform_device *pd);
+ 
+ #else /* CONFIG_EFI */
+ 
+-static inline void sysfb_apply_efi_quirks(struct platform_device *pd)
++static inline void sysfb_apply_efi_quirks(void)
++{
++}
 +
-+	qla_put_fw_resources(sp->qpair, &sp->iores);
- 	return sp;
++static inline void sysfb_set_efifb_fwnode(struct platform_device *pd)
+ {
  }
  
-@@ -3099,7 +3101,6 @@ qla25xx_process_bidir_status_iocb(scsi_q
- 	}
- 	bsg_reply->reply_payload_rcv_len = 0;
- 
--	qla_put_fw_resources(sp->qpair, &sp->iores);
- done:
- 	/* Return the vendor specific reply to API */
- 	bsg_reply->reply_data.vendor_reply.vendor_rsp[0] = rval;
 
 
