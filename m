@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2656CC4C1
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C3A6CC32F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233896AbjC1PIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:08:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47994 "EHLO
+        id S233473AbjC1Ov7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233897AbjC1PIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B61DBF4
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:12 -0700 (PDT)
+        with ESMTP id S233466AbjC1Ovq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82590DBD1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADBE86186D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BADCFC433EF;
-        Tue, 28 Mar 2023 15:06:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32DEDB80976
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96834C433D2;
+        Tue, 28 Mar 2023 14:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016011;
-        bh=Ta3YdwB+i+XObmiU188lNoNSfg7AuDZ5p6WsYj/jPE4=;
+        s=korg; t=1680015085;
+        bh=jSUNIjL8GeyeDz0d1ATeTeuULRx6zQ5sbGxW0nJ5JMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jbnaUisqVkPqFFvuG/G/RohS4IhfWEP4m7xQCa3pBzYLOoMSF1VmHzxandlpN6jz2
-         eEMxWSJCszGLU8hsXEt/S86wFYyWjTQHlCaPUsA/fBlC8nCKSpz8XRxpNjMARi8hnx
-         2nw6+4VmIVmxp/4vbdSVtkdvQIpQqIQMvgLS+0Mo=
+        b=of2kEPUq9ucpTue6M5tq62Fg5NWBov4PMBntdjQQRf+ud+OtWogfjKDlbvckomTt1
+         gca8ebpvqiiaZxWM2TW6DTpLyoJxtvCTsf8v0ZG21yigNUHCo6UARvgpihC7UG3MyN
+         hcugVImTmUi9p2u/b+y0dcACivz0DZ3u292VFiQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
+        patches@lists.linux.dev, Alexandr Sapozhnikov <alsp705@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 006/146] tty: serial: fsl_lpuart: switch to new dmaengine_terminate_* API
-Date:   Tue, 28 Mar 2023 16:41:35 +0200
-Message-Id: <20230328142602.937582958@linuxfoundation.org>
+Subject: [PATCH 6.2 133/240] drm/cirrus: NULL-check pipe->plane.state->fb in cirrus_pipe_update()
+Date:   Tue, 28 Mar 2023 16:41:36 +0200
+Message-Id: <20230328142625.315219310@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Alexandr Sapozhnikov <alsp705@gmail.com>
 
-[ Upstream commit 8682ab0eea89c300ebb120c02ead3999ca5560a8 ]
+[ Upstream commit 7245e629dcaaf308f1868aeffa218e9849c77893 ]
 
-Convert dmaengine_terminate_all() calls to synchronous and asynchronous
-versions where appropriate.
+After having been compared to NULL value at cirrus.c:455, pointer
+'pipe->plane.state->fb' is passed as 1st parameter in call to function
+'cirrus_fb_blit_rect' at cirrus.c:461, where it is dereferenced at
+cirrus.c:316.
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20221123023619.30173-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 1be6f2b15f90 ("tty: serial: fsl_lpuart: fix race on RX DMA shutdown")
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+v2:
+	* aligned commit message to line-length limits
+
+Signed-off-by: Alexandr Sapozhnikov <alsp705@gmail.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230215171549.16305-1-alsp705@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/tiny/cirrus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 892c3cd83705b..47097002a6427 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -573,7 +573,7 @@ static void lpuart_flush_buffer(struct uart_port *port)
- 				sport->dma_tx_nents, DMA_TO_DEVICE);
- 			sport->dma_tx_in_progress = false;
- 		}
--		dmaengine_terminate_all(chan);
-+		dmaengine_terminate_async(chan);
- 	}
+diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+index 678c2ef1cae70..ffa7e61dd1835 100644
+--- a/drivers/gpu/drm/tiny/cirrus.c
++++ b/drivers/gpu/drm/tiny/cirrus.c
+@@ -455,7 +455,7 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	if (state->fb && cirrus->cpp != cirrus_cpp(state->fb))
+ 		cirrus_mode_set(cirrus, &crtc->mode, state->fb);
  
- 	if (lpuart_is_32(sport)) {
-@@ -1307,7 +1307,7 @@ static void lpuart_dma_rx_free(struct uart_port *port)
- 					struct lpuart_port, port);
- 	struct dma_chan *chan = sport->dma_rx_chan;
+-	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
++	if (state->fb && drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		cirrus_fb_blit_rect(state->fb, &shadow_plane_state->data[0], &rect);
+ }
  
--	dmaengine_terminate_all(chan);
-+	dmaengine_terminate_sync(chan);
- 	dma_unmap_sg(chan->device->dev, &sport->rx_sgl, 1, DMA_FROM_DEVICE);
- 	kfree(sport->rx_ring.buf);
- 	sport->rx_ring.tail = 0;
-@@ -1782,7 +1782,7 @@ static void lpuart_dma_shutdown(struct lpuart_port *sport)
- 		if (wait_event_interruptible(sport->dma_wait,
- 			!sport->dma_tx_in_progress) != false) {
- 			sport->dma_tx_in_progress = false;
--			dmaengine_terminate_all(sport->dma_tx_chan);
-+			dmaengine_terminate_sync(sport->dma_tx_chan);
- 		}
- 		sport->lpuart_dma_tx_use = false;
- 	}
 -- 
 2.39.2
 
