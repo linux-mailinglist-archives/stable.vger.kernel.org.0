@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B42336CC315
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC1416CC416
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233468AbjC1OvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
+        id S233715AbjC1O75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233288AbjC1Ouw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:52 -0400
+        with ESMTP id S233731AbjC1O7k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99A6BE062
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61289E394
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E281B81D6E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FF9C433D2;
-        Tue, 28 Mar 2023 14:50:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD1E4B81D78
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D25C433EF;
+        Tue, 28 Mar 2023 14:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015024;
-        bh=O60AlAK0dYuFe6kh+EJ3AfCHCZSame9FzEHfiT+hQ9U=;
+        s=korg; t=1680015571;
+        bh=d1Gu4I77URN5QEaJHGjPJI+hx44zSke0jWWcjYI015Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvIiwL8woHH3ORcYy5MT5hGHWUYMjVkv+FEBOR6EHeY+RcFCWun3knurNzlD5yYAT
-         +/bESjipgykzZdJw0q30KooKSvslV7PVNXvoTfA7mjVQHmvO95bzpj7GcrAl7IS625
-         yuWwvmmo66RJtyy/MyVWrKoi9YRky3KB9f8k2YN8=
+        b=l6amN3Dlpn1fOh3aT+qEpFSoJ7bDxQD3N7AIAVkVmWjKL3vSYUAfw27cRbaNl7rYa
+         tvO5Rerf07KsHyOxJzjSDKrLkosFWHGCmExzYuxwPHqGWOPAXDa50jQ6pHoJgvJh8h
+         TeouHd+ToXtakV6E3lWxYeaF1B8oo2NpLGNZ2KQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        David Alvarez Lombardi <dqalombardi@proton.me>,
-        dbilios@stdio.gr, victor.bonnelle@proton.me,
-        hurricanepootis@protonmail.com,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Elvis Angelaccio <elvis.angelaccio@kde.org>
-Subject: [PATCH 6.2 131/240] ACPI: x86: utils: Add Cezanne to the list for forcing StorageD3Enable
+        patches@lists.linux.dev, Josh Poimboeuf <jpoimboe@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 098/224] entry: Fix noinstr warning in __enter_from_user_mode()
 Date:   Tue, 28 Mar 2023 16:41:34 +0200
-Message-Id: <20230328142625.234129319@linuxfoundation.org>
+Message-Id: <20230328142621.427726926@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,93 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-[ Upstream commit e2a56364485e7789e7b8f342637c7f3a219f7ede ]
+[ Upstream commit f87d28673b71b35b248231a2086f9404afbb7f28 ]
 
-commit 018d6711c26e4 ("ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1
-for StorageD3Enable") introduced a quirk to allow a system with ambiguous
-use of _ADR 0 to force StorageD3Enable.
+__enter_from_user_mode() is triggering noinstr warnings with
+CONFIG_DEBUG_PREEMPT due to its call of preempt_count_add() via
+ct_state().
 
-It was reported that several more Dell systems suffered the same symptoms.
-As the list is continuing to grow but these are all Cezanne systems,
-instead add Cezanne to the CPU list to apply the StorageD3Enable property
-and remove the whole list.
+The preemption disable isn't needed as interrupts are already disabled.
+And the context_tracking_enabled() check in ct_state() also isn't needed
+as that's already being done by the CT_WARN_ON().
 
-It was also reported that an HP system only has StorageD3Enable on the ACPI
-device for the first NVME disk, not the second.
+Just use __ct_state() instead.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217003
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216773
-Reported-by: David Alvarez Lombardi <dqalombardi@proton.me>
-Reported-by: dbilios@stdio.gr
-Reported-and-tested-by: Elvis Angelaccio <elvis.angelaccio@kde.org>
-Tested-by: victor.bonnelle@proton.me
-Tested-by: hurricanepootis@protonmail.com
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes the following warnings:
+
+  vmlinux.o: warning: objtool: enter_from_user_mode+0xba: call to preempt_count_add() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: syscall_enter_from_user_mode+0xf9: call to preempt_count_add() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: syscall_enter_from_user_mode_prepare+0xc7: call to preempt_count_add() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: irqentry_enter_from_user_mode+0xba: call to preempt_count_add() leaves .noinstr.text section
+
+Fixes: 171476775d32 ("context_tracking: Convert state to atomic_t")
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/d8955fa6d68dc955dda19baf13ae014ae27926f5.1677369694.git.jpoimboe@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/utils.c | 37 +++++++++++++------------------------
- 1 file changed, 13 insertions(+), 24 deletions(-)
+ include/linux/context_tracking.h       | 1 +
+ include/linux/context_tracking_state.h | 2 ++
+ kernel/entry/common.c                  | 2 +-
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
-index 4e816bb402f68..e45285d4e62a4 100644
---- a/drivers/acpi/x86/utils.c
-+++ b/drivers/acpi/x86/utils.c
-@@ -200,39 +200,28 @@ bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *s
-  * a hardcoded allowlist for D3 support, which was used for these platforms.
-  *
-  * This allows quirking on Linux in a similar fashion.
-+ *
-+ * Cezanne systems shouldn't *normally* need this as the BIOS includes
-+ * StorageD3Enable.  But for two reasons we have added it.
-+ * 1) The BIOS on a number of Dell systems have ambiguity
-+ *    between the same value used for _ADR on ACPI nodes GPP1.DEV0 and GPP1.NVME.
-+ *    GPP1.NVME is needed to get StorageD3Enable node set properly.
-+ *    https://bugzilla.kernel.org/show_bug.cgi?id=216440
-+ *    https://bugzilla.kernel.org/show_bug.cgi?id=216773
-+ *    https://bugzilla.kernel.org/show_bug.cgi?id=217003
-+ * 2) On at least one HP system StorageD3Enable is missing on the second NVME
-+      disk in the system.
-  */
- static const struct x86_cpu_id storage_d3_cpu_ids[] = {
- 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 96, NULL),	/* Renoir */
- 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 104, NULL),	/* Lucienne */
--	{}
--};
--
--static const struct dmi_system_id force_storage_d3_dmi[] = {
--	{
--		/*
--		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
--		 * but .NVME is needed to get StorageD3Enable node
--		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
--		 */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
--		}
--	},
--	{
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 16 5625"),
--		}
--	},
-+	X86_MATCH_VENDOR_FAM_MODEL(AMD, 25, 80, NULL),	/* Cezanne */
- 	{}
- };
+diff --git a/include/linux/context_tracking.h b/include/linux/context_tracking.h
+index d4afa8508a806..3a7909ed54980 100644
+--- a/include/linux/context_tracking.h
++++ b/include/linux/context_tracking.h
+@@ -96,6 +96,7 @@ static inline void user_exit_irqoff(void) { }
+ static inline int exception_enter(void) { return 0; }
+ static inline void exception_exit(enum ctx_state prev_ctx) { }
+ static inline int ct_state(void) { return -1; }
++static inline int __ct_state(void) { return -1; }
+ static __always_inline bool context_tracking_guest_enter(void) { return false; }
+ static inline void context_tracking_guest_exit(void) { }
+ #define CT_WARN_ON(cond) do { } while (0)
+diff --git a/include/linux/context_tracking_state.h b/include/linux/context_tracking_state.h
+index 4a4d56f771802..fdd537ea513ff 100644
+--- a/include/linux/context_tracking_state.h
++++ b/include/linux/context_tracking_state.h
+@@ -46,7 +46,9 @@ struct context_tracking {
  
- bool force_storage_d3(void)
+ #ifdef CONFIG_CONTEXT_TRACKING
+ DECLARE_PER_CPU(struct context_tracking, context_tracking);
++#endif
+ 
++#ifdef CONFIG_CONTEXT_TRACKING_USER
+ static __always_inline int __ct_state(void)
  {
--	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
--
--	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
-+	return x86_match_cpu(storage_d3_cpu_ids);
- }
+ 	return arch_atomic_read(this_cpu_ptr(&context_tracking.state)) & CT_STATE_MASK;
+diff --git a/kernel/entry/common.c b/kernel/entry/common.c
+index 846add8394c41..1314894d2efad 100644
+--- a/kernel/entry/common.c
++++ b/kernel/entry/common.c
+@@ -21,7 +21,7 @@ static __always_inline void __enter_from_user_mode(struct pt_regs *regs)
+ 	arch_enter_from_user_mode(regs);
+ 	lockdep_hardirqs_off(CALLER_ADDR0);
  
- /*
+-	CT_WARN_ON(ct_state() != CONTEXT_USER);
++	CT_WARN_ON(__ct_state() != CONTEXT_USER);
+ 	user_exit_irqoff();
+ 
+ 	instrumentation_begin();
 -- 
 2.39.2
 
