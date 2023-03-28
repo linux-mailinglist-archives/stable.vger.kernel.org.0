@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1416CC416
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F16D46CC4BD
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233715AbjC1O75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34524 "EHLO
+        id S233894AbjC1PIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233731AbjC1O7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61289E394
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:36 -0700 (PDT)
+        with ESMTP id S233893AbjC1PIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B719D33C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD1E4B81D78
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D25C433EF;
-        Tue, 28 Mar 2023 14:59:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E998A6184A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04295C433EF;
+        Tue, 28 Mar 2023 15:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015571;
-        bh=d1Gu4I77URN5QEaJHGjPJI+hx44zSke0jWWcjYI015Q=;
+        s=korg; t=1680016008;
+        bh=n82/7W0su+MOOrevUJFXo4y4UwqE7XEodnsU/kgLeQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6amN3Dlpn1fOh3aT+qEpFSoJ7bDxQD3N7AIAVkVmWjKL3vSYUAfw27cRbaNl7rYa
-         tvO5Rerf07KsHyOxJzjSDKrLkosFWHGCmExzYuxwPHqGWOPAXDa50jQ6pHoJgvJh8h
-         TeouHd+ToXtakV6E3lWxYeaF1B8oo2NpLGNZ2KQY=
+        b=Bqos13UCT/GU59aP6IMXoaL0NfA3M7lIu1r72e7Qn5RcmYZX6OqEEO+ouLO7Y31y1
+         a9MrqssU/R3uDISIQOuG884mMPjGPiT7LuQZx2PT8LshwTZe+mUWf7LHT/enOVo7Jz
+         v/VHCxIBCrEmCgxQfiMVfmotkaI4kn3YE35nFB3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Jason Wang <wangborong@cdjrlc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 098/224] entry: Fix noinstr warning in __enter_from_user_mode()
+Subject: [PATCH 5.15 005/146] serial: fsl_lpuart: Fix comment typo
 Date:   Tue, 28 Mar 2023 16:41:34 +0200
-Message-Id: <20230328142621.427726926@linuxfoundation.org>
+Message-Id: <20230328142602.898525162@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Jason Wang <wangborong@cdjrlc.com>
 
-[ Upstream commit f87d28673b71b35b248231a2086f9404afbb7f28 ]
+[ Upstream commit 374e01fa1304e1eabd2cd16f750da3ecaeab069b ]
 
-__enter_from_user_mode() is triggering noinstr warnings with
-CONFIG_DEBUG_PREEMPT due to its call of preempt_count_add() via
-ct_state().
+The double `as' is duplicated in the comment, remove one.
 
-The preemption disable isn't needed as interrupts are already disabled.
-And the context_tracking_enabled() check in ct_state() also isn't needed
-as that's already being done by the CT_WARN_ON().
-
-Just use __ct_state() instead.
-
-Fixes the following warnings:
-
-  vmlinux.o: warning: objtool: enter_from_user_mode+0xba: call to preempt_count_add() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: syscall_enter_from_user_mode+0xf9: call to preempt_count_add() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: syscall_enter_from_user_mode_prepare+0xc7: call to preempt_count_add() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: irqentry_enter_from_user_mode+0xba: call to preempt_count_add() leaves .noinstr.text section
-
-Fixes: 171476775d32 ("context_tracking: Convert state to atomic_t")
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/d8955fa6d68dc955dda19baf13ae014ae27926f5.1677369694.git.jpoimboe@kernel.org
+Signed-off-by: Jason Wang <wangborong@cdjrlc.com>
+Link: https://lore.kernel.org/r/20220803104208.4127-1-wangborong@cdjrlc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 1be6f2b15f90 ("tty: serial: fsl_lpuart: fix race on RX DMA shutdown")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/context_tracking.h       | 1 +
- include/linux/context_tracking_state.h | 2 ++
- kernel/entry/common.c                  | 2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/fsl_lpuart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/context_tracking.h b/include/linux/context_tracking.h
-index d4afa8508a806..3a7909ed54980 100644
---- a/include/linux/context_tracking.h
-+++ b/include/linux/context_tracking.h
-@@ -96,6 +96,7 @@ static inline void user_exit_irqoff(void) { }
- static inline int exception_enter(void) { return 0; }
- static inline void exception_exit(enum ctx_state prev_ctx) { }
- static inline int ct_state(void) { return -1; }
-+static inline int __ct_state(void) { return -1; }
- static __always_inline bool context_tracking_guest_enter(void) { return false; }
- static inline void context_tracking_guest_exit(void) { }
- #define CT_WARN_ON(cond) do { } while (0)
-diff --git a/include/linux/context_tracking_state.h b/include/linux/context_tracking_state.h
-index 4a4d56f771802..fdd537ea513ff 100644
---- a/include/linux/context_tracking_state.h
-+++ b/include/linux/context_tracking_state.h
-@@ -46,7 +46,9 @@ struct context_tracking {
- 
- #ifdef CONFIG_CONTEXT_TRACKING
- DECLARE_PER_CPU(struct context_tracking, context_tracking);
-+#endif
- 
-+#ifdef CONFIG_CONTEXT_TRACKING_USER
- static __always_inline int __ct_state(void)
- {
- 	return arch_atomic_read(this_cpu_ptr(&context_tracking.state)) & CT_STATE_MASK;
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index 846add8394c41..1314894d2efad 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -21,7 +21,7 @@ static __always_inline void __enter_from_user_mode(struct pt_regs *regs)
- 	arch_enter_from_user_mode(regs);
- 	lockdep_hardirqs_off(CALLER_ADDR0);
- 
--	CT_WARN_ON(ct_state() != CONTEXT_USER);
-+	CT_WARN_ON(__ct_state() != CONTEXT_USER);
- 	user_exit_irqoff();
- 
- 	instrumentation_begin();
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index e1ff109d7a14b..892c3cd83705b 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2866,7 +2866,7 @@ static int __maybe_unused lpuart_suspend(struct device *dev)
+ 		 * EDMA driver during suspend will forcefully release any
+ 		 * non-idle DMA channels. If port wakeup is enabled or if port
+ 		 * is console port or 'no_console_suspend' is set the Rx DMA
+-		 * cannot resume as as expected, hence gracefully release the
++		 * cannot resume as expected, hence gracefully release the
+ 		 * Rx DMA path before suspend and start Rx DMA path on resume.
+ 		 */
+ 		if (irq_wake) {
 -- 
 2.39.2
 
