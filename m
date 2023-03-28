@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 258546CC53F
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573346CC47A
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233006AbjC1PNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:13:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53506 "EHLO
+        id S233833AbjC1PFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:05:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233010AbjC1PMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:48 -0400
+        with ESMTP id S233798AbjC1PFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11080EFB0
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87B4EC53
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8894FB81D89
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C9BC433EF;
-        Tue, 28 Mar 2023 15:11:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04330B81D7B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6684DC433D2;
+        Tue, 28 Mar 2023 15:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016282;
-        bh=9pqy6cm2pliud712t3PhK4bvOEz6Syd+QExKEaPjr6M=;
+        s=korg; t=1680015836;
+        bh=IsZj2ccIzRI2FDoe8U9lkSzZwr0stP7t6RDTMoctU2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zDUh2y3dtHxmhQsn7f4nsjaXj90N3ugCDgndEhxA1SSXqfx8ksP7e4wNr2WvGFbwW
-         GG2Ogh+h0F9K/zeBlQnwjz8OiMJaeubSVzXxVdkuJh5E/4BBc31fyr2vOhJwa5TUuJ
-         FchJ1pdAx6M0hXdPwUaZ4yyaK8jjUlteYFPyux74=
+        b=CghMlHd4ncLElli8+05e1PPhXOOYY7MwytnUCRteh6NB4/ckaQKDWqxb8eaBTsGT7
+         jM1biYaEGb96AhtLJ+fvCSeMs9N3OvRxZmdv5XuiEu//PTQCUdZB1jmALFxAL9Amrx
+         MaYu87Q+dQTtJQYD474TsmJdSogVAccHrAuCVJSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 100/146] net/sched: act_mirred: better wording on protection against excessive stack growth
-Date:   Tue, 28 Mar 2023 16:43:09 +0200
-Message-Id: <20230328142606.850741197@linuxfoundation.org>
+        patches@lists.linux.dev, Steve French <stfrench@microsoft.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 6.1 194/224] ksmbd: return STATUS_NOT_SUPPORTED on unsupported smb2.0 dialect
+Date:   Tue, 28 Mar 2023 16:43:10 +0200
+Message-Id: <20230328142625.462202630@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 78dcdffe0418ac8f3f057f26fe71ccf4d8ed851f ]
+commit b53e8cfec30b93c120623232ba27c041b1ef8f1a upstream.
 
-with commit e2ca070f89ec ("net: sched: protect against stack overflow in
-TC act_mirred"), act_mirred protected itself against excessive stack growth
-using per_cpu counter of nested calls to tcf_mirred_act(), and capping it
-to MIRRED_RECURSION_LIMIT. However, such protection does not detect
-recursion/loops in case the packet is enqueued to the backlog (for example,
-when the mirred target device has RPS or skb timestamping enabled). Change
-the wording from "recursion" to "nesting" to make it more clear to readers.
+ksmbd returned "Input/output error" when mounting with vers=2.0 to
+ksmbd. It should return STATUS_NOT_SUPPORTED on unsupported smb2.0
+dialect.
 
-CC: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Stable-dep-of: ca22da2fbd69 ("act_mirred: use the backlog for nested calls to mirred ingress")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_mirred.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/ksmbd/smb_common.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
-index efc963ab995a3..b28d49495de09 100644
---- a/net/sched/act_mirred.c
-+++ b/net/sched/act_mirred.c
-@@ -28,8 +28,8 @@
- static LIST_HEAD(mirred_list);
- static DEFINE_SPINLOCK(mirred_list_lock);
+--- a/fs/ksmbd/smb_common.c
++++ b/fs/ksmbd/smb_common.c
+@@ -434,7 +434,7 @@ int ksmbd_extract_shortname(struct ksmbd
  
--#define MIRRED_RECURSION_LIMIT    4
--static DEFINE_PER_CPU(unsigned int, mirred_rec_level);
-+#define MIRRED_NEST_LIMIT    4
-+static DEFINE_PER_CPU(unsigned int, mirred_nest_level);
- 
- static bool tcf_mirred_is_act_redirect(int action)
+ static int __smb2_negotiate(struct ksmbd_conn *conn)
  {
-@@ -223,7 +223,7 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
- 	struct sk_buff *skb2 = skb;
- 	bool m_mac_header_xmit;
- 	struct net_device *dev;
--	unsigned int rec_level;
-+	unsigned int nest_level;
- 	int retval, err = 0;
- 	bool use_reinsert;
- 	bool want_ingress;
-@@ -234,11 +234,11 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
- 	int mac_len;
- 	bool at_nh;
+-	return (conn->dialect >= SMB21_PROT_ID &&
++	return (conn->dialect >= SMB20_PROT_ID &&
+ 		conn->dialect <= SMB311_PROT_ID);
+ }
  
--	rec_level = __this_cpu_inc_return(mirred_rec_level);
--	if (unlikely(rec_level > MIRRED_RECURSION_LIMIT)) {
-+	nest_level = __this_cpu_inc_return(mirred_nest_level);
-+	if (unlikely(nest_level > MIRRED_NEST_LIMIT)) {
- 		net_warn_ratelimited("Packet exceeded mirred recursion limit on dev %s\n",
- 				     netdev_name(skb->dev));
--		__this_cpu_dec(mirred_rec_level);
-+		__this_cpu_dec(mirred_nest_level);
- 		return TC_ACT_SHOT;
- 	}
- 
-@@ -308,7 +308,7 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
- 			err = tcf_mirred_forward(res->ingress, skb);
- 			if (err)
- 				tcf_action_inc_overlimit_qstats(&m->common);
--			__this_cpu_dec(mirred_rec_level);
-+			__this_cpu_dec(mirred_nest_level);
- 			return TC_ACT_CONSUMED;
+@@ -465,7 +465,7 @@ int ksmbd_smb_negotiate_common(struct ks
  		}
  	}
-@@ -320,7 +320,7 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
- 		if (tcf_mirred_is_act_redirect(m_eaction))
- 			retval = TC_ACT_SHOT;
- 	}
--	__this_cpu_dec(mirred_rec_level);
-+	__this_cpu_dec(mirred_nest_level);
  
- 	return retval;
- }
--- 
-2.39.2
-
+-	if (command == SMB2_NEGOTIATE_HE && __smb2_negotiate(conn)) {
++	if (command == SMB2_NEGOTIATE_HE) {
+ 		ret = smb2_handle_negotiate(work);
+ 		init_smb2_neg_rsp(work);
+ 		return ret;
 
 
