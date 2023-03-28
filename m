@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD276CC299
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2BC6CC39B
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233309AbjC1Oqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
+        id S233541AbjC1Ozl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232993AbjC1Oqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238A7D526
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:07 -0700 (PDT)
+        with ESMTP id S233321AbjC1Ozl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0619D33A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DA70B80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC03EC4339B;
-        Tue, 28 Mar 2023 14:46:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3768DB81D74
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A30E2C433D2;
+        Tue, 28 Mar 2023 14:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014763;
-        bh=ELgJb/TfF+6wHFOaPQM9e1OqRYvHRsL/KSmNhtPisxA=;
+        s=korg; t=1680015334;
+        bh=jcn7xGy3ML1plwlG7eNRMarFTunyohy3LJQXiEiDJDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pStOdjq4nxUJYGh+GbaqzDVA6kPBCeNfJrRhYUa0hpHhUySfhOiGdU48rE0IWebf7
-         ZWME1jdJ7gvW+oeC+ccH3pCa6+ZH8DBLiHHCsFqvsPdVlo5jWyuzqBiytbJxfXHo0U
-         rxtIyzS+6xUBWZi65Cqkcktz/pOMQvxQXvu+e6KM=
+        b=f5DE5Ow+DqxSYxzeORAiSrfQIi2d557MC8L/zMOYFKSRp6p8XOiWGqAl5GmAnVew/
+         KTOsBi/BMttW3iS6LVV/U4LKrl80nN4U3kzDiO4601yHRDk3m5sxepKYsc7F+Zocv/
+         M/SIUVPcXIeVI01Ldfi1bBUJx2ht6YV3wt6CeFVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrea Righi <andrea.righi@canonical.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 044/240] arm64: efi: Use SMBIOS processor version to key off Ampere quirk
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Christoph Paasch <cpaasch@apple.com>
+Subject: [PATCH 6.1 011/224] mptcp: use the workqueue to destroy unaccepted sockets
 Date:   Tue, 28 Mar 2023 16:40:07 +0200
-Message-Id: <20230328142621.544265000@linuxfoundation.org>
+Message-Id: <20230328142617.712530283@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,179 +55,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit eb684408f3ea4856639675d6465f0024e498e4b1 ]
+[ Upstream commit b6985b9b82954caa53f862d6059d06c0526254f0 ]
 
-Instead of using the SMBIOS type 1 record 'family' field, which is often
-modified by OEMs, use the type 4 'processor ID' and 'processor version'
-fields, which are set to a small set of probe-able values on all known
-Ampere EFI systems in the field.
+  Backports notes: one simple conflict in net/mptcp/protocol.c with:
 
-Fixes: 550b33cfd4452968 ("arm64: efi: Force the use of ...")
-Tested-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+    commit a5ef058dc4d9 ("net: introduce and use custom sockopt socket flag")
+
+  Where the two commits add a new line for different actions in the same
+  context in mptcp_stream_accept().
+
+Christoph reported a UaF at token lookup time after having
+refactored the passive socket initialization part:
+
+  BUG: KASAN: use-after-free in __token_bucket_busy+0x253/0x260
+  Read of size 4 at addr ffff88810698d5b0 by task syz-executor653/3198
+
+  CPU: 1 PID: 3198 Comm: syz-executor653 Not tainted 6.2.0-rc59af4eaa31c1f6c00c8f1e448ed99a45c66340dd5 #6
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x6e/0x91
+   print_report+0x16a/0x46f
+   kasan_report+0xad/0x130
+   __token_bucket_busy+0x253/0x260
+   mptcp_token_new_connect+0x13d/0x490
+   mptcp_connect+0x4ed/0x860
+   __inet_stream_connect+0x80e/0xd90
+   tcp_sendmsg_fastopen+0x3ce/0x710
+   mptcp_sendmsg+0xff1/0x1a20
+   inet_sendmsg+0x11d/0x140
+   __sys_sendto+0x405/0x490
+   __x64_sys_sendto+0xdc/0x1b0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x72/0xdc
+
+We need to properly clean-up all the paired MPTCP-level
+resources and be sure to release the msk last, even when
+the unaccepted subflow is destroyed by the TCP internals
+via inet_child_forget().
+
+We can re-use the existing MPTCP_WORK_CLOSE_SUBFLOW infra,
+explicitly checking that for the critical scenario: the
+closed subflow is the MPC one, the msk is not accepted and
+eventually going through full cleanup.
+
+With such change, __mptcp_destroy_sock() is always called
+on msk sockets, even on accepted ones. We don't need anymore
+to transiently drop one sk reference at msk clone time.
+
+Please note this commit depends on the parent one:
+
+  mptcp: refactor passive socket initialization
+
+Fixes: 58b09919626b ("mptcp: create msk early")
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: Christoph Paasch <cpaasch@apple.com>
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/347
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/libstub/arm64.c   | 39 +++++++++++++++++++-----
- drivers/firmware/efi/libstub/efistub.h | 41 ++++++++++++++++++++++++--
- drivers/firmware/efi/libstub/smbios.c  | 13 ++++++--
- 3 files changed, 80 insertions(+), 13 deletions(-)
+ net/mptcp/protocol.c | 41 +++++++++++++++++++++++++++++++----------
+ net/mptcp/protocol.h |  5 ++++-
+ net/mptcp/subflow.c  | 17 ++++++++++++-----
+ 3 files changed, 47 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/firmware/efi/libstub/arm64.c b/drivers/firmware/efi/libstub/arm64.c
-index 4501652e11ab6..84d94443c601d 100644
---- a/drivers/firmware/efi/libstub/arm64.c
-+++ b/drivers/firmware/efi/libstub/arm64.c
-@@ -16,20 +16,43 @@
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 777f795246ed2..b679e8a430a83 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2357,7 +2357,6 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 		goto out;
+ 	}
  
- static bool system_needs_vamap(void)
- {
--	const u8 *type1_family = efi_get_smbios_string(1, family);
-+	const struct efi_smbios_type4_record *record;
-+	const u32 __aligned(1) *socid;
-+	const u8 *version;
+-	sock_orphan(ssk);
+ 	subflow->disposable = 1;
  
- 	/*
- 	 * Ampere eMAG, Altra, and Altra Max machines crash in SetTime() if
--	 * SetVirtualAddressMap() has not been called prior.
-+	 * SetVirtualAddressMap() has not been called prior. Most Altra systems
-+	 * can be identified by the SMCCC soc ID, which is conveniently exposed
-+	 * via the type 4 SMBIOS records. Otherwise, test the processor version
-+	 * field. eMAG systems all appear to have the processor version field
-+	 * set to "eMAG".
+ 	/* if ssk hit tcp_done(), tcp_cleanup_ulp() cleared the related ops
+@@ -2365,7 +2364,20 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 	 * reference owned by msk;
  	 */
--	if (!type1_family || (
--	    strcmp(type1_family, "eMAG") &&
--	    strcmp(type1_family, "Altra") &&
--	    strcmp(type1_family, "Altra Max")))
-+	record = (struct efi_smbios_type4_record *)efi_get_smbios_record(4);
-+	if (!record)
- 		return false;
- 
--	efi_warn("Working around broken SetVirtualAddressMap()\n");
--	return true;
-+	socid = (u32 *)record->processor_id;
-+	switch (*socid & 0xffff000f) {
-+		static char const altra[] = "Ampere(TM) Altra(TM) Processor";
-+		static char const emag[] = "eMAG";
-+
-+	default:
-+		version = efi_get_smbios_string(&record->header, 4,
-+						processor_version);
-+		if (!version || (strncmp(version, altra, sizeof(altra) - 1) &&
-+				 strncmp(version, emag, sizeof(emag) - 1)))
-+			break;
-+
-+		fallthrough;
-+
-+	case 0x0a160001:	// Altra
-+	case 0x0a160002:	// Altra Max
-+		efi_warn("Working around broken SetVirtualAddressMap()\n");
-+		return true;
-+	}
-+
-+	return false;
+ 	if (!inet_csk(ssk)->icsk_ulp_ops) {
++		WARN_ON_ONCE(!sock_flag(ssk, SOCK_DEAD));
+ 		kfree_rcu(subflow, rcu);
++	} else if (msk->in_accept_queue && msk->first == ssk) {
++		/* if the first subflow moved to a close state, e.g. due to
++		 * incoming reset and we reach here before inet_child_forget()
++		 * the TCP stack could later try to close it via
++		 * inet_csk_listen_stop(), or deliver it to the user space via
++		 * accept().
++		 * We can't delete the subflow - or risk a double free - nor let
++		 * the msk survive - or will be leaked in the non accept scenario:
++		 * fallback and let TCP cope with the subflow cleanup.
++		 */
++		WARN_ON_ONCE(sock_flag(ssk, SOCK_DEAD));
++		mptcp_subflow_drop_ctx(ssk);
+ 	} else {
+ 		/* otherwise tcp will dispose of the ssk and subflow ctx */
+ 		if (ssk->sk_state == TCP_LISTEN) {
+@@ -2412,9 +2424,10 @@ static unsigned int mptcp_sync_mss(struct sock *sk, u32 pmtu)
+ 	return 0;
  }
  
- efi_status_t check_platform_features(void)
-diff --git a/drivers/firmware/efi/libstub/efistub.h b/drivers/firmware/efi/libstub/efistub.h
-index 5b8f2c411ed82..f527816abab3e 100644
---- a/drivers/firmware/efi/libstub/efistub.h
-+++ b/drivers/firmware/efi/libstub/efistub.h
-@@ -1054,6 +1054,8 @@ struct efi_smbios_record {
- 	u16	handle;
- };
- 
-+const struct efi_smbios_record *efi_get_smbios_record(u8 type);
-+
- struct efi_smbios_type1_record {
- 	struct efi_smbios_record	header;
- 
-@@ -1067,13 +1069,46 @@ struct efi_smbios_type1_record {
- 	u8				family;
- };
- 
--#define efi_get_smbios_string(__type, __name) ({			\
-+struct efi_smbios_type4_record {
-+	struct efi_smbios_record	header;
-+
-+	u8				socket;
-+	u8				processor_type;
-+	u8				processor_family;
-+	u8				processor_manufacturer;
-+	u8				processor_id[8];
-+	u8				processor_version;
-+	u8				voltage;
-+	u16				external_clock;
-+	u16				max_speed;
-+	u16				current_speed;
-+	u8				status;
-+	u8				processor_upgrade;
-+	u16				l1_cache_handle;
-+	u16				l2_cache_handle;
-+	u16				l3_cache_handle;
-+	u8				serial_number;
-+	u8				asset_tag;
-+	u8				part_number;
-+	u8				core_count;
-+	u8				enabled_core_count;
-+	u8				thread_count;
-+	u16				processor_characteristics;
-+	u16				processor_family2;
-+	u16				core_count2;
-+	u16				enabled_core_count2;
-+	u16				thread_count2;
-+	u16				thread_enabled;
-+};
-+
-+#define efi_get_smbios_string(__record, __type, __name) ({		\
- 	int size = sizeof(struct efi_smbios_type ## __type ## _record);	\
- 	int off = offsetof(struct efi_smbios_type ## __type ## _record,	\
- 			   __name);					\
--	__efi_get_smbios_string(__type, off, size);			\
-+	__efi_get_smbios_string((__record), __type, off, size);		\
- })
- 
--const u8 *__efi_get_smbios_string(u8 type, int offset, int recsize);
-+const u8 *__efi_get_smbios_string(const struct efi_smbios_record *record,
-+				  u8 type, int offset, int recsize);
- 
- #endif
-diff --git a/drivers/firmware/efi/libstub/smbios.c b/drivers/firmware/efi/libstub/smbios.c
-index aadb422b9637d..f9c159c28f461 100644
---- a/drivers/firmware/efi/libstub/smbios.c
-+++ b/drivers/firmware/efi/libstub/smbios.c
-@@ -22,19 +22,28 @@ struct efi_smbios_protocol {
- 	u8 minor_version;
- };
- 
--const u8 *__efi_get_smbios_string(u8 type, int offset, int recsize)
-+const struct efi_smbios_record *efi_get_smbios_record(u8 type)
+-static void __mptcp_close_subflow(struct mptcp_sock *msk)
++static void __mptcp_close_subflow(struct sock *sk)
  {
- 	struct efi_smbios_record *record;
- 	efi_smbios_protocol_t *smbios;
- 	efi_status_t status;
- 	u16 handle = 0xfffe;
--	const u8 *strtable;
+ 	struct mptcp_subflow_context *subflow, *tmp;
++	struct mptcp_sock *msk = mptcp_sk(sk);
  
- 	status = efi_bs_call(locate_protocol, &EFI_SMBIOS_PROTOCOL_GUID, NULL,
- 			     (void **)&smbios) ?:
- 		 efi_call_proto(smbios, get_next, &handle, &type, &record, NULL);
- 	if (status != EFI_SUCCESS)
- 		return NULL;
-+	return record;
-+}
-+
-+const u8 *__efi_get_smbios_string(const struct efi_smbios_record *record,
-+				  u8 type, int offset, int recsize)
-+{
-+	const u8 *strtable;
-+
-+	if (!record)
-+		return NULL;
+ 	might_sleep();
  
- 	strtable = (u8 *)record + record->length;
- 	for (int i = 1; i < ((u8 *)record)[offset]; i++) {
+@@ -2428,7 +2441,15 @@ static void __mptcp_close_subflow(struct mptcp_sock *msk)
+ 		if (!skb_queue_empty_lockless(&ssk->sk_receive_queue))
+ 			continue;
+ 
+-		mptcp_close_ssk((struct sock *)msk, ssk, subflow);
++		mptcp_close_ssk(sk, ssk, subflow);
++	}
++
++	/* if the MPC subflow has been closed before the msk is accepted,
++	 * msk will never be accept-ed, close it now
++	 */
++	if (!msk->first && msk->in_accept_queue) {
++		sock_set_flag(sk, SOCK_DEAD);
++		inet_sk_state_store(sk, TCP_CLOSE);
+ 	}
+ }
+ 
+@@ -2637,6 +2658,9 @@ static void mptcp_worker(struct work_struct *work)
+ 	__mptcp_check_send_data_fin(sk);
+ 	mptcp_check_data_fin(sk);
+ 
++	if (test_and_clear_bit(MPTCP_WORK_CLOSE_SUBFLOW, &msk->flags))
++		__mptcp_close_subflow(sk);
++
+ 	/* There is no point in keeping around an orphaned sk timedout or
+ 	 * closed, but we need the msk around to reply to incoming DATA_FIN,
+ 	 * even if it is orphaned and in FIN_WAIT2 state
+@@ -2652,9 +2676,6 @@ static void mptcp_worker(struct work_struct *work)
+ 		}
+ 	}
+ 
+-	if (test_and_clear_bit(MPTCP_WORK_CLOSE_SUBFLOW, &msk->flags))
+-		__mptcp_close_subflow(msk);
+-
+ 	if (test_and_clear_bit(MPTCP_WORK_RTX, &msk->flags))
+ 		__mptcp_retrans(sk);
+ 
+@@ -3084,6 +3105,7 @@ struct sock *mptcp_sk_clone(const struct sock *sk,
+ 	msk->local_key = subflow_req->local_key;
+ 	msk->token = subflow_req->token;
+ 	msk->subflow = NULL;
++	msk->in_accept_queue = 1;
+ 	WRITE_ONCE(msk->fully_established, false);
+ 	if (mp_opt->suboptions & OPTION_MPTCP_CSUMREQD)
+ 		WRITE_ONCE(msk->csum_enabled, true);
+@@ -3110,8 +3132,7 @@ struct sock *mptcp_sk_clone(const struct sock *sk,
+ 	security_inet_csk_clone(nsk, req);
+ 	bh_unlock_sock(nsk);
+ 
+-	/* keep a single reference */
+-	__sock_put(nsk);
++	/* note: the newly allocated socket refcount is 2 now */
+ 	return nsk;
+ }
+ 
+@@ -3167,8 +3188,6 @@ static struct sock *mptcp_accept(struct sock *sk, int flags, int *err,
+ 			goto out;
+ 		}
+ 
+-		/* acquire the 2nd reference for the owning socket */
+-		sock_hold(new_mptcp_sock);
+ 		newsk = new_mptcp_sock;
+ 		MPTCP_INC_STATS(sock_net(sk), MPTCP_MIB_MPCAPABLEPASSIVEACK);
+ 	} else {
+@@ -3726,6 +3745,8 @@ static int mptcp_stream_accept(struct socket *sock, struct socket *newsock,
+ 		struct mptcp_subflow_context *subflow;
+ 		struct sock *newsk = newsock->sk;
+ 
++		msk->in_accept_queue = 0;
++
+ 		lock_sock(newsk);
+ 
+ 		/* set ssk->sk_socket of accept()ed flows to mptcp socket.
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index 6f22ae13c9848..2cddd5b52e8fa 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -286,7 +286,8 @@ struct mptcp_sock {
+ 	u8		recvmsg_inq:1,
+ 			cork:1,
+ 			nodelay:1,
+-			fastopening:1;
++			fastopening:1,
++			in_accept_queue:1;
+ 	int		connect_flags;
+ 	struct work_struct work;
+ 	struct sk_buff  *ooo_last_skb;
+@@ -651,6 +652,8 @@ void mptcp_subflow_set_active(struct mptcp_subflow_context *subflow);
+ 
+ bool mptcp_subflow_active(struct mptcp_subflow_context *subflow);
+ 
++void mptcp_subflow_drop_ctx(struct sock *ssk);
++
+ static inline void mptcp_subflow_tcp_fallback(struct sock *sk,
+ 					      struct mptcp_subflow_context *ctx)
+ {
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index fe815103060c6..459621a0410cd 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -636,9 +636,10 @@ static bool subflow_hmac_valid(const struct request_sock *req,
+ 
+ static void mptcp_force_close(struct sock *sk)
+ {
+-	/* the msk is not yet exposed to user-space */
++	/* the msk is not yet exposed to user-space, and refcount is 2 */
+ 	inet_sk_state_store(sk, TCP_CLOSE);
+ 	sk_common_release(sk);
++	sock_put(sk);
+ }
+ 
+ static void subflow_ulp_fallback(struct sock *sk,
+@@ -654,7 +655,7 @@ static void subflow_ulp_fallback(struct sock *sk,
+ 	mptcp_subflow_ops_undo_override(sk);
+ }
+ 
+-static void subflow_drop_ctx(struct sock *ssk)
++void mptcp_subflow_drop_ctx(struct sock *ssk)
+ {
+ 	struct mptcp_subflow_context *ctx = mptcp_subflow_ctx(ssk);
+ 
+@@ -758,7 +759,7 @@ static struct sock *subflow_syn_recv_sock(const struct sock *sk,
+ 
+ 			if (new_msk)
+ 				mptcp_copy_inaddrs(new_msk, child);
+-			subflow_drop_ctx(child);
++			mptcp_subflow_drop_ctx(child);
+ 			goto out;
+ 		}
+ 
+@@ -849,7 +850,7 @@ static struct sock *subflow_syn_recv_sock(const struct sock *sk,
+ 	return child;
+ 
+ dispose_child:
+-	subflow_drop_ctx(child);
++	mptcp_subflow_drop_ctx(child);
+ 	tcp_rsk(req)->drop_req = true;
+ 	inet_csk_prepare_for_destroy_sock(child);
+ 	tcp_done(child);
+@@ -1804,7 +1805,6 @@ void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_s
+ 		struct sock *sk = (struct sock *)msk;
+ 		bool do_cancel_work;
+ 
+-		sock_hold(sk);
+ 		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 		next = msk->dl_next;
+ 		msk->first = NULL;
+@@ -1892,6 +1892,13 @@ static void subflow_ulp_release(struct sock *ssk)
+ 		 * when the subflow is still unaccepted
+ 		 */
+ 		release = ctx->disposable || list_empty(&ctx->node);
++
++		/* inet_child_forget() does not call sk_state_change(),
++		 * explicitly trigger the socket close machinery
++		 */
++		if (!release && !test_and_set_bit(MPTCP_WORK_CLOSE_SUBFLOW,
++						  &mptcp_sk(sk)->flags))
++			mptcp_schedule_work(sk);
+ 		sock_put(sk);
+ 	}
+ 
 -- 
 2.39.2
 
