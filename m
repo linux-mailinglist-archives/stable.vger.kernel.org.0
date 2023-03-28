@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DA66CC62A
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D3D6CC498
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232572AbjC1PZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48970 "EHLO
+        id S233869AbjC1PGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234003AbjC1PYr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:24:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C80A11649
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:23:28 -0700 (PDT)
+        with ESMTP id S233867AbjC1PGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAD9EC4D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B77BB61843
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C443AC433D2;
-        Tue, 28 Mar 2023 15:10:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 528CC61839
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 651D2C433D2;
+        Tue, 28 Mar 2023 15:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016219;
-        bh=txF2T2SbSjdoLscauRl8pEarQae68Wx84Dx4jlY8UB8=;
+        s=korg; t=1680015863;
+        bh=djg/kJb+7ExLg+RZyn5wZFsnJKlp7uo97RYGEwceSpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2g0774kmJRBFArwbEmBB9A1VhKfmOYcW8MRe9uOTm/qNsxw9cFYniRpxwZXM6/bmm
-         A06rf5M4mJJn8/lPAb82Lwb8m5YfxuuDg8RqouFHH1QRc2+fXujXg22TIecimPvJVP
-         P2mW4XK4lzQqZyFOTSKTY+AhYSIlYKhZ5hsgBsKw=
+        b=lxdqCTnatCWtVFZJ9sEfMCo/bwiY/QwTGSJvzmqsv5ikoe1ZqXZIlJPbeDxydQfqQ
+         H5O13CgFaYFKGVxCm/h0k9SchkvpqHvxPrhOfl1hVjVgmOMZSUycG5wIzxXA3ET8MN
+         Qw7Qoiz7qQY0E7enn9ID4JKrqw8zI7fL5FRpTCYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+93e495f6a4f748827c88@syzkaller.appspotmail.com,
-        Christian Brauner <brauner@kernel.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.15 109/146] fscrypt: destroy keyring after security_sb_delete()
-Date:   Tue, 28 Mar 2023 16:43:18 +0200
-Message-Id: <20230328142607.225405811@linuxfoundation.org>
+        patches@lists.linux.dev, Lee Shawn C <shawn.c.lee@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.1 203/224] drm/i915: Preserve crtc_state->inherited during state clearing
+Date:   Tue, 28 Mar 2023 16:43:19 +0200
+Message-Id: <20230328142625.831027231@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,58 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit ccb820dc7d2236b1af0d54ae038a27b5b6d5ae5a upstream.
+commit 3a84f2c6c9558c554a90ec26ad25df92fc5e05b7 upstream.
 
-fscrypt_destroy_keyring() must be called after all potentially-encrypted
-inodes were evicted; otherwise it cannot safely destroy the keyring.
-Since inodes that are in-use by the Landlock LSM don't get evicted until
-security_sb_delete(), this means that fscrypt_destroy_keyring() must be
-called *after* security_sb_delete().
+intel_crtc_prepare_cleared_state() is unintentionally losing
+the "inherited" flag. This will happen if intel_initial_commit()
+is forced to go through the full modeset calculations for
+whatever reason.
 
-This fixes a WARN_ON followed by a NULL dereference, only possible if
-Landlock was being used on encrypted files.
+Afterwards the first real commit from userspace will not get
+forced to the full modeset path, and thus eg. audio state may
+not get recomputed properly. So if the monitor was already
+enabled during boot audio will not work until userspace itself
+does an explicit full modeset.
 
-Fixes: d7e7b9af104c ("fscrypt: stop using keyrings subsystem for fscrypt_master_key")
 Cc: stable@vger.kernel.org
-Reported-by: syzbot+93e495f6a4f748827c88@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/00000000000044651705f6ca1e30@google.com
-Reviewed-by: Christian Brauner <brauner@kernel.org>
-Link: https://lore.kernel.org/r/20230313221231.272498-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Tested-by: Lee Shawn C <shawn.c.lee@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230223152048.20878-1-ville.syrjala@linux.intel.com
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+(cherry picked from commit 2553bacaf953b48c59357f5a622282bc0c45adae)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/super.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_display.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -450,13 +450,22 @@ void generic_shutdown_super(struct super
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -5186,6 +5186,7 @@ intel_crtc_prepare_cleared_state(struct
+ 	 * only fields that are know to not cause problems are preserved. */
  
- 		cgroup_writeback_umount();
- 
--		/* evict all inodes with zero refcount */
-+		/* Evict all inodes with zero refcount. */
- 		evict_inodes(sb);
--		/* only nonzero refcount inodes can have marks */
-+
-+		/*
-+		 * Clean up and evict any inodes that still have references due
-+		 * to fsnotify or the security policy.
-+		 */
- 		fsnotify_sb_delete(sb);
--		fscrypt_destroy_keyring(sb);
- 		security_sb_delete(sb);
- 
-+		/*
-+		 * Now that all potentially-encrypted inodes have been evicted,
-+		 * the fscrypt keyring can be destroyed.
-+		 */
-+		fscrypt_destroy_keyring(sb);
-+
- 		if (sb->s_dio_done_wq) {
- 			destroy_workqueue(sb->s_dio_done_wq);
- 			sb->s_dio_done_wq = NULL;
+ 	saved_state->uapi = crtc_state->uapi;
++	saved_state->inherited = crtc_state->inherited;
+ 	saved_state->scaler_state = crtc_state->scaler_state;
+ 	saved_state->shared_dpll = crtc_state->shared_dpll;
+ 	saved_state->dpll_hw_state = crtc_state->dpll_hw_state;
 
 
