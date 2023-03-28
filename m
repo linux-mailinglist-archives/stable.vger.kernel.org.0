@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B87B6CC57D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C116CC462
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233946AbjC1POp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:14:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53920 "EHLO
+        id S233793AbjC1PEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:04:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232641AbjC1PO0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:14:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04501117B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:13:32 -0700 (PDT)
+        with ESMTP id S233743AbjC1PEc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50DA5DBDB
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E0BCB81D8A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81417C433D2;
-        Tue, 28 Mar 2023 15:07:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9B566183C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6092C433D2;
+        Tue, 28 Mar 2023 15:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016076;
-        bh=CC6o8uVID/Rbji18ccA2xOWJgD9dnCYuRdb3McZHhMw=;
+        s=korg; t=1680015790;
+        bh=XTIM+Qyo8wMHLVfLZ//BtSyD/3pvrdOcXJ60tPOx1R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q/FkQ52rulsgoRUfrT34S6rcGquoZXBPSHRgn+7CiBY4Ox8kp5AlJasFAlAuleuZL
-         KpaNBYzJ1x6VgeTqg7eWryC4LYZD+VaH+dOVTAJrLSqWkUhpfuP4zGPMmmwnKq0Kbd
-         NG1y8obo4SIIxUdHJ+Ksh7iHs26GYe9HTDeLEotw=
+        b=kxTq6JKxx8l2LlkyG13y1qTrVTZaIJ2UVwHhspNGqoemP4VYuXJ2bI0/zawyR+T1N
+         rLrFzwKhR0K+E/jZfFJ/gb4tJ7z+79ge8JXzxEijfK2IsKc/9cnDLrbMqpFSMwfcI3
+         Oz/N3Y5EByz1Br28N4ffAgoCgW/hEShh+ZpWmdKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, William Zhao <wizhao@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/146] ksmbd: add low bound validation to FSCTL_SET_ZERO_DATA
+Subject: [PATCH 6.1 149/224] act_mirred: use the backlog for nested calls to mirred ingress
 Date:   Tue, 28 Mar 2023 16:42:25 +0200
-Message-Id: <20230328142605.043329465@linuxfoundation.org>
+Message-Id: <20230328142623.579541439@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +57,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit 2d74ec97131b1179a373b6d521f195c84e894eb6 ]
+[ Upstream commit ca22da2fbd693b54dc8e3b7b54ccc9f7e9ba3640 ]
 
-Smatch static checker warning:
- fs/ksmbd/smb2pdu.c:7759 smb2_ioctl()
- warn: no lower bound on 'off'
+William reports kernel soft-lockups on some OVS topologies when TC mirred
+egress->ingress action is hit by local TCP traffic [1].
+The same can also be reproduced with SCTP (thanks Xin for verifying), when
+client and server reach themselves through mirred egress to ingress, and
+one of the two peers sends a "heartbeat" packet (from within a timer).
 
-Fix unexpected result that could caused from negative off and bfz.
+Enqueueing to backlog proved to fix this soft lockup; however, as Cong
+noticed [2], we should preserve - when possible - the current mirred
+behavior that counts as "overlimits" any eventual packet drop subsequent to
+the mirred forwarding action [3]. A compromise solution might use the
+backlog only when tcf_mirred_act() has a nest level greater than one:
+change tcf_mirred_forward() accordingly.
 
-Fixes: b5e5f9dfc915 ("ksmbd: check invalid FileOffset and BeyondFinalZero in FSCTL_ZERO_DATA")
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Also, add a kselftest that can reproduce the lockup and verifies TC mirred
+ability to account for further packet drops after TC mirred egress->ingress
+(when the nest level is 1).
+
+ [1] https://lore.kernel.org/netdev/33dc43f587ec1388ba456b4915c75f02a8aae226.1663945716.git.dcaratti@redhat.com/
+ [2] https://lore.kernel.org/netdev/Y0w%2FWWY60gqrtGLp@pop-os.localdomain/
+ [3] such behavior is not guaranteed: for example, if RPS or skb RX
+     timestamping is enabled on the mirred target device, the kernel
+     can defer receiving the skb and return NET_RX_SUCCESS inside
+     tcf_mirred_forward().
+
+Reported-by: William Zhao <wizhao@redhat.com>
+CC: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/act_mirred.c                        |  7 +++
+ .../selftests/net/forwarding/tc_actions.sh    | 49 ++++++++++++++++++-
+ 2 files changed, 55 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index ac029dfd23ab8..305313abbc24b 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -7725,7 +7725,7 @@ int smb2_ioctl(struct ksmbd_work *work)
+diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
+index ded6ee054be14..baeae5e5c8f0c 100644
+--- a/net/sched/act_mirred.c
++++ b/net/sched/act_mirred.c
+@@ -205,12 +205,19 @@ static int tcf_mirred_init(struct net *net, struct nlattr *nla,
+ 	return err;
+ }
  
- 		off = le64_to_cpu(zero_data->FileOffset);
- 		bfz = le64_to_cpu(zero_data->BeyondFinalZero);
--		if (off > bfz) {
-+		if (off < 0 || bfz < 0 || off > bfz) {
- 			ret = -EINVAL;
- 			goto out;
- 		}
++static bool is_mirred_nested(void)
++{
++	return unlikely(__this_cpu_read(mirred_nest_level) > 1);
++}
++
+ static int tcf_mirred_forward(bool want_ingress, struct sk_buff *skb)
+ {
+ 	int err;
+ 
+ 	if (!want_ingress)
+ 		err = tcf_dev_queue_xmit(skb, dev_queue_xmit);
++	else if (is_mirred_nested())
++		err = netif_rx(skb);
+ 	else
+ 		err = netif_receive_skb(skb);
+ 
+diff --git a/tools/testing/selftests/net/forwarding/tc_actions.sh b/tools/testing/selftests/net/forwarding/tc_actions.sh
+index 1e0a62f638fec..919c0dd9fe4bc 100755
+--- a/tools/testing/selftests/net/forwarding/tc_actions.sh
++++ b/tools/testing/selftests/net/forwarding/tc_actions.sh
+@@ -3,7 +3,8 @@
+ 
+ ALL_TESTS="gact_drop_and_ok_test mirred_egress_redirect_test \
+ 	mirred_egress_mirror_test matchall_mirred_egress_mirror_test \
+-	gact_trap_test mirred_egress_to_ingress_test"
++	gact_trap_test mirred_egress_to_ingress_test \
++	mirred_egress_to_ingress_tcp_test"
+ NUM_NETIFS=4
+ source tc_common.sh
+ source lib.sh
+@@ -198,6 +199,52 @@ mirred_egress_to_ingress_test()
+ 	log_test "mirred_egress_to_ingress ($tcflags)"
+ }
+ 
++mirred_egress_to_ingress_tcp_test()
++{
++	local tmpfile=$(mktemp) tmpfile1=$(mktemp)
++
++	RET=0
++	dd conv=sparse status=none if=/dev/zero bs=1M count=2 of=$tmpfile
++	tc filter add dev $h1 protocol ip pref 100 handle 100 egress flower \
++		$tcflags ip_proto tcp src_ip 192.0.2.1 dst_ip 192.0.2.2 \
++			action ct commit nat src addr 192.0.2.2 pipe \
++			action ct clear pipe \
++			action ct commit nat dst addr 192.0.2.1 pipe \
++			action ct clear pipe \
++			action skbedit ptype host pipe \
++			action mirred ingress redirect dev $h1
++	tc filter add dev $h1 protocol ip pref 101 handle 101 egress flower \
++		$tcflags ip_proto icmp \
++			action mirred ingress redirect dev $h1
++	tc filter add dev $h1 protocol ip pref 102 handle 102 ingress flower \
++		ip_proto icmp \
++			action drop
++
++	ip vrf exec v$h1 nc --recv-only -w10 -l -p 12345 -o $tmpfile1  &
++	local rpid=$!
++	ip vrf exec v$h1 nc -w1 --send-only 192.0.2.2 12345 <$tmpfile
++	wait -n $rpid
++	cmp -s $tmpfile $tmpfile1
++	check_err $? "server output check failed"
++
++	$MZ $h1 -c 10 -p 64 -a $h1mac -b $h1mac -A 192.0.2.1 -B 192.0.2.1 \
++		-t icmp "ping,id=42,seq=5" -q
++	tc_check_packets "dev $h1 egress" 101 10
++	check_err $? "didn't mirred redirect ICMP"
++	tc_check_packets "dev $h1 ingress" 102 10
++	check_err $? "didn't drop mirred ICMP"
++	local overlimits=$(tc_rule_stats_get ${h1} 101 egress .overlimits)
++	test ${overlimits} = 10
++	check_err $? "wrong overlimits, expected 10 got ${overlimits}"
++
++	tc filter del dev $h1 egress protocol ip pref 100 handle 100 flower
++	tc filter del dev $h1 egress protocol ip pref 101 handle 101 flower
++	tc filter del dev $h1 ingress protocol ip pref 102 handle 102 flower
++
++	rm -f $tmpfile $tmpfile1
++	log_test "mirred_egress_to_ingress_tcp ($tcflags)"
++}
++
+ setup_prepare()
+ {
+ 	h1=${NETIFS[p1]}
 -- 
 2.39.2
 
