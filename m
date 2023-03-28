@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4B496CC52B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 085536CC461
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232345AbjC1PMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54018 "EHLO
+        id S233795AbjC1PEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:04:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232349AbjC1PMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EAA810253
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:08 -0700 (PDT)
+        with ESMTP id S233793AbjC1PEa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3781D514
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D348B81D96
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89D6BC433EF;
-        Tue, 28 Mar 2023 15:08:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CECDFCE1D9C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5391C433EF;
+        Tue, 28 Mar 2023 15:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016136;
-        bh=Lfej/e+R/XfH5jbjc2UVAuZ5x+IgxBUNvehXgPGZ1Nw=;
+        s=korg; t=1680015782;
+        bh=sRGFf43QbpCOhF8T3iMsrGAGJcquxPawIyZ9s16t4aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/VRfCcXmtCPcR0U3QpLoGw2k4f5VMRjDVtNq4V4cbqSpZwj9kiUC0kXc7KQ33H43
-         dd59tYOcNWDF2/N/2Ps7uJU0S4F0ZpS/pY0udVUH3XEEUrAduUvI2uhSg3HHyd9UE3
-         9+/DgRIoneK+K9CAxBk5NXUEvE+l+kMPQkN5mwkU=
+        b=iTCes5hSXbD+44i3KC1ioDvLLt+QrLeEwxgIypvzhda+oV2MgPtZx7bRgcqyut1Ap
+         9FHjWs0XY2Y0SiEPs174M2xXNoBJW9DM36ye/2HhJ4CQKUdyCu9fMQmwxGmAo5qAhR
+         3FriqKlp5ySUiPWhSJUIO8GypLmGgJeQTH9FFAIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Christian=20Schaubschl=C3=A4ger?= 
-        <christian.schaubschlaeger@gmx.at>,
-        Gil Fine <gil.fine@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.15 079/146] thunderbolt: Add missing UNSET_INBOUND_SBTX for retimer access
-Date:   Tue, 28 Mar 2023 16:42:48 +0200
-Message-Id: <20230328142606.003226503@linuxfoundation.org>
+        patches@lists.linux.dev, Coly Li <colyli@suse.de>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.1 173/224] dm thin: fix deadlock when swapping to thin device
+Date:   Tue, 28 Mar 2023 16:42:49 +0200
+Message-Id: <20230328142624.584577982@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,137 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gil Fine <gil.fine@linux.intel.com>
+From: Coly Li <colyli@suse.de>
 
-commit cd0c1e582b055dea615001b8bd8eccaf6f69f7ce upstream.
+commit 9bbf5feecc7eab2c370496c1c161bbfe62084028 upstream.
 
-According to USB4 retimer specification, the process of firmware update
-sequence requires issuing a SET_INBOUND_SBTX port operation that later
-shall be followed by UNSET_INBOUND_SBTX port operation. This last step
-is not currently issued by the driver but it is necessary to make sure
-the retimers are put back to passthrough mode even during enumeration.
+This is an already known issue that dm-thin volume cannot be used as
+swap, otherwise a deadlock may happen when dm-thin internal memory
+demand triggers swap I/O on the dm-thin volume itself.
 
-If this step is missing the link may not come up properly after
-soft-reboot for example.
+But thanks to commit a666e5c05e7c ("dm: fix deadlock when swapping to
+encrypted device"), the limit_swap_bios target flag can also be used
+for dm-thin to avoid the recursive I/O when it is used as swap.
 
-For this reason issue UNSET_INBOUND_SBTX after SET_INBOUND_SBTX for
-enumeration and also when the NVM upgrade is run.
+Fix is to simply set ti->limit_swap_bios to true in both pool_ctr()
+and thin_ctr().
 
-Reported-by: Christian Schaubschläger <christian.schaubschlaeger@gmx.at>
-Link: https://lore.kernel.org/linux-usb/b556f5ed-5ee8-9990-9910-afd60db93310@gmx.at/
+In my test, I create a dm-thin volume /dev/vg/swap and use it as swap
+device. Then I run fio on another dm-thin volume /dev/vg/main and use
+large --blocksize to trigger swap I/O onto /dev/vg/swap.
+
+The following fio command line is used in my test,
+  fio --name recursive-swap-io --lockmem 1 --iodepth 128 \
+     --ioengine libaio --filename /dev/vg/main --rw randrw \
+    --blocksize 1M --numjobs 32 --time_based --runtime=12h
+
+Without this fix, the whole system can be locked up within 15 seconds.
+
+With this fix, there is no any deadlock or hung task observed after
+2 hours of running fio.
+
+Furthermore, if blocksize is changed from 1M to 128M, after around 30
+seconds fio has no visible I/O, and the out-of-memory killer message
+shows up in kernel message. After around 20 minutes all fio processes
+are killed and the whole system is back to being alive.
+
+This is exactly what is expected when recursive I/O happens on dm-thin
+volume when it is used as swap.
+
+Depends-on: a666e5c05e7c ("dm: fix deadlock when swapping to encrypted device")
 Cc: stable@vger.kernel.org
-Signed-off-by: Gil Fine <gil.fine@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/retimer.c |   23 +++++++++++++++++++++--
- drivers/thunderbolt/sb_regs.h |    1 +
- drivers/thunderbolt/tb.h      |    1 +
- drivers/thunderbolt/usb4.c    |   14 ++++++++++++++
- 4 files changed, 37 insertions(+), 2 deletions(-)
+ drivers/md/dm-thin.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/thunderbolt/retimer.c
-+++ b/drivers/thunderbolt/retimer.c
-@@ -208,6 +208,22 @@ static ssize_t nvm_authenticate_show(str
- 	return ret;
- }
- 
-+static void tb_retimer_set_inbound_sbtx(struct tb_port *port)
-+{
-+	int i;
-+
-+	for (i = 1; i <= TB_MAX_RETIMER_INDEX; i++)
-+		usb4_port_retimer_set_inbound_sbtx(port, i);
-+}
-+
-+static void tb_retimer_unset_inbound_sbtx(struct tb_port *port)
-+{
-+	int i;
-+
-+	for (i = TB_MAX_RETIMER_INDEX; i >= 1; i--)
-+		usb4_port_retimer_unset_inbound_sbtx(port, i);
-+}
-+
- static ssize_t nvm_authenticate_store(struct device *dev,
- 	struct device_attribute *attr, const char *buf, size_t count)
- {
-@@ -234,6 +250,7 @@ static ssize_t nvm_authenticate_store(st
- 	rt->auth_status = 0;
- 
- 	if (val) {
-+		tb_retimer_set_inbound_sbtx(rt->port);
- 		if (val == AUTHENTICATE_ONLY) {
- 			ret = tb_retimer_nvm_authenticate(rt, true);
- 		} else {
-@@ -253,6 +270,7 @@ static ssize_t nvm_authenticate_store(st
- 	}
- 
- exit_unlock:
-+	tb_retimer_unset_inbound_sbtx(rt->port);
- 	mutex_unlock(&rt->tb->lock);
- exit_rpm:
- 	pm_runtime_mark_last_busy(&rt->dev);
-@@ -466,8 +484,7 @@ int tb_retimer_scan(struct tb_port *port
- 	 * Enable sideband channel for each retimer. We can do this
- 	 * regardless whether there is device connected or not.
- 	 */
--	for (i = 1; i <= TB_MAX_RETIMER_INDEX; i++)
--		usb4_port_retimer_set_inbound_sbtx(port, i);
-+	tb_retimer_set_inbound_sbtx(port);
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3357,6 +3357,7 @@ static int pool_ctr(struct dm_target *ti
+ 	pt->low_water_blocks = low_water_blocks;
+ 	pt->adjusted_pf = pt->requested_pf = pf;
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
  
  	/*
- 	 * Before doing anything else, read the authentication status.
-@@ -490,6 +507,8 @@ int tb_retimer_scan(struct tb_port *port
- 			break;
- 	}
+ 	 * Only need to enable discards if the pool should pass
+@@ -4235,6 +4236,7 @@ static int thin_ctr(struct dm_target *ti
+ 		goto bad;
  
-+	tb_retimer_unset_inbound_sbtx(port);
-+
- 	if (!last_idx)
- 		return 0;
- 
---- a/drivers/thunderbolt/sb_regs.h
-+++ b/drivers/thunderbolt/sb_regs.h
-@@ -20,6 +20,7 @@ enum usb4_sb_opcode {
- 	USB4_SB_OPCODE_ROUTER_OFFLINE = 0x4e45534c,		/* "LSEN" */
- 	USB4_SB_OPCODE_ENUMERATE_RETIMERS = 0x4d554e45,		/* "ENUM" */
- 	USB4_SB_OPCODE_SET_INBOUND_SBTX = 0x5055534c,		/* "LSUP" */
-+	USB4_SB_OPCODE_UNSET_INBOUND_SBTX = 0x50555355,		/* "USUP" */
- 	USB4_SB_OPCODE_QUERY_LAST_RETIMER = 0x5453414c,		/* "LAST" */
- 	USB4_SB_OPCODE_GET_NVM_SECTOR_SIZE = 0x53534e47,	/* "GNSS" */
- 	USB4_SB_OPCODE_NVM_SET_OFFSET = 0x53504f42,		/* "BOPS" */
---- a/drivers/thunderbolt/tb.h
-+++ b/drivers/thunderbolt/tb.h
-@@ -1080,6 +1080,7 @@ int usb4_port_router_online(struct tb_po
- int usb4_port_enumerate_retimers(struct tb_port *port);
- 
- int usb4_port_retimer_set_inbound_sbtx(struct tb_port *port, u8 index);
-+int usb4_port_retimer_unset_inbound_sbtx(struct tb_port *port, u8 index);
- int usb4_port_retimer_read(struct tb_port *port, u8 index, u8 reg, void *buf,
- 			   u8 size);
- int usb4_port_retimer_write(struct tb_port *port, u8 index, u8 reg,
---- a/drivers/thunderbolt/usb4.c
-+++ b/drivers/thunderbolt/usb4.c
-@@ -1442,6 +1442,20 @@ int usb4_port_retimer_set_inbound_sbtx(s
- }
- 
- /**
-+ * usb4_port_retimer_unset_inbound_sbtx() - Disable sideband channel transactions
-+ * @port: USB4 port
-+ * @index: Retimer index
-+ *
-+ * Disables sideband channel transations on SBTX. The reverse of
-+ * usb4_port_retimer_set_inbound_sbtx().
-+ */
-+int usb4_port_retimer_unset_inbound_sbtx(struct tb_port *port, u8 index)
-+{
-+	return usb4_port_retimer_op(port, index,
-+				    USB4_SB_OPCODE_UNSET_INBOUND_SBTX, 500);
-+}
-+
-+/**
-  * usb4_port_retimer_read() - Read from retimer sideband registers
-  * @port: USB4 port
-  * @index: Retimer index
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
+ 	ti->flush_supported = true;
+ 	ti->accounts_remapped_io = true;
+ 	ti->per_io_data_size = sizeof(struct dm_thin_endio_hook);
 
 
