@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBAA6CC28C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27CA6CC25E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232220AbjC1OqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:46:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37346 "EHLO
+        id S233158AbjC1Ool (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:44:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233242AbjC1OqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06C29D50C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:49 -0700 (PDT)
+        with ESMTP id S233128AbjC1Ood (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:44:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A957EBDDF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:44:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 871CAB81D67
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7AE8C433D2;
-        Tue, 28 Mar 2023 14:45:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B48216182C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC875C433EF;
+        Tue, 28 Mar 2023 14:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014746;
-        bh=nx/aY+vhKEi3XNXRCeA6aHx5EHKt59QZ1+YYRKfWj0g=;
+        s=korg; t=1680014669;
+        bh=4PmghaiQzSnprY71YjOHpZQd8m/rxGKANb7/JxO9T8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0z39okPSFjTBA3Gvb+Fmg+v6fsgCwgRqKeyp8H3psQ6ZckvMAn2gJP3OqdoxwzsU
-         GJ+T7qDuEMOo+tF5SpZOYuOk6CZwUSp3oSHYRqYcjxdE2yiB15DFwsgZ2PsK+WtVxR
-         97W3zKrDnEIcaUqd2fGqtuPPba5L0eq7aYs1dX6Q=
+        b=kVwjyRC4N772/pLGrCTAiAZDC6GgTHI/BKrqpMJ9VqzRzUyPzYD+tp+Vsi1mTM3qg
+         QSKLTq66+zajwGwiIvNDRbGWhNxDV37DGVzr+unPvJAmJqTU5Fqs0m3UdJU7ZGKlAv
+         0VZCFdUnPr/vwwnEuaBngG6cAHB14rZOFlEJ8cIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Wenjing Liu <Wenjing.Liu@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Cruise Hung <Cruise.Hung@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 009/240] drm/amd/display: Fix DP MST sinks removal issue
-Date:   Tue, 28 Mar 2023 16:39:32 +0200
-Message-Id: <20230328142620.045093548@linuxfoundation.org>
+Subject: [PATCH 6.2 010/240] arm64: dts: freescale: imx8-ss-lsio: Fix flexspi clock order
+Date:   Tue, 28 Mar 2023 16:39:33 +0200
+Message-Id: <20230328142620.082821620@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -58,77 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cruise Hung <Cruise.Hung@amd.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit cbd6c1b17d3b42b7935526a86ad5f66838767d03 ]
+[ Upstream commit fd4334a06d452ce89a0bb831b03130c51331d927 ]
 
-[Why]
-In USB4 DP tunneling, it's possible to have this scenario that
-the path becomes unavailable and CM tears down the path a little bit late.
-So, in this case, the HPD is high but fails to read any DPCD register.
-That causes the link connection type to be set to sst.
-And not all sinks are removed behind the MST branch.
+The correct clock order is "fspi_en" and "fspi". As they are identical
+just reordering the names is sufficient.
 
-[How]
-Restore the link connection type if it fails to read DPCD register.
-
-Cc: stable@vger.kernel.org
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Cruise Hung <Cruise.Hung@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-(cherry picked from commit cbd6c1b17d3b42b7935526a86ad5f66838767d03)
-Modified for stable backport as a lot of the code in this file was moved
-in 6.3 to drivers/gpu/drm/amd/display/dc/link/link_detection.c.
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Fixes: 6276d66984e9 ("arm64: dts: imx8dxl: add flexspi0 support")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 754fc86341494..54656fcaa6464 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -1016,6 +1016,7 @@ static bool detect_link_and_local_sink(struct dc_link *link,
- 	struct dc_sink *prev_sink = NULL;
- 	struct dpcd_caps prev_dpcd_caps;
- 	enum dc_connection_type new_connection_type = dc_connection_none;
-+	enum dc_connection_type pre_connection_type = link->type;
- 	const uint32_t post_oui_delay = 30; // 30ms
- 
- 	DC_LOGGER_INIT(link->ctx->logger);
-@@ -1118,6 +1119,8 @@ static bool detect_link_and_local_sink(struct dc_link *link,
- 			}
- 
- 			if (!detect_dp(link, &sink_caps, reason)) {
-+				link->type = pre_connection_type;
-+
- 				if (prev_sink)
- 					dc_sink_release(prev_sink);
- 				return false;
-@@ -1349,6 +1352,8 @@ bool dc_link_detect(struct dc_link *link, enum dc_detect_reason reason)
- 	bool is_delegated_to_mst_top_mgr = false;
- 	enum dc_connection_type pre_link_type = link->type;
- 
-+	DC_LOGGER_INIT(link->ctx->logger);
-+
- 	is_local_sink_detect_success = detect_link_and_local_sink(link, reason);
- 
- 	if (is_local_sink_detect_success && link->local_sink)
-@@ -1359,6 +1364,10 @@ bool dc_link_detect(struct dc_link *link, enum dc_detect_reason reason)
- 			link->dpcd_caps.is_mst_capable)
- 		is_delegated_to_mst_top_mgr = discover_dp_mst_topology(link, reason);
- 
-+	DC_LOG_DC("%s: link_index=%d is_local_sink_detect_success=%d pre_link_type=%d link_type=%d\n", __func__,
-+		 link->link_index, is_local_sink_detect_success, pre_link_type, link->type);
-+
-+
- 	if (is_local_sink_detect_success &&
- 			pre_link_type == dc_connection_mst_branch &&
- 			link->type != dc_connection_mst_branch)
+diff --git a/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi b/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi
+index 1f3d225e64ece..06b94bbc2b97d 100644
+--- a/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi
+@@ -117,7 +117,7 @@ flexspi0: spi@5d120000 {
+ 		interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&clk IMX_SC_R_FSPI_0 IMX_SC_PM_CLK_PER>,
+ 			 <&clk IMX_SC_R_FSPI_0 IMX_SC_PM_CLK_PER>;
+-		clock-names = "fspi", "fspi_en";
++		clock-names = "fspi_en", "fspi";
+ 		power-domains = <&pd IMX_SC_R_FSPI_0>;
+ 		status = "disabled";
+ 	};
 -- 
 2.39.2
 
