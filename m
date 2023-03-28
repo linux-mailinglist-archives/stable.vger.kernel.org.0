@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4C26CC4D9
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:09:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 733616CC349
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230014AbjC1PJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:09:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        id S233546AbjC1Owt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:52:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230468AbjC1PJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:09:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716C3B45C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:08:14 -0700 (PDT)
+        with ESMTP id S233357AbjC1Ow3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F47FD338
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC71B61865
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D08C8C433D2;
-        Tue, 28 Mar 2023 15:07:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B519DB81CAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6DCC433D2;
+        Tue, 28 Mar 2023 14:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016074;
-        bh=Ksq6fvIwIA5iGOS+9b/UGSX+6WJJpzaCNuRhtSaaYJQ=;
+        s=korg; t=1680015140;
+        bh=y7TT18OqeEh5SRtmCxn5WnkaCLIuzAnGnu3VDtfrb5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsnC6Y0vKUFUp+C5UXyfSwAy0fgp3FEKB6IxcsBhtHbWscaXn9GvV+hJIsrGRbqrG
-         LuJ2ft9ORD3hjk6DPvkXPsSG4I2kGqneC4cBsueVligg14urhpST+rqNj11zp0SxHF
-         xcmTaWZ5SIC42E+nwrIwpJx5j8frU4XsJBh8zFzE=
+        b=CfYvgWzjfWM7o2O0vP/zGtvp7/aKysQUKXm9KraOol5wrBCBPxRnUNHSQJTXcbvnP
+         RHSqVp6B1pTiZu996793BL0Lp6zHHKb5DDXs5xsoX4Pvu3IG4HP3GvR0hFmMdNM0Qd
+         1hOmfUIKsGc99SmydkvWmPQd2vhKB3tGQA9fxUT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/146] hvc/xen: prevent concurrent accesses to the shared ring
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 6.2 181/240] efi: sysfb_efi: Fix DMI quirks not working for simpledrm
 Date:   Tue, 28 Mar 2023 16:42:24 +0200
-Message-Id: <20230328142604.996393215@linuxfoundation.org>
+Message-Id: <20230328142627.172614381@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,144 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 6214894f49a967c749ee6c07cb00f9cede748df4 ]
+commit 3615c78673c332b69aaacefbcde5937c5c706686 upstream.
 
-The hvc machinery registers both a console and a tty device based on
-the hv ops provided by the specific implementation.  Those two
-interfaces however have different locks, and there's no single locks
-that's shared between the tty and the console implementations, hence
-the driver needs to protect itself against concurrent accesses.
-Otherwise concurrent calls using the split interfaces are likely to
-corrupt the ring indexes, leaving the console unusable.
+Commit 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup
+for all arches") moved the sysfb_apply_efi_quirks() call in sysfb_init()
+from before the [sysfb_]parse_mode() call to after it.
+But sysfb_apply_efi_quirks() modifies the global screen_info struct which
+[sysfb_]parse_mode() parses, so doing it later is too late.
 
-Introduce a lock to xencons_info to serialize accesses to the shared
-ring.  This is only required when using the shared memory console,
-concurrent accesses to the hypercall based console implementation are
-not an issue.
+This has broken all DMI based quirks for correcting wrong firmware efifb
+settings when simpledrm is used.
 
-Note the conditional logic in domU_read_console() is slightly modified
-so the notify_daemon() call can be done outside of the locked region:
-it's an hypercall and there's no need for it to be done with the lock
-held.
+To fix this move the sysfb_apply_efi_quirks() call back to its old place
+and split the new setup of the efifb_fwnode (which requires
+the platform_device) into its own function and call that at
+the place of the moved sysfb_apply_efi_quirks(pd) calls.
 
-Fixes: b536b4b96230 ('xen: use the hvc console infrastructure for Xen console')
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221130150919.13935-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
+Cc: stable@vger.kernel.org
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/hvc/hvc_xen.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/sysfb_efi.c  |    5 ++++-
+ drivers/firmware/sysfb.c          |    4 +++-
+ drivers/firmware/sysfb_simplefb.c |    2 +-
+ include/linux/sysfb.h             |    9 +++++++--
+ 4 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
-index 609a51137e96f..f2f066ce8d9ef 100644
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -43,6 +43,7 @@ struct xencons_info {
- 	int irq;
- 	int vtermno;
- 	grant_ref_t gntref;
-+	spinlock_t ring_lock;
- };
+--- a/drivers/firmware/efi/sysfb_efi.c
++++ b/drivers/firmware/efi/sysfb_efi.c
+@@ -341,7 +341,7 @@ static const struct fwnode_operations ef
+ #ifdef CONFIG_EFI
+ static struct fwnode_handle efifb_fwnode;
  
- static LIST_HEAD(xenconsoles);
-@@ -89,12 +90,15 @@ static int __write_console(struct xencons_info *xencons,
- 	XENCONS_RING_IDX cons, prod;
- 	struct xencons_interface *intf = xencons->intf;
- 	int sent = 0;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&xencons->ring_lock, flags);
- 	cons = intf->out_cons;
- 	prod = intf->out_prod;
- 	mb();			/* update queue values before going on */
- 
- 	if ((prod - cons) > sizeof(intf->out)) {
-+		spin_unlock_irqrestore(&xencons->ring_lock, flags);
- 		pr_err_once("xencons: Illegal ring page indices");
- 		return -EINVAL;
- 	}
-@@ -104,6 +108,7 @@ static int __write_console(struct xencons_info *xencons,
- 
- 	wmb();			/* write ring before updating pointer */
- 	intf->out_prod = prod;
-+	spin_unlock_irqrestore(&xencons->ring_lock, flags);
- 
- 	if (sent)
- 		notify_daemon(xencons);
-@@ -146,16 +151,19 @@ static int domU_read_console(uint32_t vtermno, char *buf, int len)
- 	int recv = 0;
- 	struct xencons_info *xencons = vtermno_to_xencons(vtermno);
- 	unsigned int eoiflag = 0;
-+	unsigned long flags;
- 
- 	if (xencons == NULL)
- 		return -EINVAL;
- 	intf = xencons->intf;
- 
-+	spin_lock_irqsave(&xencons->ring_lock, flags);
- 	cons = intf->in_cons;
- 	prod = intf->in_prod;
- 	mb();			/* get pointers before reading ring */
- 
- 	if ((prod - cons) > sizeof(intf->in)) {
-+		spin_unlock_irqrestore(&xencons->ring_lock, flags);
- 		pr_err_once("xencons: Illegal ring page indices");
- 		return -EINVAL;
- 	}
-@@ -179,10 +187,13 @@ static int domU_read_console(uint32_t vtermno, char *buf, int len)
- 		xencons->out_cons = intf->out_cons;
- 		xencons->out_cons_same = 0;
- 	}
-+	if (!recv && xencons->out_cons_same++ > 1) {
-+		eoiflag = XEN_EOI_FLAG_SPURIOUS;
-+	}
-+	spin_unlock_irqrestore(&xencons->ring_lock, flags);
-+
- 	if (recv) {
- 		notify_daemon(xencons);
--	} else if (xencons->out_cons_same++ > 1) {
--		eoiflag = XEN_EOI_FLAG_SPURIOUS;
- 	}
- 
- 	xen_irq_lateeoi(xencons->irq, eoiflag);
-@@ -239,6 +250,7 @@ static int xen_hvm_console_init(void)
- 		info = kzalloc(sizeof(struct xencons_info), GFP_KERNEL);
- 		if (!info)
- 			return -ENOMEM;
-+		spin_lock_init(&info->ring_lock);
- 	} else if (info->intf != NULL) {
- 		/* already configured */
- 		return 0;
-@@ -275,6 +287,7 @@ static int xen_hvm_console_init(void)
- 
- static int xencons_info_pv_init(struct xencons_info *info, int vtermno)
+-__init void sysfb_apply_efi_quirks(struct platform_device *pd)
++__init void sysfb_apply_efi_quirks(void)
  {
-+	spin_lock_init(&info->ring_lock);
- 	info->evtchn = xen_start_info->console.domU.evtchn;
- 	/* GFN == MFN for PV guest */
- 	info->intf = gfn_to_virt(xen_start_info->console.domU.mfn);
-@@ -325,6 +338,7 @@ static int xen_initial_domain_console_init(void)
- 		info = kzalloc(sizeof(struct xencons_info), GFP_KERNEL);
- 		if (!info)
- 			return -ENOMEM;
-+		spin_lock_init(&info->ring_lock);
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
+ 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
+@@ -355,7 +355,10 @@ __init void sysfb_apply_efi_quirks(struc
+ 		screen_info.lfb_height = temp;
+ 		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
+ 	}
++}
+ 
++__init void sysfb_set_efifb_fwnode(struct platform_device *pd)
++{
+ 	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI && IS_ENABLED(CONFIG_PCI)) {
+ 		fwnode_init(&efifb_fwnode, &efifb_fwnode_ops);
+ 		pd->dev.fwnode = &efifb_fwnode;
+--- a/drivers/firmware/sysfb.c
++++ b/drivers/firmware/sysfb.c
+@@ -81,6 +81,8 @@ static __init int sysfb_init(void)
+ 	if (disabled)
+ 		goto unlock_mutex;
+ 
++	sysfb_apply_efi_quirks();
++
+ 	/* try to create a simple-framebuffer device */
+ 	compatible = sysfb_parse_mode(si, &mode);
+ 	if (compatible) {
+@@ -107,7 +109,7 @@ static __init int sysfb_init(void)
+ 		goto unlock_mutex;
  	}
  
- 	info->irq = bind_virq_to_irq(VIRQ_CONSOLE, 0, false);
-@@ -482,6 +496,7 @@ static int xencons_probe(struct xenbus_device *dev,
- 	info = kzalloc(sizeof(struct xencons_info), GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
-+	spin_lock_init(&info->ring_lock);
- 	dev_set_drvdata(&dev->dev, info);
- 	info->xbdev = dev;
- 	info->vtermno = xenbus_devid_to_vtermno(devid);
--- 
-2.39.2
-
+-	sysfb_apply_efi_quirks(pd);
++	sysfb_set_efifb_fwnode(pd);
+ 
+ 	ret = platform_device_add_data(pd, si, sizeof(*si));
+ 	if (ret)
+--- a/drivers/firmware/sysfb_simplefb.c
++++ b/drivers/firmware/sysfb_simplefb.c
+@@ -110,7 +110,7 @@ __init struct platform_device *sysfb_cre
+ 	if (!pd)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	sysfb_apply_efi_quirks(pd);
++	sysfb_set_efifb_fwnode(pd);
+ 
+ 	ret = platform_device_add_resources(pd, &res, 1);
+ 	if (ret)
+--- a/include/linux/sysfb.h
++++ b/include/linux/sysfb.h
+@@ -70,11 +70,16 @@ static inline void sysfb_disable(void)
+ #ifdef CONFIG_EFI
+ 
+ extern struct efifb_dmi_info efifb_dmi_list[];
+-void sysfb_apply_efi_quirks(struct platform_device *pd);
++void sysfb_apply_efi_quirks(void);
++void sysfb_set_efifb_fwnode(struct platform_device *pd);
+ 
+ #else /* CONFIG_EFI */
+ 
+-static inline void sysfb_apply_efi_quirks(struct platform_device *pd)
++static inline void sysfb_apply_efi_quirks(void)
++{
++}
++
++static inline void sysfb_set_efifb_fwnode(struct platform_device *pd)
+ {
+ }
+ 
 
 
