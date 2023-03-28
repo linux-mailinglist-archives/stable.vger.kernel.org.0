@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7F7D6CBE4F
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:00:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906516CBE50
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232734AbjC1MAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:00:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54656 "EHLO
+        id S230445AbjC1MB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:01:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232840AbjC1MAu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:00:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023CC7EFD
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:00:41 -0700 (PDT)
+        with ESMTP id S229935AbjC1MB1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:01:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DDCB1710
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:01:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2A5EB81C1E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E702C433D2;
-        Tue, 28 Mar 2023 12:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30B44B81C23
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:01:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE26C433D2;
+        Tue, 28 Mar 2023 12:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680004837;
-        bh=DGPORw57+k3FOMh0QPGvRjMb2tnKIo0xRkMaNwFMJF4=;
+        s=korg; t=1680004884;
+        bh=25lS8xD+zH4VPqzoBFiy1N9gdKZ3L4WwnsvBt0qa22A=;
         h=Subject:To:Cc:From:Date:From;
-        b=UpE2vZ/aSuUkyEgYHPfPB4+ak9nqDxOXQbJqMVuGPhzwC0gOCbXAaIv+YPHggvFli
-         mYaX0CyCEl1lUOH6FpvXdzLq6RZux78uX+3p0PxObrSYMVG3920vRxPX9dOCT5iuH4
-         O312+isQZ6aPzqdhIBQqsWdMg7Xi8nMS8GjBligk=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Add 1ms delay after end transfer command" failed to apply to 5.10-stable tree
-To:     quic_wcheng@quicinc.com, Thinh.Nguyen@synopsys.com,
-        gregkh@linuxfoundation.org, stable@kernel.org
+        b=0mrL1oQhkszWJxEs56muI87KLHBt+dGC5C3FmP0zMqDMttGQ+KaqDx8kK+IGrsyWd
+         3tgcFfPrObYnQJ2t+wDkA7/9ETNv58JtHVny+3bsi7wg8SQJED/ivJQZUnXkVYIC/u
+         IK9MOYHvp1K8r8d3+sxQMfCD9/etCV8d6Z6QeuBk=
+Subject: FAILED: patch "[PATCH] usb: ucsi: Fix ucsi->connector race" failed to apply to 6.2-stable tree
+To:     hdegoede@redhat.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 14:00:26 +0200
-Message-ID: <168000482628177@kroah.com>
+Date:   Tue, 28 Mar 2023 14:01:21 +0200
+Message-ID: <16800048817970@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,25 +48,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
-git cherry-pick -x d8a2bb4eb75866275b5cf7de2e593ac3449643e2
+git cherry-pick -x 0482c34ec6f8557e06cd0f8e2d0e20e8ede6a22c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '168000482628177@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800048817970@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
-d8a2bb4eb758 ("usb: dwc3: gadget: Add 1ms delay after end transfer command without IOC")
-e192cc7b5239 ("usb: dwc3: gadget: move cmd_endtransfer to extra function")
-d74dc3e9f58c ("usb: dwc3: gadget: Ignore NoStream after End Transfer")
+0482c34ec6f8 ("usb: ucsi: Fix ucsi->connector race")
+f87fb985452a ("usb: ucsi: Fix NULL pointer deref in ucsi_connector_change()")
+924fb3ec50f5 ("Merge 6.2-rc7 into usb-next")
 
 thanks,
 
@@ -74,80 +74,113 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d8a2bb4eb75866275b5cf7de2e593ac3449643e2 Mon Sep 17 00:00:00 2001
-From: Wesley Cheng <quic_wcheng@quicinc.com>
-Date: Mon, 6 Mar 2023 12:05:57 -0800
-Subject: [PATCH] usb: dwc3: gadget: Add 1ms delay after end transfer command
- without IOC
+From 0482c34ec6f8557e06cd0f8e2d0e20e8ede6a22c Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Wed, 8 Mar 2023 16:42:43 +0100
+Subject: [PATCH] usb: ucsi: Fix ucsi->connector race
 
-Previously, there was a 100uS delay inserted after issuing an end transfer
-command for specific controller revisions.  This was due to the fact that
-there was a GUCTL2 bit field which enabled synchronous completion of the
-end transfer command once the CMDACT bit was cleared in the DEPCMD
-register.  Since this bit does not exist for all controller revisions and
-the current implementation heavily relies on utizling the EndTransfer
-command completion interrupt, add the delay back in for uses where the
-interrupt on completion bit is not set, and increase the duration to 1ms
-for the controller to complete the command.
+ucsi_init() which runs from a workqueue sets ucsi->connector and
+on an error will clear it again.
 
-An issue was seen where the USB request buffer was unmapped while the DWC3
-controller was still accessing the TRB.  However, it was confirmed that the
-end transfer command was successfully submitted. (no end transfer timeout)
-In situations, such as dwc3_gadget_soft_disconnect() and
-__dwc3_gadget_ep_disable(), the dwc3_remove_request() is utilized, which
-will issue the end transfer command, and follow up with
-dwc3_gadget_giveback().  At least for the USB ep disable path, it is
-required for any pending and started requests to be completed and returned
-to the function driver in the same context of the disable call.  Without
-the GUCTL2 bit, it is not ensured that the end transfer is completed before
-the buffers are unmapped.
+ucsi->connector gets dereferenced by ucsi_resume(), this checks for
+ucsi->connector being NULL in case ucsi_init() has not finished yet;
+or in case ucsi_init() has failed.
 
-Fixes: cf2f8b63f7f1 ("usb: dwc3: gadget: Remove END_TRANSFER delay")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/20230306200557.29387-1-quic_wcheng@quicinc.com
+ucsi_init() setting ucsi->connector and then clearing it again on
+an error creates a race where the check in ucsi_resume() may pass,
+only to have ucsi->connector free-ed underneath it when ucsi_init()
+hits an error.
+
+Fix this race by making ucsi_init() store the connector array in
+a local variable and only assign it to ucsi->connector on success.
+
+Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+Cc: stable@vger.kernel.org
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230308154244.722337-3-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 3c63fa97a680..cf5b4f49c3ed 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1699,6 +1699,7 @@ static int __dwc3_gadget_get_frame(struct dwc3 *dwc)
-  */
- static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool interrupt)
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index 0623861c597b..8d1baf28df55 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1125,12 +1125,11 @@ static struct fwnode_handle *ucsi_find_fwnode(struct ucsi_connector *con)
+ 	return NULL;
+ }
+ 
+-static int ucsi_register_port(struct ucsi *ucsi, int index)
++static int ucsi_register_port(struct ucsi *ucsi, struct ucsi_connector *con)
  {
-+	struct dwc3 *dwc = dep->dwc;
- 	struct dwc3_gadget_ep_cmd_params params;
- 	u32 cmd;
+ 	struct usb_power_delivery_desc desc = { ucsi->cap.pd_version};
+ 	struct usb_power_delivery_capabilities_desc pd_caps;
+ 	struct usb_power_delivery_capabilities *pd_cap;
+-	struct ucsi_connector *con = &ucsi->connector[index];
+ 	struct typec_capability *cap = &con->typec_cap;
+ 	enum typec_accessory *accessory = cap->accessory;
+ 	enum usb_role u_role = USB_ROLE_NONE;
+@@ -1151,7 +1150,6 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ 	init_completion(&con->complete);
+ 	mutex_init(&con->lock);
+ 	INIT_LIST_HEAD(&con->partner_tasks);
+-	con->num = index + 1;
+ 	con->ucsi = ucsi;
+ 
+ 	cap->fwnode = ucsi_find_fwnode(con);
+@@ -1328,7 +1326,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+  */
+ static int ucsi_init(struct ucsi *ucsi)
+ {
+-	struct ucsi_connector *con;
++	struct ucsi_connector *con, *connector;
+ 	u64 command, ntfy;
  	int ret;
-@@ -1722,10 +1723,13 @@ static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool int
- 	WARN_ON_ONCE(ret);
- 	dep->resource_index = 0;
+ 	int i;
+@@ -1359,16 +1357,16 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	}
  
--	if (!interrupt)
-+	if (!interrupt) {
-+		if (!DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC3, 310A))
-+			mdelay(1);
- 		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
--	else if (!ret)
-+	} else if (!ret) {
- 		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
-+	}
+ 	/* Allocate the connectors. Released in ucsi_unregister() */
+-	ucsi->connector = kcalloc(ucsi->cap.num_connectors + 1,
+-				  sizeof(*ucsi->connector), GFP_KERNEL);
+-	if (!ucsi->connector) {
++	connector = kcalloc(ucsi->cap.num_connectors + 1, sizeof(*connector), GFP_KERNEL);
++	if (!connector) {
+ 		ret = -ENOMEM;
+ 		goto err_reset;
+ 	}
  
- 	dep->flags &= ~DWC3_EP_DELAY_STOP;
- 	return ret;
-@@ -3774,7 +3778,11 @@ void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
- 	 * enabled, the EndTransfer command will have completed upon
- 	 * returning from this function.
- 	 *
--	 * This mode is NOT available on the DWC_usb31 IP.
-+	 * This mode is NOT available on the DWC_usb31 IP.  In this
-+	 * case, if the IOC bit is not set, then delay by 1ms
-+	 * after issuing the EndTransfer command.  This allows for the
-+	 * controller to handle the command completely before DWC3
-+	 * remove requests attempts to unmap USB request buffers.
- 	 */
+ 	/* Register all connectors */
+ 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
+-		ret = ucsi_register_port(ucsi, i);
++		connector[i].num = i + 1;
++		ret = ucsi_register_port(ucsi, &connector[i]);
+ 		if (ret)
+ 			goto err_unregister;
+ 	}
+@@ -1380,11 +1378,12 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	if (ret < 0)
+ 		goto err_unregister;
  
- 	__dwc3_stop_active_transfer(dep, force, interrupt);
++	ucsi->connector = connector;
+ 	ucsi->ntfy = ntfy;
+ 	return 0;
+ 
+ err_unregister:
+-	for (con = ucsi->connector; con->port; con++) {
++	for (con = connector; con->port; con++) {
+ 		ucsi_unregister_partner(con);
+ 		ucsi_unregister_altmodes(con, UCSI_RECIPIENT_CON);
+ 		ucsi_unregister_port_psy(con);
+@@ -1400,10 +1399,7 @@ static int ucsi_init(struct ucsi *ucsi)
+ 		typec_unregister_port(con->port);
+ 		con->port = NULL;
+ 	}
+-
+-	kfree(ucsi->connector);
+-	ucsi->connector = NULL;
+-
++	kfree(connector);
+ err_reset:
+ 	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+ 	ucsi_reset_ppm(ucsi);
 
