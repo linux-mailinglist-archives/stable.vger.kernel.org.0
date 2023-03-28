@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7950C6CC368
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D78136CC472
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbjC1Oxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54268 "EHLO
+        id S233797AbjC1PFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233288AbjC1Oxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF34CC05
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:39 -0700 (PDT)
+        with ESMTP id S233798AbjC1PFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:19 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD63E079
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC357B81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51588C4339B;
-        Tue, 28 Mar 2023 14:53:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B81B8CE1D9A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4190C4339B;
+        Tue, 28 Mar 2023 15:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015216;
-        bh=zJDjHXIzK7gDXWGT/oi+MHk0J7JQH6deLI5FX2BAhSw=;
+        s=korg; t=1680015793;
+        bh=8NN38rp18l8sW/u16ly69ADMI68JSc09ycDwXeOKiMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6XApqfkkP5gcizLt/WFAgK0yd03IUolDmgBxH6lgavtbDuiqH7WuujuETKYkTne8
-         9S5Ji3wIWbwmYvBXhR3ASFvQG1fghxb8h37r++enjmQgoEblM2BstkFib12+6xarTu
-         ZZjOHfxYKuX+NGoY2gqUGtUR3RQYHRN0FYMWSPJI=
+        b=BqcGh0wzkx+Nb6YlsT+HGNt80eBtAWLulCWiXszgk4929foRn1xxqPkyl6wBSO8YL
+         tAouP6pcwB2jRPGxdjy7D6lFFdltfX89tPaQzhUGIBlJBaltE7PUtk8uuBdEfLug8l
+         qcPrrnfnSrMsuNYpyv2iB8kchU5sZgB8ZJssmfOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miao Lihua <441884205@qq.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 209/240] ksmbd: fix wrong signingkey creation when encryption is AES256
+        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 6.1 176/224] usb: cdns3: Fix issue with using incorrect PCI device function
 Date:   Tue, 28 Mar 2023 16:42:52 +0200
-Message-Id: <20230328142628.397571122@linuxfoundation.org>
+Message-Id: <20230328142624.727048685@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,42 +51,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 7a891d4b62d62566323676cb0e922ded4f37afe1 upstream.
+commit 1272fd652a226ccb34e9f47371b6121948048438 upstream.
 
-MacOS and Win11 support AES256 encrytion and it is included in the cipher
-array of encryption context. Especially on macOS, The most preferred
-cipher is AES256. Connecting to ksmbd fails on newer MacOS clients that
-support AES256 encryption. MacOS send disconnect request after receiving
-final session setup response from ksmbd. Because final session setup is
-signed with signing key was generated incorrectly.
-For signging key, 'L' value should be initialized to 128 if key size is
-16bytes.
+PCI based platform can have more than two PCI functions.
+USBSS PCI Glue driver during initialization should
+consider only DRD/HOST/DEVICE PCI functions and
+all other should be ignored. This patch adds additional
+condition which causes that only DRD and HOST/DEVICE
+function will be accepted.
 
-Cc: stable@vger.kernel.org
-Reported-by: Miao Lihua <441884205@qq.com>
-Tested-by: Miao Lihua <441884205@qq.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+cc: <stable@vger.kernel.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20230308124427.311245-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/auth.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/cdns3/cdns3-pci-wrap.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/ksmbd/auth.c
-+++ b/fs/ksmbd/auth.c
-@@ -727,8 +727,9 @@ static int generate_key(struct ksmbd_con
- 		goto smb3signkey_ret;
+--- a/drivers/usb/cdns3/cdns3-pci-wrap.c
++++ b/drivers/usb/cdns3/cdns3-pci-wrap.c
+@@ -60,6 +60,11 @@ static struct pci_dev *cdns3_get_second_
+ 			return NULL;
  	}
  
--	if (conn->cipher_type == SMB2_ENCRYPTION_AES256_CCM ||
--	    conn->cipher_type == SMB2_ENCRYPTION_AES256_GCM)
-+	if (key_size == SMB3_ENC_DEC_KEY_SIZE &&
-+	    (conn->cipher_type == SMB2_ENCRYPTION_AES256_CCM ||
-+	     conn->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
- 		rc = crypto_shash_update(CRYPTO_HMACSHA256(ctx), L256, 4);
- 	else
- 		rc = crypto_shash_update(CRYPTO_HMACSHA256(ctx), L128, 4);
++	if (func->devfn != PCI_DEV_FN_HOST_DEVICE &&
++	    func->devfn != PCI_DEV_FN_OTG) {
++		return NULL;
++	}
++
+ 	return func;
+ }
+ 
 
 
