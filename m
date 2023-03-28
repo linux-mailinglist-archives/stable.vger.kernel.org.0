@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C956CC55E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC206CC395
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233915AbjC1PNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:13:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54040 "EHLO
+        id S233536AbjC1OzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233917AbjC1PNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:13:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D204DDBF3
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:58 -0700 (PDT)
+        with ESMTP id S233523AbjC1OzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99017CC16
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C9F6B81D84
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED51FC4339B;
-        Tue, 28 Mar 2023 15:10:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73120B81D77
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE65C433EF;
+        Tue, 28 Mar 2023 14:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016222;
-        bh=NBPZGQ942ws4fxaQ3ieQb0lyvmMVEn7kAkRYh8pGsSk=;
+        s=korg; t=1680015312;
+        bh=i/7NCOQFGnREnK+V8fpg8lblfdC66RbA3XvI4u6ePIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIwXH/3n0KGo8PXyw6CxaVwJnJgZeOKZnAut3lkDF/GvFIB9/0rT8fWBJqqJnITLH
-         TqBBUPuxgbJNPqsdkLTaANWtcfE945DGAyHo9bSFmtkvg3bpIDFe4jK0xeuvP94/PC
-         SAQQM7gJwumeS/BbCu3sdkTdrIiVX8SEH3nW0Im0=
+        b=wC3VgmcJonczWTlBRd2y+UkwPMb7wat6Sk3Nem9NnyPGrWqaol2WRcvVIKFJic9t1
+         zqHlZpjS8CeBuP/slfx/7FAH5kO8baBFmA7CjtifX8o79pQwzZZnPEa70IXoGvClrT
+         kBZEJgkZcoDjcdAGo4JmVNEaiA26XhwsK3PAOxYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.15 110/146] fsverity: Remove WQ_UNBOUND from fsverity read workqueue
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.2 236/240] dm stats: check for and propagate alloc_percpu failure
 Date:   Tue, 28 Mar 2023 16:43:19 +0200
-Message-Id: <20230328142607.266513929@linuxfoundation.org>
+Message-Id: <20230328142629.527222185@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,62 +52,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit f959325e6ac3f499450088b8d9c626d1177be160 upstream.
+commit d3aa3e060c4a80827eb801fc448debc9daa7c46b upstream.
 
-WQ_UNBOUND causes significant scheduler latency on ARM64/Android.  This
-is problematic for latency sensitive workloads, like I/O
-post-processing.
+Check alloc_precpu()'s return value and return an error from
+dm_stats_init() if it fails. Update alloc_dev() to fail if
+dm_stats_init() does.
 
-Removing WQ_UNBOUND gives a 96% reduction in fsverity workqueue related
-scheduler latency and improves app cold startup times by ~30ms.
-WQ_UNBOUND was also removed from the dm-verity workqueue for the same
-reason [1].
+Otherwise, a NULL pointer dereference will occur in dm_stats_cleanup()
+even if dm-stats isn't being actively used.
 
-This code was tested by running Android app startup benchmarks and
-measuring how long the fsverity workqueue spent in the runnable state.
-
-Before
-Total workqueue scheduler latency: 553800us
-After
-Total workqueue scheduler latency: 18962us
-
-[1]: https://lore.kernel.org/all/20230202012348.885402-1-nhuck@google.com/
-
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Fixes: 8a1d0f9cacc9 ("fs-verity: add data verification hooks for ->readpages()")
+Fixes: fd2ed4d25270 ("dm: add statistics support")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230310193325.620493-1-nhuck@google.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/verity/verify.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/md/dm-stats.c |    7 ++++++-
+ drivers/md/dm-stats.h |    2 +-
+ drivers/md/dm.c       |    4 +++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
---- a/fs/verity/verify.c
-+++ b/fs/verity/verify.c
-@@ -279,15 +279,15 @@ EXPORT_SYMBOL_GPL(fsverity_enqueue_verif
- int __init fsverity_init_workqueue(void)
+--- a/drivers/md/dm-stats.c
++++ b/drivers/md/dm-stats.c
+@@ -188,7 +188,7 @@ static int dm_stat_in_flight(struct dm_s
+ 	       atomic_read(&shared->in_flight[WRITE]);
+ }
+ 
+-void dm_stats_init(struct dm_stats *stats)
++int dm_stats_init(struct dm_stats *stats)
  {
- 	/*
--	 * Use an unbound workqueue to allow bios to be verified in parallel
--	 * even when they happen to complete on the same CPU.  This sacrifices
--	 * locality, but it's worthwhile since hashing is CPU-intensive.
-+	 * Use a high-priority workqueue to prioritize verification work, which
-+	 * blocks reads from completing, over regular application tasks.
- 	 *
--	 * Also use a high-priority workqueue to prioritize verification work,
--	 * which blocks reads from completing, over regular application tasks.
-+	 * For performance reasons, don't use an unbound workqueue.  Using an
-+	 * unbound workqueue for crypto operations causes excessive scheduler
-+	 * latency on ARM64.
- 	 */
- 	fsverity_read_workqueue = alloc_workqueue("fsverity_read_queue",
--						  WQ_UNBOUND | WQ_HIGHPRI,
-+						  WQ_HIGHPRI,
- 						  num_online_cpus());
- 	if (!fsverity_read_workqueue)
- 		return -ENOMEM;
+ 	int cpu;
+ 	struct dm_stats_last_position *last;
+@@ -197,11 +197,16 @@ void dm_stats_init(struct dm_stats *stat
+ 	INIT_LIST_HEAD(&stats->list);
+ 	stats->precise_timestamps = false;
+ 	stats->last = alloc_percpu(struct dm_stats_last_position);
++	if (!stats->last)
++		return -ENOMEM;
++
+ 	for_each_possible_cpu(cpu) {
+ 		last = per_cpu_ptr(stats->last, cpu);
+ 		last->last_sector = (sector_t)ULLONG_MAX;
+ 		last->last_rw = UINT_MAX;
+ 	}
++
++	return 0;
+ }
+ 
+ void dm_stats_cleanup(struct dm_stats *stats)
+--- a/drivers/md/dm-stats.h
++++ b/drivers/md/dm-stats.h
+@@ -21,7 +21,7 @@ struct dm_stats_aux {
+ 	unsigned long long duration_ns;
+ };
+ 
+-void dm_stats_init(struct dm_stats *st);
++int dm_stats_init(struct dm_stats *st);
+ void dm_stats_cleanup(struct dm_stats *st);
+ 
+ struct mapped_device;
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -2092,7 +2092,9 @@ static struct mapped_device *alloc_dev(i
+ 	if (!md->pending_io)
+ 		goto bad;
+ 
+-	dm_stats_init(&md->stats);
++	r = dm_stats_init(&md->stats);
++	if (r < 0)
++		goto bad;
+ 
+ 	/* Populate the mapping, nobody knows we exist yet */
+ 	spin_lock(&_minor_lock);
 
 
