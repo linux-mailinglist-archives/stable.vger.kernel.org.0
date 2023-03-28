@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C62B76CC489
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 060D86CC383
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233857AbjC1PFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:05:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45424 "EHLO
+        id S233442AbjC1Oyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:54:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233858AbjC1PFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:54 -0400
+        with ESMTP id S233517AbjC1Oyf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D700E040
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256BBE9
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B73DBB81D87
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FF92C433EF;
-        Tue, 28 Mar 2023 15:02:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A69D6B80976
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24687C433EF;
+        Tue, 28 Mar 2023 14:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015768;
-        bh=HoMNsw6UlowiAYEmI88oP29EGcRvRfm5df9nnuX9fZc=;
+        s=korg; t=1680015271;
+        bh=uRn9642UYB/ULa9Bl5o1Ykjow+6emQLokVlQy1uB6Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDeG4zURGSPGFNxmoss+c1GgN/ATuVnlPgklepymfdQfPidXCMOGo01zinrnKEANr
-         Jy0YO8H0PDahqhg4gfRe4cqFN8SNUYy1BD5RLKtDxbtqmc0HCzX8u78dbcE0+jg6q0
-         FQmDnDknOf+Ewyuv2bnlwVFvTSwyO1A3mx3Vumws=
+        b=RGIcFjXmskbpUX0VF3CKVJ/QDwhSycD/K1RDSi4b/4gRnYngiskquKewMXrqkjYvB
+         21+Cc4q7gLtZLTwB9+m6ahijNfWLMMedAFXsjC0DtNhVj/YcjzGQ7MduvDO5xUul7p
+         88wZqM8sAH+31OlFfR7NhLxW2YrRuRhJIiFwSqj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+93e495f6a4f748827c88@syzkaller.appspotmail.com,
-        Christian Brauner <brauner@kernel.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 6.1 168/224] fscrypt: destroy keyring after security_sb_delete()
+        patches@lists.linux.dev, Muchun Song <songmuchun@bytedance.com>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Jann Horn <jannh@google.com>, SeongJae Park <sjpark@amazon.de>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 201/240] mm: kfence: fix using kfence_metadata without initialization in show_object()
 Date:   Tue, 28 Mar 2023 16:42:44 +0200
-Message-Id: <20230328142624.380552969@linuxfoundation.org>
+Message-Id: <20230328142628.042035097@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit ccb820dc7d2236b1af0d54ae038a27b5b6d5ae5a upstream.
+commit 1c86a188e03156223a34d09ce290b49bd4dd0403 upstream.
 
-fscrypt_destroy_keyring() must be called after all potentially-encrypted
-inodes were evicted; otherwise it cannot safely destroy the keyring.
-Since inodes that are in-use by the Landlock LSM don't get evicted until
-security_sb_delete(), this means that fscrypt_destroy_keyring() must be
-called *after* security_sb_delete().
+The variable kfence_metadata is initialized in kfence_init_pool(), then,
+it is not initialized if kfence is disabled after booting.  In this case,
+kfence_metadata will be used (e.g.  ->lock and ->state fields) without
+initialization when reading /sys/kernel/debug/kfence/objects.  There will
+be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
+debugfs files when necessary.
 
-This fixes a WARN_ON followed by a NULL dereference, only possible if
-Landlock was being used on encrypted files.
-
-Fixes: d7e7b9af104c ("fscrypt: stop using keyrings subsystem for fscrypt_master_key")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+93e495f6a4f748827c88@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/00000000000044651705f6ca1e30@google.com
-Reviewed-by: Christian Brauner <brauner@kernel.org>
-Link: https://lore.kernel.org/r/20230313221231.272498-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: SeongJae Park <sjpark@amazon.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/super.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ mm/kfence/core.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -476,13 +476,22 @@ void generic_shutdown_super(struct super
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -726,10 +726,14 @@ static const struct seq_operations objec
+ };
+ DEFINE_SEQ_ATTRIBUTE(objects);
  
- 		cgroup_writeback_umount();
+-static int __init kfence_debugfs_init(void)
++static int kfence_debugfs_init(void)
+ {
+-	struct dentry *kfence_dir = debugfs_create_dir("kfence", NULL);
++	struct dentry *kfence_dir;
  
--		/* evict all inodes with zero refcount */
-+		/* Evict all inodes with zero refcount. */
- 		evict_inodes(sb);
--		/* only nonzero refcount inodes can have marks */
++	if (!READ_ONCE(kfence_enabled))
++		return 0;
 +
-+		/*
-+		 * Clean up and evict any inodes that still have references due
-+		 * to fsnotify or the security policy.
-+		 */
- 		fsnotify_sb_delete(sb);
--		fscrypt_destroy_keyring(sb);
- 		security_sb_delete(sb);
++	kfence_dir = debugfs_create_dir("kfence", NULL);
+ 	debugfs_create_file("stats", 0444, kfence_dir, NULL, &stats_fops);
+ 	debugfs_create_file("objects", 0400, kfence_dir, NULL, &objects_fops);
+ 	return 0;
+@@ -883,6 +887,8 @@ static int kfence_init_late(void)
+ 	}
  
-+		/*
-+		 * Now that all potentially-encrypted inodes have been evicted,
-+		 * the fscrypt keyring can be destroyed.
-+		 */
-+		fscrypt_destroy_keyring(sb);
+ 	kfence_init_enable();
++	kfence_debugfs_init();
 +
- 		if (sb->s_dio_done_wq) {
- 			destroy_workqueue(sb->s_dio_done_wq);
- 			sb->s_dio_done_wq = NULL;
+ 	return 0;
+ }
+ 
 
 
