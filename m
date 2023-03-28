@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC206CC395
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F346CC52F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233536AbjC1OzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58032 "EHLO
+        id S233147AbjC1PMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233523AbjC1OzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99017CC16
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:20 -0700 (PDT)
+        with ESMTP id S232640AbjC1PMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0246610259
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73120B81D77
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE65C433EF;
-        Tue, 28 Mar 2023 14:55:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80BA661828
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95360C433EF;
+        Tue, 28 Mar 2023 15:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015312;
-        bh=i/7NCOQFGnREnK+V8fpg8lblfdC66RbA3XvI4u6ePIQ=;
+        s=korg; t=1680016224;
+        bh=uH+SOWvv2oxtjhLaSHvbrrXaOG6hBozL5TlbYZz59eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wC3VgmcJonczWTlBRd2y+UkwPMb7wat6Sk3Nem9NnyPGrWqaol2WRcvVIKFJic9t1
-         zqHlZpjS8CeBuP/slfx/7FAH5kO8baBFmA7CjtifX8o79pQwzZZnPEa70IXoGvClrT
-         kBZEJgkZcoDjcdAGo4JmVNEaiA26XhwsK3PAOxYw=
+        b=LPWfx7u0lQum1fVlgctyGUqMYwh3Mq47E8L0zlxh0RtS9j+N1VkzBBI3UHkhX2Jdj
+         IxeUSnHYu+Wvxm19x1Cntb3Y5IHqruo++HnN546MQ94AXme8XkzrAy8iF9mJTSozNq
+         fd9Uckjfb02cU5VNnTBq9n+7meJCdNtOiejuFUvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.2 236/240] dm stats: check for and propagate alloc_percpu failure
-Date:   Tue, 28 Mar 2023 16:43:19 +0200
-Message-Id: <20230328142629.527222185@linuxfoundation.org>
+        patches@lists.linux.dev, Amir Goldstein <amir73il@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.15 111/146] lockd: set file_lock start and end when decoding nlm4 testargs
+Date:   Tue, 28 Mar 2023 16:43:20 +0200
+Message-Id: <20230328142607.299430786@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,79 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit d3aa3e060c4a80827eb801fc448debc9daa7c46b upstream.
+commit 7ff84910c66c9144cc0de9d9deed9fb84c03aff0 upstream.
 
-Check alloc_precpu()'s return value and return an error from
-dm_stats_init() if it fails. Update alloc_dev() to fail if
-dm_stats_init() does.
+Commit 6930bcbfb6ce dropped the setting of the file_lock range when
+decoding a nlm_lock off the wire. This causes the client side grant
+callback to miss matching blocks and reject the lock, only to rerequest
+it 30s later.
 
-Otherwise, a NULL pointer dereference will occur in dm_stats_cleanup()
-even if dm-stats isn't being actively used.
+Add a helper function to set the file_lock range from the start and end
+values that the protocol uses, and have the nlm_lock decoder call that to
+set up the file_lock args properly.
 
-Fixes: fd2ed4d25270 ("dm: add statistics support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 6930bcbfb6ce ("lockd: detect and reject lock arguments that overflow")
+Reported-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Tested-by: Amir Goldstein <amir73il@gmail.com>
+Cc: stable@vger.kernel.org #6.0
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-stats.c |    7 ++++++-
- drivers/md/dm-stats.h |    2 +-
- drivers/md/dm.c       |    4 +++-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ fs/lockd/clnt4xdr.c        |    9 +--------
+ fs/lockd/xdr4.c            |   13 ++++++++++++-
+ include/linux/lockd/xdr4.h |    1 +
+ 3 files changed, 14 insertions(+), 9 deletions(-)
 
---- a/drivers/md/dm-stats.c
-+++ b/drivers/md/dm-stats.c
-@@ -188,7 +188,7 @@ static int dm_stat_in_flight(struct dm_s
- 	       atomic_read(&shared->in_flight[WRITE]);
+--- a/fs/lockd/clnt4xdr.c
++++ b/fs/lockd/clnt4xdr.c
+@@ -261,7 +261,6 @@ static int decode_nlm4_holder(struct xdr
+ 	u32 exclusive;
+ 	int error;
+ 	__be32 *p;
+-	s32 end;
+ 
+ 	memset(lock, 0, sizeof(*lock));
+ 	locks_init_lock(fl);
+@@ -285,13 +284,7 @@ static int decode_nlm4_holder(struct xdr
+ 	fl->fl_type  = exclusive != 0 ? F_WRLCK : F_RDLCK;
+ 	p = xdr_decode_hyper(p, &l_offset);
+ 	xdr_decode_hyper(p, &l_len);
+-	end = l_offset + l_len - 1;
+-
+-	fl->fl_start = (loff_t)l_offset;
+-	if (l_len == 0 || end < 0)
+-		fl->fl_end = OFFSET_MAX;
+-	else
+-		fl->fl_end = (loff_t)end;
++	nlm4svc_set_file_lock_range(fl, l_offset, l_len);
+ 	error = 0;
+ out:
+ 	return error;
+--- a/fs/lockd/xdr4.c
++++ b/fs/lockd/xdr4.c
+@@ -33,6 +33,17 @@ loff_t_to_s64(loff_t offset)
+ 	return res;
  }
  
--void dm_stats_init(struct dm_stats *stats)
-+int dm_stats_init(struct dm_stats *stats)
- {
- 	int cpu;
- 	struct dm_stats_last_position *last;
-@@ -197,11 +197,16 @@ void dm_stats_init(struct dm_stats *stat
- 	INIT_LIST_HEAD(&stats->list);
- 	stats->precise_timestamps = false;
- 	stats->last = alloc_percpu(struct dm_stats_last_position);
-+	if (!stats->last)
-+		return -ENOMEM;
++void nlm4svc_set_file_lock_range(struct file_lock *fl, u64 off, u64 len)
++{
++	s64 end = off + len - 1;
 +
- 	for_each_possible_cpu(cpu) {
- 		last = per_cpu_ptr(stats->last, cpu);
- 		last->last_sector = (sector_t)ULLONG_MAX;
- 		last->last_rw = UINT_MAX;
- 	}
++	fl->fl_start = off;
++	if (len == 0 || end < 0)
++		fl->fl_end = OFFSET_MAX;
++	else
++		fl->fl_end = end;
++}
 +
-+	return 0;
+ /*
+  * NLM file handles are defined by specification to be a variable-length
+  * XDR opaque no longer than 1024 bytes. However, this implementation
+@@ -80,7 +91,7 @@ svcxdr_decode_lock(struct xdr_stream *xd
+ 	locks_init_lock(fl);
+ 	fl->fl_flags = FL_POSIX;
+ 	fl->fl_type  = F_RDLCK;
+-
++	nlm4svc_set_file_lock_range(fl, lock->lock_start, lock->lock_len);
+ 	return true;
  }
  
- void dm_stats_cleanup(struct dm_stats *stats)
---- a/drivers/md/dm-stats.h
-+++ b/drivers/md/dm-stats.h
-@@ -21,7 +21,7 @@ struct dm_stats_aux {
- 	unsigned long long duration_ns;
- };
+--- a/include/linux/lockd/xdr4.h
++++ b/include/linux/lockd/xdr4.h
+@@ -24,6 +24,7 @@
  
--void dm_stats_init(struct dm_stats *st);
-+int dm_stats_init(struct dm_stats *st);
- void dm_stats_cleanup(struct dm_stats *st);
  
- struct mapped_device;
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -2092,7 +2092,9 @@ static struct mapped_device *alloc_dev(i
- 	if (!md->pending_io)
- 		goto bad;
  
--	dm_stats_init(&md->stats);
-+	r = dm_stats_init(&md->stats);
-+	if (r < 0)
-+		goto bad;
- 
- 	/* Populate the mapping, nobody knows we exist yet */
- 	spin_lock(&_minor_lock);
++void	nlm4svc_set_file_lock_range(struct file_lock *fl, u64 off, u64 len);
+ int	nlm4svc_decode_testargs(struct svc_rqst *, __be32 *);
+ int	nlm4svc_encode_testres(struct svc_rqst *, __be32 *);
+ int	nlm4svc_decode_lockargs(struct svc_rqst *, __be32 *);
 
 
