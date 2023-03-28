@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E766CBE93
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F0E6CBE94
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233026AbjC1MGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232558AbjC1MGO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Mar 2023 08:06:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232558AbjC1MGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:06:08 -0400
+        with ESMTP id S230511AbjC1MGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:06:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0751783D5
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:05:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A570E83C0
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:05:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B4C9B81C1E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A16C433D2;
-        Tue, 28 Mar 2023 12:05:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3043EB81C21
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:05:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A305C433D2;
+        Tue, 28 Mar 2023 12:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680005131;
-        bh=KHdpwON0+cMq2icAsv4P25K1srHKcA08w3yhRSk5UbE=;
+        s=korg; t=1680005139;
+        bh=TOkowowQaTD/RqzafIub84hGw7UY4N4vXaWb/TRMw+w=;
         h=Subject:To:Cc:From:Date:From;
-        b=TT9/tHOxLDAlVKW29YqXMl2bR4CBQIgKtJtVz8t0f1Ib2lwCseFXsWmPyCSbOkGrJ
-         iSgCEr5dX7jYLaPyUv0w+FjA7X+gcnM7hAS4drnT1qHxCjejkkUYbwfnqjDkB7qE1b
-         eWULi4jUC3ZKuwGia4czQFxYhQnqnXFQjHRj80Rk=
-Subject: FAILED: patch "[PATCH] btrfs: zoned: drop space_info->active_total_bytes" failed to apply to 6.1-stable tree
+        b=wo3h8bgsMsigre/g2NLRvdCR7xXL4yLa0M+zJQdIn+jGerSMH8m7gXf7/jqPAEEWn
+         anpjCNDTtLMDmyE/ifyRlll3q6iM1nYg2ebkn1m3uE2ob8Sv6I0R8nPE2R6Ape2oOe
+         BBnk3PLgaoYzrnUkk2U/ZTl1NdUCFOGfLrMBbof4=
+Subject: FAILED: patch "[PATCH] btrfs: zoned: drop space_info->active_total_bytes" failed to apply to 6.2-stable tree
 To:     naohiro.aota@wdc.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 14:05:28 +0200
-Message-ID: <1680005128218208@kroah.com>
+Date:   Tue, 28 Mar 2023 14:05:29 +0200
+Message-ID: <1680005129248142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,28 +47,23 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
 git cherry-pick -x e15acc25880cf048dba9df94d76ed7e7e10040e6
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680005128218208@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680005129248142@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
 e15acc25880c ("btrfs: zoned: drop space_info->active_total_bytes")
-428c8e03109e ("btrfs: simplify percent calculation helpers, rename div_factor")
-81531225e5bd ("btrfs: re-check reclaim condition in reclaim worker")
-cc4804bfd639 ("btrfs: skip reclaim if block_group is empty")
-765c3fe99bcd ("btrfs: introduce BTRFS_RESERVE_FLUSH_EMERGENCY")
-f1e5c6185ca1 ("btrfs: move flush related definitions to space-info.h")
 
 thanks,
 
