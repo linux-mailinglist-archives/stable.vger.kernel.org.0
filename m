@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B32896CC38C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E36D6CC4AD
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232888AbjC1OzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S233885AbjC1PHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233569AbjC1Oy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:57 -0400
+        with ESMTP id S233888AbjC1PHP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CABF5D510
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029BAE392
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61C4D6182C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7684CC433D2;
-        Tue, 28 Mar 2023 14:54:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 301F76177C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 404BDC433EF;
+        Tue, 28 Mar 2023 15:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015295;
-        bh=tx3Tgu7vQHll2Pkn5DHn5d+ikcMhPZGybTvWXh+Rtao=;
+        s=korg; t=1680015787;
+        bh=a6Fu+jjriIfI9gO65n8vG7vbRhw9y6LeVU1j7vW45C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AnXbh0JDySAo14oiW0S2dJynJg8YYpO/tmVAwYcNMQhLPw+dTpUYF7TxpqqVpLD1
-         2W0yXTNaECbwKR0z+32FNuGoTBsQaDV1bjN+t0i5URc++taiGS3Gy5/LEmU77I1aw1
-         6HMNrjkdZI4K81A1iijxFU7NTFi/cEVntGRcLRZY=
+        b=yyJUCpvojuI12GlhA0/dm0+0PGNNhsydjzU2hdKqUj1TtTxSc7+XjIvTX4V16qmVF
+         D6736CLBgXkpko/wJHHBmgpSx/UsibIwigDh/GsKy1AwXwKr6+JBXPELN+ePw1iTPu
+         g9GraKVsrIyXnWsMhkplFKHbOg2lYLzWp5E9jTvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Snild Dolkow <snild@sony.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Peng Zhang <zhangpeng.00@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 207/240] test_maple_tree: add more testing for mas_empty_area()
-Date:   Tue, 28 Mar 2023 16:42:50 +0200
-Message-Id: <20230328142628.306829114@linuxfoundation.org>
+        patches@lists.linux.dev, Xu Yang <xu.yang_2@nxp.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 6.1 175/224] usb: typec: tcpm: fix warning when handle discover_identity message
+Date:   Tue, 28 Mar 2023 16:42:51 +0200
+Message-Id: <20230328142624.675659326@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +53,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam R. Howlett <Liam.Howlett@oracle.com>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-commit 4bd6dded6318dc8e2514d74868c1f8fb38b61a60 upstream.
+commit abfc4fa28f0160df61c7149567da4f6494dfb488 upstream.
 
-Test robust filling of an entire area of the tree, then test one beyond.
-This is to test the walking back up the tree at the end of nodes and error
-condition.  Test inspired by the reproducer code provided by Snild Dolkow.
+Since both source and sink device can send discover_identity message in
+PD3, kernel may dump below warning:
 
-The last test in the function tests for the case of a corrupted maple
-state caused by the incorrect limits set during mas_skip_node().  There
-needs to be a gap in the second last child and last child, but the search
-must rule out the second last child's gap.  This would avoid correcting
-the maple state to the correct max limit and return an error.
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 169 at drivers/usb/typec/tcpm/tcpm.c:1446 tcpm_queue_vdm+0xe0/0xf0
+Modules linked in:
+CPU: 0 PID: 169 Comm: 1-0050 Not tainted 6.1.1-00038-g6a3c36cf1da2-dirty #567
+Hardware name: NXP i.MX8MPlus EVK board (DT)
+pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : tcpm_queue_vdm+0xe0/0xf0
+lr : tcpm_queue_vdm+0x2c/0xf0
+sp : ffff80000c19bcd0
+x29: ffff80000c19bcd0 x28: 0000000000000001 x27: ffff0000d11c8ab8
+x26: ffff0000d11cc000 x25: 0000000000000000 x24: 00000000ff008081
+x23: 0000000000000001 x22: 00000000ff00a081 x21: ffff80000c19bdbc
+x20: 0000000000000000 x19: ffff0000d11c8080 x18: ffffffffffffffff
+x17: 0000000000000000 x16: 0000000000000000 x15: ffff0000d716f580
+x14: 0000000000000001 x13: ffff0000d716f507 x12: 0000000000000001
+x11: 0000000000000000 x10: 0000000000000020 x9 : 00000000000ee098
+x8 : 00000000ffffffff x7 : 000000000000001c x6 : ffff0000d716f580
+x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+x2 : ffff80000c19bdbc x1 : 00000000ff00a081 x0 : 0000000000000004
+Call trace:
+tcpm_queue_vdm+0xe0/0xf0
+tcpm_pd_rx_handler+0x340/0x1ab0
+kthread_worker_fn+0xcc/0x18c
+kthread+0x10c/0x110
+ret_from_fork+0x10/0x20
+---[ end trace 0000000000000000 ]---
 
-Link: https://lkml.kernel.org/r/20230307180247.2220303-3-Liam.Howlett@oracle.com
-Cc: Snild Dolkow <snild@sony.com>
-Link: https://lore.kernel.org/linux-mm/cb8dc31a-fef2-1d09-f133-e9f7b9f9e77a@sony.com/
-Fixes: e15e06a83923 ("lib/test_maple_tree: add testing for maple tree")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: Peng Zhang <zhangpeng.00@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Below sequences may trigger this warning:
+
+tcpm_send_discover_work(work)
+  tcpm_send_vdm(port, USB_SID_PD, CMD_DISCOVER_IDENT, NULL, 0);
+   tcpm_queue_vdm(port, header, data, count);
+    port->vdm_state = VDM_STATE_READY;
+
+vdm_state_machine_work(work);
+			<-- received discover_identity from partner
+ vdm_run_state_machine(port);
+  port->vdm_state = VDM_STATE_SEND_MESSAGE;
+   mod_vdm_delayed_work(port, x);
+
+tcpm_pd_rx_handler(work);
+ tcpm_pd_data_request(port, msg);
+  tcpm_handle_vdm_request(port, msg->payload, cnt);
+   tcpm_queue_vdm(port, response[0], &response[1], rlen - 1);
+--> WARN_ON(port->vdm_state > VDM_STATE_DONE);
+
+For this case, the state machine could still send out discover
+identity message later if we skip current discover_identity message.
+So we should handle the received message firstly and override the pending
+discover_identity message without warning in this case. Then, a delayed
+send_discover work will send discover_identity message again.
+
+Fixes: e00943e91678 ("usb: typec: tcpm: PD3.0 sinks can send Discover Identity even in device mode")
+cc: <stable@vger.kernel.org>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20230216031515.4151117-1-xu.yang_2@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/test_maple_tree.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/lib/test_maple_tree.c
-+++ b/lib/test_maple_tree.c
-@@ -2602,6 +2602,49 @@ static noinline void check_empty_area_wi
- 	rcu_read_unlock();
- }
- 
-+static noinline void check_empty_area_fill(struct maple_tree *mt)
-+{
-+	const unsigned long max = 0x25D78000;
-+	unsigned long size;
-+	int loop, shift;
-+	MA_STATE(mas, mt, 0, 0);
-+
-+	mt_set_non_kernel(99999);
-+	for (shift = 12; shift <= 16; shift++) {
-+		loop = 5000;
-+		size = 1 << shift;
-+		while (loop--) {
-+			mas_set(&mas, 0);
-+			mas_lock(&mas);
-+			MT_BUG_ON(mt, mas_empty_area(&mas, 0, max, size) != 0);
-+			MT_BUG_ON(mt, mas.last != mas.index + size - 1);
-+			mas_store_gfp(&mas, (void *)size, GFP_KERNEL);
-+			mas_unlock(&mas);
-+			mas_reset(&mas);
-+		}
-+	}
-+
-+	/* No space left. */
-+	size = 0x1000;
-+	rcu_read_lock();
-+	MT_BUG_ON(mt, mas_empty_area(&mas, 0, max, size) != -EBUSY);
-+	rcu_read_unlock();
-+
-+	/* Fill a depth 3 node to the maximum */
-+	for (unsigned long i = 629440511; i <= 629440800; i += 6)
-+		mtree_store_range(mt, i, i + 5, (void *)i, GFP_KERNEL);
-+	/* Make space in the second-last depth 4 node */
-+	mtree_erase(mt, 631668735);
-+	/* Make space in the last depth 4 node */
-+	mtree_erase(mt, 629506047);
-+	mas_reset(&mas);
-+	/* Search from just after the gap in the second-last depth 4 */
-+	rcu_read_lock();
-+	MT_BUG_ON(mt, mas_empty_area(&mas, 629506048, 690000000, 0x5000) != 0);
-+	rcu_read_unlock();
-+	mt_set_non_kernel(0);
-+}
-+
- static DEFINE_MTREE(tree);
- static int maple_tree_seed(void)
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -1436,10 +1436,18 @@ static int tcpm_ams_start(struct tcpm_po
+ static void tcpm_queue_vdm(struct tcpm_port *port, const u32 header,
+ 			   const u32 *data, int cnt)
  {
-@@ -2854,6 +2897,11 @@ static int maple_tree_seed(void)
- 	check_empty_area_window(&tree);
- 	mtree_destroy(&tree);
++	u32 vdo_hdr = port->vdo_data[0];
++
+ 	WARN_ON(!mutex_is_locked(&port->lock));
  
-+	mt_init_flags(&tree, MT_FLAGS_ALLOC_RANGE);
-+	check_empty_area_fill(&tree);
-+	mtree_destroy(&tree);
-+
-+
- #if defined(BENCH)
- skip:
- #endif
+-	/* Make sure we are not still processing a previous VDM packet */
+-	WARN_ON(port->vdm_state > VDM_STATE_DONE);
++	/* If is sending discover_identity, handle received message first */
++	if (PD_VDO_SVDM(vdo_hdr) && PD_VDO_CMD(vdo_hdr) == CMD_DISCOVER_IDENT) {
++		port->send_discover = true;
++		mod_send_discover_delayed_work(port, SEND_DISCOVER_RETRY_MS);
++	} else {
++		/* Make sure we are not still processing a previous VDM packet */
++		WARN_ON(port->vdm_state > VDM_STATE_DONE);
++	}
+ 
+ 	port->vdo_count = cnt + 1;
+ 	port->vdo_data[0] = header;
+@@ -1942,11 +1950,13 @@ static void vdm_run_state_machine(struct
+ 			switch (PD_VDO_CMD(vdo_hdr)) {
+ 			case CMD_DISCOVER_IDENT:
+ 				res = tcpm_ams_start(port, DISCOVER_IDENTITY);
+-				if (res == 0)
++				if (res == 0) {
+ 					port->send_discover = false;
+-				else if (res == -EAGAIN)
++				} else if (res == -EAGAIN) {
++					port->vdo_data[0] = 0;
+ 					mod_send_discover_delayed_work(port,
+ 								       SEND_DISCOVER_RETRY_MS);
++				}
+ 				break;
+ 			case CMD_DISCOVER_SVID:
+ 				res = tcpm_ams_start(port, DISCOVER_SVIDS);
+@@ -2029,6 +2039,7 @@ static void vdm_run_state_machine(struct
+ 			unsigned long timeout;
+ 
+ 			port->vdm_retries = 0;
++			port->vdo_data[0] = 0;
+ 			port->vdm_state = VDM_STATE_BUSY;
+ 			timeout = vdm_ready_timeout(vdo_hdr);
+ 			mod_vdm_delayed_work(port, timeout);
 
 
