@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EFC46CC34C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 759B66CC43D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233527AbjC1Owy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
+        id S233755AbjC1PBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbjC1Owc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DA6DBCB
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:30 -0700 (PDT)
+        with ESMTP id S233750AbjC1PBn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:01:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C76EB58
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C61E261828
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9775C4339B;
-        Tue, 28 Mar 2023 14:52:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42909B81D78
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C78C433EF;
+        Tue, 28 Mar 2023 15:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015149;
-        bh=bkusqBlP8Nhq982QU41p/F6NHnnsnifh37i35c2iLxA=;
+        s=korg; t=1680015673;
+        bh=2MH0APQfdC6ypK8RDTWEYp0RThws/SwAK+GNv8GAvxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2cul+oyDc6a4vG+WBwip62b4Y5cSwBEsYFUcglVKv0tdeKlumhDxQbbKXiYUaDen/
-         IE6JEWbRS12SQqtg6KtvGvJB2bvVD4Tl6rmROoYPrYlt2Owzson14H2ALbhP8d+8WF
-         ls93m20ZytFla1BJkh027wC6Lsxj9oRGnLBG4nB8=
+        b=ep9Aa1CuYXut+9cm7fu49elxHtbxLZTzd8yjTH/fzjdj/v7Cu4hGE+91p0qCourcU
+         NtH/w7XHbvda7QSZYUgDd8hHBQ0P1JrUtqkgBetA4tmwqj1lWgxiWT5zAbcWUCnUay
+         fYf8US1467xaant2Z6gftJ3bk0rslUsK5UfbllpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 166/240] cifs: dump pending mids for all channels in DebugData
+        patches@lists.linux.dev, Adrien Thierry <athierry@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 133/224] scsi: ufs: core: Add soft dependency on governor_simpleondemand
 Date:   Tue, 28 Mar 2023 16:42:09 +0200
-Message-Id: <20230328142626.583129985@linuxfoundation.org>
+Message-Id: <20230328142622.928993406@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,86 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Adrien Thierry <athierry@redhat.com>
 
-commit d12bc6d26f92c51b28e8f4a146ffcc630b688198 upstream.
+[ Upstream commit 2ebe16155dc8bd4e602cad5b5f65458d2eaa1a75 ]
 
-Currently, we only dump the pending mid information only
-on the primary channel in /proc/fs/cifs/DebugData.
-If multichannel is active, we do not print the pending MID
-list on secondary channels.
+The ufshcd driver uses simpleondemand governor for devfreq. Add it to the
+list of ufshcd softdeps to allow userspace initramfs tools like dracut to
+automatically pull the governor module into the initramfs together with UFS
+drivers.
 
-This change will dump the pending mids for all the channels
-based on server->conn_id.
-
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230220140740.14379-1-athierry@redhat.com
+Signed-off-by: Adrien Thierry <athierry@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_debug.c |   41 +++++++++++++++++++++++++++--------------
- 1 file changed, 27 insertions(+), 14 deletions(-)
+ drivers/ufs/core/ufshcd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/cifs_debug.c
-+++ b/fs/cifs/cifs_debug.c
-@@ -215,6 +215,7 @@ static int cifs_debug_data_proc_show(str
- {
- 	struct mid_q_entry *mid_entry;
- 	struct TCP_Server_Info *server;
-+	struct TCP_Server_Info *chan_server;
- 	struct cifs_ses *ses;
- 	struct cifs_tcon *tcon;
- 	struct cifs_server_iface *iface;
-@@ -471,23 +472,35 @@ skip_rdma:
- 					seq_puts(m, "\t\t[CONNECTED]\n");
- 			}
- 			spin_unlock(&ses->iface_lock);
-+
-+			seq_puts(m, "\n\n\tMIDs: ");
-+			spin_lock(&ses->chan_lock);
-+			for (j = 0; j < ses->chan_count; j++) {
-+				chan_server = ses->chans[j].server;
-+				if (!chan_server)
-+					continue;
-+
-+				if (list_empty(&chan_server->pending_mid_q))
-+					continue;
-+
-+				seq_printf(m, "\n\tServer ConnectionId: 0x%llx",
-+					   chan_server->conn_id);
-+				spin_lock(&chan_server->mid_lock);
-+				list_for_each_entry(mid_entry, &chan_server->pending_mid_q, qhead) {
-+					seq_printf(m, "\n\t\tState: %d com: %d pid: %d cbdata: %p mid %llu",
-+						   mid_entry->mid_state,
-+						   le16_to_cpu(mid_entry->command),
-+						   mid_entry->pid,
-+						   mid_entry->callback_data,
-+						   mid_entry->mid);
-+				}
-+				spin_unlock(&chan_server->mid_lock);
-+			}
-+			spin_unlock(&ses->chan_lock);
-+			seq_puts(m, "\n--\n");
- 		}
- 		if (i == 0)
- 			seq_printf(m, "\n\t\t[NONE]");
--
--		seq_puts(m, "\n\n\tMIDs: ");
--		spin_lock(&server->mid_lock);
--		list_for_each_entry(mid_entry, &server->pending_mid_q, qhead) {
--			seq_printf(m, "\n\tState: %d com: %d pid:"
--					" %d cbdata: %p mid %llu\n",
--					mid_entry->mid_state,
--					le16_to_cpu(mid_entry->command),
--					mid_entry->pid,
--					mid_entry->callback_data,
--					mid_entry->mid);
--		}
--		spin_unlock(&server->mid_lock);
--		seq_printf(m, "\n--\n");
- 	}
- 	if (c == 0)
- 		seq_printf(m, "\n\t[NONE]");
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index e652624c449a9..82ecf776f9054 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -10089,4 +10089,5 @@ module_exit(ufshcd_core_exit);
+ MODULE_AUTHOR("Santosh Yaragnavi <santosh.sy@samsung.com>");
+ MODULE_AUTHOR("Vinayak Holikatti <h.vinayak@samsung.com>");
+ MODULE_DESCRIPTION("Generic UFS host controller driver Core");
++MODULE_SOFTDEP("pre: governor_simpleondemand");
+ MODULE_LICENSE("GPL");
+-- 
+2.39.2
+
 
 
