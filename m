@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A6D6CC3B6
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C83226CC2C2
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233572AbjC1O4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59924 "EHLO
+        id S233375AbjC1Os2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:48:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233575AbjC1O4l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447EBD33A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:39 -0700 (PDT)
+        with ESMTP id S232993AbjC1OsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C3D7A83
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D37FCB81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 259F8C433D2;
-        Tue, 28 Mar 2023 14:56:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0BDB5CE1D9E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11FFBC4339B;
+        Tue, 28 Mar 2023 14:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015396;
-        bh=RNFwa18Oo4RwKvSJdNGd4MX+4jvZTzgq3AWMHP9L8ys=;
+        s=korg; t=1680014873;
+        bh=PhObNGJPHGlYcK6PumO1SHpmmjeshhIaCthePBXbGTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hawNZTQDHGF13UpmEGFvV9PmlWtcJUQj0LTmf89SK9flXpm1C3eaj97Xi2NpHC7Fs
-         W+j2xa91iakuloJh3pOXzf67nUhloxkFcGmq1MWVkGjn8UvPP73oYFIPeG15KYDNwP
-         5NFWJ6fwnaJ1iPAmee+hOHJtVtjRFfQEYgfm8i30=
+        b=IrNARCe6IQ9bkSwTRbxUNBVQO2flBBe/gjHAxRZ1RIxjBf5LqobadKsCGke0vzAfp
+         ogGT0qmxyXbU5pp7aUUUDSPiY7MDj2scACBX8ve44pC8jUYGtTW3MT9TR+9Dk0h6Jy
+         RRZP07Ju+oMbdd1+hjuBeqoaoJm3hBRESDKQig1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 033/224] i2c: mxs: ensure that DMA buffers are safe for DMA
+        patches@lists.linux.dev, Heinz Wiesinger <pprkut@slackware.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 066/240] bootconfig: Fix testcase to increase max node
 Date:   Tue, 28 Mar 2023 16:40:29 +0200
-Message-Id: <20230328142618.711452761@linuxfoundation.org>
+Message-Id: <20230328142622.490007613@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,91 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit 5190417bdf72c71b65bd9892103c6186816a6e8b ]
+[ Upstream commit b69245126a48e50882021180fa5d264dc7149ccc ]
 
-We found that after commit 9c46929e7989
-("ARM: implement THREAD_INFO_IN_TASK for uniprocessor systems"), the
-PCF85063 RTC driver stopped working on i.MX28 due to regmap_bulk_read()
-reading bogus data into a stack buffer. This is caused by the i2c-mxs
-driver using DMA transfers even for messages without the I2C_M_DMA_SAFE
-flag, and the aforementioned commit enabling vmapped stacks.
+Since commit 6c40624930c5 ("bootconfig: Increase max nodes of bootconfig
+from 1024 to 8192 for DCC support") increased the max number of bootconfig
+node to 8192, the bootconfig testcase of the max number of nodes fails.
+To fix this issue, we can not simply increase the number in the test script
+because the test bootconfig file becomes too big (>32KB). To fix that, we
+can use a combination of three alphabets (26^3 = 17576). But with that,
+we can not express the 8193 (just one exceed from the limitation) because
+it also exceeds the max size of bootconfig. So, the first 26 nodes will just
+use one alphabet.
 
-As the MXS I2C controller requires DMA for reads of >4 bytes, DMA can't be
-disabled, so the issue is fixed by using i2c_get_dma_safe_msg_buf() to
-create a bounce buffer when needed.
+With this fix, test-bootconfig.sh passes all tests.
 
-Fixes: 9c46929e7989 ("ARM: implement THREAD_INFO_IN_TASK for uniprocessor systems")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lore.kernel.org/all/167888844790.791176.670805252426835131.stgit@devnote2/
+
+Reported-by: Heinz Wiesinger <pprkut@slackware.com>
+Link: https://lore.kernel.org/all/2463802.XAFRqVoOGU@amaterasu.liwjatan.org
+Fixes: 6c40624930c5 ("bootconfig: Increase max nodes of bootconfig from 1024 to 8192 for DCC support")
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mxs.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ tools/bootconfig/test-bootconfig.sh | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index d113bed795452..e0f3b3545cfe4 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -171,7 +171,7 @@ static void mxs_i2c_dma_irq_callback(void *param)
- }
+diff --git a/tools/bootconfig/test-bootconfig.sh b/tools/bootconfig/test-bootconfig.sh
+index f68e2e9eef8b2..a2c484c243f5d 100755
+--- a/tools/bootconfig/test-bootconfig.sh
++++ b/tools/bootconfig/test-bootconfig.sh
+@@ -87,10 +87,14 @@ xfail grep -i "error" $OUTFILE
  
- static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
--			struct i2c_msg *msg, uint32_t flags)
-+			struct i2c_msg *msg, u8 *buf, uint32_t flags)
- {
- 	struct dma_async_tx_descriptor *desc;
- 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
-@@ -226,7 +226,7 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
- 		}
+ echo "Max node number check"
  
- 		/* Queue the DMA data transfer. */
--		sg_init_one(&i2c->sg_io[1], msg->buf, msg->len);
-+		sg_init_one(&i2c->sg_io[1], buf, msg->len);
- 		dma_map_sg(i2c->dev, &i2c->sg_io[1], 1, DMA_FROM_DEVICE);
- 		desc = dmaengine_prep_slave_sg(i2c->dmach, &i2c->sg_io[1], 1,
- 					DMA_DEV_TO_MEM,
-@@ -259,7 +259,7 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
- 		/* Queue the DMA data transfer. */
- 		sg_init_table(i2c->sg_io, 2);
- 		sg_set_buf(&i2c->sg_io[0], &i2c->addr_data, 1);
--		sg_set_buf(&i2c->sg_io[1], msg->buf, msg->len);
-+		sg_set_buf(&i2c->sg_io[1], buf, msg->len);
- 		dma_map_sg(i2c->dev, i2c->sg_io, 2, DMA_TO_DEVICE);
- 		desc = dmaengine_prep_slave_sg(i2c->dmach, i2c->sg_io, 2,
- 					DMA_MEM_TO_DEV,
-@@ -563,6 +563,7 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
- 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
- 	int ret;
- 	int flags;
-+	u8 *dma_buf;
- 	int use_pio = 0;
- 	unsigned long time_left;
+-echo -n > $TEMPCONF
+-for i in `seq 1 1024` ; do
+-   echo "node$i" >> $TEMPCONF
+-done
++awk '
++BEGIN {
++  for (i = 0; i < 26; i += 1)
++      printf("%c\n", 65 + i % 26)
++  for (i = 26; i < 8192; i += 1)
++      printf("%c%c%c\n", 65 + i % 26, 65 + (i / 26) % 26, 65 + (i / 26 / 26))
++}
++' > $TEMPCONF
+ xpass $BOOTCONF -a $TEMPCONF $INITRD
  
-@@ -588,13 +589,20 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
- 		if (ret && (ret != -ENXIO))
- 			mxs_i2c_reset(i2c);
- 	} else {
-+		dma_buf = i2c_get_dma_safe_msg_buf(msg, 1);
-+		if (!dma_buf)
-+			return -ENOMEM;
-+
- 		reinit_completion(&i2c->cmd_complete);
--		ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
--		if (ret)
-+		ret = mxs_i2c_dma_setup_xfer(adap, msg, dma_buf, flags);
-+		if (ret) {
-+			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
- 			return ret;
-+		}
- 
- 		time_left = wait_for_completion_timeout(&i2c->cmd_complete,
- 						msecs_to_jiffies(1000));
-+		i2c_put_dma_safe_msg_buf(dma_buf, msg, true);
- 		if (!time_left)
- 			goto timeout;
- 
+ echo "badnode" >> $TEMPCONF
 -- 
 2.39.2
 
