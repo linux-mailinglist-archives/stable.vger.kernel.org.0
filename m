@@ -2,62 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E646CC4AA
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F9B6CC41C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbjC1PHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S233681AbjC1PAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbjC1PHE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57151DBDB
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:54 -0700 (PDT)
+        with ESMTP id S233743AbjC1PAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33A7EB56
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8C55B81D75
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3100C433D2;
-        Tue, 28 Mar 2023 15:05:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5737EB81CAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4799C433D2;
+        Tue, 28 Mar 2023 14:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015947;
-        bh=EKNkXs3KI+JyqnL2A6TufqGRUkqvz7h1ZLXxzAwmyqI=;
+        s=korg; t=1680015589;
+        bh=x8AgsQu8GYGCpqM1PVSZ9CqgQIRwmLc/sOLomaCepug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0DfIpA2Tlynut/C8pZwd6XRuNUFEQrIZKOlPe4CO96Y0J5azvly4NcPz6WRsRZIhk
-         vTa62sj0JccpuEfkq8Uxqlx7y3nrGMMZg8RaEmi1eLaD5ftBpOd/RPhnsa4Rg7qp6o
-         aYpVIrypXYkQfRA0d1yJwshz+zQXE8dFolPQp/gQ=
+        b=1Im50FoTapJ0eBAhkwSHE+F/IAtI4sr9h1E5l2hciLUdV1CWF44gCQI/3ivlaigzc
+         CVH/50IwIMIohts+ibeFji1+Kc1J7a1W+i2wE77dmrBGffbqOpqoOiil6wbl5MAL5U
+         e56cNpNqZ27tFwec8Qa2bFTrMhczebaIZ98Dm9zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cai Huoqing <caihuoqing@baidu.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Doug Ledford <dledford@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/146] kthread: add the helper function kthread_run_on_cpu()
+        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        Lin Li <lilin@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.1 103/224] scsi: qla2xxx: Synchronize the IOCB count to be in order
 Date:   Tue, 28 Mar 2023 16:41:39 +0200
-Message-Id: <20230328142603.128392443@linuxfoundation.org>
+Message-Id: <20230328142621.644523863@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -65,94 +56,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cai Huoqing <caihuoqing@baidu.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 800977f6f32e452cba6b04ef21d2f5383ca29209 ]
+commit d3affdeb400f3adc925bd996f3839481f5291839 upstream.
 
-Add a new helper function kthread_run_on_cpu(), which includes
-kthread_create_on_cpu/wake_up_process().
+A system hang was observed with the following call trace:
 
-In some cases, use kthread_run_on_cpu() directly instead of
-kthread_create_on_node/kthread_bind/wake_up_process() or
-kthread_create_on_cpu/wake_up_process() or
-kthreadd_create/kthread_bind/wake_up_process() to simplify the code.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 0 P4D 0
+Oops: 0000 [#1] PREEMPT SMP NOPTI
+CPU: 15 PID: 86747 Comm: nvme Kdump: loaded Not tainted 6.2.0+ #1
+Hardware name: Dell Inc. PowerEdge R6515/04F3CJ, BIOS 2.7.3 03/31/2022
+RIP: 0010:__wake_up_common+0x55/0x190
+Code: 41 f6 01 04 0f 85 b2 00 00 00 48 8b 43 08 4c 8d
+      40 e8 48 8d 43 08 48 89 04 24 48 89 c6\
+      49 8d 40 18 48 39 c6 0f 84 e9 00 00 00 <49> 8b 40 18 89 6c 24 14 31
+      ed 4c 8d 60 e8 41 8b 18 f6 c3 04 75 5d
+RSP: 0018:ffffb05a82afbba0 EFLAGS: 00010082
+RAX: 0000000000000000 RBX: ffff8f9b83a00018 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: ffff8f9b83a00020 RDI: ffff8f9b83a00018
+RBP: 0000000000000001 R08: ffffffffffffffe8 R09: ffffb05a82afbbf8
+R10: 70735f7472617473 R11: 5f30307832616c71 R12: 0000000000000001
+R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
+FS:  00007f815cf4c740(0000) GS:ffff8f9eeed80000(0000)
+	knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000000 CR3: 000000010633a000 CR4: 0000000000350ee0
+Call Trace:
+    <TASK>
+    __wake_up_common_lock+0x83/0xd0
+    qla_nvme_ls_req+0x21b/0x2b0 [qla2xxx]
+    __nvme_fc_send_ls_req+0x1b5/0x350 [nvme_fc]
+    nvme_fc_xmt_disconnect_assoc+0xca/0x110 [nvme_fc]
+    nvme_fc_delete_association+0x1bf/0x220 [nvme_fc]
+    ? nvme_remove_namespaces+0x9f/0x140 [nvme_core]
+    nvme_do_delete_ctrl+0x5b/0xa0 [nvme_core]
+    nvme_sysfs_delete+0x5f/0x70 [nvme_core]
+    kernfs_fop_write_iter+0x12b/0x1c0
+    vfs_write+0x2a3/0x3b0
+    ksys_write+0x5f/0xe0
+    do_syscall_64+0x5c/0x90
+    ? syscall_exit_work+0x103/0x130
+    ? syscall_exit_to_user_mode+0x12/0x30
+    ? do_syscall_64+0x69/0x90
+    ? exit_to_user_mode_loop+0xd0/0x130
+    ? exit_to_user_mode_prepare+0xec/0x100
+    ? syscall_exit_to_user_mode+0x12/0x30
+    ? do_syscall_64+0x69/0x90
+    ? syscall_exit_to_user_mode+0x12/0x30
+    ? do_syscall_64+0x69/0x90
+    entry_SYSCALL_64_after_hwframe+0x72/0xdc
+    RIP: 0033:0x7f815cd3eb97
 
-[akpm@linux-foundation.org: export kthread_create_on_cpu to modules]
+The IOCB counts are out of order and that would block any commands from
+going out and subsequently hang the system. Synchronize the IOCB count to
+be in correct order.
 
-Link: https://lkml.kernel.org/r/20211022025711.3673-2-caihuoqing@baidu.com
-Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
-Cc: Bernard Metzler <bmt@zurich.ibm.com>
-Cc: Cai Huoqing <caihuoqing@baidu.com>
-Cc: Daniel Bristot de Oliveira <bristot@kernel.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Doug Ledford <dledford@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: "Paul E . McKenney" <paulmck@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Stable-dep-of: 08697bca9bbb ("trace/hwlat: Do not start per-cpu thread if it is already running")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5f63a163ed2f ("scsi: qla2xxx: Fix exchange oversubscription for management commands")
+Cc: stable@vger.kernel.org
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/20230313043711.13500-3-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: John Meneghini <jmeneghi@redhat.com>
+Tested-by: Lin Li <lilin@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kthread.h | 25 +++++++++++++++++++++++++
- kernel/kthread.c        |  1 +
- 2 files changed, 26 insertions(+)
+ drivers/scsi/qla2xxx/qla_isr.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 346b0f269161a..db47aae7c481b 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -56,6 +56,31 @@ bool kthread_is_per_cpu(struct task_struct *k);
- 	__k;								   \
- })
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -1900,6 +1900,8 @@ qla2x00_get_sp_from_handle(scsi_qla_host
+ 	}
  
-+/**
-+ * kthread_run_on_cpu - create and wake a cpu bound thread.
-+ * @threadfn: the function to run until signal_pending(current).
-+ * @data: data ptr for @threadfn.
-+ * @cpu: The cpu on which the thread should be bound,
-+ * @namefmt: printf-style name for the thread. Format is restricted
-+ *	     to "name.*%u". Code fills in cpu number.
-+ *
-+ * Description: Convenient wrapper for kthread_create_on_cpu()
-+ * followed by wake_up_process().  Returns the kthread or
-+ * ERR_PTR(-ENOMEM).
-+ */
-+static inline struct task_struct *
-+kthread_run_on_cpu(int (*threadfn)(void *data), void *data,
-+			unsigned int cpu, const char *namefmt)
-+{
-+	struct task_struct *p;
+ 	req->outstanding_cmds[index] = NULL;
 +
-+	p = kthread_create_on_cpu(threadfn, data, cpu, namefmt);
-+	if (!IS_ERR(p))
-+		wake_up_process(p);
-+
-+	return p;
-+}
-+
- void free_kthread_struct(struct task_struct *k);
- void kthread_bind(struct task_struct *k, unsigned int cpu);
- void kthread_bind_mask(struct task_struct *k, const struct cpumask *mask);
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 5b37a8567168b..e319a1b62586e 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -523,6 +523,7 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 	to_kthread(p)->cpu = cpu;
- 	return p;
++	qla_put_fw_resources(sp->qpair, &sp->iores);
+ 	return sp;
  }
-+EXPORT_SYMBOL(kthread_create_on_cpu);
  
- void kthread_set_per_cpu(struct task_struct *k, int cpu)
- {
--- 
-2.39.2
-
+@@ -3112,7 +3114,6 @@ qla25xx_process_bidir_status_iocb(scsi_q
+ 	}
+ 	bsg_reply->reply_payload_rcv_len = 0;
+ 
+-	qla_put_fw_resources(sp->qpair, &sp->iores);
+ done:
+ 	/* Return the vendor specific reply to API */
+ 	bsg_reply->reply_data.vendor_reply.vendor_rsp[0] = rval;
 
 
