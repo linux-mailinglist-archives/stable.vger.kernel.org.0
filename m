@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F5E6CBDC0
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4836CBDC2
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231979AbjC1LcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 07:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
+        id S229565AbjC1LcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 07:32:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232348AbjC1Lb6 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 28 Mar 2023 07:31:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD73983D9
-        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 04:31:36 -0700 (PDT)
+        with ESMTP id S230390AbjC1LcD (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 28 Mar 2023 07:32:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A75B483DB
+        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 04:31:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5772760ADD
-        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 11:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB76C433EF;
-        Tue, 28 Mar 2023 11:31:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE513B817B1
+        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 11:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E52C433EF;
+        Tue, 28 Mar 2023 11:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680003095;
-        bh=ttuqKUJr0RkwIK8jLh+Q5+vnmGvNKPxNBMQ4jpao514=;
+        s=korg; t=1680003098;
+        bh=ZSgzedDo5MhoB5ujj7z8iSP3zGdGWXzx+o4q6vh/2tc=;
         h=Subject:To:From:Date:From;
-        b=0DDfoXkvg98MorGb/+u+m7U4wbvICyldxwujgn8UKdEC60DxU3/nYsXAO/qUp9usI
-         pIeMSglesC0P6soG0HusOskUAHQK6qgiFFXBNL/YM4xvYYz9/0WMFkSK7Nv4aegyT2
-         yLhYAejApxtZt2e3KkRM/kIm9AL/7b61QgnEk1Jw=
-Subject: patch "iio: light: vcnl4000: Fix WARN_ON on uninitialized lock" added to char-misc-linus
-To:     marten.lindahl@axis.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andriy.shevchenko@linux.intel.com
+        b=Wb370PLgUu2XQjAsdA0g3x8gB8e80uK4qYjFl/e+xn0iE2lg4I94y1VF5eGRtMtER
+         +CfBx+Net8nE7goPW4ywgenE/StRbHXvSIIQ8Mwn+46ZlNfR4pbzBnSal0asts/Xhc
+         8hSA9ypYCvgeNRq914/8qY2Q7pw24KL5zAW2r+H0=
+Subject: patch "iio: buffer: make sure O_NONBLOCK is respected" added to char-misc-linus
+To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, lars@metafoo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 13:31:26 +0200
-Message-ID: <16800030863296@kroah.com>
+Date:   Tue, 28 Mar 2023 13:31:27 +0200
+Message-ID: <16800030871100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: light: vcnl4000: Fix WARN_ON on uninitialized lock
+    iio: buffer: make sure O_NONBLOCK is respected
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,64 +64,70 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 42ec40b0883c1cce58b06e8fa82049a61033151c Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>
-Date: Tue, 31 Jan 2023 15:01:09 +0100
-Subject: iio: light: vcnl4000: Fix WARN_ON on uninitialized lock
+From 3da1814184582ed0faf039275a3f02e6f69944ee Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+Date: Thu, 16 Feb 2023 11:14:51 +0100
+Subject: iio: buffer: make sure O_NONBLOCK is respected
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-There are different init functions for the sensors in this driver in
-which only one initializes the generic vcnl4000_lock. With commit
-e21b5b1f2669 ("iio: light: vcnl4000: Preserve conf bits when toggle power")
-the vcnl4040 sensor started to depend on the lock, but it was missed to
-initialize it in vcnl4040's init function. This has not been visible
-until we run lockdep on it:
+For output buffers, there's no guarantee that the buffer won't be full
+in the first iteration of the loop in which case we would block
+independently of userspace passing O_NONBLOCK or not. Fix it by always
+checking the flag before going to sleep.
 
-  DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-  at kernel/locking/mutex.c:575 __mutex_lock+0x4f8/0x890
-  Call trace:
-  __mutex_lock
-  mutex_lock_nested
-  vcnl4200_set_power_state
-  vcnl4200_init
-  vcnl4000_probe
+While at it (and as it's a bit related), refactored the loop so that the
+stop condition is 'written != n', i.e, run the loop until all data has
+been copied into the IIO buffers. This makes the code a bit simpler.
 
-Fix this by initializing the lock in the probe function instead of doing
-it in the chip specific init functions.
-
-Fixes: e21b5b1f2669 ("iio: light: vcnl4000: Preserve conf bits when toggle power")
-Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20230131140109.2067577-1-marten.lindahl@axis.com
+Fixes: 9eeee3b0bf190 ("iio: Add output buffer support")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20230216101452.591805-3-nuno.sa@analog.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/light/vcnl4000.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/industrialio-buffer.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
-index cc1a2062e76d..69c5bc987e26 100644
---- a/drivers/iio/light/vcnl4000.c
-+++ b/drivers/iio/light/vcnl4000.c
-@@ -199,7 +199,6 @@ static int vcnl4000_init(struct vcnl4000_data *data)
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index 6340d8e1430b..a7a080bed180 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -203,21 +203,24 @@ static ssize_t iio_buffer_write(struct file *filp, const char __user *buf,
+ 				break;
+ 			}
  
- 	data->rev = ret & 0xf;
- 	data->al_scale = 250000;
--	mutex_init(&data->vcnl4000_lock);
- 
- 	return data->chip_spec->set_power_state(data, true);
- };
-@@ -1197,6 +1196,8 @@ static int vcnl4000_probe(struct i2c_client *client)
- 	data->id = id->driver_data;
- 	data->chip_spec = &vcnl4000_chip_spec_cfg[data->id];
- 
-+	mutex_init(&data->vcnl4000_lock);
++			if (filp->f_flags & O_NONBLOCK) {
++				if (!written)
++					ret = -EAGAIN;
++				break;
++			}
 +
- 	ret = data->chip_spec->init(data);
- 	if (ret < 0)
- 		return ret;
+ 			wait_woken(&wait, TASK_INTERRUPTIBLE,
+ 					MAX_SCHEDULE_TIMEOUT);
+ 			continue;
+ 		}
+ 
+ 		ret = rb->access->write(rb, n - written, buf + written);
+-		if (ret == 0 && (filp->f_flags & O_NONBLOCK))
+-			ret = -EAGAIN;
++		if (ret < 0)
++			break;
+ 
+-		if (ret > 0) {
+-			written += ret;
+-			if (written != n && !(filp->f_flags & O_NONBLOCK))
+-				continue;
+-		}
+-	} while (ret == 0);
++		written += ret;
++
++	} while (written != n);
+ 	remove_wait_queue(&rb->pollq, &wait);
+ 
+ 	return ret < 0 ? ret : written;
 -- 
 2.40.0
 
