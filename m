@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A52C26CC4BC
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 743856CC562
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:14:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233891AbjC1PIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47770 "EHLO
+        id S233028AbjC1PNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:13:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233894AbjC1PIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:10 -0400
+        with ESMTP id S232711AbjC1PNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:13:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEA0CA39
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E6D5FF3D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:13:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54E76B81D83
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7FD8C433EF;
-        Tue, 28 Mar 2023 15:05:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2F6B81DA2
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D22A2C4339B;
+        Tue, 28 Mar 2023 15:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015931;
-        bh=30yUiCIR7kvZmqHVtJabUGkamG2sg128ofOFLF/QjV0=;
+        s=korg; t=1680016274;
+        bh=2p0uGVVY53ncfxIli8TOGZZz+wq8TVbJsGb7SgMeRqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1TnstEieyB1M7gNh0TFXvru92KlmmDKsmTVb72KH0myPnjjKB8v1NWSlUDvLUh7l
-         eEZtT+51ZasKd+GxHSrS0hW34XHbdx80/Z0gsCJ2BC1REG+Vcl5gW17kILyXzRCUeI
-         xZXMGFX105Tg4kpQVPjnanGS264eBvtXb2sITeIE=
+        b=VFxetBJcQrL9gnk8omhy/gTNoRsavLIFkA/6Iwp7R0ZnWQ0sodd9YdX4Zqmr0VaYn
+         JA1vstc7bRgjd0sAIn+18PIy+35M32mKsnFm2bINzijCQzryzBriSd08vdmhurKQAU
+         rDid/prjQ+Gy6VsAYbxEDXTQPT2NPxTEnbZPtb8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qiao <zhangqiao22@huawei.com>,
-        Roman Kagan <rkagan@amazon.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 6.1 219/224] sched/fair: sanitize vruntime of entity being placed
-Date:   Tue, 28 Mar 2023 16:43:35 +0200
-Message-Id: <20230328142626.441772809@linuxfoundation.org>
+        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 127/146] wifi: mac80211: fix qos on mesh interfaces
+Date:   Tue, 28 Mar 2023 16:43:36 +0200
+Message-Id: <20230328142607.949401132@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiao <zhangqiao22@huawei.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc upstream.
+commit 4e348c6c6e23491ae6eb5e077848a42d0562339c upstream.
 
-When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
-to the base level (around cfs_rq->min_vruntime), so that the entity
-doesn't gain extra boost when placed backwards.
+When ieee80211_select_queue is called for mesh, the sta pointer is usually
+NULL, since the nexthop is looked up much later in the tx path.
+Explicitly check for unicast address in that case in order to make qos work
+again.
 
-However, if the entity being placed wasn't executed for a long time, its
-vruntime may get too far behind (e.g. while cfs_rq was executing a
-low-weight hog), which can inverse the vruntime comparison due to s64
-overflow.  This results in the entity being placed with its original
-vruntime way forwards, so that it will effectively never get to the cpu.
-
-To prevent that, ignore the vruntime of the entity being placed if it
-didn't execute for much longer than the characteristic sheduler time
-scale.
-
-[rkagan: formatted, adjusted commit log, comments, cutoff value]
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Co-developed-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
+Cc: stable@vger.kernel.org
+Fixes: 50e2ab392919 ("wifi: mac80211: fix queue selection for mesh/OCB interfaces")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20230314095956.62085-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ net/mac80211/wme.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4640,6 +4640,7 @@ static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
+--- a/net/mac80211/wme.c
++++ b/net/mac80211/wme.c
+@@ -143,12 +143,14 @@ u16 ieee80211_select_queue_80211(struct
+ u16 __ieee80211_select_queue(struct ieee80211_sub_if_data *sdata,
+ 			     struct sta_info *sta, struct sk_buff *skb)
  {
- 	u64 vruntime = cfs_rq->min_vruntime;
-+	u64 sleep_time;
++	const struct ethhdr *eth = (void *)skb->data;
+ 	struct mac80211_qos_map *qos_map;
+ 	bool qos;
  
- 	/*
- 	 * The 'current' period is already promised to the current tasks,
-@@ -4669,8 +4670,18 @@ place_entity(struct cfs_rq *cfs_rq, stru
- 		vruntime -= thresh;
- 	}
- 
--	/* ensure we never gain time by being placed backwards. */
--	se->vruntime = max_vruntime(se->vruntime, vruntime);
-+	/*
-+	 * Pull vruntime of the entity being placed to the base level of
-+	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
-+	 * slept for a long time, don't even try to compare its vruntime with
-+	 * the base as it may be too far off and the comparison may get
-+	 * inversed due to s64 overflow.
-+	 */
-+	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
-+	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-+		se->vruntime = vruntime;
-+	else
-+		se->vruntime = max_vruntime(se->vruntime, vruntime);
- }
- 
- static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
+ 	/* all mesh/ocb stations are required to support WME */
+-	if (sta && (sdata->vif.type == NL80211_IFTYPE_MESH_POINT ||
+-		    sdata->vif.type == NL80211_IFTYPE_OCB))
++	if ((sdata->vif.type == NL80211_IFTYPE_MESH_POINT &&
++	    !is_multicast_ether_addr(eth->h_dest)) ||
++	    (sdata->vif.type == NL80211_IFTYPE_OCB && sta))
+ 		qos = true;
+ 	else if (sta)
+ 		qos = sta->sta.wme;
 
 
