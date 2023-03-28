@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A62C56CC519
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 934AF6CC481
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbjC1PMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53054 "EHLO
+        id S233817AbjC1PFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:05:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230466AbjC1PMS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:18 -0400
+        with ESMTP id S230396AbjC1PFd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C4BCA16
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B934EC70
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 233F56186A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B90AC433EF;
-        Tue, 28 Mar 2023 15:11:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C04AA61843
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB180C4339B;
+        Tue, 28 Mar 2023 15:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016265;
-        bh=fWOp+qfcKGT0zG0lCQzPz7I+V1II6rDlqNPaJsRZVz0=;
+        s=korg; t=1680015828;
+        bh=zJDjHXIzK7gDXWGT/oi+MHk0J7JQH6deLI5FX2BAhSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpr8VzN3j5W/BJW5tKkinknRHsqAQhUYdJLsWH1y4L6IDOKXc1S2rDK0DjY4smHHX
-         Lc80Qztz9x6kWQfHuWwZIvizpHUW4tS0bk8gE1af8dNlOLdzP7lVBG2OimAYyTKr7x
-         0Ok+Ku1frV2chFD2iMBSNYRAN1tOPZFfrhYjng3c=
+        b=sZyLUMJ62LDUBDKuLJ7tj5rBj4Kxrr3ejrQycCcgFi7/RoJXCLB4EiVzOCoUuOprI
+         MQF0yFFE5CW6XAW8pPADMl23sDF8DxcYxJcujXEHv2bKVmk81YyCvepfct987Q7kwx
+         rx28Gmn+YSFKrEIWyuj43krsPL2Zhpo+ZVw79kzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 098/146] net: usb: qmi_wwan: add Telit 0x1080 composition
+        patches@lists.linux.dev, Miao Lihua <441884205@qq.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 191/224] ksmbd: fix wrong signingkey creation when encryption is AES256
 Date:   Tue, 28 Mar 2023 16:43:07 +0200
-Message-Id: <20230328142606.781481887@linuxfoundation.org>
+Message-Id: <20230328142625.337435374@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enrico Sau <enrico.sau@gmail.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 382e363d5bed0cec5807b35761d14e55955eee63 ]
+commit 7a891d4b62d62566323676cb0e922ded4f37afe1 upstream.
 
-Add the following Telit FE990 composition:
+MacOS and Win11 support AES256 encrytion and it is included in the cipher
+array of encryption context. Especially on macOS, The most preferred
+cipher is AES256. Connecting to ksmbd fails on newer MacOS clients that
+support AES256 encryption. MacOS send disconnect request after receiving
+final session setup response from ksmbd. Because final session setup is
+signed with signing key was generated incorrectly.
+For signging key, 'L' value should be initialized to 128 if key size is
+16bytes.
 
-0x1080: tty, adb, rmnet, tty, tty, tty, tty
-
-Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
-Link: https://lore.kernel.org/r/20230306120528.198842-1-enrico.sau@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Miao Lihua <441884205@qq.com>
+Tested-by: Miao Lihua <441884205@qq.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ksmbd/auth.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 7b358b896a6d7..8646c4d90361c 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1358,6 +1358,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1080, 2)}, /* Telit FE990 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
--- 
-2.39.2
-
+--- a/fs/ksmbd/auth.c
++++ b/fs/ksmbd/auth.c
+@@ -727,8 +727,9 @@ static int generate_key(struct ksmbd_con
+ 		goto smb3signkey_ret;
+ 	}
+ 
+-	if (conn->cipher_type == SMB2_ENCRYPTION_AES256_CCM ||
+-	    conn->cipher_type == SMB2_ENCRYPTION_AES256_GCM)
++	if (key_size == SMB3_ENC_DEC_KEY_SIZE &&
++	    (conn->cipher_type == SMB2_ENCRYPTION_AES256_CCM ||
++	     conn->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
+ 		rc = crypto_shash_update(CRYPTO_HMACSHA256(ctx), L256, 4);
+ 	else
+ 		rc = crypto_shash_update(CRYPTO_HMACSHA256(ctx), L128, 4);
 
 
