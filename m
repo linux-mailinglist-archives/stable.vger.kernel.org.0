@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AF66CC386
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 937156CC513
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233520AbjC1Oyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:54:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57046 "EHLO
+        id S230191AbjC1PMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233462AbjC1Oyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F354D307
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:42 -0700 (PDT)
+        with ESMTP id S230385AbjC1PMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90591F753
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1285CB81CAF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77578C433EF;
-        Tue, 28 Mar 2023 14:54:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E18AB61847
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE50CC433EF;
+        Tue, 28 Mar 2023 15:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015279;
-        bh=3ZIwN6KbEMpPOCvyllHWBacuYVV6VxMMXYl3zHWKP+I=;
+        s=korg; t=1680016208;
+        bh=61zLZ2kjXqSlHW7kza0ZfZ6p6MoqxE6veYzqJYjLeTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mawEzaaWCxEFAkVS3NGfCfhjyek3wqobPo2XkzpqsD2H3xxggEwFuBjw0tBXBJuX
-         GA3hs6m0AJCTQwnvki2B7emV61ritJy+PTJKFTqz/kHaLw9bxKdRgSdpA/6xt2rR6Z
-         mxFKr3nVqyblZGVXmyB2UxyhuGHBQw/PF9u74i6Y=
+        b=px/w17Z74ndTs5D1K6q+K6GRk/ieXApN/iZQlD4O+Rr8HsUU7pbfANm89F7xmYrqg
+         msgU90l+GF30s/9oWV2Rmq5pFvQ/lo3zVNCMkfuPj3/5lV5Gm6XJjuQcLfXrUxuhaM
+         bWtI7JA/q9L94zpPTqYnFovFjDGztB5oweBQQ6Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krishna chaitanya chundru <quic_krichai@quicinc.com>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.2 230/240] arm64: dts: qcom: sc7280: Mark PCIe controller as cache coherent
-Date:   Tue, 28 Mar 2023 16:43:13 +0200
-Message-Id: <20230328142629.298255699@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Subject: [PATCH 5.15 105/146] usb: dwc2: fix a devres leak in hw_enable upon suspend resume
+Date:   Tue, 28 Mar 2023 16:43:14 +0200
+Message-Id: <20230328142607.068104444@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishna chaitanya chundru <quic_krichai@quicinc.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-commit 8a63441e83724fee1ef3fd37b237d40d90780766 upstream.
+commit f747313249b74f323ddf841a9c8db14d989f296a upstream.
 
-If the controller is not marked as cache coherent, then kernel will
-try to ensure coherency during dma-ops and that may cause data corruption.
-So, mark the PCIe node as dma-coherent as the devices on PCIe bus are
-cache coherent.
+Each time the platform goes to low power, PM suspend / resume routines
+call: __dwc2_lowlevel_hw_enable -> devm_add_action_or_reset().
+This adds a new devres each time.
+This may also happen at runtime, as dwc2_lowlevel_hw_enable() can be
+called from udc_start().
 
-Cc: stable@vger.kernel.org
-Fixes: 92e0ee9f83b3 ("arm64: dts: qcom: sc7280: Add PCIe and PHY related node")
-Signed-off-by: Krishna chaitanya chundru <quic_krichai@quicinc.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/1677584952-17496-1-git-send-email-quic_krichai@quicinc.com
+This can be seen with tracing:
+- echo 1 > /sys/kernel/debug/tracing/events/dev/devres_log/enable
+- go to low power
+- cat /sys/kernel/debug/tracing/trace
+
+A new "ADD" entry is found upon each low power cycle:
+... devres_log: 49000000.usb-otg ADD 82a13bba devm_action_release (8 bytes)
+... devres_log: 49000000.usb-otg ADD 49889daf devm_action_release (8 bytes)
+...
+
+A second issue is addressed here:
+- regulator_bulk_enable() is called upon each PM cycle (suspend/resume).
+- regulator_bulk_disable() never gets called.
+
+So the reference count for these regulators constantly increase, by one
+upon each low power cycle, due to missing regulator_bulk_disable() call
+in __dwc2_lowlevel_hw_disable().
+
+The original fix that introduced the devm_add_action_or_reset() call,
+fixed an issue during probe, that happens due to other errors in
+dwc2_driver_probe() -> dwc2_core_reset(). Then the probe fails without
+disabling regulators, when dr_mode == USB_DR_MODE_PERIPHERAL.
+
+Rather fix the error path: disable all the low level hardware in the
+error path, by using the "hsotg->ll_hw_enabled" flag. Checking dr_mode
+has been introduced to avoid a dual call to dwc2_lowlevel_hw_disable().
+"ll_hw_enabled" should achieve the same (and is used currently in the
+remove() routine).
+
+Fixes: 54c196060510 ("usb: dwc2: Always disable regulators on driver teardown")
+Fixes: 33a06f1300a7 ("usb: dwc2: Fix error path in gadget registration")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20230316084127.126084-1-fabrice.gasnier@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280.dtsi |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc2/platform.c |   16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-@@ -2122,6 +2122,8 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pcie1_clkreq_n>;
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -121,13 +121,6 @@ static int dwc2_get_dr_mode(struct dwc2_
+ 	return 0;
+ }
  
-+			dma-coherent;
-+
- 			iommus = <&apps_smmu 0x1c80 0x1>;
+-static void __dwc2_disable_regulators(void *data)
+-{
+-	struct dwc2_hsotg *hsotg = data;
+-
+-	regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
+-}
+-
+ static int __dwc2_lowlevel_hw_enable(struct dwc2_hsotg *hsotg)
+ {
+ 	struct platform_device *pdev = to_platform_device(hsotg->dev);
+@@ -138,11 +131,6 @@ static int __dwc2_lowlevel_hw_enable(str
+ 	if (ret)
+ 		return ret;
  
- 			iommu-map = <0x0 &apps_smmu 0x1c80 0x1>,
+-	ret = devm_add_action_or_reset(&pdev->dev,
+-				       __dwc2_disable_regulators, hsotg);
+-	if (ret)
+-		return ret;
+-
+ 	if (hsotg->clk) {
+ 		ret = clk_prepare_enable(hsotg->clk);
+ 		if (ret)
+@@ -198,7 +186,7 @@ static int __dwc2_lowlevel_hw_disable(st
+ 	if (hsotg->clk)
+ 		clk_disable_unprepare(hsotg->clk);
+ 
+-	return 0;
++	return regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
+ }
+ 
+ /**
+@@ -658,7 +646,7 @@ error_init:
+ 	if (hsotg->params.activate_stm_id_vb_detection)
+ 		regulator_disable(hsotg->usb33d);
+ error:
+-	if (hsotg->dr_mode != USB_DR_MODE_PERIPHERAL)
++	if (hsotg->ll_hw_enabled)
+ 		dwc2_lowlevel_hw_disable(hsotg);
+ 	return retval;
+ }
 
 
