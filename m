@@ -2,51 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A706CC531
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBAF6CC379
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232743AbjC1PMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54160 "EHLO
+        id S233439AbjC1OyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231381AbjC1PMg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50138F74D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:14 -0700 (PDT)
+        with ESMTP id S233454AbjC1OyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3271BC15D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 840F561876
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68714C433EF;
-        Tue, 28 Mar 2023 15:11:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5DB561820
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B459DC433D2;
+        Tue, 28 Mar 2023 14:54:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016296;
-        bh=JMuotiYhQZ1D2/JpJmP0dz52A6CEWCyf8t2vwXN+fNw=;
+        s=korg; t=1680015252;
+        bh=dU4cXv3GN5nyO7RK1N6UM13F/DcpChRh/3UE/JMFQWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=woi7H0jNOUoURu88EL0c9/HLYvmk7W/kd1l/n6CcDMR2F9rMqjyzMl7Zv9JIBmT2n
-         WR6kXz21hqhBJfGJl/oQWWCZes5ATJExpJvEB4Cd6tcAmEcsa26Eby8hJ6An8t5S7g
-         ZoTS5/casaIk4VA2SRw3sy4mdv7z/QZvE/FldkjI=
+        b=pxg+5kl0LxbTa7BSR9MpCodqm5fYd+Cc9tajw+Fl/MJO8FJ54atAfrw1d9KMpvz7N
+         dZWryGmEtXE3y0InZPLYueBVjg7Je/bYI5GJKOplyoeEvzGlMRhTti6coj+NBSWPAn
+         6YAqNZ2xRRbP5zh+h+FSMAWraQCRzexRZV0ARHsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/146] scsi: lpfc: Avoid usage of list iterator variable after loop
+        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Nirmoy Das <nirmoy.das@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.2 221/240] drm/i915/active: Fix missing debug object activation
 Date:   Tue, 28 Mar 2023 16:43:04 +0200
-Message-Id: <20230328142606.671449896@linuxfoundation.org>
+Message-Id: <20230328142628.917550978@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,61 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jkl820.git@gmail.com>
+From: Nirmoy Das <nirmoy.das@intel.com>
 
-[ Upstream commit 2850b23e9f9ae3696e472d2883ea1b43aafa884e ]
+commit e92eb246feb9019b0b137706c934b8891cdfe3c2 upstream.
 
-If the &epd_pool->list is empty when executing
-lpfc_get_io_buf_from_expedite_pool() the function would return an invalid
-pointer. Even in the case if the list is guaranteed to be populated, the
-iterator variable should not be used after the loop to be more robust for
-future changes.
+debug_active_activate() expected ref->count to be zero
+which is not true anymore as __i915_active_activate() calls
+debug_active_activate() after incrementing the count.
 
-Linus proposed to avoid any use of the list iterator variable after the
-loop, in the attempt to move the list iterator variable declaration into
-the macro to avoid any potential misuse after the loop [1].
+v2: No need to check for "ref->count == 1" as __i915_active_activate()
+already make sure of that(Janusz).
 
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
-Link: https://lore.kernel.org/r/20230301-scsi-lpfc-avoid-list-iterator-after-loop-v1-1-325578ae7561@gmail.com
-Reviewed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 04240e30ed06 ("drm/i915: Skip taking acquire mutex for no ref->active callback")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230313114613.9874-1-nirmoy.das@intel.com
+(cherry picked from commit bfad380c542438a9b642f8190b7fd37bc77e2723)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/i915_active.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 1f1d346adc038..30bc72324f068 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -22166,20 +22166,20 @@ lpfc_get_io_buf_from_private_pool(struct lpfc_hba *phba,
- static struct lpfc_io_buf *
- lpfc_get_io_buf_from_expedite_pool(struct lpfc_hba *phba)
+--- a/drivers/gpu/drm/i915/i915_active.c
++++ b/drivers/gpu/drm/i915/i915_active.c
+@@ -92,8 +92,7 @@ static void debug_active_init(struct i91
+ static void debug_active_activate(struct i915_active *ref)
  {
--	struct lpfc_io_buf *lpfc_ncmd;
-+	struct lpfc_io_buf *lpfc_ncmd = NULL, *iter;
- 	struct lpfc_io_buf *lpfc_ncmd_next;
- 	unsigned long iflag;
- 	struct lpfc_epd_pool *epd_pool;
+ 	lockdep_assert_held(&ref->tree_lock);
+-	if (!atomic_read(&ref->count)) /* before the first inc */
+-		debug_object_activate(ref, &active_debug_desc);
++	debug_object_activate(ref, &active_debug_desc);
+ }
  
- 	epd_pool = &phba->epd_pool;
--	lpfc_ncmd = NULL;
- 
- 	spin_lock_irqsave(&epd_pool->lock, iflag);
- 	if (epd_pool->count > 0) {
--		list_for_each_entry_safe(lpfc_ncmd, lpfc_ncmd_next,
-+		list_for_each_entry_safe(iter, lpfc_ncmd_next,
- 					 &epd_pool->list, list) {
--			list_del(&lpfc_ncmd->list);
-+			list_del(&iter->list);
- 			epd_pool->count--;
-+			lpfc_ncmd = iter;
- 			break;
- 		}
- 	}
--- 
-2.39.2
-
+ static void debug_active_deactivate(struct i915_active *ref)
 
 
