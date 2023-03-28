@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23CB96CC319
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA336CC422
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233282AbjC1OvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41594 "EHLO
+        id S233641AbjC1PAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233378AbjC1Ou5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4F1DBC1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:36 -0700 (PDT)
+        with ESMTP id S233666AbjC1PAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C84E079
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06034B80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40CD7C433EF;
-        Tue, 28 Mar 2023 14:50:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B6E761804
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51DA1C433EF;
+        Tue, 28 Mar 2023 15:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015032;
-        bh=dedyIN+QCvBkCBfVWpXsX2Tzfh/6ufEr3d4L7AHy/PA=;
+        s=korg; t=1680015609;
+        bh=fBz92v9YhjUdwzznze4CNEBjdFnvqCppo2AMjOgJZeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHm7YnbaLuuZpwMDb5EKRiAv43UIMVjATJTgo7f2U65BuE+eCVfYEApof8Sxel5YM
-         axPeWoQkqAlnhov3vAKmsyZdqHxjRoPVUqyM1dJ7y14dc8pCstmeF8NsJdtvRy+sQ1
-         iPY98bZTov9Sxr7BT1Mfqx4SPTygw4LVDsrF9FW0=
+        b=h4g+q6LPlS8AsXNoGglKc5G3bgCoyx59Fehl6ukusUHd7SE+D9o0Zz+GlqpbPCSbc
+         rfjz/NmZfko/OZBKZnQy/CTtuXy9T9CS9y6c+xwzQzXxjUsYxd781jeIrEvafAVcdQ
+         Po4rljwwk8iRsoVSW7sDhEJyHETr6Aa8MImZVFJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 142/240] scsi: target: iscsi: Fix an error message in iscsi_check_key()
+        patches@lists.linux.dev,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 6.1 109/224] thunderbolt: Call tb_check_quirks() after initializing adapters
 Date:   Tue, 28 Mar 2023 16:41:45 +0200
-Message-Id: <20230328142625.659112464@linuxfoundation.org>
+Message-Id: <20230328142621.884972129@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 6cc55c969b7ce8d85e09a636693d4126c3676c11 ]
+commit d2d6ddf188f609861489d5d188d545856a3ed399 upstream.
 
-The first half of the error message is printed by pr_err(), the second half
-is printed by pr_debug(). The user will therefore see only the first part
-of the message and will miss some useful information.
+In order to apply quirks based on certain adapter types move call to
+tb_check_quirks() happen after the adapters are initialized. This should
+not affect the existing quirks.
 
-Link: https://lore.kernel.org/r/20230214141556.762047-1-mlombard@redhat.com
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/target/iscsi/iscsi_target_parameters.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/thunderbolt/switch.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target_parameters.c b/drivers/target/iscsi/iscsi_target_parameters.c
-index 2317fb077db0e..557516c642c3b 100644
---- a/drivers/target/iscsi/iscsi_target_parameters.c
-+++ b/drivers/target/iscsi/iscsi_target_parameters.c
-@@ -1262,18 +1262,20 @@ static struct iscsi_param *iscsi_check_key(
- 		return param;
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2959,8 +2959,6 @@ int tb_switch_add(struct tb_switch *sw)
+ 			dev_warn(&sw->dev, "reading DROM failed: %d\n", ret);
+ 		tb_sw_dbg(sw, "uid: %#llx\n", sw->uid);
  
- 	if (!(param->phase & phase)) {
--		pr_err("Key \"%s\" may not be negotiated during ",
--				param->name);
-+		char *phase_name;
-+
- 		switch (phase) {
- 		case PHASE_SECURITY:
--			pr_debug("Security phase.\n");
-+			phase_name = "Security";
- 			break;
- 		case PHASE_OPERATIONAL:
--			pr_debug("Operational phase.\n");
-+			phase_name = "Operational";
- 			break;
- 		default:
--			pr_debug("Unknown phase.\n");
-+			phase_name = "Unknown";
+-		tb_check_quirks(sw);
+-
+ 		ret = tb_switch_set_uuid(sw);
+ 		if (ret) {
+ 			dev_err(&sw->dev, "failed to set UUID\n");
+@@ -2979,6 +2977,8 @@ int tb_switch_add(struct tb_switch *sw)
+ 			}
  		}
-+		pr_err("Key \"%s\" may not be negotiated during %s phase.\n",
-+				param->name, phase_name);
- 		return NULL;
- 	}
  
--- 
-2.39.2
-
++		tb_check_quirks(sw);
++
+ 		tb_switch_default_link_ports(sw);
+ 
+ 		ret = tb_switch_update_link_attributes(sw);
 
 
