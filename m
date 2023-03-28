@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E62F6CC48A
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CE06CC394
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231674AbjC1PFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:05:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
+        id S233534AbjC1OzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233857AbjC1PFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7318ED514
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:32 -0700 (PDT)
+        with ESMTP id S233462AbjC1OzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C49ED515
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5472F61853
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6794BC433EF;
-        Tue, 28 Mar 2023 15:04:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA6A2617E5
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1E1C433D2;
+        Tue, 28 Mar 2023 14:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015871;
-        bh=DJ0CbK1NqKRNGloDc3w5YezRfW2KvfTJEJX1fXL9Vs4=;
+        s=korg; t=1680015320;
+        bh=CPnN4rzd/gvegcKGDpNA+Thspj9doQ37znC0Tr4y1S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aiZMpLd882n85HlWL0gMyhYoMV1lsHgWIrdHjct9eSMrXXz0YCXiXVo0y1380O3UI
-         9W8+RbPvd8NIPFhNOXDzfmkzrLos6DX+nTzhgeYzN8MxerbukM1jIo5VY8477iuQp2
-         IKn3Wxje6UbCzXSH5J41d9RYZQde0WsE1RGrgSco=
+        b=uBvHHmTPr1NZYG0UXhfrGW0itk+Blo67zJh/Ij/X0eZJItEwX9wd0gKKqA8/TdW14
+         RR0hQqpItSNj+YmKCU6R/w1dOmRiDT+dOCXpRFwKQUkVytP9J7GiJ/Tj20qRwjQsMZ
+         3teiSwTwE8U2ZBitfbn/E0cHz6CludFFVHHZwwFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dylan Jhong <dylan@andestech.com>,
-        Sergey Matyukevich <sergey.matyukevich@syntacore.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.1 206/224] riscv: mm: Fix incorrect ASID argument when flushing TLB
+        patches@lists.linux.dev, Zhang Qiao <zhangqiao22@huawei.com>,
+        Roman Kagan <rkagan@amazon.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 6.2 239/240] sched/fair: sanitize vruntime of entity being placed
 Date:   Tue, 28 Mar 2023 16:43:22 +0200
-Message-Id: <20230328142625.949817265@linuxfoundation.org>
+Message-Id: <20230328142629.654810155@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,59 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Jhong <dylan@andestech.com>
+From: Zhang Qiao <zhangqiao22@huawei.com>
 
-commit 9a801afd3eb95e1a89aba17321062df06fb49d98 upstream.
+commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc upstream.
 
-Currently, we pass the CONTEXTID instead of the ASID to the TLB flush
-function. We should only take the ASID field to prevent from touching
-the reserved bit field.
+When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
+to the base level (around cfs_rq->min_vruntime), so that the entity
+doesn't gain extra boost when placed backwards.
 
-Fixes: 3f1e782998cd ("riscv: add ASID-based tlbflushing methods")
-Signed-off-by: Dylan Jhong <dylan@andestech.com>
-Reviewed-by: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
-Link: https://lore.kernel.org/r/20230313034906.2401730-1-dylan@andestech.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+However, if the entity being placed wasn't executed for a long time, its
+vruntime may get too far behind (e.g. while cfs_rq was executing a
+low-weight hog), which can inverse the vruntime comparison due to s64
+overflow.  This results in the entity being placed with its original
+vruntime way forwards, so that it will effectively never get to the cpu.
+
+To prevent that, ignore the vruntime of the entity being placed if it
+didn't execute for much longer than the characteristic sheduler time
+scale.
+
+[rkagan: formatted, adjusted commit log, comments, cutoff value]
+Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
+Co-developed-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/tlbflush.h |    2 ++
- arch/riscv/mm/context.c           |    2 +-
- arch/riscv/mm/tlbflush.c          |    2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/include/asm/tlbflush.h
-+++ b/arch/riscv/include/asm/tlbflush.h
-@@ -12,6 +12,8 @@
- #include <asm/errata_list.h>
- 
- #ifdef CONFIG_MMU
-+extern unsigned long asid_mask;
-+
- static inline void local_flush_tlb_all(void)
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4656,6 +4656,7 @@ static void
+ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
  {
- 	__asm__ __volatile__ ("sfence.vma" : : : "memory");
---- a/arch/riscv/mm/context.c
-+++ b/arch/riscv/mm/context.c
-@@ -22,7 +22,7 @@ DEFINE_STATIC_KEY_FALSE(use_asid_allocat
+ 	u64 vruntime = cfs_rq->min_vruntime;
++	u64 sleep_time;
  
- static unsigned long asid_bits;
- static unsigned long num_asids;
--static unsigned long asid_mask;
-+unsigned long asid_mask;
+ 	/*
+ 	 * The 'current' period is already promised to the current tasks,
+@@ -4685,8 +4686,18 @@ place_entity(struct cfs_rq *cfs_rq, stru
+ 		vruntime -= thresh;
+ 	}
  
- static atomic_long_t current_version;
+-	/* ensure we never gain time by being placed backwards. */
+-	se->vruntime = max_vruntime(se->vruntime, vruntime);
++	/*
++	 * Pull vruntime of the entity being placed to the base level of
++	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
++	 * slept for a long time, don't even try to compare its vruntime with
++	 * the base as it may be too far off and the comparison may get
++	 * inversed due to s64 overflow.
++	 */
++	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
++	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
++		se->vruntime = vruntime;
++	else
++		se->vruntime = max_vruntime(se->vruntime, vruntime);
+ }
  
---- a/arch/riscv/mm/tlbflush.c
-+++ b/arch/riscv/mm/tlbflush.c
-@@ -42,7 +42,7 @@ static void __sbi_tlb_flush_range(struct
- 	/* check if the tlbflush needs to be sent to other CPUs */
- 	broadcast = cpumask_any_but(cmask, cpuid) < nr_cpu_ids;
- 	if (static_branch_unlikely(&use_asid_allocator)) {
--		unsigned long asid = atomic_long_read(&mm->context.id);
-+		unsigned long asid = atomic_long_read(&mm->context.id) & asid_mask;
- 
- 		if (broadcast) {
- 			sbi_remote_sfence_vma_asid(cmask, start, size, asid);
+ static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
 
 
