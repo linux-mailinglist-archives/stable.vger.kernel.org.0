@@ -2,87 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2786CC0EA
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 15:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 001136CC0F8
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 15:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbjC1NbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 09:31:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52150 "EHLO
+        id S233282AbjC1Ncn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 09:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233119AbjC1NbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 09:31:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B63DCC17;
-        Tue, 28 Mar 2023 06:30:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87428617BB;
-        Tue, 28 Mar 2023 13:30:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DF534C433A7;
-        Tue, 28 Mar 2023 13:30:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680010218;
-        bh=wAOqKXa5k+PpvaTqojjqTGvRwfUjAI5kHX4cGuCo+zg=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=uYFmZ+KCxb84fhWh6BTAOpT75G1dlq265BRyJH9EwV+5fNqyj3t1NNe3aEKjwz49z
-         /7k2Zjq5O+zK7A0piXnv5r2oPRwUpKWezf/XSaRx4x/92BArDGtSAcOI/iicezlmjB
-         0947QOThA8fpXzkBlpXJdFni1ygDCQIOeY7LmyqK5u1kTBjBvMfy649GCcYY9Yg0za
-         1x2jFsD6J+wRbxLqZmxrUs8F1qIwQ5iou6lt4p+XAU6m7ejMvlW3BOtimwKJ5vnihi
-         adc6QkoW9kYQnYXxxPHqmcjU+cWtGdwQGsoLrfOcR0tpc1xzGtb+xuNkh4r9p5npHt
-         P7oWeNeAswnYA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BE71DE50D77;
-        Tue, 28 Mar 2023 13:30:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233291AbjC1Nc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 09:32:28 -0400
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AABC66A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 06:32:09 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id F28385C00E7;
+        Tue, 28 Mar 2023 09:31:10 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 28 Mar 2023 09:31:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; t=1680010270; x=1680096670; bh=D7
+        KaZJ+1YJ+PWeo3Sn8OrXD3p3K/wbxYvtfPD9mZJ0M=; b=X/Oxdc2ycUhdMBFJN6
+        VBSWiSTa8nofnRYP0k9O4fA5ashiUqPLzBMY3fLSGiuBylq0Knmz27d/A9UGgAv6
+        ZtpZwLxWLlSokqjfOjp2PJD5apjQbsEok2XSc3qJvWA7qIzeCUPHZmnJLpKIoPU1
+        xx6zzyZZkwLnmDmjLcvftvpZtvtJY5DMdwkW3D8AkQrM4vTk+vv6KRZ8gr+SevEY
+        NNi0EUKhZzOJepMtjN+BZOvMxgyTwfDAeZb1dxoO369NuPwKbhkCvI0R2hnAjhIa
+        V3FLviooWJQF/lWQHOkAhY7BaI35zzuDj8A1lWWgU35NGe8k1XwQSIIV+KmnPcyX
+        q7FQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1680010270; x=1680096670; bh=D7KaZJ+1YJ+PW
+        eo3Sn8OrXD3p3K/wbxYvtfPD9mZJ0M=; b=FBA3iV3IQSuPNN2tUY2NFuQlkxPvn
+        fp84bicI3rXq7Lo69Lsj3NPrZo9Omex1S/mXl/PBlK+/PPqRWVof6HBSG5xrnXbG
+        raYeCmEz7EyuHb/ZRwAvQXkoS32vLM/W01/iRra0ah707z30uk+o1U6fxUYBoqu9
+        qlF190AJjDxmflfG1J34rpLk2W7qxmgdCHAC+vwxlrbaZ9NZcmbrno697IGHgMEo
+        3QOLCkYgxIq0MRKJEY6zHWDFp0prRLn7lhe5p0UiL57XSJppmqTWBGCQPmWyPGUL
+        5w4+/Vk0ljX1Y4R8pW7Y7e5KjBo42zQFyeULITaVj7JCbvUXLYJHbQU6A==
+X-ME-Sender: <xms:HuwiZDFH4hyDhFQKZ_RO_GqHQ-_YShmnA0lRB8Gu7l79W3Ka0nMMMg>
+    <xme:HuwiZAVycP-FPRPtVcgUZ2wq5LPNaCHxpe2xJn3_Ax7MtQ4AQQx6mea2Jyxd6xR2K
+    ljSYlRZXEnlfw>
+X-ME-Received: <xmr:HuwiZFJiTTN8ZVbVORu4IVxWnWBcTxgvuk8rbYaHSlsPOM2i4ROHX7Xff9E4WLcPRnRLQOw4ZkBHm81CkHopYxs-zSv8bSRm4NrvmA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdehgedgieehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:HuwiZBH1w2I_FZ3ANdRxD85pzVkW8rgOcu9_YIUWYbI5gaiXr0hMKA>
+    <xmx:HuwiZJVijAGO85MCdRQRB-UfhP9rZjmZAF2lbpZgJkKe488tAwN5eg>
+    <xmx:HuwiZMNzmmFD89mWZI7ONOWhMOesIoaEaKvoT0lIvYbbOFTs1h_D5Q>
+    <xmx:HuwiZPzgpPvqe0ftPlmtiti86gFLXUmOvuyApVqEwfAcbFe9mrbzyA>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 28 Mar 2023 09:31:10 -0400 (EDT)
+Date:   Tue, 28 Mar 2023 15:31:08 +0200
+From:   Greg KH <greg@kroah.com>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Gong, Richard" <Richard.Gong@amd.com>
+Subject: Re: Fix KFD support in GC 11.0.4
+Message-ID: <ZCLsHCq46XBG1ZW3@kroah.com>
+References: <MN0PR12MB61016FB7B6F4C8AFAE2714F4E2809@MN0PR12MB6101.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 0/3] xen/netback: fix issue introduced recently
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <168001021877.12098.5546775808625533153.git-patchwork-notify@kernel.org>
-Date:   Tue, 28 Mar 2023 13:30:18 +0000
-References: <20230328131047.2440-1-jgross@suse.com>
-In-Reply-To: <20230328131047.2440-1-jgross@suse.com>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        wei.liu@kernel.org, paul@xen.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MN0PR12MB61016FB7B6F4C8AFAE2714F4E2809@MN0PR12MB6101.namprd12.prod.outlook.com>
+X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This series was applied to netdev/net.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
-
-On Tue, 28 Mar 2023 15:10:44 +0200 you wrote:
-> The fix for XSA-423 introduced a bug which resulted in loss of network
-> connection in some configurations.
+On Mon, Mar 20, 2023 at 09:10:03PM +0000, Limonciello, Mario wrote:
+> [Public]
 > 
-> The first patch is fixing the issue, while the second one is removing
-> a test which isn't needed. The third patch is making error messages
-> more uniform.
+> Hi,
 > 
-> [...]
+> For a product that has the IP GC 11.0.4, there is a lone error message that comes up during bootup related to some missing support for KFD on kernel 6.1.20.
+> 
+> kfd kfd: amdgpu: GC IP 0b0004  not supported in kfd
+> 
+> This is fixed by this series of commits that landed in 6.2 that fixes KFD support on this product (and also fixes a warning).
+> 
+> fd72e2cb2f9d ("drm/amdkfd: introduce dummy cache info for property asic")
+> c0cc999f3c32 ("drm/amdkfd: Fix the warning of array-index-out-of-bounds")
+> 88c21c2b56aa ("drm/amdkfd: add GC 11.0.4 KFD support")
+> 
+> Can you please bring to 6.1.y?
 
-Here is the summary with links:
-  - [v2,1/3] xen/netback: don't do grant copy across page boundary
-    (no matching commit)
-  - [v2,2/3] xen/netback: remove not needed test in xenvif_tx_build_gops()
-    https://git.kernel.org/netdev/net/c/8fb8ebf94877
-  - [v2,3/3] xen/netback: use same error messages for same errors
-    (no matching commit)
+All now qeueud up, thanks.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+greg k-h
