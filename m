@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0666CC50E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83DF6CC35B
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230207AbjC1PMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52558 "EHLO
+        id S233483AbjC1OxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:53:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbjC1PMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ACE1F74B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:25 -0700 (PDT)
+        with ESMTP id S233558AbjC1OxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36947CA38
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06C1DB81D98
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46889C433EF;
-        Tue, 28 Mar 2023 15:09:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2871B61820
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C9A6C4339C;
+        Tue, 28 Mar 2023 14:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016191;
-        bh=w3eECJi3wwE/hikXO0UAr4lhKLbAC01FyqAMomvHfyQ=;
+        s=korg; t=1680015181;
+        bh=j4jKcJqBsVg1T7zKJBrYXuMxAuTocnUWvRcNBPceYkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpDb0Sf1WGhd5psKyodV0vPnSozzshNcnbZS5Gktp8qLKExqU6vHSrKA215qeH62P
-         S3qHNcYsVz2v2tszgePUvGXZvV6Y6MsmoiqzWsYUgX5sXA411KbKzYAagbvD7i3DCh
-         hndVHwpy6we8xfV0xvHc0NLuPbZypLeB/5128xSM=
+        b=BcFUnYXA83d/GuNPvHqI8lOCdkXbPOfA63uEoSxGVHTu3o2IHhovwkCHM53uRLuOm
+         4Bo3qD/ZsLx7BWy/KiaaSty7Om9zFEDzLjjBxsN9H8htgjccyKPmM3YIm5ZDGzcm8Q
+         iLn80qSDCK97PXlISDVXwOzPh7O0QMKt/++wHlwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/146] thread_info: Add helpers to snapshot thread flags
+        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 6.2 194/240] usb: cdnsp: Fixes issue with redundant Status Stage
 Date:   Tue, 28 Mar 2023 16:42:37 +0200
-Message-Id: <20230328142605.552678094@linuxfoundation.org>
+Message-Id: <20230328142627.734426658@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,75 +51,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-[ Upstream commit 7ad639840acf2800b5f387c495795f995a67a329 ]
+commit 5bc38d33a5a1209fd4de65101d1ae8255ea12c6e upstream.
 
-In <linux/thread_info.h> there are helpers to manipulate individual thread
-flags, but where code wants to check several flags at once, it must open
-code reading current_thread_info()->flags and operating on a snapshot.
+In some cases, driver trees to send Status Stage twice.
+The first one from upper layer of gadget usb subsystem and
+second time from controller driver.
+This patch fixes this issue and remove tricky handling of
+SET_INTERFACE from controller driver which is no longer
+needed.
 
-As some flags can be set remotely it's necessary to use READ_ONCE() to get
-a consistent snapshot even when IRQs are disabled, but some code forgets to
-do this. Generally this is unlike to cause a problem in practice, but it is
-somewhat unsound, and KCSAN will legitimately warn that there is a data
-race.
-
-To make it easier to do the right thing, and to highlight that concurrent
-modification is possible, add new helpers to snapshot the flags, which
-should be used in preference to plain reads. Subsequent patches will move
-existing code to use the new helpers.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Marco Elver <elver@google.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20211129130653.2037928-2-mark.rutland@arm.com
-Stable-dep-of: b41651405481 ("entry/rcu: Check TIF_RESCHED _after_ delayed RCU wake-up")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+cc: <stable@vger.kernel.org>
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20230307111420.376056-1-pawell@cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/thread_info.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/usb/cdns3/cdnsp-ep0.c |   19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
-diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
-index 0999f6317978f..9a073535c0bdd 100644
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -118,6 +118,15 @@ static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
- 	return test_bit(flag, (unsigned long *)&ti->flags);
+--- a/drivers/usb/cdns3/cdnsp-ep0.c
++++ b/drivers/usb/cdns3/cdnsp-ep0.c
+@@ -403,20 +403,6 @@ static int cdnsp_ep0_std_request(struct
+ 	case USB_REQ_SET_ISOCH_DELAY:
+ 		ret = cdnsp_ep0_set_isoch_delay(pdev, ctrl);
+ 		break;
+-	case USB_REQ_SET_INTERFACE:
+-		/*
+-		 * Add request into pending list to block sending status stage
+-		 * by libcomposite.
+-		 */
+-		list_add_tail(&pdev->ep0_preq.list,
+-			      &pdev->ep0_preq.pep->pending_list);
+-
+-		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
+-		if (ret == -EBUSY)
+-			ret = 0;
+-
+-		list_del(&pdev->ep0_preq.list);
+-		break;
+ 	default:
+ 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
+ 		break;
+@@ -474,9 +460,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
+ 	else
+ 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
+ 
+-	if (!len)
+-		pdev->ep0_stage = CDNSP_STATUS_STAGE;
+-
+ 	if (ret == USB_GADGET_DELAYED_STATUS) {
+ 		trace_cdnsp_ep0_status_stage("delayed");
+ 		return;
+@@ -484,6 +467,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
+ out:
+ 	if (ret < 0)
+ 		cdnsp_ep0_stall(pdev);
+-	else if (pdev->ep0_stage == CDNSP_STATUS_STAGE)
++	else if (!len && pdev->ep0_stage != CDNSP_STATUS_STAGE)
+ 		cdnsp_status_stage(pdev);
  }
- 
-+/*
-+ * This may be used in noinstr code, and needs to be __always_inline to prevent
-+ * inadvertent instrumentation.
-+ */
-+static __always_inline unsigned long read_ti_thread_flags(struct thread_info *ti)
-+{
-+	return READ_ONCE(ti->flags);
-+}
-+
- #define set_thread_flag(flag) \
- 	set_ti_thread_flag(current_thread_info(), flag)
- #define clear_thread_flag(flag) \
-@@ -130,6 +139,11 @@ static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
- 	test_and_clear_ti_thread_flag(current_thread_info(), flag)
- #define test_thread_flag(flag) \
- 	test_ti_thread_flag(current_thread_info(), flag)
-+#define read_thread_flags() \
-+	read_ti_thread_flags(current_thread_info())
-+
-+#define read_task_thread_flags(t) \
-+	read_ti_thread_flags(task_thread_info(t))
- 
- #ifdef CONFIG_GENERIC_ENTRY
- #define set_syscall_work(fl) \
--- 
-2.39.2
-
 
 
