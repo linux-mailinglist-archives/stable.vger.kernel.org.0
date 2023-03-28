@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6125F6CC2E8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01DE36CC3BD
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233313AbjC1Otm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
+        id S233587AbjC1O46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233424AbjC1Ot1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:27 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE0AE19C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:52 -0700 (PDT)
+        with ESMTP id S233588AbjC1O45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7EDDBF1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 90462CE1DAB
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A828C433EF;
-        Tue, 28 Mar 2023 14:48:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D81EC61844
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD5AC433EF;
+        Tue, 28 Mar 2023 14:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014928;
-        bh=52sTTnBBVvZk6CrQQStaDGojKif3biqZ83KX+0jZBJs=;
+        s=korg; t=1680015415;
+        bh=ho08CksGUAF+HxCU0rD3zKrrkffcbEb40aeXp3iRIQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxHnMVHvXEJi5a2HLgv1dHlEKhOr6AAkoujydPtsJeUDDE5V4oa8PmFNKKnFuDinL
-         SDkb9gQgPveBuZHfL7OqPrtGOmMw7SBv+IDWQv2MwyBBuMyH046yCbAM7RSTFh1H5e
-         1+lQlisCklzOYIqgTh9tOxJDGEgxVXjSAMT8YA8M=
+        b=F0mmg/k/qho4FmROwnmgFYaTrl4SAdf+kFPDy65XSw3Dr10+IfraKLytyar5D/hJo
+         c0pxWuGoGWBu2f56OG8S39Vdjr9MoEZ/25vW9uE7D/FuuKIPnienYTzgGASG3lHiYR
+         eFP6cnQygr9eB/uwwnmqHxkVRHr5skGDJO6C69GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gavin Li <gavinl@nvidia.com>,
-        Gavi Teitz <gavi@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 073/240] net/mlx5e: Block entering switchdev mode with ns inconsistency
+Subject: [PATCH 6.1 040/224] qed/qed_sriov: guard against NULL derefs from qed_iov_get_vf_info
 Date:   Tue, 28 Mar 2023 16:40:36 +0200
-Message-Id: <20230328142622.800485158@linuxfoundation.org>
+Message-Id: <20230328142619.027036921@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <gavinl@nvidia.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 662404b24a4c4d839839ed25e3097571f5938b9b ]
+[ Upstream commit 25143b6a01d0cc5319edd3de22ffa2578b045550 ]
 
-Upon entering switchdev mode, VF/SF representors are spawned in the
-devlink instance's net namespace, whereas the PF net device transforms
-into the uplink representor, remaining in the net namespace the PF net
-device was in. Therefore, if a PF net device's namespace is different from
-its parent devlink net namespace, entering switchdev mode can create an
-illegal situation where all representors sharing the same core device
-are NOT in the same net namespace.
+We have to make sure that the info returned by the helper is valid
+before using it.
 
-To avoid this issue, block entering switchdev mode for devices whose child
-netdev net namespace has diverged from the parent devlink's.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-Fixes: 7768d1971de6 ("net/mlx5: E-Switch, Add control for encapsulation")
-Signed-off-by: Gavin Li <gavinl@nvidia.com>
-Reviewed-by: Gavi Teitz <gavi@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
+Fixes: 733def6a04bf ("qed*: IOV link control")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mellanox/mlx5/core/eswitch_offloads.c     | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index 3992bf6337ca0..0facc709f0e74 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -3518,6 +3518,18 @@ static int esw_inline_mode_to_devlink(u8 mlx5_mode, u8 *mode)
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+index 0848b5529d48a..911509c2b17d5 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -4404,6 +4404,9 @@ qed_iov_configure_min_tx_rate(struct qed_dev *cdev, int vfid, u32 rate)
+ 	}
  
-+static bool esw_offloads_devlink_ns_eq_netdev_ns(struct devlink *devlink)
-+{
-+	struct net *devl_net, *netdev_net;
-+	struct mlx5_eswitch *esw;
+ 	vf = qed_iov_get_vf_info(QED_LEADING_HWFN(cdev), (u16)vfid, true);
++	if (!vf)
++		return -EINVAL;
 +
-+	esw = mlx5_devlink_eswitch_get(devlink);
-+	netdev_net = dev_net(esw->dev->mlx5e_res.uplink_netdev);
-+	devl_net = devlink_net(devlink);
-+
-+	return net_eq(devl_net, netdev_net);
-+}
-+
- int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
- 				  struct netlink_ext_ack *extack)
- {
-@@ -3532,6 +3544,13 @@ int mlx5_devlink_eswitch_mode_set(struct devlink *devlink, u16 mode,
- 	if (esw_mode_from_devlink(mode, &mlx5_mode))
- 		return -EINVAL;
+ 	vport_id = vf->vport_id;
  
-+	if (mode == DEVLINK_ESWITCH_MODE_SWITCHDEV &&
-+	    !esw_offloads_devlink_ns_eq_netdev_ns(devlink)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Can't change E-Switch mode to switchdev when netdev net namespace has diverged from the devlink's.");
-+		return -EPERM;
-+	}
-+
- 	mlx5_lag_disable_change(esw->dev);
- 	err = mlx5_esw_try_lock(esw);
- 	if (err < 0) {
+ 	return qed_configure_vport_wfq(cdev, vport_id, rate);
+@@ -5152,7 +5155,7 @@ static void qed_iov_handle_trust_change(struct qed_hwfn *hwfn)
+ 
+ 		/* Validate that the VF has a configured vport */
+ 		vf = qed_iov_get_vf_info(hwfn, i, true);
+-		if (!vf->vport_instance)
++		if (!vf || !vf->vport_instance)
+ 			continue;
+ 
+ 		memset(&params, 0, sizeof(params));
 -- 
 2.39.2
 
