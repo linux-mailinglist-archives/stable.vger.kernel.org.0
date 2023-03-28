@@ -2,49 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937156CC513
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346346CC49C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230191AbjC1PMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52764 "EHLO
+        id S233872AbjC1PGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230385AbjC1PMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90591F753
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:39 -0700 (PDT)
+        with ESMTP id S233867AbjC1PG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33CC4EC7D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E18AB61847
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE50CC433EF;
-        Tue, 28 Mar 2023 15:10:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3BCA5CE1DA1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35CB0C433EF;
+        Tue, 28 Mar 2023 15:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016208;
-        bh=61zLZ2kjXqSlHW7kza0ZfZ6p6MoqxE6veYzqJYjLeTY=;
+        s=korg; t=1680015847;
+        bh=nYN8+71foBTiqgYHHhcWxzxib4C6f8/REBE4g+lz67w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=px/w17Z74ndTs5D1K6q+K6GRk/ieXApN/iZQlD4O+Rr8HsUU7pbfANm89F7xmYrqg
-         msgU90l+GF30s/9oWV2Rmq5pFvQ/lo3zVNCMkfuPj3/5lV5Gm6XJjuQcLfXrUxuhaM
-         bWtI7JA/q9L94zpPTqYnFovFjDGztB5oweBQQ6Ks=
+        b=a4uqbSgB0Z+wCXQ9bMpHAVsfTuPFCYZNCrnJrerECx3Xi6tliULEOcUflD1ummnOu
+         3uR6T6AVN9TP0Ckrode+1j/AG6UkMTMPKq5rfDDO08aKCwqRGpBaYs/j2arxkPYLCC
+         y7Z5m0Y6SYwd7YHLAawtJXzhVGIDtwElikmDmY+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Subject: [PATCH 5.15 105/146] usb: dwc2: fix a devres leak in hw_enable upon suspend resume
+        patches@lists.linux.dev,
+        Matheus Castello <matheus.castello@toradex.com>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>
+Subject: [PATCH 6.1 198/224] drm/bridge: lt8912b: return EPROBE_DEFER if bridge is not found
 Date:   Tue, 28 Mar 2023 16:43:14 +0200
-Message-Id: <20230328142607.068104444@linuxfoundation.org>
+Message-Id: <20230328142625.644546276@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,100 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Matheus Castello <matheus.castello@toradex.com>
 
-commit f747313249b74f323ddf841a9c8db14d989f296a upstream.
+commit 1a70ca89d59c7c8af006d29b965a95ede0abb0da upstream.
 
-Each time the platform goes to low power, PM suspend / resume routines
-call: __dwc2_lowlevel_hw_enable -> devm_add_action_or_reset().
-This adds a new devres each time.
-This may also happen at runtime, as dwc2_lowlevel_hw_enable() can be
-called from udc_start().
+Returns EPROBE_DEFER when of_drm_find_bridge() fails, this is consistent
+with what all the other DRM bridge drivers are doing and this is
+required since the bridge might not be there when the driver is probed
+and this should not be a fatal failure.
 
-This can be seen with tracing:
-- echo 1 > /sys/kernel/debug/tracing/events/dev/devres_log/enable
-- go to low power
-- cat /sys/kernel/debug/tracing/trace
-
-A new "ADD" entry is found upon each low power cycle:
-... devres_log: 49000000.usb-otg ADD 82a13bba devm_action_release (8 bytes)
-... devres_log: 49000000.usb-otg ADD 49889daf devm_action_release (8 bytes)
-...
-
-A second issue is addressed here:
-- regulator_bulk_enable() is called upon each PM cycle (suspend/resume).
-- regulator_bulk_disable() never gets called.
-
-So the reference count for these regulators constantly increase, by one
-upon each low power cycle, due to missing regulator_bulk_disable() call
-in __dwc2_lowlevel_hw_disable().
-
-The original fix that introduced the devm_add_action_or_reset() call,
-fixed an issue during probe, that happens due to other errors in
-dwc2_driver_probe() -> dwc2_core_reset(). Then the probe fails without
-disabling regulators, when dr_mode == USB_DR_MODE_PERIPHERAL.
-
-Rather fix the error path: disable all the low level hardware in the
-error path, by using the "hsotg->ll_hw_enabled" flag. Checking dr_mode
-has been introduced to avoid a dual call to dwc2_lowlevel_hw_disable().
-"ll_hw_enabled" should achieve the same (and is used currently in the
-remove() routine).
-
-Fixes: 54c196060510 ("usb: dwc2: Always disable regulators on driver teardown")
-Fixes: 33a06f1300a7 ("usb: dwc2: Fix error path in gadget registration")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20230316084127.126084-1-fabrice.gasnier@foss.st.com
+Cc: <stable@vger.kernel.org>
+Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
+Signed-off-by: Matheus Castello <matheus.castello@toradex.com>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230322143821.109744-1-francesco@dolcini.it
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/platform.c |   16 ++--------------
- 1 file changed, 2 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/bridge/lontium-lt8912b.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -121,13 +121,6 @@ static int dwc2_get_dr_mode(struct dwc2_
- 	return 0;
- }
+--- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
++++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
+@@ -659,8 +659,8 @@ static int lt8912_parse_dt(struct lt8912
  
--static void __dwc2_disable_regulators(void *data)
--{
--	struct dwc2_hsotg *hsotg = data;
--
--	regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
--}
--
- static int __dwc2_lowlevel_hw_enable(struct dwc2_hsotg *hsotg)
- {
- 	struct platform_device *pdev = to_platform_device(hsotg->dev);
-@@ -138,11 +131,6 @@ static int __dwc2_lowlevel_hw_enable(str
- 	if (ret)
- 		return ret;
+ 	lt->hdmi_port = of_drm_find_bridge(port_node);
+ 	if (!lt->hdmi_port) {
+-		dev_err(lt->dev, "%s: Failed to get hdmi port\n", __func__);
+-		ret = -ENODEV;
++		ret = -EPROBE_DEFER;
++		dev_err_probe(lt->dev, ret, "%s: Failed to get hdmi port\n", __func__);
+ 		goto err_free_host_node;
+ 	}
  
--	ret = devm_add_action_or_reset(&pdev->dev,
--				       __dwc2_disable_regulators, hsotg);
--	if (ret)
--		return ret;
--
- 	if (hsotg->clk) {
- 		ret = clk_prepare_enable(hsotg->clk);
- 		if (ret)
-@@ -198,7 +186,7 @@ static int __dwc2_lowlevel_hw_disable(st
- 	if (hsotg->clk)
- 		clk_disable_unprepare(hsotg->clk);
- 
--	return 0;
-+	return regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
- }
- 
- /**
-@@ -658,7 +646,7 @@ error_init:
- 	if (hsotg->params.activate_stm_id_vb_detection)
- 		regulator_disable(hsotg->usb33d);
- error:
--	if (hsotg->dr_mode != USB_DR_MODE_PERIPHERAL)
-+	if (hsotg->ll_hw_enabled)
- 		dwc2_lowlevel_hw_disable(hsotg);
- 	return retval;
- }
 
 
