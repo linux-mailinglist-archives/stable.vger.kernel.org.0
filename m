@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DE86CC51B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBAF06CC456
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230462AbjC1PMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
+        id S233785AbjC1PDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:03:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231192AbjC1PMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F75D338
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:51 -0700 (PDT)
+        with ESMTP id S233781AbjC1PDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D60C3EB5A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1379361865
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18245C433EF;
-        Tue, 28 Mar 2023 15:09:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90934B81D7B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BD4C433D2;
+        Tue, 28 Mar 2023 15:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016175;
-        bh=Clf6H/MORuMn2r5+Yge2Q+pwrX+mSS6BpF51Si+s26s=;
+        s=korg; t=1680015738;
+        bh=Rws4IoTyzMXKlSKdC9oln+/HmUZ+0VC8t40sNPeVbIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8ItO6LOC/NbdsZcWgTNZlGF6IubGYGlVtm42e14r93zEUvovj7U9VFsdGWfuuZx6
-         QWHqLIvRwKJ9W4o+qU6XAoNeVo2UFORDwYxb+nahUZIyWS1BkTBwcROzlGpuWaUoYf
-         2na13CPHFHWXTO/xplxLegoK/1N9AHShL2JL4BzA=
+        b=WU8AD96WlBWN4z0/vY/lHbCmXRTPCcXiAGwGiGGT8seONmO7OG70w0FAhKatbtfuu
+         5OrzMgmqoyri/I798km5QlXzz/4DhV1Jz8QPwg6wVEp0pa0vt1Hnc2NWHA25UA+Be+
+         GDOcjDIMYHedTCvJPDdnR3f0SZupx1Z4hbxZnYRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/146] Bluetooth: L2CAP: Fix responding with wrong PDU type
+        patches@lists.linux.dev, "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 6.1 158/224] selftests/x86/amx: Add a ptrace test
 Date:   Tue, 28 Mar 2023 16:42:34 +0200
-Message-Id: <20230328142605.423250816@linuxfoundation.org>
+Message-Id: <20230328142623.963221842@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,226 +52,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Chang S. Bae <chang.seok.bae@intel.com>
 
-[ Upstream commit 9aa9d9473f1550d1936c31259720b3f1f4690576 ]
+commit 62faca1ca10cc84e99ae7f38aa28df2bc945369b upstream.
 
-L2CAP_ECRED_CONN_REQ shall be responded with L2CAP_ECRED_CONN_RSP not
-L2CAP_LE_CONN_RSP:
+Include a test case to validate the XTILEDATA injection to the target.
 
-L2CAP LE EATT Server - Reject - run
-  Listening for connections
-  New client connection with handle 0x002a
-  Sending L2CAP Request from client
-  Client received response code 0x15
-  Unexpected L2CAP response code (expected 0x18)
-L2CAP LE EATT Server - Reject - test failed
+Also, it ensures the kernel's ability to copy states between different
+XSAVE formats.
 
-> ACL Data RX: Handle 42 flags 0x02 dlen 26
-      LE L2CAP: Enhanced Credit Connection Request (0x17) ident 1 len 18
-        PSM: 39 (0x0027)
-        MTU: 64
-        MPS: 64
-        Credits: 5
-        Source CID: 65
-        Source CID: 66
-        Source CID: 67
-        Source CID: 68
-        Source CID: 69
-< ACL Data TX: Handle 42 flags 0x00 dlen 16
-      LE L2CAP: LE Connection Response (0x15) ident 1 len 8
-        invalid size
-        00 00 00 00 00 00 06 00
+Refactor the memcmp() code to be usable for the state validation.
 
-L2CAP LE EATT Server - Reject - run
-  Listening for connections
-  New client connection with handle 0x002a
-  Sending L2CAP Request from client
-  Client received response code 0x18
-L2CAP LE EATT Server - Reject - test passed
-
-Fixes: 15f02b910562 ("Bluetooth: L2CAP: Add initial code for Enhanced Credit Based Mode")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/20230227210504.18520-3-chang.seok.bae%40intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c | 117 +++++++++++++++++++++++++------------
- 1 file changed, 79 insertions(+), 38 deletions(-)
+ tools/testing/selftests/x86/amx.c |  108 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 105 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index a21e086d69d0e..0194c25b8dc57 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -708,6 +708,17 @@ void l2cap_chan_del(struct l2cap_chan *chan, int err)
- }
- EXPORT_SYMBOL_GPL(l2cap_chan_del);
+--- a/tools/testing/selftests/x86/amx.c
++++ b/tools/testing/selftests/x86/amx.c
+@@ -14,8 +14,10 @@
+ #include <sys/auxv.h>
+ #include <sys/mman.h>
+ #include <sys/shm.h>
++#include <sys/ptrace.h>
+ #include <sys/syscall.h>
+ #include <sys/wait.h>
++#include <sys/uio.h>
  
-+static void __l2cap_chan_list_id(struct l2cap_conn *conn, u16 id,
-+				 l2cap_chan_func_t func, void *data)
+ #include "../kselftest.h" /* For __cpuid_count() */
+ 
+@@ -583,6 +585,13 @@ static void test_dynamic_state(void)
+ 	_exit(0);
+ }
+ 
++static inline int __compare_tiledata_state(struct xsave_buffer *xbuf1, struct xsave_buffer *xbuf2)
 +{
-+	struct l2cap_chan *chan, *l;
-+
-+	list_for_each_entry_safe(chan, l, &conn->chan_l, list) {
-+		if (chan->ident == id)
-+			func(chan, data);
-+	}
++	return memcmp(&xbuf1->bytes[xtiledata.xbuf_offset],
++		      &xbuf2->bytes[xtiledata.xbuf_offset],
++		      xtiledata.size);
 +}
 +
- static void __l2cap_chan_list(struct l2cap_conn *conn, l2cap_chan_func_t func,
- 			      void *data)
- {
-@@ -775,23 +786,9 @@ static void l2cap_chan_le_connect_reject(struct l2cap_chan *chan)
+ /*
+  * Save current register state and compare it to @xbuf1.'
+  *
+@@ -599,9 +608,7 @@ static inline bool __validate_tiledata_r
+ 		fatal_error("failed to allocate XSAVE buffer\n");
  
- static void l2cap_chan_ecred_connect_reject(struct l2cap_chan *chan)
- {
--	struct l2cap_conn *conn = chan->conn;
--	struct l2cap_ecred_conn_rsp rsp;
--	u16 result;
--
--	if (test_bit(FLAG_DEFER_SETUP, &chan->flags))
--		result = L2CAP_CR_LE_AUTHORIZATION;
--	else
--		result = L2CAP_CR_LE_BAD_PSM;
--
- 	l2cap_state_change(chan, BT_DISCONN);
+ 	xsave(xbuf2, XFEATURE_MASK_XTILEDATA);
+-	ret = memcmp(&xbuf1->bytes[xtiledata.xbuf_offset],
+-		     &xbuf2->bytes[xtiledata.xbuf_offset],
+-		     xtiledata.size);
++	ret = __compare_tiledata_state(xbuf1, xbuf2);
  
--	memset(&rsp, 0, sizeof(rsp));
--
--	rsp.result  = cpu_to_le16(result);
--
--	l2cap_send_cmd(conn, chan->ident, L2CAP_LE_CONN_RSP, sizeof(rsp),
--		       &rsp);
-+	__l2cap_ecred_conn_rsp_defer(chan);
+ 	free(xbuf2);
+ 
+@@ -826,6 +833,99 @@ static void test_context_switch(void)
+ 	free(finfo);
  }
  
- static void l2cap_chan_connect_reject(struct l2cap_chan *chan)
-@@ -846,7 +843,7 @@ void l2cap_chan_close(struct l2cap_chan *chan, int reason)
- 					break;
- 				case L2CAP_MODE_EXT_FLOWCTL:
- 					l2cap_chan_ecred_connect_reject(chan);
--					break;
-+					return;
- 				}
- 			}
- 		}
-@@ -3938,43 +3935,86 @@ void __l2cap_le_connect_rsp_defer(struct l2cap_chan *chan)
- 		       &rsp);
- }
- 
--void __l2cap_ecred_conn_rsp_defer(struct l2cap_chan *chan)
-+static void l2cap_ecred_list_defer(struct l2cap_chan *chan, void *data)
- {
-+	int *result = data;
++/* Ptrace test */
 +
-+	if (*result || test_bit(FLAG_ECRED_CONN_REQ_SENT, &chan->flags))
-+		return;
-+
-+	switch (chan->state) {
-+	case BT_CONNECT2:
-+		/* If channel still pending accept add to result */
-+		(*result)++;
-+		return;
-+	case BT_CONNECTED:
-+		return;
-+	default:
-+		/* If not connected or pending accept it has been refused */
-+		*result = -ECONNREFUSED;
-+		return;
-+	}
++/*
++ * Make sure the ptracee has the expanded kernel buffer on the first
++ * use. Then, initialize the state before performing the state
++ * injection from the ptracer.
++ */
++static inline void ptracee_firstuse_tiledata(void)
++{
++	load_rand_tiledata(stashed_xsave);
++	init_xtiledata();
 +}
 +
-+struct l2cap_ecred_rsp_data {
- 	struct {
- 		struct l2cap_ecred_conn_rsp rsp;
--		__le16 dcid[5];
-+		__le16 scid[L2CAP_ECRED_MAX_CID];
- 	} __packed pdu;
-+	int count;
-+};
-+
-+static void l2cap_ecred_rsp_defer(struct l2cap_chan *chan, void *data)
++/*
++ * Ptracer injects the randomized tile data state. It also reads
++ * before and after that, which will execute the kernel's state copy
++ * functions. So, the tester is advised to double-check any emitted
++ * kernel messages.
++ */
++static void ptracer_inject_tiledata(pid_t target)
 +{
-+	struct l2cap_ecred_rsp_data *rsp = data;
++	struct xsave_buffer *xbuf;
++	struct iovec iov;
 +
-+	if (test_bit(FLAG_ECRED_CONN_REQ_SENT, &chan->flags))
-+		return;
++	xbuf = alloc_xbuf();
++	if (!xbuf)
++		fatal_error("unable to allocate XSAVE buffer");
 +
-+	/* Reset ident so only one response is sent */
-+	chan->ident = 0;
++	printf("\tRead the init'ed tiledata via ptrace().\n");
 +
-+	/* Include all channels pending with the same ident */
-+	if (!rsp->pdu.rsp.result)
-+		rsp->pdu.rsp.dcid[rsp->count++] = cpu_to_le16(chan->scid);
++	iov.iov_base = xbuf;
++	iov.iov_len = xbuf_size;
++
++	memset(stashed_xsave, 0, xbuf_size);
++
++	if (ptrace(PTRACE_GETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_GETREGSET");
++
++	if (!__compare_tiledata_state(stashed_xsave, xbuf))
++		printf("[OK]\tThe init'ed tiledata was read from ptracee.\n");
 +	else
-+		l2cap_chan_del(chan, ECONNRESET);
++		printf("[FAIL]\tThe init'ed tiledata was not read from ptracee.\n");
++
++	printf("\tInject tiledata via ptrace().\n");
++
++	load_rand_tiledata(xbuf);
++
++	memcpy(&stashed_xsave->bytes[xtiledata.xbuf_offset],
++	       &xbuf->bytes[xtiledata.xbuf_offset],
++	       xtiledata.size);
++
++	if (ptrace(PTRACE_SETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_SETREGSET");
++
++	if (ptrace(PTRACE_GETREGSET, target, (uint32_t)NT_X86_XSTATE, &iov))
++		fatal_error("PTRACE_GETREGSET");
++
++	if (!__compare_tiledata_state(stashed_xsave, xbuf))
++		printf("[OK]\tTiledata was correctly written to ptracee.\n");
++	else
++		printf("[FAIL]\tTiledata was not correctly written to ptracee.\n");
 +}
 +
-+void __l2cap_ecred_conn_rsp_defer(struct l2cap_chan *chan)
++static void test_ptrace(void)
 +{
- 	struct l2cap_conn *conn = chan->conn;
--	u16 ident = chan->ident;
--	int i = 0;
-+	struct l2cap_ecred_rsp_data data;
-+	u16 id = chan->ident;
-+	int result = 0;
++	pid_t child;
++	int status;
++
++	child = fork();
++	if (child < 0) {
++		err(1, "fork");
++	} else if (!child) {
++		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL))
++			err(1, "PTRACE_TRACEME");
++
++		ptracee_firstuse_tiledata();
++
++		raise(SIGTRAP);
++		_exit(0);
++	}
++
++	do {
++		wait(&status);
++	} while (WSTOPSIG(status) != SIGTRAP);
++
++	ptracer_inject_tiledata(child);
++
++	ptrace(PTRACE_DETACH, child, NULL, NULL);
++	wait(&status);
++	if (!WIFEXITED(status) || WEXITSTATUS(status))
++		err(1, "ptrace test");
++}
++
+ int main(void)
+ {
+ 	/* Check hardware availability at first */
+@@ -846,6 +946,8 @@ int main(void)
+ 	ctxtswtest_config.num_threads = 5;
+ 	test_context_switch();
  
--	if (!ident)
-+	if (!id)
- 		return;
++	test_ptrace();
++
+ 	clearhandler(SIGILL);
+ 	free_stashed_xsave();
  
--	BT_DBG("chan %p ident %d", chan, ident);
-+	BT_DBG("chan %p id %d", chan, id);
- 
--	pdu.rsp.mtu     = cpu_to_le16(chan->imtu);
--	pdu.rsp.mps     = cpu_to_le16(chan->mps);
--	pdu.rsp.credits = cpu_to_le16(chan->rx_credits);
--	pdu.rsp.result  = cpu_to_le16(L2CAP_CR_LE_SUCCESS);
-+	memset(&data, 0, sizeof(data));
- 
--	mutex_lock(&conn->chan_lock);
-+	data.pdu.rsp.mtu     = cpu_to_le16(chan->imtu);
-+	data.pdu.rsp.mps     = cpu_to_le16(chan->mps);
-+	data.pdu.rsp.credits = cpu_to_le16(chan->rx_credits);
-+	data.pdu.rsp.result  = cpu_to_le16(L2CAP_CR_LE_SUCCESS);
- 
--	list_for_each_entry(chan, &conn->chan_l, list) {
--		if (chan->ident != ident)
--			continue;
-+	/* Verify that all channels are ready */
-+	__l2cap_chan_list_id(conn, id, l2cap_ecred_list_defer, &result);
- 
--		/* Reset ident so only one response is sent */
--		chan->ident = 0;
-+	if (result > 0)
-+		return;
- 
--		/* Include all channels pending with the same ident */
--		pdu.dcid[i++] = cpu_to_le16(chan->scid);
--	}
-+	if (result < 0)
-+		data.pdu.rsp.result = cpu_to_le16(L2CAP_CR_LE_AUTHORIZATION);
- 
--	mutex_unlock(&conn->chan_lock);
-+	/* Build response */
-+	__l2cap_chan_list_id(conn, id, l2cap_ecred_rsp_defer, &data);
- 
--	l2cap_send_cmd(conn, ident, L2CAP_ECRED_CONN_RSP,
--			sizeof(pdu.rsp) + i * sizeof(__le16), &pdu);
-+	l2cap_send_cmd(conn, id, L2CAP_ECRED_CONN_RSP,
-+		       sizeof(data.pdu.rsp) + (data.count * sizeof(__le16)),
-+		       &data.pdu);
- }
- 
- void __l2cap_connect_rsp_defer(struct l2cap_chan *chan)
-@@ -6078,6 +6118,7 @@ static inline int l2cap_ecred_conn_req(struct l2cap_conn *conn,
- 		__set_chan_timer(chan, chan->ops->get_sndtimeo(chan));
- 
- 		chan->ident = cmd->ident;
-+		chan->mode = L2CAP_MODE_EXT_FLOWCTL;
- 
- 		if (test_bit(FLAG_DEFER_SETUP, &chan->flags)) {
- 			l2cap_state_change(chan, BT_CONNECT2);
--- 
-2.39.2
-
 
 
