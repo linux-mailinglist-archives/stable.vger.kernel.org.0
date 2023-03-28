@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F686CC26B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5776D6CC26C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbjC1OpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S233088AbjC1OpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233088AbjC1OpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE8DD329
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:44:54 -0700 (PDT)
+        with ESMTP id S233228AbjC1OpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:19 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7B5D511
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:44:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBC23B81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:44:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A532C433D2;
-        Tue, 28 Mar 2023 14:44:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 431D6CE1C78
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DAE8C4339E;
+        Tue, 28 Mar 2023 14:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014691;
-        bh=t3pKRDCa3NWsICJSJ6IgRkNqbUT+uz+OfKq2cBZUzOY=;
+        s=korg; t=1680014694;
+        bh=udEl2j5YVWeEbUuQRN9FybKotgtF6vf/q4Y+qacbC7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuhCm+mp+81TQlKv+amkZourt/dyEK0UMQM+rO9JxmkQvucZa0xUMMV59lovf+5bm
-         YmDUqaExCHN/LTTDKRsQ/r7Xzt3wDvJj+LKcVGfQ41HfUv96ZL3FAmPJqfet4Mckvk
-         16iLVnmYxsVmbIUgdqaFEMq80lSHYC02BRoJjxsM=
+        b=NmVfRbJQ4ZZig0LQjd3foQ2yzJ9rgfaKodcjy3SIWLL3NJKEzQjerKwjPQUR3Fn80
+         e7rEDCh9sNSIsUmFGgcKNyTt4mowifEhCs965Hvf8erOL3FzrlpoDi/dU8c2pU7vH/
+         Ol6Kt74tlWLz1heO1xzMz+zQZCCiQ+81qoWKQHBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@kernel.org>,
+        patches@lists.linux.dev, Shawn Guo <shawn.guo@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 018/240] wifi: mt76: connac: do not check WED status for non-mmio devices
-Date:   Tue, 28 Mar 2023 16:39:41 +0200
-Message-Id: <20230328142620.407297196@linuxfoundation.org>
+Subject: [PATCH 6.2 019/240] efi: earlycon: Reprobe after parsing config tables
+Date:   Tue, 28 Mar 2023 16:39:42 +0200
+Message-Id: <20230328142620.456101490@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -53,118 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 5683e1488aa9b0805a9403d215e48fed29d6d923 ]
+[ Upstream commit 8b3a149db461d3286d1e211112de3b44ccaeaf71 ]
 
-WED is supported just for mmio devices, so do not check it for usb or
-sdio devices. This patch fixes the crash reported below:
+Commit 732ea9db9d8a ("efi: libstub: Move screen_info handling to common
+code") reorganized the earlycon handling so that all architectures pass
+the screen_info data via a EFI config table instead of populating struct
+screen_info directly, as the latter is only possible when the EFI stub
+is baked into the kernel (and not into the decompressor).
 
-[   21.946627] wlp0s3u1i3: authenticate with c4:41:1e:f5:2b:1d
-[   22.525298] wlp0s3u1i3: send auth to c4:41:1e:f5:2b:1d (try 1/3)
-[   22.548274] wlp0s3u1i3: authenticate with c4:41:1e:f5:2b:1d
-[   22.557694] wlp0s3u1i3: send auth to c4:41:1e:f5:2b:1d (try 1/3)
-[   22.565885] wlp0s3u1i3: authenticated
-[   22.569502] wlp0s3u1i3: associate with c4:41:1e:f5:2b:1d (try 1/3)
-[   22.578966] wlp0s3u1i3: RX AssocResp from c4:41:1e:f5:2b:1d (capab=0x11 status=30 aid=3)
-[   22.579113] wlp0s3u1i3: c4:41:1e:f5:2b:1d rejected association temporarily; comeback duration 1000 TU (1024 ms)
-[   23.649518] wlp0s3u1i3: associate with c4:41:1e:f5:2b:1d (try 2/3)
-[   23.752528] wlp0s3u1i3: RX AssocResp from c4:41:1e:f5:2b:1d (capab=0x11 status=0 aid=3)
-[   23.797450] wlp0s3u1i3: associated
-[   24.959527] kernel tried to execute NX-protected page - exploit attempt? (uid: 0)
-[   24.959640] BUG: unable to handle page fault for address: ffff88800c223200
-[   24.959706] #PF: supervisor instruction fetch in kernel mode
-[   24.959788] #PF: error_code(0x0011) - permissions violation
-[   24.959846] PGD 2c01067 P4D 2c01067 PUD 2c02067 PMD c2a8063 PTE 800000000c223163
-[   24.959957] Oops: 0011 [#1] PREEMPT SMP
-[   24.960009] CPU: 0 PID: 391 Comm: wpa_supplicant Not tainted 6.2.0-kvm #18
-[   24.960089] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.1-2.fc37 04/01/2014
-[   24.960191] RIP: 0010:0xffff88800c223200
-[   24.960446] RSP: 0018:ffffc90000ff7698 EFLAGS: 00010282
-[   24.960513] RAX: ffff888028397010 RBX: ffff88800c26e630 RCX: 0000000000000058
-[   24.960598] RDX: ffff88800c26f844 RSI: 0000000000000006 RDI: ffff888028397010
-[   24.960682] RBP: ffff88800ea72f00 R08: 18b873fbab2b964c R09: be06b38235f3c63c
-[   24.960766] R10: 18b873fbab2b964c R11: be06b38235f3c63c R12: 0000000000000001
-[   24.960853] R13: ffff88800c26f84c R14: ffff8880063f0ff8 R15: ffff88800c26e644
-[   24.960950] FS:  00007effcea327c0(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
-[   24.961036] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   24.961106] CR2: ffff88800c223200 CR3: 000000000eaa2000 CR4: 00000000000006b0
-[   24.961190] Call Trace:
-[   24.961219]  <TASK>
-[   24.961245]  ? mt76_connac_mcu_add_key+0x2cf/0x310
-[   24.961313]  ? mt7921_set_key+0x150/0x200
-[   24.961365]  ? drv_set_key+0xa9/0x1b0
-[   24.961418]  ? ieee80211_key_enable_hw_accel+0xd9/0x240
-[   24.961485]  ? ieee80211_key_replace+0x3f3/0x730
-[   24.961541]  ? crypto_shash_setkey+0x89/0xd0
-[   24.961597]  ? ieee80211_key_link+0x2d7/0x3a0
-[   24.961664]  ? crypto_aead_setauthsize+0x31/0x50
-[   24.961730]  ? sta_info_hash_lookup+0xa6/0xf0
-[   24.961785]  ? ieee80211_add_key+0x1fc/0x250
-[   24.961842]  ? rdev_add_key+0x41/0x140
-[   24.961882]  ? nl80211_parse_key+0x6c/0x2f0
-[   24.961940]  ? nl80211_new_key+0x24a/0x290
-[   24.961984]  ? genl_rcv_msg+0x36c/0x3a0
-[   24.962036]  ? rdev_mod_link_station+0xe0/0xe0
-[   24.962102]  ? nl80211_set_key+0x410/0x410
-[   24.962143]  ? nl80211_pre_doit+0x200/0x200
-[   24.962187]  ? genl_bind+0xc0/0xc0
-[   24.962217]  ? netlink_rcv_skb+0xaa/0xd0
-[   24.962259]  ? genl_rcv+0x24/0x40
-[   24.962300]  ? netlink_unicast+0x224/0x2f0
-[   24.962345]  ? netlink_sendmsg+0x30b/0x3d0
-[   24.962388]  ? ____sys_sendmsg+0x109/0x1b0
-[   24.962388]  ? ____sys_sendmsg+0x109/0x1b0
-[   24.962440]  ? __import_iovec+0x2e/0x110
-[   24.962482]  ? ___sys_sendmsg+0xbe/0xe0
-[   24.962525]  ? mod_objcg_state+0x25c/0x330
-[   24.962576]  ? __dentry_kill+0x19e/0x1d0
-[   24.962618]  ? call_rcu+0x18f/0x270
-[   24.962660]  ? __dentry_kill+0x19e/0x1d0
-[   24.962702]  ? __x64_sys_sendmsg+0x70/0x90
-[   24.962744]  ? do_syscall_64+0x3d/0x80
-[   24.962796]  ? exit_to_user_mode_prepare+0x1b/0x70
-[   24.962852]  ? entry_SYSCALL_64_after_hwframe+0x46/0xb0
-[   24.962913]  </TASK>
-[   24.962939] Modules linked in:
-[   24.962981] CR2: ffff88800c223200
-[   24.963022] ---[ end trace 0000000000000000 ]---
-[   24.963087] RIP: 0010:0xffff88800c223200
-[   24.963323] RSP: 0018:ffffc90000ff7698 EFLAGS: 00010282
-[   24.963376] RAX: ffff888028397010 RBX: ffff88800c26e630 RCX: 0000000000000058
-[   24.963458] RDX: ffff88800c26f844 RSI: 0000000000000006 RDI: ffff888028397010
-[   24.963538] RBP: ffff88800ea72f00 R08: 18b873fbab2b964c R09: be06b38235f3c63c
-[   24.963622] R10: 18b873fbab2b964c R11: be06b38235f3c63c R12: 0000000000000001
-[   24.963705] R13: ffff88800c26f84c R14: ffff8880063f0ff8 R15: ffff88800c26e644
-[   24.963788] FS:  00007effcea327c0(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
-[   24.963871] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   24.963941] CR2: ffff88800c223200 CR3: 000000000eaa2000 CR4: 00000000000006b0
-[   24.964018] note: wpa_supplicant[391] exited with irqs disabled
+However, this means that struct screen_info may not have been populated
+yet by the time the earlycon probe takes place, and this results in a
+non-functional early console.
 
-Fixes: d1369e515efe ("wifi: mt76: connac: introduce mt76_connac_mcu_sta_wed_update utility routine")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/c42168429453474213fa8244bf4b069de4531f40.1678124335.git.lorenzo@kernel.org
+So let's probe again right after parsing the config tables and
+populating struct screen_info. Note that this means that earlycon output
+starts a bit later than before, and so it may fail to capture issues
+that occur while doing the early EFI initialization.
+
+Fixes: 732ea9db9d8a ("efi: libstub: Move screen_info handling to common code")
+Reported-by: Shawn Guo <shawn.guo@linaro.org>
+Tested-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/firmware/efi/earlycon.c | 16 +++++++++++++---
+ drivers/firmware/efi/efi-init.c |  3 +++
+ include/linux/efi.h             |  1 +
+ 3 files changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index 5a047e630860f..d106cbfc387c8 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -1221,6 +1221,9 @@ EXPORT_SYMBOL_GPL(mt76_connac_mcu_sta_ba_tlv);
+diff --git a/drivers/firmware/efi/earlycon.c b/drivers/firmware/efi/earlycon.c
+index 4d6c5327471ac..1bc6328646944 100644
+--- a/drivers/firmware/efi/earlycon.c
++++ b/drivers/firmware/efi/earlycon.c
+@@ -204,6 +204,14 @@ efi_earlycon_write(struct console *con, const char *str, unsigned int num)
+ 	}
+ }
  
- int mt76_connac_mcu_sta_wed_update(struct mt76_dev *dev, struct sk_buff *skb)
- {
-+	if (!mt76_is_mmio(dev))
-+		return 0;
++static bool __initdata fb_probed;
 +
- 	if (!mtk_wed_device_active(&dev->mmio.wed))
- 		return 0;
++void __init efi_earlycon_reprobe(void)
++{
++	if (fb_probed)
++		setup_earlycon("efifb");
++}
++
+ static int __init efi_earlycon_setup(struct earlycon_device *device,
+ 				     const char *opt)
+ {
+@@ -211,15 +219,17 @@ static int __init efi_earlycon_setup(struct earlycon_device *device,
+ 	u16 xres, yres;
+ 	u32 i;
  
+-	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI)
++	fb_wb = opt && !strcmp(opt, "ram");
++
++	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI) {
++		fb_probed = true;
+ 		return -ENODEV;
++	}
+ 
+ 	fb_base = screen_info.lfb_base;
+ 	if (screen_info.capabilities & VIDEO_CAPABILITY_64BIT_BASE)
+ 		fb_base |= (u64)screen_info.ext_lfb_base << 32;
+ 
+-	fb_wb = opt && !strcmp(opt, "ram");
+-
+ 	si = &screen_info;
+ 	xres = si->lfb_width;
+ 	yres = si->lfb_height;
+diff --git a/drivers/firmware/efi/efi-init.c b/drivers/firmware/efi/efi-init.c
+index 1639159493e3e..5cb7fb4549f0c 100644
+--- a/drivers/firmware/efi/efi-init.c
++++ b/drivers/firmware/efi/efi-init.c
+@@ -72,6 +72,9 @@ static void __init init_screen_info(void)
+ 		if (memblock_is_map_memory(screen_info.lfb_base))
+ 			memblock_mark_nomap(screen_info.lfb_base,
+ 					    screen_info.lfb_size);
++
++		if (IS_ENABLED(CONFIG_EFI_EARLYCON))
++			efi_earlycon_reprobe();
+ 	}
+ }
+ 
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index 98598bd1d2fa5..ac22f7ca195a4 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -688,6 +688,7 @@ efi_guid_to_str(efi_guid_t *guid, char *out)
+ }
+ 
+ extern void efi_init (void);
++extern void efi_earlycon_reprobe(void);
+ #ifdef CONFIG_EFI
+ extern void efi_enter_virtual_mode (void);	/* switch EFI to virtual mode, if possible */
+ #else
 -- 
 2.39.2
 
