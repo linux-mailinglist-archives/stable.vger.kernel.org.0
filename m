@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC286CC4F1
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D08A6CC423
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbjC1PKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:10:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49866 "EHLO
+        id S233653AbjC1PAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233010AbjC1PKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBBF171E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:09:10 -0700 (PDT)
+        with ESMTP id S233693AbjC1PAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E21BE065
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 072D2CE1D9A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3094C433D2;
-        Tue, 28 Mar 2023 15:06:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8358B81CAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43602C433D2;
+        Tue, 28 Mar 2023 15:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015966;
-        bh=S9q6BGzNgYHWv+j9A33RmWNmCLCSlwrpcA8uIXi69p8=;
+        s=korg; t=1680015612;
+        bh=NjmRWM0xEXG/zUQcEE7zhOg6Fqc4ekjsfjN1lv+duH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HnGZdffqF/gQ8GSE+qgcurmuT16gyFoda2KeqR0RkW/Uh9v6+rgASNh1d3da3ksx5
-         bFISzjXM8sRm37Hu+/5VCKsw/EpWX5wbbKbS2lnSzMFYNctsJChvDRnS7lvFPcS4Cz
-         9KtNFULw5MPJNLy3i0w828xb2XlfI4A4rorfbxGY=
+        b=NL7Jfykx9gpiVTMoS1XohGvLBTTt60D+cLlXzeJzktaODXZu8CkLJIsLZmT4aeQJ3
+         /YRjZXNvNSrth1Lr/KICy4+pVpZVosrqj8fNYTmAatePJwr772j2nB3byExbAILNlV
+         pem/WV2F51HNQ4cZtoYV/9W7gOyUSPKJsQGZ3Us8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/146] ARM: dts: imx6sll: e60k02: fix usbotg1 pinctrl
+        patches@lists.linux.dev, Sanjay R Mehta <sanju.mehta@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 6.1 110/224] thunderbolt: Add quirk to disable CLx
 Date:   Tue, 28 Mar 2023 16:41:46 +0200
-Message-Id: <20230328142603.448703896@linuxfoundation.org>
+Message-Id: <20230328142621.935270979@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Sanjay R Mehta <sanju.mehta@amd.com>
 
-[ Upstream commit 957c04e9784c7c757e8cc293d7fb2a60cdf461b6 ]
+commit 7af9da8ce8f9a16221ecd8ba4280582f5bd452fc upstream.
 
-usb@2184000: 'pinctrl-0' is a dependency of 'pinctrl-names'
+Add QUIRK_NO_CLX to disable the CLx state for hardware which
+doesn't supports it.
 
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Fixes: c100ea86e6ab ("ARM: dts: add Netronix E60K02 board common file")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+AMD Yellow Carp and Pink Sardine don't support CLx state,
+hence disabling it using QUIRK_NO_CLX.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+[mw: added debug log when the quirk is run]
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/e60k02.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thunderbolt/quirks.c |   13 +++++++++++++
+ drivers/thunderbolt/tb.h     |   11 ++++++++---
+ 2 files changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/e60k02.dtsi b/arch/arm/boot/dts/e60k02.dtsi
-index cfb239d5186ac..54b4de6a5925d 100644
---- a/arch/arm/boot/dts/e60k02.dtsi
-+++ b/arch/arm/boot/dts/e60k02.dtsi
-@@ -302,6 +302,7 @@ &usdhc3 {
+--- a/drivers/thunderbolt/quirks.c
++++ b/drivers/thunderbolt/quirks.c
+@@ -20,6 +20,12 @@ static void quirk_dp_credit_allocation(s
+ 	}
+ }
  
- &usbotg1 {
- 	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_usbotg1>;
- 	disable-over-current;
- 	srp-disable;
- 	hnp-disable;
--- 
-2.39.2
-
++static void quirk_clx_disable(struct tb_switch *sw)
++{
++	sw->quirks |= QUIRK_NO_CLX;
++	tb_sw_dbg(sw, "disabling CL states\n");
++}
++
+ struct tb_quirk {
+ 	u16 hw_vendor_id;
+ 	u16 hw_device_id;
+@@ -37,6 +43,13 @@ static const struct tb_quirk tb_quirks[]
+ 	 * DP buffers.
+ 	 */
+ 	{ 0x8087, 0x0b26, 0x0000, 0x0000, quirk_dp_credit_allocation },
++	/*
++	 * CLx is not supported on AMD USB4 Yellow Carp and Pink Sardine platforms.
++	 */
++	{ 0x0438, 0x0208, 0x0000, 0x0000, quirk_clx_disable },
++	{ 0x0438, 0x0209, 0x0000, 0x0000, quirk_clx_disable },
++	{ 0x0438, 0x020a, 0x0000, 0x0000, quirk_clx_disable },
++	{ 0x0438, 0x020b, 0x0000, 0x0000, quirk_clx_disable },
+ };
+ 
+ /**
+--- a/drivers/thunderbolt/tb.h
++++ b/drivers/thunderbolt/tb.h
+@@ -23,6 +23,11 @@
+ #define NVM_MAX_SIZE		SZ_512K
+ #define NVM_DATA_DWORDS		16
+ 
++/* Keep link controller awake during update */
++#define QUIRK_FORCE_POWER_LINK_CONTROLLER		BIT(0)
++/* Disable CLx if not supported */
++#define QUIRK_NO_CLX					BIT(1)
++
+ /**
+  * struct tb_nvm - Structure holding NVM information
+  * @dev: Owner of the NVM
+@@ -997,6 +1002,9 @@ static inline bool tb_switch_is_clx_enab
+  */
+ static inline bool tb_switch_is_clx_supported(const struct tb_switch *sw)
+ {
++	if (sw->quirks & QUIRK_NO_CLX)
++		return false;
++
+ 	return tb_switch_is_usb4(sw) || tb_switch_is_titan_ridge(sw);
+ }
+ 
+@@ -1254,9 +1262,6 @@ struct usb4_port *usb4_port_device_add(s
+ void usb4_port_device_remove(struct usb4_port *usb4);
+ int usb4_port_device_resume(struct usb4_port *usb4);
+ 
+-/* Keep link controller awake during update */
+-#define QUIRK_FORCE_POWER_LINK_CONTROLLER		BIT(0)
+-
+ void tb_check_quirks(struct tb_switch *sw);
+ 
+ #ifdef CONFIG_ACPI
 
 
