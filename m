@@ -2,67 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01C1B6CC8B7
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 19:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 199BA6CC950
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 19:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbjC1RCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 13:02:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47014 "EHLO
+        id S229595AbjC1RdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 13:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbjC1RCM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 13:02:12 -0400
-Received: from mail.antaris-organics.com (mail.antaris-organics.com [91.227.220.155])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C459ECF;
-        Tue, 28 Mar 2023 10:02:11 -0700 (PDT)
-Date:   Tue, 28 Mar 2023 19:02:09 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mareichelt.com;
-        s=202107; t=1680022929;
-        bh=WlyrVyWWgyyjbRTXsDBXNHSjIHTp5NR+F+mBA92jthI=;
-        h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To:Cc:Cc:content-type:content-type:date:date:
-         From:from:in-reply-to:in-reply-to:message-id:mime-version:
-         references:reply-to:Sender:Subject:Subject:To:To;
-        b=fXlHkcfe8bkRLKyJKkgjN6Weg8NbpHAw2aHGS62p5nOTgZiVlD3ksPb8sNvxTKMnW
-         2iNhEast4YhFm9AXk6X32B7ePInky+xmLHwCgxkJthODO8cO63ddarvzWEa6ib3iaA
-         R4qQOxDqdOD5DjIxHDYxD6h/cS3p2cIExv/K+057k7Tdr7rSVoyvxq2pTGqdwnXzd9
-         nlVk47ZIiP2IHZeRZmNEZJ9mq6s0w+d3C0S4vAWFryKgloL0yGNhMGr+Ue1dFeycjK
-         whHE/YWsa+wjarxqjDQ4nhfqkXyZ+Z7PCnVajnpx7edYmYl5NbJPicCpKVkg488icC
-         x0dHj8t0QzYGA==
-From:   Markus Reichelt <lkt+2023@mareichelt.com>
-To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6.2 000/240] 6.2.9-rc1 review
-Message-ID: <20230328170209.GA5469@pc21.mareichelt.com>
-Mail-Followup-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230328142619.643313678@linuxfoundation.org>
+        with ESMTP id S229452AbjC1RdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 13:33:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 085AFD310
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 10:33:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B3296177C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 17:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED243C4339B;
+        Tue, 28 Mar 2023 17:33:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680024787;
+        bh=4HwFt+u19oZDx6r8WlYLiMQmmYR06P41KH3Z/3WL0os=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XxmXS8dRj4wc1QIFZd7x8YJF+4Ztz8IDuCGCRME9D0HoN+HBialYG+dZK5hfQ2Asp
+         PZAfCnbEDMfuvV1azTYi+oYheRxD38LZ9shwDEzQlkXjJEh1QxBfHwjr/XRZas2G29
+         6bERYq3ofM9Z5VvPOYIDzfqqq1A6kw3/gJZ7sorhfblEnq8vKOs0HCGjucnThYlea4
+         Enx3GTudAxbxh2KMzWTdhnGCKnNNsz22XtdF9z8YbT6Nttdjpi33YWiAr4wUu3ij+e
+         N+WAFYYpZYEowIzbjZD5j4OKKg7B/zr0KnlpU4CopyvFAVPX5xT7Kn2sQjXe6m7tHH
+         /nOkiT2O0LTBQ==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     fsverity@lists.linux.dev, Victor Hsieh <victorhsieh@google.com>
+Subject: [PATCH 6.1,5.15] fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY
+Date:   Tue, 28 Mar 2023 10:32:26 -0700
+Message-Id: <20230328173226.65244-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-Organization: still stuck in reorganization mode
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+From: Eric Biggers <ebiggers@google.com>
 
-> This is the start of the stable review cycle for the 6.2.9 release.
-> There are 240 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
-> Anything received after that time might be too late.
+commit a075bacde257f755bea0e53400c9f1cdd1b8e8e6 upstream.
+[Please apply to 6.1-stable and 5.15-stable.]
 
-Hi Greg
+The full pagecache drop at the end of FS_IOC_ENABLE_VERITY is causing
+performance problems and is hindering adoption of fsverity.  It was
+intended to solve a race condition where unverified pages might be left
+in the pagecache.  But actually it doesn't solve it fully.
 
-6.2.9-rc1
+Since the incomplete solution for this race condition has too much
+performance impact for it to be worth it, let's remove it for now.
 
-compiles, boots and runs here on x86_64
-(AMD Ryzen 5 PRO 4650G, Slackware64-15.0)
+Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
+Cc: stable@vger.kernel.org
+Reviewed-by: Victor Hsieh <victorhsieh@google.com>
+Link: https://lore.kernel.org/r/20230314235332.50270-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/verity/enable.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-Tested-by: Markus Reichelt <lkt+2023@mareichelt.com>
+diff --git a/fs/verity/enable.c b/fs/verity/enable.c
+index df6b499bf6a14..400c264bf8930 100644
+--- a/fs/verity/enable.c
++++ b/fs/verity/enable.c
+@@ -390,25 +390,27 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
+ 		goto out_drop_write;
+ 
+ 	err = enable_verity(filp, &arg);
+-	if (err)
+-		goto out_allow_write_access;
+ 
+ 	/*
+-	 * Some pages of the file may have been evicted from pagecache after
+-	 * being used in the Merkle tree construction, then read into pagecache
+-	 * again by another process reading from the file concurrently.  Since
+-	 * these pages didn't undergo verification against the file digest which
+-	 * fs-verity now claims to be enforcing, we have to wipe the pagecache
+-	 * to ensure that all future reads are verified.
++	 * We no longer drop the inode's pagecache after enabling verity.  This
++	 * used to be done to try to avoid a race condition where pages could be
++	 * evicted after being used in the Merkle tree construction, then
++	 * re-instantiated by a concurrent read.  Such pages are unverified, and
++	 * the backing storage could have filled them with different content, so
++	 * they shouldn't be used to fulfill reads once verity is enabled.
++	 *
++	 * But, dropping the pagecache has a big performance impact, and it
++	 * doesn't fully solve the race condition anyway.  So for those reasons,
++	 * and also because this race condition isn't very important relatively
++	 * speaking (especially for small-ish files, where the chance of a page
++	 * being used, evicted, *and* re-instantiated all while enabling verity
++	 * is quite small), we no longer drop the inode's pagecache.
+ 	 */
+-	filemap_write_and_wait(inode->i_mapping);
+-	invalidate_inode_pages2(inode->i_mapping);
+ 
+ 	/*
+ 	 * allow_write_access() is needed to pair with deny_write_access().
+ 	 * Regardless, the filesystem won't allow writing to verity files.
+ 	 */
+-out_allow_write_access:
+ 	allow_write_access(filp);
+ out_drop_write:
+ 	mnt_drop_write_file(filp);
+-- 
+2.40.0
+
