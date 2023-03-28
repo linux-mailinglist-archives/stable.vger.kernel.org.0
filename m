@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 322B16CC374
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C89666CC4A2
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233406AbjC1OyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:54:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55882 "EHLO
+        id S233880AbjC1PGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233490AbjC1OyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAB8DBC9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:59 -0700 (PDT)
+        with ESMTP id S233877AbjC1PGl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A676F1BE1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5ACB617F1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 031CDC433D2;
-        Tue, 28 Mar 2023 14:53:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EECD56182A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097EDC433D2;
+        Tue, 28 Mar 2023 15:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015238;
-        bh=nYN8+71foBTiqgYHHhcWxzxib4C6f8/REBE4g+lz67w=;
+        s=korg; t=1680015893;
+        bh=hfkwdnjVedKZy1WtpIMYj59846lbO69acDp25JRkYtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zct/yuzcgPp0OoNopvBqfQK+gJh+XPGYtH04iyiZhUdcdEs5QEhhFagXuz6EeX7vB
-         KsFYlbpKWLOXnUL0j4VgK0TWIXPmVFTL036V5vEQPFk901XOvMzq6yEKfu2WbO/3ZE
-         HnYsjwhgf1zIF7oAjyQdOIKH3pRrwJw2r6qT5i/g=
+        b=XTsunAE0xblLM10EdsfKLrU8z61SBDbRdtlV30CHr/Wv+GSoWBXljQhP4pTInOxiI
+         85JPJFqrd/DOY3zY9oJ0QAVC1H0wPQGgHgcnz63yAmO++z5nuKGkkjWd80xdNhW3P/
+         Tx2LlGYy518TUb5IXYNsOIzNE/OEgBVCRL8hFI9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matheus Castello <matheus.castello@toradex.com>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>
-Subject: [PATCH 6.2 217/240] drm/bridge: lt8912b: return EPROBE_DEFER if bridge is not found
+        patches@lists.linux.dev, Muchun Song <songmuchun@bytedance.com>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Jann Horn <jannh@google.com>, SeongJae Park <sjpark@amazon.de>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 184/224] mm: kfence: fix using kfence_metadata without initialization in show_object()
 Date:   Tue, 28 Mar 2023 16:43:00 +0200
-Message-Id: <20230328142628.753042927@linuxfoundation.org>
+Message-Id: <20230328142625.051128231@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matheus Castello <matheus.castello@toradex.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 1a70ca89d59c7c8af006d29b965a95ede0abb0da upstream.
+commit 1c86a188e03156223a34d09ce290b49bd4dd0403 upstream.
 
-Returns EPROBE_DEFER when of_drm_find_bridge() fails, this is consistent
-with what all the other DRM bridge drivers are doing and this is
-required since the bridge might not be there when the driver is probed
-and this should not be a fatal failure.
+The variable kfence_metadata is initialized in kfence_init_pool(), then,
+it is not initialized if kfence is disabled after booting.  In this case,
+kfence_metadata will be used (e.g.  ->lock and ->state fields) without
+initialization when reading /sys/kernel/debug/kfence/objects.  There will
+be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
+debugfs files when necessary.
 
+Link: https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: SeongJae Park <sjpark@amazon.de>
 Cc: <stable@vger.kernel.org>
-Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
-Signed-off-by: Matheus Castello <matheus.castello@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230322143821.109744-1-francesco@dolcini.it
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt8912b.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/kfence/core.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/bridge/lontium-lt8912b.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt8912b.c
-@@ -659,8 +659,8 @@ static int lt8912_parse_dt(struct lt8912
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -727,10 +727,14 @@ static const struct seq_operations objec
+ };
+ DEFINE_SEQ_ATTRIBUTE(objects);
  
- 	lt->hdmi_port = of_drm_find_bridge(port_node);
- 	if (!lt->hdmi_port) {
--		dev_err(lt->dev, "%s: Failed to get hdmi port\n", __func__);
--		ret = -ENODEV;
-+		ret = -EPROBE_DEFER;
-+		dev_err_probe(lt->dev, ret, "%s: Failed to get hdmi port\n", __func__);
- 		goto err_free_host_node;
+-static int __init kfence_debugfs_init(void)
++static int kfence_debugfs_init(void)
+ {
+-	struct dentry *kfence_dir = debugfs_create_dir("kfence", NULL);
++	struct dentry *kfence_dir;
+ 
++	if (!READ_ONCE(kfence_enabled))
++		return 0;
++
++	kfence_dir = debugfs_create_dir("kfence", NULL);
+ 	debugfs_create_file("stats", 0444, kfence_dir, NULL, &stats_fops);
+ 	debugfs_create_file("objects", 0400, kfence_dir, NULL, &objects_fops);
+ 	return 0;
+@@ -893,6 +897,8 @@ static int kfence_init_late(void)
  	}
+ 
+ 	kfence_init_enable();
++	kfence_debugfs_init();
++
+ 	return 0;
+ }
  
 
 
