@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6B56CC2CB
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2727C6CC3C0
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233278AbjC1Osq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41588 "EHLO
+        id S233589AbjC1O5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:57:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233282AbjC1Os1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABE0D333
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:14 -0700 (PDT)
+        with ESMTP id S233586AbjC1O5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:57:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20CF4D510
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:57:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2D4F61827
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E58FDC433EF;
-        Tue, 28 Mar 2023 14:47:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1908B81CAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:57:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E231C433D2;
+        Tue, 28 Mar 2023 14:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014848;
-        bh=CNvbKjT3yoPQmhli+BKVfS4ylzB0dXwDLQESQJ4Q7Pc=;
+        s=korg; t=1680015423;
+        bh=4YSGVucTc4FNBx4DKokzJFA57itY5DOtYEmaCnwuB3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnCWqpEdueKnMY+PIez3MlGXK2jIV2ilTq2wuyC8IjsUJI3HQTpIy6An3EiZ+tlm1
-         p0ct1ZB+tiFzcO0SM5cLx/ADwUtoITh1cV6/eVbbawe2uVDf3Hlu6bXrmg0qeo07l4
-         bNP1gvyhbMdz7rKbIyFcwJxLXTTqbU1nwkrMiids=
+        b=RAZDcNLGHh0sXExJ4tvoGEBnBNqVhy8+1NOoiMzceOcH+/IInK5K0HQmA30fk5sLR
+         h1/lo4MUplo4OyAmzT+fna4yJuCZCyYGkpp4vGikZjDNJMX9AU7W4Klc3JNiZxdwb5
+         inBkCbLhINqBxYg4ThlngojYmSbQwbUpuAvBKRkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Raed Salem <raeds@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 075/240] net/mlx5e: Overcome slow response for first macsec ASO WQE
+Subject: [PATCH 6.1 042/224] net: phy: Ensure state transitions are processed from phy_stop()
 Date:   Tue, 28 Mar 2023 16:40:38 +0200
-Message-Id: <20230328142622.893970866@linuxfoundation.org>
+Message-Id: <20230328142619.107097200@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emeel Hakim <ehakim@nvidia.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 7e3fce82d945cf6e7f99034b113ff2d250d7524d ]
+[ Upstream commit 4203d84032e28f893594a453bd8bc9c3b15c7334 ]
 
-First ASO WQE poll causes a cache miss in hardware hence the resut is
-delayed. It causes to the situation where such WQE is polled earlier
-than it is needed.
+In the phy_disconnect() -> phy_stop() path, we will be forcibly setting
+the PHY state machine to PHY_HALTED. This invalidates the old_state !=
+phydev->state condition in phy_state_machine() such that we will neither
+display the state change for debugging, nor will we invoke the
+link_change_notify() callback.
 
-Add logic to retry ASO CQ polling operation.
+Factor the code by introducing phy_process_state_change(), and ensure
+that we process the state change from phy_stop() as well.
 
-Fixes: 739cfa34518e ("net/mlx5: Make ASO poll CQ usable in atomic context") 
-Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 5c5f626bcace ("net: phy: improve handling link_change_notify callback")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en_accel/macsec.c    | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/phy/phy.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-index f84f1cfcddb85..25202ceaa7d2f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-@@ -1412,6 +1412,7 @@ static int macsec_aso_query(struct mlx5_core_dev *mdev, struct mlx5e_macsec *mac
- 	struct mlx5e_macsec_aso *aso;
- 	struct mlx5_aso_wqe *aso_wqe;
- 	struct mlx5_aso *maso;
-+	unsigned long expires;
- 	int err;
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index e741d8aebffe1..d1aea767ed09f 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -57,6 +57,18 @@ static const char *phy_state_to_str(enum phy_state st)
+ 	return NULL;
+ }
  
- 	aso = &macsec->aso;
-@@ -1425,7 +1426,13 @@ static int macsec_aso_query(struct mlx5_core_dev *mdev, struct mlx5e_macsec *mac
- 	macsec_aso_build_wqe_ctrl_seg(aso, &aso_wqe->aso_ctrl, NULL);
- 
- 	mlx5_aso_post_wqe(maso, false, &aso_wqe->ctrl);
--	err = mlx5_aso_poll_cq(maso, false);
-+	expires = jiffies + msecs_to_jiffies(10);
-+	do {
-+		err = mlx5_aso_poll_cq(maso, false);
-+		if (err)
-+			usleep_range(2, 10);
-+	} while (err && time_is_after_jiffies(expires));
++static void phy_process_state_change(struct phy_device *phydev,
++				     enum phy_state old_state)
++{
++	if (old_state != phydev->state) {
++		phydev_dbg(phydev, "PHY state change %s -> %s\n",
++			   phy_state_to_str(old_state),
++			   phy_state_to_str(phydev->state));
++		if (phydev->drv && phydev->drv->link_change_notify)
++			phydev->drv->link_change_notify(phydev);
++	}
++}
 +
- 	if (err)
- 		goto err_out;
+ static void phy_link_up(struct phy_device *phydev)
+ {
+ 	phydev->phy_link_change(phydev, true);
+@@ -1093,6 +1105,7 @@ EXPORT_SYMBOL(phy_free_interrupt);
+ void phy_stop(struct phy_device *phydev)
+ {
+ 	struct net_device *dev = phydev->attached_dev;
++	enum phy_state old_state;
  
+ 	if (!phy_is_started(phydev) && phydev->state != PHY_DOWN) {
+ 		WARN(1, "called from state %s\n",
+@@ -1101,6 +1114,7 @@ void phy_stop(struct phy_device *phydev)
+ 	}
+ 
+ 	mutex_lock(&phydev->lock);
++	old_state = phydev->state;
+ 
+ 	if (phydev->state == PHY_CABLETEST) {
+ 		phy_abort_cable_test(phydev);
+@@ -1111,6 +1125,7 @@ void phy_stop(struct phy_device *phydev)
+ 		sfp_upstream_stop(phydev->sfp_bus);
+ 
+ 	phydev->state = PHY_HALTED;
++	phy_process_state_change(phydev, old_state);
+ 
+ 	mutex_unlock(&phydev->lock);
+ 
+@@ -1228,13 +1243,7 @@ void phy_state_machine(struct work_struct *work)
+ 	if (err < 0)
+ 		phy_error(phydev);
+ 
+-	if (old_state != phydev->state) {
+-		phydev_dbg(phydev, "PHY state change %s -> %s\n",
+-			   phy_state_to_str(old_state),
+-			   phy_state_to_str(phydev->state));
+-		if (phydev->drv && phydev->drv->link_change_notify)
+-			phydev->drv->link_change_notify(phydev);
+-	}
++	phy_process_state_change(phydev, old_state);
+ 
+ 	/* Only re-schedule a PHY state machine change if we are polling the
+ 	 * PHY, if PHY_MAC_INTERRUPT is set, then we will be moving
 -- 
 2.39.2
 
