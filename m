@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E346CBF50
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E46D46CBF4F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:38:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbjC1Mi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:38:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49122 "EHLO
+        id S230417AbjC1MiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:38:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231587AbjC1Mi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:38:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3FA123
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:37:59 -0700 (PDT)
+        with ESMTP id S231251AbjC1MiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:38:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DBF3A5E0
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:37:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3BDF616F0
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:37:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 060A4C4339B;
-        Tue, 28 Mar 2023 12:37:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BDD961758
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:37:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A20ADC4339B;
+        Tue, 28 Mar 2023 12:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680007031;
-        bh=ktSaeE18+LybK/sVAKjHQsU39mOYI6hs9eIzE1geokc=;
+        s=korg; t=1680007034;
+        bh=ycG7MkwV9JiMLWQPCFePqCTTCLE+z5CHiz1XMDrozEE=;
         h=Subject:To:Cc:From:Date:From;
-        b=GDAoP6Klz62YKc8D+250OyVOPPrQH862lmxE8NGD8icNvVokYhU7MCylFH89RaMse
-         F141rBXTkmSf1Tc6jWj9wBx9KuWbeQyy7iBYRnoFDIIqjm0k6jztr7UYoOlnRTeZtZ
-         FF+S/oO56P0YHiwAh12lotVKWrB/zeQMcfypaDFA=
-Subject: FAILED: patch "[PATCH] drm/meson: fix missing component unbind on bind errors" failed to apply to 4.19-stable tree
+        b=TRhKqVAq847Vfh5H4yvZ58ZyT4cMSsrPUeRQNytvFUFXNAUFZQoxOSwAhJXiTUDtI
+         w6eP+BEo6mRrHmY7lxH5rh0kU0yCicCD41rNg9oC5NAlIEDDg1grg1tPferWJ+iQ+I
+         +rWaL8/aClxuwdsD0JaunbKwysWJeAfHtg6bi+i8=
+Subject: FAILED: patch "[PATCH] drm/meson: fix missing component unbind on bind errors" failed to apply to 4.14-stable tree
 To:     johan+linaro@kernel.org, neil.armstrong@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 14:36:41 +0200
-Message-ID: <16800070013222@kroah.com>
+Date:   Tue, 28 Mar 2023 14:36:42 +0200
+Message-ID: <1680007002228182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x ba98413bf45edbf33672e2539e321b851b2cfbd1
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800070013222@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680007002228182@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
