@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EDC6CBEF0
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 920E66CBEF1
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbjC1MWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:22:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55578 "EHLO
+        id S230363AbjC1MWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:22:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbjC1MWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:22:02 -0400
+        with ESMTP id S229664AbjC1MWG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:22:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FEEA1AC
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:22:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D513E8A4E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:22:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFBD86172D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:22:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C43CCC433EF;
-        Tue, 28 Mar 2023 12:22:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C7E260DE6
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:22:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D3ADC433D2;
+        Tue, 28 Mar 2023 12:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680006121;
-        bh=vLkGYZ2OTGUdCfEsWeklFZNg3qUyHS9m8b5YiguZHKc=;
+        s=korg; t=1680006123;
+        bh=fKwhe6l/fF0ajuGGpY5lAxn9DUlZ/zCixFz1kg5TWeA=;
         h=Subject:To:Cc:From:Date:From;
-        b=VWADm72pG/GLNS60VPiDESi4W8k2KAQ1c08+PBLg78fp73QRjmPq/xyf/zhQazjDD
-         0DBfYV7k8ob8YqbEKdfSWdO0K/shc01IY1dPgG5h2t2ArAA0CCyL8pgQMlLb3BP3iE
-         iVPSrmWFsY3lUNnnYXtRf5w7C4jLGcQjvUBNwDfA=
-Subject: FAILED: patch "[PATCH] kcsan: avoid passing -g for test" failed to apply to 5.15-stable tree
+        b=geCBTBwMHB5UvQPoLg1HE+QPRv5oAqkRib6zvDPstoew12wvkYOsh52SY/vKS3Ce+
+         POe4vx8NZZbPoEaC7kTFKUVLRFnMSe0UfblQ0pcfuzxs4ac4oLuhWbkQUUYQnwM5Gq
+         kNOEftB/JCnI/GtteGXoGcgJrJsMEZW5kQZroxks=
+Subject: FAILED: patch "[PATCH] kcsan: avoid passing -g for test" failed to apply to 5.10-stable tree
 To:     elver@google.com, akpm@linux-foundation.org, dvyukov@google.com,
         glider@google.com, nathan@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 14:21:50 +0200
-Message-ID: <1680006110146160@kroah.com>
+Date:   Tue, 28 Mar 2023 14:21:51 +0200
+Message-ID: <1680006111249181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,24 +48,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 5eb39cde1e2487ba5ec1802dc5e58a77e700d99e
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680006110146160@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680006111249181@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
 5eb39cde1e24 ("kcsan: avoid passing -g for test")
 6fcd4267a840 ("kernel: kcsan: kcsan_test: build without structleak plugin")
+a146fed56f8a ("kcsan: Make test follow KUnit style recommendations")
 
 thanks,
 
