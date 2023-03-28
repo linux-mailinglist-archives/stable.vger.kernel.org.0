@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E63BB6CC2D6
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4566CC3B7
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233409AbjC1OtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41588 "EHLO
+        id S233582AbjC1O4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbjC1Osq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:46 -0400
+        with ESMTP id S233580AbjC1O4m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD75C155;
-        Tue, 28 Mar 2023 07:48:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18482DBDB
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C473F61826;
-        Tue, 28 Mar 2023 14:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6054C433EF;
-        Tue, 28 Mar 2023 14:48:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3F406183C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DACC433EF;
+        Tue, 28 Mar 2023 14:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014903;
-        bh=4Y8/xJhwU7aJXJUzYvMwx8jzSFFEXA9tPwndwM5aX+Q=;
+        s=korg; t=1680015399;
+        bh=hlujoLXWxnN8F554mrWZ0ZDnICvfhhTyzshLYwelEp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqIVVzpUm8m4ymi6Elj0QtIKmvFzparOAcowwKp9uAsfxPw8hFuwVrNgPucmCEJHK
-         veXDll+HlwuntJktcxeR/MLXTzNqcjf7G+gftu4bQdMftEmxcLh78IrDY7XmX+RvF3
-         g+3O4nO1kkbtbyFm9EurTHWsWw++W7EAj6seKUzI=
+        b=rJZ/+YxCXiPapHe4lhgehjmrzAcoXQ7zhucjcXTtYrLyh761TKEAtzxDfOFEMbHV2
+         Zf9ESQfjHL9jsZkSkxo54qz6OhcJVcBZDL2c+AzZozOMIm4N4NcVScaZj/eQy2DJ40
+         xABseIWDZN+OD2yjylM/iq7sXhCe3RTiQ9PtuDEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bharath SM <bharathsm@microsoft.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Steve French <smfrench@gmail.com>, keyrings@vger.kernel.org,
-        linux-cifs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 067/240] keys: Do not cache key in task struct if key is requested from kernel thread
+        patches@lists.linux.dev, Sheng Feng <fengsheng5@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 034/224] i2c: hisi: Only use the completion interrupt to finish the transfer
 Date:   Tue, 28 Mar 2023 16:40:30 +0200
-Message-Id: <20230328142622.530564908@linuxfoundation.org>
+Message-Id: <20230328142618.750864797@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,61 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 47f9e4c924025c5be87959d3335e66fcbb7f6b5c ]
+[ Upstream commit d98263512684a47e81bcb72a5408958ecd1e60b0 ]
 
-The key which gets cached in task structure from a kernel thread does not
-get invalidated even after expiry.  Due to which, a new key request from
-kernel thread will be served with the cached key if it's present in task
-struct irrespective of the key validity.  The change is to not cache key in
-task_struct when key requested from kernel thread so that kernel thread
-gets a valid key on every key request.
+The controller will always generate a completion interrupt when the
+transfer is finished normally or not. Currently we use either error or
+completion interrupt to finish, this may result the completion
+interrupt unhandled and corrupt the next transfer, especially at low
+speed mode. Since on error case, the error interrupt will come first
+then is the completion interrupt. So only use the completion interrupt
+to finish the whole transfer process.
 
-The problem has been seen with the cifs module doing DNS lookups from a
-kernel thread and the results getting pinned by being attached to that
-kernel thread's cache - and thus not something that can be easily got rid
-of.  The cache would ordinarily be cleared by notify-resume, but kernel
-threads don't do that.
-
-This isn't seen with AFS because AFS is doing request_key() within the
-kernel half of a user thread - which will do notify-resume.
-
-Fixes: 7743c48e54ee ("keys: Cache result of request_key*() temporarily in task_struct")
-Signed-off-by: Bharath SM <bharathsm@microsoft.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Shyam Prasad N <nspmangalore@gmail.com>
-cc: Steve French <smfrench@gmail.com>
-cc: keyrings@vger.kernel.org
-cc: linux-cifs@vger.kernel.org
-cc: linux-fsdevel@vger.kernel.org
-Link: https://lore.kernel.org/r/CAGypqWw951d=zYRbdgNR4snUDvJhWL=q3=WOyh7HhSJupjz2vA@mail.gmail.com/
+Fixes: d62fbdb99a85 ("i2c: add support for HiSilicon I2C controller")
+Reported-by: Sheng Feng <fengsheng5@huawei.com>
+Signed-off-by: Sheng Feng <fengsheng5@huawei.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/request_key.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-hisi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/security/keys/request_key.c b/security/keys/request_key.c
-index 2da4404276f0f..07a0ef2baacd8 100644
---- a/security/keys/request_key.c
-+++ b/security/keys/request_key.c
-@@ -38,9 +38,12 @@ static void cache_requested_key(struct key *key)
- #ifdef CONFIG_KEYS_REQUEST_CACHE
- 	struct task_struct *t = current;
+diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+index 76c3d8f6fc3c6..d30071f299879 100644
+--- a/drivers/i2c/busses/i2c-hisi.c
++++ b/drivers/i2c/busses/i2c-hisi.c
+@@ -339,7 +339,11 @@ static irqreturn_t hisi_i2c_irq(int irq, void *context)
+ 		hisi_i2c_read_rx_fifo(ctlr);
  
--	key_put(t->cached_requested_key);
--	t->cached_requested_key = key_get(key);
--	set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
-+	/* Do not cache key if it is a kernel thread */
-+	if (!(t->flags & PF_KTHREAD)) {
-+		key_put(t->cached_requested_key);
-+		t->cached_requested_key = key_get(key);
-+		set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
-+	}
- #endif
- }
- 
+ out:
+-	if (int_stat & HISI_I2C_INT_TRANS_CPLT || ctlr->xfer_err) {
++	/*
++	 * Only use TRANS_CPLT to indicate the completion. On error cases we'll
++	 * get two interrupts, INT_ERR first then TRANS_CPLT.
++	 */
++	if (int_stat & HISI_I2C_INT_TRANS_CPLT) {
+ 		hisi_i2c_disable_int(ctlr, HISI_I2C_INT_ALL);
+ 		hisi_i2c_clear_int(ctlr, HISI_I2C_INT_ALL);
+ 		complete(ctlr->completion);
 -- 
 2.39.2
 
