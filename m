@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CE06CC394
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7D06CC52E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233534AbjC1OzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
+        id S232477AbjC1PMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233462AbjC1OzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C49ED515
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:21 -0700 (PDT)
+        with ESMTP id S231976AbjC1PMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1FB10249
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA6A2617E5
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1E1C433D2;
-        Tue, 28 Mar 2023 14:55:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94EF261857
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9413C433D2;
+        Tue, 28 Mar 2023 15:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015320;
-        bh=CPnN4rzd/gvegcKGDpNA+Thspj9doQ37znC0Tr4y1S4=;
+        s=korg; t=1680016233;
+        bh=vEfryZ1BN7Le09HUlijKeQZfGI3ERr6SEXXz/xwoT1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBvHHmTPr1NZYG0UXhfrGW0itk+Blo67zJh/Ij/X0eZJItEwX9wd0gKKqA8/TdW14
-         RR0hQqpItSNj+YmKCU6R/w1dOmRiDT+dOCXpRFwKQUkVytP9J7GiJ/Tj20qRwjQsMZ
-         3teiSwTwE8U2ZBitfbn/E0cHz6CludFFVHHZwwFY=
+        b=EUUUCX7DPua0tyvvqt7I1+SSjnKzUpwEgId+MjEfPDM5rcAbbT1vRTHj2iHAPCI9B
+         Fx7WQZxXi8DSpoY1qUjwwywbi5wsbB51voWEQYK8hukK9Mzgf974ZdCQ/P6g/8eExh
+         jQuABQkbW2Vucaro1G0Pyiv2zZMzzej0aqd9JNlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qiao <zhangqiao22@huawei.com>,
-        Roman Kagan <rkagan@amazon.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 6.2 239/240] sched/fair: sanitize vruntime of entity being placed
-Date:   Tue, 28 Mar 2023 16:43:22 +0200
-Message-Id: <20230328142629.654810155@linuxfoundation.org>
+        patches@lists.linux.dev, Coly Li <colyli@suse.de>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.15 114/146] dm thin: fix deadlock when swapping to thin device
+Date:   Tue, 28 Mar 2023 16:43:23 +0200
+Message-Id: <20230328142607.409266459@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,65 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiao <zhangqiao22@huawei.com>
+From: Coly Li <colyli@suse.de>
 
-commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc upstream.
+commit 9bbf5feecc7eab2c370496c1c161bbfe62084028 upstream.
 
-When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
-to the base level (around cfs_rq->min_vruntime), so that the entity
-doesn't gain extra boost when placed backwards.
+This is an already known issue that dm-thin volume cannot be used as
+swap, otherwise a deadlock may happen when dm-thin internal memory
+demand triggers swap I/O on the dm-thin volume itself.
 
-However, if the entity being placed wasn't executed for a long time, its
-vruntime may get too far behind (e.g. while cfs_rq was executing a
-low-weight hog), which can inverse the vruntime comparison due to s64
-overflow.  This results in the entity being placed with its original
-vruntime way forwards, so that it will effectively never get to the cpu.
+But thanks to commit a666e5c05e7c ("dm: fix deadlock when swapping to
+encrypted device"), the limit_swap_bios target flag can also be used
+for dm-thin to avoid the recursive I/O when it is used as swap.
 
-To prevent that, ignore the vruntime of the entity being placed if it
-didn't execute for much longer than the characteristic sheduler time
-scale.
+Fix is to simply set ti->limit_swap_bios to true in both pool_ctr()
+and thin_ctr().
 
-[rkagan: formatted, adjusted commit log, comments, cutoff value]
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Co-developed-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
+In my test, I create a dm-thin volume /dev/vg/swap and use it as swap
+device. Then I run fio on another dm-thin volume /dev/vg/main and use
+large --blocksize to trigger swap I/O onto /dev/vg/swap.
+
+The following fio command line is used in my test,
+  fio --name recursive-swap-io --lockmem 1 --iodepth 128 \
+     --ioengine libaio --filename /dev/vg/main --rw randrw \
+    --blocksize 1M --numjobs 32 --time_based --runtime=12h
+
+Without this fix, the whole system can be locked up within 15 seconds.
+
+With this fix, there is no any deadlock or hung task observed after
+2 hours of running fio.
+
+Furthermore, if blocksize is changed from 1M to 128M, after around 30
+seconds fio has no visible I/O, and the out-of-memory killer message
+shows up in kernel message. After around 20 minutes all fio processes
+are killed and the whole system is back to being alive.
+
+This is exactly what is expected when recursive I/O happens on dm-thin
+volume when it is used as swap.
+
+Depends-on: a666e5c05e7c ("dm: fix deadlock when swapping to encrypted device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Coly Li <colyli@suse.de>
+Acked-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/md/dm-thin.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4656,6 +4656,7 @@ static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
- {
- 	u64 vruntime = cfs_rq->min_vruntime;
-+	u64 sleep_time;
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3383,6 +3383,7 @@ static int pool_ctr(struct dm_target *ti
+ 	pt->low_water_blocks = low_water_blocks;
+ 	pt->adjusted_pf = pt->requested_pf = pf;
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
  
  	/*
- 	 * The 'current' period is already promised to the current tasks,
-@@ -4685,8 +4686,18 @@ place_entity(struct cfs_rq *cfs_rq, stru
- 		vruntime -= thresh;
- 	}
+ 	 * Only need to enable discards if the pool should pass
+@@ -4263,6 +4264,7 @@ static int thin_ctr(struct dm_target *ti
+ 		goto bad;
  
--	/* ensure we never gain time by being placed backwards. */
--	se->vruntime = max_vruntime(se->vruntime, vruntime);
-+	/*
-+	 * Pull vruntime of the entity being placed to the base level of
-+	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
-+	 * slept for a long time, don't even try to compare its vruntime with
-+	 * the base as it may be too far off and the comparison may get
-+	 * inversed due to s64 overflow.
-+	 */
-+	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
-+	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-+		se->vruntime = vruntime;
-+	else
-+		se->vruntime = max_vruntime(se->vruntime, vruntime);
- }
+ 	ti->num_flush_bios = 1;
++	ti->limit_swap_bios = true;
+ 	ti->flush_supported = true;
+ 	ti->per_io_data_size = sizeof(struct dm_thin_endio_hook);
  
- static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
 
 
