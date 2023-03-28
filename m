@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B6A6CC463
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9E66CC36A
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233799AbjC1PEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:04:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44378 "EHLO
+        id S233284AbjC1Oxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233798AbjC1PEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:37 -0400
+        with ESMTP id S233325AbjC1Oxl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA001E040
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627F1D307
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ACB561847
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A96EC433D2;
-        Tue, 28 Mar 2023 15:03:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4A8B61840
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41E7C4339B;
+        Tue, 28 Mar 2023 14:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015795;
-        bh=j4jKcJqBsVg1T7zKJBrYXuMxAuTocnUWvRcNBPceYkU=;
+        s=korg; t=1680015219;
+        bh=bZs2l0LpMuRs8IYfsVN2edPTMCbeJoRtCneFFHKZ4TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDpqi05GXrYY61zsKZzmeJHlSVGO69XhOoa/yFu4JQLlwlbuMQXIZTyjBrDbnYz5l
-         HqJGFKwligdjLf/+/fb9702sBmQdNpyxo/XYYVsl28DEFTbshEIT7hUkYryURZgfjx
-         a9b/l42jMrO0L5JXGGqcG4+C8DQrJSNRQ4N8I8/w=
+        b=KrC7brVTsVEXbLEwHS1372Xaxz2fR8dfDOsBf3QTttVQz9cQjeO8kC/lXDVc5+R40
+         Aqru1f9DtKLVyj0qlLUjaT1edJCnNeGdJn8vP9RJC4nfzaOBNsf27w8EqNMB8n6jRb
+         ThOgjFeE/bHo27QMsgsHthlwY6YZaW1TQjTsV1Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>
-Subject: [PATCH 6.1 177/224] usb: cdnsp: Fixes issue with redundant Status Stage
+        patches@lists.linux.dev, Miao Lihua <441884205@qq.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 210/240] ksmbd: set FILE_NAMED_STREAMS attribute in FS_ATTRIBUTE_INFORMATION
 Date:   Tue, 28 Mar 2023 16:42:53 +0200
-Message-Id: <20230328142624.774405454@linuxfoundation.org>
+Message-Id: <20230328142628.434248285@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,67 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 5bc38d33a5a1209fd4de65101d1ae8255ea12c6e upstream.
+commit 728f14c72b71a19623df329c1c7c9d1452e56f1e upstream.
 
-In some cases, driver trees to send Status Stage twice.
-The first one from upper layer of gadget usb subsystem and
-second time from controller driver.
-This patch fixes this issue and remove tricky handling of
-SET_INTERFACE from controller driver which is no longer
-needed.
+If vfs objects = streams_xattr in ksmbd.conf FILE_NAMED_STREAMS should
+be set to Attributes in FS_ATTRIBUTE_INFORMATION. MacOS client show
+"Format: SMB (Unknown)" on faked NTFS and no streams support.
 
-cc: <stable@vger.kernel.org>
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20230307111420.376056-1-pawell@cadence.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: Miao Lihua <441884205@qq.com>
+Tested-by: Miao Lihua <441884205@qq.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-ep0.c |   19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ fs/ksmbd/smb2pdu.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/cdns3/cdnsp-ep0.c
-+++ b/drivers/usb/cdns3/cdnsp-ep0.c
-@@ -403,20 +403,6 @@ static int cdnsp_ep0_std_request(struct
- 	case USB_REQ_SET_ISOCH_DELAY:
- 		ret = cdnsp_ep0_set_isoch_delay(pdev, ctrl);
- 		break;
--	case USB_REQ_SET_INTERFACE:
--		/*
--		 * Add request into pending list to block sending status stage
--		 * by libcomposite.
--		 */
--		list_add_tail(&pdev->ep0_preq.list,
--			      &pdev->ep0_preq.pep->pending_list);
--
--		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
--		if (ret == -EBUSY)
--			ret = 0;
--
--		list_del(&pdev->ep0_preq.list);
--		break;
- 	default:
- 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
- 		break;
-@@ -474,9 +460,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
- 	else
- 		ret = cdnsp_ep0_delegate_req(pdev, ctrl);
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -4956,6 +4956,10 @@ static int smb2_get_info_filesystem(stru
  
--	if (!len)
--		pdev->ep0_stage = CDNSP_STATUS_STAGE;
--
- 	if (ret == USB_GADGET_DELAYED_STATUS) {
- 		trace_cdnsp_ep0_status_stage("delayed");
- 		return;
-@@ -484,6 +467,6 @@ void cdnsp_setup_analyze(struct cdnsp_de
- out:
- 	if (ret < 0)
- 		cdnsp_ep0_stall(pdev);
--	else if (pdev->ep0_stage == CDNSP_STATUS_STAGE)
-+	else if (!len && pdev->ep0_stage != CDNSP_STATUS_STAGE)
- 		cdnsp_status_stage(pdev);
- }
+ 		info->Attributes |= cpu_to_le32(server_conf.share_fake_fscaps);
+ 
++		if (test_share_config_flag(work->tcon->share_conf,
++		    KSMBD_SHARE_FLAG_STREAMS))
++			info->Attributes |= cpu_to_le32(FILE_NAMED_STREAMS);
++
+ 		info->MaxPathNameComponentLength = cpu_to_le32(stfs.f_namelen);
+ 		len = smbConvertToUTF16((__le16 *)info->FileSystemName,
+ 					"NTFS", PATH_MAX, conn->local_nls, 0);
 
 
