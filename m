@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67EC6CC494
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939AD6CC376
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbjC1PGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:06:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45712 "EHLO
+        id S233510AbjC1OyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233863AbjC1PGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:13 -0400
+        with ESMTP id S233552AbjC1OyN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6572FEB7B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90D9E075
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F109B81D8C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94C9C433D2;
-        Tue, 28 Mar 2023 15:04:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D903B81CAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3792C433D2;
+        Tue, 28 Mar 2023 14:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015896;
-        bh=yKt3/aQWkdaBiordIdPNQ9ot6DI5eRTmxt+Mt8gdIYs=;
+        s=korg; t=1680015244;
+        bh=K4dqawcdJ7Iq9ocUZNJ0MTYNikEE5mF91OiDpTB+z8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvENgL9EXulRdnpNNz7i712r0JKdLqPuLVMENE4pHI11xBgKAFpPlkbPaK5qu2WDG
-         vnKqtABXUG+/WOquITVt3+D2hSbxRiwlgilfi15Nxin6SEuJrJRJdy+4zbzkZa5AEA
-         sM/rVRVMq/0eyF83lfAVCFEmgAM2NgBsaeFzwKcc=
+        b=Ef9Rad0oNgr0BYUGoVV+LnXb5VfG0WYJgfJqYRlIEMyY+kOFyF/R6J098XgrBeftC
+         ZRp6gy52mjxZ5b/OyK3JBvJesLRRdaB7tiealUb8XIxNKFeZKLc2FgrA5G0s65m/Ko
+         Jrbk4wJ5/erBMOhyznLhsioE6gcgsKp2Dmgli/Nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Elver <elver@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 185/224] kfence: avoid passing -g for test
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 218/240] drm/amd/display: fix wrong index used in dccg32_set_dpstreamclk
 Date:   Tue, 28 Mar 2023 16:43:01 +0200
-Message-Id: <20230328142625.090921073@linuxfoundation.org>
+Message-Id: <20230328142628.791757481@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Hersen Wu <hersenxs.wu@amd.com>
 
-commit 2e08ca1802441224f5b7cc6bffbb687f7406de95 upstream.
+commit 4c94e57c258cb7800aa5f3a9d9597d91291407a9 upstream.
 
-Nathan reported that when building with GNU as and a version of clang that
-defaults to DWARF5:
+[Why & How]
+When merging commit 9af611f29034
+("drm/amd/display: Fix DCN32 DPSTREAMCLK_CNTL programming"),
+index change was not picked up.
 
-  $ make -skj"$(nproc)" ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- \
-			LLVM=1 LLVM_IAS=0 O=build \
-			mrproper allmodconfig mm/kfence/kfence_test.o
-  /tmp/kfence_test-08a0a0.s: Assembler messages:
-  /tmp/kfence_test-08a0a0.s:14627: Error: non-constant .uleb128 is not supported
-  /tmp/kfence_test-08a0a0.s:14628: Error: non-constant .uleb128 is not supported
-  /tmp/kfence_test-08a0a0.s:14632: Error: non-constant .uleb128 is not supported
-  /tmp/kfence_test-08a0a0.s:14633: Error: non-constant .uleb128 is not supported
-  /tmp/kfence_test-08a0a0.s:14639: Error: non-constant .uleb128 is not supported
-  ...
-
-This is because `-g` defaults to the compiler debug info default.  If the
-assembler does not support some of the directives used, the above errors
-occur.  To fix, remove the explicit passing of `-g`.
-
-All the test wants is that stack traces print valid function names, and
-debug info is not required for that.  (I currently cannot recall why I
-added the explicit `-g`.)
-
-Link: https://lkml.kernel.org/r/20230316224705.709984-1-elver@google.com
-Fixes: bc8fbc5f305a ("kfence: add test suite")
-Signed-off-by: Marco Elver <elver@google.com>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Fixes: 9af611f29034 ("drm/amd/display: Fix DCN32 DPSTREAMCLK_CNTL programming")
+Reviewed-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kfence/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/mm/kfence/Makefile
-+++ b/mm/kfence/Makefile
-@@ -2,5 +2,5 @@
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
+@@ -271,8 +271,7 @@ static void dccg32_set_dpstreamclk(
+ 	dccg32_set_dtbclk_p_src(dccg, src, otg_inst);
  
- obj-y := core.o report.o
- 
--CFLAGS_kfence_test.o := -g -fno-omit-frame-pointer -fno-optimize-sibling-calls
-+CFLAGS_kfence_test.o := -fno-omit-frame-pointer -fno-optimize-sibling-calls
- obj-$(CONFIG_KFENCE_KUNIT_TEST) += kfence_test.o
+ 	/* enabled to select one of the DTBCLKs for pipe */
+-	switch (otg_inst)
+-	{
++	switch (dp_hpo_inst) {
+ 	case 0:
+ 		REG_UPDATE_2(DPSTREAMCLK_CNTL,
+ 			     DPSTREAMCLK0_EN,
 
 
