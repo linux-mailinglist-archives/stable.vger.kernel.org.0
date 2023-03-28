@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 298DB6CC33D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7322D6CC4A7
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbjC1Ow3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
+        id S233881AbjC1PHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:07:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233357AbjC1OwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EDE3E1BD
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:59 -0700 (PDT)
+        with ESMTP id S233882AbjC1PHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA0AD520
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFF1FB80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA19C4339B;
-        Tue, 28 Mar 2023 14:51:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E89061857
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DBA1C4339C;
+        Tue, 28 Mar 2023 15:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015110;
-        bh=CWlBYcUlEtV2WK9oxcnRHyaRYGfQvTSR1XBD+I+3xUE=;
+        s=korg; t=1680015952;
+        bh=nOai4my4CkFgclSU7YAKhG/cMS9uXMRuAyvl2wCF208=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BA6sWbHapOxXA8817LMVQxNkAgBfjlAqcvCBU+vsBx+vP5HOODYWBO9dicKCgYVEq
-         Gb39tT2FntFJtQSL/OpCg+JDqaSW9Oz8I1V/2mcNWujH8Anu7qdpBXzzenljfvDB4o
-         V08HObasBHL7KMYcXNbErg4JHXcj2ilktAlB0QDw=
+        b=1gT47i92ZeqX8FEB0AP7MfxPlvqkYmcOpqbvja3QjHoxUx9cxp9gtYXcROpeCZhhc
+         qHZPhUO0rIqPEca2SX7uqaSd4MA+zxRBhaNTBwg9v+H98Aht8w637YLPLM84AWigVt
+         qa+WXFc28RJxFq1WWFnEQxfSBFdKlVr90dFuhNhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kars de Jong <jongk@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Tero Kristo <tero.kristo@linux.intel.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 138/240] m68k: mm: Fix systems with memory at end of 32-bit address space
+Subject: [PATCH 5.15 012/146] trace/hwlat: Do not start per-cpu thread if it is already running
 Date:   Tue, 28 Mar 2023 16:41:41 +0200
-Message-Id: <20230328142625.506327581@linuxfoundation.org>
+Message-Id: <20230328142603.220384449@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Tero Kristo <tero.kristo@linux.intel.com>
 
-[ Upstream commit 0d9fad91abfd723ea5070a46d98a9f4496c93ba9 ]
+[ Upstream commit 08697bca9bbba15f2058fdbd9f970bd5f6a8a2e8 ]
 
-The calculation of end addresses of memory chunks overflowed to 0 when
-a memory chunk is located at the end of 32-bit address space.
-This is the case for the HP300 architecture.
+The hwlatd tracer will end up starting multiple per-cpu threads with
+the following script:
 
-Link: https://lore.kernel.org/linux-m68k/CACz-3rhUo5pgNwdWHaPWmz+30Qo9xCg70wNxdf7o5x-6tXq8QQ@mail.gmail.com/
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230223112349.26675-1-jongk@linux-m68k.org
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+    #!/bin/sh
+    cd /sys/kernel/debug/tracing
+    echo 0 > tracing_on
+    echo hwlat > current_tracer
+    echo per-cpu > hwlat_detector/mode
+    echo 100000 > hwlat_detector/width
+    echo 200000 > hwlat_detector/window
+    echo 1 > tracing_on
+
+To fix the issue, check if the hwlatd thread for the cpu is already
+running, before starting a new one. Along with the previous patch, this
+avoids running multiple instances of the same CPU thread on the system.
+
+Link: https://lore.kernel.org/all/20230302113654.2984709-1-tero.kristo@linux.intel.com/
+Link: https://lkml.kernel.org/r/20230310100451.3948583-3-tero.kristo@linux.intel.com
+
+Cc: stable@vger.kernel.org
+Fixes: f46b16520a087 ("trace/hwlat: Implement the per-cpu mode")
+Signed-off-by: Tero Kristo <tero.kristo@linux.intel.com>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mm/motorola.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ kernel/trace/trace_hwlat.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/m68k/mm/motorola.c b/arch/m68k/mm/motorola.c
-index 2a375637e0077..9113012240789 100644
---- a/arch/m68k/mm/motorola.c
-+++ b/arch/m68k/mm/motorola.c
-@@ -437,7 +437,7 @@ void __init paging_init(void)
- 	}
+diff --git a/kernel/trace/trace_hwlat.c b/kernel/trace/trace_hwlat.c
+index 72eeab938f1de..9ec032f22531c 100644
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -492,6 +492,10 @@ static int start_cpu_kthread(unsigned int cpu)
+ {
+ 	struct task_struct *kthread;
  
- 	min_addr = m68k_memory[0].addr;
--	max_addr = min_addr + m68k_memory[0].size;
-+	max_addr = min_addr + m68k_memory[0].size - 1;
- 	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0,
- 			  MEMBLOCK_NONE);
- 	for (i = 1; i < m68k_num_memory;) {
-@@ -452,21 +452,21 @@ void __init paging_init(void)
- 		}
- 		memblock_add_node(m68k_memory[i].addr, m68k_memory[i].size, i,
- 				  MEMBLOCK_NONE);
--		addr = m68k_memory[i].addr + m68k_memory[i].size;
-+		addr = m68k_memory[i].addr + m68k_memory[i].size - 1;
- 		if (addr > max_addr)
- 			max_addr = addr;
- 		i++;
- 	}
- 	m68k_memoffset = min_addr - PAGE_OFFSET;
--	m68k_virt_to_node_shift = fls(max_addr - min_addr - 1) - 6;
-+	m68k_virt_to_node_shift = fls(max_addr - min_addr) - 6;
- 
- 	module_fixup(NULL, __start_fixup, __stop_fixup);
- 	flush_icache();
- 
--	high_memory = phys_to_virt(max_addr);
-+	high_memory = phys_to_virt(max_addr) + 1;
- 
- 	min_low_pfn = availmem >> PAGE_SHIFT;
--	max_pfn = max_low_pfn = max_addr >> PAGE_SHIFT;
-+	max_pfn = max_low_pfn = (max_addr >> PAGE_SHIFT) + 1;
- 
- 	/* Reserve kernel text/data/bss and the memory allocated in head.S */
- 	memblock_reserve(m68k_memory[0].addr, availmem - m68k_memory[0].addr);
++	/* Do not start a new hwlatd thread if it is already running */
++	if (per_cpu(hwlat_per_cpu_data, cpu).kthread)
++		return 0;
++
+ 	kthread = kthread_run_on_cpu(kthread_fn, NULL, cpu, "hwlatd/%u");
+ 	if (IS_ERR(kthread)) {
+ 		pr_err(BANNER "could not start sampling thread\n");
 -- 
 2.39.2
 
