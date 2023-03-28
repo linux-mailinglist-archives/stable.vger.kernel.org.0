@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC05F6CC413
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B42336CC315
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbjC1O7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36242 "EHLO
+        id S233468AbjC1OvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233715AbjC1O7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:38 -0400
+        with ESMTP id S233288AbjC1Ouw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5464F1BCE
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99A6BE062
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B9C1B81CAF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A802C433D2;
-        Tue, 28 Mar 2023 14:59:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E281B81D6E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FF9C433D2;
+        Tue, 28 Mar 2023 14:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015568;
-        bh=1oxUom6yZBsD5bhDWZ+GhCNF0prAnTjRbDDGMpAXb1Y=;
+        s=korg; t=1680015024;
+        bh=O60AlAK0dYuFe6kh+EJ3AfCHCZSame9FzEHfiT+hQ9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yr3e6XVa96VSnUF81F/f7tBvzCT0QY7QcxiFhuOxE5/lqaCz2r0xxvR6sF+3f7FuX
-         BVzaEbjRVizNRcbH4ji0MKGB5YmjA1oq4tQYzkjHYOV/WptgWnfpSbQ0KMCELhizfX
-         Th3UmKoDP6T5GVDiQm4CXGYvfUv9GnYm9NDWWP/Q=
+        b=WvIiwL8woHH3ORcYy5MT5hGHWUYMjVkv+FEBOR6EHeY+RcFCWun3knurNzlD5yYAT
+         +/bESjipgykzZdJw0q30KooKSvslV7PVNXvoTfA7mjVQHmvO95bzpj7GcrAl7IS625
+         yuWwvmmo66RJtyy/MyVWrKoi9YRky3KB9f8k2YN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tzung-Bi Shih <tzungbi@kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 097/224] platform/chrome: cros_ec_chardev: fix kernel data leak from ioctl
-Date:   Tue, 28 Mar 2023 16:41:33 +0200
-Message-Id: <20230328142621.268852416@linuxfoundation.org>
+        patches@lists.linux.dev,
+        David Alvarez Lombardi <dqalombardi@proton.me>,
+        dbilios@stdio.gr, victor.bonnelle@proton.me,
+        hurricanepootis@protonmail.com,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Elvis Angelaccio <elvis.angelaccio@kde.org>
+Subject: [PATCH 6.2 131/240] ACPI: x86: utils: Add Cezanne to the list for forcing StorageD3Enable
+Date:   Tue, 28 Mar 2023 16:41:34 +0200
+Message-Id: <20230328142625.234129319@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@kernel.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit b20cf3f89c56b5f6a38b7f76a8128bf9f291bbd3 ]
+[ Upstream commit e2a56364485e7789e7b8f342637c7f3a219f7ede ]
 
-It is possible to peep kernel page's data by providing larger `insize`
-in struct cros_ec_command[1] when invoking EC host commands.
+commit 018d6711c26e4 ("ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1
+for StorageD3Enable") introduced a quirk to allow a system with ambiguous
+use of _ADR 0 to force StorageD3Enable.
 
-Fix it by using zeroed memory.
+It was reported that several more Dell systems suffered the same symptoms.
+As the list is continuing to grow but these are all Cezanne systems,
+instead add Cezanne to the CPU list to apply the StorageD3Enable property
+and remove the whole list.
 
-[1]: https://elixir.bootlin.com/linux/v6.2/source/include/linux/platform_data/cros_ec_proto.h#L74
+It was also reported that an HP system only has StorageD3Enable on the ACPI
+device for the first NVME disk, not the second.
 
-Fixes: eda2e30c6684 ("mfd / platform: cros_ec: Miscellaneous character device to talk with the EC")
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Link: https://lore.kernel.org/r/20230324010658.1082361-1-tzungbi@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217003
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216773
+Reported-by: David Alvarez Lombardi <dqalombardi@proton.me>
+Reported-by: dbilios@stdio.gr
+Reported-and-tested-by: Elvis Angelaccio <elvis.angelaccio@kde.org>
+Tested-by: victor.bonnelle@proton.me
+Tested-by: hurricanepootis@protonmail.com
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_chardev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/x86/utils.c | 37 +++++++++++++------------------------
+ 1 file changed, 13 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_chardev.c b/drivers/platform/chrome/cros_ec_chardev.c
-index 0de7c255254e0..d6de5a2941282 100644
---- a/drivers/platform/chrome/cros_ec_chardev.c
-+++ b/drivers/platform/chrome/cros_ec_chardev.c
-@@ -284,7 +284,7 @@ static long cros_ec_chardev_ioctl_xcmd(struct cros_ec_dev *ec, void __user *arg)
- 	    u_cmd.insize > EC_MAX_MSG_BYTES)
- 		return -EINVAL;
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 4e816bb402f68..e45285d4e62a4 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -200,39 +200,28 @@ bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *s
+  * a hardcoded allowlist for D3 support, which was used for these platforms.
+  *
+  * This allows quirking on Linux in a similar fashion.
++ *
++ * Cezanne systems shouldn't *normally* need this as the BIOS includes
++ * StorageD3Enable.  But for two reasons we have added it.
++ * 1) The BIOS on a number of Dell systems have ambiguity
++ *    between the same value used for _ADR on ACPI nodes GPP1.DEV0 and GPP1.NVME.
++ *    GPP1.NVME is needed to get StorageD3Enable node set properly.
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=216440
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=216773
++ *    https://bugzilla.kernel.org/show_bug.cgi?id=217003
++ * 2) On at least one HP system StorageD3Enable is missing on the second NVME
++      disk in the system.
+  */
+ static const struct x86_cpu_id storage_d3_cpu_ids[] = {
+ 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 96, NULL),	/* Renoir */
+ 	X86_MATCH_VENDOR_FAM_MODEL(AMD, 23, 104, NULL),	/* Lucienne */
+-	{}
+-};
+-
+-static const struct dmi_system_id force_storage_d3_dmi[] = {
+-	{
+-		/*
+-		 * _ADR is ambiguous between GPP1.DEV0 and GPP1.NVME
+-		 * but .NVME is needed to get StorageD3Enable node
+-		 * https://bugzilla.kernel.org/show_bug.cgi?id=216440
+-		 */
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
+-		}
+-	},
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 16 5625"),
+-		}
+-	},
++	X86_MATCH_VENDOR_FAM_MODEL(AMD, 25, 80, NULL),	/* Cezanne */
+ 	{}
+ };
  
--	s_cmd = kmalloc(sizeof(*s_cmd) + max(u_cmd.outsize, u_cmd.insize),
-+	s_cmd = kzalloc(sizeof(*s_cmd) + max(u_cmd.outsize, u_cmd.insize),
- 			GFP_KERNEL);
- 	if (!s_cmd)
- 		return -ENOMEM;
+ bool force_storage_d3(void)
+ {
+-	const struct dmi_system_id *dmi_id = dmi_first_match(force_storage_d3_dmi);
+-
+-	return dmi_id || x86_match_cpu(storage_d3_cpu_ids);
++	return x86_match_cpu(storage_d3_cpu_ids);
+ }
+ 
+ /*
 -- 
 2.39.2
 
