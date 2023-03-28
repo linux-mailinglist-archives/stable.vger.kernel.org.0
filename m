@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DFDA6CC4FC
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9076CC38B
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbjC1PLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:11:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50908 "EHLO
+        id S233522AbjC1OzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230191AbjC1PLX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:11:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E04185
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:10:22 -0700 (PDT)
+        with ESMTP id S233550AbjC1Oyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DE0D520
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF433B81D92
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47FAFC433EF;
-        Tue, 28 Mar 2023 15:08:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4E5F6183C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ADFC433EF;
+        Tue, 28 Mar 2023 14:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016139;
-        bh=qWRGDmfbPs28OVtHfW3UTe1fCgfTnPkZXGJBNFDL9PE=;
+        s=korg; t=1680015293;
+        bh=pOE7kJfBxV6Ic2Yvp0mIVOtqq6SUp3Pv9colA2dmgb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFfcACXGSVjPsW+/Kk9dyo/YqFyX0BAgWfVoHkS9/TyAWgCaid6oK4Ytf7/4hJVou
-         +NULhoOUr+Eq+x/bl4TPRNOoz6xtVK6XFRtD7p7lNHNANgs/rXnn2KOcGZMZKgNJja
-         Y0fUJDFkIaNysTir0TWBuL8NKcMioXKzQLl70kjo=
+        b=Q6j97hV7OC3hk+PLY8l/811rTRQwPGmj3iuYKWXhtijLZ+4OvZrYHKoVrgx0WdGx0
+         jTE7gr+g38hB1HKr7eHZnPlq8xhE8rGJ+eNqGG28VUUyo5VQpvn/Vwn3X2r5ruA4ln
+         r+WqNZOIVsppCad8a0mqSDEy640/hdZLA4y/Kn9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.15 080/146] thunderbolt: Use const qualifier for `ring_interrupt_index`
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 206/240] kcsan: avoid passing -g for test
 Date:   Tue, 28 Mar 2023 16:42:49 +0200
-Message-Id: <20230328142606.043962433@linuxfoundation.org>
+Message-Id: <20230328142628.264195698@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Marco Elver <elver@google.com>
 
-commit 1716efdb07938bd6510e1127d02012799112c433 upstream.
+commit 5eb39cde1e2487ba5ec1802dc5e58a77e700d99e upstream.
 
-`ring_interrupt_index` doesn't change the data for `ring` so mark it as
-const. This is needed by the following patch that disables interrupt
-auto clear for rings.
+Nathan reported that when building with GNU as and a version of clang that
+defaults to DWARF5, the assembler will complain with:
 
-Cc: Sanju Mehta <Sanju.Mehta@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+  Error: non-constant .uleb128 is not supported
+
+This is because `-g` defaults to the compiler debug info default. If the
+assembler does not support some of the directives used, the above errors
+occur. To fix, remove the explicit passing of `-g`.
+
+All the test wants is that stack traces print valid function names, and
+debug info is not required for that. (I currently cannot recall why I
+added the explicit `-g`.)
+
+Link: https://lkml.kernel.org/r/20230316224705.709984-2-elver@google.com
+Fixes: 1fe84fd4a402 ("kcsan: Add test suite")
+Signed-off-by: Marco Elver <elver@google.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/nhi.c |    2 +-
+ kernel/kcsan/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/thunderbolt/nhi.c
-+++ b/drivers/thunderbolt/nhi.c
-@@ -43,7 +43,7 @@
- #define QUIRK_AUTO_CLEAR_INT	BIT(0)
- #define QUIRK_E2E		BIT(1)
+--- a/kernel/kcsan/Makefile
++++ b/kernel/kcsan/Makefile
+@@ -16,6 +16,6 @@ obj-y := core.o debugfs.o report.o
+ KCSAN_INSTRUMENT_BARRIERS_selftest.o := y
+ obj-$(CONFIG_KCSAN_SELFTEST) += selftest.o
  
--static int ring_interrupt_index(struct tb_ring *ring)
-+static int ring_interrupt_index(const struct tb_ring *ring)
- {
- 	int bit = ring->hop;
- 	if (!ring->is_tx)
+-CFLAGS_kcsan_test.o := $(CFLAGS_KCSAN) -g -fno-omit-frame-pointer
++CFLAGS_kcsan_test.o := $(CFLAGS_KCSAN) -fno-omit-frame-pointer
+ CFLAGS_kcsan_test.o += $(DISABLE_STRUCTLEAK_PLUGIN)
+ obj-$(CONFIG_KCSAN_KUNIT_TEST) += kcsan_test.o
 
 
