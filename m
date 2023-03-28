@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 400EA6CC4D1
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:09:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A26FB6CC44E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbjC1PJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:09:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
+        id S233770AbjC1PDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229935AbjC1PJC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:09:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AD3CEB56
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:48 -0700 (PDT)
+        with ESMTP id S233778AbjC1PDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6128EC55
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C1F0B81D76
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AA33C433D2;
-        Tue, 28 Mar 2023 15:07:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32B486183C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FDBDC433D2;
+        Tue, 28 Mar 2023 15:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016066;
-        bh=slt0HCsl3lZXhz6fw32XWBDCZwgq/1wNJeudly/TQvc=;
+        s=korg; t=1680015708;
+        bh=wIMMwK89KStOb42+4eP014hy8v2pJD2GJYpw7okucq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyE6DPu6jcKk69M8x9wyMqJ1J/OAjrM6d9IBRtSkhEPLQNYO+9F11ixsQvKfuweF9
-         oVdIigJ2MzckVhEb5m1MFdxkqZGYt/FvBJPIiyYN9Gn39UnXJBMoLn/fTt8kePImYe
-         z8Yi9jDABDVzIBxDm/UEgcdNC4Lv6V+KAECRI4iA=
+        b=QnVWHrKQElEzFPoBi+S7+X2sC0L13pLFuj25kW5KQRl7O2aL/PAo9IXdjC54GzmIj
+         Mg8lBZVo78twTwZaQJL5iJOC8zMFdU1G39vkf/99w7rSxhQDsDBiuQHXEBdwPoTnyz
+         WBA0X2hwME5X/JKUJp9AFYQwvkUfUw0VZvouO3to=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
+        Rich Felker <dalias@libc.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/146] erspan: do not use skb_mac_header() in ndo_start_xmit()
+Subject: [PATCH 6.1 145/224] sh: sanitize the flags on sigreturn
 Date:   Tue, 28 Mar 2023 16:42:21 +0200
-Message-Id: <20230328142604.874649231@linuxfoundation.org>
+Message-Id: <20230328142623.414652645@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,120 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 8e50ed774554f93d55426039b27b1e38d7fa64d8 ]
+[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
 
-Drivers should not assume skb_mac_header(skb) == skb->data in their
-ndo_start_xmit().
+We fetch %SR value from sigframe; it might have been modified by signal
+handler, so we can't trust it with any bits that are not modifiable in
+user mode.
 
-Use skb_network_offset() and skb_transport_offset() which
-better describe what is needed in erspan_fb_xmit() and
-ip6erspan_tunnel_xmit()
-
-syzbot reported:
-WARNING: CPU: 0 PID: 5083 at include/linux/skbuff.h:2873 skb_mac_header include/linux/skbuff.h:2873 [inline]
-WARNING: CPU: 0 PID: 5083 at include/linux/skbuff.h:2873 ip6erspan_tunnel_xmit+0x1d9c/0x2d90 net/ipv6/ip6_gre.c:962
-Modules linked in:
-CPU: 0 PID: 5083 Comm: syz-executor406 Not tainted 6.3.0-rc2-syzkaller-00866-gd4671cb96fa3 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/02/2023
-RIP: 0010:skb_mac_header include/linux/skbuff.h:2873 [inline]
-RIP: 0010:ip6erspan_tunnel_xmit+0x1d9c/0x2d90 net/ipv6/ip6_gre.c:962
-Code: 04 02 41 01 de 84 c0 74 08 3c 03 0f 8e 1c 0a 00 00 45 89 b4 24 c8 00 00 00 c6 85 77 fe ff ff 01 e9 33 e7 ff ff e8 b4 27 a1 f8 <0f> 0b e9 b6 e7 ff ff e8 a8 27 a1 f8 49 8d bf f0 0c 00 00 48 b8 00
-RSP: 0018:ffffc90003b2f830 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 000000000000ffff RCX: 0000000000000000
-RDX: ffff888021273a80 RSI: ffffffff88e1bd4c RDI: 0000000000000003
-RBP: ffffc90003b2f9d8 R08: 0000000000000003 R09: 000000000000ffff
-R10: 000000000000ffff R11: 0000000000000000 R12: ffff88802b28da00
-R13: 00000000000000d0 R14: ffff88807e25b6d0 R15: ffff888023408000
-FS: 0000555556a61300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055e5b11eb6e8 CR3: 0000000027c1b000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<TASK>
-__netdev_start_xmit include/linux/netdevice.h:4900 [inline]
-netdev_start_xmit include/linux/netdevice.h:4914 [inline]
-__dev_direct_xmit+0x504/0x730 net/core/dev.c:4300
-dev_direct_xmit include/linux/netdevice.h:3088 [inline]
-packet_xmit+0x20a/0x390 net/packet/af_packet.c:285
-packet_snd net/packet/af_packet.c:3075 [inline]
-packet_sendmsg+0x31a0/0x5150 net/packet/af_packet.c:3107
-sock_sendmsg_nosec net/socket.c:724 [inline]
-sock_sendmsg+0xde/0x190 net/socket.c:747
-__sys_sendto+0x23a/0x340 net/socket.c:2142
-__do_sys_sendto net/socket.c:2154 [inline]
-__se_sys_sendto net/socket.c:2150 [inline]
-__x64_sys_sendto+0xe1/0x1b0 net/socket.c:2150
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f123aaa1039
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 b1 14 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffc15d12058 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f123aaa1039
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000020000040 R09: 0000000000000014
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f123aa648c0
-R13: 431bde82d7b634db R14: 0000000000000000 R15: 0000000000000000
-
-Fixes: 1baf5ebf8954 ("erspan: auto detect truncated packets.")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230320163427.8096-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c  | 4 ++--
- net/ipv6/ip6_gre.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/sh/include/asm/processor_32.h | 1 +
+ arch/sh/kernel/signal_32.c         | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 454c4357a2979..c094963a86f1e 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -552,7 +552,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
- 		truncate = true;
- 	}
+diff --git a/arch/sh/include/asm/processor_32.h b/arch/sh/include/asm/processor_32.h
+index 27aebf1e75a20..3ef7adf739c83 100644
+--- a/arch/sh/include/asm/processor_32.h
++++ b/arch/sh/include/asm/processor_32.h
+@@ -50,6 +50,7 @@
+ #define SR_FD		0x00008000
+ #define SR_MD		0x40000000
  
--	nhoff = skb_network_header(skb) - skb_mac_header(skb);
-+	nhoff = skb_network_offset(skb);
- 	if (skb->protocol == htons(ETH_P_IP) &&
- 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
- 		truncate = true;
-@@ -561,7 +561,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
- 		int thoff;
++#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
+ /*
+  * DSP structure and data
+  */
+diff --git a/arch/sh/kernel/signal_32.c b/arch/sh/kernel/signal_32.c
+index 90f495d35db29..a6bfc6f374911 100644
+--- a/arch/sh/kernel/signal_32.c
++++ b/arch/sh/kernel/signal_32.c
+@@ -115,6 +115,7 @@ static int
+ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
+ {
+ 	unsigned int err = 0;
++	unsigned int sr = regs->sr & ~SR_USER_MASK;
  
- 		if (skb_transport_header_was_set(skb))
--			thoff = skb_transport_header(skb) - skb_mac_header(skb);
-+			thoff = skb_transport_offset(skb);
- 		else
- 			thoff = nhoff + sizeof(struct ipv6hdr);
- 		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 13b1748b8b465..a91f93ec7d2b4 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -959,7 +959,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 		truncate = true;
- 	}
+ #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
+ 			COPY(regs[1]);
+@@ -130,6 +131,8 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p
+ 	COPY(sr);	COPY(pc);
+ #undef COPY
  
--	nhoff = skb_network_header(skb) - skb_mac_header(skb);
-+	nhoff = skb_network_offset(skb);
- 	if (skb->protocol == htons(ETH_P_IP) &&
- 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
- 		truncate = true;
-@@ -968,7 +968,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 		int thoff;
- 
- 		if (skb_transport_header_was_set(skb))
--			thoff = skb_transport_header(skb) - skb_mac_header(skb);
-+			thoff = skb_transport_offset(skb);
- 		else
- 			thoff = nhoff + sizeof(struct ipv6hdr);
- 		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
++	regs->sr = (regs->sr & SR_USER_MASK) | sr;
++
+ #ifdef CONFIG_SH_FPU
+ 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
+ 		int owned_fp;
 -- 
 2.39.2
 
