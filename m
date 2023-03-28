@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 193346CC38D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE366CC4DE
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233535AbjC1OzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57364 "EHLO
+        id S232295AbjC1PKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:10:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233519AbjC1OzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F8DDBDB
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:59 -0700 (PDT)
+        with ESMTP id S232071AbjC1PJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:09:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF61E3A8
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:08:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E9BB61840
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA8DC433EF;
-        Tue, 28 Mar 2023 14:54:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3247A6185F
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417DAC433EF;
+        Tue, 28 Mar 2023 15:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015298;
-        bh=nNNxBxk8U3XuI+6Z3YrfyQ9YMBGXdAkNlYbdEg+5uYE=;
+        s=korg; t=1680016117;
+        bh=HxvexkBp6jepse56a3EOBouS4kUcEj6PfLHXHUKlK+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuxT8r0RneO1gxZb5v2qZvYW4S213fSISOkZcx5XNudOYmRJjMPNLyaFD8Fo47jJB
-         VXaFsdIDF4oC+L/XvxnsME9s5oG8A7RwUlsPZiKfZEqirvPnJhSmT23qTn57uIB9XO
-         Zq8YGdrIKwvJI1Oi6SKxJ+1fnC55W2xsLVLf6kFM=
+        b=0YAsNbp149OqmIgxJpjU+0XPbD5XTQ17VMm1DXv2B9nENse4bBMRBkpYZPCNPJmmN
+         ZchiUIp6UloheCYyfFzxQk0As3R1BICpez4Wjdib/vdxeO1b2AQGGPOeDiiNi3bdGB
+         ylOGyUnx83949qkCKRlJew7oi9zYhWVFcYjgVyms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Wesley Cheng <quic_wcheng@quicinc.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 6.2 198/240] usb: dwc3: gadget: Add 1ms delay after end transfer command without IOC
+        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 072/146] hwmon (it87): Fix voltage scaling for chips with 10.9mV  ADCs
 Date:   Tue, 28 Mar 2023 16:42:41 +0200
-Message-Id: <20230328142627.918339819@linuxfoundation.org>
+Message-Id: <20230328142605.728304151@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,80 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <quic_wcheng@quicinc.com>
+From: Frank Crawford <frank@crawford.emu.id.au>
 
-commit d8a2bb4eb75866275b5cf7de2e593ac3449643e2 upstream.
+[ Upstream commit 968b66ffeb7956acc72836a7797aeb7b2444ec51 ]
 
-Previously, there was a 100uS delay inserted after issuing an end transfer
-command for specific controller revisions.  This was due to the fact that
-there was a GUCTL2 bit field which enabled synchronous completion of the
-end transfer command once the CMDACT bit was cleared in the DEPCMD
-register.  Since this bit does not exist for all controller revisions and
-the current implementation heavily relies on utizling the EndTransfer
-command completion interrupt, add the delay back in for uses where the
-interrupt on completion bit is not set, and increase the duration to 1ms
-for the controller to complete the command.
+Fix voltage scaling for chips that have 10.9mV ADCs, where scaling was
+not performed.
 
-An issue was seen where the USB request buffer was unmapped while the DWC3
-controller was still accessing the TRB.  However, it was confirmed that the
-end transfer command was successfully submitted. (no end transfer timeout)
-In situations, such as dwc3_gadget_soft_disconnect() and
-__dwc3_gadget_ep_disable(), the dwc3_remove_request() is utilized, which
-will issue the end transfer command, and follow up with
-dwc3_gadget_giveback().  At least for the USB ep disable path, it is
-required for any pending and started requests to be completed and returned
-to the function driver in the same context of the disable call.  Without
-the GUCTL2 bit, it is not ensured that the end transfer is completed before
-the buffers are unmapped.
-
-Fixes: cf2f8b63f7f1 ("usb: dwc3: gadget: Remove END_TRANSFER delay")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/20230306200557.29387-1-quic_wcheng@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ead8080351c9 ("hwmon: (it87) Add support for IT8732F")
+Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
+Link: https://lore.kernel.org/r/20230318080543.1226700-2-frank@crawford.emu.id.au
+[groeck: Update subject and description to focus on bug fix]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/hwmon/it87.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1699,6 +1699,7 @@ static int __dwc3_gadget_get_frame(struc
-  */
- static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool interrupt)
- {
-+	struct dwc3 *dwc = dep->dwc;
- 	struct dwc3_gadget_ep_cmd_params params;
- 	u32 cmd;
- 	int ret;
-@@ -1722,10 +1723,13 @@ static int __dwc3_stop_active_transfer(s
- 	WARN_ON_ONCE(ret);
- 	dep->resource_index = 0;
+diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
+index 1f93134afcb9f..485d68ab79e17 100644
+--- a/drivers/hwmon/it87.c
++++ b/drivers/hwmon/it87.c
+@@ -486,6 +486,8 @@ static const struct it87_devices it87_devices[] = {
+ #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
+ #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
+ #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
++#define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
++						     FEAT_10_9MV_ADC))
  
--	if (!interrupt)
-+	if (!interrupt) {
-+		if (!DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC3, 310A))
-+			mdelay(1);
- 		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
--	else if (!ret)
-+	} else if (!ret) {
- 		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
-+	}
+ struct it87_sio_data {
+ 	int sioaddr;
+@@ -3098,7 +3100,7 @@ static int it87_probe(struct platform_device *pdev)
+ 			 "Detected broken BIOS defaults, disabling PWM interface\n");
  
- 	dep->flags &= ~DWC3_EP_DELAY_STOP;
- 	return ret;
-@@ -3774,7 +3778,11 @@ void dwc3_stop_active_transfer(struct dw
- 	 * enabled, the EndTransfer command will have completed upon
- 	 * returning from this function.
- 	 *
--	 * This mode is NOT available on the DWC_usb31 IP.
-+	 * This mode is NOT available on the DWC_usb31 IP.  In this
-+	 * case, if the IOC bit is not set, then delay by 1ms
-+	 * after issuing the EndTransfer command.  This allows for the
-+	 * controller to handle the command completely before DWC3
-+	 * remove requests attempts to unmap USB request buffers.
- 	 */
- 
- 	__dwc3_stop_active_transfer(dep, force, interrupt);
+ 	/* Starting with IT8721F, we handle scaling of internal voltages */
+-	if (has_12mv_adc(data)) {
++	if (has_scaling(data)) {
+ 		if (sio_data->internal & BIT(0))
+ 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
+ 		if (sio_data->internal & BIT(1))
+-- 
+2.39.2
+
 
 
