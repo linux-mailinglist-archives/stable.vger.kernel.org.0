@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 759916CC4D0
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22DB06CC344
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbjC1PI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:08:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
+        id S233538AbjC1Owm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:52:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbjC1PI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:59 -0400
+        with ESMTP id S233354AbjC1OwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA18EF94
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EAB2E380
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C8F86184B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F697C433EF;
-        Tue, 28 Mar 2023 15:07:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F1EC617F1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D25C433D2;
+        Tue, 28 Mar 2023 14:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016057;
-        bh=o4v7KK1w+iiB5ffWcIbt3HtJHhbF2k75kO7ns1P550M=;
+        s=korg; t=1680015126;
+        bh=ifmrUBFPf/r7wdc0/9GqPYIDEGZnjFzjv8eq4qDJV/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caKCibfp9JnLvIJjWqgBqUwQBBmNbx/pnSsXF8vO02Yf2/3jBKWPW1jBk5DSdHhTQ
-         SI7U6qYBmNNGCdgz/LZRaQyu55PHktODF11aQCff4z8BcSPhwHmU0oVieBKtYy4Lgq
-         bDdFLs9PzqXBl+RxjdKnNOuR3vmaN3U2jgHiyKhQ=
+        b=lGKsJB3TJDjuSnrtxNSPZTXNBSwmgE15aFph2uuazm7eyTNSg/TCMXvtbfwWPzJHG
+         oCwhSOQbZDM9wSQSFs6XDahX1VAaRVjKVTNXw3sJiIWJJ2PIcKjO7dhr5c1mlv42PC
+         46SfESAfAmqZjhhxlJ3iOj49QvyFzaqHz5D2IB+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/146] net/mlx5: E-Switch, Fix an Oops in error handling code
-Date:   Tue, 28 Mar 2023 16:42:18 +0200
-Message-Id: <20230328142604.745460690@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Subject: [PATCH 6.2 176/240] usb: dwc2: fix a devres leak in hw_enable upon suspend resume
+Date:   Tue, 28 Mar 2023 16:42:19 +0200
+Message-Id: <20230328142626.967111679@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-[ Upstream commit 640fcdbcf27fc62de9223f958ceb4e897a00e791 ]
+commit f747313249b74f323ddf841a9c8db14d989f296a upstream.
 
-The error handling dereferences "vport".  There is nothing we can do if
-it is an error pointer except returning the error code.
+Each time the platform goes to low power, PM suspend / resume routines
+call: __dwc2_lowlevel_hw_enable -> devm_add_action_or_reset().
+This adds a new devres each time.
+This may also happen at runtime, as dwc2_lowlevel_hw_enable() can be
+called from udc_start().
 
-Fixes: 133dcfc577ea ("net/mlx5: E-Switch, Alloc and free unique metadata for match")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can be seen with tracing:
+- echo 1 > /sys/kernel/debug/tracing/events/dev/devres_log/enable
+- go to low power
+- cat /sys/kernel/debug/tracing/trace
+
+A new "ADD" entry is found upon each low power cycle:
+... devres_log: 49000000.usb-otg ADD 82a13bba devm_action_release (8 bytes)
+... devres_log: 49000000.usb-otg ADD 49889daf devm_action_release (8 bytes)
+...
+
+A second issue is addressed here:
+- regulator_bulk_enable() is called upon each PM cycle (suspend/resume).
+- regulator_bulk_disable() never gets called.
+
+So the reference count for these regulators constantly increase, by one
+upon each low power cycle, due to missing regulator_bulk_disable() call
+in __dwc2_lowlevel_hw_disable().
+
+The original fix that introduced the devm_add_action_or_reset() call,
+fixed an issue during probe, that happens due to other errors in
+dwc2_driver_probe() -> dwc2_core_reset(). Then the probe fails without
+disabling regulators, when dr_mode == USB_DR_MODE_PERIPHERAL.
+
+Rather fix the error path: disable all the low level hardware in the
+error path, by using the "hsotg->ll_hw_enabled" flag. Checking dr_mode
+has been introduced to avoid a dual call to dwc2_lowlevel_hw_disable().
+"ll_hw_enabled" should achieve the same (and is used currently in the
+remove() routine).
+
+Fixes: 54c196060510 ("usb: dwc2: Always disable regulators on driver teardown")
+Fixes: 33a06f1300a7 ("usb: dwc2: Fix error path in gadget registration")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20230316084127.126084-1-fabrice.gasnier@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/dwc2/platform.c |   16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-index 39e948bc12041..34a6542c03f61 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-@@ -301,8 +301,7 @@ int mlx5_esw_acl_ingress_vport_bond_update(struct mlx5_eswitch *esw, u16 vport_n
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -91,13 +91,6 @@ static int dwc2_get_dr_mode(struct dwc2_
+ 	return 0;
+ }
  
- 	if (WARN_ON_ONCE(IS_ERR(vport))) {
- 		esw_warn(esw->dev, "vport(%d) invalid!\n", vport_num);
--		err = PTR_ERR(vport);
--		goto out;
-+		return PTR_ERR(vport);
- 	}
+-static void __dwc2_disable_regulators(void *data)
+-{
+-	struct dwc2_hsotg *hsotg = data;
+-
+-	regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
+-}
+-
+ static int __dwc2_lowlevel_hw_enable(struct dwc2_hsotg *hsotg)
+ {
+ 	struct platform_device *pdev = to_platform_device(hsotg->dev);
+@@ -108,11 +101,6 @@ static int __dwc2_lowlevel_hw_enable(str
+ 	if (ret)
+ 		return ret;
  
- 	esw_acl_ingress_ofld_rules_destroy(esw, vport);
--- 
-2.39.2
-
+-	ret = devm_add_action_or_reset(&pdev->dev,
+-				       __dwc2_disable_regulators, hsotg);
+-	if (ret)
+-		return ret;
+-
+ 	if (hsotg->clk) {
+ 		ret = clk_prepare_enable(hsotg->clk);
+ 		if (ret)
+@@ -168,7 +156,7 @@ static int __dwc2_lowlevel_hw_disable(st
+ 	if (hsotg->clk)
+ 		clk_disable_unprepare(hsotg->clk);
+ 
+-	return 0;
++	return regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
+ }
+ 
+ /**
+@@ -607,7 +595,7 @@ error_init:
+ 	if (hsotg->params.activate_stm_id_vb_detection)
+ 		regulator_disable(hsotg->usb33d);
+ error:
+-	if (hsotg->dr_mode != USB_DR_MODE_PERIPHERAL)
++	if (hsotg->ll_hw_enabled)
+ 		dwc2_lowlevel_hw_disable(hsotg);
+ 	return retval;
+ }
 
 
