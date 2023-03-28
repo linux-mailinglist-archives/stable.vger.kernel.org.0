@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA606CBF60
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE93E6CBF6A
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230103AbjC1Mkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53754 "EHLO
+        id S232720AbjC1Mlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232502AbjC1Mkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:40:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364F393CD
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:40:25 -0700 (PDT)
+        with ESMTP id S232457AbjC1Mlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:41:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52792AD06
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:41:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 123B261757
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21515C433EF;
-        Tue, 28 Mar 2023 12:40:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0925F61757
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195DBC433EF;
+        Tue, 28 Mar 2023 12:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680007207;
-        bh=6gvpSL7kvid5LOck7PyB3eZF6tkwBmOzA0aruMvRy7g=;
+        s=korg; t=1680007265;
+        bh=hxm/IdFnmc1JKO1sHjqRkC0AJ4PlpmBRqODqpMO6Ahs=;
         h=Subject:To:Cc:From:Date:From;
-        b=RYqvVRLxiAaUPDNngORUnE/ERbjVeB+LoYo+8R6Ld8HSztDZcULWVuNLmdvFFOWjG
-         NQ3X0wYRbRKtguRSSZVgI0KEPFqMe3zFwUrtkEW3pjTSuP9OVOgF4jQFQD6bjASmf0
-         VxcquqFJlMz1fkHPkNDVtx7Dx3s7mVAoVCUOLrOE=
-Subject: FAILED: patch "[PATCH] bus: imx-weim: fix branch condition evaluates to a garbage" failed to apply to 4.14-stable tree
-To:     i.bornyakov@metrotek.ru, festevam@gmail.com, shawnguo@kernel.org
+        b=Rg1U7rlr0++kB7zjszu0FjTv/O8uiHdjLBq8vHDp8t/BdsQtg2uoQ9rbSyZmHYp37
+         qpyM6sgBgfWpHObPmjlWzH5vVz1eCMO73YPVMZioyydlC+s1jMMzPa7v0D15atnCMc
+         gDP8osFX69bvFmbZVOEWuxAIytdE92VVnTmdd4Pg=
+Subject: FAILED: patch "[PATCH] dm crypt: avoid accessing uninitialized tasklet" failed to apply to 5.10-stable tree
+To:     snitzer@kernel.org, houtao1@huawei.com, ignat@cloudflare.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 14:39:56 +0200
-Message-ID: <1680007196183163@kroah.com>
+Date:   Tue, 28 Mar 2023 14:41:02 +0200
+Message-ID: <168000726237133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,31 +47,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
-git cherry-pick -x 1adab2922c58e7ff4fa9f0b43695079402cce876
+git cherry-pick -x d9a02e016aaf5a57fb44e9a5e6da8ccd3b9e2e70
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680007196183163@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '168000726237133@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
-1adab2922c58 ("bus: imx-weim: fix branch condition evaluates to a garbage value")
-e6cb5408289f ("bus: imx-weim: add DT overlay support for WEIM bus")
-3b1261fb72c7 ("bus: imx-weim: remove incorrect __init annotations")
-4a92f07816ba ("bus: imx-weim: use module_platform_driver()")
-77266e722fea ("bus: imx-weim: optionally enable burst clock mode")
-c7995bcb36ef ("bus: imx-weim: guard against timing configuration conflicts")
-8b8cb52af34d ("bus: imx-weim: support multiple address ranges per child node")
-b1a23445364d ("bus: imx-weim: drop unnecessary DT node name NULL check")
-d8dfa59f5a51 ("bus: imx-weim: Remove VLA usage")
+d9a02e016aaf ("dm crypt: avoid accessing uninitialized tasklet")
+d3703ef33129 ("dm crypt: use in_hardirq() instead of deprecated in_irq()")
+c87a95dc28b1 ("dm crypt: defer decryption to a tasklet if interrupts disabled")
+8e14f610159d ("dm crypt: do not call bio_endio() from the dm-crypt tasklet")
 
 thanks,
 
@@ -79,38 +74,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1adab2922c58e7ff4fa9f0b43695079402cce876 Mon Sep 17 00:00:00 2001
-From: Ivan Bornyakov <i.bornyakov@metrotek.ru>
-Date: Mon, 6 Mar 2023 16:25:26 +0300
-Subject: [PATCH] bus: imx-weim: fix branch condition evaluates to a garbage
- value
+From d9a02e016aaf5a57fb44e9a5e6da8ccd3b9e2e70 Mon Sep 17 00:00:00 2001
+From: Mike Snitzer <snitzer@kernel.org>
+Date: Wed, 8 Mar 2023 14:39:54 -0500
+Subject: [PATCH] dm crypt: avoid accessing uninitialized tasklet
 
-If bus type is other than imx50_weim_devtype and have no child devices,
-variable 'ret' in function weim_parse_dt() will not be initialized, but
-will be used as branch condition and return value. Fix this by
-initializing 'ret' with 0.
+When neither "no_read_workqueue" nor "no_write_workqueue" are enabled,
+tasklet_trylock() in crypt_dec_pending() may still return false due to
+an uninitialized state, and dm-crypt will unnecessarily do io completion
+in io_queue workqueue instead of current context.
 
-This was discovered with help of clang-analyzer, but the situation is
-quite possible in real life.
+Fix this by adding an 'in_tasklet' flag to dm_crypt_io struct and
+initialize it to false in crypt_io_init(). Set this flag to true in
+kcryptd_queue_crypt() before calling tasklet_schedule(). If set
+crypt_dec_pending() will punt io completion to a workqueue.
 
-Fixes: 52c47b63412b ("bus: imx-weim: improve error handling upon child probe-failure")
-Signed-off-by: Ivan Bornyakov <i.bornyakov@metrotek.ru>
+This also nicely avoids the tasklet_trylock/unlock hack when tasklets
+aren't in use.
+
+Fixes: 8e14f610159d ("dm crypt: do not call bio_endio() from the dm-crypt tasklet")
 Cc: stable@vger.kernel.org
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Hou Tao <houtao1@huawei.com>
+Suggested-by: Ignat Korchagin <ignat@cloudflare.com>
+Reviewed-by: Ignat Korchagin <ignat@cloudflare.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 
-diff --git a/drivers/bus/imx-weim.c b/drivers/bus/imx-weim.c
-index 2a6b4f676458..36d42484142a 100644
---- a/drivers/bus/imx-weim.c
-+++ b/drivers/bus/imx-weim.c
-@@ -204,8 +204,8 @@ static int weim_parse_dt(struct platform_device *pdev)
- 	const struct of_device_id *of_id = of_match_device(weim_id_table,
- 							   &pdev->dev);
- 	const struct imx_weim_devtype *devtype = of_id->data;
-+	int ret = 0, have_child = 0;
- 	struct device_node *child;
--	int ret, have_child = 0;
- 	struct weim_priv *priv;
- 	void __iomem *base;
- 	u32 reg;
+diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+index faba1be572f9..2764b4ea18a3 100644
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -72,7 +72,9 @@ struct dm_crypt_io {
+ 	struct crypt_config *cc;
+ 	struct bio *base_bio;
+ 	u8 *integrity_metadata;
+-	bool integrity_metadata_from_pool;
++	bool integrity_metadata_from_pool:1;
++	bool in_tasklet:1;
++
+ 	struct work_struct work;
+ 	struct tasklet_struct tasklet;
+ 
+@@ -1731,6 +1733,7 @@ static void crypt_io_init(struct dm_crypt_io *io, struct crypt_config *cc,
+ 	io->ctx.r.req = NULL;
+ 	io->integrity_metadata = NULL;
+ 	io->integrity_metadata_from_pool = false;
++	io->in_tasklet = false;
+ 	atomic_set(&io->io_pending, 0);
+ }
+ 
+@@ -1777,14 +1780,13 @@ static void crypt_dec_pending(struct dm_crypt_io *io)
+ 	 * our tasklet. In this case we need to delay bio_endio()
+ 	 * execution to after the tasklet is done and dequeued.
+ 	 */
+-	if (tasklet_trylock(&io->tasklet)) {
+-		tasklet_unlock(&io->tasklet);
+-		bio_endio(base_bio);
++	if (io->in_tasklet) {
++		INIT_WORK(&io->work, kcryptd_io_bio_endio);
++		queue_work(cc->io_queue, &io->work);
+ 		return;
+ 	}
+ 
+-	INIT_WORK(&io->work, kcryptd_io_bio_endio);
+-	queue_work(cc->io_queue, &io->work);
++	bio_endio(base_bio);
+ }
+ 
+ /*
+@@ -2233,6 +2235,7 @@ static void kcryptd_queue_crypt(struct dm_crypt_io *io)
+ 		 * it is being executed with irqs disabled.
+ 		 */
+ 		if (in_hardirq() || irqs_disabled()) {
++			io->in_tasklet = true;
+ 			tasklet_init(&io->tasklet, kcryptd_crypt_tasklet, (unsigned long)&io->work);
+ 			tasklet_schedule(&io->tasklet);
+ 			return;
 
