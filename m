@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8466CC2B6
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C02F6CC3B5
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233293AbjC1OsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:48:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41178 "EHLO
+        id S233562AbjC1O4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:56:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233258AbjC1Or5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:47:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F28B2D311
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:25 -0700 (PDT)
+        with ESMTP id S233581AbjC1O4i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9317E077
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 984DCB81D72
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0845FC433D2;
-        Tue, 28 Mar 2023 14:47:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36F8E61804
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48E2AC433EF;
+        Tue, 28 Mar 2023 14:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014842;
-        bh=itjIKmwhW8/BtO6xM7MWoQzIhe7GjUKMaDgTC1/jZk0=;
+        s=korg; t=1680015393;
+        bh=JBnIcdhdbT2au5uCwynSbRY4PmUIGoPGDsboYpLwM1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=km4iM06Yu/TPw6FmdqAws1xIbD1reQrnV/uWgIVR6S0ig1VDez0y9SmkWzr7Ud7p5
-         GZpGg0BMP1Y0f/pUs9pqUh+Z9cid14RocaSLBiMb9rdMn5gtjp6Wswsec2NYkLvqd2
-         c1Rr12RPUIP7nr7oHymPDAtA+SHyOetoXPZshL6Y=
+        b=eqzB0VN3Bimv3IpejR+dhbNdWwiSMhex+Xl8S9eU6wLdLSxZXRqTGYjz0NOGQLWnw
+         YkGW6FCrRDDRpS19Ggy4GUena5VQEIaQu82N3+VGhDXV60YE2WAzsxnGlQMx0Xp3la
+         C3v4idZakMFRkuC7MyfVeWC1j3gSdyWfdWJ3bUbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Geethasowjanya Akula <gakula@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 065/240] octeontx2-vf: Add missing free for alloc_percpu
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 032/224] i2c: imx-lpi2c: check only for enabled interrupt flags
 Date:   Tue, 28 Mar 2023 16:40:28 +0200
-Message-Id: <20230328142622.440049720@linuxfoundation.org>
+Message-Id: <20230328142618.675225945@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit f038f3917baf04835ba2b7bcf2a04ac93fbf8a9c ]
+[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
 
-Add the free_percpu for the allocated "vf->hw.lmt_info" in order to avoid
-memory leak, same as the "pf->hw.lmt_info" in
-`drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c`.
+When reading from I2C, the Tx watermark is set to 0. Unfortunately the
+TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
+than watermark. So it is set in every case, hence the reset default of 1.
+This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
+to send Tx data on a read message.
+Mask the IRQ status to filter for wanted flags only.
 
-Fixes: 5c0512072f65 ("octeontx2-pf: cn10k: Use runtime allocated LMTLINE region")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Acked-by: Geethasowjanya Akula <gakula@marvell.com>
-Link: https://lore.kernel.org/r/20230317064337.18198-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c
-index 7f8ffbf79cf74..ab126f8706c74 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c
-@@ -709,6 +709,7 @@ static int otx2vf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- err_ptp_destroy:
- 	otx2_ptp_destroy(vf);
- err_detach_rsrc:
-+	free_percpu(vf->hw.lmt_info);
- 	if (test_bit(CN10K_LMTST, &vf->hw.cap_flag))
- 		qmem_free(vf->dev, vf->dync_lmt);
- 	otx2_detach_resources(&vf->mbox);
-@@ -762,6 +763,7 @@ static void otx2vf_remove(struct pci_dev *pdev)
- 	otx2_shutdown_tc(vf);
- 	otx2vf_disable_mbox_intr(vf);
- 	otx2_detach_resources(&vf->mbox);
-+	free_percpu(vf->hw.lmt_info);
- 	if (test_bit(CN10K_LMTST, &vf->hw.cap_flag))
- 		qmem_free(vf->dev, vf->dync_lmt);
- 	otx2vf_vfaf_mbox_destroy(vf);
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 188f2a36d2fd6..9b2f9544c5681 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -503,10 +503,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
+ {
+ 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
++	unsigned int enabled;
+ 	unsigned int temp;
+ 
++	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
++
+ 	lpi2c_imx_intctrl(lpi2c_imx, 0);
+ 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
++	temp &= enabled;
+ 
+ 	if (temp & MSR_RDF)
+ 		lpi2c_imx_read_rxfifo(lpi2c_imx);
 -- 
 2.39.2
 
