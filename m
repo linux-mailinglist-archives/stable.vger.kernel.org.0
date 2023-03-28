@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D366CC320
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6216CC4B7
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbjC1Ove (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
+        id S233868AbjC1PHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:07:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233317AbjC1OvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B96EDBD9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:55 -0700 (PDT)
+        with ESMTP id S232679AbjC1PHn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DBDBEB56
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5BD44CE1DA0
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4803FC433D2;
-        Tue, 28 Mar 2023 14:50:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 020ED6181D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18698C433D2;
+        Tue, 28 Mar 2023 15:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015051;
-        bh=BTGPNRJFm+RzoGMerEPnGxXC0CPJ8lzG9XJAwYTgFEc=;
+        s=korg; t=1680015985;
+        bh=jS0MwtGNfx69hmuA55ikvt4s4fEqBddWxcG6GmsFhsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfz6Auy+r57qJ4etOnnBT+Scu9kOKaivS/ZEOtm6XHJdjituxllidUVebc43tzZcJ
-         9W9+AVvG0/pGmx+FqGucE+G4JkiYGK8RR/N16W0cWn1EgsGLagPHcAiY05Jus6o+iz
-         2JPnEGvMoUqaxoDpQC2yAu+0NAF/zVN+9b+q9K1k=
+        b=k98YjQz7k1xKZV6APE9KmxKBkkYQGDskfb3EOmjF3aqg2RoSJY7VvG1bvjhbXfqSm
+         JJLa8M7QFXw+KO0z02Zfd1f6dr99fu8vjuCxc0K14EsVzd40qc0zh6nbSXUrnh8Gz3
+         DrLKO8T3bUyc79cV8dvpk2qGQtyeDARS4uwIkm2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Marek Szlosek <marek.szlosek@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 149/240] scsi: mpi3mr: Wait for diagnostic save during controller init
+Subject: [PATCH 5.15 023/146] intel/igbvf: free irq on the error path in igbvf_request_msix()
 Date:   Tue, 28 Mar 2023 16:41:52 +0200
-Message-Id: <20230328142625.918307232@linuxfoundation.org>
+Message-Id: <20230328142603.698532062@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjan Kumar <ranjan.kumar@broadcom.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 0a319f1629495d27879b7ebf6eee62b8cf6e4c37 ]
+[ Upstream commit 85eb39bb39cbb5c086df1e19ba67cc1366693a77 ]
 
-If a controller reset operation is triggered to recover the controller from
-a fault state, then wait for the snapdump to be saved in the firmware
-region before proceeding to reset the controller.
+In igbvf_request_msix(), irqs have not been freed on the err path,
+we need to free it. Fix it.
 
-Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Link: https://lore.kernel.org/r/20230228140835.4075-4-ranjan.kumar@broadcom.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d4e0fe01a38a ("igbvf: add new driver to support 82576 virtual functions")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_fw.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igbvf/netdev.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_fw.c b/drivers/scsi/mpi3mr/mpi3mr_fw.c
-index 28fd90c4b62d0..a565817aa56d4 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_fw.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_fw.c
-@@ -1198,7 +1198,7 @@ mpi3mr_revalidate_factsdata(struct mpi3mr_ioc *mrioc)
-  */
- static int mpi3mr_bring_ioc_ready(struct mpi3mr_ioc *mrioc)
- {
--	u32 ioc_config, ioc_status, timeout;
-+	u32 ioc_config, ioc_status, timeout, host_diagnostic;
- 	int retval = 0;
- 	enum mpi3mr_iocstate ioc_state;
- 	u64 base_info;
-@@ -1252,6 +1252,23 @@ static int mpi3mr_bring_ioc_ready(struct mpi3mr_ioc *mrioc)
- 			    retval, mpi3mr_iocstate_name(ioc_state));
- 	}
- 	if (ioc_state != MRIOC_STATE_RESET) {
-+		if (ioc_state == MRIOC_STATE_FAULT) {
-+			timeout = MPI3_SYSIF_DIAG_SAVE_TIMEOUT * 10;
-+			mpi3mr_print_fault_info(mrioc);
-+			do {
-+				host_diagnostic =
-+					readl(&mrioc->sysif_regs->host_diagnostic);
-+				if (!(host_diagnostic &
-+				      MPI3_SYSIF_HOST_DIAG_SAVE_IN_PROGRESS))
-+					break;
-+				if (!pci_device_is_present(mrioc->pdev)) {
-+					mrioc->unrecoverable = 1;
-+					ioc_err(mrioc, "controller is not present at the bringup\n");
-+					goto out_device_not_present;
-+				}
-+				msleep(100);
-+			} while (--timeout);
-+		}
- 		mpi3mr_print_fault_info(mrioc);
- 		ioc_info(mrioc, "issuing soft reset to bring to reset state\n");
- 		retval = mpi3mr_issue_reset(mrioc,
+diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
+index d051918dfdff9..ebd6d464fa0cf 100644
+--- a/drivers/net/ethernet/intel/igbvf/netdev.c
++++ b/drivers/net/ethernet/intel/igbvf/netdev.c
+@@ -1074,7 +1074,7 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
+ 			  igbvf_intr_msix_rx, 0, adapter->rx_ring->name,
+ 			  netdev);
+ 	if (err)
+-		goto out;
++		goto free_irq_tx;
+ 
+ 	adapter->rx_ring->itr_register = E1000_EITR(vector);
+ 	adapter->rx_ring->itr_val = adapter->current_itr;
+@@ -1083,10 +1083,14 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
+ 	err = request_irq(adapter->msix_entries[vector].vector,
+ 			  igbvf_msix_other, 0, netdev->name, netdev);
+ 	if (err)
+-		goto out;
++		goto free_irq_rx;
+ 
+ 	igbvf_configure_msix(adapter);
+ 	return 0;
++free_irq_rx:
++	free_irq(adapter->msix_entries[--vector].vector, netdev);
++free_irq_tx:
++	free_irq(adapter->msix_entries[--vector].vector, netdev);
+ out:
+ 	return err;
+ }
 -- 
 2.39.2
 
