@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7322D6CC4A7
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6054B6CC41D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233881AbjC1PHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:07:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
+        id S233697AbjC1PAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233882AbjC1PHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA0AD520
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:53 -0700 (PDT)
+        with ESMTP id S233755AbjC1PAD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9D4EB5B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E89061857
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DBA1C4339C;
-        Tue, 28 Mar 2023 15:05:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 181A361820
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE2DC433D2;
+        Tue, 28 Mar 2023 14:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015952;
-        bh=nOai4my4CkFgclSU7YAKhG/cMS9uXMRuAyvl2wCF208=;
+        s=korg; t=1680015598;
+        bh=SgqoHIgtuQPGkNziJ8BUUarq90YDbv98aczo1k/SxiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gT47i92ZeqX8FEB0AP7MfxPlvqkYmcOpqbvja3QjHoxUx9cxp9gtYXcROpeCZhhc
-         qHZPhUO0rIqPEca2SX7uqaSd4MA+zxRBhaNTBwg9v+H98Aht8w637YLPLM84AWigVt
-         qa+WXFc28RJxFq1WWFnEQxfSBFdKlVr90dFuhNhY=
+        b=hCiX6KYSCPURFRKL2t8rATtXi1QXC/GN253tFu2pNPKlo/X9AysSXyj/XHGDhTNnS
+         AQuSBFB9lnSu8dRh4izLyKPhctGtf4bhiMviu/NipnuCo7yRzfDItHGYc4ZKpfA3XD
+         W2EJL2VFQpMI30GkB9JXHrbgsrEECRRTs0Dwc+kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tero Kristo <tero.kristo@linux.intel.com>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 012/146] trace/hwlat: Do not start per-cpu thread if it is already running
-Date:   Tue, 28 Mar 2023 16:41:41 +0200
-Message-Id: <20230328142603.220384449@linuxfoundation.org>
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 106/224] smb3: fix unusable share after force unmount failure
+Date:   Tue, 28 Mar 2023 16:41:42 +0200
+Message-Id: <20230328142621.756704729@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,56 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <tero.kristo@linux.intel.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 08697bca9bbba15f2058fdbd9f970bd5f6a8a2e8 ]
+commit 491eafce1a51c457701351a4bf40733799745314 upstream.
 
-The hwlatd tracer will end up starting multiple per-cpu threads with
-the following script:
+If user does forced unmount ("umount -f") while files are still open
+on the share (as was seen in a Kubernetes example running on SMB3.1.1
+mount) then we were marking the share as "TID_EXITING" in umount_begin()
+which caused all subsequent operations (except write) to fail ... but
+unfortunately when umount_begin() is called we do not know yet that
+there are open files or active references on the share that would prevent
+unmount from succeeding.  Kubernetes had example when they were doing
+umount -f when files were open which caused the share to become
+unusable until the files were closed (and the umount retried).
 
-    #!/bin/sh
-    cd /sys/kernel/debug/tracing
-    echo 0 > tracing_on
-    echo hwlat > current_tracer
-    echo per-cpu > hwlat_detector/mode
-    echo 100000 > hwlat_detector/width
-    echo 200000 > hwlat_detector/window
-    echo 1 > tracing_on
-
-To fix the issue, check if the hwlatd thread for the cpu is already
-running, before starting a new one. Along with the previous patch, this
-avoids running multiple instances of the same CPU thread on the system.
-
-Link: https://lore.kernel.org/all/20230302113654.2984709-1-tero.kristo@linux.intel.com/
-Link: https://lkml.kernel.org/r/20230310100451.3948583-3-tero.kristo@linux.intel.com
+Fix this so that TID_EXITING is not set until we are about to send
+the tree disconnect (not at the beginning of forced umounts in
+umount_begin) so that if "umount -f" fails (due to open files or
+references) the mount is still usable.
 
 Cc: stable@vger.kernel.org
-Fixes: f46b16520a087 ("trace/hwlat: Implement the per-cpu mode")
-Signed-off-by: Tero Kristo <tero.kristo@linux.intel.com>
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_hwlat.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/cifs/cifsfs.c  |    9 ++++++---
+ fs/cifs/cifssmb.c |    6 ++----
+ fs/cifs/connect.c |    1 +
+ fs/cifs/smb2pdu.c |    8 ++------
+ 4 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/trace/trace_hwlat.c b/kernel/trace/trace_hwlat.c
-index 72eeab938f1de..9ec032f22531c 100644
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -492,6 +492,10 @@ static int start_cpu_kthread(unsigned int cpu)
- {
- 	struct task_struct *kthread;
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -730,13 +730,16 @@ static void cifs_umount_begin(struct sup
+ 	spin_lock(&tcon->tc_lock);
+ 	if ((tcon->tc_count > 1) || (tcon->status == TID_EXITING)) {
+ 		/* we have other mounts to same share or we have
+-		   already tried to force umount this and woken up
++		   already tried to umount this and woken up
+ 		   all waiting network requests, nothing to do */
+ 		spin_unlock(&tcon->tc_lock);
+ 		spin_unlock(&cifs_tcp_ses_lock);
+ 		return;
+-	} else if (tcon->tc_count == 1)
+-		tcon->status = TID_EXITING;
++	}
++	/*
++	 * can not set tcon->status to TID_EXITING yet since we don't know if umount -f will
++	 * fail later (e.g. due to open files).  TID_EXITING will be set just before tdis req sent
++	 */
+ 	spin_unlock(&tcon->tc_lock);
+ 	spin_unlock(&cifs_tcp_ses_lock);
  
-+	/* Do not start a new hwlatd thread if it is already running */
-+	if (per_cpu(hwlat_per_cpu_data, cpu).kthread)
-+		return 0;
-+
- 	kthread = kthread_run_on_cpu(kthread_fn, NULL, cpu, "hwlatd/%u");
- 	if (IS_ERR(kthread)) {
- 		pr_err(BANNER "could not start sampling thread\n");
--- 
-2.39.2
-
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -85,13 +85,11 @@ cifs_reconnect_tcon(struct cifs_tcon *tc
+ 
+ 	/*
+ 	 * only tree disconnect, open, and write, (and ulogoff which does not
+-	 * have tcon) are allowed as we start force umount
++	 * have tcon) are allowed as we start umount
+ 	 */
+ 	spin_lock(&tcon->tc_lock);
+ 	if (tcon->status == TID_EXITING) {
+-		if (smb_command != SMB_COM_WRITE_ANDX &&
+-		    smb_command != SMB_COM_OPEN_ANDX &&
+-		    smb_command != SMB_COM_TREE_DISCONNECT) {
++		if (smb_command != SMB_COM_TREE_DISCONNECT) {
+ 			spin_unlock(&tcon->tc_lock);
+ 			cifs_dbg(FYI, "can not send cmd %d while umounting\n",
+ 				 smb_command);
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2365,6 +2365,7 @@ cifs_put_tcon(struct cifs_tcon *tcon)
+ 	WARN_ON(tcon->tc_count < 0);
+ 
+ 	list_del_init(&tcon->tcon_list);
++	tcon->status = TID_EXITING;
+ 	spin_unlock(&tcon->tc_lock);
+ 	spin_unlock(&cifs_tcp_ses_lock);
+ 
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -225,13 +225,9 @@ smb2_reconnect(__le16 smb2_command, stru
+ 	spin_lock(&tcon->tc_lock);
+ 	if (tcon->status == TID_EXITING) {
+ 		/*
+-		 * only tree disconnect, open, and write,
+-		 * (and ulogoff which does not have tcon)
+-		 * are allowed as we start force umount.
++		 * only tree disconnect allowed when disconnecting ...
+ 		 */
+-		if ((smb2_command != SMB2_WRITE) &&
+-		   (smb2_command != SMB2_CREATE) &&
+-		   (smb2_command != SMB2_TREE_DISCONNECT)) {
++		if (smb2_command != SMB2_TREE_DISCONNECT) {
+ 			spin_unlock(&tcon->tc_lock);
+ 			cifs_dbg(FYI, "can not send cmd %d while umounting\n",
+ 				 smb2_command);
 
 
