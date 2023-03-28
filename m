@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B986CC2F9
+	by mail.lfdr.de (Postfix) with ESMTP id 19E216CC2F8
 	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbjC1OuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:50:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43088 "EHLO
+        id S233451AbjC1OuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233268AbjC1Ots (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88DADBDD1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:19 -0700 (PDT)
+        with ESMTP id S233472AbjC1Oty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0988DE053
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DCDD61826
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1685C433D2;
-        Tue, 28 Mar 2023 14:49:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2EDFB81D7B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68230C433D2;
+        Tue, 28 Mar 2023 14:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014958;
-        bh=KcTD0+fNcItRaW+9wCkIlXTCzzZqsJ7mrhkHxHqrJus=;
+        s=korg; t=1680014960;
+        bh=FMlprNX8hPo/gJqoM7YfxZkBpN0TAI3lenpNYjq9jNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bl7/FyA5yhR3m6P6cgZkpKuBCg4dIaEd12n+zq7d7oX8JYhhYPK42RAv2BHV9F5VV
-         miXcTRSOkFKSxOkqIqaUKuHfS0XBzzJKEO0naG4U8xVeCPO1+qw5SF383moWrqdgUV
-         /Rs3nUMYYu6+hjp70attcuNcOgRYOy0V0IPZQFPU=
+        b=PoE5NW3X65Ac0XErVG3UKxcj8sVqmWRCgSFg+wTwv0eK2HmvSIOXQf4c01mOTjNc2
+         5tWTd9VRXruo/JAT6ulq5onL0H//BLKqnDYZ7OuB2MpAFTDqEfniGn5e4vDWGmTCfI
+         TOSUpLWitjxk77CmSun0EgB9lSwgCpHsKYQVPZj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yin Fengwei <fengwei.yin@intel.com>,
-        kernel test robot <yujie.liu@intel.com>,
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
         "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 115/240] smb3: lower default deferred close timeout to address perf regression
-Date:   Tue, 28 Mar 2023 16:41:18 +0200
-Message-Id: <20230328142624.583674291@linuxfoundation.org>
+Subject: [PATCH 6.2 116/240] smb3: fix unusable share after force unmount failure
+Date:   Tue, 28 Mar 2023 16:41:19 +0200
+Message-Id: <20230328142624.634920893@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -57,40 +55,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steve French <stfrench@microsoft.com>
 
-commit 7e0e76d99079be13c9961dde7c93b2d1ee665af4 upstream.
+commit 491eafce1a51c457701351a4bf40733799745314 upstream.
 
-Performance tests with large number of threads noted that the change
-of the default closetimeo (deferred close timeout between when
-close is done by application and when client has to send the close
-to the server), to 5 seconds from 1 second, significantly degraded
-perf in some cases like this (in the filebench example reported,
-the stats show close requests on the wire taking twice as long,
-and 50% regression in filebench perf). This is stil configurable
-via mount parm closetimeo, but to be safe, decrease default back
-to its previous value of 1 second.
+If user does forced unmount ("umount -f") while files are still open
+on the share (as was seen in a Kubernetes example running on SMB3.1.1
+mount) then we were marking the share as "TID_EXITING" in umount_begin()
+which caused all subsequent operations (except write) to fail ... but
+unfortunately when umount_begin() is called we do not know yet that
+there are open files or active references on the share that would prevent
+unmount from succeeding.  Kubernetes had example when they were doing
+umount -f when files were open which caused the share to become
+unusable until the files were closed (and the umount retried).
 
-Reported-by: Yin Fengwei <fengwei.yin@intel.com>
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Link: https://lore.kernel.org/lkml/997614df-10d4-af53-9571-edec36b0e2f3@intel.com/
-Fixes: 5efdd9122eff ("smb3: allow deferred close timeout to be configurable")
-Cc: stable@vger.kernel.org # 6.0+
-Tested-by: Yin Fengwei <fengwei.yin@intel.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Fix this so that TID_EXITING is not set until we are about to send
+the tree disconnect (not at the beginning of forced umounts in
+umount_begin) so that if "umount -f" fails (due to open files or
+references) the mount is still usable.
+
+Cc: stable@vger.kernel.org
 Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/fs_context.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifsfs.c  |    9 ++++++---
+ fs/cifs/cifssmb.c |    6 ++----
+ fs/cifs/connect.c |    1 +
+ fs/cifs/smb2pdu.c |    8 ++------
+ 4 files changed, 11 insertions(+), 13 deletions(-)
 
---- a/fs/cifs/fs_context.h
-+++ b/fs/cifs/fs_context.h
-@@ -286,5 +286,5 @@ extern void smb3_update_mnt_flags(struct
-  * max deferred close timeout (jiffies) - 2^30
-  */
- #define SMB3_MAX_DCLOSETIMEO (1 << 30)
--#define SMB3_DEF_DCLOSETIMEO (5 * HZ) /* Can increase later, other clients use larger */
-+#define SMB3_DEF_DCLOSETIMEO (1 * HZ) /* even 1 sec enough to help eg open/write/close/open/read */
- #endif
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -730,13 +730,16 @@ static void cifs_umount_begin(struct sup
+ 	spin_lock(&tcon->tc_lock);
+ 	if ((tcon->tc_count > 1) || (tcon->status == TID_EXITING)) {
+ 		/* we have other mounts to same share or we have
+-		   already tried to force umount this and woken up
++		   already tried to umount this and woken up
+ 		   all waiting network requests, nothing to do */
+ 		spin_unlock(&tcon->tc_lock);
+ 		spin_unlock(&cifs_tcp_ses_lock);
+ 		return;
+-	} else if (tcon->tc_count == 1)
+-		tcon->status = TID_EXITING;
++	}
++	/*
++	 * can not set tcon->status to TID_EXITING yet since we don't know if umount -f will
++	 * fail later (e.g. due to open files).  TID_EXITING will be set just before tdis req sent
++	 */
+ 	spin_unlock(&tcon->tc_lock);
+ 	spin_unlock(&cifs_tcp_ses_lock);
+ 
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -85,13 +85,11 @@ cifs_reconnect_tcon(struct cifs_tcon *tc
+ 
+ 	/*
+ 	 * only tree disconnect, open, and write, (and ulogoff which does not
+-	 * have tcon) are allowed as we start force umount
++	 * have tcon) are allowed as we start umount
+ 	 */
+ 	spin_lock(&tcon->tc_lock);
+ 	if (tcon->status == TID_EXITING) {
+-		if (smb_command != SMB_COM_WRITE_ANDX &&
+-		    smb_command != SMB_COM_OPEN_ANDX &&
+-		    smb_command != SMB_COM_TREE_DISCONNECT) {
++		if (smb_command != SMB_COM_TREE_DISCONNECT) {
+ 			spin_unlock(&tcon->tc_lock);
+ 			cifs_dbg(FYI, "can not send cmd %d while umounting\n",
+ 				 smb_command);
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2363,6 +2363,7 @@ cifs_put_tcon(struct cifs_tcon *tcon)
+ 	WARN_ON(tcon->tc_count < 0);
+ 
+ 	list_del_init(&tcon->tcon_list);
++	tcon->status = TID_EXITING;
+ 	spin_unlock(&tcon->tc_lock);
+ 	spin_unlock(&cifs_tcp_ses_lock);
+ 
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -225,13 +225,9 @@ smb2_reconnect(__le16 smb2_command, stru
+ 	spin_lock(&tcon->tc_lock);
+ 	if (tcon->status == TID_EXITING) {
+ 		/*
+-		 * only tree disconnect, open, and write,
+-		 * (and ulogoff which does not have tcon)
+-		 * are allowed as we start force umount.
++		 * only tree disconnect allowed when disconnecting ...
+ 		 */
+-		if ((smb2_command != SMB2_WRITE) &&
+-		   (smb2_command != SMB2_CREATE) &&
+-		   (smb2_command != SMB2_TREE_DISCONNECT)) {
++		if (smb2_command != SMB2_TREE_DISCONNECT) {
+ 			spin_unlock(&tcon->tc_lock);
+ 			cifs_dbg(FYI, "can not send cmd %d while umounting\n",
+ 				 smb2_command);
 
 
