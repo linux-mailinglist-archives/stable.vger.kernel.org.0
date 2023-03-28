@@ -2,124 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 565046CBF05
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7C96CBF4E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230245AbjC1M3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60242 "EHLO
+        id S230380AbjC1MiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230326AbjC1M3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:29:16 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DD48A50
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:29:15 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id eg48so48900856edb.13
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:29:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=grsecurity.net; s=grsec; t=1680006553;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=mrOjxRQpJOqzj8z/jCUY5gGiGOpQ6ERLOciMFIFaSDw=;
-        b=AyeMaUF6/cUutsLZpC4QZ/ytuCQMOHsNuH/bPRkzS1gywTieDBRR1WIb76/bSQCGHG
-         1pB6rBa5owsLnoUHVJDiU98fxDQY93TzzIRM97lE7wChkIuZi66fLsOyV77qYSXvwZ6G
-         lF0+mhpsRVJoJ869wXxix0EXTMjbWVduobp2a3a6J7r/QLxjRpO9MrVxVEQXmxngjB5g
-         4uIb0ROhDbqqfdoXPXT7MHoQ2Xi3w2nsHYm5wbdM4vc4jiLatDUKLH4SuYK5JIqneIiy
-         OpvWIE2oKd2uZIPbRhXoyYk7PbeGX9AohZg7bPN2hsh1ZWd8+vVbATczfG3wsDsu+6D/
-         7TuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680006553;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mrOjxRQpJOqzj8z/jCUY5gGiGOpQ6ERLOciMFIFaSDw=;
-        b=rLpmESvYT+offRilsuqRPcd8Zz4qQVbXjGkDt/rriLlrwt6JRKSFeiLzzu/TMfHZdV
-         mVg2YOrbQdxn4YDrwd3sAwcvDboN/e+bP8VVuh5/ZQ5E13/16vF1v2XKSW0brUcyDMV7
-         6BxEkVnxJUuS7Rv7IO8XGLmAzit0clyuINCZEnySZKllUYRmvrsLycjLHMgKx4lclu+a
-         qEUG2Dh8kosDo+RfnEKbdunSTdfICSEWBSp4idC8wK8yxK6jlG7Ghnef68+bgSSJSNFc
-         66YByQXxrMdnAJ2ctPuz6HnC6D8bPyPGtkQopNtIEyMk3bIwNQNk0HHB5mNlFQCBhoOS
-         3ZrQ==
-X-Gm-Message-State: AAQBX9dxjYhg1oxOaHSc5HVHjN5r2h2PjuPY3lXvv1a2QNZILOPfvvjq
-        l4GuMeS5YV9DHVrMIuoTYHwNmQ==
-X-Google-Smtp-Source: AKy350Z50h+0X/iXCd/ROMSdaYTHlmIl8irV6DB13lcclZYFdTmJRZR61VpQjfNTYRnTlaMorKcVkw==
-X-Received: by 2002:aa7:ccce:0:b0:500:5627:a20a with SMTP id y14-20020aa7ccce000000b005005627a20amr13849024edt.25.1680006553679;
-        Tue, 28 Mar 2023 05:29:13 -0700 (PDT)
-Received: from ?IPV6:2003:f6:af12:cb00:3146:384f:5efc:fd5d? (p200300f6af12cb003146384f5efcfd5d.dip0.t-ipconnect.de. [2003:f6:af12:cb00:3146:384f:5efc:fd5d])
-        by smtp.gmail.com with ESMTPSA id v1-20020a50d581000000b0050234b3fecesm4220886edi.73.2023.03.28.05.29.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Mar 2023 05:29:13 -0700 (PDT)
-Message-ID: <f86cb36e-b331-8b8d-f087-5e2e8a5ae962@grsecurity.net>
-Date:   Tue, 28 Mar 2023 14:29:11 +0200
+        with ESMTP id S231987AbjC1MiJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:38:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6676A5C1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:37:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 671EC61751
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:37:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CF94C433D2;
+        Tue, 28 Mar 2023 12:37:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1680007025;
+        bh=zImLgfP4jJdMojImLGL2qrnCXQZm1obkYiyqxahBZX4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=L1HWFQUPnNupyYsMsrdM4GmV5oWV0PF6RaOgUanGoMtekmrq1knVKTpVmTrTNGsza
+         LC6zxdwDXawGkXqzPCwd7k0GiWsf4nENDs85p5CDsNakeDoxneL+7vK/YARmoKd9wp
+         hz+jSo/qQh5TFWcltc+eR1QW6xAwh+cp64PGoZa4=
+Subject: FAILED: patch "[PATCH] drm/meson: fix missing component unbind on bind errors" failed to apply to 5.4-stable tree
+To:     johan+linaro@kernel.org, neil.armstrong@linaro.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 28 Mar 2023 14:36:40 +0200
+Message-ID: <1680007000120162@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: Linux 5.15.103
-Content-Language: en-US, de-DE
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        lwn@lwn.net, jslaby@suse.cz,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-References: <1679040264214179@kroah.com>
- <c359c777-c3af-b4a6-791d-d51916160bf5@grsecurity.net>
- <ZCLaLWJiIsDV5yGr@kroah.com>
-From:   Mathias Krause <minipli@grsecurity.net>
-In-Reply-To: <ZCLaLWJiIsDV5yGr@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28.03.23 14:14, Greg Kroah-Hartman wrote:
-> On Tue, Mar 28, 2023 at 02:02:03PM +0200, Mathias Krause wrote:
->> On 17.03.23 09:04, Greg Kroah-Hartman wrote:
->>> I'm announcing the release of the 5.15.103 kernel.
->>>
->>> [...]
->>>
->>> Vitaly Kuznetsov (4):
->>>       KVM: Optimize kvm_make_vcpus_request_mask() a bit
->>>       KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()
->>>       KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
->>>       KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
->>>
->>
->> That list is missing commit 6470accc7ba9 ("KVM: x86: hyper-v: Avoid
->> calling kvm_make_vcpus_request_mask() with vcpu_mask==NULL") to fulfill
->> the prerequisite of "KVM: Optimize kvm_make_vcpus_request_mask() a bit".
->>
->> Right now the kvm selftests trigger a kernel NULL deref for the hyperv
->> test, making the system hang.
->>
->> Please consider applying commit 6470accc7ba9 for the next v5.15.x release.
-> 
-> It wasn't tagged for the stable kernels, so we didn't pick it up :(
 
-Neither were any of the above commits. o.O
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Commit 3e48a6349d29 ("KVM: Optimize kvm_make_vcpus_request_mask() a
-bit") has this tag, though:
+To reproduce the conflict and resubmit, you may use the following commands:
 
-Stable-dep-of: 2b0128127373 ("KVM: Register /dev/kvm as the _very_ last
-thing during initialization")
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git checkout FETCH_HEAD
+git cherry-pick -x ba98413bf45edbf33672e2539e321b851b2cfbd1
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680007000120162@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
-I don't know why, though. These two commits have little in common.
-Maybe Sasha knows why?
+Possible dependencies:
 
-> 
-> Have now done so, thanks.
+ba98413bf45e ("drm/meson: fix missing component unbind on bind errors")
+fa747d75f65d ("drm/meson: Fix error handling when afbcd.ops->init fails")
+e67f6037ae1b ("drm/meson: split out encoder from meson_dw_hdmi")
+d4cb82aa2e4b ("drm/meson: Make use of the helper function devm_platform_ioremap_resourcexxx()")
+65a969655cb9 ("drm/meson: Convert to Linux IRQ interfaces")
+2b6cb81b95d1 ("drm/meson: dw-hdmi: Enable the iahb clock early enough")
+1dfeea904550 ("drm/meson: dw-hdmi: Disable clocks on driver teardown")
+b33340e33acd ("drm/meson: dw-hdmi: Ensure that clocks are enabled before touching the TOP registers")
+0405f94a1ae0 ("drm/meson: dw-hdmi: Register a callback to disable the regulator")
+e78ad18ba365 ("drm/meson: Unbind all connectors on module removal")
+fa62ee25280f ("drm/meson: Free RDMA resources after tearing down DRM")
+35a395f1134b ("drm: bridge: dw-hdmi: Constify mode argument to dw_hdmi_phy_ops .init()")
+af05bba0fbe2 ("drm: bridge: dw-hdmi: Pass drm_display_info to .mode_valid()")
+9bc78d6dc818 ("drm: meson: dw-hdmi: Use dw_hdmi context to replace hack")
+96591a4b93fb ("drm: bridge: dw-hdmi: Pass private data pointer to .mode_valid()")
+b54d830ccb65 ("drm/meson: Set GEM CMA functions with DRM_GEM_CMA_DRIVER_OPS_WITH_DUMB_CREATE")
+48ab4b8f236c ("drm/meson: Use GEM CMA object functions")
+8976eeee8de0 ("drm/meson: add mode selection limits against specific SoC revisions")
+bd9ff7b521a6 ("drm/meson: Drop explicit drm_mode_config_cleanup call")
+8496a2172d7c ("drm/meson: Add YUV420 output support")
 
-Thanks!
+thanks,
 
-Mathias
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ba98413bf45edbf33672e2539e321b851b2cfbd1 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan+linaro@kernel.org>
+Date: Mon, 6 Mar 2023 11:35:33 +0100
+Subject: [PATCH] drm/meson: fix missing component unbind on bind errors
+
+Make sure to unbind all subcomponents when binding the aggregate device
+fails.
+
+Fixes: a41e82e6c457 ("drm/meson: Add support for components")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230306103533.4915-1-johan+linaro@kernel.org
+
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 79bfe3938d3c..7caf937c3c90 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -325,23 +325,23 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 
+ 	ret = meson_encoder_hdmi_init(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	ret = meson_plane_create(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	ret = meson_overlay_create(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	ret = meson_crtc_create(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	ret = request_irq(priv->vsync_irq, meson_irq, 0, drm->driver->name, drm);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	drm_mode_config_reset(drm);
+ 
+@@ -359,6 +359,9 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 
+ uninstall_irq:
+ 	free_irq(priv->vsync_irq, drm);
++unbind_all:
++	if (has_components)
++		component_unbind_all(drm->dev, drm);
+ exit_afbcd:
+ 	if (priv->afbcd.ops)
+ 		priv->afbcd.ops->exit(priv);
+
