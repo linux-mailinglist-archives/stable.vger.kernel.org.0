@@ -2,51 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D927E6CC3AA
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071116CC2A4
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233569AbjC1O4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:56:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58998 "EHLO
+        id S232676AbjC1OrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233567AbjC1O4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60324E19C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:09 -0700 (PDT)
+        with ESMTP id S233305AbjC1Oq7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505AFE05B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:46:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D135FB81D75
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B144C433EF;
-        Tue, 28 Mar 2023 14:56:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9F36B81D6E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4858C433EF;
+        Tue, 28 Mar 2023 14:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015366;
-        bh=c1HPlBFh+gY+QtFKvh2J84KPuFrFErNYBqBYl8CBcGA=;
+        s=korg; t=1680014799;
+        bh=UlRK//Qc6V0DgzUuLVpQtfcfRn/yLSljGaaKQ0xlYE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8sqEZGlaZKhXnJqG5EXI9bXxYrijMwtQiA1501TO7Bey5GGVzySi/Fr07ZpHqcdb
-         2f0dQLHR5cQxiMXIhJlgMCaOaha8DjnwN90sPGGEO6y+eUHTnLEY9sDikpEO5PJRFw
-         2DYrwDQdsP6lIw8ppuEhQ40jz4B5Z83wIgB98ENg=
+        b=nEwVnbIiF10LsKFDCKgllsDBSg10d3TftQlK5dfiCMe/hRj11Gpg2dfbyG+5SfgWa
+         6g94ws/TlfV1J4cK22bY1WBjfCzLGmassjeao0t+Tx+rFdQjQwXMCmCZbh4eN5aUVH
+         3Ls7NJJbTGeekfbSIB8oiNfsB/TRDd+as88r1eUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Alan Previn <alan.previn.teres.alexis@intel.com>,
+        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Aravind Iddamsetty <aravind.iddamsetty@intel.com>,
+        Michael Cheng <michael.cheng@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 023/224] arm64: dts: imx93: add missing #address-cells and #size-cells to i2c nodes
+Subject: [PATCH 6.2 056/240] drm/i915/guc: Fix missing ecodes
 Date:   Tue, 28 Mar 2023 16:40:19 +0200
-Message-Id: <20230328142618.255472162@linuxfoundation.org>
+Message-Id: <20230328142622.055991962@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,96 +67,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-[ Upstream commit b3cdf730486b048ca0bf23bef050550d9fd40422 ]
+[ Upstream commit 8df23e4c4f72f4e201c28e6fb0a67e2dbf30628a ]
 
-Add them to the SoC .dtsi, so that not every board has to specify them.
+Error captures are tagged with an 'ecode'. This is a pseduo-unique magic
+number that is meant to distinguish similar seeming bugs with
+different underlying signatures. It is a combination of two ring state
+registers. Unfortunately, the register state being used is only valid
+in execlist mode. In GuC mode, the register state exists in a separate
+list of arbitrary register address/value pairs rather than the named
+entry structure. So, search through that list to find the two exciting
+registers and copy them over to the structure's named members.
 
-Fixes: 1225396fefea ("arm64: dts: imx93: add lpi2c nodes")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+v2: if else if instead of if if (Alan)
+
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Reviewed-by: Alan Previn <alan.previn.teres.alexis@intel.com>
+Fixes: a6f0f9cf330a ("drm/i915/guc: Plumb GuC-capture into gpu_coredump")
+Cc: Alan Previn <alan.previn.teres.alexis@intel.com>
+Cc: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Aravind Iddamsetty <aravind.iddamsetty@intel.com>
+Cc: Michael Cheng <michael.cheng@intel.com>
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: Bruce Chang <yu.bruce.chang@intel.com>
+Cc: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230311063714.570389-2-John.C.Harrison@Intel.com
+(cherry picked from commit 9724ecdbb9ddd6da3260e4a442574b90fc75188a)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx93.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ .../gpu/drm/i915/gt/uc/intel_guc_capture.c    | 22 +++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx93.dtsi b/arch/arm64/boot/dts/freescale/imx93.dtsi
-index 0247866fc86b0..8ab9f8194702e 100644
---- a/arch/arm64/boot/dts/freescale/imx93.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx93.dtsi
-@@ -150,6 +150,8 @@ system_counter: timer@44290000 {
- 			lpi2c1: i2c@44340000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x44340000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C1_GATE>,
- 					 <&clk IMX93_CLK_BUS_AON>;
-@@ -160,6 +162,8 @@ lpi2c1: i2c@44340000 {
- 			lpi2c2: i2c@44350000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x44350000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C2_GATE>,
- 					 <&clk IMX93_CLK_BUS_AON>;
-@@ -277,6 +281,8 @@ mu2: mailbox@42440000 {
- 			lpi2c3: i2c@42530000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x42530000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C3_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -287,6 +293,8 @@ lpi2c3: i2c@42530000 {
- 			lpi2c4: i2c@42540000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x42540000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C4_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -351,6 +359,8 @@ lpuart8: serial@426a0000 {
- 			lpi2c5: i2c@426b0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426b0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C5_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -361,6 +371,8 @@ lpi2c5: i2c@426b0000 {
- 			lpi2c6: i2c@426c0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426c0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C6_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -371,6 +383,8 @@ lpi2c6: i2c@426c0000 {
- 			lpi2c7: i2c@426d0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426d0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C7_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -381,6 +395,8 @@ lpi2c7: i2c@426d0000 {
- 			lpi2c8: i2c@426e0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426e0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C8_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+index fc3b994626a4f..710999d7189ee 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_capture.c
+@@ -1571,6 +1571,27 @@ int intel_guc_capture_print_engine_node(struct drm_i915_error_state_buf *ebuf,
+ 
+ #endif //CONFIG_DRM_I915_CAPTURE_ERROR
+ 
++static void guc_capture_find_ecode(struct intel_engine_coredump *ee)
++{
++	struct gcap_reg_list_info *reginfo;
++	struct guc_mmio_reg *regs;
++	i915_reg_t reg_ipehr = RING_IPEHR(0);
++	i915_reg_t reg_instdone = RING_INSTDONE(0);
++	int i;
++
++	if (!ee->guc_capture_node)
++		return;
++
++	reginfo = ee->guc_capture_node->reginfo + GUC_CAPTURE_LIST_TYPE_ENGINE_INSTANCE;
++	regs = reginfo->regs;
++	for (i = 0; i < reginfo->num_regs; i++) {
++		if (regs[i].offset == reg_ipehr.reg)
++			ee->ipehr = regs[i].value;
++		else if (regs[i].offset == reg_instdone.reg)
++			ee->instdone.instdone = regs[i].value;
++	}
++}
++
+ void intel_guc_capture_free_node(struct intel_engine_coredump *ee)
+ {
+ 	if (!ee || !ee->guc_capture_node)
+@@ -1612,6 +1633,7 @@ void intel_guc_capture_get_matching_node(struct intel_gt *gt,
+ 			list_del(&n->link);
+ 			ee->guc_capture_node = n;
+ 			ee->guc_capture = guc->capture;
++			guc_capture_find_ecode(ee);
+ 			return;
+ 		}
+ 	}
 -- 
 2.39.2
 
