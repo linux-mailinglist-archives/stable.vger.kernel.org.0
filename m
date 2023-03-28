@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACDD16CC3B1
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6E06CC2B8
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbjC1O4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:56:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59348 "EHLO
+        id S233256AbjC1OsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:48:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233562AbjC1O41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:27 -0400
+        with ESMTP id S233283AbjC1OsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE699E070
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75101BBA8
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13203B81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECC3C433EF;
-        Tue, 28 Mar 2023 14:56:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B33BB81D6E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 040A5C433D2;
+        Tue, 28 Mar 2023 14:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015382;
-        bh=9FECKvC3lsJLuB1pLePb+RWQvnLPQQe6i1VQLLh5Khw=;
+        s=korg; t=1680014818;
+        bh=BVtxsmtcpvbvJZQxTRNlHwtbhkWm99TROxK6CHRu3Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2jpzv2nofNgX2DAo6OXGNBlmmXouvV5mTGEw97YjCCr50y83K8rTid6J5UOlBbWu
-         fHIIyh6l+hYFHI+KODeaKjEqCcd/o4QXaAYCQH9y0qyU4hpcAcVWA2SGsL0+VDHAnS
-         +vfcOaliM/xoZ9lyPbq6Ive1unO3xRnOKNKkZk3I=
+        b=ER8ZPGaCD2YTBw6PGrlqvNefvSHjI0ueNMaJo2sw43iUfYvj9zEyTURht5VxWk5Ga
+         POL0OJ1rvNd9r+5RAgxeOv4ERi14h6CBrRlSUfV93hYybFff7bY0QufLJTVZxQoP7o
+         4Nu7yIbVGCfwE53YvMj09JLrSlCuBRXjDJkzd8vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Marek Szlosek <marek.szlosek@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 029/224] intel/igbvf: free irq on the error path in igbvf_request_msix()
+Subject: [PATCH 6.2 062/240] net: usb: lan78xx: Limit packet length to skb->len
 Date:   Tue, 28 Mar 2023 16:40:25 +0200
-Message-Id: <20230328142618.531587196@linuxfoundation.org>
+Message-Id: <20230328142622.307981197@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit 85eb39bb39cbb5c086df1e19ba67cc1366693a77 ]
+[ Upstream commit 7f247f5a2c18b3f21206cdd51193df4f38e1b9f5 ]
 
-In igbvf_request_msix(), irqs have not been freed on the err path,
-we need to free it. Fix it.
+Packet length retrieved from descriptor may be larger than
+the actual socket buffer length. In such case the cloned
+skb passed up the network stack will leak kernel memory contents.
 
-Fixes: d4e0fe01a38a ("igbvf: add new driver to support 82576 virtual functions")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Additionally prevent integer underflow when size is less than
+ETH_FCS_LEN.
+
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igbvf/netdev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/usb/lan78xx.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index 3a32809510fc6..72cb1b56e9f24 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -1074,7 +1074,7 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
- 			  igbvf_intr_msix_rx, 0, adapter->rx_ring->name,
- 			  netdev);
- 	if (err)
--		goto out;
-+		goto free_irq_tx;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 068488890d57b..c458c030fadf6 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3579,13 +3579,29 @@ static int lan78xx_rx(struct lan78xx_net *dev, struct sk_buff *skb,
+ 		size = (rx_cmd_a & RX_CMD_A_LEN_MASK_);
+ 		align_count = (4 - ((size + RXW_PADDING) % 4)) % 4;
  
- 	adapter->rx_ring->itr_register = E1000_EITR(vector);
- 	adapter->rx_ring->itr_val = adapter->current_itr;
-@@ -1083,10 +1083,14 @@ static int igbvf_request_msix(struct igbvf_adapter *adapter)
- 	err = request_irq(adapter->msix_entries[vector].vector,
- 			  igbvf_msix_other, 0, netdev->name, netdev);
- 	if (err)
--		goto out;
-+		goto free_irq_rx;
++		if (unlikely(size > skb->len)) {
++			netif_dbg(dev, rx_err, dev->net,
++				  "size err rx_cmd_a=0x%08x\n",
++				  rx_cmd_a);
++			return 0;
++		}
++
+ 		if (unlikely(rx_cmd_a & RX_CMD_A_RED_)) {
+ 			netif_dbg(dev, rx_err, dev->net,
+ 				  "Error rx_cmd_a=0x%08x", rx_cmd_a);
+ 		} else {
+-			u32 frame_len = size - ETH_FCS_LEN;
++			u32 frame_len;
+ 			struct sk_buff *skb2;
  
- 	igbvf_configure_msix(adapter);
- 	return 0;
-+free_irq_rx:
-+	free_irq(adapter->msix_entries[--vector].vector, netdev);
-+free_irq_tx:
-+	free_irq(adapter->msix_entries[--vector].vector, netdev);
- out:
- 	return err;
- }
++			if (unlikely(size < ETH_FCS_LEN)) {
++				netif_dbg(dev, rx_err, dev->net,
++					  "size err rx_cmd_a=0x%08x\n",
++					  rx_cmd_a);
++				return 0;
++			}
++
++			frame_len = size - ETH_FCS_LEN;
++
+ 			skb2 = napi_alloc_skb(&dev->napi, frame_len);
+ 			if (!skb2)
+ 				return 0;
 -- 
 2.39.2
 
