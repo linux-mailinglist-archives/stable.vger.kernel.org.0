@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F97F6CC3B8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D646CC2E6
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233580AbjC1O4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60048 "EHLO
+        id S233422AbjC1Otk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233581AbjC1O4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:56:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C050AD33A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:56:42 -0700 (PDT)
+        with ESMTP id S233270AbjC1OtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B36B0E183
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A82A61804
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7032CC433D2;
-        Tue, 28 Mar 2023 14:56:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E1DDB81D70
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB21FC433EF;
+        Tue, 28 Mar 2023 14:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015401;
-        bh=JI8kMYP+9oIVzhBXxCV9MxFa1AGOMPsJjgD09Vpna0w=;
+        s=korg; t=1680014917;
+        bh=EydeCLB8FjyCicOm0pnbk15Kd/Sb7EVWzecQdGIiJ6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfryY2RhMDx9xoZKp/wqRPZJstbN/FZqIpvQgTzhjYQezSzox7SK46PbbHSGeUOkj
-         c0y1DNTaSBYNNjZN17WJQIWDHBn+Kguw2k+Hy72/G6qrLNxSP6DijYMLIDb1qsAizW
-         9I0UzEifdHb/3L46C+JNTAf/cy+PChxAsSwVaGrw=
+        b=AbNmh//zivBJkVP5wwtncoaJGqQJoKsHfjKcngRqbU7/hnMZ7pD+jWJYbSV3PLsVD
+         GzZ7TZ92xUwdokdbzXCyMQlst3GfjJIqhdd09SSsdLjH22rnhTkAGNLO3X1T9cpZeu
+         jzYA1umGHls2+CmucMmnaeDv8PxHwl9AM1+w20Tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Marius Cornea <mcornea@redhat.com>,
+        Stefan Assmann <sassmann@kpanic.de>,
+        Michal Kubiak <michal.kubiak@intel.com>,
+        Rafal Romanowski <rafal.romanowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 035/224] scsi: scsi_dh_alua: Fix memleak for qdata in alua_activate()
-Date:   Tue, 28 Mar 2023 16:40:31 +0200
-Message-Id: <20230328142618.797457462@linuxfoundation.org>
+Subject: [PATCH 6.2 069/240] iavf: fix hang on reboot with ice
+Date:   Tue, 28 Mar 2023 16:40:32 +0200
+Message-Id: <20230328142622.621287034@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit a13faca032acbf2699293587085293bdfaafc8ae ]
+[ Upstream commit 4e264be98b88a6d6f476c11087fe865696e8bef5 ]
 
-If alua_rtpg_queue() failed from alua_activate(), then 'qdata' is not
-freed, which will cause following memleak:
+When a system with E810 with existing VFs gets rebooted the following
+hang may be observed.
 
-unreferenced object 0xffff88810b2c6980 (size 32):
-  comm "kworker/u16:2", pid 635322, jiffies 4355801099 (age 1216426.076s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    40 39 24 c1 ff ff ff ff 00 f8 ea 0a 81 88 ff ff  @9$.............
-  backtrace:
-    [<0000000098f3a26d>] alua_activate+0xb0/0x320
-    [<000000003b529641>] scsi_dh_activate+0xb2/0x140
-    [<000000007b296db3>] activate_path_work+0xc6/0xe0 [dm_multipath]
-    [<000000007adc9ace>] process_one_work+0x3c5/0x730
-    [<00000000c457a985>] worker_thread+0x93/0x650
-    [<00000000cb80e628>] kthread+0x1ba/0x210
-    [<00000000a1e61077>] ret_from_fork+0x22/0x30
+ Pid 1 is hung in iavf_remove(), part of a network driver:
+ PID: 1        TASK: ffff965400e5a340  CPU: 24   COMMAND: "systemd-shutdow"
+  #0 [ffffaad04005fa50] __schedule at ffffffff8b3239cb
+  #1 [ffffaad04005fae8] schedule at ffffffff8b323e2d
+  #2 [ffffaad04005fb00] schedule_hrtimeout_range_clock at ffffffff8b32cebc
+  #3 [ffffaad04005fb80] usleep_range_state at ffffffff8b32c930
+  #4 [ffffaad04005fbb0] iavf_remove at ffffffffc12b9b4c [iavf]
+  #5 [ffffaad04005fbf0] pci_device_remove at ffffffff8add7513
+  #6 [ffffaad04005fc10] device_release_driver_internal at ffffffff8af08baa
+  #7 [ffffaad04005fc40] pci_stop_bus_device at ffffffff8adcc5fc
+  #8 [ffffaad04005fc60] pci_stop_and_remove_bus_device at ffffffff8adcc81e
+  #9 [ffffaad04005fc70] pci_iov_remove_virtfn at ffffffff8adf9429
+ #10 [ffffaad04005fca8] sriov_disable at ffffffff8adf98e4
+ #11 [ffffaad04005fcc8] ice_free_vfs at ffffffffc04bb2c8 [ice]
+ #12 [ffffaad04005fd10] ice_remove at ffffffffc04778fe [ice]
+ #13 [ffffaad04005fd38] ice_shutdown at ffffffffc0477946 [ice]
+ #14 [ffffaad04005fd50] pci_device_shutdown at ffffffff8add58f1
+ #15 [ffffaad04005fd70] device_shutdown at ffffffff8af05386
+ #16 [ffffaad04005fd98] kernel_restart at ffffffff8a92a870
+ #17 [ffffaad04005fda8] __do_sys_reboot at ffffffff8a92abd6
+ #18 [ffffaad04005fee0] do_syscall_64 at ffffffff8b317159
+ #19 [ffffaad04005ff08] __context_tracking_enter at ffffffff8b31b6fc
+ #20 [ffffaad04005ff18] syscall_exit_to_user_mode at ffffffff8b31b50d
+ #21 [ffffaad04005ff28] do_syscall_64 at ffffffff8b317169
+ #22 [ffffaad04005ff50] entry_SYSCALL_64_after_hwframe at ffffffff8b40009b
+     RIP: 00007f1baa5c13d7  RSP: 00007fffbcc55a98  RFLAGS: 00000202
+     RAX: ffffffffffffffda  RBX: 0000000000000000  RCX: 00007f1baa5c13d7
+     RDX: 0000000001234567  RSI: 0000000028121969  RDI: 00000000fee1dead
+     RBP: 00007fffbcc55ca0   R8: 0000000000000000   R9: 00007fffbcc54e90
+     R10: 00007fffbcc55050  R11: 0000000000000202  R12: 0000000000000005
+     R13: 0000000000000000  R14: 00007fffbcc55af0  R15: 0000000000000000
+     ORIG_RAX: 00000000000000a9  CS: 0033  SS: 002b
 
-Fix the problem by freeing 'qdata' in error path.
+During reboot all drivers PM shutdown callbacks are invoked.
+In iavf_shutdown() the adapter state is changed to __IAVF_REMOVE.
+In ice_shutdown() the call chain above is executed, which at some point
+calls iavf_remove(). However iavf_remove() expects the VF to be in one
+of the states __IAVF_RUNNING, __IAVF_DOWN or __IAVF_INIT_FAILED. If
+that's not the case it sleeps forever.
+So if iavf_shutdown() gets invoked before iavf_remove() the system will
+hang indefinitely because the adapter is already in state __IAVF_REMOVE.
 
-Fixes: 625fe857e4fa ("scsi: scsi_dh_alua: Check scsi_device_get() return value")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20230315062154.668812-1-yukuai1@huaweicloud.com
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by returning from iavf_remove() if the state is __IAVF_REMOVE,
+as we already went through iavf_shutdown().
+
+Fixes: 974578017fc1 ("iavf: Add waiting so the port is initialized in remove")
+Fixes: a8417330f8a5 ("iavf: Fix race condition between iavf_shutdown and iavf_remove")
+Reported-by: Marius Cornea <mcornea@redhat.com>
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Reviewed-by: Michal Kubiak <michal.kubiak@intel.com>
+Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index 610a51538f034..0781f991e7845 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -1117,10 +1117,12 @@ static int alua_activate(struct scsi_device *sdev,
- 	rcu_read_unlock();
- 	mutex_unlock(&h->init_mutex);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 01e73415dec5c..8bbdf66c51f6a 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -5077,6 +5077,11 @@ static void iavf_remove(struct pci_dev *pdev)
+ 			mutex_unlock(&adapter->crit_lock);
+ 			break;
+ 		}
++		/* Simply return if we already went through iavf_shutdown */
++		if (adapter->state == __IAVF_REMOVE) {
++			mutex_unlock(&adapter->crit_lock);
++			return;
++		}
  
--	if (alua_rtpg_queue(pg, sdev, qdata, true))
-+	if (alua_rtpg_queue(pg, sdev, qdata, true)) {
- 		fn = NULL;
--	else
-+	} else {
-+		kfree(qdata);
- 		err = SCSI_DH_DEV_OFFLINED;
-+	}
- 	kref_put(&pg->kref, release_port_group);
- out:
- 	if (fn)
+ 		mutex_unlock(&adapter->crit_lock);
+ 		usleep_range(500, 1000);
 -- 
 2.39.2
 
