@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A98326CCD33
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 00:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 848356CCD35
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 00:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229731AbjC1WZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 18:25:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52380 "EHLO
+        id S229741AbjC1WZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 18:25:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229722AbjC1WZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 18:25:16 -0400
+        with ESMTP id S229665AbjC1WZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 18:25:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 810DA18C;
-        Tue, 28 Mar 2023 15:25:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F8C1BD8;
+        Tue, 28 Mar 2023 15:25:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B055619AF;
-        Tue, 28 Mar 2023 22:25:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DFC7C4339C;
-        Tue, 28 Mar 2023 22:25:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00837619AF;
+        Tue, 28 Mar 2023 22:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54A57C433D2;
+        Tue, 28 Mar 2023 22:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1680042314;
-        bh=yPiR0x0kKt8CNfgnRexZ6h1PwxCNCh4HsefSzB6CNuk=;
+        s=korg; t=1680042316;
+        bh=AsoZC2mFmBqaLdeqMsy+MD53PPN2ig75TB6RX4ciBP0=;
         h=Date:To:From:Subject:From;
-        b=CdeFUnvST2zzedWbvYVbO5mofEtcNX/1+yvwljhcssTi5TKD79UZ6i9OUEcxYzwfs
-         0i8uFiHxnH9xYXibibhdkqlYro1KdVDs9uOiRgR7cUgPhSFw/pxEJvTtTgsSP2RgQg
-         SOuT8R4noHrFPRk1Ih5KI8GKUbv8at5TCtRKkOMU=
-Date:   Tue, 28 Mar 2023 15:25:13 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        sjpark@amazon.de, roman.gushchin@linux.dev, jannh@google.com,
+        b=DFnJw9fT4PaU9ufjoMx/TJjcOaHc3v2+Ch3N/q2VrSdC3r5S/6+K4CAuEFYQ1J4V7
+         IhnP8viqeDOY+ek35WjNU55az1tBm4rsFHjgNb7lzuTsiXjM45sHkGIQadkxH+lbj6
+         KqKcriKvWoTPAzomSHHkTi8+3xnuiSOLLxVCeG2U=
+Date:   Tue, 28 Mar 2023 15:25:15 -0700
+To:     mm-commits@vger.kernel.org, wangkefeng.wang@huawei.com,
+        stable@vger.kernel.org, sjpark@amazon.de, jannh@google.com,
         glider@google.com, elver@google.com, dvyukov@google.com,
         songmuchun@bytedance.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch removed from -mm tree
-Message-Id: <20230328222514.6DFC7C4339C@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] mm-kfence-fix-handling-discontiguous-page.patch removed from -mm tree
+Message-Id: <20230328222516.54A57C433D2@smtp.kernel.org>
 X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
         DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
@@ -47,98 +47,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm: kfence: fix PG_slab and memcg_data clearing
+     Subject: mm: kfence: fix handling discontiguous page
 has been removed from the -mm tree.  Its filename was
-     mm-kfence-fix-pg_slab-and-memcg_data-clearing.patch
+     mm-kfence-fix-handling-discontiguous-page.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
 From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: kfence: fix PG_slab and memcg_data clearing
-Date: Mon, 20 Mar 2023 11:00:59 +0800
+Subject: mm: kfence: fix handling discontiguous page
+Date: Thu, 23 Mar 2023 10:50:03 +0800
 
-It does not reset PG_slab and memcg_data when KFENCE fails to initialize
-kfence pool at runtime.  It is reporting a "Bad page state" message when
-kfence pool is freed to buddy.  The checking of whether it is a compound
-head page seems unnecessary since we already guarantee this when
-allocating kfence pool.   Remove the check to simplify the code.
+The struct pages could be discontiguous when the kfence pool is allocated
+via alloc_contig_pages() with CONFIG_SPARSEMEM and
+!CONFIG_SPARSEMEM_VMEMMAP.
 
-Link: https://lkml.kernel.org/r/20230320030059.20189-1-songmuchun@bytedance.com
+This may result in setting PG_slab and memcg_data to a arbitrary
+address (may be not used as a struct page), which in the worst case
+might corrupt the kernel.
+
+So the iteration should use nth_page().
+
+Link: https://lkml.kernel.org/r/20230323025003.94447-1-songmuchun@bytedance.com
 Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
 Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 Cc: Alexander Potapenko <glider@google.com>
 Cc: Dmitry Vyukov <dvyukov@google.com>
 Cc: Jann Horn <jannh@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
 Cc: SeongJae Park <sjpark@amazon.de>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/kfence/core.c |   30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ mm/kfence/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/kfence/core.c~mm-kfence-fix-pg_slab-and-memcg_data-clearing
+--- a/mm/kfence/core.c~mm-kfence-fix-handling-discontiguous-page
 +++ a/mm/kfence/core.c
-@@ -561,10 +561,6 @@ static unsigned long kfence_init_pool(vo
+@@ -556,7 +556,7 @@ static unsigned long kfence_init_pool(vo
+ 	 * enters __slab_free() slow-path.
+ 	 */
+ 	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
+-		struct slab *slab = page_slab(&pages[i]);
++		struct slab *slab = page_slab(nth_page(pages, i));
+ 
  		if (!i || (i % 2))
  			continue;
+@@ -602,7 +602,7 @@ static unsigned long kfence_init_pool(vo
  
--		/* Verify we do not have a compound head page. */
--		if (WARN_ON(compound_head(&pages[i]) != &pages[i]))
--			return addr;
--
- 		__folio_set_slab(slab_folio(slab));
- #ifdef CONFIG_MEMCG
- 		slab->memcg_data = (unsigned long)&kfence_metadata[i / 2 - 1].objcg |
-@@ -597,12 +593,26 @@ static unsigned long kfence_init_pool(vo
+ reset_slab:
+ 	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
+-		struct slab *slab = page_slab(&pages[i]);
++		struct slab *slab = page_slab(nth_page(pages, i));
  
- 		/* Protect the right redzone. */
- 		if (unlikely(!kfence_protect(addr + PAGE_SIZE)))
--			return addr;
-+			goto reset_slab;
- 
- 		addr += 2 * PAGE_SIZE;
- 	}
- 
- 	return 0;
-+
-+reset_slab:
-+	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
-+		struct slab *slab = page_slab(&pages[i]);
-+
-+		if (!i || (i % 2))
-+			continue;
-+#ifdef CONFIG_MEMCG
-+		slab->memcg_data = 0;
-+#endif
-+		__folio_clear_slab(slab_folio(slab));
-+	}
-+
-+	return addr;
- }
- 
- static bool __init kfence_init_pool_early(void)
-@@ -632,16 +642,6 @@ static bool __init kfence_init_pool_earl
- 	 * fails for the first page, and therefore expect addr==__kfence_pool in
- 	 * most failure cases.
- 	 */
--	for (char *p = (char *)addr; p < __kfence_pool + KFENCE_POOL_SIZE; p += PAGE_SIZE) {
--		struct slab *slab = virt_to_slab(p);
--
--		if (!slab)
--			continue;
--#ifdef CONFIG_MEMCG
--		slab->memcg_data = 0;
--#endif
--		__folio_clear_slab(slab_folio(slab));
--	}
- 	memblock_free_late(__pa(addr), KFENCE_POOL_SIZE - (addr - (unsigned long)__kfence_pool));
- 	__kfence_pool = NULL;
- 	return false;
+ 		if (!i || (i % 2))
+ 			continue;
 _
 
 Patches currently in -mm which might be from songmuchun@bytedance.com are
