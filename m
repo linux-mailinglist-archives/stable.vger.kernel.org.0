@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5DC76CC32C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB3896CC4CF
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233495AbjC1Ovs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
+        id S230514AbjC1PI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbjC1Ovb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF08D514
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:19 -0700 (PDT)
+        with ESMTP id S231172AbjC1PIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EC7EC73
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4808B80976
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE69C433EF;
-        Tue, 28 Mar 2023 14:51:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CA8F61856
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF3FC433EF;
+        Tue, 28 Mar 2023 15:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015076;
-        bh=wIMMwK89KStOb42+4eP014hy8v2pJD2GJYpw7okucq8=;
+        s=korg; t=1680016054;
+        bh=jo9kQ5ygQfoK0N2d3Rz4/2jYseiKz7W+XG0vfg/2K6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4DUefW8cSAy/35JLbppZXf/KL/J/hs9CLKif0qQZuMXkllHhHhgSAwkGt3kj25Ve
-         Ke0wSwh+ut0/FbQcR/tjM1pgKwlxUkdipDXjt3SAwgxUt8k+Dx/xsKbb9Gncze5Pbe
-         vnmzMO5Me2KVbKXmrur6U0o8oegze3nz7L0m3aBs=
+        b=wxx0DyRlaUHIAvcx/cluIEsymVgaMTFRLSE1Q50m0y5TlRXsDrtg+viQsc+EUntHz
+         ZiPpgNh0p7NgtKN+bYeGRHKxvTcDOc+keEnXMwJo1rqZW8wHlWC+rxPx5hTHpmjJ+l
+         nLrSPeC8nJqqE1Ta8PgM04y/7lIOKoPfwc2/Uxb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Rich Felker <dalias@libc.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 157/240] sh: sanitize the flags on sigreturn
+Subject: [PATCH 5.15 031/146] qed/qed_sriov: guard against NULL derefs from qed_iov_get_vf_info
 Date:   Tue, 28 Mar 2023 16:42:00 +0200
-Message-Id: <20230328142626.234411797@linuxfoundation.org>
+Message-Id: <20230328142604.011526807@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,56 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
+[ Upstream commit 25143b6a01d0cc5319edd3de22ffa2578b045550 ]
 
-We fetch %SR value from sigframe; it might have been modified by signal
-handler, so we can't trust it with any bits that are not modifiable in
-user mode.
+We have to make sure that the info returned by the helper is valid
+before using it.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
+
+Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
+Fixes: 733def6a04bf ("qed*: IOV link control")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/processor_32.h | 1 +
- arch/sh/kernel/signal_32.c         | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/sh/include/asm/processor_32.h b/arch/sh/include/asm/processor_32.h
-index 27aebf1e75a20..3ef7adf739c83 100644
---- a/arch/sh/include/asm/processor_32.h
-+++ b/arch/sh/include/asm/processor_32.h
-@@ -50,6 +50,7 @@
- #define SR_FD		0x00008000
- #define SR_MD		0x40000000
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+index 3eb05376e7c3e..bf0ba3855da1d 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -4378,6 +4378,9 @@ qed_iov_configure_min_tx_rate(struct qed_dev *cdev, int vfid, u32 rate)
+ 	}
  
-+#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
- /*
-  * DSP structure and data
-  */
-diff --git a/arch/sh/kernel/signal_32.c b/arch/sh/kernel/signal_32.c
-index 90f495d35db29..a6bfc6f374911 100644
---- a/arch/sh/kernel/signal_32.c
-+++ b/arch/sh/kernel/signal_32.c
-@@ -115,6 +115,7 @@ static int
- restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
- {
- 	unsigned int err = 0;
-+	unsigned int sr = regs->sr & ~SR_USER_MASK;
- 
- #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
- 			COPY(regs[1]);
-@@ -130,6 +131,8 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p
- 	COPY(sr);	COPY(pc);
- #undef COPY
- 
-+	regs->sr = (regs->sr & SR_USER_MASK) | sr;
+ 	vf = qed_iov_get_vf_info(QED_LEADING_HWFN(cdev), (u16)vfid, true);
++	if (!vf)
++		return -EINVAL;
 +
- #ifdef CONFIG_SH_FPU
- 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
- 		int owned_fp;
+ 	vport_id = vf->vport_id;
+ 
+ 	return qed_configure_vport_wfq(cdev, vport_id, rate);
+@@ -5124,7 +5127,7 @@ static void qed_iov_handle_trust_change(struct qed_hwfn *hwfn)
+ 
+ 		/* Validate that the VF has a configured vport */
+ 		vf = qed_iov_get_vf_info(hwfn, i, true);
+-		if (!vf->vport_instance)
++		if (!vf || !vf->vport_instance)
+ 			continue;
+ 
+ 		memset(&params, 0, sizeof(params));
 -- 
 2.39.2
 
