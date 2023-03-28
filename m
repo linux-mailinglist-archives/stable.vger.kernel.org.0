@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 042836CC458
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 193346CC38D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233424AbjC1PEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:04:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
+        id S233535AbjC1OzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233781AbjC1PEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482E3EC7E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:50 -0700 (PDT)
+        with ESMTP id S233519AbjC1OzA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F8DDBDB
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AC0F6181D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AD04C433EF;
-        Tue, 28 Mar 2023 15:02:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E9BB61840
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA8DC433EF;
+        Tue, 28 Mar 2023 14:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015757;
-        bh=gavlMGtxXSwrJ/ohFz/ESjITzjNT/6pLtOqjllQPSKY=;
+        s=korg; t=1680015298;
+        bh=nNNxBxk8U3XuI+6Z3YrfyQ9YMBGXdAkNlYbdEg+5uYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8P8bOm84uJl1bZwXCIoojuZL+kS1IJFoYmky7fWAlkFAdBtMV2ccuPS3cvAhFWAs
-         cLy/vhz9yYn+j6iAB64DUpRbOCq5iFk6A/K9ZXKkygHnTZoJUTuZTi4qkK5pn8GJsu
-         CrhUW4ofIqZkKIvGQWkR4LJ3U7ZqT3QUYhtV8neA=
+        b=wuxT8r0RneO1gxZb5v2qZvYW4S213fSISOkZcx5XNudOYmRJjMPNLyaFD8Fo47jJB
+         VXaFsdIDF4oC+L/XvxnsME9s5oG8A7RwUlsPZiKfZEqirvPnJhSmT23qTn57uIB9XO
+         Zq8YGdrIKwvJI1Oi6SKxJ+1fnC55W2xsLVLf6kFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 6.1 165/224] Bluetooth: Fix race condition in hci_cmd_sync_clear
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Wesley Cheng <quic_wcheng@quicinc.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 6.2 198/240] usb: dwc3: gadget: Add 1ms delay after end transfer command without IOC
 Date:   Tue, 28 Mar 2023 16:42:41 +0200
-Message-Id: <20230328142624.250251738@linuxfoundation.org>
+Message-Id: <20230328142627.918339819@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,99 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Min Li <lm0963hack@gmail.com>
+From: Wesley Cheng <quic_wcheng@quicinc.com>
 
-commit 1c66bee492a5fe00ae3fe890bb693bfc99f994c6 upstream.
+commit d8a2bb4eb75866275b5cf7de2e593ac3449643e2 upstream.
 
-There is a potential race condition in hci_cmd_sync_work and
-hci_cmd_sync_clear, and could lead to use-after-free. For instance,
-hci_cmd_sync_work is added to the 'req_workqueue' after cancel_work_sync
-The entry of 'cmd_sync_work_list' may be freed in hci_cmd_sync_clear, and
-causing kernel panic when it is used in 'hci_cmd_sync_work'.
+Previously, there was a 100uS delay inserted after issuing an end transfer
+command for specific controller revisions.  This was due to the fact that
+there was a GUCTL2 bit field which enabled synchronous completion of the
+end transfer command once the CMDACT bit was cleared in the DEPCMD
+register.  Since this bit does not exist for all controller revisions and
+the current implementation heavily relies on utizling the EndTransfer
+command completion interrupt, add the delay back in for uses where the
+interrupt on completion bit is not set, and increase the duration to 1ms
+for the controller to complete the command.
 
-Here's the call trace:
+An issue was seen where the USB request buffer was unmapped while the DWC3
+controller was still accessing the TRB.  However, it was confirmed that the
+end transfer command was successfully submitted. (no end transfer timeout)
+In situations, such as dwc3_gadget_soft_disconnect() and
+__dwc3_gadget_ep_disable(), the dwc3_remove_request() is utilized, which
+will issue the end transfer command, and follow up with
+dwc3_gadget_giveback().  At least for the USB ep disable path, it is
+required for any pending and started requests to be completed and returned
+to the function driver in the same context of the disable call.  Without
+the GUCTL2 bit, it is not ensured that the end transfer is completed before
+the buffers are unmapped.
 
-dump_stack_lvl+0x49/0x63
-print_report.cold+0x5e/0x5d3
-? hci_cmd_sync_work+0x282/0x320
-kasan_report+0xaa/0x120
-? hci_cmd_sync_work+0x282/0x320
-__asan_report_load8_noabort+0x14/0x20
-hci_cmd_sync_work+0x282/0x320
-process_one_work+0x77b/0x11c0
-? _raw_spin_lock_irq+0x8e/0xf0
-worker_thread+0x544/0x1180
-? poll_idle+0x1e0/0x1e0
-kthread+0x285/0x320
-? process_one_work+0x11c0/0x11c0
-? kthread_complete_and_exit+0x30/0x30
-ret_from_fork+0x22/0x30
-</TASK>
-
-Allocated by task 266:
-kasan_save_stack+0x26/0x50
-__kasan_kmalloc+0xae/0xe0
-kmem_cache_alloc_trace+0x191/0x350
-hci_cmd_sync_queue+0x97/0x2b0
-hci_update_passive_scan+0x176/0x1d0
-le_conn_complete_evt+0x1b5/0x1a00
-hci_le_conn_complete_evt+0x234/0x340
-hci_le_meta_evt+0x231/0x4e0
-hci_event_packet+0x4c5/0xf00
-hci_rx_work+0x37d/0x880
-process_one_work+0x77b/0x11c0
-worker_thread+0x544/0x1180
-kthread+0x285/0x320
-ret_from_fork+0x22/0x30
-
-Freed by task 269:
-kasan_save_stack+0x26/0x50
-kasan_set_track+0x25/0x40
-kasan_set_free_info+0x24/0x40
-____kasan_slab_free+0x176/0x1c0
-__kasan_slab_free+0x12/0x20
-slab_free_freelist_hook+0x95/0x1a0
-kfree+0xba/0x2f0
-hci_cmd_sync_clear+0x14c/0x210
-hci_unregister_dev+0xff/0x440
-vhci_release+0x7b/0xf0
-__fput+0x1f3/0x970
-____fput+0xe/0x20
-task_work_run+0xd4/0x160
-do_exit+0x8b0/0x22a0
-do_group_exit+0xba/0x2a0
-get_signal+0x1e4a/0x25b0
-arch_do_signal_or_restart+0x93/0x1f80
-exit_to_user_mode_prepare+0xf5/0x1a0
-syscall_exit_to_user_mode+0x26/0x50
-ret_from_fork+0x15/0x30
-
-Fixes: 6a98e3836fa2 ("Bluetooth: Add helper for serialized HCI command execution")
-Cc: stable@vger.kernel.org
-Signed-off-by: Min Li <lm0963hack@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: cf2f8b63f7f1 ("usb: dwc3: gadget: Remove END_TRANSFER delay")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/20230306200557.29387-1-quic_wcheng@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_sync.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc3/gadget.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -643,6 +643,7 @@ void hci_cmd_sync_clear(struct hci_dev *
- 	cancel_work_sync(&hdev->cmd_sync_work);
- 	cancel_work_sync(&hdev->reenable_adv_work);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1699,6 +1699,7 @@ static int __dwc3_gadget_get_frame(struc
+  */
+ static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool interrupt)
+ {
++	struct dwc3 *dwc = dep->dwc;
+ 	struct dwc3_gadget_ep_cmd_params params;
+ 	u32 cmd;
+ 	int ret;
+@@ -1722,10 +1723,13 @@ static int __dwc3_stop_active_transfer(s
+ 	WARN_ON_ONCE(ret);
+ 	dep->resource_index = 0;
  
-+	mutex_lock(&hdev->cmd_sync_work_lock);
- 	list_for_each_entry_safe(entry, tmp, &hdev->cmd_sync_work_list, list) {
- 		if (entry->destroy)
- 			entry->destroy(hdev, entry->data, -ECANCELED);
-@@ -650,6 +651,7 @@ void hci_cmd_sync_clear(struct hci_dev *
- 		list_del(&entry->list);
- 		kfree(entry);
- 	}
-+	mutex_unlock(&hdev->cmd_sync_work_lock);
- }
+-	if (!interrupt)
++	if (!interrupt) {
++		if (!DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC3, 310A))
++			mdelay(1);
+ 		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+-	else if (!ret)
++	} else if (!ret) {
+ 		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
++	}
  
- void __hci_cmd_sync_cancel(struct hci_dev *hdev, int err)
+ 	dep->flags &= ~DWC3_EP_DELAY_STOP;
+ 	return ret;
+@@ -3774,7 +3778,11 @@ void dwc3_stop_active_transfer(struct dw
+ 	 * enabled, the EndTransfer command will have completed upon
+ 	 * returning from this function.
+ 	 *
+-	 * This mode is NOT available on the DWC_usb31 IP.
++	 * This mode is NOT available on the DWC_usb31 IP.  In this
++	 * case, if the IOC bit is not set, then delay by 1ms
++	 * after issuing the EndTransfer command.  This allows for the
++	 * controller to handle the command completely before DWC3
++	 * remove requests attempts to unmap USB request buffers.
+ 	 */
+ 
+ 	__dwc3_stop_active_transfer(dep, force, interrupt);
 
 
