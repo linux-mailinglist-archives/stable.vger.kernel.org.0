@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9E66CC36A
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B7906CC493
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233284AbjC1Oxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:53:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55072 "EHLO
+        id S233796AbjC1PGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233325AbjC1Oxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627F1D307
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:40 -0700 (PDT)
+        with ESMTP id S233854AbjC1PGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C826E3B1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4A8B61840
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41E7C4339B;
-        Tue, 28 Mar 2023 14:53:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9217B81D67
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15F96C433D2;
+        Tue, 28 Mar 2023 15:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015219;
-        bh=bZs2l0LpMuRs8IYfsVN2edPTMCbeJoRtCneFFHKZ4TA=;
+        s=korg; t=1680015798;
+        bh=d/9EOLIiiI/GnsauOvtlKg9EtD0gkyqczBBR/U0lNKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrC7brVTsVEXbLEwHS1372Xaxz2fR8dfDOsBf3QTttVQz9cQjeO8kC/lXDVc5+R40
-         Aqru1f9DtKLVyj0qlLUjaT1edJCnNeGdJn8vP9RJC4nfzaOBNsf27w8EqNMB8n6jRb
-         ThOgjFeE/bHo27QMsgsHthlwY6YZaW1TQjTsV1Wk=
+        b=cVRE3yOpLUk/SiOMioj8F+MQKuw+EOmIEk13uniRCs0LJtZ+a7G2Iqdyp99Z3CZ1O
+         6EcraXdPA4BKQP0SrZTwPm4T80fkGQHgmq1Co/0ciNcqIErYh8NlHAR5eOUParKdP5
+         PBgDaGF08Y+4sO71jqKLjyqtU5KoAmmCl8bBbJOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miao Lihua <441884205@qq.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 210/240] ksmbd: set FILE_NAMED_STREAMS attribute in FS_ATTRIBUTE_INFORMATION
-Date:   Tue, 28 Mar 2023 16:42:53 +0200
-Message-Id: <20230328142628.434248285@linuxfoundation.org>
+        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 6.1 178/224] usb: cdnsp: changes PCI Device ID to fix conflict with CNDS3 driver
+Date:   Tue, 28 Mar 2023 16:42:54 +0200
+Message-Id: <20230328142624.820341717@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +51,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 728f14c72b71a19623df329c1c7c9d1452e56f1e upstream.
+commit 96b96b2a567fb34dd41c87e6cf01f6902ce8cae4 upstream.
 
-If vfs objects = streams_xattr in ksmbd.conf FILE_NAMED_STREAMS should
-be set to Attributes in FS_ATTRIBUTE_INFORMATION. MacOS client show
-"Format: SMB (Unknown)" on faked NTFS and no streams support.
+Patch changes CDNS_DEVICE_ID in USBSSP PCI Glue driver to remove
+the conflict with Cadence USBSS driver.
 
-Cc: stable@vger.kernel.org
-Reported-by: Miao Lihua <441884205@qq.com>
-Tested-by: Miao Lihua <441884205@qq.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+cc: <stable@vger.kernel.org>
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20230309063048.299378-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2pdu.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/cdns3/cdnsp-pci.c |   27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -4956,6 +4956,10 @@ static int smb2_get_info_filesystem(stru
+--- a/drivers/usb/cdns3/cdnsp-pci.c
++++ b/drivers/usb/cdns3/cdnsp-pci.c
+@@ -29,30 +29,23 @@
+ #define PLAT_DRIVER_NAME	"cdns-usbssp"
  
- 		info->Attributes |= cpu_to_le32(server_conf.share_fake_fscaps);
+ #define CDNS_VENDOR_ID		0x17cd
+-#define CDNS_DEVICE_ID		0x0100
++#define CDNS_DEVICE_ID		0x0200
++#define CDNS_DRD_ID		0x0100
+ #define CDNS_DRD_IF		(PCI_CLASS_SERIAL_USB << 8 | 0x80)
  
-+		if (test_share_config_flag(work->tcon->share_conf,
-+		    KSMBD_SHARE_FLAG_STREAMS))
-+			info->Attributes |= cpu_to_le32(FILE_NAMED_STREAMS);
-+
- 		info->MaxPathNameComponentLength = cpu_to_le32(stfs.f_namelen);
- 		len = smbConvertToUTF16((__le16 *)info->FileSystemName,
- 					"NTFS", PATH_MAX, conn->local_nls, 0);
+ static struct pci_dev *cdnsp_get_second_fun(struct pci_dev *pdev)
+ {
+-	struct pci_dev *func;
+-
+ 	/*
+ 	 * Gets the second function.
+-	 * It's little tricky, but this platform has two function.
+-	 * The fist keeps resources for Host/Device while the second
+-	 * keeps resources for DRD/OTG.
++	 * Platform has two function. The fist keeps resources for
++	 * Host/Device while the secon keeps resources for DRD/OTG.
+ 	 */
+-	func = pci_get_device(pdev->vendor, pdev->device, NULL);
+-	if (!func)
+-		return NULL;
++	if (pdev->device == CDNS_DEVICE_ID)
++		return  pci_get_device(pdev->vendor, CDNS_DRD_ID, NULL);
++	else if (pdev->device == CDNS_DRD_ID)
++		return pci_get_device(pdev->vendor, CDNS_DEVICE_ID, NULL);
+ 
+-	if (func->devfn == pdev->devfn) {
+-		func = pci_get_device(pdev->vendor, pdev->device, func);
+-		if (!func)
+-			return NULL;
+-	}
+-
+-	return func;
++	return NULL;
+ }
+ 
+ static int cdnsp_pci_probe(struct pci_dev *pdev,
+@@ -232,6 +225,8 @@ static const struct pci_device_id cdnsp_
+ 	  PCI_CLASS_SERIAL_USB_DEVICE, PCI_ANY_ID },
+ 	{ PCI_VENDOR_ID_CDNS, CDNS_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID,
+ 	  CDNS_DRD_IF, PCI_ANY_ID },
++	{ PCI_VENDOR_ID_CDNS, CDNS_DRD_ID, PCI_ANY_ID, PCI_ANY_ID,
++	  CDNS_DRD_IF, PCI_ANY_ID },
+ 	{ 0, }
+ };
+ 
 
 
