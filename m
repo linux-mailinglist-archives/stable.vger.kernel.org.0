@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 662426CC277
+	by mail.lfdr.de (Postfix) with ESMTP id 19FA66CC276
 	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233214AbjC1Opq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35892 "EHLO
+        id S233205AbjC1Opp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233116AbjC1Opb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9892D505
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:13 -0700 (PDT)
+        with ESMTP id S233204AbjC1Opc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3FD5D530
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 604A4B81D70
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1358C433D2;
-        Tue, 28 Mar 2023 14:45:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EB0361828
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B13C433A1;
+        Tue, 28 Mar 2023 14:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014711;
-        bh=2YS2VZ0iDyNEdZxZPrWmrKjgCcr0xvAgxItJ7ls9vIg=;
+        s=korg; t=1680014714;
+        bh=5VAYkIWQUvFmKQbHMxIujpX02sDaOlsiaLA2e29D1K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKIrU4EPdlgv5bRnIYW2q4lLDdlTgiBaOaJPrBM0bRSIl79D8K16Brktl7EViPTR4
-         QMcgIvjqVwUuLeZyTu2MW4tYwGt4Kd+WCKrf/ktewulYvLxkeWdtJrTKFCYSj7Grt/
-         FpI2pHXfB445UQDlcSrLmzFsxQ3S72wrjsusltgY=
+        b=ZSKwSldNWJtrvX+FNZ1Ggbot/LY0GJzRFbSDTZa1u0yLZt4Npu48gEa4+k7BwD+LN
+         TXLtNC/iRJxzZk0ig7AbP+LPWpFzHWMLbVkGIbabBBNXeP2yKFDmZ3OceVujue0hbL
+         kz/WhE3Ivg73uWTnuztc7f51T2yDmV3kuQO4gkj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
+        patches@lists.linux.dev, Adam Ford <aford173@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Marek Vasut <marex@denx.de>,
+        Marco Felsch <m.felsch@pengutronix.de>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 024/240] ARM: dts: imx6sl: tolino-shine2hd: fix usbotg1 pinctrl
-Date:   Tue, 28 Mar 2023 16:39:47 +0200
-Message-Id: <20230328142620.656066749@linuxfoundation.org>
+Subject: [PATCH 6.2 025/240] arm64: dts: imx8mn: specify #sound-dai-cells for SAI nodes
+Date:   Tue, 28 Mar 2023 16:39:48 +0200
+Message-Id: <20230328142620.691342916@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -53,32 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 1cd489e1ada1cffa56bd06fd4609f5a60a985d43 ]
+[ Upstream commit 62fb54148cd6eb456ff031be8fb447c98cf0bd9b ]
 
-usb@2184000: 'pinctrl-0' is a dependency of 'pinctrl-names'
+Add #sound-dai-cells properties to SAI nodes.
 
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Fixes: 9c7016f1ca6d ("ARM: dts: imx: add devicetree for Tolino Shine 2 HD")
+Reviewed-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Fixes: 9e9860069725 ("arm64: dts: imx8mn: Add SAI nodes")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mn.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts b/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts
-index da1399057634a..815119c12bd48 100644
---- a/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts
-+++ b/arch/arm/boot/dts/imx6sl-tolino-shine2hd.dts
-@@ -625,6 +625,7 @@ &usdhc3 {
- 
- &usbotg1 {
- 	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_usbotg1>;
- 	disable-over-current;
- 	srp-disable;
- 	hnp-disable;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mn.dtsi b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
+index 7601a031f85a0..b3120b49bd712 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mn.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
+@@ -296,6 +296,7 @@ spba2: spba-bus@30000000 {
+ 				sai2: sai@30020000 {
+ 					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
+ 					reg = <0x30020000 0x10000>;
++					#sound-dai-cells = <0>;
+ 					interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clk IMX8MN_CLK_SAI2_IPG>,
+ 						<&clk IMX8MN_CLK_DUMMY>,
+@@ -310,6 +311,7 @@ sai2: sai@30020000 {
+ 				sai3: sai@30030000 {
+ 					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
+ 					reg = <0x30030000 0x10000>;
++					#sound-dai-cells = <0>;
+ 					interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clk IMX8MN_CLK_SAI3_IPG>,
+ 						 <&clk IMX8MN_CLK_DUMMY>,
+@@ -324,6 +326,7 @@ sai3: sai@30030000 {
+ 				sai5: sai@30050000 {
+ 					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
+ 					reg = <0x30050000 0x10000>;
++					#sound-dai-cells = <0>;
+ 					interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clk IMX8MN_CLK_SAI5_IPG>,
+ 						 <&clk IMX8MN_CLK_DUMMY>,
+@@ -340,6 +343,7 @@ sai5: sai@30050000 {
+ 				sai6: sai@30060000 {
+ 					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
+ 					reg = <0x30060000  0x10000>;
++					#sound-dai-cells = <0>;
+ 					interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clk IMX8MN_CLK_SAI6_IPG>,
+ 						 <&clk IMX8MN_CLK_DUMMY>,
+@@ -397,6 +401,7 @@ spdif1: spdif@30090000 {
+ 				sai7: sai@300b0000 {
+ 					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
+ 					reg = <0x300b0000 0x10000>;
++					#sound-dai-cells = <0>;
+ 					interrupts = <GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clk IMX8MN_CLK_SAI7_IPG>,
+ 						 <&clk IMX8MN_CLK_DUMMY>,
 -- 
 2.39.2
 
