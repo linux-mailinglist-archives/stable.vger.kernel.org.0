@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D89B6CC411
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F96C6CC4F8
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233698AbjC1O7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:59:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
+        id S229848AbjC1PLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:11:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233700AbjC1O7g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:36 -0400
+        with ESMTP id S231536AbjC1PK4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88CEEB50
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59C6E3BE
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:10:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 889FAB81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C929EC433EF;
-        Tue, 28 Mar 2023 14:59:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FD7CB81D89
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B93CC433D2;
+        Tue, 28 Mar 2023 15:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015566;
-        bh=p41CkkPmZW2j4bKb9Xnxz45L+bjCf0WowwuqH4CMj4c=;
+        s=korg; t=1680016002;
+        bh=uTkH6Wq9aoPkG777WnB+l5KX57dNAwOM//6bcukBN/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u36B/p0TDZ61XouZiwy0hRwlYG7XEvRDYQkNIlJEQf3ZHmDqQIqotmqt+2gUJYZBr
-         FV0CV4kHmSwxnmZBHqpCGQibFQCNRKx1/4nhUjZmabcECqF17zn/kxVXBsUtGuihVd
-         cnsM53pNYfmYTwV81z3z1O601e+GUEXsm0nq8pLQ=
+        b=Xq2iStdEee380VGaNcb1eUeBbXD3VHeEp5BZ580nl91GOCrenBnLbMIN0cVm1HJRr
+         yQzIQG/q3DJElWlqlwf5Ais0ZBY34owX9xtib30aYf4AWv0pv8r5LUcYNMs9RbSgJQ
+         g3sHtfTohUDrHy+cS5xN4ZAYkJPXfYxb4+yY2cuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sungwoo Kim <iam@sung-woo.kim>,
-        Simon Horman <simon.horman@corigine.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Song Liu <song@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 096/224] Bluetooth: HCI: Fix global-out-of-bounds
+Subject: [PATCH 5.15 003/146] perf: fix perf_event_context->time
 Date:   Tue, 28 Mar 2023 16:41:32 +0200
-Message-Id: <20230328142621.223518457@linuxfoundation.org>
+Message-Id: <20230328142602.810101611@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,121 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungwoo Kim <iam@sung-woo.kim>
+From: Song Liu <song@kernel.org>
 
-[ Upstream commit bce56405201111807cc8e4f47c6de3e10b17c1ac ]
+[ Upstream commit baf1b12a67f5b24f395baca03e442ce27cab0c18 ]
 
-To loop a variable-length array, hci_init_stage_sync(stage) considers
-that stage[i] is valid as long as stage[i-1].func is valid.
-Thus, the last element of stage[].func should be intentionally invalid
-as hci_init0[], le_init2[], and others did.
-However, amp_init1[] and amp_init2[] have no invalid element, letting
-hci_init_stage_sync() keep accessing amp_init1[] over its valid range.
-This patch fixes this by adding {} in the last of amp_init1[] and
-amp_init2[].
+Time readers rely on perf_event_context->[time|timestamp|timeoffset] to get
+accurate time_enabled and time_running for an event. The difference between
+ctx->timestamp and ctx->time is the among of time when the context is not
+enabled. __update_context_time(ctx, false) is used to increase timestamp,
+but not time. Therefore, it should only be called in ctx_sched_in() when
+EVENT_TIME was not enabled.
 
-==================================================================
-BUG: KASAN: global-out-of-bounds in hci_dev_open_sync (
-/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-/v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-/v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-/v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-/v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-Read of size 8 at addr ffffffffaed1ab70 by task kworker/u5:0/1032
-CPU: 0 PID: 1032 Comm: kworker/u5:0 Not tainted 6.2.0 #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04
-Workqueue: hci1 hci_power_on
-Call Trace:
- <TASK>
-dump_stack_lvl (/v6.2-bzimage/lib/dump_stack.c:107 (discriminator 1))
-print_report (/v6.2-bzimage/mm/kasan/report.c:307
-  /v6.2-bzimage/mm/kasan/report.c:417)
-? hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-kasan_report (/v6.2-bzimage/mm/kasan/report.c:184
-  /v6.2-bzimage/mm/kasan/report.c:519)
-? hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-? __pfx_hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:4635)
-? mutex_lock (/v6.2-bzimage/./arch/x86/include/asm/atomic64_64.h:190
-  /v6.2-bzimage/./include/linux/atomic/atomic-long.h:443
-  /v6.2-bzimage/./include/linux/atomic/atomic-instrumented.h:1781
-  /v6.2-bzimage/kernel/locking/mutex.c:171
-  /v6.2-bzimage/kernel/locking/mutex.c:285)
-? __pfx_mutex_lock (/v6.2-bzimage/kernel/locking/mutex.c:282)
-hci_power_on (/v6.2-bzimage/net/bluetooth/hci_core.c:485
-  /v6.2-bzimage/net/bluetooth/hci_core.c:984)
-? __pfx_hci_power_on (/v6.2-bzimage/net/bluetooth/hci_core.c:969)
-? read_word_at_a_time (/v6.2-bzimage/./include/asm-generic/rwonce.h:85)
-? strscpy (/v6.2-bzimage/./arch/x86/include/asm/word-at-a-time.h:62
-  /v6.2-bzimage/lib/string.c:161)
-process_one_work (/v6.2-bzimage/kernel/workqueue.c:2294)
-worker_thread (/v6.2-bzimage/./include/linux/list.h:292
-  /v6.2-bzimage/kernel/workqueue.c:2437)
-? __pfx_worker_thread (/v6.2-bzimage/kernel/workqueue.c:2379)
-kthread (/v6.2-bzimage/kernel/kthread.c:376)
-? __pfx_kthread (/v6.2-bzimage/kernel/kthread.c:331)
-ret_from_fork (/v6.2-bzimage/arch/x86/entry/entry_64.S:314)
- </TASK>
-The buggy address belongs to the variable:
-amp_init1+0x30/0x60
-The buggy address belongs to the physical page:
-page:000000003a157ec6 refcount:1 mapcount:0 mapping:0000000000000000 ia
-flags: 0x200000000001000(reserved|node=0|zone=2)
-raw: 0200000000001000 ffffea0005054688 ffffea0005054688 000000000000000
-raw: 0000000000000000 0000000000000000 00000001ffffffff 000000000000000
-page dumped because: kasan: bad access detected
-Memory state around the buggy address:
- ffffffffaed1aa00: f9 f9 f9 f9 00 00 00 00 f9 f9 f9 f9 00 00 00 00
- ffffffffaed1aa80: 00 00 00 00 f9 f9 f9 f9 00 00 00 00 00 00 00 00
->ffffffffaed1ab00: 00 f9 f9 f9 f9 f9 f9 f9 00 00 00 00 00 00 f9 f9
-                                                             ^
- ffffffffaed1ab80: f9 f9 f9 f9 00 00 00 00 f9 f9 f9 f9 00 00 00 f9
- ffffffffaed1ac00: f9 f9 f9 f9 00 06 f9 f9 f9 f9 f9 f9 00 00 02 f9
-
-This bug is found by FuzzBT, a modified version of Syzkaller.
-Other contributors for this bug are Ruoyu Wu and Peng Hui.
-
-Fixes: d0b137062b2d ("Bluetooth: hci_sync: Rework init stages")
-Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 09f5e7dc7ad7 ("perf: Fix perf_event_read_local() time")
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/r/20230313171608.298734-1-song@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/events/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 13ec3c86a0dcf..f886c1d05c882 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -3340,6 +3340,7 @@ static const struct hci_init_stage amp_init1[] = {
- 	HCI_INIT(hci_read_flow_control_mode_sync),
- 	/* HCI_OP_READ_LOCATION_DATA */
- 	HCI_INIT(hci_read_location_data_sync),
-+	{}
- };
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 3a17a68cf41ad..2cdee62c3de73 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3909,7 +3909,7 @@ ctx_sched_in(struct perf_event_context *ctx,
+ 	if (likely(!ctx->nr_events))
+ 		return;
  
- static int hci_init1_sync(struct hci_dev *hdev)
-@@ -3374,6 +3375,7 @@ static int hci_init1_sync(struct hci_dev *hdev)
- static const struct hci_init_stage amp_init2[] = {
- 	/* HCI_OP_READ_LOCAL_FEATURES */
- 	HCI_INIT(hci_read_local_features_sync),
-+	{}
- };
- 
- /* Read Buffer Size (ACL mtu, max pkt, etc.) */
+-	if (is_active ^ EVENT_TIME) {
++	if (!(is_active & EVENT_TIME)) {
+ 		/* start ctx time */
+ 		__update_context_time(ctx, false);
+ 		perf_cgroup_set_timestamp(task, ctx);
 -- 
 2.39.2
 
