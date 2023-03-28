@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5A96CC30E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DDB76CC3F8
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbjC1OvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41896 "EHLO
+        id S233690AbjC1O6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233259AbjC1Oup (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1570D50F
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:19 -0700 (PDT)
+        with ESMTP id S233699AbjC1O6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07145E079
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B41B61804
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E09CC433EF;
-        Tue, 28 Mar 2023 14:50:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D8D6183C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D445C433D2;
+        Tue, 28 Mar 2023 14:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015018;
-        bh=RI4GlIfAtCAnbmwOppmpoIATHHbfzYFRsJpfjuGTw4U=;
+        s=korg; t=1680015506;
+        bh=6ZIG/AaYFRe4Ziajz/NcQxFcvyNcXM3LuH1cO7y+XfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z45s/qZWuAaUzJK2zTSwrhtL25hGQYBHPtE+52vTqZxkyUQWxc+cuu+7S/6CMLKIg
-         /Oc0cuE2shKsFF5cRUzzU1LmlPHz8KH8T1+vIKw2RA3sBJsmPvWSeLyLzeOcgzHm7X
-         QlTxhFWjGxXWjDNpSzJOQk9wWbesVuSm/RLxI/1s=
+        b=eRcAmCxfZayNdD0vlYwW5kFxGEl/M4zS52xE0gznb+ezctqBEHMwhfHopQJ8mDHtU
+         LmyTZ9LCeYlx2QuUVoFg4cD++22ST9LkXBjk0zCc4vsU/zUubrowV3acd63rODlLE+
+         A7IV+7rIyDT4Zo0nFOLGo8+wH4QvnqB+vPcnxNCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sungwoo Kim <iam@sung-woo.kim>,
-        Simon Horman <simon.horman@corigine.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 106/240] Bluetooth: HCI: Fix global-out-of-bounds
+Subject: [PATCH 6.1 073/224] net/sonic: use dma_mapping_error() for error check
 Date:   Tue, 28 Mar 2023 16:41:09 +0200
-Message-Id: <20230328142624.186365119@linuxfoundation.org>
+Message-Id: <20230328142620.395432622@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,121 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungwoo Kim <iam@sung-woo.kim>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit bce56405201111807cc8e4f47c6de3e10b17c1ac ]
+[ Upstream commit 4107b8746d93ace135b8c4da4f19bbae81db785f ]
 
-To loop a variable-length array, hci_init_stage_sync(stage) considers
-that stage[i] is valid as long as stage[i-1].func is valid.
-Thus, the last element of stage[].func should be intentionally invalid
-as hci_init0[], le_init2[], and others did.
-However, amp_init1[] and amp_init2[] have no invalid element, letting
-hci_init_stage_sync() keep accessing amp_init1[] over its valid range.
-This patch fixes this by adding {} in the last of amp_init1[] and
-amp_init2[].
+The DMA address returned by dma_map_single() should be checked with
+dma_mapping_error(). Fix it accordingly.
 
-==================================================================
-BUG: KASAN: global-out-of-bounds in hci_dev_open_sync (
-/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-/v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-/v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-/v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-/v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-Read of size 8 at addr ffffffffaed1ab70 by task kworker/u5:0/1032
-CPU: 0 PID: 1032 Comm: kworker/u5:0 Not tainted 6.2.0 #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04
-Workqueue: hci1 hci_power_on
-Call Trace:
- <TASK>
-dump_stack_lvl (/v6.2-bzimage/lib/dump_stack.c:107 (discriminator 1))
-print_report (/v6.2-bzimage/mm/kasan/report.c:307
-  /v6.2-bzimage/mm/kasan/report.c:417)
-? hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-kasan_report (/v6.2-bzimage/mm/kasan/report.c:184
-  /v6.2-bzimage/mm/kasan/report.c:519)
-? hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:3154
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:3343
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4418
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4609
-  /v6.2-bzimage/net/bluetooth/hci_sync.c:4689)
-? __pfx_hci_dev_open_sync (/v6.2-bzimage/net/bluetooth/hci_sync.c:4635)
-? mutex_lock (/v6.2-bzimage/./arch/x86/include/asm/atomic64_64.h:190
-  /v6.2-bzimage/./include/linux/atomic/atomic-long.h:443
-  /v6.2-bzimage/./include/linux/atomic/atomic-instrumented.h:1781
-  /v6.2-bzimage/kernel/locking/mutex.c:171
-  /v6.2-bzimage/kernel/locking/mutex.c:285)
-? __pfx_mutex_lock (/v6.2-bzimage/kernel/locking/mutex.c:282)
-hci_power_on (/v6.2-bzimage/net/bluetooth/hci_core.c:485
-  /v6.2-bzimage/net/bluetooth/hci_core.c:984)
-? __pfx_hci_power_on (/v6.2-bzimage/net/bluetooth/hci_core.c:969)
-? read_word_at_a_time (/v6.2-bzimage/./include/asm-generic/rwonce.h:85)
-? strscpy (/v6.2-bzimage/./arch/x86/include/asm/word-at-a-time.h:62
-  /v6.2-bzimage/lib/string.c:161)
-process_one_work (/v6.2-bzimage/kernel/workqueue.c:2294)
-worker_thread (/v6.2-bzimage/./include/linux/list.h:292
-  /v6.2-bzimage/kernel/workqueue.c:2437)
-? __pfx_worker_thread (/v6.2-bzimage/kernel/workqueue.c:2379)
-kthread (/v6.2-bzimage/kernel/kthread.c:376)
-? __pfx_kthread (/v6.2-bzimage/kernel/kthread.c:331)
-ret_from_fork (/v6.2-bzimage/arch/x86/entry/entry_64.S:314)
- </TASK>
-The buggy address belongs to the variable:
-amp_init1+0x30/0x60
-The buggy address belongs to the physical page:
-page:000000003a157ec6 refcount:1 mapcount:0 mapping:0000000000000000 ia
-flags: 0x200000000001000(reserved|node=0|zone=2)
-raw: 0200000000001000 ffffea0005054688 ffffea0005054688 000000000000000
-raw: 0000000000000000 0000000000000000 00000001ffffffff 000000000000000
-page dumped because: kasan: bad access detected
-Memory state around the buggy address:
- ffffffffaed1aa00: f9 f9 f9 f9 00 00 00 00 f9 f9 f9 f9 00 00 00 00
- ffffffffaed1aa80: 00 00 00 00 f9 f9 f9 f9 00 00 00 00 00 00 00 00
->ffffffffaed1ab00: 00 f9 f9 f9 f9 f9 f9 f9 00 00 00 00 00 00 f9 f9
-                                                             ^
- ffffffffaed1ab80: f9 f9 f9 f9 00 00 00 00 f9 f9 f9 f9 00 00 00 f9
- ffffffffaed1ac00: f9 f9 f9 f9 00 06 f9 f9 f9 f9 f9 f9 00 00 02 f9
-
-This bug is found by FuzzBT, a modified version of Syzkaller.
-Other contributors for this bug are Ruoyu Wu and Peng Hui.
-
-Fixes: d0b137062b2d ("Bluetooth: hci_sync: Rework init stages")
-Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@linux-m68k.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/6645a4b5c1e364312103f48b7b36783b94e197a2.1679370343.git.fthain@linux-m68k.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/natsemi/sonic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 7e152e912e8c9..9550487fd70f5 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -3358,6 +3358,7 @@ static const struct hci_init_stage amp_init1[] = {
- 	HCI_INIT(hci_read_flow_control_mode_sync),
- 	/* HCI_OP_READ_LOCATION_DATA */
- 	HCI_INIT(hci_read_location_data_sync),
-+	{}
- };
+diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
+index d17d1b4f2585f..825356ee3492e 100644
+--- a/drivers/net/ethernet/natsemi/sonic.c
++++ b/drivers/net/ethernet/natsemi/sonic.c
+@@ -292,7 +292,7 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
+ 	 */
  
- static int hci_init1_sync(struct hci_dev *hdev)
-@@ -3392,6 +3393,7 @@ static int hci_init1_sync(struct hci_dev *hdev)
- static const struct hci_init_stage amp_init2[] = {
- 	/* HCI_OP_READ_LOCAL_FEATURES */
- 	HCI_INIT(hci_read_local_features_sync),
-+	{}
- };
+ 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
+-	if (!laddr) {
++	if (dma_mapping_error(lp->device, laddr)) {
+ 		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
+ 		dev_kfree_skb_any(skb);
+ 		return NETDEV_TX_OK;
+@@ -509,7 +509,7 @@ static bool sonic_alloc_rb(struct net_device *dev, struct sonic_local *lp,
  
- /* Read Buffer Size (ACL mtu, max pkt, etc.) */
+ 	*new_addr = dma_map_single(lp->device, skb_put(*new_skb, SONIC_RBSIZE),
+ 				   SONIC_RBSIZE, DMA_FROM_DEVICE);
+-	if (!*new_addr) {
++	if (dma_mapping_error(lp->device, *new_addr)) {
+ 		dev_kfree_skb(*new_skb);
+ 		*new_skb = NULL;
+ 		return false;
 -- 
 2.39.2
 
