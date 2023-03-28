@@ -2,99 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9296A6CBE56
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C91A6CBE7C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232840AbjC1MCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:02:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55276 "EHLO
+        id S232443AbjC1MFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232904AbjC1MCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:02:11 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFF87EE5
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:02:06 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id er13so7636818edb.9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:02:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=grsecurity.net; s=grsec; t=1680004925;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=pS4Fobk4rbnvFOqUGO4sloBO/Pdy7bHW5mqwk3UMU+E=;
-        b=lIAozFQlh4U4yuo+XC8enmoEAniv0i3PChrRB7EQWmpjYohHBvaWzUosjt8RnQvQvD
-         c1DevfhQXfW4lev6+SKhTHFWZK+4nej8ZJ2bLbm63Mgd4OAQYRVnqVOSSxsdMjIajJCc
-         6kRZw8T52/KZvNpwMo3Ww1RbblK5j3trcjRTYDfH2oiSDAZc9fY/vYYfikHAVA76NJJ1
-         uU1tEJLXkVTc23OK5SU+UMKlEy+kTYyQuP+cPgMStK2QixtHqsC7RdIbEvjgnHFu6oTz
-         zfS7IBos2KU8hVQG7cxeDhW/hFD7AE8lBTe22ZJgxTM6AWAgMgLjxVdkx3ySw8Cp6ZB7
-         xhKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680004925;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pS4Fobk4rbnvFOqUGO4sloBO/Pdy7bHW5mqwk3UMU+E=;
-        b=fwRvHa3Ys+KhxlW6TT3bYs2ZTCQJowTQmxnWllGUTFVZHgszlOhHzrAKBHwDZ2MEod
-         v7brWBjuNsKM39RVpkxKYkCyVq33krKkPUTKNfTS4fzb7ns+M8UlwcOAR/3zuIZRCIDP
-         66NZegOV4kMbCNTvXWMSFCVdRzhyCEw0Ah7fva1CH8IyVVfVqULq630wZqmrtOSdgzlS
-         rjQU6/m9rSjCyis1ys9wRpuw5mjYEqjqdJDXxijzohXSH/PZ3FqAqfsPO5bBSpE5sgEL
-         +MmBEo0kSN2es7PQgpAXCIwgB/CvVCzUYTRUAYuTWXcwY7//b7mCpNjsR0zvk3CvnYVk
-         1oQg==
-X-Gm-Message-State: AAQBX9dJ6NEKSvKFdE8mPawdBgEc4AZFE6f9xe5WwzX6QpH1beMjgs+D
-        2QWVWXSVSt4u3N049ZQVJu9Nh6vtj6t+hd+egtM=
-X-Google-Smtp-Source: AKy350al2o/SOWe50tAeCWNYpHoai78MclyPykTYMAGBH7mjvsG8K7rVa/8wtKR5EV8DAZsw74P7Fg==
-X-Received: by 2002:a05:6402:1a48:b0:501:d3a1:9a4a with SMTP id bf8-20020a0564021a4800b00501d3a19a4amr15606297edb.19.1680004924925;
-        Tue, 28 Mar 2023 05:02:04 -0700 (PDT)
-Received: from ?IPV6:2003:f6:af12:cb00:3146:384f:5efc:fd5d? (p200300f6af12cb003146384f5efcfd5d.dip0.t-ipconnect.de. [2003:f6:af12:cb00:3146:384f:5efc:fd5d])
-        by smtp.gmail.com with ESMTPSA id x11-20020a1709064a8b00b009342fe44911sm12238923eju.123.2023.03.28.05.02.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Mar 2023 05:02:04 -0700 (PDT)
-Message-ID: <c359c777-c3af-b4a6-791d-d51916160bf5@grsecurity.net>
-Date:   Tue, 28 Mar 2023 14:02:03 +0200
+        with ESMTP id S230526AbjC1MFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:05:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0997B86B9;
+        Tue, 28 Mar 2023 05:04:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E319616E9;
+        Tue, 28 Mar 2023 12:04:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35557C433EF;
+        Tue, 28 Mar 2023 12:04:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680005088;
+        bh=QPl8Cb9bKZSsJRqleYqzItXhifD9N0gM81emEwdCt+k=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=PUNcXkN2mrIZ5D2bV+M6jxZPPKO4uR7TgSQfdaKj3kh7P0xO6h3z5nmWPe3B2nP1S
+         hxDGT2bv+c40rFJItA8277pubTZf9o+W9uzSivCiu1KSFs5GAp7mNZJNwS66By2gaV
+         53T+fUVxwsP+K8V3gE47O8Hnv+U7tCaWg2yeQV7jBq6bFEhVP6A12Ue42tIKyIGGN1
+         GL04zhY7E3WVZIJ6jl6Q7xNWM0ZAaKz35FANYgTM8GscfLYPQsim3fPJXLHnS6lsSP
+         PeQytv47cQ88dKHS6RJJPYqsCYNUKbd272xZt4SSnYktP9w4fIG+h+b9AkOGhin3bA
+         3oQ2hFOweaOYw==
+Date:   Tue, 28 Mar 2023 14:04:44 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Tanu Malhotra <tanu.malhotra@intel.com>
+cc:     srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, even.xu@intel.com,
+        stable@vger.kernel.org, Shaunak Saha <shaunak.saha@intel.com>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: Fix kernel panic during warm
+ reset
+In-Reply-To: <20230327185838.2527560-1-tanu.malhotra@intel.com>
+Message-ID: <nycvar.YFH.7.76.2303281404360.1142@cbobk.fhfr.pm>
+References: <20230327185838.2527560-1-tanu.malhotra@intel.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: Linux 5.15.103
-Content-Language: en-US, de-DE
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, lwn@lwn.net, jslaby@suse.cz
-References: <1679040264214179@kroah.com>
-From:   Mathias Krause <minipli@grsecurity.net>
-In-Reply-To: <1679040264214179@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17.03.23 09:04, Greg Kroah-Hartman wrote:
-> I'm announcing the release of the 5.15.103 kernel.
+On Mon, 27 Mar 2023, Tanu Malhotra wrote:
+
+> During warm reset device->fw_client is set to NULL. If a bus driver is
+> registered after this NULL setting and before new firmware clients are
+> enumerated by ISHTP, kernel panic will result in the function
+> ishtp_cl_bus_match(). This is because of reference to
+> device->fw_client->props.protocol_name.
 > 
-> [...]
+> ISH firmware after getting successfully loaded, sends a warm reset
+> notification to remove all clients from the bus and sets
+> device->fw_client to NULL. Until kernel v5.15, all enabled ISHTP kernel
+> module drivers were loaded right after any of the first ISHTP device was
+> registered, regardless of whether it was a matched or an unmatched
+> device. This resulted in all drivers getting registered much before the
+> warm reset notification from ISH.
 > 
-> Vitaly Kuznetsov (4):
->       KVM: Optimize kvm_make_vcpus_request_mask() a bit
->       KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()
->       KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
->       KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
+> Starting kernel v5.16, this issue got exposed after the change was
+> introduced to load only bus drivers for the respective matching devices.
+> In this scenario, cros_ec_ishtp device and cros_ec_ishtp driver are
+> registered after the warm reset device fw_client NULL setting.
+> cros_ec_ishtp driver_register() triggers the callback to
+> ishtp_cl_bus_match() to match ISHTP driver to the device and causes kernel
+> panic in guid_equal() when dereferencing fw_client NULL pointer to get
+> protocol_name.
 > 
+> Fixes: f155dfeaa4ee ("platform/x86: isthp_eclite: only load for matching devices")
+> Fixes: facfe0a4fdce ("platform/chrome: chros_ec_ishtp: only load for matching devices")
+> Fixes: 0d0cccc0fd83 ("HID: intel-ish-hid: hid-client: only load for matching devices")
+> Fixes: 44e2a58cb880 ("HID: intel-ish-hid: fw-loader: only load for matching devices")
+> Cc: <stable@vger.kernel.org> # 5.16+
+> Signed-off-by: Tanu Malhotra <tanu.malhotra@intel.com>
+> Tested-by: Shaunak Saha <shaunak.saha@intel.com>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-That list is missing commit 6470accc7ba9 ("KVM: x86: hyper-v: Avoid
-calling kvm_make_vcpus_request_mask() with vcpu_mask==NULL") to fulfill
-the prerequisite of "KVM: Optimize kvm_make_vcpus_request_mask() a bit".
+Applied, thank you.
 
-Right now the kvm selftests trigger a kernel NULL deref for the hyperv
-test, making the system hang.
+-- 
+Jiri Kosina
+SUSE Labs
 
-Please consider applying commit 6470accc7ba9 for the next v5.15.x release.
-
-Thanks,
-Mathias
