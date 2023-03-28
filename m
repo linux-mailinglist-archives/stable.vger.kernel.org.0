@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F086C6CC54F
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A89F6CC530
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232912AbjC1PNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:13:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54038 "EHLO
+        id S233224AbjC1PMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232968AbjC1PMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB8D1040E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:35 -0700 (PDT)
+        with ESMTP id S232693AbjC1PMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39330AD32
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 648F261866
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 765EFC433D2;
-        Tue, 28 Mar 2023 15:10:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0778B81D8C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2D7C433D2;
+        Tue, 28 Mar 2023 15:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016254;
-        bh=J2hYVBTFIKwLvJ1JZBcw2Y3i63nYMEgE79NtsBMkE8M=;
+        s=korg; t=1680016257;
+        bh=IpVQWStGWpAA4YBFvSmmF5phDL8sSFbVTPqF2IFBM3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqfFwkQm5jLMHMSJEPmJr1JUxJPOFEbA25ImMzJaNHdO9B2IpgDJc+h3fm1wIptgx
-         XCCwyAuSAwCdVbaUtuw/60OALaSg85hsuaaF0Ehcrjtt8+4hX6pepU54b44cOI5xEM
-         tI+D/dyAgwnYQi77sEjEwj7DHoCeOoNqbft4uhI4=
+        b=UInCVtyT9mPqAQSAD7IwzUkM0Q94rD2Y9kxRpSnZK+v8vRqUP4IYKvv/rS3BcdRfP
+         kMqwYfIxnoTWVxbdzYztk/qVJeUmLyUQbj9T5xeE9aDA9cQVEXfH8iKQhZGmTpZdPD
+         Dc33okXuWO666Kw4DnET+NRyJfdNCqa25yqH7yr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 121/146] usb: ucsi: Fix NULL pointer deref in ucsi_connector_change()
-Date:   Tue, 28 Mar 2023 16:43:30 +0200
-Message-Id: <20230328142607.689703329@linuxfoundation.org>
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 122/146] kfence: avoid passing -g for test
+Date:   Tue, 28 Mar 2023 16:43:31 +0200
+Message-Id: <20230328142607.731244791@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
 References: <20230328142602.660084725@linuxfoundation.org>
@@ -53,67 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Marco Elver <elver@google.com>
 
-commit f87fb985452ab2083967103ac00bfd68fb182764 upstream.
+commit 2e08ca1802441224f5b7cc6bffbb687f7406de95 upstream.
 
-When ucsi_init() fails, ucsi->connector is NULL, yet in case of
-ucsi_acpi we may still get events which cause the ucs_acpi code to call
-ucsi_connector_change(), which then derefs the NULL ucsi->connector
-pointer.
+Nathan reported that when building with GNU as and a version of clang that
+defaults to DWARF5:
 
-Fix this by not setting ucsi->ntfy inside ucsi_init() until ucsi_init()
-has succeeded, so that ucsi_connector_change() ignores the events
-because UCSI_ENABLE_NTFY_CONNECTOR_CHANGE is not set in the ntfy mask.
+  $ make -skj"$(nproc)" ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- \
+			LLVM=1 LLVM_IAS=0 O=build \
+			mrproper allmodconfig mm/kfence/kfence_test.o
+  /tmp/kfence_test-08a0a0.s: Assembler messages:
+  /tmp/kfence_test-08a0a0.s:14627: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14628: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14632: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14633: Error: non-constant .uleb128 is not supported
+  /tmp/kfence_test-08a0a0.s:14639: Error: non-constant .uleb128 is not supported
+  ...
 
-Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217106
-Cc: stable@vger.kernel.org
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230308154244.722337-2-hdegoede@redhat.com
+This is because `-g` defaults to the compiler debug info default.  If the
+assembler does not support some of the directives used, the above errors
+occur.  To fix, remove the explicit passing of `-g`.
+
+All the test wants is that stack traces print valid function names, and
+debug info is not required for that.  (I currently cannot recall why I
+added the explicit `-g`.)
+
+Link: https://lkml.kernel.org/r/20230316224705.709984-1-elver@google.com
+Fixes: bc8fbc5f305a ("kfence: add test suite")
+Signed-off-by: Marco Elver <elver@google.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ mm/kfence/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -1202,7 +1202,7 @@ out_unlock:
- static int ucsi_init(struct ucsi *ucsi)
- {
- 	struct ucsi_connector *con;
--	u64 command;
-+	u64 command, ntfy;
- 	int ret;
- 	int i;
+--- a/mm/kfence/Makefile
++++ b/mm/kfence/Makefile
+@@ -2,5 +2,5 @@
  
-@@ -1214,8 +1214,8 @@ static int ucsi_init(struct ucsi *ucsi)
- 	}
+ obj-$(CONFIG_KFENCE) := core.o report.o
  
- 	/* Enable basic notifications */
--	ucsi->ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
--	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
-+	ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
-+	command = UCSI_SET_NOTIFICATION_ENABLE | ntfy;
- 	ret = ucsi_send_command(ucsi, command, NULL, 0);
- 	if (ret < 0)
- 		goto err_reset;
-@@ -1247,12 +1247,13 @@ static int ucsi_init(struct ucsi *ucsi)
- 	}
- 
- 	/* Enable all notifications */
--	ucsi->ntfy = UCSI_ENABLE_NTFY_ALL;
--	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
-+	ntfy = UCSI_ENABLE_NTFY_ALL;
-+	command = UCSI_SET_NOTIFICATION_ENABLE | ntfy;
- 	ret = ucsi_send_command(ucsi, command, NULL, 0);
- 	if (ret < 0)
- 		goto err_unregister;
- 
-+	ucsi->ntfy = ntfy;
- 	return 0;
- 
- err_unregister:
+-CFLAGS_kfence_test.o := -g -fno-omit-frame-pointer -fno-optimize-sibling-calls
++CFLAGS_kfence_test.o := -fno-omit-frame-pointer -fno-optimize-sibling-calls
+ obj-$(CONFIG_KFENCE_KUNIT_TEST) += kfence_test.o
 
 
