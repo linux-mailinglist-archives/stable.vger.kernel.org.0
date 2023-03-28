@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6CB6CC43A
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C316CC4C6
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233746AbjC1PB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:01:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41264 "EHLO
+        id S231493AbjC1PIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:08:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbjC1PB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:01:26 -0400
+        with ESMTP id S230403AbjC1PIk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10246E392
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4274EC55
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92BDB6177C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A557BC433EF;
-        Tue, 28 Mar 2023 15:01:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14BAE61857
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B46C433EF;
+        Tue, 28 Mar 2023 15:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015665;
-        bh=bwlyQNGtaKrNIFCwSkZkP9I0ekev/QLiVE3f9Njjiag=;
+        s=korg; t=1680016027;
+        bh=Y3TWu/DsfrK/R9LpCxN+kLjbkR0WP09mroSqPCLV/W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JG2KEDLopMZZyr9UHptBIeFtDeogAmCfi4NnUBEbFhhLkdTJOB3TYe+mHiWvlnoV3
-         aHfMQToxWeeitBCT+CVCWbbnZKooYgG5V6g4QNvccQ+nBxMhrts3JviA9O9jpEBA9z
-         rIy48aZa2szN741H4zxWcq0TCSuX2afzKEVqyJPU=
+        b=elxfuT20fWEE27As4X83Ri9cDsAif+hpQDChncaHWLlMO+USU336H1Nl8Ym5qGCAc
+         ze0uNrb7htKE1pIUlWH9mwSjVF33m3dhw0vWWnZR5E5JXZDKjdu6sk/zYKK9i+yZBg
+         Og9iOH94R0OGof39JuVzk7soyxKY4dJsPoy8G5FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Wagner <dwagner@suse.de>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Alexander Duyck <alexanderduyck@fb.com>,
+        Geoff Levand <geoff@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 131/224] scsi: qla2xxx: Add option to disable FC2 Target support
-Date:   Tue, 28 Mar 2023 16:42:07 +0200
-Message-Id: <20230328142622.837512527@linuxfoundation.org>
+Subject: [PATCH 5.15 039/146] net/ps3_gelic_net: Use dma_mapping_error
+Date:   Tue, 28 Mar 2023 16:42:08 +0200
+Message-Id: <20230328142604.327248617@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Wagner <dwagner@suse.de>
+From: Geoff Levand <geoff@infradead.org>
 
-[ Upstream commit 877b03795fcf29ff2e2351f7e574ecc9b9c51732 ]
+[ Upstream commit bebe933d35a63d4f042fbf4dce4f22e689ba0fcd ]
 
-Commit 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target") added
-support for FC2 Targets. Unfortunately, there are older setups which break
-with this new feature enabled.
+The current Gelic Etherenet driver was checking the return value of its
+dma_map_single call, and not using the dma_mapping_error() routine.
 
-Allow to disable it via module option.
+Fixes runtime problems like these:
 
-Link: https://lore.kernel.org/r/20230208152014.109214-1-dwagner@suse.de
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  DMA-API: ps3_gelic_driver sb_05: device driver failed to check map error
+  WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:1027 .check_unmap+0x888/0x8dc
+
+Fixes: 02c1889166b4 ("ps3: gigabit ethernet driver for PS3, take3")
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gbl.h  |  1 +
- drivers/scsi/qla2xxx/qla_init.c |  3 ++-
- drivers/scsi/qla2xxx/qla_os.c   | 10 +++++++++-
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/toshiba/ps3_gelic_net.c | 24 +++++++++++---------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
-index e3256e721be14..ee54207fc5319 100644
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -192,6 +192,7 @@ extern int ql2xsecenable;
- extern int ql2xenforce_iocb_limit;
- extern int ql2xabts_wait_nvme;
- extern u32 ql2xnvme_queues;
-+extern int ql2xfc2target;
+diff --git a/drivers/net/ethernet/toshiba/ps3_gelic_net.c b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+index bd1316db2d944..78e484ea279bc 100644
+--- a/drivers/net/ethernet/toshiba/ps3_gelic_net.c
++++ b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+@@ -317,15 +317,17 @@ static int gelic_card_init_chain(struct gelic_card *card,
  
- extern int qla2x00_loop_reset(scsi_qla_host_t *);
- extern void qla2x00_abort_all_cmds(scsi_qla_host_t *, int);
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index a8d822c4e3bac..93f7f3dd5d82b 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1841,7 +1841,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t *vha, struct event_arg *ea)
- 	case RSCN_PORT_ADDR:
- 		fcport = qla2x00_find_fcport_by_nportid(vha, &ea->id, 1);
- 		if (fcport) {
--			if (fcport->flags & FCF_FCP2_DEVICE &&
-+			if (ql2xfc2target &&
-+			    fcport->flags & FCF_FCP2_DEVICE &&
- 			    atomic_read(&fcport->state) == FCS_ONLINE) {
- 				ql_dbg(ql_dbg_disc, vha, 0x2115,
- 				       "Delaying session delete for FCP2 portid=%06x %8phC ",
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index e010812015b14..7d2d872bae3c5 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -360,6 +360,13 @@ MODULE_PARM_DESC(ql2xnvme_queues,
- 	"1 - Minimum number of queues supported\n"
- 	"8 - Default value");
- 
-+int ql2xfc2target = 1;
-+module_param(ql2xfc2target, int, 0444);
-+MODULE_PARM_DESC(qla2xfc2target,
-+		  "Enables FC2 Target support. "
-+		  "0 - FC2 Target support is disabled. "
-+		  "1 - FC2 Target support is enabled (default).");
+ 	/* set up the hardware pointers in each descriptor */
+ 	for (i = 0; i < no; i++, descr++) {
++		dma_addr_t cpu_addr;
 +
- static struct scsi_transport_template *qla2xxx_transport_template = NULL;
- struct scsi_transport_template *qla2xxx_transport_vport_template = NULL;
+ 		gelic_descr_set_status(descr, GELIC_DESCR_DMA_NOT_IN_USE);
+-		descr->bus_addr =
+-			dma_map_single(ctodev(card), descr,
+-				       GELIC_DESCR_SIZE,
+-				       DMA_BIDIRECTIONAL);
  
-@@ -4087,7 +4094,8 @@ qla2x00_mark_all_devices_lost(scsi_qla_host_t *vha)
- 	    "Mark all dev lost\n");
+-		if (!descr->bus_addr)
++		cpu_addr = dma_map_single(ctodev(card), descr,
++					  GELIC_DESCR_SIZE, DMA_BIDIRECTIONAL);
++
++		if (dma_mapping_error(ctodev(card), cpu_addr))
+ 			goto iommu_error;
  
- 	list_for_each_entry(fcport, &vha->vp_fcports, list) {
--		if (fcport->loop_id != FC_NO_LOOP_ID &&
-+		if (ql2xfc2target &&
-+		    fcport->loop_id != FC_NO_LOOP_ID &&
- 		    (fcport->flags & FCF_FCP2_DEVICE) &&
- 		    fcport->port_type == FCT_TARGET &&
- 		    !qla2x00_reset_active(vha)) {
++		descr->bus_addr = cpu_to_be32(cpu_addr);
+ 		descr->next = descr + 1;
+ 		descr->prev = descr - 1;
+ 	}
+@@ -375,6 +377,7 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
+ 	static const unsigned int rx_skb_size =
+ 		ALIGN(GELIC_NET_MAX_FRAME, GELIC_NET_RXBUF_ALIGN) +
+ 		GELIC_NET_RXBUF_ALIGN - 1;
++	dma_addr_t cpu_addr;
+ 	int offset;
+ 
+ 	if (gelic_descr_get_status(descr) !=  GELIC_DESCR_DMA_NOT_IN_USE)
+@@ -396,11 +399,10 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
+ 	if (offset)
+ 		skb_reserve(descr->skb, GELIC_NET_RXBUF_ALIGN - offset);
+ 	/* io-mmu-map the skb */
+-	descr->buf_addr = cpu_to_be32(dma_map_single(ctodev(card),
+-						     descr->skb->data,
+-						     GELIC_NET_MAX_FRAME,
+-						     DMA_FROM_DEVICE));
+-	if (!descr->buf_addr) {
++	cpu_addr = dma_map_single(ctodev(card), descr->skb->data,
++				  GELIC_NET_MAX_FRAME, DMA_FROM_DEVICE);
++	descr->buf_addr = cpu_to_be32(cpu_addr);
++	if (dma_mapping_error(ctodev(card), cpu_addr)) {
+ 		dev_kfree_skb_any(descr->skb);
+ 		descr->skb = NULL;
+ 		dev_info(ctodev(card),
+@@ -780,7 +782,7 @@ static int gelic_descr_prepare_tx(struct gelic_card *card,
+ 
+ 	buf = dma_map_single(ctodev(card), skb->data, skb->len, DMA_TO_DEVICE);
+ 
+-	if (!buf) {
++	if (dma_mapping_error(ctodev(card), buf)) {
+ 		dev_err(ctodev(card),
+ 			"dma map 2 failed (%p, %i). Dropping packet\n",
+ 			skb->data, skb->len);
 -- 
 2.39.2
 
