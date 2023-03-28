@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01F6B6CC346
+	by mail.lfdr.de (Postfix) with ESMTP id AC55A6CC347
 	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233496AbjC1Owq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
+        id S233378AbjC1Owr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233478AbjC1Ow0 (ORCPT
+        with ESMTP id S233277AbjC1Ow0 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C71DBDE9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:15 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 536D3E054
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD9A6B81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19BF0C433D2;
-        Tue, 28 Mar 2023 14:52:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E9561820
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A09C433EF;
+        Tue, 28 Mar 2023 14:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015132;
-        bh=UaOutlKmeo3lhIWoc/iCllLQkgiBQYiPfak6TPd7Dhk=;
+        s=korg; t=1680015135;
+        bh=Fpa56mnzfJqgvEVswSPhjBrdvPFyba8PS5K5knS9AJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0h8SHl0hHgmpJ00/31+BO3X8GQF9lP1yGXs1WexMPT9jpMkJVGiKI6UirNJ5QIwep
-         iFw0U6BbR+hQ4V25AECjG5TDNVZK+SLKf5DQsWMQ4XNTgILtzQYO83aCtEAO0jIBjj
-         8ywI8dxpbrkHU0BBp/5/p+jTfpjNBtrt4oQlM/bo=
+        b=T36Vqp/tOTd6TWsstvBMX85T6bYzYQM/RcHfwVXhF+oOKG+Rpay7L0BtXwK4ATkJV
+         /hMoUWd30vyFVrRuaqfDsKLF8ehFfjpRWi7qRPh/FAkyplZyVyrR8cpxlslqwFSR6F
+         CDP/Ho4FtqxgUX485kkNm1MaOxyzj1TaTwHLoAIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
-        John Keeping <john@metanate.com>
-Subject: [PATCH 6.2 178/240] usb: gadget: u_audio: dont let userspace block driver unbind
-Date:   Tue, 28 Mar 2023 16:42:21 +0200
-Message-Id: <20230328142627.046946682@linuxfoundation.org>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.2 179/240] btrfs: zoned: fix btrfs_can_activate_zone() to support DUP profile
+Date:   Tue, 28 Mar 2023 16:42:22 +0200
+Message-Id: <20230328142627.085432229@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -54,69 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <alsi@bang-olufsen.dk>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 6c67ed9ad9b83e453e808f9b31a931a20a25629b upstream.
+commit 9e1cdf0c354e46e428c0e0cab008abbe81b6013d upstream.
 
-In the unbind callback for f_uac1 and f_uac2, a call to snd_card_free()
-via g_audio_cleanup() will disconnect the card and then wait for all
-resources to be released, which happens when the refcount falls to zero.
-Since userspace can keep the refcount incremented by not closing the
-relevant file descriptor, the call to unbind may block indefinitely.
-This can cause a deadlock during reboot, as evidenced by the following
-blocked task observed on my machine:
+btrfs_can_activate_zone() returns true if at least one device has one zone
+available for activation. This is OK for the single profile, but not OK for
+DUP profile. We need two zones to create a DUP block group. Fix it by
+properly handling the case with the profile flags.
 
-  task:reboot  state:D stack:0   pid:2827  ppid:569    flags:0x0000000c
-  Call trace:
-   __switch_to+0xc8/0x140
-   __schedule+0x2f0/0x7c0
-   schedule+0x60/0xd0
-   schedule_timeout+0x180/0x1d4
-   wait_for_completion+0x78/0x180
-   snd_card_free+0x90/0xa0
-   g_audio_cleanup+0x2c/0x64
-   afunc_unbind+0x28/0x60
-   ...
-   kernel_restart+0x4c/0xac
-   __do_sys_reboot+0xcc/0x1ec
-   __arm64_sys_reboot+0x28/0x30
-   invoke_syscall+0x4c/0x110
-   ...
-
-The issue can also be observed by opening the card with arecord and
-then stopping the process through the shell before unbinding:
-
-  # arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
-  Recording WAVE '/dev/null' : Signed 32 bit Little Endian, Rate 48000 Hz, Stereo
-  ^Z[1]+  Stopped                    arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
-  # echo gadget.0 > /sys/bus/gadget/drivers/configfs-gadget/unbind
-  (observe that the unbind command never finishes)
-
-Fix the problem by using snd_card_free_when_closed() instead, which will
-still disconnect the card as desired, but defer the task of freeing the
-resources to the core once userspace closes its file descriptor.
-
-Fixes: 132fcb460839 ("usb: gadget: Add Audio Class 2.0 Driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Reviewed-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20230302163648.3349669-1-alvin@pqrs.dk
+Fixes: 265f7237dd25 ("btrfs: zoned: allow DUP on meta-data block groups")
+CC: stable@vger.kernel.org # 6.1+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/u_audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/zoned.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -1422,7 +1422,7 @@ void g_audio_cleanup(struct g_audio *g_a
- 	uac = g_audio->uac;
- 	card = uac->card;
- 	if (card)
--		snd_card_free(card);
-+		snd_card_free_when_closed(card);
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -2100,11 +2100,21 @@ bool btrfs_can_activate_zone(struct btrf
+ 		if (!device->bdev)
+ 			continue;
  
- 	kfree(uac->p_prm.reqs);
- 	kfree(uac->c_prm.reqs);
+-		if (!zinfo->max_active_zones ||
+-		    atomic_read(&zinfo->active_zones_left)) {
++		if (!zinfo->max_active_zones) {
+ 			ret = true;
+ 			break;
+ 		}
++
++		switch (flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) {
++		case 0: /* single */
++			ret = (atomic_read(&zinfo->active_zones_left) >= 1);
++			break;
++		case BTRFS_BLOCK_GROUP_DUP:
++			ret = (atomic_read(&zinfo->active_zones_left) >= 2);
++			break;
++		}
++		if (ret)
++			break;
+ 	}
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
 
 
