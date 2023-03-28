@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C106CBE9C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E2B6CBE99
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbjC1MIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:08:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36988 "EHLO
+        id S229664AbjC1MHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbjC1MH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:07:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4B1868B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:07:34 -0700 (PDT)
+        with ESMTP id S230248AbjC1MHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:07:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3AA93D8
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:07:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFFB8B81C1E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:07:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44899C433D2;
-        Tue, 28 Mar 2023 12:07:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 264C6B81C29
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:07:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A54CC433D2;
+        Tue, 28 Mar 2023 12:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680005236;
-        bh=lVht1ted0ozysdyN4F36XYe20C4krEdEhEhrMKC35Z0=;
+        s=korg; t=1680005233;
+        bh=cxjhOPzSqXqbB3Ti1Fj1+OrYrZBHryPzxCFz7dih1WY=;
         h=Subject:To:Cc:From:Date:From;
-        b=JCfrNIWl6eG5WcUAbV8yMOTGhgYq7PI/JH07x9ryONQp2+H2T7H9wkZJzPppyv0Sh
-         mRzMPuGttcpd6GWVc0jJ6AozQJLbKOWWj9lMIXO94f8fsdj/R2s4BSu8srnGH0g3GD
-         nhlYla/nkQ1lyn0LpHlHcchlchxzSg5kyolmT28w=
-Subject: FAILED: patch "[PATCH] fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY" failed to apply to 6.1-stable tree
+        b=JVZ/Tc5HmxUWwsQrW3pezNz2Y4L1MiCql/k84SSTQSnCV1kNH/WyMFAfCRb4WfkU2
+         3K248RVsEKPvaKUKMuITrOtUeeFmpIojmLlnDhWmCwspwLEG2gQRE+DquP2vcUaWRR
+         albihxbv5b1dDq2kRSqtRICGCDUwZDCfILgf25w4=
+Subject: FAILED: patch "[PATCH] fsverity: don't drop pagecache at end of FS_IOC_ENABLE_VERITY" failed to apply to 5.15-stable tree
 To:     ebiggers@google.com, victorhsieh@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 28 Mar 2023 14:07:03 +0200
-Message-ID: <1680005223233133@kroah.com>
+Message-ID: <16800052233714@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x a075bacde257f755bea0e53400c9f1cdd1b8e8e6
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680005223233133@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800052233714@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
