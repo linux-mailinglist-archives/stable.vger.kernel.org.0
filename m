@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC55A6CC347
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC8A6CC503
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233378AbjC1Owr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42592 "EHLO
+        id S229500AbjC1PLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:11:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233277AbjC1Ow0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 536D3E054
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:16 -0700 (PDT)
+        with ESMTP id S229984AbjC1PLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:11:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C8CEFAF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:10:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E9561820
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A09C433EF;
-        Tue, 28 Mar 2023 14:52:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E670AB81D7D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DC0C433D2;
+        Tue, 28 Mar 2023 15:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015135;
-        bh=Fpa56mnzfJqgvEVswSPhjBrdvPFyba8PS5K5knS9AJ8=;
+        s=korg; t=1680016068;
+        bh=6ZIG/AaYFRe4Ziajz/NcQxFcvyNcXM3LuH1cO7y+XfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T36Vqp/tOTd6TWsstvBMX85T6bYzYQM/RcHfwVXhF+oOKG+Rpay7L0BtXwK4ATkJV
-         /hMoUWd30vyFVrRuaqfDsKLF8ehFfjpRWi7qRPh/FAkyplZyVyrR8cpxlslqwFSR6F
-         CDP/Ho4FtqxgUX485kkNm1MaOxyzj1TaTwHLoAIQ=
+        b=c5I7ueNTZrTon0I2lko4KjD3kYEGk1aU2PaQnYV0YnWG+sCZi6DHGukTH+8cYb1bq
+         9fm7H0E5vdl8si3Wdoj7sGfrl0LQtSfm3vObDIWha0zACv7RjvQmxEXHDKTumngPCO
+         qeOsRrXIXvkEbwfloDM5zHZ90ftjkBCDthXr0Yuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.2 179/240] btrfs: zoned: fix btrfs_can_activate_zone() to support DUP profile
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 053/146] net/sonic: use dma_mapping_error() for error check
 Date:   Tue, 28 Mar 2023 16:42:22 +0200
-Message-Id: <20230328142627.085432229@linuxfoundation.org>
+Message-Id: <20230328142604.907787475@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,51 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 9e1cdf0c354e46e428c0e0cab008abbe81b6013d upstream.
+[ Upstream commit 4107b8746d93ace135b8c4da4f19bbae81db785f ]
 
-btrfs_can_activate_zone() returns true if at least one device has one zone
-available for activation. This is OK for the single profile, but not OK for
-DUP profile. We need two zones to create a DUP block group. Fix it by
-properly handling the case with the profile flags.
+The DMA address returned by dma_map_single() should be checked with
+dma_mapping_error(). Fix it accordingly.
 
-Fixes: 265f7237dd25 ("btrfs: zoned: allow DUP on meta-data block groups")
-CC: stable@vger.kernel.org # 6.1+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@linux-m68k.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/6645a4b5c1e364312103f48b7b36783b94e197a2.1679370343.git.fthain@linux-m68k.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/zoned.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/natsemi/sonic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -2100,11 +2100,21 @@ bool btrfs_can_activate_zone(struct btrf
- 		if (!device->bdev)
- 			continue;
+diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
+index d17d1b4f2585f..825356ee3492e 100644
+--- a/drivers/net/ethernet/natsemi/sonic.c
++++ b/drivers/net/ethernet/natsemi/sonic.c
+@@ -292,7 +292,7 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
+ 	 */
  
--		if (!zinfo->max_active_zones ||
--		    atomic_read(&zinfo->active_zones_left)) {
-+		if (!zinfo->max_active_zones) {
- 			ret = true;
- 			break;
- 		}
-+
-+		switch (flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) {
-+		case 0: /* single */
-+			ret = (atomic_read(&zinfo->active_zones_left) >= 1);
-+			break;
-+		case BTRFS_BLOCK_GROUP_DUP:
-+			ret = (atomic_read(&zinfo->active_zones_left) >= 2);
-+			break;
-+		}
-+		if (ret)
-+			break;
- 	}
- 	mutex_unlock(&fs_info->chunk_mutex);
+ 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
+-	if (!laddr) {
++	if (dma_mapping_error(lp->device, laddr)) {
+ 		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
+ 		dev_kfree_skb_any(skb);
+ 		return NETDEV_TX_OK;
+@@ -509,7 +509,7 @@ static bool sonic_alloc_rb(struct net_device *dev, struct sonic_local *lp,
  
+ 	*new_addr = dma_map_single(lp->device, skb_put(*new_skb, SONIC_RBSIZE),
+ 				   SONIC_RBSIZE, DMA_FROM_DEVICE);
+-	if (!*new_addr) {
++	if (dma_mapping_error(lp->device, *new_addr)) {
+ 		dev_kfree_skb(*new_skb);
+ 		*new_skb = NULL;
+ 		return false;
+-- 
+2.39.2
+
 
 
