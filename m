@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D756CC33C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 530BA6CC4BE
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233398AbjC1Ow2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
+        id S233893AbjC1PIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233383AbjC1OwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5792BDDA
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:58 -0700 (PDT)
+        with ESMTP id S233895AbjC1PIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 734FAD338
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C322B81D6E
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C8BC433D2;
-        Tue, 28 Mar 2023 14:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34A6B6182A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4254FC433D2;
+        Tue, 28 Mar 2023 15:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015115;
-        bh=NP0Ls7B1aIxpGe0fZTWet09qyPVhMgouoYrI9T3wV+0=;
+        s=korg; t=1680016005;
+        bh=dHr6kwbnDPPOkOsMXQVKrxEIkV8xCxSufrQollMViB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/6KSFzBnSbnOIoxIyK0cIjkzhleVVbmpRf6idlyv7Z/2Q/ZwZ4LRJbWptluAzxOe
-         Uq5nEYnfheK+g/CnEI4Ndam0jpWCnS2QR26gBtT9FwSyZ3rM/TynQFINb5awVEJWsD
-         yBE3wC9doBCi11sBJs90enKHxWMhO/YufGQdMN4E=
+        b=HsJXPFyMR6CY3Rrlp6SUJy2EUBGwRyBY4utUg/sTplUsZPPK1zXQXA1d7Um3lhWum
+         Cb+BzjbHTBp3zo25nizNGBOmbVWFdVc/cWToLANerfh+Ts+R8ERbiME0giYIZ7mcGb
+         Wb/uOUayI42EJ1QyMqt1Gp1TAW7uBx6L8v1pJb0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anson Tsao <anson.tsao@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Costa Shulyupin <costa.shul@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 130/240] ACPI: x86: Drop quirk for HP Elitebook
+Subject: [PATCH 5.15 004/146] tracing/hwlat: Replace sched_setaffinity with set_cpus_allowed_ptr
 Date:   Tue, 28 Mar 2023 16:41:33 +0200
-Message-Id: <20230328142625.191331946@linuxfoundation.org>
+Message-Id: <20230328142602.850069548@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,72 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Costa Shulyupin <costa.shul@redhat.com>
 
-[ Upstream commit e32d546c483a2a0f607687f5b521c2a2f942ffbe ]
+[ Upstream commit 71c7a30442b724717a30d5e7d1662ba4904eb3d4 ]
 
-There was a quirk in `acpi/x86/s2idle.c` for an HP Elitebook G9
-platforms to force AMD GUID codepath instead of Microsoft codepath.
+There is a problem with the behavior of hwlat in a container,
+resulting in incorrect output. A warning message is generated:
+"cpumask changed while in round-robin mode, switching to mode none",
+and the tracing_cpumask is ignored. This issue arises because
+the kernel thread, hwlatd, is not a part of the container, and
+the function sched_setaffinity is unable to locate it using its PID.
+Additionally, the task_struct of hwlatd is already known.
+Ultimately, the function set_cpus_allowed_ptr achieves
+the same outcome as sched_setaffinity, but employs task_struct
+instead of PID.
 
-This was due to a bug with WCN6855 WLAN firmware interaction with
-the system.
+Test case:
 
-This bug is fixed by WCN6855 firmware:
-WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.23
+  # cd /sys/kernel/tracing
+  # echo 0 > tracing_on
+  # echo round-robin > hwlat_detector/mode
+  # echo hwlat > current_tracer
+  # unshare --fork --pid bash -c 'echo 1 > tracing_on'
+  # dmesg -c
 
-Remove the quirk as it's no longer necessary with this firmware.
+Actual behavior:
 
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/commit/?id=c7a57ef688f7d99d8338a5d8edddc8836ff0e6de
-Tested-by: Anson Tsao <anson.tsao@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[573502.809060] hwlat_detector: cpumask changed while in round-robin mode, switching to mode none
+
+Link: https://lore.kernel.org/linux-trace-kernel/20230316144535.1004952-1-costa.shul@redhat.com
+
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 0330f7aa8ee63 ("tracing: Have hwlat trace migrate across tracing_cpumask CPUs")
+Signed-off-by: Costa Shulyupin <costa.shul@redhat.com>
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/s2idle.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ kernel/trace/trace_hwlat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index c7afce465a071..e499c60c45791 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -384,29 +384,6 @@ static const struct acpi_device_id amd_hid_ids[] = {
- 	{}
- };
+diff --git a/kernel/trace/trace_hwlat.c b/kernel/trace/trace_hwlat.c
+index 11f32e947c452..455f5edf008b8 100644
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -339,7 +339,7 @@ static void move_to_next_cpu(void)
+ 	cpumask_clear(current_mask);
+ 	cpumask_set_cpu(next_cpu, current_mask);
  
--static int lps0_prefer_amd(const struct dmi_system_id *id)
--{
--	pr_debug("Using AMD GUID w/ _REV 2.\n");
--	rev_id = 2;
--	return 0;
--}
--static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
--	{
--		/*
--		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
--		 * Contains specialized AML in AMD/_REV 2 path to avoid
--		 * triggering a bug in Qualcomm WLAN firmware. This may be
--		 * removed in the future if that firmware is fixed.
--		 */
--		.callback = lps0_prefer_amd,
--		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
--			DMI_MATCH(DMI_BOARD_NAME, "8990"),
--		},
--	},
--	{}
--};
--
- static int lps0_device_attach(struct acpi_device *adev,
- 			      const struct acpi_device_id *not_used)
- {
-@@ -586,7 +563,6 @@ static const struct platform_s2idle_ops acpi_s2idle_ops_lps0 = {
+-	sched_setaffinity(0, current_mask);
++	set_cpus_allowed_ptr(current, current_mask);
+ 	return;
  
- void __init acpi_s2idle_setup(void)
- {
--	dmi_check_system(s2idle_dmi_table);
- 	acpi_scan_add_handler(&lps0_handler);
- 	s2idle_set_ops(&acpi_s2idle_ops_lps0);
- }
+  change_mode:
+@@ -446,7 +446,7 @@ static int start_single_kthread(struct trace_array *tr)
+ 
+ 	}
+ 
+-	sched_setaffinity(kthread->pid, current_mask);
++	set_cpus_allowed_ptr(kthread, current_mask);
+ 
+ 	kdata->kthread = kthread;
+ 	wake_up_process(kthread);
 -- 
 2.39.2
 
