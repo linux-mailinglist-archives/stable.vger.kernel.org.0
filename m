@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5976CC4E7
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88DE16CC45B
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232771AbjC1PKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49440 "EHLO
+        id S233790AbjC1PEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229731AbjC1PKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7FEEB44
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:08:51 -0700 (PDT)
+        with ESMTP id S233786AbjC1PEH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13444EB7E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E376A61857
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2A36C433EF;
-        Tue, 28 Mar 2023 15:08:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 163BA6182C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2273FC433D2;
+        Tue, 28 Mar 2023 15:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016128;
-        bh=5ZXMaaQ90HEtlHUftl76N2iHrT8pmrL6A2AYmPnGpkI=;
+        s=korg; t=1680015771;
+        bh=gdEm5J4Mtqm5LqsYok6JRVjOpH96rzPv4a0zcCmHN1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ud399ZFIwfVAQ6f/08PRr1pZYIUS0Ef94YpAqkOpSuJI9AGBpxbB94VKPIy6fEQLj
-         a/VfYhErfz41a8FoODyxjO/foe6ZZ0CQy1hN63fzffvG/6Sy+A7p39AskdbCaVL1pu
-         rxtJzAAA2r+lG+EhWZLQiB5Z/7NU/5EmMhHK5Ec0=
+        b=POTy7+ZsC0VxAu2X76Xnf1we2NLJA8ugimsDZf8T3O8wX4U6iIGVVMrUB9vc9n+A4
+         nm4rLRUutFsF4kTYWGLbfJvkfvhdEuSWjI5y34LHMgSShhxQCLfHFDi0c7ZzuBjkkN
+         FXWjH+OTQgximZJtDsROMPfiZJJ3vEywYVKqrC1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.15 076/146] thunderbolt: Use scale field when allocating USB3 bandwidth
+        patches@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 6.1 169/224] fsverity: Remove WQ_UNBOUND from fsverity read workqueue
 Date:   Tue, 28 Mar 2023 16:42:45 +0200
-Message-Id: <20230328142605.883098601@linuxfoundation.org>
+Message-Id: <20230328142624.418895445@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,60 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-commit c82510b1d87bdebfe916048857d2ef46f1778aa5 upstream.
+commit f959325e6ac3f499450088b8d9c626d1177be160 upstream.
 
-When tunneling aggregated USB3 (20 Gb/s) the bandwidth values that are
-programmed to the ADP_USB3_CS_2 go higher than 4096 and that does not
-fit anymore to the 12-bit field. Fix this by scaling the value using
-the scale field accordingly.
+WQ_UNBOUND causes significant scheduler latency on ARM64/Android.  This
+is problematic for latency sensitive workloads, like I/O
+post-processing.
 
-Fixes: 3b1d8d577ca8 ("thunderbolt: Implement USB3 bandwidth negotiation routines")
+Removing WQ_UNBOUND gives a 96% reduction in fsverity workqueue related
+scheduler latency and improves app cold startup times by ~30ms.
+WQ_UNBOUND was also removed from the dm-verity workqueue for the same
+reason [1].
+
+This code was tested by running Android app startup benchmarks and
+measuring how long the fsverity workqueue spent in the runnable state.
+
+Before
+Total workqueue scheduler latency: 553800us
+After
+Total workqueue scheduler latency: 18962us
+
+[1]: https://lore.kernel.org/all/20230202012348.885402-1-nhuck@google.com/
+
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Fixes: 8a1d0f9cacc9 ("fs-verity: add data verification hooks for ->readpages()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20230310193325.620493-1-nhuck@google.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/usb4.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ fs/verity/verify.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/thunderbolt/usb4.c
-+++ b/drivers/thunderbolt/usb4.c
-@@ -1930,18 +1930,30 @@ static int usb4_usb3_port_write_allocate
- 						    int downstream_bw)
+--- a/fs/verity/verify.c
++++ b/fs/verity/verify.c
+@@ -269,15 +269,15 @@ EXPORT_SYMBOL_GPL(fsverity_enqueue_verif
+ int __init fsverity_init_workqueue(void)
  {
- 	u32 val, ubw, dbw, scale;
--	int ret;
-+	int ret, max_bw;
- 
--	/* Read the used scale, hardware default is 0 */
--	ret = tb_port_read(port, &scale, TB_CFG_PORT,
--			   port->cap_adap + ADP_USB3_CS_3, 1);
-+	/* Figure out suitable scale */
-+	scale = 0;
-+	max_bw = max(upstream_bw, downstream_bw);
-+	while (scale < 64) {
-+		if (mbps_to_usb3_bw(max_bw, scale) < 4096)
-+			break;
-+		scale++;
-+	}
-+
-+	if (WARN_ON(scale >= 64))
-+		return -EINVAL;
-+
-+	ret = tb_port_write(port, &scale, TB_CFG_PORT,
-+			    port->cap_adap + ADP_USB3_CS_3, 1);
- 	if (ret)
- 		return ret;
- 
--	scale &= ADP_USB3_CS_3_SCALE_MASK;
- 	ubw = mbps_to_usb3_bw(upstream_bw, scale);
- 	dbw = mbps_to_usb3_bw(downstream_bw, scale);
- 
-+	tb_port_dbg(port, "scaled bandwidth %u/%u, scale %u\n", ubw, dbw, scale);
-+
- 	ret = tb_port_read(port, &val, TB_CFG_PORT,
- 			   port->cap_adap + ADP_USB3_CS_2, 1);
- 	if (ret)
+ 	/*
+-	 * Use an unbound workqueue to allow bios to be verified in parallel
+-	 * even when they happen to complete on the same CPU.  This sacrifices
+-	 * locality, but it's worthwhile since hashing is CPU-intensive.
++	 * Use a high-priority workqueue to prioritize verification work, which
++	 * blocks reads from completing, over regular application tasks.
+ 	 *
+-	 * Also use a high-priority workqueue to prioritize verification work,
+-	 * which blocks reads from completing, over regular application tasks.
++	 * For performance reasons, don't use an unbound workqueue.  Using an
++	 * unbound workqueue for crypto operations causes excessive scheduler
++	 * latency on ARM64.
+ 	 */
+ 	fsverity_read_workqueue = alloc_workqueue("fsverity_read_queue",
+-						  WQ_UNBOUND | WQ_HIGHPRI,
++						  WQ_HIGHPRI,
+ 						  num_online_cpus());
+ 	if (!fsverity_read_workqueue)
+ 		return -ENOMEM;
 
 
