@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380136CC33B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BBD26CC316
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233469AbjC1OwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41552 "EHLO
+        id S233322AbjC1OvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233478AbjC1OwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:07 -0400
+        with ESMTP id S233325AbjC1Oux (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F86EE05D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D9AE075
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82E94B81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4A5CC433D2;
-        Tue, 28 Mar 2023 14:51:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83418B81D70
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF06C433D2;
+        Tue, 28 Mar 2023 14:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015113;
-        bh=F0ukMBHO/kPpbe6k3DjTflDUCcbuGBOy15vOvYd6NWE=;
+        s=korg; t=1680015027;
+        bh=kd3I86PrIC7k51nBbmX2aqW4UrtqO59BZXYJM5ujk2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyOfjE8L0cz32XsnbUi4F+ehLJxv/OlDQ88bSAnEkL3bPBvM40eFGHnNKXtTc5QL9
-         LaVKPCZAKvZmBPCBTR4pYQOdWaiy34O0fT5vB4SytzdIiKobeB/vUidG3IhTByv/Rs
-         5rD/PZzPHaHwdmPTkrP515W89ImqwxoK36FZoFDo=
+        b=uAEBN6FkFtb3JljxSL0N2PhyltUelrZl2opebGaZyHC17VKhmN1dFsrGlFXhAcGK4
+         6My0YIbMAs4kPXADEeOs9QpguxhqNH1sWgkAo69qmDcAC2zg0ycOuRUUAcJ8e3ZIuw
+         U8XQmsedg4uWR7JUn9FkKWZt+UpcsnkDxnctmtsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eero Tamminen <oak@helsinkinet.fi>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 139/240] m68k: Only force 030 bus error if PC not in exception table
-Date:   Tue, 28 Mar 2023 16:41:42 +0200
-Message-Id: <20230328142625.541034353@linuxfoundation.org>
+Subject: [PATCH 6.2 140/240] selftests/bpf: check that modifier resolves after pointer
+Date:   Tue, 28 Mar 2023 16:41:43 +0200
+Message-Id: <20230328142625.579625167@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -54,73 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Lorenz Bauer <lorenz.bauer@isovalent.com>
 
-[ Upstream commit e36a82bebbf7da814530d5a179bef9df5934b717 ]
+[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
 
-__get_kernel_nofault() does copy data in supervisor mode when
-forcing a task backtrace log through /proc/sysrq_trigger.
-This is expected cause a bus error exception on e.g. NULL
-pointer dereferencing when logging a kernel task has no
-workqueue associated. This bus error ought to be ignored.
+Add a regression test that ensures that a VAR pointing at a
+modifier which follows a PTR (or STRUCT or ARRAY) is resolved
+correctly by the datasec validator.
 
-Our 030 bus error handler is ill equipped to deal with this:
-
-Whenever ssw indicates a kernel mode access on a data fault,
-we don't even attempt to handle the fault and instead always
-send a SEGV signal (or panic). As a result, the check
-for exception handling at the fault PC (buried in
-send_sig_fault() which gets called from do_page_fault()
-eventually) is never used.
-
-In contrast, both 040 and 060 access error handlers do not
-care whether a fault happened on supervisor mode access,
-and will call do_page_fault() on those, ultimately honoring
-the exception table.
-
-Add a check in bus_error030 to call do_page_fault() in case
-we do have an entry for the fault PC in our exception table.
-
-I had attempted a fix for this earlier in 2019 that did rely
-on testing pagefault_disabled() (see link below) to achieve
-the same thing, but this patch should be more generic.
-
-Tested on 030 Atari Falcon.
-
-Reported-by: Eero Tamminen <oak@helsinkinet.fi>
-Link: https://lore.kernel.org/r/alpine.LNX.2.21.1904091023540.25@nippy.intranet
-Link: https://lore.kernel.org/r/63130691-1984-c423-c1f2-73bfd8d3dcd3@gmail.com
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230301021107.26307-1-schmitzmic@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/traps.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/prog_tests/btf.c | 28 ++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index 5c8cba0efc63e..a700807c9b6d9 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/ptrace.h>
- #include <linux/kallsyms.h>
-+#include <linux/extable.h>
- 
- #include <asm/setup.h>
- #include <asm/fpu.h>
-@@ -545,7 +546,8 @@ static inline void bus_error030 (struct frame *fp)
- 			errorcode |= 2;
- 
- 		if (mmusr & (MMU_I | MMU_WP)) {
--			if (ssw & 4) {
-+			/* We might have an exception table for this PC */
-+			if (ssw & 4 && !search_exception_tables(fp->ptregs.pc)) {
- 				pr_err("Data %s fault at %#010lx in %s (pc=%#lx)\n",
- 				       ssw & RW ? "read" : "write",
- 				       fp->un.fmtb.daddr,
+diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
+index de1b5b9eb93a8..d8d1292e73b53 100644
+--- a/tools/testing/selftests/bpf/prog_tests/btf.c
++++ b/tools/testing/selftests/bpf/prog_tests/btf.c
+@@ -879,6 +879,34 @@ static struct btf_raw_test raw_tests[] = {
+ 	.btf_load_err = true,
+ 	.err_str = "Invalid elem",
+ },
++{
++	.descr = "var after datasec, ptr followed by modifier",
++	.raw_types = {
++		/* .bss section */				/* [1] */
++		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
++			sizeof(void*)+4),
++		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
++		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
++		/* int */					/* [2] */
++		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
++		/* int* */					/* [3] */
++		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
++		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
++		/* const int */					/* [5] */
++		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
++		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
++		BTF_END_RAW,
++	},
++	.str_sec = "\0a\0b\0c\0",
++	.str_sec_size = sizeof("\0a\0b\0c\0"),
++	.map_type = BPF_MAP_TYPE_ARRAY,
++	.map_name = ".bss",
++	.key_size = sizeof(int),
++	.value_size = sizeof(void*)+4,
++	.key_type_id = 0,
++	.value_type_id = 1,
++	.max_entries = 1,
++},
+ /* Test member exceeds the size of struct.
+  *
+  * struct A {
 -- 
 2.39.2
 
