@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC566CC2EB
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A286CC3FB
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232590AbjC1Ot4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
+        id S233657AbjC1O6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233322AbjC1Otf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50687E1BD
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:00 -0700 (PDT)
+        with ESMTP id S233676AbjC1O6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CE9197
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A7EB61820
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F5CCC433EF;
-        Tue, 28 Mar 2023 14:48:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 219F06183C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E882C4339B;
+        Tue, 28 Mar 2023 14:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014938;
-        bh=d1Gu4I77URN5QEaJHGjPJI+hx44zSke0jWWcjYI015Q=;
+        s=korg; t=1680015514;
+        bh=KDDxBnEe8PyQ9UZWZq/QsN2uO1AnDwNhjF+8EoXVacU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qURA6tKRgfHCMDZBT8G2FNYvNq2AWDzBEhqX7rjzUgive8rokwTQN4Trjl+PRQyYQ
-         tatyrYkHCQIki/j10NdER7ntoTpUYxx3JOZNrcT6RkdUaY5+ROr/AZYF+vobF30CJ+
-         82t7vREnTJ5+5uB/IwzyzKlC5ws2Ms4bkt11QZug=
+        b=EZXkPdkKJS5xCpCDuVsWsQUm03wAl6xswXSklRUKQT+9Prf/UI5xGbzSIU9xuueFD
+         cI4OOZnH65N6AJApTqVtCSg4DgM9Zu3ayEo6waolV2JFLWzG/7vrzu3R/VjIXbXs5i
+         LDU989/y5ru9Wv7AezDsfG7WtIQVn5tvtXqgmvEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Josh Poimboeuf <jpoimboe@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>,
+        Danielle Ratson <danieller@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 108/240] entry: Fix noinstr warning in __enter_from_user_mode()
+Subject: [PATCH 6.1 075/224] mlxsw: spectrum_fid: Fix incorrect local port type
 Date:   Tue, 28 Mar 2023 16:41:11 +0200
-Message-Id: <20230328142624.285278136@linuxfoundation.org>
+Message-Id: <20230328142620.461332920@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,77 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit f87d28673b71b35b248231a2086f9404afbb7f28 ]
+[ Upstream commit bb765a743377d46d8da8e7f7e5128022504741b9 ]
 
-__enter_from_user_mode() is triggering noinstr warnings with
-CONFIG_DEBUG_PREEMPT due to its call of preempt_count_add() via
-ct_state().
+Local port is a 10-bit number, but it was mistakenly stored in a u8,
+resulting in firmware errors when using a netdev corresponding to a
+local port higher than 255.
 
-The preemption disable isn't needed as interrupts are already disabled.
-And the context_tracking_enabled() check in ct_state() also isn't needed
-as that's already being done by the CT_WARN_ON().
+Fix by storing the local port in u16, as is done in the rest of the
+code.
 
-Just use __ct_state() instead.
-
-Fixes the following warnings:
-
-  vmlinux.o: warning: objtool: enter_from_user_mode+0xba: call to preempt_count_add() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: syscall_enter_from_user_mode+0xf9: call to preempt_count_add() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: syscall_enter_from_user_mode_prepare+0xc7: call to preempt_count_add() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: irqentry_enter_from_user_mode+0xba: call to preempt_count_add() leaves .noinstr.text section
-
-Fixes: 171476775d32 ("context_tracking: Convert state to atomic_t")
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/d8955fa6d68dc955dda19baf13ae014ae27926f5.1677369694.git.jpoimboe@kernel.org
+Fixes: bf73904f5fba ("mlxsw: Add support for 802.1Q FID family")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Danielle Ratson <danieller@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/eace1f9d96545ab8a2775db857cb7e291a9b166b.1679398549.git.petrm@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/context_tracking.h       | 1 +
- include/linux/context_tracking_state.h | 2 ++
- kernel/entry/common.c                  | 2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/context_tracking.h b/include/linux/context_tracking.h
-index d4afa8508a806..3a7909ed54980 100644
---- a/include/linux/context_tracking.h
-+++ b/include/linux/context_tracking.h
-@@ -96,6 +96,7 @@ static inline void user_exit_irqoff(void) { }
- static inline int exception_enter(void) { return 0; }
- static inline void exception_exit(enum ctx_state prev_ctx) { }
- static inline int ct_state(void) { return -1; }
-+static inline int __ct_state(void) { return -1; }
- static __always_inline bool context_tracking_guest_enter(void) { return false; }
- static inline void context_tracking_guest_exit(void) { }
- #define CT_WARN_ON(cond) do { } while (0)
-diff --git a/include/linux/context_tracking_state.h b/include/linux/context_tracking_state.h
-index 4a4d56f771802..fdd537ea513ff 100644
---- a/include/linux/context_tracking_state.h
-+++ b/include/linux/context_tracking_state.h
-@@ -46,7 +46,9 @@ struct context_tracking {
- 
- #ifdef CONFIG_CONTEXT_TRACKING
- DECLARE_PER_CPU(struct context_tracking, context_tracking);
-+#endif
- 
-+#ifdef CONFIG_CONTEXT_TRACKING_USER
- static __always_inline int __ct_state(void)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c
+index 045a24cacfa51..b6ee2d658b0c4 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_fid.c
+@@ -1354,7 +1354,7 @@ static int mlxsw_sp_fid_8021q_port_vid_map(struct mlxsw_sp_fid *fid,
+ 					   u16 vid)
  {
- 	return arch_atomic_read(this_cpu_ptr(&context_tracking.state)) & CT_STATE_MASK;
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index 846add8394c41..1314894d2efad 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -21,7 +21,7 @@ static __always_inline void __enter_from_user_mode(struct pt_regs *regs)
- 	arch_enter_from_user_mode(regs);
- 	lockdep_hardirqs_off(CALLER_ADDR0);
+ 	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
+-	u8 local_port = mlxsw_sp_port->local_port;
++	u16 local_port = mlxsw_sp_port->local_port;
+ 	int err;
  
--	CT_WARN_ON(ct_state() != CONTEXT_USER);
-+	CT_WARN_ON(__ct_state() != CONTEXT_USER);
- 	user_exit_irqoff();
+ 	/* In case there are no {Port, VID} => FID mappings on the port,
+@@ -1391,7 +1391,7 @@ mlxsw_sp_fid_8021q_port_vid_unmap(struct mlxsw_sp_fid *fid,
+ 				  struct mlxsw_sp_port *mlxsw_sp_port, u16 vid)
+ {
+ 	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
+-	u8 local_port = mlxsw_sp_port->local_port;
++	u16 local_port = mlxsw_sp_port->local_port;
  
- 	instrumentation_begin();
+ 	mlxsw_sp_fid_port_vid_list_del(fid, mlxsw_sp_port->local_port, vid);
+ 	mlxsw_sp_fid_evid_map(fid, local_port, vid, false);
 -- 
 2.39.2
 
