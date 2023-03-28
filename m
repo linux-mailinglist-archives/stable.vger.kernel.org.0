@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4046CC295
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1463A6CC3A4
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbjC1Oq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:46:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
+        id S233552AbjC1Oz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:55:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233181AbjC1OqX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:46:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC76D33C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:58 -0700 (PDT)
+        with ESMTP id S233557AbjC1Oz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DD1D33A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B82E6181A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BF17C433D2;
-        Tue, 28 Mar 2023 14:45:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFC36B81D78
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A88C433EF;
+        Tue, 28 Mar 2023 14:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014757;
-        bh=wlhbqFtoERqWL/M7yPD7+9cywiy3LE2UZ6bt7j9ScuA=;
+        s=korg; t=1680015355;
+        bh=Fmj3GXQ0MfvFPWQMLyj09CcA9vjy6HGTJVJ5PSxUX6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5mv5C3yfmBd/3Ev94oe422Llf3y6G5mMjYnC1ruLLF6qJIaOJCVy1R9llgHks0g1
-         xDi7IASEQNxUQfcu3TuV3/NzS5Ub6L4PqjNR4i/0hfs8fjuyqIOcfb0k2OJ4xrwn3k
-         JZx41DBW8/e4dwm8lK7GufzguhllO24uTCBgnP70=
+        b=XKFjzGGSBvAgAEKHBdn00BjGt54wJHOMfpkIVRrX20cYUakyXxt8GL9hG9yUpuiEF
+         IS50mrDI7qX/rcRQH3SincLVOzJNdBlsd1P2lqBPmNyzs1kbe3oN6Ko5AOny1haHzz
+         pBjvCkA4lqUNm+yGoVBz/c/jMTGUQH+vSiYp3abA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Samson Tam <Samson.Tam@amd.com>,
+        Alvin Lee <Alvin.Lee2@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Saaem Rizvi <SyedSaaem.Rizvi@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 042/240] net: usb: smsc95xx: Limit packet length to skb->len
+Subject: [PATCH 6.1 009/224] drm/amd/display: Remove OTG DIV register write for Virtual signals.
 Date:   Tue, 28 Mar 2023 16:40:05 +0200
-Message-Id: <20230328142621.466460668@linuxfoundation.org>
+Message-Id: <20230328142617.620011336@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
 
-[ Upstream commit ff821092cf02a70c2bccd2d19269f01e29aa52cf ]
+[ Upstream commit 709671ffb15dcd1b4f6afe2a9d8c67c7c4ead4a1 ]
 
-Packet length retrieved from descriptor may be larger than
-the actual socket buffer length. In such case the cloned
-skb passed up the network stack will leak kernel memory contents.
+[WHY]
+Hot plugging and then hot unplugging leads to k1 and k2 values to
+change, as signal is detected as a virtual signal on hot unplug. Writing
+these values to OTG_PIXEL_RATE_DIV register might cause primary display
+to blank (known hw bug).
 
-Fixes: 2f7ca802bdae ("net: Add SMSC LAN9500 USB2.0 10/100 ethernet adapter driver")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Link: https://lore.kernel.org/r/20230316101954.75836-1-szymon.heidrich@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[HOW]
+No longer write k1 and k2 values to register if signal is virtual, we
+have safe guards in place in the case that k1 and k2 is unassigned so
+that an unknown value is not written to the register either.
+
+Cc: stable@vger.kernel.org
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Samson Tam <Samson.Tam@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Saaem Rizvi <SyedSaaem.Rizvi@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 32d2c60d334dc..563ecd27b93ea 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1833,6 +1833,12 @@ static int smsc95xx_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		size = (u16)((header & RX_STS_FL_) >> 16);
- 		align_count = (4 - ((size + NET_IP_ALIGN) % 4)) % 4;
- 
-+		if (unlikely(size > skb->len)) {
-+			netif_dbg(dev, rx_err, dev->net,
-+				  "size err header=0x%08x\n", header);
-+			return 0;
-+		}
-+
- 		if (unlikely(header & RX_STS_ES_)) {
- 			netif_dbg(dev, rx_err, dev->net,
- 				  "Error header=0x%08x\n", header);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+index f108e82e70c8b..1a85509c12f23 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+@@ -1180,7 +1180,7 @@ unsigned int dcn32_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsign
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
+ 		else
+ 			*k2_div = PIXEL_RATE_DIV_BY_4;
+-	} else if (dc_is_dp_signal(stream->signal) || dc_is_virtual_signal(stream->signal)) {
++	} else if (dc_is_dp_signal(stream->signal)) {
+ 		if (two_pix_per_container) {
+ 			*k1_div = PIXEL_RATE_DIV_BY_1;
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
 -- 
 2.39.2
 
