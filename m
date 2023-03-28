@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 603076CC2CF
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292016CC3FA
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbjC1OtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
+        id S233720AbjC1O6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233314AbjC1Osk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D56CE04D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:21 -0700 (PDT)
+        with ESMTP id S233654AbjC1O6k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97205E38B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BE0B6CE1DA4
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD50FC433EF;
-        Tue, 28 Mar 2023 14:47:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01EBB61828
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07829C433EF;
+        Tue, 28 Mar 2023 14:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014865;
-        bh=7lP/VRoNWVcy1jqaDY8c6O3gRN6aTI3Jrz5tmN3v1cY=;
+        s=korg; t=1680015511;
+        bh=Ld89raY8Rvv136vl4jhY7EUToqD9arrbiDe/fMnC/wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBdDR2fvulAvCzodj5Xf3E25Dw4xgTulbygzN++UbjPBLuAZ+KdABPBiCentOln0P
-         4EncmL3C2eEEgCAvGhxkm69Vlzrf3F9ezMbAhHVdBtYmC9QIsfL2InYpY8SdlRt0+G
-         L6zUDWzBwfMadsIpqRc5FjYW8X3B0FtHmjz8J8i4=
+        b=UasOHcf8S31h467rgTM5X221hOJPQVCTYh4E10WXQOvL0E611+zhSbPnCcdI6Vvot
+         qnmuS+hK/2ypJjbPuRNsly7wkHLuIFdnxkF2MQ4+/9Q5SXTwacVZUCqrdPAMzCNoSH
+         WoHwKNv7X13kOnOIBmGYJRRDsS+95itQmKwpGzr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Nirmoy Das <nirmoy.das@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 081/240] net: mscc: ocelot: fix stats region batching
+Subject: [PATCH 6.1 048/224] drm/i915: Print return value on error
 Date:   Tue, 28 Mar 2023 16:40:44 +0200
-Message-Id: <20230328142623.153789306@linuxfoundation.org>
+Message-Id: <20230328142619.390173078@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Nirmoy Das <nirmoy.das@intel.com>
 
-[ Upstream commit 6acc72a43eac78a309160d0a7512bbc59bcdd757 ]
+[ Upstream commit 20c68127e8e9d7899001c47465d0b79581f5fdc1 ]
 
-The blamed commit changed struct ocelot_stat_layout :: "u32 offset" to
-"u32 reg".
+Print returned error code for better debuggability.
 
-However, "u32 reg" is not quite a register address, but an enum
-ocelot_reg, which in itself encodes an enum ocelot_target target in the
-upper bits, and an index into the ocelot->map[target][] array in the
-lower bits.
-
-So, whereas the previous code comparison between stats_layout[i].offset
-and last + 1 was correct (because those "offsets" at the time were
-32-bit relative addresses), the new code, comparing layout[i].reg to
-last + 4 is not correct, because the "reg" here is an enum/index, not an
-actual register address.
-
-What we want to compare are indeed register addresses, but to do that,
-we need to actually go through the same motions as
-__ocelot_bulk_read_ix() itself.
-
-With this bug, all statistics counters are deemed by
-ocelot_prepare_stats_regions() as constituting their own region.
-(Truncated) log on VSC9959 (Felix) below (prints added by me):
-
-Before:
-
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x000]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x001]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x002]
-...
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x041]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x042]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x080]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x081]
-...
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x0ac]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x100]
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x101]
-...
-region of 1 contiguous counters starting with SYS:STAT:CNT[0x111]
-
-After:
-
-region of 67 contiguous counters starting with SYS:STAT:CNT[0x000]
-region of 45 contiguous counters starting with SYS:STAT:CNT[0x080]
-region of 18 contiguous counters starting with SYS:STAT:CNT[0x100]
-
-Since commit d87b1c08f38a ("net: mscc: ocelot: use bulk reads for
-stats") intended bulking as a performance improvement, and since now,
-with trivial-sized regions, performance is even worse than without
-bulking at all, this could easily qualify as a performance regression.
-
-Fixes: d4c367650704 ("net: mscc: ocelot: keep ocelot_stat_layout by reg address, not offset")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Colin Foster <colin.foster@in-advantage.com>
-Tested-by: Colin Foster <colin.foster@in-advantage.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221014154655.14075-1-nirmoy.das@intel.com
+Stable-dep-of: ed00eba03474 ("drm/i915/fbdev: lock the fbdev obj before vma pin")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_stats.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_fbdev.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_stats.c b/drivers/net/ethernet/mscc/ocelot_stats.c
-index 1478c3b21af15..cb196775489e2 100644
---- a/drivers/net/ethernet/mscc/ocelot_stats.c
-+++ b/drivers/net/ethernet/mscc/ocelot_stats.c
-@@ -611,7 +611,8 @@ static int ocelot_prepare_stats_regions(struct ocelot *ocelot)
- 		if (!ocelot_stats_layout[i].reg)
- 			continue;
+diff --git a/drivers/gpu/drm/i915/display/intel_fbdev.c b/drivers/gpu/drm/i915/display/intel_fbdev.c
+index 9899b5dcd291d..d9b42905bad84 100644
+--- a/drivers/gpu/drm/i915/display/intel_fbdev.c
++++ b/drivers/gpu/drm/i915/display/intel_fbdev.c
+@@ -175,7 +175,7 @@ static int intelfb_alloc(struct drm_fb_helper *helper,
+ 	}
  
--		if (region && ocelot_stats_layout[i].reg == last + 4) {
-+		if (region && ocelot->map[SYS][ocelot_stats_layout[i].reg & REG_MASK] ==
-+		    ocelot->map[SYS][last & REG_MASK] + 4) {
- 			region->count++;
- 		} else {
- 			region = devm_kzalloc(ocelot->dev, sizeof(*region),
+ 	if (IS_ERR(obj)) {
+-		drm_err(&dev_priv->drm, "failed to allocate framebuffer\n");
++		drm_err(&dev_priv->drm, "failed to allocate framebuffer (%pe)\n", obj);
+ 		return PTR_ERR(obj);
+ 	}
+ 
+@@ -256,7 +256,7 @@ static int intelfb_create(struct drm_fb_helper *helper,
+ 
+ 	info = drm_fb_helper_alloc_fbi(helper);
+ 	if (IS_ERR(info)) {
+-		drm_err(&dev_priv->drm, "Failed to allocate fb_info\n");
++		drm_err(&dev_priv->drm, "Failed to allocate fb_info (%pe)\n", info);
+ 		ret = PTR_ERR(info);
+ 		goto out_unpin;
+ 	}
+@@ -291,7 +291,7 @@ static int intelfb_create(struct drm_fb_helper *helper,
+ 	vaddr = i915_vma_pin_iomap(vma);
+ 	if (IS_ERR(vaddr)) {
+ 		drm_err(&dev_priv->drm,
+-			"Failed to remap framebuffer into virtual memory\n");
++			"Failed to remap framebuffer into virtual memory (%pe)\n", vaddr);
+ 		ret = PTR_ERR(vaddr);
+ 		goto out_unpin;
+ 	}
 -- 
 2.39.2
 
