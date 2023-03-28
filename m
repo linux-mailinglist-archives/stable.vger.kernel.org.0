@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B410F6CC36D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87FAB6CC48E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233350AbjC1Oxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:53:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55224 "EHLO
+        id S233864AbjC1PGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233321AbjC1Oxr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32709008
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:45 -0700 (PDT)
+        with ESMTP id S233861AbjC1PGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66F26EC68
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CBC561843
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57BE4C433EF;
-        Tue, 28 Mar 2023 14:53:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EB11B81D8A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC674C433D2;
+        Tue, 28 Mar 2023 15:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015224;
-        bh=IsZj2ccIzRI2FDoe8U9lkSzZwr0stP7t6RDTMoctU2A=;
+        s=korg; t=1680015801;
+        bh=pmBW/rnseKJIT9k+UunUl4XrEZuv0Z7V9rhs4qj0enY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GVu9MGsjZRQqsgbMMn9WCwxOuFueMLs77njlvPtxd2iVrvqIsPxV/ahDmjFBHOO3
-         gHGD34MafgPNh/faUEy3Pu+ZmEdSNBR3lGpN2XJI3310wK+SvaJUXi3euf+EGSjoc7
-         55Onv+XPwGdJs5qieqYcIVIC6VpeuOe91dzERabg=
+        b=G8qzSjF1duRfY0Jk2IL+V+RbsI0dbJiZTyOQxtyQWe7ygT9c4Ns5mn5g+dapPPnFT
+         uop6LtGSQ3V4DegtDGwMIE2DS7GIyF9JN7N8R2vNh76tSmOpzqfJCD6UMGhM81hTpV
+         rsIBW1yXc9ywLhZ+C7rRjJmAY1/dRSzN6k9ggq50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steve French <stfrench@microsoft.com>,
-        Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH 6.2 212/240] ksmbd: return STATUS_NOT_SUPPORTED on unsupported smb2.0 dialect
+        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH 6.1 179/224] usb: chipdea: core: fix return -EINVAL if request role is the same with current role
 Date:   Tue, 28 Mar 2023 16:42:55 +0200
-Message-Id: <20230328142628.517730374@linuxfoundation.org>
+Message-Id: <20230328142624.851328206@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-commit b53e8cfec30b93c120623232ba27c041b1ef8f1a upstream.
+commit 3670de80678961eda7fa2220883fc77c16868951 upstream.
 
-ksmbd returned "Input/output error" when mounting with vers=2.0 to
-ksmbd. It should return STATUS_NOT_SUPPORTED on unsupported smb2.0
-dialect.
+It should not return -EINVAL if the request role is the same with current
+role, return non-error and without do anything instead.
 
-Cc: stable@vger.kernel.org
-Reported-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: a932a8041ff9 ("usb: chipidea: core: add sysfs group")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20230317061516.2451728-1-xu.yang_2@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb_common.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/core.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ksmbd/smb_common.c
-+++ b/fs/ksmbd/smb_common.c
-@@ -434,7 +434,7 @@ int ksmbd_extract_shortname(struct ksmbd
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -977,9 +977,12 @@ static ssize_t role_store(struct device
+ 			     strlen(ci->roles[role]->name)))
+ 			break;
  
- static int __smb2_negotiate(struct ksmbd_conn *conn)
- {
--	return (conn->dialect >= SMB21_PROT_ID &&
-+	return (conn->dialect >= SMB20_PROT_ID &&
- 		conn->dialect <= SMB311_PROT_ID);
- }
+-	if (role == CI_ROLE_END || role == ci->role)
++	if (role == CI_ROLE_END)
+ 		return -EINVAL;
  
-@@ -465,7 +465,7 @@ int ksmbd_smb_negotiate_common(struct ks
- 		}
- 	}
- 
--	if (command == SMB2_NEGOTIATE_HE && __smb2_negotiate(conn)) {
-+	if (command == SMB2_NEGOTIATE_HE) {
- 		ret = smb2_handle_negotiate(work);
- 		init_smb2_neg_rsp(work);
- 		return ret;
++	if (role == ci->role)
++		return n;
++
+ 	pm_runtime_get_sync(dev);
+ 	disable_irq(ci->irq);
+ 	ci_role_stop(ci);
 
 
