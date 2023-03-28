@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 619AD6CC474
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:05:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC076CC348
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233818AbjC1PFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:05:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44826 "EHLO
+        id S233412AbjC1Ows (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:52:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233821AbjC1PFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B215EB7A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:53 -0700 (PDT)
+        with ESMTP id S233526AbjC1Ow1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE786DBD6
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CE9761851
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB64C433D2;
-        Tue, 28 Mar 2023 15:03:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AACA617F1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD8EC433EF;
+        Tue, 28 Mar 2023 14:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015819;
-        bh=f9FdH9zwOoW1vm4Ust8+KYJDSMeinCSbsWbTMuDnivI=;
+        s=korg; t=1680015137;
+        bh=gavlMGtxXSwrJ/ohFz/ESjITzjNT/6pLtOqjllQPSKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtdkqQlwlMLmRp7FxVLHafAzwA5Z0biAf262vlEOh8CfB7+ITIkhlQFObE4ncXjQU
-         9FrbsFU2Y3RKJAKSGKeKbHj2Lecv4Ww4klqk7b9NQQRFQwdFWspMFY+/cWabrxpKT/
-         87WKezx55x/CpcZ2w0xbZIuEKq4GxsriZbKoI5lE=
+        b=tEGRs33f+I7h5KIsnDUuY1+b6l+EX+zzv2Gef9wxDkQ70kTwnzolIASo1G1cTzTO3
+         iFqIbx9GrHQAImZBiMTv5iam6a5FYUwTBVtjinaOEAZH8dTO6s8g9bTWuAIV1YSUs+
+         ytWl8IWXTB75ndw6Zdv7YVk17+1By85ECcDpLJt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, lyndonli <Lyndon.Li@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 146/224] drm/amdgpu: Fix call trace warning and hang when removing amdgpu device
-Date:   Tue, 28 Mar 2023 16:42:22 +0200
-Message-Id: <20230328142623.453599655@linuxfoundation.org>
+        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 6.2 180/240] Bluetooth: Fix race condition in hci_cmd_sync_clear
+Date:   Tue, 28 Mar 2023 16:42:23 +0200
+Message-Id: <20230328142627.125460499@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,62 +52,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lyndonli <Lyndon.Li@amd.com>
+From: Min Li <lm0963hack@gmail.com>
 
-[ Upstream commit 93bb18d2a873d2fa9625c8ea927723660a868b95 ]
+commit 1c66bee492a5fe00ae3fe890bb693bfc99f994c6 upstream.
 
-On GPUs with RAS enabled, below call trace and hang are observed when
-shutting down device.
+There is a potential race condition in hci_cmd_sync_work and
+hci_cmd_sync_clear, and could lead to use-after-free. For instance,
+hci_cmd_sync_work is added to the 'req_workqueue' after cancel_work_sync
+The entry of 'cmd_sync_work_list' may be freed in hci_cmd_sync_clear, and
+causing kernel panic when it is used in 'hci_cmd_sync_work'.
 
-v2: use DRM device unplugged flag instead of shutdown flag as the check to
-prevent memory wipe in shutdown stage.
+Here's the call trace:
 
-[ +0.000000] RIP: 0010:amdgpu_vram_mgr_fini+0x18d/0x1c0 [amdgpu]
-[ +0.000001] PKRU: 55555554
-[ +0.000001] Call Trace:
-[ +0.000001] <TASK>
-[ +0.000002] amdgpu_ttm_fini+0x140/0x1c0 [amdgpu]
-[ +0.000183] amdgpu_bo_fini+0x27/0xa0 [amdgpu]
-[ +0.000184] gmc_v11_0_sw_fini+0x2b/0x40 [amdgpu]
-[ +0.000163] amdgpu_device_fini_sw+0xb6/0x510 [amdgpu]
-[ +0.000152] amdgpu_driver_release_kms+0x16/0x30 [amdgpu]
-[ +0.000090] drm_dev_release+0x28/0x50 [drm]
-[ +0.000016] devm_drm_dev_init_release+0x38/0x60 [drm]
-[ +0.000011] devm_action_release+0x15/0x20
-[ +0.000003] release_nodes+0x40/0xc0
-[ +0.000001] devres_release_all+0x9e/0xe0
-[ +0.000001] device_unbind_cleanup+0x12/0x80
-[ +0.000003] device_release_driver_internal+0xff/0x160
-[ +0.000001] driver_detach+0x4a/0x90
-[ +0.000001] bus_remove_driver+0x6c/0xf0
-[ +0.000001] driver_unregister+0x31/0x50
-[ +0.000001] pci_unregister_driver+0x40/0x90
-[ +0.000003] amdgpu_exit+0x15/0x120 [amdgpu]
+dump_stack_lvl+0x49/0x63
+print_report.cold+0x5e/0x5d3
+? hci_cmd_sync_work+0x282/0x320
+kasan_report+0xaa/0x120
+? hci_cmd_sync_work+0x282/0x320
+__asan_report_load8_noabort+0x14/0x20
+hci_cmd_sync_work+0x282/0x320
+process_one_work+0x77b/0x11c0
+? _raw_spin_lock_irq+0x8e/0xf0
+worker_thread+0x544/0x1180
+? poll_idle+0x1e0/0x1e0
+kthread+0x285/0x320
+? process_one_work+0x11c0/0x11c0
+? kthread_complete_and_exit+0x30/0x30
+ret_from_fork+0x22/0x30
+</TASK>
 
-Signed-off-by: lyndonli <Lyndon.Li@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Allocated by task 266:
+kasan_save_stack+0x26/0x50
+__kasan_kmalloc+0xae/0xe0
+kmem_cache_alloc_trace+0x191/0x350
+hci_cmd_sync_queue+0x97/0x2b0
+hci_update_passive_scan+0x176/0x1d0
+le_conn_complete_evt+0x1b5/0x1a00
+hci_le_conn_complete_evt+0x234/0x340
+hci_le_meta_evt+0x231/0x4e0
+hci_event_packet+0x4c5/0xf00
+hci_rx_work+0x37d/0x880
+process_one_work+0x77b/0x11c0
+worker_thread+0x544/0x1180
+kthread+0x285/0x320
+ret_from_fork+0x22/0x30
+
+Freed by task 269:
+kasan_save_stack+0x26/0x50
+kasan_set_track+0x25/0x40
+kasan_set_free_info+0x24/0x40
+____kasan_slab_free+0x176/0x1c0
+__kasan_slab_free+0x12/0x20
+slab_free_freelist_hook+0x95/0x1a0
+kfree+0xba/0x2f0
+hci_cmd_sync_clear+0x14c/0x210
+hci_unregister_dev+0xff/0x440
+vhci_release+0x7b/0xf0
+__fput+0x1f3/0x970
+____fput+0xe/0x20
+task_work_run+0xd4/0x160
+do_exit+0x8b0/0x22a0
+do_group_exit+0xba/0x2a0
+get_signal+0x1e4a/0x25b0
+arch_do_signal_or_restart+0x93/0x1f80
+exit_to_user_mode_prepare+0xf5/0x1a0
+syscall_exit_to_user_mode+0x26/0x50
+ret_from_fork+0x15/0x30
+
+Fixes: 6a98e3836fa2 ("Bluetooth: Add helper for serialized HCI command execution")
+Cc: stable@vger.kernel.org
+Signed-off-by: Min Li <lm0963hack@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_sync.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-index cfd78c4a45baa..4feedf518a191 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -1312,7 +1312,7 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -643,6 +643,7 @@ void hci_cmd_sync_clear(struct hci_dev *
+ 	cancel_work_sync(&hdev->cmd_sync_work);
+ 	cancel_work_sync(&hdev->reenable_adv_work);
  
- 	if (!bo->resource || bo->resource->mem_type != TTM_PL_VRAM ||
- 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE) ||
--	    adev->in_suspend || adev->shutdown)
-+	    adev->in_suspend || drm_dev_is_unplugged(adev_to_drm(adev)))
- 		return;
++	mutex_lock(&hdev->cmd_sync_work_lock);
+ 	list_for_each_entry_safe(entry, tmp, &hdev->cmd_sync_work_list, list) {
+ 		if (entry->destroy)
+ 			entry->destroy(hdev, entry->data, -ECANCELED);
+@@ -650,6 +651,7 @@ void hci_cmd_sync_clear(struct hci_dev *
+ 		list_del(&entry->list);
+ 		kfree(entry);
+ 	}
++	mutex_unlock(&hdev->cmd_sync_work_lock);
+ }
  
- 	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
--- 
-2.39.2
-
+ void __hci_cmd_sync_cancel(struct hci_dev *hdev, int err)
 
 
