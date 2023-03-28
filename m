@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 799326CC38A
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A14D36CC5B6
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbjC1OzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S230305AbjC1PQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233557AbjC1Oyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:55 -0400
+        with ESMTP id S230119AbjC1PQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:16:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE37D33A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA69D139
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:15:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AF96B81D74
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82D7C433D2;
-        Tue, 28 Mar 2023 14:54:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B731B81D94
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AABCFC4339B;
+        Tue, 28 Mar 2023 15:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015285;
-        bh=b9HxH5DCQVbFGTCWaOEPB4LcaRoVc0gPMD3gnTvVU9A=;
+        s=korg; t=1680016131;
+        bh=MA/BiwKsbizVCW16gqZq+/AU1RDDZ1Trv9N6royqNvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dX1iJtKhaGh3hkntzA1TP6hZV/+obBfVkscyjJYUZhyoW+2ZLsifPthPB2w7JzW+H
-         cJ9sccJBlLZCy15XuRJ4XmnSqcvyHBq6M0U2qYUzBs3LhwZIM3PQCTdnQHl/ppYDL4
-         57/7uu/e/xVdzn0SupNUOjmiwchOo2OxPQpEg7As=
+        b=U3Fka1oV/fc3MG+mLKg9tVM2H4wvfeCk6KENmgE8VusFjnb/Vf/bnmx0gAzyWxpxy
+         lOt+EAyDiB/SypYblaP4JN40hGgJniH0BjsZfKLMppuJK2DGojcAPYJpIgTloVrJCN
+         V4iVMX8HwsSBrR5o4R+6jGd/B28/l8sxofv2mCFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Hui, Chunyang" <sanqian.hcy@antgroup.com>,
-        Jens Axboe <axboe@kernel.dk>, Hui@vger.kernel.org
-Subject: [PATCH 6.2 203/240] io_uring/net: avoid sending -ECONNABORTED on repeated connection requests
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.15 077/146] thunderbolt: Call tb_check_quirks() after initializing adapters
 Date:   Tue, 28 Mar 2023 16:42:46 +0200
-Message-Id: <20230328142628.142527210@linuxfoundation.org>
+Message-Id: <20230328142605.914471683@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 74e2e17ee1f8d8a0928b90434ad7e2df70f8483e upstream.
+commit d2d6ddf188f609861489d5d188d545856a3ed399 upstream.
 
-Since io_uring does nonblocking connect requests, if we do two repeated
-ones without having a listener, the second will get -ECONNABORTED rather
-than the expected -ECONNREFUSED. Treat -ECONNABORTED like a normal retry
-condition if we're nonblocking, if we haven't already seen it.
+In order to apply quirks based on certain adapter types move call to
+tb_check_quirks() happen after the adapters are initialized. This should
+not affect the existing quirks.
 
 Cc: stable@vger.kernel.org
-Fixes: 3fb1bd688172 ("io_uring/net: handle -EINPROGRESS correct for IORING_OP_CONNECT")
-Link: https://github.com/axboe/liburing/issues/828
-Reported-by: Hui, Chunyang <sanqian.hcy@antgroup.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/net.c |   25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/thunderbolt/switch.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/io_uring/net.c
-+++ b/io_uring/net.c
-@@ -47,6 +47,7 @@ struct io_connect {
- 	struct sockaddr __user		*addr;
- 	int				addr_len;
- 	bool				in_progress;
-+	bool				seen_econnaborted;
- };
- 
- struct io_sr_msg {
-@@ -1431,7 +1432,7 @@ int io_connect_prep(struct io_kiocb *req
- 
- 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
- 	conn->addr_len =  READ_ONCE(sqe->addr2);
--	conn->in_progress = false;
-+	conn->in_progress = conn->seen_econnaborted = false;
- 	return 0;
- }
- 
-@@ -1468,18 +1469,24 @@ int io_connect(struct io_kiocb *req, uns
- 
- 	ret = __sys_connect_file(req->file, &io->address,
- 					connect->addr_len, file_flags);
--	if ((ret == -EAGAIN || ret == -EINPROGRESS) && force_nonblock) {
-+	if ((ret == -EAGAIN || ret == -EINPROGRESS || ret == -ECONNABORTED)
-+	    && force_nonblock) {
- 		if (ret == -EINPROGRESS) {
- 			connect->in_progress = true;
--		} else {
--			if (req_has_async_data(req))
--				return -EAGAIN;
--			if (io_alloc_async_data(req)) {
--				ret = -ENOMEM;
-+			return -EAGAIN;
-+		}
-+		if (ret == -ECONNABORTED) {
-+			if (connect->seen_econnaborted)
- 				goto out;
--			}
--			memcpy(req->async_data, &__io, sizeof(__io));
-+			connect->seen_econnaborted = true;
-+		}
-+		if (req_has_async_data(req))
-+			return -EAGAIN;
-+		if (io_alloc_async_data(req)) {
-+			ret = -ENOMEM;
-+			goto out;
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2750,8 +2750,6 @@ int tb_switch_add(struct tb_switch *sw)
  		}
-+		memcpy(req->async_data, &__io, sizeof(__io));
- 		return -EAGAIN;
- 	}
- 	if (ret == -ERESTARTSYS)
+ 		tb_sw_dbg(sw, "uid: %#llx\n", sw->uid);
+ 
+-		tb_check_quirks(sw);
+-
+ 		ret = tb_switch_set_uuid(sw);
+ 		if (ret) {
+ 			dev_err(&sw->dev, "failed to set UUID\n");
+@@ -2770,6 +2768,8 @@ int tb_switch_add(struct tb_switch *sw)
+ 			}
+ 		}
+ 
++		tb_check_quirks(sw);
++
+ 		tb_switch_default_link_ports(sw);
+ 
+ 		ret = tb_switch_update_link_attributes(sw);
 
 
