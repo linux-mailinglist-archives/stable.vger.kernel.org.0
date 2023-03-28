@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83BED6CC384
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B9016CC532
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233475AbjC1Oyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:54:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56916 "EHLO
+        id S232844AbjC1PMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233521AbjC1Oyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:36 -0400
+        with ESMTP id S232743AbjC1PMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABBCBBA8
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FD5BEF99
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA432617F1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C579EC4339B;
-        Tue, 28 Mar 2023 14:54:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5925A61871
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68C31C433EF;
+        Tue, 28 Mar 2023 15:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015274;
-        bh=DvhQgBvwcv5YSThhC09mPUGjr/dGWRvO+3jO04ceCFY=;
+        s=korg; t=1680016287;
+        bh=JW4ZRhtSjUW/tfvNM4VzuU5ioEYBqDQpDt2ZuZzKPMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjgZrAu7cPqUlN7lhg4uDIC+nk4keyu5OlvXE4qt3eUknbWmt0TJI+R74D9CA+oEy
-         46lVRw7sieYnJIKmeJVrw//9n3LU467TZiEFM9rLaDlNjOweh0OidpGUCNVSIjcHVD
-         acI5gfHo65nv6r9M6MkIKHs6yKBHK4wxh1IYteOQ=
+        b=Ur9ftImMeA2XCJfFBfPQbfXA3tuTO/t6+xMb+LmmKa8H1kW/ZohXDI06L4TGxj8VX
+         A4e+WrlP+GpbAGA0XYk/+gWbo4ure9TrENdc3giHHr1ZoDNdQ/GJFh/rEGUKdQk7ME
+         6LC3uu3mSYUmsv+/oK3WU/bXsDx9KGHsyY76+PPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 6.2 228/240] firmware: arm_scmi: Fix device node validation for mailbox transport
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 102/146] cifs: empty interface list when server doesnt support query interfaces
 Date:   Tue, 28 Mar 2023 16:43:11 +0200
-Message-Id: <20230328142629.219026769@linuxfoundation.org>
+Message-Id: <20230328142606.931949939@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit 2ab4f4018cb6b8010ca5002c3bdc37783b5d28c2 upstream.
+commit 896cd316b841053f6df95ab77b5f1322c16a8e18 upstream.
 
-When mailboxes are used as a transport it is possible to setup the SCMI
-transport layer, depending on the underlying channels configuration, to use
-one or two mailboxes, associated, respectively, to one or two, distinct,
-shared memory areas: any other combination should be treated as invalid.
+When querying server interfaces returns -EOPNOTSUPP,
+clear the list of interfaces. Assumption is that multichannel
+would be disabled too.
 
-Add more strict checking of SCMI mailbox transport device node descriptors.
-
-Fixes: 5c8a47a5a91d ("firmware: arm_scmi: Make scmi core independent of the transport type")
-Cc: <stable@vger.kernel.org> # 4.19
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20230307162324.891866-1-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/mailbox.c |   37 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/arm_scmi/mailbox.c
-+++ b/drivers/firmware/arm_scmi/mailbox.c
-@@ -52,6 +52,39 @@ static bool mailbox_chan_available(struc
- 					   "#mbox-cells", idx, NULL);
- }
- 
-+static int mailbox_chan_validate(struct device *cdev)
-+{
-+	int num_mb, num_sh, ret = 0;
-+	struct device_node *np = cdev->of_node;
-+
-+	num_mb = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
-+	num_sh = of_count_phandle_with_args(np, "shmem", NULL);
-+	/* Bail out if mboxes and shmem descriptors are inconsistent */
-+	if (num_mb <= 0 || num_sh > 2 || num_mb != num_sh) {
-+		dev_warn(cdev, "Invalid channel descriptor for '%s'\n",
-+			 of_node_full_name(np));
-+		return -EINVAL;
-+	}
-+
-+	if (num_sh > 1) {
-+		struct device_node *np_tx, *np_rx;
-+
-+		np_tx = of_parse_phandle(np, "shmem", 0);
-+		np_rx = of_parse_phandle(np, "shmem", 1);
-+		/* SCMI Tx and Rx shared mem areas have to be distinct */
-+		if (!np_tx || !np_rx || np_tx == np_rx) {
-+			dev_warn(cdev, "Invalid shmem descriptor for '%s'\n",
-+				 of_node_full_name(np));
-+			ret = -EINVAL;
-+		}
-+
-+		of_node_put(np_tx);
-+		of_node_put(np_rx);
-+	}
-+
-+	return ret;
-+}
-+
- static int mailbox_chan_setup(struct scmi_chan_info *cinfo, struct device *dev,
- 			      bool tx)
- {
-@@ -64,6 +97,10 @@ static int mailbox_chan_setup(struct scm
- 	resource_size_t size;
- 	struct resource res;
- 
-+	ret = mailbox_chan_validate(cdev);
-+	if (ret)
-+		return ret;
-+
- 	smbox = devm_kzalloc(dev, sizeof(*smbox), GFP_KERNEL);
- 	if (!smbox)
- 		return -ENOMEM;
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -653,7 +653,7 @@ SMB3_request_interfaces(const unsigned i
+ 	if (rc == -EOPNOTSUPP) {
+ 		cifs_dbg(FYI,
+ 			 "server does not support query network interfaces\n");
+-		goto out;
++		ret_data_len = 0;
+ 	} else if (rc != 0) {
+ 		cifs_tcon_dbg(VFS, "error %d on ioctl to get interface list\n", rc);
+ 		goto out;
 
 
