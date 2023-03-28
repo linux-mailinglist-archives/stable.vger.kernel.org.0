@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB3896CC4CF
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8DA6CC32D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbjC1PI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:08:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48514 "EHLO
+        id S233501AbjC1Ovt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231172AbjC1PIz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:08:55 -0400
+        with ESMTP id S233270AbjC1Ovb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EC7EC73
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:07:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323CEE07D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:51:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CA8F61856
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF3FC433EF;
-        Tue, 28 Mar 2023 15:07:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACCD0617F1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDEE4C433EF;
+        Tue, 28 Mar 2023 14:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016054;
-        bh=jo9kQ5ygQfoK0N2d3Rz4/2jYseiKz7W+XG0vfg/2K6c=;
+        s=korg; t=1680015079;
+        bh=obqkoNb62PsRjF2yf7nUVQjnq9ted1J5Oc+NeWU/zgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wxx0DyRlaUHIAvcx/cluIEsymVgaMTFRLSE1Q50m0y5TlRXsDrtg+viQsc+EUntHz
-         ZiPpgNh0p7NgtKN+bYeGRHKxvTcDOc+keEnXMwJo1rqZW8wHlWC+rxPx5hTHpmjJ+l
-         nLrSPeC8nJqqE1Ta8PgM04y/7lIOKoPfwc2/Uxb8=
+        b=sgVeoOROTqXgOzXxGbrT8rHh93k5Y/8zW3inGvT2KJprZXkbX9Dbm+eBGektAwFUR
+         SAQkSQtTir48cKnS5U0nvdUI10f/auAzFG5e+MqaIC794+fLFmRpvULSjBeSiRHOPq
+         gvlRQw8W3aY3GF9TXjQAIuVN9ifKlw9VJYqdTYpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, lyndonli <Lyndon.Li@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/146] qed/qed_sriov: guard against NULL derefs from qed_iov_get_vf_info
-Date:   Tue, 28 Mar 2023 16:42:00 +0200
-Message-Id: <20230328142604.011526807@linuxfoundation.org>
+Subject: [PATCH 6.2 158/240] drm/amdgpu: Fix call trace warning and hang when removing amdgpu device
+Date:   Tue, 28 Mar 2023 16:42:01 +0200
+Message-Id: <20230328142626.265192007@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: lyndonli <Lyndon.Li@amd.com>
 
-[ Upstream commit 25143b6a01d0cc5319edd3de22ffa2578b045550 ]
+[ Upstream commit 93bb18d2a873d2fa9625c8ea927723660a868b95 ]
 
-We have to make sure that the info returned by the helper is valid
-before using it.
+On GPUs with RAS enabled, below call trace and hang are observed when
+shutting down device.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+v2: use DRM device unplugged flag instead of shutdown flag as the check to
+prevent memory wipe in shutdown stage.
 
-Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
-Fixes: 733def6a04bf ("qed*: IOV link control")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[ +0.000000] RIP: 0010:amdgpu_vram_mgr_fini+0x18d/0x1c0 [amdgpu]
+[ +0.000001] PKRU: 55555554
+[ +0.000001] Call Trace:
+[ +0.000001] <TASK>
+[ +0.000002] amdgpu_ttm_fini+0x140/0x1c0 [amdgpu]
+[ +0.000183] amdgpu_bo_fini+0x27/0xa0 [amdgpu]
+[ +0.000184] gmc_v11_0_sw_fini+0x2b/0x40 [amdgpu]
+[ +0.000163] amdgpu_device_fini_sw+0xb6/0x510 [amdgpu]
+[ +0.000152] amdgpu_driver_release_kms+0x16/0x30 [amdgpu]
+[ +0.000090] drm_dev_release+0x28/0x50 [drm]
+[ +0.000016] devm_drm_dev_init_release+0x38/0x60 [drm]
+[ +0.000011] devm_action_release+0x15/0x20
+[ +0.000003] release_nodes+0x40/0xc0
+[ +0.000001] devres_release_all+0x9e/0xe0
+[ +0.000001] device_unbind_cleanup+0x12/0x80
+[ +0.000003] device_release_driver_internal+0xff/0x160
+[ +0.000001] driver_detach+0x4a/0x90
+[ +0.000001] bus_remove_driver+0x6c/0xf0
+[ +0.000001] driver_unregister+0x31/0x50
+[ +0.000001] pci_unregister_driver+0x40/0x90
+[ +0.000003] amdgpu_exit+0x15/0x120 [amdgpu]
+
+Signed-off-by: lyndonli <Lyndon.Li@amd.com>
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-index 3eb05376e7c3e..bf0ba3855da1d 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -4378,6 +4378,9 @@ qed_iov_configure_min_tx_rate(struct qed_dev *cdev, int vfid, u32 rate)
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+index 25a68d8888e0d..5d4649b8bfd33 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -1315,7 +1315,7 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
  
- 	vf = qed_iov_get_vf_info(QED_LEADING_HWFN(cdev), (u16)vfid, true);
-+	if (!vf)
-+		return -EINVAL;
-+
- 	vport_id = vf->vport_id;
+ 	if (!bo->resource || bo->resource->mem_type != TTM_PL_VRAM ||
+ 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE) ||
+-	    adev->in_suspend || adev->shutdown)
++	    adev->in_suspend || drm_dev_is_unplugged(adev_to_drm(adev)))
+ 		return;
  
- 	return qed_configure_vport_wfq(cdev, vport_id, rate);
-@@ -5124,7 +5127,7 @@ static void qed_iov_handle_trust_change(struct qed_hwfn *hwfn)
- 
- 		/* Validate that the VF has a configured vport */
- 		vf = qed_iov_get_vf_info(hwfn, i, true);
--		if (!vf->vport_instance)
-+		if (!vf || !vf->vport_instance)
- 			continue;
- 
- 		memset(&params, 0, sizeof(params));
+ 	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
 -- 
 2.39.2
 
