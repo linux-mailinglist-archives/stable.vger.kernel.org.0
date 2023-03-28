@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA466CC4A8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 299326CC307
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233882AbjC1PHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:07:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
+        id S233472AbjC1Our (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbjC1PHB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0299FD510
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:52 -0700 (PDT)
+        with ESMTP id S233357AbjC1Oub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF71BDC4
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C06EB81CAF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 701D6C433EF;
-        Tue, 28 Mar 2023 15:05:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA4D661827
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC83C433D2;
+        Tue, 28 Mar 2023 14:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015944;
-        bh=wIKM0z+LyDwlrYyXrbt8QirIxb/dK6PLLzCMNgp14/g=;
+        s=korg; t=1680014999;
+        bh=lDiWoWQ+GwADVgkaV1LC3rRiuX5euPjHLyQ5cmQYoRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgZ/qVyvX5CL5kT1y6wmDVvCPf2fcr9Q05dEmOizLsnXF39ZuqNiUfdi19nuR9uIN
-         RnK2it6RkF7apepJsVLsKIwlrq1vXvwtcbQVzd7LgV7gr5HbHCCd7Ih3w9GDuxrf0o
-         +3I/5YejcmaF9/Jib9a6tBwiQE41qMvg7DqmrQLI=
+        b=E2mRSI5/H4PLDZ1S31w9Ire4Yav2jhd0F42+Hg6bF1jSVTWrppWcbqOItKcNiCy7e
+         HP+BHM3kZVYDUKzn3zyMRYGFrF1XZcIsFcnStCturcSGPkceReAh+ETUoMbfx2Dix8
+         6VjfgrFJKQujJiqWDpK8RH6V3BOKWT6P85rkdnpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Georgi Djakov <djakov@kernel.org>,
+        patches@lists.linux.dev, Adrien Thierry <athierry@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 001/146] interconnect: qcom: osm-l3: fix icc_onecell_data allocation
-Date:   Tue, 28 Mar 2023 16:41:30 +0200
-Message-Id: <20230328142602.739147159@linuxfoundation.org>
+Subject: [PATCH 6.2 128/240] scsi: ufs: core: Initialize devfreq synchronously
+Date:   Tue, 28 Mar 2023 16:41:31 +0200
+Message-Id: <20230328142625.117629733@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,41 +54,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Adrien Thierry <athierry@redhat.com>
 
-[ Upstream commit f77ebdda0ee652124061c2ac42399bb6c367e729 ]
+[ Upstream commit 7dafc3e007918384c8693ff8d70381b5c1e9c247 ]
 
-This is a struct with a trailing zero-length array of icc_node pointers
-but it's allocated as if it were a single array of icc_nodes instead.
+During UFS initialization, devfreq initialization is asynchronous:
+ufshcd_async_scan() calls ufshcd_add_lus(), which in turn initializes
+devfreq for UFS. The simple ondemand governor is then loaded. If it is
+built as a module, request_module() is called and throws a warning:
 
-Fortunately this overallocates memory rather then allocating less memory
-than required.
+  WARNING: CPU: 7 PID: 167 at kernel/kmod.c:136 __request_module+0x1e0/0x460
+  Modules linked in: crct10dif_ce llcc_qcom phy_qcom_qmp_usb ufs_qcom phy_qcom_snps_femto_v2 ufshcd_pltfrm phy_qcom_qmp_combo ufshcd_core phy_qcom_qmp_ufs qcom_wdt socinfo fuse ipv6
+  CPU: 7 PID: 167 Comm: kworker/u16:3 Not tainted 6.2.0-rc6-00009-g58706f7fb045 #1
+  Hardware name: Qualcomm SA8540P Ride (DT)
+  Workqueue: events_unbound async_run_entry_fn
+  pstate: 00400005 (nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  pc : __request_module+0x1e0/0x460
+  lr : __request_module+0x1d8/0x460
+  sp : ffff800009323b90
+  x29: ffff800009323b90 x28: 0000000000000000 x27: 0000000000000000
+  x26: ffff800009323d50 x25: ffff7b9045f57810 x24: ffff7b9045f57830
+  x23: ffffdc5a83e426e8 x22: ffffdc5ae80a9818 x21: 0000000000000001
+  x20: ffffdc5ae7502f98 x19: ffff7b9045f57800 x18: ffffffffffffffff
+  x17: 312f716572667665 x16: 642f7366752e3030 x15: 0000000000000000
+  x14: 000000000000021c x13: 0000000000005400 x12: ffff7b9042ed7614
+  x11: ffff7b9042ed7600 x10: 00000000636c0890 x9 : 0000000000000038
+  x8 : ffff7b9045f2c880 x7 : ffff7b9045f57c68 x6 : 0000000000000080
+  x5 : 0000000000000000 x4 : 8000000000000000 x3 : 0000000000000000
+  x2 : 0000000000000000 x1 : ffffdc5ae5d382f0 x0 : 0000000000000001
+  Call trace:
+   __request_module+0x1e0/0x460
+   try_then_request_governor+0x7c/0x100
+   devfreq_add_device+0x4b0/0x5fc
+   ufshcd_async_scan+0x1d4/0x310 [ufshcd_core]
+   async_run_entry_fn+0x34/0xe0
+   process_one_work+0x1d0/0x320
+   worker_thread+0x14c/0x444
+   kthread+0x10c/0x110
+   ret_from_fork+0x10/0x20
 
-Fix by replacing devm_kcalloc() with devm_kzalloc() and struct_size()
-macro.
+This occurs because synchronous module loading from async is not
+allowed. According to __request_module():
 
-Fixes: 5bc9900addaf ("interconnect: qcom: Add OSM L3 interconnect provider support")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20230105002221.1416479-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+  /*
+   * We don't allow synchronous module loading from async.  Module
+   * init may invoke async_synchronize_full() which will end up
+   * waiting for this task which already is waiting for the module
+   * loading to complete, leading to a deadlock.
+   */
+
+Such a deadlock was experienced on the Qualcomm QDrive3/sa8540p-ride. With
+DEVFREQ_GOV_SIMPLE_ONDEMAND=m, the boot hangs after the warning.
+
+Fix both the warning and the deadlock by moving devfreq initialization out
+of the async routine.
+
+Tested on the sa8540p-ride by using fio to put the UFS under load, and
+printing the trace generated by
+/sys/kernel/tracing/events/ufs/ufshcd_clk_scaling events. The trace looks
+similar with and without the change.
+
+Link: https://lore.kernel.org/r/20230217194423.42553-1-athierry@redhat.com
+Signed-off-by: Adrien Thierry <athierry@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/osm-l3.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ufs/core/ufshcd.c | 47 ++++++++++++++++++++++++++-------------
+ include/ufs/ufshcd.h      |  1 +
+ 2 files changed, 32 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/interconnect/qcom/osm-l3.c b/drivers/interconnect/qcom/osm-l3.c
-index c7af143980de4..87edab1bf987b 100644
---- a/drivers/interconnect/qcom/osm-l3.c
-+++ b/drivers/interconnect/qcom/osm-l3.c
-@@ -275,7 +275,7 @@ static int qcom_osm_l3_probe(struct platform_device *pdev)
- 	qnodes = desc->nodes;
- 	num_nodes = desc->num_nodes;
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index 2ddc1aba0ad75..d7fa053a78965 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -1357,6 +1357,13 @@ static int ufshcd_devfreq_target(struct device *dev,
+ 	struct ufs_clk_info *clki;
+ 	unsigned long irq_flags;
  
--	data = devm_kcalloc(&pdev->dev, num_nodes, sizeof(*node), GFP_KERNEL);
-+	data = devm_kzalloc(&pdev->dev, struct_size(data, nodes, num_nodes), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
++	/*
++	 * Skip devfreq if UFS initialization is not finished.
++	 * Otherwise ufs could be in a inconsistent state.
++	 */
++	if (!smp_load_acquire(&hba->logical_unit_scan_finished))
++		return 0;
++
+ 	if (!ufshcd_is_clkscaling_supported(hba))
+ 		return -EINVAL;
  
+@@ -8152,22 +8159,6 @@ static int ufshcd_add_lus(struct ufs_hba *hba)
+ 	if (ret)
+ 		goto out;
+ 
+-	/* Initialize devfreq after UFS device is detected */
+-	if (ufshcd_is_clkscaling_supported(hba)) {
+-		memcpy(&hba->clk_scaling.saved_pwr_info.info,
+-			&hba->pwr_info,
+-			sizeof(struct ufs_pa_layer_attr));
+-		hba->clk_scaling.saved_pwr_info.is_valid = true;
+-		hba->clk_scaling.is_allowed = true;
+-
+-		ret = ufshcd_devfreq_init(hba);
+-		if (ret)
+-			goto out;
+-
+-		hba->clk_scaling.is_enabled = true;
+-		ufshcd_init_clk_scaling_sysfs(hba);
+-	}
+-
+ 	ufs_bsg_probe(hba);
+ 	ufshpb_init(hba);
+ 	scsi_scan_host(hba->host);
+@@ -8306,6 +8297,12 @@ static void ufshcd_async_scan(void *data, async_cookie_t cookie)
+ 	if (ret) {
+ 		pm_runtime_put_sync(hba->dev);
+ 		ufshcd_hba_exit(hba);
++	} else {
++		/*
++		 * Make sure that when reader code sees UFS initialization has finished,
++		 * all initialization steps have really been executed.
++		 */
++		smp_store_release(&hba->logical_unit_scan_finished, true);
+ 	}
+ }
+ 
+@@ -9912,12 +9909,30 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ 	 */
+ 	ufshcd_set_ufs_dev_active(hba);
+ 
++	/* Initialize devfreq */
++	if (ufshcd_is_clkscaling_supported(hba)) {
++		memcpy(&hba->clk_scaling.saved_pwr_info.info,
++			&hba->pwr_info,
++			sizeof(struct ufs_pa_layer_attr));
++		hba->clk_scaling.saved_pwr_info.is_valid = true;
++		hba->clk_scaling.is_allowed = true;
++
++		err = ufshcd_devfreq_init(hba);
++		if (err)
++			goto rpm_put_sync;
++
++		hba->clk_scaling.is_enabled = true;
++		ufshcd_init_clk_scaling_sysfs(hba);
++	}
++
+ 	async_schedule(ufshcd_async_scan, hba);
+ 	ufs_sysfs_add_nodes(hba->dev);
+ 
+ 	device_enable_async_suspend(dev);
+ 	return 0;
+ 
++rpm_put_sync:
++	pm_runtime_put_sync(dev);
+ free_tmf_queue:
+ 	blk_mq_destroy_queue(hba->tmf_queue);
+ 	blk_put_queue(hba->tmf_queue);
+diff --git a/include/ufs/ufshcd.h b/include/ufs/ufshcd.h
+index 97a09a14c6349..4b6d63ca8c5d8 100644
+--- a/include/ufs/ufshcd.h
++++ b/include/ufs/ufshcd.h
+@@ -896,6 +896,7 @@ struct ufs_hba {
+ 	struct completion *uic_async_done;
+ 
+ 	enum ufshcd_state ufshcd_state;
++	bool logical_unit_scan_finished;
+ 	u32 eh_flags;
+ 	u32 intr_mask;
+ 	u16 ee_ctrl_mask;
 -- 
 2.39.2
 
