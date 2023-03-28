@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C80CE6CC278
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0D16CC27C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbjC1Opq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35522 "EHLO
+        id S230407AbjC1Opr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233222AbjC1Opd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:33 -0400
+        with ESMTP id S233252AbjC1Opg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DCAD53F
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40FA7BDDF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36F1461827
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48AC1C433EF;
-        Tue, 28 Mar 2023 14:45:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D26056182A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E616FC433D2;
+        Tue, 28 Mar 2023 14:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014716;
-        bh=WronW1Tb3XmeLrzWIkcd+D52besNtQNhxc14fYJFvPY=;
+        s=korg; t=1680014719;
+        bh=zfPODjKtu3HdiMjTnIcccTGnyDmY7ImOHYYbBZV6DX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvt2cKNesZ6yWp3hCLjwP8/PX91+PohNvvGTmEbmLkgAndHPJLQnLkYamo74E2A6R
-         1LkyQe1B7PmttWEwT8RF29zkAQOdFwQcXB9TDVigqsL01XRo6CCU//sUX4DHus68+I
-         V84VyP6W1PyyeaPl7s4KFuv/FoBJZJIzIIELQXvw=
+        b=bk/vbgeEmiLqHTLGDqKW50g3fFsvFhdx9rc7x0wE6JFGehYY1t8XuKosXH+aciCQ4
+         Y9KhkXWLGHSm87y1DIYR0igxVtknbx8p0vFdfSP+b7fK4AY7N5uXgpfYRjyerLa42q
+         SwAe4r3NTverApFcUKgZavKNv8ZtR8vl/9GFwASw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Dave Wysochanski <dwysocha@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 026/240] arm64: dts: imx93: add missing #address-cells and #size-cells to i2c nodes
-Date:   Tue, 28 Mar 2023 16:39:49 +0200
-Message-Id: <20230328142620.722136815@linuxfoundation.org>
+Subject: [PATCH 6.2 027/240] NFS: Fix /proc/PID/io read_bytes for buffered reads
+Date:   Tue, 28 Mar 2023 16:39:50 +0200
+Message-Id: <20230328142620.768626003@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -54,96 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit b3cdf730486b048ca0bf23bef050550d9fd40422 ]
+[ Upstream commit 9c88ea00fef03031ce6554531e89be82f6a42835 ]
 
-Add them to the SoC .dtsi, so that not every board has to specify them.
+Prior to commit 8786fde8421c ("Convert NFS from readpages to
+readahead"), nfs_readpages() used the old mm interface read_cache_pages()
+which called task_io_account_read() for each NFS page read.  After
+this commit, nfs_readpages() is converted to nfs_readahead(), which
+now uses the new mm interface readahead_page().  The new interface
+requires callers to call task_io_account_read() themselves.
+In addition, to nfs_readahead() task_io_account_read() should also
+be called from nfs_read_folio().
 
-Fixes: 1225396fefea ("arm64: dts: imx93: add lpi2c nodes")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 8786fde8421c ("Convert NFS from readpages to readahead")
+Link: https://lore.kernel.org/linux-nfs/CAPt2mGNEYUk5u8V4abe=5MM5msZqmvzCVrtCP4Qw1n=gCHCnww@mail.gmail.com/
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx93.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/nfs/read.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx93.dtsi b/arch/arm64/boot/dts/freescale/imx93.dtsi
-index 5d79663b3b84c..d1b34d9db9daf 100644
---- a/arch/arm64/boot/dts/freescale/imx93.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx93.dtsi
-@@ -164,6 +164,8 @@ tpm2: pwm@44320000 {
- 			lpi2c1: i2c@44340000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x44340000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C1_GATE>,
- 					 <&clk IMX93_CLK_BUS_AON>;
-@@ -174,6 +176,8 @@ lpi2c1: i2c@44340000 {
- 			lpi2c2: i2c@44350000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x44350000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C2_GATE>,
- 					 <&clk IMX93_CLK_BUS_AON>;
-@@ -316,6 +320,8 @@ tpm6: pwm@42510000 {
- 			lpi2c3: i2c@42530000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x42530000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C3_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -326,6 +332,8 @@ lpi2c3: i2c@42530000 {
- 			lpi2c4: i2c@42540000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x42540000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C4_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -414,6 +422,8 @@ lpuart8: serial@426a0000 {
- 			lpi2c5: i2c@426b0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426b0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C5_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -424,6 +434,8 @@ lpi2c5: i2c@426b0000 {
- 			lpi2c6: i2c@426c0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426c0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C6_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -434,6 +446,8 @@ lpi2c6: i2c@426c0000 {
- 			lpi2c7: i2c@426d0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426d0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C7_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
-@@ -444,6 +458,8 @@ lpi2c7: i2c@426d0000 {
- 			lpi2c8: i2c@426e0000 {
- 				compatible = "fsl,imx93-lpi2c", "fsl,imx7ulp-lpi2c";
- 				reg = <0x426e0000 0x10000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
- 				interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX93_CLK_LPI2C8_GATE>,
- 					 <&clk IMX93_CLK_BUS_WAKEUP>;
+diff --git a/fs/nfs/read.c b/fs/nfs/read.c
+index 8ae2c8d1219d8..cd970ce62786b 100644
+--- a/fs/nfs/read.c
++++ b/fs/nfs/read.c
+@@ -15,6 +15,7 @@
+ #include <linux/stat.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
++#include <linux/task_io_accounting_ops.h>
+ #include <linux/pagemap.h>
+ #include <linux/sunrpc/clnt.h>
+ #include <linux/nfs_fs.h>
+@@ -338,6 +339,7 @@ int nfs_read_folio(struct file *file, struct folio *folio)
+ 
+ 	trace_nfs_aop_readpage(inode, page);
+ 	nfs_inc_stats(inode, NFSIOS_VFSREADPAGE);
++	task_io_account_read(folio_size(folio));
+ 
+ 	/*
+ 	 * Try to flush any pending writes to the file..
+@@ -400,6 +402,7 @@ void nfs_readahead(struct readahead_control *ractl)
+ 
+ 	trace_nfs_aop_readahead(inode, readahead_pos(ractl), nr_pages);
+ 	nfs_inc_stats(inode, NFSIOS_VFSREADPAGES);
++	task_io_account_read(readahead_length(ractl));
+ 
+ 	ret = -ESTALE;
+ 	if (NFS_STALE(inode))
 -- 
 2.39.2
 
