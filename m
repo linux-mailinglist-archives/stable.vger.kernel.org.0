@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 876D36CC515
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1116CC495
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbjC1PMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52876 "EHLO
+        id S233865AbjC1PGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbjC1PMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E8E2F760
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:41 -0700 (PDT)
+        with ESMTP id S233803AbjC1PGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CC40E3AE
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C28706184A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B81C433D2;
-        Tue, 28 Mar 2023 15:09:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE913B81D8D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FBC9C433D2;
+        Tue, 28 Mar 2023 15:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016178;
-        bh=VnTPf/szTOud0X6FMxF6YhZTKnb4cW1BG76NA4zbN4E=;
+        s=korg; t=1680015898;
+        bh=k0mWRYWKj9QpM9xoUZNLxJndbuhg1oJ2Q48RKMctrrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qz+Hkevyf8NlSalLfnSGVJS9boxXTDjw0SL5px4UDF1bQxvG/cRg0H0JaaA4mRo2p
-         QI03wLHeaIF7lXRf6Oc+sHQEUaeC2j6tJnwsue/48PBksvbpTmGpF32E6/DUtU3iDp
-         OW57+ATOzSoQAOsVaaDgd73+Kbzzz+ICUWRtaq6M=
+        b=kXznwCcyPgptaFxYmUG5gLnYRmNSmlmN8n5L6Qy/6QYbnpWUf8SzaQqSXVgv5vc7c
+         ymFV+aYGVHUGsClbXO9lfJJfcGZPXd39t7JGRVhHUvZVLHKDWFG6Bok+eJb5oluf8a
+         OIBwZY+F6exWVkUSsJjpdsPogGxj/GJLIpuBlvbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kang Chen <void0red@gmail.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/146] scsi: hisi_sas: Check devm_add_action() return value
-Date:   Tue, 28 Mar 2023 16:43:01 +0200
-Message-Id: <20230328142606.539827338@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Hui, Chunyang" <sanqian.hcy@antgroup.com>,
+        Jens Axboe <axboe@kernel.dk>, Hui@vger.kernel.org
+Subject: [PATCH 6.1 186/224] io_uring/net: avoid sending -ECONNABORTED on repeated connection requests
+Date:   Tue, 28 Mar 2023 16:43:02 +0200
+Message-Id: <20230328142625.130125362@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kang Chen <void0red@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 06d1a90de60208054cca15ef200138cfdbb642a9 ]
+commit 74e2e17ee1f8d8a0928b90434ad7e2df70f8483e upstream.
 
-In case devm_add_action() fails, check it in the caller of
-interrupt_preinit_v3_hw().
+Since io_uring does nonblocking connect requests, if we do two repeated
+ones without having a listener, the second will get -ECONNABORTED rather
+than the expected -ECONNREFUSED. Treat -ECONNABORTED like a normal retry
+condition if we're nonblocking, if we haven't already seen it.
 
-Link: https://lore.kernel.org/r/20230227031030.893324-1-void0red@gmail.com
-Signed-off-by: Kang Chen <void0red@gmail.com>
-Acked-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 3fb1bd688172 ("io_uring/net: handle -EINPROGRESS correct for IORING_OP_CONNECT")
+Link: https://github.com/axboe/liburing/issues/828
+Reported-by: Hui, Chunyang <sanqian.hcy@antgroup.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ io_uring/net.c |   25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index fa22cb712be5a..9515ab66a7789 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2424,8 +2424,7 @@ static int interrupt_preinit_v3_hw(struct hisi_hba *hisi_hba)
- 	hisi_hba->cq_nvecs = vectors - BASE_VECTORS_V3_HW;
- 	shost->nr_hw_queues = hisi_hba->cq_nvecs;
+--- a/io_uring/net.c
++++ b/io_uring/net.c
+@@ -47,6 +47,7 @@ struct io_connect {
+ 	struct sockaddr __user		*addr;
+ 	int				addr_len;
+ 	bool				in_progress;
++	bool				seen_econnaborted;
+ };
  
--	devm_add_action(&pdev->dev, hisi_sas_v3_free_vectors, pdev);
--	return 0;
-+	return devm_add_action(&pdev->dev, hisi_sas_v3_free_vectors, pdev);
+ struct io_sr_msg {
+@@ -1404,7 +1405,7 @@ int io_connect_prep(struct io_kiocb *req
+ 
+ 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+ 	conn->addr_len =  READ_ONCE(sqe->addr2);
+-	conn->in_progress = false;
++	conn->in_progress = conn->seen_econnaborted = false;
+ 	return 0;
  }
  
- static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
--- 
-2.39.2
-
+@@ -1441,18 +1442,24 @@ int io_connect(struct io_kiocb *req, uns
+ 
+ 	ret = __sys_connect_file(req->file, &io->address,
+ 					connect->addr_len, file_flags);
+-	if ((ret == -EAGAIN || ret == -EINPROGRESS) && force_nonblock) {
++	if ((ret == -EAGAIN || ret == -EINPROGRESS || ret == -ECONNABORTED)
++	    && force_nonblock) {
+ 		if (ret == -EINPROGRESS) {
+ 			connect->in_progress = true;
+-		} else {
+-			if (req_has_async_data(req))
+-				return -EAGAIN;
+-			if (io_alloc_async_data(req)) {
+-				ret = -ENOMEM;
++			return -EAGAIN;
++		}
++		if (ret == -ECONNABORTED) {
++			if (connect->seen_econnaborted)
+ 				goto out;
+-			}
+-			memcpy(req->async_data, &__io, sizeof(__io));
++			connect->seen_econnaborted = true;
++		}
++		if (req_has_async_data(req))
++			return -EAGAIN;
++		if (io_alloc_async_data(req)) {
++			ret = -ENOMEM;
++			goto out;
+ 		}
++		memcpy(req->async_data, &__io, sizeof(__io));
+ 		return -EAGAIN;
+ 	}
+ 	if (ret == -ERESTARTSYS)
 
 
