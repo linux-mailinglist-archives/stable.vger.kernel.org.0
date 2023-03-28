@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEF96CBDC6
+	by mail.lfdr.de (Postfix) with ESMTP id B099D6CBDC7
 	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 13:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231890AbjC1LcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230155AbjC1LcN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 28 Mar 2023 07:32:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50868 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231587AbjC1LcJ (ORCPT
+        with ESMTP id S231819AbjC1LcJ (ORCPT
         <rfc822;Stable@vger.kernel.org>); Tue, 28 Mar 2023 07:32:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69AC8185
-        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 04:32:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78C7CAB
+        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 04:32:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A5F6B81BDD
-        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 11:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6871DC433D2;
-        Tue, 28 Mar 2023 11:31:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12907616E0
+        for <Stable@vger.kernel.org>; Tue, 28 Mar 2023 11:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 229A7C433D2;
+        Tue, 28 Mar 2023 11:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680003118;
-        bh=J4zKu8TT8AM3oEjW5pSdAriiKtIy/45RbTx9FIsTIHY=;
+        s=korg; t=1680003121;
+        bh=nt6AW+mV/aH/i6pkCqV0+cnkmhDZZE4BrFBZEHT0iaQ=;
         h=Subject:To:From:Date:From;
-        b=PKgwf5xsot/HiMh5KWPKGHR5WauI3n9+78m9Yb3YD5HdeSzdv9syBM9gyPwGmFt1N
-         ur42CTO3zpLH4Gl3RLHeoD9vBOQ/e9PqrXvt9Lb9ZE7pw0uX17XdoZRa5M75u9Dm4y
-         Mxh/RfORvGGqrIUZyDEzLzHB+dCG4Se93ZvV71is=
-Subject: patch "iio: adc: max11410: fix read_poll_timeout() usage" added to char-misc-linus
-To:     nuno.sa@analog.com, Ibrahim.Tilki@analog.com,
-        Jonathan.Cameron@huawei.com, Stable@vger.kernel.org
+        b=CXxAJMAYKMPFHgiM7rS4rGzA8B8O0AckAC/4LYy7/0rZodtVcZiD3NqJmtu+IZ9HZ
+         PcDsZsnqhnU1jXy+Td6zzVF6YDcfofTlgbQmkC3TpF+H2L8D0hl8/uhJzaokIZxiGT
+         De1p4j/ep7LImyxBoKp5hYMTSoQ+ZBZx7zfQHhLA=
+Subject: patch "iio: adc: ti-ads7950: Set `can_sleep` flag for GPIO chip" added to char-misc-linus
+To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, david@lechnology.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 13:31:31 +0200
-Message-ID: <168000309195119@kroah.com>
+Date:   Tue, 28 Mar 2023 13:31:32 +0200
+Message-ID: <168000309218034@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: max11410: fix read_poll_timeout() usage
+    iio: adc: ti-ads7950: Set `can_sleep` flag for GPIO chip
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,87 +64,40 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 7b3825e9487d77e83bf1e27b10a74cd729b8f972 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
-Date: Tue, 7 Mar 2023 10:53:03 +0100
-Subject: iio: adc: max11410: fix read_poll_timeout() usage
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 363c7dc72f79edd55bf1c4380e0fbf7f1bbc2c86 Mon Sep 17 00:00:00 2001
+From: Lars-Peter Clausen <lars@metafoo.de>
+Date: Sun, 12 Mar 2023 14:09:33 -0700
+Subject: iio: adc: ti-ads7950: Set `can_sleep` flag for GPIO chip
 
-Even though we are passing 'ret' as stop condition for
-read_poll_timeout(), that return code is still being ignored. The reason
-is that the poll will stop if the passed condition is true which will
-happen if the passed op() returns error. However, read_poll_timeout()
-returns 0 if the *complete* condition evaluates to true. Therefore, the
-error code returned by op() will be ignored.
+The ads7950 uses a mutex as well as SPI transfers in its GPIO callbacks.
+This means these callbacks can sleep and the `can_sleep` flag should be
+set.
 
-To fix this we need to check for both error codes:
- * The one returned by read_poll_timeout() which is either 0 or
-ETIMEDOUT.
- * The one returned by the passed op().
+Having the flag set will make sure that warnings are generated when calling
+any of the callbacks from a potentially non-sleeping context.
 
-Fixes: a44ef7c46097 ("iio: adc: add max11410 adc driver")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Acked-by: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
-Link: https://lore.kernel.org/r/20230307095303.713251-1-nuno.sa@analog.com
+Fixes: c97dce792dc8 ("iio: adc: ti-ads7950: add GPIO support")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: David Lechner <david@lechnology.com>
+Link: https://lore.kernel.org/r/20230312210933.2275376-1-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/max11410.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/iio/adc/ti-ads7950.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/max11410.c b/drivers/iio/adc/max11410.c
-index fdc9f03135b5..e64cd979688d 100644
---- a/drivers/iio/adc/max11410.c
-+++ b/drivers/iio/adc/max11410.c
-@@ -413,13 +413,17 @@ static int max11410_sample(struct max11410_state *st, int *sample_raw,
- 		if (!ret)
- 			return -ETIMEDOUT;
- 	} else {
-+		int ret2;
-+
- 		/* Wait for status register Conversion Ready flag */
--		ret = read_poll_timeout(max11410_read_reg, ret,
--					ret || (val & MAX11410_STATUS_CONV_READY_BIT),
-+		ret = read_poll_timeout(max11410_read_reg, ret2,
-+					ret2 || (val & MAX11410_STATUS_CONV_READY_BIT),
- 					5000, MAX11410_CONVERSION_TIMEOUT_MS * 1000,
- 					true, st, MAX11410_REG_STATUS, &val);
- 		if (ret)
- 			return ret;
-+		if (ret2)
-+			return ret2;
- 	}
- 
- 	/* Read ADC Data */
-@@ -850,17 +854,21 @@ static int max11410_init_vref(struct device *dev,
- 
- static int max11410_calibrate(struct max11410_state *st, u32 cal_type)
- {
--	int ret, val;
-+	int ret, ret2, val;
- 
- 	ret = max11410_write_reg(st, MAX11410_REG_CAL_START, cal_type);
- 	if (ret)
- 		return ret;
- 
- 	/* Wait for status register Calibration Ready flag */
--	return read_poll_timeout(max11410_read_reg, ret,
--				 ret || (val & MAX11410_STATUS_CAL_READY_BIT),
--				 50000, MAX11410_CALIB_TIMEOUT_MS * 1000, true,
--				 st, MAX11410_REG_STATUS, &val);
-+	ret = read_poll_timeout(max11410_read_reg, ret2,
-+				ret2 || (val & MAX11410_STATUS_CAL_READY_BIT),
-+				50000, MAX11410_CALIB_TIMEOUT_MS * 1000, true,
-+				st, MAX11410_REG_STATUS, &val);
-+	if (ret)
-+		return ret;
-+
-+	return ret2;
- }
- 
- static int max11410_self_calibrate(struct max11410_state *st)
+diff --git a/drivers/iio/adc/ti-ads7950.c b/drivers/iio/adc/ti-ads7950.c
+index 2cc9a9bd9db6..263fc3a1b87e 100644
+--- a/drivers/iio/adc/ti-ads7950.c
++++ b/drivers/iio/adc/ti-ads7950.c
+@@ -634,6 +634,7 @@ static int ti_ads7950_probe(struct spi_device *spi)
+ 	st->chip.label = dev_name(&st->spi->dev);
+ 	st->chip.parent = &st->spi->dev;
+ 	st->chip.owner = THIS_MODULE;
++	st->chip.can_sleep = true;
+ 	st->chip.base = -1;
+ 	st->chip.ngpio = TI_ADS7950_NUM_GPIOS;
+ 	st->chip.get_direction = ti_ads7950_get_direction;
 -- 
 2.40.0
 
