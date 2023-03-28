@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7E86CC39D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D6616CC2C1
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233548AbjC1Ozr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58376 "EHLO
+        id S233327AbjC1Os2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:48:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233544AbjC1Ozq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB20ADBE6
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:44 -0700 (PDT)
+        with ESMTP id S233325AbjC1OsO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933DE526F
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68ACCB81CAF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC76C433D2;
-        Tue, 28 Mar 2023 14:55:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4FB86181D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EC7C433D2;
+        Tue, 28 Mar 2023 14:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015342;
-        bh=m3fyD1fEDC2NFx3ydHpult4RRApW2FzYZKF5o+87yw8=;
+        s=korg; t=1680014829;
+        bh=RNFwa18Oo4RwKvSJdNGd4MX+4jvZTzgq3AWMHP9L8ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpyBBwOVqGU1jwnwjjHRqMC02xW4SLpN+ZBtrjKAKQuMc/GeZwzAKt3qRXJx99sL7
-         Iu0Gbp8BklUmLcfMjWgMTMUT4uI+GAcgG2fvS+OSR02aShf8HYPvM8CTk9Jio2t9m0
-         a4exhOP7PbAo1rgwMq44cfq+yJN5pkUQAbdfpFjs=
+        b=yejGpg8yQzed7D/pIZn83GwV8mfjE3Mb02x0SCow246+Xd3C5UiOwdfn7NKcSS/PU
+         +fUcQ1ZbLVWpjEAhX0RKJRoLZJ1GRapKYHtQhUbXdbK0YX82DskrpyBlrALXBatv6E
+         cg3226/bpMxxpQ+P3pEvKTMZr5UzWaPhCnC+/m9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 004/224] perf/core: Fix perf_output_begin parameter is incorrectly invoked in perf_event_bpf_output
+        patches@lists.linux.dev,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 037/240] i2c: mxs: ensure that DMA buffers are safe for DMA
 Date:   Tue, 28 Mar 2023 16:40:00 +0200
-Message-Id: <20230328142617.396324310@linuxfoundation.org>
+Message-Id: <20230328142621.149491299@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,61 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit eb81a2ed4f52be831c9fb879752d89645a312c13 ]
+[ Upstream commit 5190417bdf72c71b65bd9892103c6186816a6e8b ]
 
-syzkaller reportes a KASAN issue with stack-out-of-bounds.
-The call trace is as follows:
-  dump_stack+0x9c/0xd3
-  print_address_description.constprop.0+0x19/0x170
-  __kasan_report.cold+0x6c/0x84
-  kasan_report+0x3a/0x50
-  __perf_event_header__init_id+0x34/0x290
-  perf_event_header__init_id+0x48/0x60
-  perf_output_begin+0x4a4/0x560
-  perf_event_bpf_output+0x161/0x1e0
-  perf_iterate_sb_cpu+0x29e/0x340
-  perf_iterate_sb+0x4c/0xc0
-  perf_event_bpf_event+0x194/0x2c0
-  __bpf_prog_put.constprop.0+0x55/0xf0
-  __cls_bpf_delete_prog+0xea/0x120 [cls_bpf]
-  cls_bpf_delete_prog_work+0x1c/0x30 [cls_bpf]
-  process_one_work+0x3c2/0x730
-  worker_thread+0x93/0x650
-  kthread+0x1b8/0x210
-  ret_from_fork+0x1f/0x30
+We found that after commit 9c46929e7989
+("ARM: implement THREAD_INFO_IN_TASK for uniprocessor systems"), the
+PCF85063 RTC driver stopped working on i.MX28 due to regmap_bulk_read()
+reading bogus data into a stack buffer. This is caused by the i2c-mxs
+driver using DMA transfers even for messages without the I2C_M_DMA_SAFE
+flag, and the aforementioned commit enabling vmapped stacks.
 
-commit 267fb27352b6 ("perf: Reduce stack usage of perf_output_begin()")
-use on-stack struct perf_sample_data of the caller function.
+As the MXS I2C controller requires DMA for reads of >4 bytes, DMA can't be
+disabled, so the issue is fixed by using i2c_get_dma_safe_msg_buf() to
+create a bounce buffer when needed.
 
-However, perf_event_bpf_output uses incorrect parameter to convert
-small-sized data (struct perf_bpf_event) into large-sized data
-(struct perf_sample_data), which causes memory overwriting occurs in
-__perf_event_header__init_id.
-
-Fixes: 267fb27352b6 ("perf: Reduce stack usage of perf_output_begin()")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20230314044735.56551-1-yangjihong1@huawei.com
+Fixes: 9c46929e7989 ("ARM: implement THREAD_INFO_IN_TASK for uniprocessor systems")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mxs.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 227ada7240295..6c4e78cd7a8b5 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -9009,7 +9009,7 @@ static void perf_event_bpf_output(struct perf_event *event, void *data)
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index d113bed795452..e0f3b3545cfe4 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -171,7 +171,7 @@ static void mxs_i2c_dma_irq_callback(void *param)
+ }
  
- 	perf_event_header__init_id(&bpf_event->event_id.header,
- 				   &sample, event);
--	ret = perf_output_begin(&handle, data, event,
-+	ret = perf_output_begin(&handle, &sample, event,
- 				bpf_event->event_id.header.size);
- 	if (ret)
- 		return;
+ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+-			struct i2c_msg *msg, uint32_t flags)
++			struct i2c_msg *msg, u8 *buf, uint32_t flags)
+ {
+ 	struct dma_async_tx_descriptor *desc;
+ 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+@@ -226,7 +226,7 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		}
+ 
+ 		/* Queue the DMA data transfer. */
+-		sg_init_one(&i2c->sg_io[1], msg->buf, msg->len);
++		sg_init_one(&i2c->sg_io[1], buf, msg->len);
+ 		dma_map_sg(i2c->dev, &i2c->sg_io[1], 1, DMA_FROM_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, &i2c->sg_io[1], 1,
+ 					DMA_DEV_TO_MEM,
+@@ -259,7 +259,7 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		/* Queue the DMA data transfer. */
+ 		sg_init_table(i2c->sg_io, 2);
+ 		sg_set_buf(&i2c->sg_io[0], &i2c->addr_data, 1);
+-		sg_set_buf(&i2c->sg_io[1], msg->buf, msg->len);
++		sg_set_buf(&i2c->sg_io[1], buf, msg->len);
+ 		dma_map_sg(i2c->dev, i2c->sg_io, 2, DMA_TO_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, i2c->sg_io, 2,
+ 					DMA_MEM_TO_DEV,
+@@ -563,6 +563,7 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+ 	int ret;
+ 	int flags;
++	u8 *dma_buf;
+ 	int use_pio = 0;
+ 	unsigned long time_left;
+ 
+@@ -588,13 +589,20 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		if (ret && (ret != -ENXIO))
+ 			mxs_i2c_reset(i2c);
+ 	} else {
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 1);
++		if (!dma_buf)
++			return -ENOMEM;
++
+ 		reinit_completion(&i2c->cmd_complete);
+-		ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
+-		if (ret)
++		ret = mxs_i2c_dma_setup_xfer(adap, msg, dma_buf, flags);
++		if (ret) {
++			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
+ 			return ret;
++		}
+ 
+ 		time_left = wait_for_completion_timeout(&i2c->cmd_complete,
+ 						msecs_to_jiffies(1000));
++		i2c_put_dma_safe_msg_buf(dma_buf, msg, true);
+ 		if (!time_left)
+ 			goto timeout;
+ 
 -- 
 2.39.2
 
