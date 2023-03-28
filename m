@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC416CC3F2
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C0406CC30C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233605AbjC1O6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34598 "EHLO
+        id S233426AbjC1OvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233648AbjC1O62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D95E077
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:22 -0700 (PDT)
+        with ESMTP id S233466AbjC1Oup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D92DBF1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63A57B81D68
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C779BC433EF;
-        Tue, 28 Mar 2023 14:58:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 91CD8CE1DAA
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBDCC433EF;
+        Tue, 28 Mar 2023 14:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015500;
-        bh=SvjhRJNZI7DY7WVC6TxRCCZ2BImCIInodHJgRAUxZIQ=;
+        s=korg; t=1680015016;
+        bh=UQFD8R+r7pyyQLu/jbUUZOAgGbz+gYUu6CMUJSSLKCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKfhPeseiTTJrHghc0oBLE3athj7H6fqBRpodIwdBuReNWVn3XBL1OENhlHKzmh4j
-         37y4/2UGbUz4y4eSu6L/ZFSZew2LZuHILinudR5K/7gehzS4aGHMlUa2FqJGLhO7qE
-         4fqgoTE8CZJOrJa7FPDPxJVNyMZH0RU/VUWyj+2k=
+        b=XXzo7LciFgXusNnn8TNfl7aoCRpQcxG2O6YU2C+xZ5MZ8SjCcpajZvEhS6+2UFi7s
+         W9nzdHNVr/VXJ7+yxw84h8MWq9E8gk6GlxoRkNgx2qLoU18YkBCtlSJOpclFd0DJTA
+         UVsbROJ/RYsh0k7rgzvUltJvlgo+DsHfhzh/vA7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Francois Romieu <romieu@fr.zoreil.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Archie Pusaka <apusaka@chromium.org>,
+        Howard Chung <howardchung@google.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 071/224] atm: idt77252: fix kmemleak when rmmod idt77252
-Date:   Tue, 28 Mar 2023 16:41:07 +0200
-Message-Id: <20230328142620.306487999@linuxfoundation.org>
+Subject: [PATCH 6.2 105/240] Bluetooth: mgmt: Fix MGMT add advmon with RSSI command
+Date:   Tue, 28 Mar 2023 16:41:08 +0200
+Message-Id: <20230328142624.148883345@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,90 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Howard Chung <howardchung@google.com>
 
-[ Upstream commit 4fe3c88552a3fbe1944426a4506a18cdeb457b5a ]
+[ Upstream commit 1a0291f81529e8044fb29845a0196ba47af894ce ]
 
-There are memory leaks reported by kmemleak:
+The MGMT command: MGMT_OP_ADD_ADV_PATTERNS_MONITOR_RSSI uses variable
+length argument. This causes host not able to register advmon with rssi.
 
-  unreferenced object 0xffff888106500800 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<000000000e947e2a>] idt77252_init_one+0x2847/0x3c90 [idt77252]
-      [<000000006efb048e>] local_pci_probe+0xeb/0x1a0
-    ...
+This patch has been locally tested by adding monitor with rssi via
+btmgmt on a kernel 6.1 machine.
 
-  unreferenced object 0xffff888106500b00 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 20 3d 01 80 88 ff ff 00 20 3d 01 80 88 ff ff  . =...... =.....
-      f0 23 3d 01 80 88 ff ff 00 20 3d 01 00 00 00 00  .#=...... =.....
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<00000000f451c5be>] alloc_scq.constprop.0+0x4a/0x400 [idt77252]
-      [<00000000e6313849>] idt77252_init_one+0x28cf/0x3c90 [idt77252]
-
-The root cause is traced to the vc_maps which alloced in open_card_oam()
-are not freed in close_card_oam(). The vc_maps are used to record
-open connections, so when close a vc_map in close_card_oam(), the memory
-should be freed. Moreover, the ubr0 is not closed when close a idt77252
-device, leading to the memory leak of vc_map and scq_info.
-
-Fix them by adding kfree in close_card_oam() and implementing new
-close_card_ubr0() to close ubr0.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
-Link: https://lore.kernel.org/r/20230320143318.2644630-1-lizetao1@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Archie Pusaka <apusaka@chromium.org>
+Fixes: b338d91703fa ("Bluetooth: Implement support for Mesh")
+Signed-off-by: Howard Chung <howardchung@google.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/idt77252.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/bluetooth/mgmt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
-index 681cb3786794d..49cb4537344aa 100644
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -2909,6 +2909,7 @@ close_card_oam(struct idt77252_dev *card)
- 
- 				recycle_rx_pool_skb(card, &vc->rcv.rx_pool);
- 			}
-+			kfree(vc);
- 		}
- 	}
- }
-@@ -2952,6 +2953,15 @@ open_card_ubr0(struct idt77252_dev *card)
- 	return 0;
- }
- 
-+static void
-+close_card_ubr0(struct idt77252_dev *card)
-+{
-+	struct vc_map *vc = card->vcs[0];
-+
-+	free_scq(card, vc->scq);
-+	kfree(vc);
-+}
-+
- static int
- idt77252_dev_open(struct idt77252_dev *card)
- {
-@@ -3001,6 +3011,7 @@ static void idt77252_dev_close(struct atm_dev *dev)
- 	struct idt77252_dev *card = dev->dev_data;
- 	u32 conf;
- 
-+	close_card_ubr0(card);
- 	close_card_oam(card);
- 
- 	conf = SAR_CFG_RXPTH |	/* enable receive path           */
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 71b65ac6343a0..c4a7627b380da 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -9345,7 +9345,8 @@ static const struct hci_mgmt_handler mgmt_handlers[] = {
+ 	{ add_ext_adv_data,        MGMT_ADD_EXT_ADV_DATA_SIZE,
+ 						HCI_MGMT_VAR_LEN },
+ 	{ add_adv_patterns_monitor_rssi,
+-				   MGMT_ADD_ADV_PATTERNS_MONITOR_RSSI_SIZE },
++				   MGMT_ADD_ADV_PATTERNS_MONITOR_RSSI_SIZE,
++						HCI_MGMT_VAR_LEN },
+ 	{ set_mesh,                MGMT_SET_MESH_RECEIVER_SIZE,
+ 						HCI_MGMT_VAR_LEN },
+ 	{ mesh_features,           MGMT_MESH_READ_FEATURES_SIZE },
 -- 
 2.39.2
 
