@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC20D6CBF5E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7106CBF5F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232345AbjC1Mkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53632 "EHLO
+        id S230363AbjC1Mkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:40:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232488AbjC1Mkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:40:42 -0400
+        with ESMTP id S232371AbjC1Mkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:40:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E274C9EFA
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:40:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB21086BE
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:40:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57588B81CA2
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:40:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE182C433D2;
-        Tue, 28 Mar 2023 12:40:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2FB96B81CA7
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:40:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75142C433EF;
+        Tue, 28 Mar 2023 12:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680007202;
-        bh=17b2SvD6DQSxPphEXuYXsBpvcoQ/yY0EpGnj8JiwgPc=;
+        s=korg; t=1680007204;
+        bh=WtGj05aW2h7J39wnzLInOCCtGFqHSLieIXN2KC7a9Rk=;
         h=Subject:To:Cc:From:Date:From;
-        b=D7Zt7/UbkHJhdW4ErJbhhXBVtncECtr+H1YIeClcGe7VfORItbvN3tLVWclyRkFOF
-         sxPY9vSBFWlj7d2OGniF+655RE0KLrQ/LoD+pq+0NOIG+oN1SFzPfrkxERjs+LvnNM
-         HCunYknAg1PxLQMfzC4Z2eF+PivqxLNGLp57vQdo=
-Subject: FAILED: patch "[PATCH] bus: imx-weim: fix branch condition evaluates to a garbage" failed to apply to 4.19-stable tree
+        b=z7YoKQHiteQrBxGzUUf1rlg2DD9CEd8WDcr4L7USaZu1A6y2eyqTrGcMGeFbD+fau
+         53CwZGyd3azqdxGI5nWrWQmlGViTQZbkelgnAYAkNC47+kv5TPhaD5NwWSbV0Zysru
+         7ljOnEisZ8KUKFNdn8QXPX/jlErDkcp5OBMucI8s=
+Subject: FAILED: patch "[PATCH] bus: imx-weim: fix branch condition evaluates to a garbage" failed to apply to 5.4-stable tree
 To:     i.bornyakov@metrotek.ru, festevam@gmail.com, shawnguo@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 28 Mar 2023 14:39:55 +0200
-Message-ID: <16800071954128@kroah.com>
+Message-ID: <1680007195157101@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,30 +47,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1adab2922c58e7ff4fa9f0b43695079402cce876
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800071954128@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1680007195157101@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
 1adab2922c58 ("bus: imx-weim: fix branch condition evaluates to a garbage value")
 e6cb5408289f ("bus: imx-weim: add DT overlay support for WEIM bus")
-3b1261fb72c7 ("bus: imx-weim: remove incorrect __init annotations")
-4a92f07816ba ("bus: imx-weim: use module_platform_driver()")
-77266e722fea ("bus: imx-weim: optionally enable burst clock mode")
-c7995bcb36ef ("bus: imx-weim: guard against timing configuration conflicts")
-8b8cb52af34d ("bus: imx-weim: support multiple address ranges per child node")
-b1a23445364d ("bus: imx-weim: drop unnecessary DT node name NULL check")
 
 thanks,
 
