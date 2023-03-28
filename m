@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 902E36CC407
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 300FF6CC300
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233714AbjC1O73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:59:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36242 "EHLO
+        id S233320AbjC1Oub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233742AbjC1O7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38724A246
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:08 -0700 (PDT)
+        with ESMTP id S233439AbjC1OuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C636BD521
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A14CC6182A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93227C433EF;
-        Tue, 28 Mar 2023 14:59:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07034B81D70
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E5A0C433EF;
+        Tue, 28 Mar 2023 14:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015547;
-        bh=vDTJRaet6dAszCJ5AtdeEmawHSAnhRinlRq9MNzWsRw=;
+        s=korg; t=1680014979;
+        bh=QIox3PDiauGmOK4hmJGqYYUaN1ZL8e8dfdE8L+u3644=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KS2leAMFrrO7UOVHFGifmYgO09jqEIzxTKupGgerdOvLB3vcHeAaInQb3Ru871uso
-         yiSa12zu9SB65JIMaQQ+pl/JbbLgZokNdyAwnKku8Vh8IdIeBt7mY6ZVvE2GpMaMvW
-         xOYt7b3D0E/T/3Mei1skqcy+70ckNCndPVQEevEQ=
+        b=cEb1zEmUn8hOn61eoGhdOabtWCINkMkmKpGdjHr8MlsWd3mMkf8plZDWv+N133H0j
+         wLGfUphq/YLkg/hNKhki32hrIYMKSjyjy8q5jRKpkXWuoyvtjI8uL4CohChZpwKkaC
+         4NzyzXK78lLEMfQDCS8oJ/JgEp+89BVNotjKI/eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 089/224] net: dsa: mt7530: move setting ssc_delta to PHY_INTERFACE_MODE_TRGMII case
+        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
+        Anson Tsao <anson.tsao@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 6.2 122/240] thunderbolt: Disable interrupt auto clear for rings
 Date:   Tue, 28 Mar 2023 16:41:25 +0200
-Message-Id: <20230328142620.973196087@linuxfoundation.org>
+Message-Id: <20230328142624.876794498@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,51 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 407b508bdd70b6848993843d96ed49ac4108fb52 ]
+commit 468c49f44759720a312e52d44a71c3949ed63d7c upstream.
 
-Move setting the ssc_delta variable to under the PHY_INTERFACE_MODE_TRGMII
-case as it's only needed when trgmii is used.
+When interrupt auto clear is programmed, any read to the interrupt
+status register will clear all interrupts.  If two interrupts have
+come in before one can be serviced then this will cause lost interrupts.
 
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20230320190520.124513-3-arinc.unal@arinc9.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On AMD USB4 routers this has manifested in odd problems particularly
+with long strings of control tranfers such as reading the DROM via bit
+banging.
+
+Instead of clearing interrupts automatically, clear the bit corresponding
+to the given ring's interrupt in the ISR.
+
+Fixes: 7a1808f82a37 ("thunderbolt: Handle ring interrupt by reading interrupt status register")
+Cc: Sanju Mehta <Sanju.Mehta@amd.com>
+Cc: stable@vger.kernel.org
+Tested-by: Anson Tsao <anson.tsao@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mt7530.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/thunderbolt/nhi.c      |   40 +++++++++++++++++++++++++---------------
+ drivers/thunderbolt/nhi_regs.h |    6 ++++--
+ 2 files changed, 29 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index b4a679cbc95cf..38bf760b5b5ee 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -441,6 +441,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 		break;
- 	case PHY_INTERFACE_MODE_TRGMII:
- 		trgint = 1;
-+		if (xtal == HWTRAP_XTAL_25MHZ)
-+			ssc_delta = 0x57;
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -71,24 +71,31 @@ static void ring_interrupt_active(struct
+ 		u32 step, shift, ivr, misc;
+ 		void __iomem *ivr_base;
+ 		int index;
++		int bit;
+ 
+ 		if (ring->is_tx)
+ 			index = ring->hop;
+ 		else
+ 			index = ring->hop + ring->nhi->hop_count;
+ 
+-		if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT) {
+-			/*
+-			 * Ask the hardware to clear interrupt status
+-			 * bits automatically since we already know
+-			 * which interrupt was triggered.
+-			 */
+-			misc = ioread32(ring->nhi->iobase + REG_DMA_MISC);
+-			if (!(misc & REG_DMA_MISC_INT_AUTO_CLEAR)) {
+-				misc |= REG_DMA_MISC_INT_AUTO_CLEAR;
+-				iowrite32(misc, ring->nhi->iobase + REG_DMA_MISC);
+-			}
+-		}
++		/*
++		 * Intel routers support a bit that isn't part of
++		 * the USB4 spec to ask the hardware to clear
++		 * interrupt status bits automatically since
++		 * we already know which interrupt was triggered.
++		 *
++		 * Other routers explicitly disable auto-clear
++		 * to prevent conditions that may occur where two
++		 * MSIX interrupts are simultaneously active and
++		 * reading the register clears both of them.
++		 */
++		misc = ioread32(ring->nhi->iobase + REG_DMA_MISC);
++		if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT)
++			bit = REG_DMA_MISC_INT_AUTO_CLEAR;
 +		else
-+			ssc_delta = 0x87;
- 		if (priv->id == ID_MT7621) {
- 			/* PLL frequency: 150MHz: 1.2GBit */
- 			if (xtal == HWTRAP_XTAL_40MHZ)
-@@ -460,11 +464,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
- 		return -EINVAL;
- 	}
++			bit = REG_DMA_MISC_DISABLE_AUTO_CLEAR;
++		if (!(misc & bit))
++			iowrite32(misc | bit, ring->nhi->iobase + REG_DMA_MISC);
  
--	if (xtal == HWTRAP_XTAL_25MHZ)
--		ssc_delta = 0x57;
--	else
--		ssc_delta = 0x87;
--
- 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
- 		   P6_INTF_MODE(trgint));
+ 		ivr_base = ring->nhi->iobase + REG_INT_VEC_ALLOC_BASE;
+ 		step = index / REG_INT_VEC_ALLOC_REGS * REG_INT_VEC_ALLOC_BITS;
+@@ -393,14 +400,17 @@ EXPORT_SYMBOL_GPL(tb_ring_poll_complete)
  
--- 
-2.39.2
-
+ static void ring_clear_msix(const struct tb_ring *ring)
+ {
++	int bit;
++
+ 	if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT)
+ 		return;
+ 
++	bit = ring_interrupt_index(ring) & 31;
+ 	if (ring->is_tx)
+-		ioread32(ring->nhi->iobase + REG_RING_NOTIFY_BASE);
++		iowrite32(BIT(bit), ring->nhi->iobase + REG_RING_INT_CLEAR);
+ 	else
+-		ioread32(ring->nhi->iobase + REG_RING_NOTIFY_BASE +
+-			 4 * (ring->nhi->hop_count / 32));
++		iowrite32(BIT(bit), ring->nhi->iobase + REG_RING_INT_CLEAR +
++			  4 * (ring->nhi->hop_count / 32));
+ }
+ 
+ static irqreturn_t ring_msix(int irq, void *data)
+--- a/drivers/thunderbolt/nhi_regs.h
++++ b/drivers/thunderbolt/nhi_regs.h
+@@ -77,12 +77,13 @@ struct ring_desc {
+ 
+ /*
+  * three bitfields: tx, rx, rx overflow
+- * Every bitfield contains one bit for every hop (REG_HOP_COUNT). Registers are
+- * cleared on read. New interrupts are fired only after ALL registers have been
++ * Every bitfield contains one bit for every hop (REG_HOP_COUNT).
++ * New interrupts are fired only after ALL registers have been
+  * read (even those containing only disabled rings).
+  */
+ #define REG_RING_NOTIFY_BASE	0x37800
+ #define RING_NOTIFY_REG_COUNT(nhi) ((31 + 3 * nhi->hop_count) / 32)
++#define REG_RING_INT_CLEAR	0x37808
+ 
+ /*
+  * two bitfields: rx, tx
+@@ -105,6 +106,7 @@ struct ring_desc {
+ 
+ #define REG_DMA_MISC			0x39864
+ #define REG_DMA_MISC_INT_AUTO_CLEAR     BIT(2)
++#define REG_DMA_MISC_DISABLE_AUTO_CLEAR	BIT(17)
+ 
+ #define REG_INMAIL_DATA			0x39900
+ 
 
 
