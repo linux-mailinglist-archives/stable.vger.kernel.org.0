@@ -2,104 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD85D6CCBE0
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 23:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B97CE6CCBEB
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 23:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbjC1VG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 17:06:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
+        id S229468AbjC1VIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 17:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229580AbjC1VG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 17:06:56 -0400
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188E795
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:06:56 -0700 (PDT)
-Received: by mail-io1-xd2d.google.com with SMTP id ca18e2360f4ac-7585535bd79so8004839f.0
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:06:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google; t=1680037615;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hanuyFiFhVc/3RlCbpgD6fgmr+rE2YPGOnPcwJgKGQ0=;
-        b=LYeEAX/3D65jXOQjO9a4EZnrh4gNd9cqsx7Z9HeeHrCaYw/KDOSjx5JiZDr6BlBmuf
-         JJ6Qt/QFydNGJykAO4T9vXIa+AfX9zDdPbNtaK4z3T7QxARh29RHlhVsUHZnSMMVseWu
-         DxkZmbiMzO0lcmUqlg3hYDP4Z/CbAsRNW9xxc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680037615;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=hanuyFiFhVc/3RlCbpgD6fgmr+rE2YPGOnPcwJgKGQ0=;
-        b=evjIwj7j1rtlviPFR78Ff8UwCsdEiZ9nTvOmhiJUyYwiXTqC5Uhrh/dUVE6BcFc5PU
-         0OMHxg7o7WX+T1hIukU4xaApgecd4NnAg9YYZZE35PmGvK39uRTYAFV2q20jEgWIlMbp
-         fOov9GRifnvHP+Ba2oDDgFvxx8Yds9zIQnMlToUyTPOe11Z3TOWr6ttPaSr/H98fap3W
-         yhrK2aSh+tpIRr/R+6IvlItdsibgrnZ2/QGiy1DFT9PJr6ueZi+JloBEgSeUN6SnFs84
-         5SwD0WSmAcsldqUrZaKMNROSTSWzhUxv2Tatw24HowUoevk+QeqW8wY3/KVSqsRF9wq9
-         u4fg==
-X-Gm-Message-State: AO0yUKWdnNH9VVIgVZPD9ubdhDZf44DeioqhAQSCk6gIU5qdTBeJ9ANf
-        g5guEiq7KvpB0ubAwMkF3TlbqA==
-X-Google-Smtp-Source: AK7set83tp04y3GJbPyEa2LtGOuxdx88tQRQq5+ZfqDKh8TFASHi9M2UIhXhFGmabMnwCbzzKSnmZg==
-X-Received: by 2002:a05:6602:2d87:b0:759:485:41d with SMTP id k7-20020a0566022d8700b007590485041dmr10044879iow.0.1680037615269;
-        Tue, 28 Mar 2023 14:06:55 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id u19-20020a05663825d300b003ee71bccb7bsm9903752jat.158.2023.03.28.14.06.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Mar 2023 14:06:55 -0700 (PDT)
-Message-ID: <0b0cdfd6-07da-f146-3d63-c7b3e3b508d4@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 15:06:54 -0600
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH 5.15 000/146] 5.15.105-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S229569AbjC1VIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 17:08:48 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF63210C;
+        Tue, 28 Mar 2023 14:08:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680037718; x=1711573718;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=6GLo3d35oVtHdFhb6UNpuguyDFJRdNOuxUvgwUhlmnY=;
+  b=LglhwN39RVgEo5FLlQyQGAK7E30JKuG6QDcXLAacgGymVQqdiPyM9BsR
+   PktPGUQtOjjF+E9K7+bhDXyds1N41adi2+hJ+URoTDczRt1nyf2HfXu9c
+   VKXxaTb6EWB3IoGbaTMokBgLTqN2h3QtU2NZGHGsSWlQCc8ciB5r4OP8w
+   ovFBAEz9OkSGFT24L602Kk3rloMh1zso3/DQcrU/Ce8AgNKUHgXLyZLWB
+   DV9L2v1qD9FpjwpnrJNLFjoBkmNbM2S9P1JR3Mcfl5gX0DD7vHum0dfVl
+   xnEZd8Qm1wxv/atGHEvT9cggufuivuepzgqofbUPRr4oC+NU1Hw5O+e4J
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10663"; a="338193556"
+X-IronPort-AV: E=Sophos;i="5.98,297,1673942400"; 
+   d="scan'208";a="338193556"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2023 14:08:38 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10663"; a="827628736"
+X-IronPort-AV: E=Sophos;i="5.98,297,1673942400"; 
+   d="scan'208";a="827628736"
+Received: from fhannebi-mobl.ger.corp.intel.com (HELO intel.com) ([10.252.50.224])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2023 14:08:36 -0700
+Date:   Tue, 28 Mar 2023 23:08:11 +0200
+From:   Andi Shyti <andi.shyti@linux.intel.com>
+To:     Min Li <lm0963hack@gmail.com>
+Cc:     jani.nikula@linux.intel.com, intel-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        daniel@ffwll.ch, rodrigo.vivi@intel.com, airlied@gmail.com,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Subject: Re: [Intel-gfx] [PATCH 1/1] drm/i915: fix race condition UAF in
+ i915_perf_add_config_ioctl
+Message-ID: <ZCNXO/NJecxaGwep@ashyti-mobl2.lan>
+References: <20230328093627.5067-1-lm0963hack@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230328093627.5067-1-lm0963hack@gmail.com>
+X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/28/23 08:41, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.105 release.
-> There are 146 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Mar 28, 2023 at 05:36:27PM +0800, Min Li wrote:
+> Userspace can guess the id value and try to race oa_config object creation
+> with config remove, resulting in a use-after-free if we dereference the
+> object after unlocking the metrics_lock.  For that reason, unlocking the
+> metrics_lock must be done after we are done dereferencing the object.
 > 
-> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.105-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Signed-off-by: Min Li <lm0963hack@gmail.com>
 
-Compiled and booted on my test system. No dmesg regressions.
+I think we should also add
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: f89823c21224 ("drm/i915/perf: Implement I915_PERF_ADD/REMOVE_CONFIG interface")
+Cc: <stable@vger.kernel.org> # v4.14+
 
-thanks,
--- Shuah
+Andi
+
+> ---
+>  drivers/gpu/drm/i915/i915_perf.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+> index 824a34ec0b83..93748ca2c5da 100644
+> --- a/drivers/gpu/drm/i915/i915_perf.c
+> +++ b/drivers/gpu/drm/i915/i915_perf.c
+> @@ -4634,13 +4634,13 @@ int i915_perf_add_config_ioctl(struct drm_device *dev, void *data,
+>  		err = oa_config->id;
+>  		goto sysfs_err;
+>  	}
+> -
+> -	mutex_unlock(&perf->metrics_lock);
+> +	id = oa_config->id;
+>  
+>  	drm_dbg(&perf->i915->drm,
+>  		"Added config %s id=%i\n", oa_config->uuid, oa_config->id);
+> +	mutex_unlock(&perf->metrics_lock);
+>  
+> -	return oa_config->id;
+> +	return id;
+>  
+>  sysfs_err:
+>  	mutex_unlock(&perf->metrics_lock);
+> -- 
+> 2.25.1
