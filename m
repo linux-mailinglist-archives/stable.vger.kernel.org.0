@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C496CC2DE
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A30D6CC2CE
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233335AbjC1OtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:49:20 -0400
+        id S231929AbjC1OtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:49:02 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbjC1OtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB0AD51D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:34 -0700 (PDT)
+        with ESMTP id S233272AbjC1Osc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E6C1D335
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D79D6181D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE7AC433EF;
-        Tue, 28 Mar 2023 14:48:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8C70B81D73
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5778EC433EF;
+        Tue, 28 Mar 2023 14:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014895;
-        bh=YW6xEUszQnldtHv2N50H+cZlQvtz/OYFIXd00JPV99M=;
+        s=korg; t=1680014897;
+        bh=7aZkUTZ/Knwr5i5ptz64TfiTRMbWRrnZmysVfju2/4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JR929yupJf00hZsoD+mLNMy2Uw1Mjv+0wRam+3+DVWLMbxOAzpQkPeSZVSNLPR2Se
-         xHo9SKBqJQTXfjk7mdCiARK6fEzaa/57ra2Yb/mk5cU0H/6eZizWmTPxgKC9ZPw4gi
-         nfMuXUrZHteP5XHTkhYSC58UDe9GoEaZ7vHfEg9U=
+        b=ipkjOO5LzpyUE9vruGN9NEJkNJEMJUg/aKuX9DfNd5/TXv3P+QPDgBkmeJzMFSsJp
+         urPoyXhjIUfgdn+8Ic9IWF/ybqnUmy6dTUE/gyzGKoAbXVI6Sw8otkCRxOFJcYRddj
+         M+NNRSJG2Tqruj6xTTrMCFKEiVXfpq0wzS+Ss99Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
+        patches@lists.linux.dev, Pauli Virtanen <pav@iki.fi>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 091/240] Bluetooth: btusb: Remove detection of ISO packets over bulk
-Date:   Tue, 28 Mar 2023 16:40:54 +0200
-Message-Id: <20230328142623.562361376@linuxfoundation.org>
+Subject: [PATCH 6.2 092/240] Bluetooth: ISO: fix timestamped HCI ISO data packet parsing
+Date:   Tue, 28 Mar 2023 16:40:55 +0200
+Message-Id: <20230328142623.606553127@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -53,47 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Pauli Virtanen <pav@iki.fi>
 
-[ Upstream commit efe375b716c1c1c9b52a816f5b933a95421020a2 ]
+[ Upstream commit 2f10e40a948e8a2abe7f983df3959a333ca8955f ]
 
-This removes the code introduced by
-14202eff214e1e941fefa0366d4c3bc4b1a0d500 as hci_recv_frame is now able
-to detect ACL packets that are in fact ISO packets.
+Use correct HCI ISO data packet header struct when the packet has
+timestamp. The timestamp, when present, goes before the other fields
+(Core v5.3 4E 5.4.5), so the structs are not compatible.
 
-Fixes: 14202eff214e ("Bluetooth: btusb: Detect if an ACL packet is in fact an ISO packet")
+Fixes: ccf74f2390d6 ("Bluetooth: Add BTPROTO_ISO socket type")
+Signed-off-by: Pauli Virtanen <pav@iki.fi>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ net/bluetooth/iso.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 18bc947187115..5c536151ef836 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -1050,21 +1050,11 @@ static int btusb_recv_bulk(struct btusb_data *data, void *buffer, int count)
- 		hci_skb_expect(skb) -= len;
+diff --git a/net/bluetooth/iso.c b/net/bluetooth/iso.c
+index 24444b502e586..8d136a7301630 100644
+--- a/net/bluetooth/iso.c
++++ b/net/bluetooth/iso.c
+@@ -1620,7 +1620,6 @@ static void iso_disconn_cfm(struct hci_conn *hcon, __u8 reason)
+ void iso_recv(struct hci_conn *hcon, struct sk_buff *skb, u16 flags)
+ {
+ 	struct iso_conn *conn = hcon->iso_data;
+-	struct hci_iso_data_hdr *hdr;
+ 	__u16 pb, ts, len;
  
- 		if (skb->len == HCI_ACL_HDR_SIZE) {
--			__u16 handle = __le16_to_cpu(hci_acl_hdr(skb)->handle);
- 			__le16 dlen = hci_acl_hdr(skb)->dlen;
--			__u8 type;
+ 	if (!conn)
+@@ -1642,6 +1641,8 @@ void iso_recv(struct hci_conn *hcon, struct sk_buff *skb, u16 flags)
+ 		}
  
- 			/* Complete ACL header */
- 			hci_skb_expect(skb) = __le16_to_cpu(dlen);
+ 		if (ts) {
++			struct hci_iso_ts_data_hdr *hdr;
++
+ 			/* TODO: add timestamp to the packet? */
+ 			hdr = skb_pull_data(skb, HCI_ISO_TS_DATA_HDR_SIZE);
+ 			if (!hdr) {
+@@ -1649,15 +1650,19 @@ void iso_recv(struct hci_conn *hcon, struct sk_buff *skb, u16 flags)
+ 				goto drop;
+ 			}
  
--			/* Detect if ISO packet has been sent over bulk */
--			if (hci_conn_num(data->hdev, ISO_LINK)) {
--				type = hci_conn_lookup_type(data->hdev,
--							    hci_handle(handle));
--				if (type == ISO_LINK)
--					hci_skb_pkt_type(skb) = HCI_ISODATA_PKT;
--			}
--
- 			if (skb_tailroom(skb) < hci_skb_expect(skb)) {
- 				kfree_skb(skb);
- 				skb = NULL;
++			len = __le16_to_cpu(hdr->slen);
+ 		} else {
++			struct hci_iso_data_hdr *hdr;
++
+ 			hdr = skb_pull_data(skb, HCI_ISO_DATA_HDR_SIZE);
+ 			if (!hdr) {
+ 				BT_ERR("Frame is too short (len %d)", skb->len);
+ 				goto drop;
+ 			}
++
++			len = __le16_to_cpu(hdr->slen);
+ 		}
+ 
+-		len    = __le16_to_cpu(hdr->slen);
+ 		flags  = hci_iso_data_flags(len);
+ 		len    = hci_iso_data_len(len);
+ 
 -- 
 2.39.2
 
