@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C572F6CC26E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9356CC26F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233206AbjC1OpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S230444AbjC1Op1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbjC1OpU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 087CDCDC1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:01 -0700 (PDT)
+        with ESMTP id S232604AbjC1OpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70A9D50F
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D8F61804
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A53C433EF;
-        Tue, 28 Mar 2023 14:44:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51EFE61830
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60014C433D2;
+        Tue, 28 Mar 2023 14:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014700;
-        bh=0VVFZBmv0NFrwioYNSCHljYCfnPQe5YZM8rYXqQRThw=;
+        s=korg; t=1680014702;
+        bh=dGo9Cm+Xrt82oZruMMnqM56KelznjyAXdwGOxmQtW6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTNLyvqSiI2h9yFFYJd9+kryCxKPOQ2jF1ODzvgiX+slda3orsbQ7sNIxKnliOyij
-         CisIWVcShiXnCc5B9aGoT6hEqwdKH3FvLkDJxNSU5rgi9FkxOukZmjc2juf14gfBUH
-         1zZvf54moan4P0LCiRnuTGazc9u1rLnVvfUULTds=
+        b=xeq5fgLgM8v7NS3X+ThbZBRwuYOjjlrFZY3zUGrJ+aXFtGkCCtRlccdUcWByFLE1F
+         vQDfM36/qdyTTPeoZeOQla30zeEf6zm0CUCJlYMeJyfITIU8yp+79lW61Gl52fbxE9
+         trJsxbpiLR2criICP0VzuwrbCbgyc7xq8O2FHpI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Fang <wei.fang@nxp.com>,
-        Clark Wang <xiaoning.wang@nxp.com>,
+        patches@lists.linux.dev, Andrew Halaney <ahalaney@redhat.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 020/240] arm64: dts: imx8dxl-evk: Disable hibernation mode of AR8031 for EQOS
-Date:   Tue, 28 Mar 2023 16:39:43 +0200
-Message-Id: <20230328142620.499592486@linuxfoundation.org>
+Subject: [PATCH 6.2 021/240] arm64: dts: imx8dxl-evk: Fix eqos phy reset gpio
+Date:   Tue, 28 Mar 2023 16:39:44 +0200
+Message-Id: <20230328142620.546814166@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,68 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Fang <wei.fang@nxp.com>
+From: Andrew Halaney <ahalaney@redhat.com>
 
-[ Upstream commit 0deefb5bd1382aae0aed7c8b266d5088a5308a26 ]
+[ Upstream commit feafeb53140af3cde3fba46b292b15b3a0c0635c ]
 
-The hibernation mode of AR8031 PHY defaults to be enabled after hardware
-reset. When the cable is unplugged, the PHY will enter hibernation mode
-after about 10 senconds and the PHY clocks will be stopped to save
-power. However, due to the design of EQOS, the mac needs the RX_CLK of
-PHY for software reset to complete. Otherwise the software reset of EQOS
-will be failed and do not work correctly. The only way is to disable
-hibernation mode of AR8031 PHY for EQOS, the "qca,disable-hibernation-mode"
-property is used for this purpose and has already been submitted to the
-upstream, for more details please refer to the below link:
-https://lore.kernel.org/netdev/20220818030054.1010660-2-wei.fang@nxp.com/
+The deprecated property is named snps,reset-gpio, but this devicetree
+used snps,reset-gpios instead which results in the reset not being used
+and the following make dtbs_check error:
 
-This issue is easy to reproduce, just unplug the cable and "ifconfig eth0
-down", after about 10 senconds, then "ifconfig eth0 up", you will see
-failure log on the serial port. The log is shown as following:
-root@imx8dxlevk:~#
-[34.941970] imx-dwmac 5b050000.ethernet eth0: Link is Down
-root@imx8dxlevk:~# ifconfig eth0 down
-[35.437814] imx-dwmac 5b050000.ethernet eth0: FPE workqueue stop
-[35.507913] imx-dwmac 5b050000.ethernet eth0: PHY [stmmac-1:00] driver [Qualcomm Atheros AR8031/AR8033] (irq=POLL)
-[35.518613] imx-dwmac 5b050000.ethernet eth0: configuring for phy/rgmii-id link mode
-root@imx8dxlevk:~# ifconfig eth0 up
-[71.143044] imx-dwmac 5b050000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
-[71.215855] imx-dwmac 5b050000.ethernet eth0: PHY [stmmac-1:00] driver [Qualcomm Atheros AR8031/AR8033] (irq=POLL)
-[72.230417] imx-dwmac 5b050000.ethernet: Failed to reset the dma
-[72.236512] imx-dwmac 5b050000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
-[72.245258] imx-dwmac 5b050000.ethernet eth0: __stmmac_open: Hw setup failed
-SIOCSIFFLAGS: Connection timed out
+    ./arch/arm64/boot/dts/freescale/imx8dxl-evk.dtb: ethernet@5b050000: 'snps,reset-gpio' is a dependency of 'snps,reset-delays-us'
+        From schema: ./Documentation/devicetree/bindings/net/snps,dwmac.yaml
 
-After applying this patch, the software reset of EQOS will be
-successful. And the log is shown as below.
-root@imx8dxlevk:~# ifconfig eth0 up
-[96.114344] imx-dwmac 5b050000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
-[96.171466] imx-dwmac 5b050000.ethernet eth0: PHY [stmmac-1:00] driver [Qualcomm Atheros AR8031/AR8033] (irq=POLL)
-[96.188883] imx-dwmac 5b050000.ethernet eth0: No Safety Features support found
-[96.196221] imx-dwmac 5b050000.ethernet eth0: IEEE 1588-2008 Advanced Timestamp supported
-[96.204846] imx-dwmac 5b050000.ethernet eth0: registered PTP clock
-[96.225558] imx-dwmac 5b050000.ethernet eth0: FPE workqueue start
-[96.236858] imx-dwmac 5b050000.ethernet eth0: configuring for phy/rgmii-id link mode
-[96.249358] 8021q: adding VLAN 0 to HW filter on device eth0
+Use the preferred method of defining the reset gpio in the phy node
+itself. Note that this drops the 10 us pre-delay, but prior this wasn't
+used at all and a pre-delay doesn't make much sense in this context so
+it should be fine.
 
-Signed-off-by: Wei Fang <wei.fang@nxp.com>
-Reviewed-by: Clark Wang <xiaoning.wang@nxp.com>
+Fixes: 8dd495d12374 ("arm64: dts: freescale: add support for i.MX8DXL EVK board")
+Signed-off-by: Andrew Halaney <ahalaney@redhat.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Stable-dep-of: feafeb53140a ("arm64: dts: imx8dxl-evk: Fix eqos phy reset gpio")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8dxl-evk.dts | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8dxl-evk.dts | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
-index 280a9c9d8bd98..1bcf228a22b8b 100644
+index 1bcf228a22b8b..852420349c013 100644
 --- a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
 +++ b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
-@@ -135,6 +135,7 @@ ethphy0: ethernet-phy@0 {
- 			reg = <0>;
+@@ -121,8 +121,6 @@ &eqos {
+ 	phy-handle = <&ethphy0>;
+ 	nvmem-cells = <&fec_mac1>;
+ 	nvmem-cell-names = "mac-address";
+-	snps,reset-gpios = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
+-	snps,reset-delays-us = <10 20 200000>;
+ 	status = "okay";
+ 
+ 	mdio {
+@@ -136,6 +134,9 @@ ethphy0: ethernet-phy@0 {
  			eee-broken-1000t;
  			qca,disable-smarteee;
-+			qca,disable-hibernation-mode;
+ 			qca,disable-hibernation-mode;
++			reset-gpios = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
++			reset-assert-us = <20>;
++			reset-deassert-us = <200000>;
  			vddio-supply = <&vddio0>;
  
  			vddio0: vddio-regulator {
