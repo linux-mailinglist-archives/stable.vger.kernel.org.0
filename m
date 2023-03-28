@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 655536CC3E8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 139CA6CC2CA
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233655AbjC1O6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34416 "EHLO
+        id S233319AbjC1Osp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233659AbjC1O6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E173AB9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:08 -0700 (PDT)
+        with ESMTP id S233363AbjC1Os0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:48:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAE95DBD6
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:48:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4E19B81D78
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010F5C4339B;
-        Tue, 28 Mar 2023 14:57:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E892561839
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A42C433D2;
+        Tue, 28 Mar 2023 14:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015480;
-        bh=mD7KZHSfmn2TfzY1Qb/wzUpkBEpQ5uZNDJJgY+CzLFc=;
+        s=korg; t=1680014862;
+        bh=IxIrvvrxbvZ6NAPrB6/hEUp9sScpAI3j4IaxGnPkC6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKaigR64ZuPyIde+WOKFPA09ehsrbkrdyntbXGUQnMuzwP4DsHHTK4h4cXNBpFnRa
-         +J4qEN3D1fqAC/qfeXeXx1d/M63DAWrCUrZQua0wpHGWtEpHnbxZLxoV+3FfR4U7yG
-         BNvmXITNybVc1/d4SZetpxrgFzgndAIQ28Dr29cQ=
+        b=sq9iR+hmDqi7pAsUUsX9hia4rIECF+Ch4UsseKYaiW74hD67mfgXd61oPiYpyywpI
+         VMrlXLxf41S5ARzSj3sDah752pewVcqxovNl7EDRV8UM90KFvE+L1wMxGvhjLEDyiE
+         rx/JHM8mShUQOeQoDZwbTpOYtG2Wv/sXOmfCfJqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 047/224] mlxsw: core_thermal: Fix fan speed in maximum cooling state
+Subject: [PATCH 6.2 080/240] erspan: do not use skb_mac_header() in ndo_start_xmit()
 Date:   Tue, 28 Mar 2023 16:40:43 +0200
-Message-Id: <20230328142619.348214828@linuxfoundation.org>
+Message-Id: <20230328142623.114923365@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +55,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6d206b1ea9f48433a96edec7028586db1d947911 ]
+[ Upstream commit 8e50ed774554f93d55426039b27b1e38d7fa64d8 ]
 
-The cooling levels array is supposed to prevent the system fans from
-being configured below a 20% duty cycle as otherwise some of them get
-stuck at 0 RPM.
+Drivers should not assume skb_mac_header(skb) == skb->data in their
+ndo_start_xmit().
 
-Due to an off-by-one error, the last element in the array was not
-initialized, causing it to be set to zero, which in turn lead to fans
-being configured with a 0% duty cycle in maximum cooling state.
+Use skb_network_offset() and skb_transport_offset() which
+better describe what is needed in erspan_fb_xmit() and
+ip6erspan_tunnel_xmit()
 
-Since commit 332fdf951df8 ("mlxsw: thermal: Fix out-of-bounds memory
-accesses") the contents of the array are static. Therefore, instead of
-fixing the initialization of the array, simply remove it and adjust
-thermal_cooling_device_ops::set_cur_state() so that the configured duty
-cycle is never set below 20%.
+syzbot reported:
+WARNING: CPU: 0 PID: 5083 at include/linux/skbuff.h:2873 skb_mac_header include/linux/skbuff.h:2873 [inline]
+WARNING: CPU: 0 PID: 5083 at include/linux/skbuff.h:2873 ip6erspan_tunnel_xmit+0x1d9c/0x2d90 net/ipv6/ip6_gre.c:962
+Modules linked in:
+CPU: 0 PID: 5083 Comm: syz-executor406 Not tainted 6.3.0-rc2-syzkaller-00866-gd4671cb96fa3 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/02/2023
+RIP: 0010:skb_mac_header include/linux/skbuff.h:2873 [inline]
+RIP: 0010:ip6erspan_tunnel_xmit+0x1d9c/0x2d90 net/ipv6/ip6_gre.c:962
+Code: 04 02 41 01 de 84 c0 74 08 3c 03 0f 8e 1c 0a 00 00 45 89 b4 24 c8 00 00 00 c6 85 77 fe ff ff 01 e9 33 e7 ff ff e8 b4 27 a1 f8 <0f> 0b e9 b6 e7 ff ff e8 a8 27 a1 f8 49 8d bf f0 0c 00 00 48 b8 00
+RSP: 0018:ffffc90003b2f830 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 000000000000ffff RCX: 0000000000000000
+RDX: ffff888021273a80 RSI: ffffffff88e1bd4c RDI: 0000000000000003
+RBP: ffffc90003b2f9d8 R08: 0000000000000003 R09: 000000000000ffff
+R10: 000000000000ffff R11: 0000000000000000 R12: ffff88802b28da00
+R13: 00000000000000d0 R14: ffff88807e25b6d0 R15: ffff888023408000
+FS: 0000555556a61300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055e5b11eb6e8 CR3: 0000000027c1b000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+__netdev_start_xmit include/linux/netdevice.h:4900 [inline]
+netdev_start_xmit include/linux/netdevice.h:4914 [inline]
+__dev_direct_xmit+0x504/0x730 net/core/dev.c:4300
+dev_direct_xmit include/linux/netdevice.h:3088 [inline]
+packet_xmit+0x20a/0x390 net/packet/af_packet.c:285
+packet_snd net/packet/af_packet.c:3075 [inline]
+packet_sendmsg+0x31a0/0x5150 net/packet/af_packet.c:3107
+sock_sendmsg_nosec net/socket.c:724 [inline]
+sock_sendmsg+0xde/0x190 net/socket.c:747
+__sys_sendto+0x23a/0x340 net/socket.c:2142
+__do_sys_sendto net/socket.c:2154 [inline]
+__se_sys_sendto net/socket.c:2150 [inline]
+__x64_sys_sendto+0xe1/0x1b0 net/socket.c:2150
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f123aaa1039
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 b1 14 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffc15d12058 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f123aaa1039
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000020000040 R09: 0000000000000014
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f123aa648c0
+R13: 431bde82d7b634db R14: 0000000000000000 R15: 0000000000000000
 
-Before:
-
- # cat /sys/class/thermal/thermal_zone0/cdev0/type
- mlxsw_fan
- # echo 10 > /sys/class/thermal/thermal_zone0/cdev0/cur_state
- # cat /sys/class/hwmon/hwmon0/name
- mlxsw
- # cat /sys/class/hwmon/hwmon0/pwm1
- 0
-
-After:
-
- # cat /sys/class/thermal/thermal_zone0/cdev0/type
- mlxsw_fan
- # echo 10 > /sys/class/thermal/thermal_zone0/cdev0/cur_state
- # cat /sys/class/hwmon/hwmon0/name
- mlxsw
- # cat /sys/class/hwmon/hwmon0/pwm1
- 255
-
-This bug was uncovered when the thermal subsystem repeatedly tried to
-configure the cooling devices to their maximum state due to another
-issue [1]. This resulted in the fans being stuck at 0 RPM, which
-eventually lead to the system undergoing thermal shutdown.
-
-[1] https://lore.kernel.org/netdev/ZA3CFNhU4AbtsP4G@shredder/
-
-Fixes: a421ce088ac8 ("mlxsw: core: Extend cooling device with cooling levels")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Vadim Pasternak <vadimp@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1baf5ebf8954 ("erspan: auto detect truncated packets.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230320163427.8096-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ net/ipv4/ip_gre.c  | 4 ++--
+ net/ipv6/ip6_gre.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-index c5240d38c9dbd..09ed6e5fa6c34 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -105,7 +105,6 @@ struct mlxsw_thermal {
- 	struct thermal_zone_device *tzdev;
- 	int polling_delay;
- 	struct thermal_cooling_device *cdevs[MLXSW_MFCR_PWMS_MAX];
--	u8 cooling_levels[MLXSW_THERMAL_MAX_STATE + 1];
- 	struct thermal_trip trips[MLXSW_THERMAL_NUM_TRIPS];
- 	struct mlxsw_cooling_states cooling_states[MLXSW_THERMAL_NUM_TRIPS];
- 	struct mlxsw_thermal_area line_cards[];
-@@ -468,7 +467,7 @@ static int mlxsw_thermal_set_cur_state(struct thermal_cooling_device *cdev,
- 		return idx;
- 
- 	/* Normalize the state to the valid speed range. */
--	state = thermal->cooling_levels[state];
-+	state = max_t(unsigned long, MLXSW_THERMAL_MIN_STATE, state);
- 	mlxsw_reg_mfsc_pack(mfsc_pl, idx, mlxsw_state_to_duty(state));
- 	err = mlxsw_reg_write(thermal->core, MLXSW_REG(mfsc), mfsc_pl);
- 	if (err) {
-@@ -859,10 +858,6 @@ int mlxsw_thermal_init(struct mlxsw_core *core,
- 		}
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index ffff46cdcb58f..e55a202649608 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -552,7 +552,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		truncate = true;
  	}
  
--	/* Initialize cooling levels per PWM state. */
--	for (i = 0; i < MLXSW_THERMAL_MAX_STATE; i++)
--		thermal->cooling_levels[i] = max(MLXSW_THERMAL_MIN_STATE, i);
--
- 	thermal->polling_delay = bus_info->low_frequency ?
- 				 MLXSW_THERMAL_SLOW_POLL_INT :
- 				 MLXSW_THERMAL_POLL_INT;
+-	nhoff = skb_network_header(skb) - skb_mac_header(skb);
++	nhoff = skb_network_offset(skb);
+ 	if (skb->protocol == htons(ETH_P_IP) &&
+ 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
+ 		truncate = true;
+@@ -561,7 +561,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		int thoff;
+ 
+ 		if (skb_transport_header_was_set(skb))
+-			thoff = skb_transport_header(skb) - skb_mac_header(skb);
++			thoff = skb_transport_offset(skb);
+ 		else
+ 			thoff = nhoff + sizeof(struct ipv6hdr);
+ 		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 89f5f0f3f5d65..a4ecfc9d25930 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -959,7 +959,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 		truncate = true;
+ 	}
+ 
+-	nhoff = skb_network_header(skb) - skb_mac_header(skb);
++	nhoff = skb_network_offset(skb);
+ 	if (skb->protocol == htons(ETH_P_IP) &&
+ 	    (ntohs(ip_hdr(skb)->tot_len) > skb->len - nhoff))
+ 		truncate = true;
+@@ -968,7 +968,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 		int thoff;
+ 
+ 		if (skb_transport_header_was_set(skb))
+-			thoff = skb_transport_header(skb) - skb_mac_header(skb);
++			thoff = skb_transport_offset(skb);
+ 		else
+ 			thoff = nhoff + sizeof(struct ipv6hdr);
+ 		if (ntohs(ipv6_hdr(skb)->payload_len) > skb->len - thoff)
 -- 
 2.39.2
 
