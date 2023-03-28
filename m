@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 743856CC562
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8383E6CC4A3
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbjC1PNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:13:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55000 "EHLO
+        id S233851AbjC1PGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232711AbjC1PNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:13:37 -0400
+        with ESMTP id S233722AbjC1PGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E6D5FF3D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:13:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79301EC56
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2F6B81DA2
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D22A2C4339B;
-        Tue, 28 Mar 2023 15:11:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EC8DB81D90
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C31C433EF;
+        Tue, 28 Mar 2023 15:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016274;
-        bh=2p0uGVVY53ncfxIli8TOGZZz+wq8TVbJsGb7SgMeRqE=;
+        s=korg; t=1680015933;
+        bh=DFTfCjM6hfMtWIaOnZHvx4o+IABSrjMtjCfInaWsbp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFxetBJcQrL9gnk8omhy/gTNoRsavLIFkA/6Iwp7R0ZnWQ0sodd9YdX4Zqmr0VaYn
-         JA1vstc7bRgjd0sAIn+18PIy+35M32mKsnFm2bINzijCQzryzBriSd08vdmhurKQAU
-         rDid/prjQ+Gy6VsAYbxEDXTQPT2NPxTEnbZPtb8w=
+        b=vz5snk7JbsbDMfjl5/OtY5dHRgXeJNUjB1gyduCX9heTayl5l1uJnqyzk/Q/RvwRS
+         K18iPjqX6yIFxyhYG8R21kC7Osl455V1TLWX3cDYtA/NN3dyfgb1wVAd6SOx81vN1j
+         xd1UCFe6ShVGSIcuk7+TqLGaUNhuZ7RazTqdw7wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 127/146] wifi: mac80211: fix qos on mesh interfaces
+        patches@lists.linux.dev,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Zhang Qiao <zhangqiao22@huawei.com>
+Subject: [PATCH 6.1 220/224] sched/fair: Sanitize vruntime of entity being migrated
 Date:   Tue, 28 Mar 2023 16:43:36 +0200
-Message-Id: <20230328142607.949401132@linuxfoundation.org>
+Message-Id: <20230328142626.471545550@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +54,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-commit 4e348c6c6e23491ae6eb5e077848a42d0562339c upstream.
+commit a53ce18cacb477dd0513c607f187d16f0fa96f71 upstream.
 
-When ieee80211_select_queue is called for mesh, the sta pointer is usually
-NULL, since the nexthop is looked up much later in the tx path.
-Explicitly check for unicast address in that case in order to make qos work
-again.
+Commit 829c1651e9c4 ("sched/fair: sanitize vruntime of entity being placed")
+fixes an overflowing bug, but ignore a case that se->exec_start is reset
+after a migration.
 
-Cc: stable@vger.kernel.org
-Fixes: 50e2ab392919 ("wifi: mac80211: fix queue selection for mesh/OCB interfaces")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20230314095956.62085-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+For fixing this case, we delay the reset of se->exec_start after
+placing the entity which se->exec_start to detect long sleeping task.
+
+In order to take into account a possible divergence between the clock_task
+of 2 rqs, we increase the threshold to around 104 days.
+
+Fixes: 829c1651e9c4 ("sched/fair: sanitize vruntime of entity being placed")
+Originally-by: Zhang Qiao <zhangqiao22@huawei.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Zhang Qiao <zhangqiao22@huawei.com>
+Link: https://lore.kernel.org/r/20230317160810.107988-1-vincent.guittot@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/wme.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/sched/core.c |    3 ++
+ kernel/sched/fair.c |   53 ++++++++++++++++++++++++++++++++++++++++++----------
+ 2 files changed, 46 insertions(+), 10 deletions(-)
 
---- a/net/mac80211/wme.c
-+++ b/net/mac80211/wme.c
-@@ -143,12 +143,14 @@ u16 ieee80211_select_queue_80211(struct
- u16 __ieee80211_select_queue(struct ieee80211_sub_if_data *sdata,
- 			     struct sta_info *sta, struct sk_buff *skb)
- {
-+	const struct ethhdr *eth = (void *)skb->data;
- 	struct mac80211_qos_map *qos_map;
- 	bool qos;
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2082,6 +2082,9 @@ static inline void dequeue_task(struct r
  
- 	/* all mesh/ocb stations are required to support WME */
--	if (sta && (sdata->vif.type == NL80211_IFTYPE_MESH_POINT ||
--		    sdata->vif.type == NL80211_IFTYPE_OCB))
-+	if ((sdata->vif.type == NL80211_IFTYPE_MESH_POINT &&
-+	    !is_multicast_ether_addr(eth->h_dest)) ||
-+	    (sdata->vif.type == NL80211_IFTYPE_OCB && sta))
- 		qos = true;
- 	else if (sta)
- 		qos = sta->sta.wme;
+ void activate_task(struct rq *rq, struct task_struct *p, int flags)
+ {
++	if (task_on_rq_migrating(p))
++		flags |= ENQUEUE_MIGRATED;
++
+ 	enqueue_task(rq, p, flags);
+ 
+ 	p->on_rq = TASK_ON_RQ_QUEUED;
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4636,11 +4636,33 @@ static void check_spread(struct cfs_rq *
+ #endif
+ }
+ 
++static inline bool entity_is_long_sleeper(struct sched_entity *se)
++{
++	struct cfs_rq *cfs_rq;
++	u64 sleep_time;
++
++	if (se->exec_start == 0)
++		return false;
++
++	cfs_rq = cfs_rq_of(se);
++
++	sleep_time = rq_clock_task(rq_of(cfs_rq));
++
++	/* Happen while migrating because of clock task divergence */
++	if (sleep_time <= se->exec_start)
++		return false;
++
++	sleep_time -= se->exec_start;
++	if (sleep_time > ((1ULL << 63) / scale_load_down(NICE_0_LOAD)))
++		return true;
++
++	return false;
++}
++
+ static void
+ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
+ {
+ 	u64 vruntime = cfs_rq->min_vruntime;
+-	u64 sleep_time;
+ 
+ 	/*
+ 	 * The 'current' period is already promised to the current tasks,
+@@ -4672,13 +4694,24 @@ place_entity(struct cfs_rq *cfs_rq, stru
+ 
+ 	/*
+ 	 * Pull vruntime of the entity being placed to the base level of
+-	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
+-	 * slept for a long time, don't even try to compare its vruntime with
+-	 * the base as it may be too far off and the comparison may get
+-	 * inversed due to s64 overflow.
++	 * cfs_rq, to prevent boosting it if placed backwards.
++	 * However, min_vruntime can advance much faster than real time, with
++	 * the extreme being when an entity with the minimal weight always runs
++	 * on the cfs_rq. If the waking entity slept for a long time, its
++	 * vruntime difference from min_vruntime may overflow s64 and their
++	 * comparison may get inversed, so ignore the entity's original
++	 * vruntime in that case.
++	 * The maximal vruntime speedup is given by the ratio of normal to
++	 * minimal weight: scale_load_down(NICE_0_LOAD) / MIN_SHARES.
++	 * When placing a migrated waking entity, its exec_start has been set
++	 * from a different rq. In order to take into account a possible
++	 * divergence between new and prev rq's clocks task because of irq and
++	 * stolen time, we take an additional margin.
++	 * So, cutting off on the sleep time of
++	 *     2^63 / scale_load_down(NICE_0_LOAD) ~ 104 days
++	 * should be safe.
+ 	 */
+-	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
+-	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
++	if (entity_is_long_sleeper(se))
+ 		se->vruntime = vruntime;
+ 	else
+ 		se->vruntime = max_vruntime(se->vruntime, vruntime);
+@@ -4758,6 +4791,9 @@ enqueue_entity(struct cfs_rq *cfs_rq, st
+ 
+ 	if (flags & ENQUEUE_WAKEUP)
+ 		place_entity(cfs_rq, se, 0);
++	/* Entity has migrated, no longer consider this task hot */
++	if (flags & ENQUEUE_MIGRATED)
++		se->exec_start = 0;
+ 
+ 	check_schedstat_required();
+ 	update_stats_enqueue_fair(cfs_rq, se, flags);
+@@ -7460,9 +7496,6 @@ static void migrate_task_rq_fair(struct
+ 	/* Tell new CPU we are migrated */
+ 	se->avg.last_update_time = 0;
+ 
+-	/* We have migrated, no longer consider this task hot */
+-	se->exec_start = 0;
+-
+ 	update_scan_period(p, new_cpu);
+ }
+ 
 
 
