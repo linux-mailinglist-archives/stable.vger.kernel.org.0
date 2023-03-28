@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DDB76CC3F8
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09F16CC3F9
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233690AbjC1O6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35546 "EHLO
+        id S233558AbjC1O6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:58:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233699AbjC1O6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07145E079
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:27 -0700 (PDT)
+        with ESMTP id S233720AbjC1O6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E49E389
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D8D6183C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D445C433D2;
-        Tue, 28 Mar 2023 14:58:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B17D6181D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587FFC433D2;
+        Tue, 28 Mar 2023 14:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015506;
-        bh=6ZIG/AaYFRe4Ziajz/NcQxFcvyNcXM3LuH1cO7y+XfE=;
+        s=korg; t=1680015508;
+        bh=0IUXgK7/dHVxPwjwJoaOsFqx+zR1jF+V2KTemtsJvCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRcAmCxfZayNdD0vlYwW5kFxGEl/M4zS52xE0gznb+ezctqBEHMwhfHopQJ8mDHtU
-         LmyTZ9LCeYlx2QuUVoFg4cD++22ST9LkXBjk0zCc4vsU/zUubrowV3acd63rODlLE+
-         A7IV+7rIyDT4Zo0nFOLGo8+wH4QvnqB+vPcnxNCY=
+        b=D1FSHKi6hMuqIVeIKkOnoCquXhdigSmgXznb9L6E0TWNP6NJddcygBTGjAkTRkLga
+         f/mBIzQijEwn0Hiwsa/nPgINIM3yG7jziZdBFnoWPY97+wSq2GL2q3aHFks/aQTjcg
+         tkshYUqmgD7/DAsT3K2HkirX+bFmeVH9oTCI/Eaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Stan Johnson <userm57@yahoo.com>,
-        Finn Thain <fthain@linux-m68k.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 073/224] net/sonic: use dma_mapping_error() for error check
-Date:   Tue, 28 Mar 2023 16:41:09 +0200
-Message-Id: <20230328142620.395432622@linuxfoundation.org>
+        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Caleb Sander <csander@purestorage.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 074/224] nvme-tcp: fix nvme_tcp_term_pdu to match spec
+Date:   Tue, 28 Mar 2023 16:41:10 +0200
+Message-Id: <20230328142620.430962875@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
 References: <20230328142617.205414124@linuxfoundation.org>
@@ -48,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,47 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Caleb Sander <csander@purestorage.com>
 
-[ Upstream commit 4107b8746d93ace135b8c4da4f19bbae81db785f ]
+[ Upstream commit aa01c67de5926fdb276793180564f172c55fb0d7 ]
 
-The DMA address returned by dma_map_single() should be checked with
-dma_mapping_error(). Fix it accordingly.
+The FEI field of C2HTermReq/H2CTermReq is 4 bytes but not 4-byte-aligned
+in the NVMe/TCP specification (it is located at offset 10 in the PDU).
+Split it into two 16-bit integers in struct nvme_tcp_term_pdu
+so no padding is inserted. There should also be 10 reserved bytes after.
+There are currently no users of this type.
 
-Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@linux-m68k.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/6645a4b5c1e364312103f48b7b36783b94e197a2.1679370343.git.fthain@linux-m68k.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: fc221d05447aa6db ("nvme-tcp: Add protocol header")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Caleb Sander <csander@purestorage.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/sonic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/nvme-tcp.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
-index d17d1b4f2585f..825356ee3492e 100644
---- a/drivers/net/ethernet/natsemi/sonic.c
-+++ b/drivers/net/ethernet/natsemi/sonic.c
-@@ -292,7 +292,7 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
- 	 */
+diff --git a/include/linux/nvme-tcp.h b/include/linux/nvme-tcp.h
+index 75470159a194d..57ebe1267f7fb 100644
+--- a/include/linux/nvme-tcp.h
++++ b/include/linux/nvme-tcp.h
+@@ -115,8 +115,9 @@ struct nvme_tcp_icresp_pdu {
+ struct nvme_tcp_term_pdu {
+ 	struct nvme_tcp_hdr	hdr;
+ 	__le16			fes;
+-	__le32			fei;
+-	__u8			rsvd[8];
++	__le16			feil;
++	__le16			feiu;
++	__u8			rsvd[10];
+ };
  
- 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
--	if (!laddr) {
-+	if (dma_mapping_error(lp->device, laddr)) {
- 		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
- 		dev_kfree_skb_any(skb);
- 		return NETDEV_TX_OK;
-@@ -509,7 +509,7 @@ static bool sonic_alloc_rb(struct net_device *dev, struct sonic_local *lp,
- 
- 	*new_addr = dma_map_single(lp->device, skb_put(*new_skb, SONIC_RBSIZE),
- 				   SONIC_RBSIZE, DMA_FROM_DEVICE);
--	if (!*new_addr) {
-+	if (dma_mapping_error(lp->device, *new_addr)) {
- 		dev_kfree_skb(*new_skb);
- 		*new_skb = NULL;
- 		return false;
+ /**
 -- 
 2.39.2
 
