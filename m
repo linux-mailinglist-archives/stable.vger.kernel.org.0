@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6A36CC43B
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:01:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EFC46CC34C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233745AbjC1PBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:01:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
+        id S233527AbjC1Owy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:52:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbjC1PB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:01:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3048EB71
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:08 -0700 (PDT)
+        with ESMTP id S233204AbjC1Owc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DA6DBCB
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38156617F1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48A41C433EF;
-        Tue, 28 Mar 2023 15:01:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C61E261828
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9775C4339B;
+        Tue, 28 Mar 2023 14:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015667;
-        bh=F4cf46G1SzMAmP/1mVA/MZTSif0m74J5A6XC5SLL+R8=;
+        s=korg; t=1680015149;
+        bh=bkusqBlP8Nhq982QU41p/F6NHnnsnifh37i35c2iLxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLcb80kFODLhoebSdH1FiS7uR8ojWiVOZfUdg18yojJMBlIyBIeuqv+gvfz1Qal1z
-         YifbNCwal6g0wE9HMUF5ZI3zs/YCdpJjWfD/lHPkZG6jUGF21AX80JgmL3kAaX3se0
-         AjUQrMRRUgHhEJTI6/gTP4OQsJ6OEa5OaaK0m+G0=
+        b=2cul+oyDc6a4vG+WBwip62b4Y5cSwBEsYFUcglVKv0tdeKlumhDxQbbKXiYUaDen/
+         IE6JEWbRS12SQqtg6KtvGvJB2bvVD4Tl6rmROoYPrYlt2Owzson14H2ALbhP8d+8WF
+         ls93m20ZytFla1BJkh027wC6Lsxj9oRGnLBG4nB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kang Chen <void0red@gmail.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 132/224] scsi: hisi_sas: Check devm_add_action() return value
-Date:   Tue, 28 Mar 2023 16:42:08 +0200
-Message-Id: <20230328142622.878810134@linuxfoundation.org>
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 166/240] cifs: dump pending mids for all channels in DebugData
+Date:   Tue, 28 Mar 2023 16:42:09 +0200
+Message-Id: <20230328142626.583129985@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,38 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kang Chen <void0red@gmail.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-[ Upstream commit 06d1a90de60208054cca15ef200138cfdbb642a9 ]
+commit d12bc6d26f92c51b28e8f4a146ffcc630b688198 upstream.
 
-In case devm_add_action() fails, check it in the caller of
-interrupt_preinit_v3_hw().
+Currently, we only dump the pending mid information only
+on the primary channel in /proc/fs/cifs/DebugData.
+If multichannel is active, we do not print the pending MID
+list on secondary channels.
 
-Link: https://lore.kernel.org/r/20230227031030.893324-1-void0red@gmail.com
-Signed-off-by: Kang Chen <void0red@gmail.com>
-Acked-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This change will dump the pending mids for all the channels
+based on server->conn_id.
+
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/cifs/cifs_debug.c |   41 +++++++++++++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index d56b4bfd27678..620dcefe7b6f4 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2448,8 +2448,7 @@ static int interrupt_preinit_v3_hw(struct hisi_hba *hisi_hba)
- 	hisi_hba->cq_nvecs = vectors - BASE_VECTORS_V3_HW;
- 	shost->nr_hw_queues = hisi_hba->cq_nvecs;
- 
--	devm_add_action(&pdev->dev, hisi_sas_v3_free_vectors, pdev);
--	return 0;
-+	return devm_add_action(&pdev->dev, hisi_sas_v3_free_vectors, pdev);
- }
- 
- static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
--- 
-2.39.2
-
+--- a/fs/cifs/cifs_debug.c
++++ b/fs/cifs/cifs_debug.c
+@@ -215,6 +215,7 @@ static int cifs_debug_data_proc_show(str
+ {
+ 	struct mid_q_entry *mid_entry;
+ 	struct TCP_Server_Info *server;
++	struct TCP_Server_Info *chan_server;
+ 	struct cifs_ses *ses;
+ 	struct cifs_tcon *tcon;
+ 	struct cifs_server_iface *iface;
+@@ -471,23 +472,35 @@ skip_rdma:
+ 					seq_puts(m, "\t\t[CONNECTED]\n");
+ 			}
+ 			spin_unlock(&ses->iface_lock);
++
++			seq_puts(m, "\n\n\tMIDs: ");
++			spin_lock(&ses->chan_lock);
++			for (j = 0; j < ses->chan_count; j++) {
++				chan_server = ses->chans[j].server;
++				if (!chan_server)
++					continue;
++
++				if (list_empty(&chan_server->pending_mid_q))
++					continue;
++
++				seq_printf(m, "\n\tServer ConnectionId: 0x%llx",
++					   chan_server->conn_id);
++				spin_lock(&chan_server->mid_lock);
++				list_for_each_entry(mid_entry, &chan_server->pending_mid_q, qhead) {
++					seq_printf(m, "\n\t\tState: %d com: %d pid: %d cbdata: %p mid %llu",
++						   mid_entry->mid_state,
++						   le16_to_cpu(mid_entry->command),
++						   mid_entry->pid,
++						   mid_entry->callback_data,
++						   mid_entry->mid);
++				}
++				spin_unlock(&chan_server->mid_lock);
++			}
++			spin_unlock(&ses->chan_lock);
++			seq_puts(m, "\n--\n");
+ 		}
+ 		if (i == 0)
+ 			seq_printf(m, "\n\t\t[NONE]");
+-
+-		seq_puts(m, "\n\n\tMIDs: ");
+-		spin_lock(&server->mid_lock);
+-		list_for_each_entry(mid_entry, &server->pending_mid_q, qhead) {
+-			seq_printf(m, "\n\tState: %d com: %d pid:"
+-					" %d cbdata: %p mid %llu\n",
+-					mid_entry->mid_state,
+-					le16_to_cpu(mid_entry->command),
+-					mid_entry->pid,
+-					mid_entry->callback_data,
+-					mid_entry->mid);
+-		}
+-		spin_unlock(&server->mid_lock);
+-		seq_printf(m, "\n--\n");
+ 	}
+ 	if (c == 0)
+ 		seq_printf(m, "\n\t[NONE]");
 
 
