@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9546CC467
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4EA6CC5EB
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbjC1PEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:04:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44532 "EHLO
+        id S234019AbjC1PTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233743AbjC1PEs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 204A2EB48
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:33 -0700 (PDT)
+        with ESMTP id S234024AbjC1PTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:19:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A908E113C7
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:17:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F6E1B81D7D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E14CC433EF;
-        Tue, 28 Mar 2023 15:03:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24A9E6184B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F1FC433D2;
+        Tue, 28 Mar 2023 15:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015784;
-        bh=6xKV1IegHjiXEHUs7HhfNhN/Bsm0ZPS2qRjBo0cH1H0=;
+        s=korg; t=1680016142;
+        bh=euySgtFla8nW1hKEmnuwoq4Dc8abVxKVz5lV6/AqKiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZfA2dYRaVq7xBBPwy6ni4mMWZZQ8T9XBOXY1wVtBeDk3b8J6Hn3vTDNiI2//Sogg
-         VFi/9DhXiAXJXDCEIZNa/Njfc0l6eJb52IuN1aAe6DZ9LbBv6D7UGSSRDZDuKhP4/S
-         28fXmTN07HaM8Qgu44DiLVzCpSNWEzHU5z+h6cSc=
+        b=ZDcXkTLwHKLrJfSRK8T8FdQDuf7ORRJHAyFVXS45ma9ZbN9sOp+KitU/LMF9fphll
+         Giaw8YJA7TmlgZb2xoyrvU4KX2ARn7SgUl824rNda3vVakwbJPKOER7SsUnsktlgzt
+         lDBrDpVjPi/L/M2GplZdeLs7woKTzakUdxXeqQlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xu Yang <xu.yang_2@nxp.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 6.1 174/224] usb: typec: tcpm: fix create duplicate source-capabilities file
+        patches@lists.linux.dev, Tom Rix <trix@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.15 081/146] thunderbolt: Rename shadowed variables bit to interrupt_bit and auto_clear_bit
 Date:   Tue, 28 Mar 2023 16:42:50 +0200
-Message-Id: <20230328142624.635737075@linuxfoundation.org>
+Message-Id: <20230328142606.087832792@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +52,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yang <xu.yang_2@nxp.com>
+From: Tom Rix <trix@redhat.com>
 
-commit a826492fc9dfe32afd70fff93955ae8174bbf14b upstream.
+commit 58cdfe6f58b35f17f56386f5fcf937168a423ad1 upstream.
 
-The kernel will dump in the below cases:
-sysfs: cannot create duplicate filename
-'/devices/virtual/usb_power_delivery/pd1/source-capabilities'
+cppcheck reports
+drivers/thunderbolt/nhi.c:74:7: style: Local variable 'bit' shadows outer variable [shadowVariable]
+  int bit;
+      ^
+drivers/thunderbolt/nhi.c:66:6: note: Shadowed declaration
+ int bit = ring_interrupt_index(ring) & 31;
+     ^
+drivers/thunderbolt/nhi.c:74:7: note: Shadow variable
+  int bit;
+      ^
+For readablity rename the outer to interrupt_bit and the innner
+to auto_clear_bit.
 
-1. After soft reset has completed, an Explicit Contract negotiation occurs.
-The sink device will receive source capabilitys again. This will cause
-a duplicate source-capabilities file be created.
-2. Power swap twice on a device that is initailly sink role.
-
-This will unregister existing capabilities when above cases occurs.
-
-Fixes: 8203d26905ee ("usb: typec: tcpm: Register USB Power Delivery Capabilities")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20230215054951.238394-1-xu.yang_2@nxp.com
+Fixes: 468c49f44759 ("thunderbolt: Disable interrupt auto clear for ring")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/thunderbolt/nhi.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -4547,6 +4547,9 @@ static void run_state_machine(struct tcp
- 	case SOFT_RESET:
- 		port->message_id = 0;
- 		port->rx_msgid = -1;
-+		/* remove existing capabilities */
-+		usb_power_delivery_unregister_capabilities(port->partner_source_caps);
-+		port->partner_source_caps = NULL;
- 		tcpm_pd_send_control(port, PD_CTRL_ACCEPT);
- 		tcpm_ams_finish(port);
- 		if (port->pwr_role == TYPEC_SOURCE) {
-@@ -4566,6 +4569,9 @@ static void run_state_machine(struct tcp
- 	case SOFT_RESET_SEND:
- 		port->message_id = 0;
- 		port->rx_msgid = -1;
-+		/* remove existing capabilities */
-+		usb_power_delivery_unregister_capabilities(port->partner_source_caps);
-+		port->partner_source_caps = NULL;
- 		if (tcpm_pd_send_control(port, PD_CTRL_SOFT_RESET))
- 			tcpm_set_state_cond(port, hard_reset_state(port), 0);
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -60,15 +60,15 @@ static void ring_interrupt_active(struct
+ {
+ 	int reg = REG_RING_INTERRUPT_BASE +
+ 		  ring_interrupt_index(ring) / 32 * 4;
+-	int bit = ring_interrupt_index(ring) & 31;
+-	int mask = 1 << bit;
++	int interrupt_bit = ring_interrupt_index(ring) & 31;
++	int mask = 1 << interrupt_bit;
+ 	u32 old, new;
+ 
+ 	if (ring->irq > 0) {
+ 		u32 step, shift, ivr, misc;
+ 		void __iomem *ivr_base;
++		int auto_clear_bit;
+ 		int index;
+-		int bit;
+ 
+ 		if (ring->is_tx)
+ 			index = ring->hop;
+@@ -88,11 +88,12 @@ static void ring_interrupt_active(struct
+ 		 */
+ 		misc = ioread32(ring->nhi->iobase + REG_DMA_MISC);
+ 		if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT)
+-			bit = REG_DMA_MISC_INT_AUTO_CLEAR;
++			auto_clear_bit = REG_DMA_MISC_INT_AUTO_CLEAR;
  		else
-@@ -4695,6 +4701,9 @@ static void run_state_machine(struct tcp
- 		tcpm_set_state(port, SNK_STARTUP, 0);
- 		break;
- 	case PR_SWAP_SNK_SRC_SINK_OFF:
-+		/* will be source, remove existing capabilities */
-+		usb_power_delivery_unregister_capabilities(port->partner_source_caps);
-+		port->partner_source_caps = NULL;
- 		/*
- 		 * Prevent vbus discharge circuit from turning on during PR_SWAP
- 		 * as this is not a disconnect.
+-			bit = REG_DMA_MISC_DISABLE_AUTO_CLEAR;
+-		if (!(misc & bit))
+-			iowrite32(misc | bit, ring->nhi->iobase + REG_DMA_MISC);
++			auto_clear_bit = REG_DMA_MISC_DISABLE_AUTO_CLEAR;
++		if (!(misc & auto_clear_bit))
++			iowrite32(misc | auto_clear_bit,
++				  ring->nhi->iobase + REG_DMA_MISC);
+ 
+ 		ivr_base = ring->nhi->iobase + REG_INT_VEC_ALLOC_BASE;
+ 		step = index / REG_INT_VEC_ALLOC_REGS * REG_INT_VEC_ALLOC_BITS;
+@@ -112,7 +113,7 @@ static void ring_interrupt_active(struct
+ 
+ 	dev_dbg(&ring->nhi->pdev->dev,
+ 		"%s interrupt at register %#x bit %d (%#x -> %#x)\n",
+-		active ? "enabling" : "disabling", reg, bit, old, new);
++		active ? "enabling" : "disabling", reg, interrupt_bit, old, new);
+ 
+ 	if (new == old)
+ 		dev_WARN(&ring->nhi->pdev->dev,
 
 
