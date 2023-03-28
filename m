@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E36D6CC4AD
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4E1C6CC369
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbjC1PHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
+        id S233288AbjC1Oxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233888AbjC1PHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:07:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029BAE392
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:06:07 -0700 (PDT)
+        with ESMTP id S232888AbjC1Oxk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BD5C15D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 301F76177C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 404BDC433EF;
-        Tue, 28 Mar 2023 15:03:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E1ECB81BBF
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8457C433EF;
+        Tue, 28 Mar 2023 14:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015787;
-        bh=a6Fu+jjriIfI9gO65n8vG7vbRhw9y6LeVU1j7vW45C8=;
+        s=korg; t=1680015214;
+        bh=0sF/FLFImlTr/IwaAh4xk4Lz+zzRubRGxpg5m0K2ykc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyJUCpvojuI12GlhA0/dm0+0PGNNhsydjzU2hdKqUj1TtTxSc7+XjIvTX4V16qmVF
-         D6736CLBgXkpko/wJHHBmgpSx/UsibIwigDh/GsKy1AwXwKr6+JBXPELN+ePw1iTPu
-         g9GraKVsrIyXnWsMhkplFKHbOg2lYLzWp5E9jTvI=
+        b=cM5uOYrcuptseLo0npvJb9a6xAkHuohiydvkeIeGBDjDvw3cKPlC9GEJSZ6CgsbBo
+         +AhtqdTf5DH9lvJfkKqsCJk9qm4cCs3Q9yz55B6hFZvXpxicQCPFsyQSEXOZZpez9l
+         MhjuLM8YUFontp87ry2n3klzcnrvMYWzc0mASNEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xu Yang <xu.yang_2@nxp.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 6.1 175/224] usb: typec: tcpm: fix warning when handle discover_identity message
+        patches@lists.linux.dev,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Snild Dolkow <snild@sony.com>,
+        Peng Zhang <zhangpeng.00@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 208/240] maple_tree: fix mas_skip_node() end slot detection
 Date:   Tue, 28 Mar 2023 16:42:51 +0200
-Message-Id: <20230328142624.675659326@linuxfoundation.org>
+Message-Id: <20230328142628.357681120@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,122 +55,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yang <xu.yang_2@nxp.com>
+From: Liam R. Howlett <Liam.Howlett@oracle.com>
 
-commit abfc4fa28f0160df61c7149567da4f6494dfb488 upstream.
+commit 0fa99fdfe1b38da396d0b2d1496a823bcd0ebea0 upstream.
 
-Since both source and sink device can send discover_identity message in
-PD3, kernel may dump below warning:
+Patch series "Fix mas_skip_node() for mas_empty_area()", v2.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 169 at drivers/usb/typec/tcpm/tcpm.c:1446 tcpm_queue_vdm+0xe0/0xf0
-Modules linked in:
-CPU: 0 PID: 169 Comm: 1-0050 Not tainted 6.1.1-00038-g6a3c36cf1da2-dirty #567
-Hardware name: NXP i.MX8MPlus EVK board (DT)
-pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : tcpm_queue_vdm+0xe0/0xf0
-lr : tcpm_queue_vdm+0x2c/0xf0
-sp : ffff80000c19bcd0
-x29: ffff80000c19bcd0 x28: 0000000000000001 x27: ffff0000d11c8ab8
-x26: ffff0000d11cc000 x25: 0000000000000000 x24: 00000000ff008081
-x23: 0000000000000001 x22: 00000000ff00a081 x21: ffff80000c19bdbc
-x20: 0000000000000000 x19: ffff0000d11c8080 x18: ffffffffffffffff
-x17: 0000000000000000 x16: 0000000000000000 x15: ffff0000d716f580
-x14: 0000000000000001 x13: ffff0000d716f507 x12: 0000000000000001
-x11: 0000000000000000 x10: 0000000000000020 x9 : 00000000000ee098
-x8 : 00000000ffffffff x7 : 000000000000001c x6 : ffff0000d716f580
-x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
-x2 : ffff80000c19bdbc x1 : 00000000ff00a081 x0 : 0000000000000004
-Call trace:
-tcpm_queue_vdm+0xe0/0xf0
-tcpm_pd_rx_handler+0x340/0x1ab0
-kthread_worker_fn+0xcc/0x18c
-kthread+0x10c/0x110
-ret_from_fork+0x10/0x20
----[ end trace 0000000000000000 ]---
+mas_empty_area() was incorrectly returning an error when there was room.
+The issue was tracked down to mas_skip_node() using the incorrect
+end-of-slot count.  Instead of using the nodes hard limit, the limit of
+data should be used.
 
-Below sequences may trigger this warning:
+mas_skip_node() was also setting the min and max to that of the child
+node, which was unnecessary.  Within these limits being set, there was
+also a bug that corrupted the maple state's max if the offset was set to
+the maximum node pivot.  The bug was without consequence unless there was
+a sufficient gap in the next child node which would cause an error to be
+returned.
 
-tcpm_send_discover_work(work)
-  tcpm_send_vdm(port, USB_SID_PD, CMD_DISCOVER_IDENT, NULL, 0);
-   tcpm_queue_vdm(port, header, data, count);
-    port->vdm_state = VDM_STATE_READY;
+This patch set fixes these errors by removing the limit setting from
+mas_skip_node() and uses the mas_data_end() for slot limits, and adds
+tests for all failures discovered.
 
-vdm_state_machine_work(work);
-			<-- received discover_identity from partner
- vdm_run_state_machine(port);
-  port->vdm_state = VDM_STATE_SEND_MESSAGE;
-   mod_vdm_delayed_work(port, x);
 
-tcpm_pd_rx_handler(work);
- tcpm_pd_data_request(port, msg);
-  tcpm_handle_vdm_request(port, msg->payload, cnt);
-   tcpm_queue_vdm(port, response[0], &response[1], rlen - 1);
---> WARN_ON(port->vdm_state > VDM_STATE_DONE);
+This patch (of 2):
 
-For this case, the state machine could still send out discover
-identity message later if we skip current discover_identity message.
-So we should handle the received message firstly and override the pending
-discover_identity message without warning in this case. Then, a delayed
-send_discover work will send discover_identity message again.
+mas_skip_node() is used to move the maple state to the node with a higher
+limit.  It does this by walking up the tree and increasing the slot count.
+Since slot count may not be able to be increased, it may need to walk up
+multiple times to find room to walk right to a higher limit node.  The
+limit of slots that was being used was the node limit and not the last
+location of data in the node.  This would cause the maple state to be
+shifted outside actual data and enter an error state, thus returning
+-EBUSY.
 
-Fixes: e00943e91678 ("usb: typec: tcpm: PD3.0 sinks can send Discover Identity even in device mode")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230216031515.4151117-1-xu.yang_2@nxp.com
+The result of the incorrect error state means that mas_awalk() would
+return an error instead of finding the allocation space.
+
+The fix is to use mas_data_end() in mas_skip_node() to detect the nodes
+data end point and continue walking the tree up until it is safe to move
+to a node with a higher limit.
+
+The walk up the tree also sets the maple state limits so remove the buggy
+code from mas_skip_node().  Setting the limits had the unfortunate side
+effect of triggering another bug if the parent node was full and the there
+was no suitable gap in the second last child, but room in the next child.
+
+mas_skip_node() may also be passed a maple state in an error state from
+mas_anode_descend() when no allocations are available.  Return on such an
+error state immediately.
+
+Link: https://lkml.kernel.org/r/20230307180247.2220303-1-Liam.Howlett@oracle.com
+Link: https://lkml.kernel.org/r/20230307180247.2220303-2-Liam.Howlett@oracle.com
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: Snild Dolkow <snild@sony.com>
+  Link: https://lore.kernel.org/linux-mm/cb8dc31a-fef2-1d09-f133-e9f7b9f9e77a@sony.com/
+Tested-by: Snild Dolkow <snild@sony.com>
+Cc: Peng Zhang <zhangpeng.00@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ lib/maple_tree.c |   24 +++++-------------------
+ 1 file changed, 5 insertions(+), 19 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -1436,10 +1436,18 @@ static int tcpm_ams_start(struct tcpm_po
- static void tcpm_queue_vdm(struct tcpm_port *port, const u32 header,
- 			   const u32 *data, int cnt)
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -5093,35 +5093,21 @@ static inline bool mas_rewind_node(struc
+  */
+ static inline bool mas_skip_node(struct ma_state *mas)
  {
-+	u32 vdo_hdr = port->vdo_data[0];
-+
- 	WARN_ON(!mutex_is_locked(&port->lock));
+-	unsigned char slot, slot_count;
+-	unsigned long *pivots;
+-	enum maple_type mt;
++	if (mas_is_err(mas))
++		return false;
  
--	/* Make sure we are not still processing a previous VDM packet */
--	WARN_ON(port->vdm_state > VDM_STATE_DONE);
-+	/* If is sending discover_identity, handle received message first */
-+	if (PD_VDO_SVDM(vdo_hdr) && PD_VDO_CMD(vdo_hdr) == CMD_DISCOVER_IDENT) {
-+		port->send_discover = true;
-+		mod_send_discover_delayed_work(port, SEND_DISCOVER_RETRY_MS);
-+	} else {
-+		/* Make sure we are not still processing a previous VDM packet */
-+		WARN_ON(port->vdm_state > VDM_STATE_DONE);
-+	}
+-	mt = mte_node_type(mas->node);
+-	slot_count = mt_slots[mt] - 1;
+ 	do {
+ 		if (mte_is_root(mas->node)) {
+-			slot = mas->offset;
+-			if (slot > slot_count) {
++			if (mas->offset >= mas_data_end(mas)) {
+ 				mas_set_err(mas, -EBUSY);
+ 				return false;
+ 			}
+ 		} else {
+ 			mas_ascend(mas);
+-			slot = mas->offset;
+-			mt = mte_node_type(mas->node);
+-			slot_count = mt_slots[mt] - 1;
+ 		}
+-	} while (slot > slot_count);
+-
+-	mas->offset = ++slot;
+-	pivots = ma_pivots(mas_mn(mas), mt);
+-	if (slot > 0)
+-		mas->min = pivots[slot - 1] + 1;
+-
+-	if (slot <= slot_count)
+-		mas->max = pivots[slot];
++	} while (mas->offset >= mas_data_end(mas));
  
- 	port->vdo_count = cnt + 1;
- 	port->vdo_data[0] = header;
-@@ -1942,11 +1950,13 @@ static void vdm_run_state_machine(struct
- 			switch (PD_VDO_CMD(vdo_hdr)) {
- 			case CMD_DISCOVER_IDENT:
- 				res = tcpm_ams_start(port, DISCOVER_IDENTITY);
--				if (res == 0)
-+				if (res == 0) {
- 					port->send_discover = false;
--				else if (res == -EAGAIN)
-+				} else if (res == -EAGAIN) {
-+					port->vdo_data[0] = 0;
- 					mod_send_discover_delayed_work(port,
- 								       SEND_DISCOVER_RETRY_MS);
-+				}
- 				break;
- 			case CMD_DISCOVER_SVID:
- 				res = tcpm_ams_start(port, DISCOVER_SVIDS);
-@@ -2029,6 +2039,7 @@ static void vdm_run_state_machine(struct
- 			unsigned long timeout;
++	mas->offset++;
+ 	return true;
+ }
  
- 			port->vdm_retries = 0;
-+			port->vdo_data[0] = 0;
- 			port->vdm_state = VDM_STATE_BUSY;
- 			timeout = vdm_ready_timeout(vdo_hdr);
- 			mod_vdm_delayed_work(port, timeout);
 
 
