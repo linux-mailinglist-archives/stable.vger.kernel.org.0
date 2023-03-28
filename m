@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5776D6CC26C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C572F6CC26E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233088AbjC1OpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
+        id S233206AbjC1OpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233228AbjC1OpT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7B5D511
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:44:58 -0700 (PDT)
+        with ESMTP id S233237AbjC1OpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 087CDCDC1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 431D6CE1C78
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DAE8C4339E;
-        Tue, 28 Mar 2023 14:44:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D8F61804
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A53C433EF;
+        Tue, 28 Mar 2023 14:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014694;
-        bh=udEl2j5YVWeEbUuQRN9FybKotgtF6vf/q4Y+qacbC7E=;
+        s=korg; t=1680014700;
+        bh=0VVFZBmv0NFrwioYNSCHljYCfnPQe5YZM8rYXqQRThw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmVfRbJQ4ZZig0LQjd3foQ2yzJ9rgfaKodcjy3SIWLL3NJKEzQjerKwjPQUR3Fn80
-         e7rEDCh9sNSIsUmFGgcKNyTt4mowifEhCs965Hvf8erOL3FzrlpoDi/dU8c2pU7vH/
-         Ol6Kt74tlWLz1heO1xzMz+zQZCCiQ+81qoWKQHBM=
+        b=yTNLyvqSiI2h9yFFYJd9+kryCxKPOQ2jF1ODzvgiX+slda3orsbQ7sNIxKnliOyij
+         CisIWVcShiXnCc5B9aGoT6hEqwdKH3FvLkDJxNSU5rgi9FkxOukZmjc2juf14gfBUH
+         1zZvf54moan4P0LCiRnuTGazc9u1rLnVvfUULTds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shawn Guo <shawn.guo@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        patches@lists.linux.dev, Wei Fang <wei.fang@nxp.com>,
+        Clark Wang <xiaoning.wang@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 019/240] efi: earlycon: Reprobe after parsing config tables
-Date:   Tue, 28 Mar 2023 16:39:42 +0200
-Message-Id: <20230328142620.456101490@linuxfoundation.org>
+Subject: [PATCH 6.2 020/240] arm64: dts: imx8dxl-evk: Disable hibernation mode of AR8031 for EQOS
+Date:   Tue, 28 Mar 2023 16:39:43 +0200
+Message-Id: <20230328142620.499592486@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -53,102 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Wei Fang <wei.fang@nxp.com>
 
-[ Upstream commit 8b3a149db461d3286d1e211112de3b44ccaeaf71 ]
+[ Upstream commit 0deefb5bd1382aae0aed7c8b266d5088a5308a26 ]
 
-Commit 732ea9db9d8a ("efi: libstub: Move screen_info handling to common
-code") reorganized the earlycon handling so that all architectures pass
-the screen_info data via a EFI config table instead of populating struct
-screen_info directly, as the latter is only possible when the EFI stub
-is baked into the kernel (and not into the decompressor).
+The hibernation mode of AR8031 PHY defaults to be enabled after hardware
+reset. When the cable is unplugged, the PHY will enter hibernation mode
+after about 10 senconds and the PHY clocks will be stopped to save
+power. However, due to the design of EQOS, the mac needs the RX_CLK of
+PHY for software reset to complete. Otherwise the software reset of EQOS
+will be failed and do not work correctly. The only way is to disable
+hibernation mode of AR8031 PHY for EQOS, the "qca,disable-hibernation-mode"
+property is used for this purpose and has already been submitted to the
+upstream, for more details please refer to the below link:
+https://lore.kernel.org/netdev/20220818030054.1010660-2-wei.fang@nxp.com/
 
-However, this means that struct screen_info may not have been populated
-yet by the time the earlycon probe takes place, and this results in a
-non-functional early console.
+This issue is easy to reproduce, just unplug the cable and "ifconfig eth0
+down", after about 10 senconds, then "ifconfig eth0 up", you will see
+failure log on the serial port. The log is shown as following:
+root@imx8dxlevk:~#
+[34.941970] imx-dwmac 5b050000.ethernet eth0: Link is Down
+root@imx8dxlevk:~# ifconfig eth0 down
+[35.437814] imx-dwmac 5b050000.ethernet eth0: FPE workqueue stop
+[35.507913] imx-dwmac 5b050000.ethernet eth0: PHY [stmmac-1:00] driver [Qualcomm Atheros AR8031/AR8033] (irq=POLL)
+[35.518613] imx-dwmac 5b050000.ethernet eth0: configuring for phy/rgmii-id link mode
+root@imx8dxlevk:~# ifconfig eth0 up
+[71.143044] imx-dwmac 5b050000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[71.215855] imx-dwmac 5b050000.ethernet eth0: PHY [stmmac-1:00] driver [Qualcomm Atheros AR8031/AR8033] (irq=POLL)
+[72.230417] imx-dwmac 5b050000.ethernet: Failed to reset the dma
+[72.236512] imx-dwmac 5b050000.ethernet eth0: stmmac_hw_setup: DMA engine initialization failed
+[72.245258] imx-dwmac 5b050000.ethernet eth0: __stmmac_open: Hw setup failed
+SIOCSIFFLAGS: Connection timed out
 
-So let's probe again right after parsing the config tables and
-populating struct screen_info. Note that this means that earlycon output
-starts a bit later than before, and so it may fail to capture issues
-that occur while doing the early EFI initialization.
+After applying this patch, the software reset of EQOS will be
+successful. And the log is shown as below.
+root@imx8dxlevk:~# ifconfig eth0 up
+[96.114344] imx-dwmac 5b050000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[96.171466] imx-dwmac 5b050000.ethernet eth0: PHY [stmmac-1:00] driver [Qualcomm Atheros AR8031/AR8033] (irq=POLL)
+[96.188883] imx-dwmac 5b050000.ethernet eth0: No Safety Features support found
+[96.196221] imx-dwmac 5b050000.ethernet eth0: IEEE 1588-2008 Advanced Timestamp supported
+[96.204846] imx-dwmac 5b050000.ethernet eth0: registered PTP clock
+[96.225558] imx-dwmac 5b050000.ethernet eth0: FPE workqueue start
+[96.236858] imx-dwmac 5b050000.ethernet eth0: configuring for phy/rgmii-id link mode
+[96.249358] 8021q: adding VLAN 0 to HW filter on device eth0
 
-Fixes: 732ea9db9d8a ("efi: libstub: Move screen_info handling to common code")
-Reported-by: Shawn Guo <shawn.guo@linaro.org>
-Tested-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Wei Fang <wei.fang@nxp.com>
+Reviewed-by: Clark Wang <xiaoning.wang@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Stable-dep-of: feafeb53140a ("arm64: dts: imx8dxl-evk: Fix eqos phy reset gpio")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/earlycon.c | 16 +++++++++++++---
- drivers/firmware/efi/efi-init.c |  3 +++
- include/linux/efi.h             |  1 +
- 3 files changed, 17 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8dxl-evk.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/firmware/efi/earlycon.c b/drivers/firmware/efi/earlycon.c
-index 4d6c5327471ac..1bc6328646944 100644
---- a/drivers/firmware/efi/earlycon.c
-+++ b/drivers/firmware/efi/earlycon.c
-@@ -204,6 +204,14 @@ efi_earlycon_write(struct console *con, const char *str, unsigned int num)
- 	}
- }
+diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
+index 280a9c9d8bd98..1bcf228a22b8b 100644
+--- a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
+@@ -135,6 +135,7 @@ ethphy0: ethernet-phy@0 {
+ 			reg = <0>;
+ 			eee-broken-1000t;
+ 			qca,disable-smarteee;
++			qca,disable-hibernation-mode;
+ 			vddio-supply = <&vddio0>;
  
-+static bool __initdata fb_probed;
-+
-+void __init efi_earlycon_reprobe(void)
-+{
-+	if (fb_probed)
-+		setup_earlycon("efifb");
-+}
-+
- static int __init efi_earlycon_setup(struct earlycon_device *device,
- 				     const char *opt)
- {
-@@ -211,15 +219,17 @@ static int __init efi_earlycon_setup(struct earlycon_device *device,
- 	u16 xres, yres;
- 	u32 i;
- 
--	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI)
-+	fb_wb = opt && !strcmp(opt, "ram");
-+
-+	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI) {
-+		fb_probed = true;
- 		return -ENODEV;
-+	}
- 
- 	fb_base = screen_info.lfb_base;
- 	if (screen_info.capabilities & VIDEO_CAPABILITY_64BIT_BASE)
- 		fb_base |= (u64)screen_info.ext_lfb_base << 32;
- 
--	fb_wb = opt && !strcmp(opt, "ram");
--
- 	si = &screen_info;
- 	xres = si->lfb_width;
- 	yres = si->lfb_height;
-diff --git a/drivers/firmware/efi/efi-init.c b/drivers/firmware/efi/efi-init.c
-index 1639159493e3e..5cb7fb4549f0c 100644
---- a/drivers/firmware/efi/efi-init.c
-+++ b/drivers/firmware/efi/efi-init.c
-@@ -72,6 +72,9 @@ static void __init init_screen_info(void)
- 		if (memblock_is_map_memory(screen_info.lfb_base))
- 			memblock_mark_nomap(screen_info.lfb_base,
- 					    screen_info.lfb_size);
-+
-+		if (IS_ENABLED(CONFIG_EFI_EARLYCON))
-+			efi_earlycon_reprobe();
- 	}
- }
- 
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 98598bd1d2fa5..ac22f7ca195a4 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -688,6 +688,7 @@ efi_guid_to_str(efi_guid_t *guid, char *out)
- }
- 
- extern void efi_init (void);
-+extern void efi_earlycon_reprobe(void);
- #ifdef CONFIG_EFI
- extern void efi_enter_virtual_mode (void);	/* switch EFI to virtual mode, if possible */
- #else
+ 			vddio0: vddio-regulator {
 -- 
 2.39.2
 
