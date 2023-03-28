@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2346CC435
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4476CC62F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233748AbjC1PBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
+        id S233311AbjC1P0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:26:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233750AbjC1PBL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:01:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34651EB55
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:59 -0700 (PDT)
+        with ESMTP id S233071AbjC1P0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:26:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6204D10279
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:24:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBF97B81D78
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32FDAC433D2;
-        Tue, 28 Mar 2023 15:00:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 918F4B81D8F
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02946C433D2;
+        Tue, 28 Mar 2023 15:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015656;
-        bh=F0ukMBHO/kPpbe6k3DjTflDUCcbuGBOy15vOvYd6NWE=;
+        s=korg; t=1680016101;
+        bh=Bf8r+lBaYO4Qd16Br9uPru4EPAgU/2weusegXFFDtlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVAvbim039lcvCOiCT0z092A25Qd4IfTqjoVuP7PWyfcd9xa3lDHDCrOwt+MtQHH5
-         4sYAc4DLHEQOtaYgtH8KGpXdFOeTIg7gNYa2NqzSUb4n3SI/xvRgWqd27bKEgMItVY
-         lPnpL1owqSZa13RK0VSrM5QKeHjMmlSGwr3WcUnM=
+        b=q8c9u9GokaaBa+ffgp9Sf1hsKaXTjgO5upQH2yZyGWE5okNik5pClGZs4Gj5o3Jrr
+         5pvPxxvzTUHBeCj0oQQ1ZBpqD0+u7CYz4oVzgrX27vM5GbgfVFM44G7dArD6UYGETv
+         4DxOeRDXkXpiIsx+xqGZtWeTayZDEUbYwUdDxxIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eero Tamminen <oak@helsinkinet.fi>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Maxime Bizon <mbizon@freebox.fr>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 128/224] m68k: Only force 030 bus error if PC not in exception table
+Subject: [PATCH 5.15 035/146] net: mdio: fix owner field for mdio buses registered using ACPI
 Date:   Tue, 28 Mar 2023 16:42:04 +0200
-Message-Id: <20230328142622.703440183@linuxfoundation.org>
+Message-Id: <20230328142604.160739331@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,73 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit e36a82bebbf7da814530d5a179bef9df5934b717 ]
+[ Upstream commit 30b605b8501e321f79e19c3238aa6ca31da6087c ]
 
-__get_kernel_nofault() does copy data in supervisor mode when
-forcing a task backtrace log through /proc/sysrq_trigger.
-This is expected cause a bus error exception on e.g. NULL
-pointer dereferencing when logging a kernel task has no
-workqueue associated. This bus error ought to be ignored.
+Bus ownership is wrong when using acpi_mdiobus_register() to register an
+mdio bus. That function is not inline, so when it calls
+mdiobus_register() the wrong THIS_MODULE value is captured.
 
-Our 030 bus error handler is ill equipped to deal with this:
-
-Whenever ssw indicates a kernel mode access on a data fault,
-we don't even attempt to handle the fault and instead always
-send a SEGV signal (or panic). As a result, the check
-for exception handling at the fault PC (buried in
-send_sig_fault() which gets called from do_page_fault()
-eventually) is never used.
-
-In contrast, both 040 and 060 access error handlers do not
-care whether a fault happened on supervisor mode access,
-and will call do_page_fault() on those, ultimately honoring
-the exception table.
-
-Add a check in bus_error030 to call do_page_fault() in case
-we do have an entry for the fault PC in our exception table.
-
-I had attempted a fix for this earlier in 2019 that did rely
-on testing pagefault_disabled() (see link below) to achieve
-the same thing, but this patch should be more generic.
-
-Tested on 030 Atari Falcon.
-
-Reported-by: Eero Tamminen <oak@helsinkinet.fi>
-Link: https://lore.kernel.org/r/alpine.LNX.2.21.1904091023540.25@nippy.intranet
-Link: https://lore.kernel.org/r/63130691-1984-c423-c1f2-73bfd8d3dcd3@gmail.com
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230301021107.26307-1-schmitzmic@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Maxime Bizon <mbizon@freebox.fr>
+Fixes: 803ca24d2f92 ("net: mdio: Add ACPI support code for mdio")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/traps.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/mdio/acpi_mdio.c | 10 ++++++----
+ include/linux/acpi_mdio.h    |  9 ++++++++-
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index 5c8cba0efc63e..a700807c9b6d9 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/ptrace.h>
- #include <linux/kallsyms.h>
-+#include <linux/extable.h>
+diff --git a/drivers/net/mdio/acpi_mdio.c b/drivers/net/mdio/acpi_mdio.c
+index d77c987fda9cd..4630dde019749 100644
+--- a/drivers/net/mdio/acpi_mdio.c
++++ b/drivers/net/mdio/acpi_mdio.c
+@@ -18,16 +18,18 @@ MODULE_AUTHOR("Calvin Johnson <calvin.johnson@oss.nxp.com>");
+ MODULE_LICENSE("GPL");
  
- #include <asm/setup.h>
- #include <asm/fpu.h>
-@@ -545,7 +546,8 @@ static inline void bus_error030 (struct frame *fp)
- 			errorcode |= 2;
+ /**
+- * acpi_mdiobus_register - Register mii_bus and create PHYs from the ACPI ASL.
++ * __acpi_mdiobus_register - Register mii_bus and create PHYs from the ACPI ASL.
+  * @mdio: pointer to mii_bus structure
+  * @fwnode: pointer to fwnode of MDIO bus. This fwnode is expected to represent
++ * @owner: module owning this @mdio object.
+  * an ACPI device object corresponding to the MDIO bus and its children are
+  * expected to correspond to the PHY devices on that bus.
+  *
+  * This function registers the mii_bus structure and registers a phy_device
+  * for each child node of @fwnode.
+  */
+-int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
++int __acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode,
++			    struct module *owner)
+ {
+ 	struct fwnode_handle *child;
+ 	u32 addr;
+@@ -35,7 +37,7 @@ int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
  
- 		if (mmusr & (MMU_I | MMU_WP)) {
--			if (ssw & 4) {
-+			/* We might have an exception table for this PC */
-+			if (ssw & 4 && !search_exception_tables(fp->ptregs.pc)) {
- 				pr_err("Data %s fault at %#010lx in %s (pc=%#lx)\n",
- 				       ssw & RW ? "read" : "write",
- 				       fp->un.fmtb.daddr,
+ 	/* Mask out all PHYs from auto probing. */
+ 	mdio->phy_mask = GENMASK(31, 0);
+-	ret = mdiobus_register(mdio);
++	ret = __mdiobus_register(mdio, owner);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -55,4 +57,4 @@ int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
+ 	}
+ 	return 0;
+ }
+-EXPORT_SYMBOL(acpi_mdiobus_register);
++EXPORT_SYMBOL(__acpi_mdiobus_register);
+diff --git a/include/linux/acpi_mdio.h b/include/linux/acpi_mdio.h
+index 0a24ab7cb66fa..8e2eefa9fbc0f 100644
+--- a/include/linux/acpi_mdio.h
++++ b/include/linux/acpi_mdio.h
+@@ -9,7 +9,14 @@
+ #include <linux/phy.h>
+ 
+ #if IS_ENABLED(CONFIG_ACPI_MDIO)
+-int acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode);
++int __acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode,
++			    struct module *owner);
++
++static inline int
++acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *handle)
++{
++	return __acpi_mdiobus_register(mdio, handle, THIS_MODULE);
++}
+ #else /* CONFIG_ACPI_MDIO */
+ static inline int
+ acpi_mdiobus_register(struct mii_bus *mdio, struct fwnode_handle *fwnode)
 -- 
 2.39.2
 
