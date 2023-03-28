@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 046C76CC514
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131FD6CC37D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbjC1PMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52798 "EHLO
+        id S233454AbjC1Oy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:54:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230415AbjC1PMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674EBEB51
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:39 -0700 (PDT)
+        with ESMTP id S233442AbjC1OyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33468D53C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2942E6182A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D684C4339B;
-        Tue, 28 Mar 2023 15:10:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98FDC617F1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4D6C433EF;
+        Tue, 28 Mar 2023 14:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016205;
-        bh=/rOIPUIJVVqX8BCQsHKfvDVez8rQz4LkR4WUutn+/4Q=;
+        s=korg; t=1680015258;
+        bh=58D9NaggtejgQVA9VOqwJuLtgerLB+e2QFO7NZOCwsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1d0N/GIBCbS/7h6Aw7QkMS00dWGDyrokc04csDQRTKnYCBOFz3f+KEF4bAICPizFK
-         aCRGcwZgzPxTHE70NNMKMSjaJcjS5FLF8JyFKDCRsoeDE2wdXfmdmL23mYWHXyYe6O
-         hmKHrC0Hu9TWBmj4xW3i0J2yHt+t/TvMHWx2+CKY=
+        b=rxK6VQnP6T8lZz4QHKhWlx9jayTFk96DsDJ8Y2JkxMsoeFCQL+A8WdDN8E+T8/CUM
+         wqtDfTMtcQDiVN6bm6Zaa7hKFu4VPPTTCkiRJoCHxEp1OVzdS6uI/VGwbuB+Pxn8AH
+         +urmdw+mBgq+SJr457tE6ofIWYPI8uqPYVLZXwz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/146] scsi: storvsc: Handle BlockSize change in Hyper-V VHD/VHDX file
-Date:   Tue, 28 Mar 2023 16:43:05 +0200
-Message-Id: <20230328142606.711795310@linuxfoundation.org>
+        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 223/240] drm/amdgpu: skip ASIC reset for APUs when go to S4
+Date:   Tue, 28 Mar 2023 16:43:06 +0200
+Message-Id: <20230328142629.017900983@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,89 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Tim Huang <tim.huang@amd.com>
 
-[ Upstream commit 11d9874c4204a785f43d899a1ab12f9dc8d9de3e ]
+commit b589626674de94d977e81c99bf7905872b991197 upstream.
 
-Hyper-V uses a VHD or VHDX file on the host as the underlying storage for a
-virtual disk.  The VHD/VHDX file format is a sparse format where real disk
-space on the host is assigned in chunks that the VHD/VHDX file format calls
-the BlockSize.  This BlockSize is not to be confused with the 512-byte (or
-4096-byte) sector size of the underlying storage device.  The default block
-size for a new VHD/VHDX file is 32 Mbytes.  When a guest VM touches any
-disk space within a 32 Mbyte chunk of the VHD/VHDX file, Hyper-V allocates
-32 Mbytes of real disk space for that section of the VHD/VHDX. Similarly,
-if a discard operation is done that covers an entire 32 Mbyte chunk,
-Hyper-V will free the real disk space for that portion of the VHD/VHDX.
-This BlockSize is surfaced in Linux as the "discard_granularity" in
-/sys/block/sd<x>/queue, which makes sense.
+For GC IP v11.0.4/11, PSP TMR need to be reserved
+for ASIC mode2 reset. But for S4, when psp suspend,
+it will destroy the TMR that fails the ASIC reset.
 
-Hyper-V also has differencing disks that can overlay a VHD/VHDX file to
-capture changes to the VHD/VHDX while preserving the original VHD/VHDX.
-One example of this differencing functionality is for VM snapshots.  When a
-snapshot is created, a differencing disk is created.  If the snapshot is
-rolled back, Hyper-V can just delete the differencing disk, and the VM will
-see the original disk contents at the time the snapshot was taken.
-Differencing disks are used in other scenarios as well.
+[  96.006101] amdgpu 0000:62:00.0: amdgpu: MODE2 reset
+[  100.409717] amdgpu 0000:62:00.0: amdgpu: SMU: I'm not done with your previous command: SMN_C2PMSG_66:0x00000011 SMN_C2PMSG_82:0x00000002
+[  100.411593] amdgpu 0000:62:00.0: amdgpu: Mode2 reset failed!
+[  100.412470] amdgpu 0000:62:00.0: PM: pci_pm_freeze(): amdgpu_pmops_freeze+0x0/0x50 [amdgpu] returns -62
+[  100.414020] amdgpu 0000:62:00.0: PM: dpm_run_callback(): pci_pm_freeze+0x0/0xd0 returns -62
+[  100.415311] amdgpu 0000:62:00.0: PM: pci_pm_freeze+0x0/0xd0 returned -62 after 4623202 usecs
+[  100.416608] amdgpu 0000:62:00.0: PM: failed to freeze async: error -62
 
-The BlockSize for a differencing disk defaults to 2 Mbytes, not 32 Mbytes.
-The smaller default is used because changes to differencing disks are
-typically scattered all over, and Hyper-V doesn't want to allocate 32
-Mbytes of real disk space for a stray write here or there.  The smaller
-BlockSize provides more efficient use of real disk space.
+We can skip the reset on APUs, assuming we can resume them
+properly. Verified on some GFX11, GFX10 and old GFX9 APUs.
 
-When a differencing disk is added to a VHD/VHDX, Hyper-V reports
-UNIT_ATTENTION with a sense code indicating "Operating parameters have
-changed", because the value of discard_granularity should be changed to 2
-Mbytes. When the differencing disk is removed, discard_granularity should
-be changed back to 32 Mbytes.  However, current code simply reports a
-message from scsi_report_sense() and the value of
-/sys/block/sd<x>/queue/discard_granularity is not updated. The message
-isn't very actionable by a sysadmin.
-
-Fix this by having the storvsc driver check for the sense code indicating
-that the underly VHD/VHDX block size has changed, and do a rescan of the
-device to pick up the new discard_granularity.  With this change the entire
-transition to/from differencing disks is handled automatically and
-transparently, with no confusing messages being output.
-
-Link: https://lore.kernel.org/r/1677516514-86060-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/storvsc_drv.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 6110dfd903f74..83a3d9f085d84 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1050,6 +1050,22 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 				goto do_work;
- 			}
- 
-+			/*
-+			 * Check for "Operating parameters have changed"
-+			 * due to Hyper-V changing the VHD/VHDX BlockSize
-+			 * when adding/removing a differencing disk. This
-+			 * causes discard_granularity to change, so do a
-+			 * rescan to pick up the new granularity. We don't
-+			 * want scsi_report_sense() to output a message
-+			 * that a sysadmin wouldn't know what to do with.
-+			 */
-+			if ((asc == 0x3f) && (ascq != 0x03) &&
-+					(ascq != 0x0e)) {
-+				process_err_fn = storvsc_device_scan;
-+				set_host_byte(scmnd, DID_REQUEUE);
-+				goto do_work;
-+			}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -2457,7 +2457,10 @@ static int amdgpu_pmops_freeze(struct de
+ 	adev->in_s4 = false;
+ 	if (r)
+ 		return r;
+-	return amdgpu_asic_reset(adev);
 +
- 			/*
- 			 * Otherwise, let upper layer deal with the
- 			 * error when sense message is present
--- 
-2.39.2
-
++	if (amdgpu_acpi_should_gpu_reset(adev))
++		return amdgpu_asic_reset(adev);
++	return 0;
+ }
+ 
+ static int amdgpu_pmops_thaw(struct device *dev)
 
 
