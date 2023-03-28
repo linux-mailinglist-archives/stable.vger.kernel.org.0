@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2DB26CC421
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B986CC2F9
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233719AbjC1PAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38760 "EHLO
+        id S233455AbjC1OuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233641AbjC1PAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAA7CE053
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:09 -0700 (PDT)
+        with ESMTP id S233268AbjC1Ots (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:49:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88DADBDD1
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E4D7B81D63
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A55C433EF;
-        Tue, 28 Mar 2023 15:00:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DCDD61826
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1685C433D2;
+        Tue, 28 Mar 2023 14:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015606;
-        bh=qmDcTsJAyzVhJMt0yZYUrZe6Lfl2jaFQf34TksOTO18=;
+        s=korg; t=1680014958;
+        bh=KcTD0+fNcItRaW+9wCkIlXTCzzZqsJ7mrhkHxHqrJus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZoxrKfOwy9nlp80gcMUxsE1VnV+mESTxlaFnTv9QRm4lrH1xThFB7YZa5z1GQ4qm
-         xN1KptnCViM9pbsldAEaNyn0+Rh6tD2KOdO5WO3A5J4OgbpXpik1ENAXTBgE7jrglf
-         bM9y71gM19c5rS4231i6bnfcQQc0S5UflKr5dK8w=
+        b=Bl7/FyA5yhR3m6P6cgZkpKuBCg4dIaEd12n+zq7d7oX8JYhhYPK42RAv2BHV9F5VV
+         miXcTRSOkFKSxOkqIqaUKuHfS0XBzzJKEO0naG4U8xVeCPO1+qw5SF383moWrqdgUV
+         /Rs3nUMYYu6+hjp70attcuNcOgRYOy0V0IPZQFPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 082/224] Bluetooth: btusb: Remove detection of ISO packets over bulk
+        patches@lists.linux.dev, Yin Fengwei <fengwei.yin@intel.com>,
+        kernel test robot <yujie.liu@intel.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 115/240] smb3: lower default deferred close timeout to address perf regression
 Date:   Tue, 28 Mar 2023 16:41:18 +0200
-Message-Id: <20230328142620.700858164@linuxfoundation.org>
+Message-Id: <20230328142624.583674291@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,49 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit efe375b716c1c1c9b52a816f5b933a95421020a2 ]
+commit 7e0e76d99079be13c9961dde7c93b2d1ee665af4 upstream.
 
-This removes the code introduced by
-14202eff214e1e941fefa0366d4c3bc4b1a0d500 as hci_recv_frame is now able
-to detect ACL packets that are in fact ISO packets.
+Performance tests with large number of threads noted that the change
+of the default closetimeo (deferred close timeout between when
+close is done by application and when client has to send the close
+to the server), to 5 seconds from 1 second, significantly degraded
+perf in some cases like this (in the filebench example reported,
+the stats show close requests on the wire taking twice as long,
+and 50% regression in filebench perf). This is stil configurable
+via mount parm closetimeo, but to be safe, decrease default back
+to its previous value of 1 second.
 
-Fixes: 14202eff214e ("Bluetooth: btusb: Detect if an ACL packet is in fact an ISO packet")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Yin Fengwei <fengwei.yin@intel.com>
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Link: https://lore.kernel.org/lkml/997614df-10d4-af53-9571-edec36b0e2f3@intel.com/
+Fixes: 5efdd9122eff ("smb3: allow deferred close timeout to be configurable")
+Cc: stable@vger.kernel.org # 6.0+
+Tested-by: Yin Fengwei <fengwei.yin@intel.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ fs/cifs/fs_context.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 952dc9d2404ed..90b85dcb138df 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -1020,21 +1020,11 @@ static int btusb_recv_bulk(struct btusb_data *data, void *buffer, int count)
- 		hci_skb_expect(skb) -= len;
- 
- 		if (skb->len == HCI_ACL_HDR_SIZE) {
--			__u16 handle = __le16_to_cpu(hci_acl_hdr(skb)->handle);
- 			__le16 dlen = hci_acl_hdr(skb)->dlen;
--			__u8 type;
- 
- 			/* Complete ACL header */
- 			hci_skb_expect(skb) = __le16_to_cpu(dlen);
- 
--			/* Detect if ISO packet has been sent over bulk */
--			if (hci_conn_num(data->hdev, ISO_LINK)) {
--				type = hci_conn_lookup_type(data->hdev,
--							    hci_handle(handle));
--				if (type == ISO_LINK)
--					hci_skb_pkt_type(skb) = HCI_ISODATA_PKT;
--			}
--
- 			if (skb_tailroom(skb) < hci_skb_expect(skb)) {
- 				kfree_skb(skb);
- 				skb = NULL;
--- 
-2.39.2
-
+--- a/fs/cifs/fs_context.h
++++ b/fs/cifs/fs_context.h
+@@ -286,5 +286,5 @@ extern void smb3_update_mnt_flags(struct
+  * max deferred close timeout (jiffies) - 2^30
+  */
+ #define SMB3_MAX_DCLOSETIMEO (1 << 30)
+-#define SMB3_DEF_DCLOSETIMEO (5 * HZ) /* Can increase later, other clients use larger */
++#define SMB3_DEF_DCLOSETIMEO (1 * HZ) /* even 1 sec enough to help eg open/write/close/open/read */
+ #endif
 
 
