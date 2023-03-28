@@ -2,185 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC506CC053
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 15:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71006CC07C
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 15:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232902AbjC1NNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 09:13:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53688 "EHLO
+        id S230326AbjC1NUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 09:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232908AbjC1NNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 09:13:01 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D0225FF9;
-        Tue, 28 Mar 2023 06:12:58 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S230269AbjC1NUE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 09:20:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237037293
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 06:20:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id A0B271FD68;
-        Tue, 28 Mar 2023 13:12:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1680009176; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GRtiw58QBwYt1y2vIyrV4Ht9sSLlbTNKn/D5VG5kP7Q=;
-        b=T8dWjekjuCeQuXPswXPubpp/ASd5SY0NYnRBczh42+aTdCelOiFWCymfpmrRbED+E+Tc08
-        j1Juj+Ph6kGm1D58BaiYC5r8FLnV8X8Yp2pRbjEy91XLbE6A84OfTp95bz/xioUXHglBy9
-        ivSyG2ZAVS4xp+CvmysQeiDShu/Nnfo=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 465211390D;
-        Tue, 28 Mar 2023 13:12:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 1mr0D9jnImQvTgAAMHmgww
-        (envelope-from <jgross@suse.com>); Tue, 28 Mar 2023 13:12:56 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org
-Subject: [PATCH v2 1/3] xen/netback: don't do grant copy across page boundary
-Date:   Tue, 28 Mar 2023 15:12:31 +0200
-Message-Id: <20230328131233.2534-2-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20230328131047.2440-1-jgross@suse.com>
-References: <20230328131047.2440-1-jgross@suse.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30921B81CE2
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 13:20:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56255C433D2;
+        Tue, 28 Mar 2023 13:19:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1680009599;
+        bh=V1c5EZNhWlwMnAp+BYGTnTebaHIqeacBJO6JKReUEDQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JhYlc+AG2JN920x2elz70SaMwB50OMg2ZqwvJJrOuUvonq90F/U1vm/O+PKTllu77
+         PE6fAElfK89CEo+UfB+qBAmYHRFGZVDHU6NMTO3cZfThtVyWw2LTwWfR8Cd4KgqzrZ
+         LU4XBD7ZpILvfgzknIM0DJKv3CvqSb38EX9kU3A0=
+Date:   Tue, 28 Mar 2023 15:19:56 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Muchun Song <muchun.song@linux.dev>
+Cc:     akpm@linux-foundation.org, dvyukov@google.com, elver@google.com,
+        glider@google.com, jannh@google.com, sjpark@amazon.de,
+        songmuchun@bytedance.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] mm: kfence: fix using kfence_metadata
+ without initialization" failed to apply to 5.15-stable tree
+Message-ID: <ZCLpfES07kMJv_rh@kroah.com>
+References: <16800049118459@kroah.com>
+ <90d1ad90-028c-7fa2-70dd-09737eece60c@linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <90d1ad90-028c-7fa2-70dd-09737eece60c@linux.dev>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix xenvif_get_requests() not to do grant copy operations across local
-page boundaries. This requires to double the maximum number of copy
-operations per queue, as each copy could now be split into 2.
+On Tue, Mar 28, 2023 at 09:02:27PM +0800, Muchun Song wrote:
+> 
+> 
+> On 2023/3/28 20:01, gregkh@linuxfoundation.org wrote:
+> > The patch below does not apply to the 5.15-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > To reproduce the conflict and resubmit, you may use the following commands:
+> > 
+> > git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+> > git checkout FETCH_HEAD
+> > git cherry-pick -x 1c86a188e03156223a34d09ce290b49bd4dd0403
+> > # <resolve conflicts, build, test, etc.>
+> > git commit -s
+> > git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800049118459@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+> > 
+> > Possible dependencies:
+> > 
+> > 1c86a188e031 ("mm: kfence: fix using kfence_metadata without initialization in show_object()")
+> > b33f778bba5e ("kfence: alloc kfence_pool after system startup")
+> > 698361bca2d5 ("kfence: allow re-enabling KFENCE after system startup")
+> > 07e8481d3c38 ("kfence: always use static branches to guard kfence_alloc()")
+> > 08f6b10630f2 ("kfence: limit currently covered allocations when pool nearly full")
+> > a9ab52bbcb52 ("kfence: move saving stack trace of allocations into __kfence_alloc()")
+> > 9a19aeb56650 ("kfence: count unexpectedly skipped allocations")
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> >  From 1c86a188e03156223a34d09ce290b49bd4dd0403 Mon Sep 17 00:00:00 2001
+> > From: Muchun Song <muchun.song@linux.dev>
+> > Date: Wed, 15 Mar 2023 11:44:41 +0800
+> > Subject: [PATCH] mm: kfence: fix using kfence_metadata without initialization
+> >   in show_object()
+> > 
+> > The variable kfence_metadata is initialized in kfence_init_pool(), then,
+> > it is not initialized if kfence is disabled after booting.  In this case,
+> > kfence_metadata will be used (e.g.  ->lock and ->state fields) without
+> > initialization when reading /sys/kernel/debug/kfence/objects.  There will
+> > be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
+> > debugfs files when necessary.
+> > 
+> > Link: https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
+> > Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+> > Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> > Tested-by: Marco Elver <elver@google.com>
+> > Reviewed-by: Marco Elver <elver@google.com>
+> > Cc: Alexander Potapenko <glider@google.com>
+> > Cc: Dmitry Vyukov <dvyukov@google.com>
+> > Cc: Jann Horn <jannh@google.com>
+> > Cc: SeongJae Park <sjpark@amazon.de>
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > 
+> > diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+> > index 5349c37a5dac..79c94ee55f97 100644
+> > --- a/mm/kfence/core.c
+> > +++ b/mm/kfence/core.c
+> > @@ -726,10 +726,14 @@ static const struct seq_operations objects_sops = {
+> >   };
+> >   DEFINE_SEQ_ATTRIBUTE(objects);
+> > -static int __init kfence_debugfs_init(void)
+> > +static int kfence_debugfs_init(void)
+> >   {
+> > -	struct dentry *kfence_dir = debugfs_create_dir("kfence", NULL);
+> > +	struct dentry *kfence_dir;
+> > +	if (!READ_ONCE(kfence_enabled))
+> > +		return 0;
+> > +
+> > +	kfence_dir = debugfs_create_dir("kfence", NULL);
+> >   	debugfs_create_file("stats", 0444, kfence_dir, NULL, &stats_fops);
+> >   	debugfs_create_file("objects", 0400, kfence_dir, NULL, &objects_fops);
+> >   	return 0;
+> > @@ -883,6 +887,8 @@ static int kfence_init_late(void)
+> >   	}
+> >   	kfence_init_enable();
+> > +	kfence_debugfs_init();
+> > +
+> >   	return 0;
+> >   }
+> 
+> I have implemented a following patch based on v5.15 branch.
+> 
+> From ba26f344fa3e477456a3cc60488a7b8e5af0e88d Mon Sep 17 00:00:00 2001
+> From: Muchun Song <songmuchun@bytedance.com>
+> Date: Wed, 15 Mar 2023 11:44:41 +0800
+> Subject: [PATCH] mm: kfence: fix using kfence_metadata without
+> initialization
+>  in show_object()
+> 
+> The variable kfence_metadata is initialized in kfence_init_pool(), then,
+> it is not initialized if kfence is disabled after booting.  In this case,
+> kfence_metadata will be used (e.g.  ->lock and ->state fields) without
+> initialization when reading /sys/kernel/debug/kfence/objects.  There will
+> be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
+> debugfs files when necessary.
+> 
+> Link:
+> https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
+> Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> Tested-by: Marco Elver <elver@google.com>
+> Reviewed-by: Marco Elver <elver@google.com>
+> Cc: Alexander Potapenko <glider@google.com>
+> Cc: Dmitry Vyukov <dvyukov@google.com>
+> Cc: Jann Horn <jannh@google.com>
+> Cc: SeongJae Park <sjpark@amazon.de>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+>  mm/kfence/core.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+> index 39a6c434e355..573f34e6af0b 100644
+> --- a/mm/kfence/core.c
+> +++ b/mm/kfence/core.c
+> @@ -678,10 +678,14 @@ static const struct file_operations objects_fops = {
+>      .release = seq_release,
+>  };
+> 
 
-Make sure that struct xenvif_tx_cb doesn't grow too large.
+Patch is corrupted with the whitespace eaten by your email client.  Can
+you resend this in a format that it can be applied?
 
-Cc: stable@vger.kernel.org
-Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
----
-V2:
-- add another BUILD_BUG_ON() (Jan Beulich)
----
- drivers/net/xen-netback/common.h  |  2 +-
- drivers/net/xen-netback/netback.c | 27 +++++++++++++++++++++++++--
- 2 files changed, 26 insertions(+), 3 deletions(-)
+thanks,
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index 3dbfc8a6924e..1fcbd83f7ff2 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data for xenvif */
- 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
- 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
- 
--	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
-+	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
- 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
- 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
- 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 1b42676ca141..54c76af90233 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -334,6 +334,7 @@ static int xenvif_count_requests(struct xenvif_queue *queue,
- struct xenvif_tx_cb {
- 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
- 	u8 copy_count;
-+	u32 split_mask;
- };
- 
- #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
-@@ -361,6 +362,10 @@ static inline struct sk_buff *xenvif_alloc_skb(unsigned int size)
- 	struct sk_buff *skb =
- 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
- 			  GFP_ATOMIC | __GFP_NOWARN);
-+
-+	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
-+	BUILD_BUG_ON(sizeof(XENVIF_TX_CB(skb)->split_mask) * 8 <
-+		     ARRAY_SIZE(XENVIF_TX_CB(skb)->copy_pending_idx));
- 	if (unlikely(skb == NULL))
- 		return NULL;
- 
-@@ -396,11 +401,13 @@ static void xenvif_get_requests(struct xenvif_queue *queue,
- 	nr_slots = shinfo->nr_frags + 1;
- 
- 	copy_count(skb) = 0;
-+	XENVIF_TX_CB(skb)->split_mask = 0;
- 
- 	/* Create copy ops for exactly data_len bytes into the skb head. */
- 	__skb_put(skb, data_len);
- 	while (data_len > 0) {
- 		int amount = data_len > txp->size ? txp->size : data_len;
-+		bool split = false;
- 
- 		cop->source.u.ref = txp->gref;
- 		cop->source.domid = queue->vif->domid;
-@@ -413,6 +420,13 @@ static void xenvif_get_requests(struct xenvif_queue *queue,
- 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
- 				               - data_len);
- 
-+		/* Don't cross local page boundary! */
-+		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
-+			amount = XEN_PAGE_SIZE - cop->dest.offset;
-+			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
-+			split = true;
-+		}
-+
- 		cop->len = amount;
- 		cop->flags = GNTCOPY_source_gref;
- 
-@@ -420,7 +434,8 @@ static void xenvif_get_requests(struct xenvif_queue *queue,
- 		pending_idx = queue->pending_ring[index];
- 		callback_param(queue, pending_idx).ctx = NULL;
- 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
--		copy_count(skb)++;
-+		if (!split)
-+			copy_count(skb)++;
- 
- 		cop++;
- 		data_len -= amount;
-@@ -441,7 +456,8 @@ static void xenvif_get_requests(struct xenvif_queue *queue,
- 			nr_slots--;
- 		} else {
- 			/* The copy op partially covered the tx_request.
--			 * The remainder will be mapped.
-+			 * The remainder will be mapped or copied in the next
-+			 * iteration.
- 			 */
- 			txp->offset += amount;
- 			txp->size -= amount;
-@@ -539,6 +555,13 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 		pending_idx = copy_pending_idx(skb, i);
- 
- 		newerr = (*gopp_copy)->status;
-+
-+		/* Split copies need to be handled together. */
-+		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
-+			(*gopp_copy)++;
-+			if (!newerr)
-+				newerr = (*gopp_copy)->status;
-+		}
- 		if (likely(!newerr)) {
- 			/* The first frag might still have this slot mapped */
- 			if (i < copy_count(skb) - 1 || !sharedslot)
--- 
-2.35.3
-
+greg k-h
