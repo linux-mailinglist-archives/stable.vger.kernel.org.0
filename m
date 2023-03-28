@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C4C6CC4EE
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAFA26CC317
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbjC1PKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:10:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49702 "EHLO
+        id S233408AbjC1OvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:51:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232918AbjC1PKO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3FCAEB79
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:09:01 -0700 (PDT)
+        with ESMTP id S233353AbjC1Ouz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB40D53B
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D38C061828
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E594FC433EF;
-        Tue, 28 Mar 2023 15:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36442B81D72
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE45C433EF;
+        Tue, 28 Mar 2023 14:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015958;
-        bh=xUuhqrJMATfwqwNK+UwopwX4Zo1DQLhEOpGJ1DdlfXU=;
+        s=korg; t=1680015030;
+        bh=ymHo4xqSlXI+y30Wq1XO9baK0xek3CKTl4Oe3cPo/Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rP4vXdIZ/ITct9QQxMX/B06cw//XFOmnZHpGPbosCCLv56mbwpz7ADEvZHrcrUin5
-         ZIskLSsmwpKADDNvXnz4dCC0gljounc/3a/2Zww9sKZva20z47xOBoWSrpxhmR1y1N
-         zObnl20O2EktLEilmVwa17t6oYWfggJQZJ0Avsww=
+        b=z9sdDqqffwfs6bN8lVQJug9Ejg2vOkSKvOAtHhOyEurgpSP+SnIItnXI4lWReao80
+         RGUMF1mK+/B9y3i96U3BEtxcmGluX7Y72vxxH9Y7TqpyD+cqrrctNILaI99jp3YHY4
+         xEW48xfb3nURuqOkirrEpqqG05Uz46KJVwkz5g6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeal Robot <zealci@zte.com.cn>,
-        Minghao Chi <chi.minghao@zte.com.cn>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 014/146] power: supply: bq24190_charger: using pm_runtime_resume_and_get instead of pm_runtime_get_sync
-Date:   Tue, 28 Mar 2023 16:41:43 +0200
-Message-Id: <20230328142603.302146056@linuxfoundation.org>
+        patches@lists.linux.dev, Vernon Yang <vernon2gm@gmail.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 6.2 141/240] cpumask: fix incorrect cpumask scanning result checks
+Date:   Tue, 28 Mar 2023 16:41:44 +0200
+Message-Id: <20230328142625.618976755@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,188 +57,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit d96a89407e5f682d1cb22569d91784506c784863 ]
+[ Upstream commit 8ca09d5fa3549d142c2080a72a4c70ce389163cd ]
 
-Using pm_runtime_resume_and_get is more appropriate
-for simplifing code
+It turns out that commit 596ff4a09b89 ("cpumask: re-introduce
+constant-sized cpumask optimizations") exposed a number of cases of
+drivers not checking the result of "cpumask_next()" and friends
+correctly.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Stable-dep-of: 47c29d692129 ("power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition")
+The documented correct check for "no more cpus in the cpumask" is to
+check for the result being equal or larger than the number of possible
+CPU ids, exactly _because_ we've always done those constant-sized
+cpumask scans using a widened type before.  So the return value of a
+cpumask scan should be checked with
+
+	if (cpu >= nr_cpu_ids)
+		...
+
+because the cpumask scan did not necessarily stop exactly *at* that
+maximum CPU id.
+
+But a few cases ended up instead using checks like
+
+	if (cpu == nr_cpumask_bits)
+		...
+
+which used that internal "widened" number of bits.  And that used to
+work pretty much by accident (ok, in this case "by accident" is simply
+because it matched the historical internal implementation of the cpumask
+scanning, so it was more of a "intentionally using implementation
+details rather than an accident").
+
+But the extended constant-sized optimizations then did that internal
+implementation differently, and now that code that did things wrong but
+matched the old implementation no longer worked at all.
+
+Which then causes subsequent odd problems due to using what ends up
+being an invalid CPU ID.
+
+Most of these cases require either unusual hardware or special uses to
+hit, but the random.c one triggers quite easily.
+
+All you really need is to have a sufficiently small CONFIG_NR_CPUS value
+for the bit scanning optimization to be triggered, but not enough CPUs
+to then actually fill that widened cpumask.  At that point, the cpumask
+scanning will return the NR_CPUS constant, which is _not_ the same as
+nr_cpumask_bits.
+
+This just does the mindless fix with
+
+   sed -i 's/== nr_cpumask_bits/>= nr_cpu_ids/'
+
+to fix the incorrect uses.
+
+The ones in the SCSI lpfc driver in particular could probably be fixed
+more cleanly by just removing that repeated pattern entirely, but I am
+not emptionally invested enough in that driver to care.
+
+Reported-and-tested-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/lkml/481b19b5-83a0-4793-b4fd-194ad7b978c3@roeck-us.net/
+Reported-and-tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/lkml/CAMuHMdUKo_Sf7TjKzcNDa8Ve+6QrK+P8nSQrSQ=6LTRmcBKNww@mail.gmail.com/
+Reported-by: Vernon Yang <vernon2gm@gmail.com>
+Link: https://lore.kernel.org/lkml/20230306160651.2016767-1-vernon2gm@gmail.com/
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq24190_charger.c | 63 +++++++++-----------------
- 1 file changed, 21 insertions(+), 42 deletions(-)
+ arch/powerpc/xmon/xmon.c         |  2 +-
+ drivers/char/random.c            |  2 +-
+ drivers/net/wireguard/queueing.h |  2 +-
+ drivers/scsi/lpfc/lpfc_init.c    | 14 +++++++-------
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
-index 16c4876fe5afb..0d262fe9780ca 100644
---- a/drivers/power/supply/bq24190_charger.c
-+++ b/drivers/power/supply/bq24190_charger.c
-@@ -446,11 +446,9 @@ static ssize_t bq24190_sysfs_show(struct device *dev,
- 	if (!info)
- 		return -EINVAL;
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index 0da66bc4823d4..3b4e2475fc4ef 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -1277,7 +1277,7 @@ static int xmon_batch_next_cpu(void)
+ 	while (!cpumask_empty(&xmon_batch_cpus)) {
+ 		cpu = cpumask_next_wrap(smp_processor_id(), &xmon_batch_cpus,
+ 					xmon_batch_start_cpu, true);
+-		if (cpu == nr_cpumask_bits)
++		if (cpu >= nr_cpu_ids)
+ 			break;
+ 		if (xmon_batch_start_cpu == -1)
+ 			xmon_batch_start_cpu = cpu;
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index ce3ccd172cc86..253f2ddb89130 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1311,7 +1311,7 @@ static void __cold try_to_generate_entropy(void)
+ 			/* Basic CPU round-robin, which avoids the current CPU. */
+ 			do {
+ 				cpu = cpumask_next(cpu, &timer_cpus);
+-				if (cpu == nr_cpumask_bits)
++				if (cpu >= nr_cpu_ids)
+ 					cpu = cpumask_first(&timer_cpus);
+ 			} while (cpu == smp_processor_id() && num_cpus > 1);
  
--	ret = pm_runtime_get_sync(bdi->dev);
--	if (ret < 0) {
--		pm_runtime_put_noidle(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
-+	if (ret < 0)
- 		return ret;
--	}
+diff --git a/drivers/net/wireguard/queueing.h b/drivers/net/wireguard/queueing.h
+index 583adb37ee1e3..125284b346a77 100644
+--- a/drivers/net/wireguard/queueing.h
++++ b/drivers/net/wireguard/queueing.h
+@@ -106,7 +106,7 @@ static inline int wg_cpumask_choose_online(int *stored_cpu, unsigned int id)
+ {
+ 	unsigned int cpu = *stored_cpu, cpu_index, i;
  
- 	ret = bq24190_read_mask(bdi, info->reg, info->mask, info->shift, &v);
- 	if (ret)
-@@ -481,11 +479,9 @@ static ssize_t bq24190_sysfs_store(struct device *dev,
- 	if (ret < 0)
- 		return ret;
+-	if (unlikely(cpu == nr_cpumask_bits ||
++	if (unlikely(cpu >= nr_cpu_ids ||
+ 		     !cpumask_test_cpu(cpu, cpu_online_mask))) {
+ 		cpu_index = id % cpumask_weight(cpu_online_mask);
+ 		cpu = cpumask_first(cpu_online_mask);
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 25ba20e428255..3fbd3bec26fc1 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -12507,7 +12507,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+ 					goto found_same;
+ 				new_cpu = cpumask_next(
+ 					new_cpu, cpu_present_mask);
+-				if (new_cpu == nr_cpumask_bits)
++				if (new_cpu >= nr_cpu_ids)
+ 					new_cpu = first_cpu;
+ 			}
+ 			/* At this point, we leave the CPU as unassigned */
+@@ -12521,7 +12521,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+ 			 * selecting the same IRQ.
+ 			 */
+ 			start_cpu = cpumask_next(new_cpu, cpu_present_mask);
+-			if (start_cpu == nr_cpumask_bits)
++			if (start_cpu >= nr_cpu_ids)
+ 				start_cpu = first_cpu;
  
--	ret = pm_runtime_get_sync(bdi->dev);
--	if (ret < 0) {
--		pm_runtime_put_noidle(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
-+	if (ret < 0)
- 		return ret;
--	}
+ 			lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+@@ -12557,7 +12557,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+ 					goto found_any;
+ 				new_cpu = cpumask_next(
+ 					new_cpu, cpu_present_mask);
+-				if (new_cpu == nr_cpumask_bits)
++				if (new_cpu >= nr_cpu_ids)
+ 					new_cpu = first_cpu;
+ 			}
+ 			/* We should never leave an entry unassigned */
+@@ -12575,7 +12575,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+ 			 * selecting the same IRQ.
+ 			 */
+ 			start_cpu = cpumask_next(new_cpu, cpu_present_mask);
+-			if (start_cpu == nr_cpumask_bits)
++			if (start_cpu >= nr_cpu_ids)
+ 				start_cpu = first_cpu;
  
- 	ret = bq24190_write_mask(bdi, info->reg, info->mask, info->shift, v);
- 	if (ret)
-@@ -504,10 +500,9 @@ static int bq24190_set_charge_mode(struct regulator_dev *dev, u8 val)
- 	struct bq24190_dev_info *bdi = rdev_get_drvdata(dev);
- 	int ret;
+ 			lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+@@ -12648,7 +12648,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+ 				goto found_hdwq;
+ 			}
+ 			new_cpu = cpumask_next(new_cpu, cpu_present_mask);
+-			if (new_cpu == nr_cpumask_bits)
++			if (new_cpu >= nr_cpu_ids)
+ 				new_cpu = first_cpu;
+ 		}
  
--	ret = pm_runtime_get_sync(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
- 	if (ret < 0) {
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", ret);
--		pm_runtime_put_noidle(bdi->dev);
- 		return ret;
- 	}
+@@ -12663,7 +12663,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+ 				goto found_hdwq;
  
-@@ -537,10 +532,9 @@ static int bq24190_vbus_is_enabled(struct regulator_dev *dev)
- 	int ret;
- 	u8 val;
+ 			new_cpu = cpumask_next(new_cpu, cpu_present_mask);
+-			if (new_cpu == nr_cpumask_bits)
++			if (new_cpu >= nr_cpu_ids)
+ 				new_cpu = first_cpu;
+ 		}
  
--	ret = pm_runtime_get_sync(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
- 	if (ret < 0) {
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", ret);
--		pm_runtime_put_noidle(bdi->dev);
- 		return ret;
- 	}
- 
-@@ -1081,11 +1075,9 @@ static int bq24190_charger_get_property(struct power_supply *psy,
- 
- 	dev_dbg(bdi->dev, "prop: %d\n", psp);
- 
--	ret = pm_runtime_get_sync(bdi->dev);
--	if (ret < 0) {
--		pm_runtime_put_noidle(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
-+	if (ret < 0)
- 		return ret;
--	}
- 
- 	switch (psp) {
- 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
-@@ -1155,11 +1147,9 @@ static int bq24190_charger_set_property(struct power_supply *psy,
- 
- 	dev_dbg(bdi->dev, "prop: %d\n", psp);
- 
--	ret = pm_runtime_get_sync(bdi->dev);
--	if (ret < 0) {
--		pm_runtime_put_noidle(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
-+	if (ret < 0)
- 		return ret;
--	}
- 
- 	switch (psp) {
- 	case POWER_SUPPLY_PROP_ONLINE:
-@@ -1418,11 +1408,9 @@ static int bq24190_battery_get_property(struct power_supply *psy,
- 	dev_warn(bdi->dev, "warning: /sys/class/power_supply/bq24190-battery is deprecated\n");
- 	dev_dbg(bdi->dev, "prop: %d\n", psp);
- 
--	ret = pm_runtime_get_sync(bdi->dev);
--	if (ret < 0) {
--		pm_runtime_put_noidle(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
-+	if (ret < 0)
- 		return ret;
--	}
- 
- 	switch (psp) {
- 	case POWER_SUPPLY_PROP_STATUS:
-@@ -1466,11 +1454,9 @@ static int bq24190_battery_set_property(struct power_supply *psy,
- 	dev_warn(bdi->dev, "warning: /sys/class/power_supply/bq24190-battery is deprecated\n");
- 	dev_dbg(bdi->dev, "prop: %d\n", psp);
- 
--	ret = pm_runtime_get_sync(bdi->dev);
--	if (ret < 0) {
--		pm_runtime_put_noidle(bdi->dev);
-+	ret = pm_runtime_resume_and_get(bdi->dev);
-+	if (ret < 0)
- 		return ret;
--	}
- 
- 	switch (psp) {
- 	case POWER_SUPPLY_PROP_ONLINE:
-@@ -1624,10 +1610,9 @@ static irqreturn_t bq24190_irq_handler_thread(int irq, void *data)
- 	int error;
- 
- 	bdi->irq_event = true;
--	error = pm_runtime_get_sync(bdi->dev);
-+	error = pm_runtime_resume_and_get(bdi->dev);
- 	if (error < 0) {
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
--		pm_runtime_put_noidle(bdi->dev);
- 		return IRQ_NONE;
- 	}
- 	bq24190_check_status(bdi);
-@@ -1847,11 +1832,9 @@ static int bq24190_remove(struct i2c_client *client)
- 	struct bq24190_dev_info *bdi = i2c_get_clientdata(client);
- 	int error;
- 
--	error = pm_runtime_get_sync(bdi->dev);
--	if (error < 0) {
-+	error = pm_runtime_resume_and_get(bdi->dev);
-+	if (error < 0)
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
--		pm_runtime_put_noidle(bdi->dev);
--	}
- 
- 	bq24190_register_reset(bdi);
- 	if (bdi->battery)
-@@ -1900,11 +1883,9 @@ static __maybe_unused int bq24190_pm_suspend(struct device *dev)
- 	struct bq24190_dev_info *bdi = i2c_get_clientdata(client);
- 	int error;
- 
--	error = pm_runtime_get_sync(bdi->dev);
--	if (error < 0) {
-+	error = pm_runtime_resume_and_get(bdi->dev);
-+	if (error < 0)
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
--		pm_runtime_put_noidle(bdi->dev);
--	}
- 
- 	bq24190_register_reset(bdi);
- 
-@@ -1925,11 +1906,9 @@ static __maybe_unused int bq24190_pm_resume(struct device *dev)
- 	bdi->f_reg = 0;
- 	bdi->ss_reg = BQ24190_REG_SS_VBUS_STAT_MASK; /* impossible state */
- 
--	error = pm_runtime_get_sync(bdi->dev);
--	if (error < 0) {
-+	error = pm_runtime_resume_and_get(bdi->dev);
-+	if (error < 0)
- 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
--		pm_runtime_put_noidle(bdi->dev);
--	}
- 
- 	bq24190_register_reset(bdi);
- 	bq24190_set_config(bdi);
+@@ -12674,7 +12674,7 @@ lpfc_cpu_affinity_check(struct lpfc_hba *phba, int vectors)
+  found_hdwq:
+ 		/* We found an available entry, copy the IRQ info */
+ 		start_cpu = cpumask_next(new_cpu, cpu_present_mask);
+-		if (start_cpu == nr_cpumask_bits)
++		if (start_cpu >= nr_cpu_ids)
+ 			start_cpu = first_cpu;
+ 		cpup->hdwq = new_cpup->hdwq;
+  logit:
 -- 
 2.39.2
 
