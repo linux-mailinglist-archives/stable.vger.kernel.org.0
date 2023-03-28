@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937776CC306
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6266CC410
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233437AbjC1Ouq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:50:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41896 "EHLO
+        id S233753AbjC1O7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbjC1Oub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F78DBDA
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:57 -0700 (PDT)
+        with ESMTP id S233693AbjC1O7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:59:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728FEE1AC
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:59:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 205BE617EB
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3244FC433D2;
-        Tue, 28 Mar 2023 14:49:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08469B81D75
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:59:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E2F5C433D2;
+        Tue, 28 Mar 2023 14:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014996;
-        bh=iLYn7fUPQoL79Hhb87FYGS6W39Tsmi/c4goOmDED8z4=;
+        s=korg; t=1680015560;
+        bh=Z+ffrNsXd1kDz7CpRmVJX+wjYCkr24qoYdWsHHM6+DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZO1000aZCcAYEuctYKoNnySNrfB8/8tv+O677aAjsx5EzVorwsAkMk9xQVAsdb5D
-         ec183xXov7A6MQoO3kGkXtNIDmy98vjFMvNtwFZICS8kLH15Uz0Q9ihSgBDnVGH27M
-         O0Q+PnRHG7ZjfvL7E1uLVwgCmYsTJ59u5yc7wb9U=
+        b=Miqmx4uPJ9BhI486Td7h5OT0bO8d4rFDiovAKVdu6/yS1AZbG3dpM4SkHjN9p/E5s
+         rOBBhNbI2Dm1R67zJoCgu+6oXj9tU4GlXNOvwcrJ3puYb4XEG4gDqxakmGtHLjpy1q
+         QCfGc9+9N8MBhChDm9bS5QIsMkERw432KFk0/nus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Dharageswari.R" <dharageswari.r@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 127/240] ASoC: Intel: sof_rt5682: Add quirk for Rex board with mx98360a amplifier
+Subject: [PATCH 6.1 094/224] Bluetooth: btsdio: fix use after free bug in btsdio_remove due to unfinished work
 Date:   Tue, 28 Mar 2023 16:41:30 +0200
-Message-Id: <20230328142625.078456185@linuxfoundation.org>
+Message-Id: <20230328142621.149703107@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,95 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dharageswari.R <dharageswari.r@intel.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 7e43b75d6a062197b3bf39ddd1b10ce2e2d2a9b0 ]
+[ Upstream commit 1e9ac114c4428fdb7ff4635b45d4f46017e8916f ]
 
-Add mtl_mx98360a_rt5682 driver data for Chrome Rex board support.
+In btsdio_probe, &data->work was bound with btsdio_work.In
+btsdio_send_frame, it was started by schedule_work.
 
-Signed-off-by: Dharageswari.R <dharageswari.r@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230220080652.23136-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+If we call btsdio_remove with an unfinished job, there may
+be a race condition and cause UAF bug on hdev.
+
+Fixes: ddbaf13e3609 ("[Bluetooth] Add generic driver for Bluetooth SDIO devices")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_rt5682.c           | 23 +++++++++++++++++++
- .../intel/common/soc-acpi-intel-mtl-match.c   | 12 ++++++++++
- 2 files changed, 35 insertions(+)
+ drivers/bluetooth/btsdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 71a11d747622a..4fe448295a902 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -223,6 +223,20 @@ static const struct dmi_system_id sof_rt5682_quirk_table[] = {
- 					SOF_RT5682_SSP_AMP(2) |
- 					SOF_RT5682_NUM_HDMIDEV(4)),
- 	},
-+	{
-+		.callback = sof_rt5682_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google_Rex"),
-+			DMI_MATCH(DMI_OEM_STRING, "AUDIO-MAX98360_ALC5682I_I2S"),
-+		},
-+		.driver_data = (void *)(SOF_RT5682_MCLK_EN |
-+					SOF_RT5682_SSP_CODEC(2) |
-+					SOF_SPEAKER_AMP_PRESENT |
-+					SOF_MAX98360A_SPEAKER_AMP_PRESENT |
-+					SOF_RT5682_SSP_AMP(0) |
-+					SOF_RT5682_NUM_HDMIDEV(4)
-+					),
-+	},
- 	{
- 		.callback = sof_rt5682_quirk_cb,
- 		.matches = {
-@@ -1105,6 +1119,15 @@ static const struct platform_device_id board_ids[] = {
- 					SOF_RT5682_SSP_AMP(1) |
- 					SOF_RT5682_NUM_HDMIDEV(4)),
- 	},
-+	{
-+		.name = "mtl_mx98360_rt5682",
-+		.driver_data = (kernel_ulong_t)(SOF_RT5682_MCLK_EN |
-+					SOF_RT5682_SSP_CODEC(0) |
-+					SOF_SPEAKER_AMP_PRESENT |
-+					SOF_MAX98360A_SPEAKER_AMP_PRESENT |
-+					SOF_RT5682_SSP_AMP(1) |
-+					SOF_RT5682_NUM_HDMIDEV(4)),
-+	},
- 	{
- 		.name = "jsl_rt5682",
- 		.driver_data = (kernel_ulong_t)(SOF_RT5682_MCLK_EN |
-diff --git a/sound/soc/intel/common/soc-acpi-intel-mtl-match.c b/sound/soc/intel/common/soc-acpi-intel-mtl-match.c
-index b1a66a0f68181..7911c3af8071f 100644
---- a/sound/soc/intel/common/soc-acpi-intel-mtl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-mtl-match.c
-@@ -15,6 +15,11 @@ static const struct snd_soc_acpi_codecs mtl_max98357a_amp = {
- 	.codecs = {"MX98357A"}
- };
+diff --git a/drivers/bluetooth/btsdio.c b/drivers/bluetooth/btsdio.c
+index 795be33f2892d..02893600db390 100644
+--- a/drivers/bluetooth/btsdio.c
++++ b/drivers/bluetooth/btsdio.c
+@@ -354,6 +354,7 @@ static void btsdio_remove(struct sdio_func *func)
  
-+static const struct snd_soc_acpi_codecs mtl_max98360a_amp = {
-+	.num_codecs = 1,
-+	.codecs = {"MX98360A"}
-+};
-+
- static const struct snd_soc_acpi_codecs mtl_rt5682_rt5682s_hp = {
- 	.num_codecs = 2,
- 	.codecs = {"10EC5682", "RTL5682"},
-@@ -28,6 +33,13 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_mtl_machines[] = {
- 		.quirk_data = &mtl_max98357a_amp,
- 		.sof_tplg_filename = "sof-mtl-max98357a-rt5682.tplg",
- 	},
-+	{
-+		.comp_ids = &mtl_rt5682_rt5682s_hp,
-+		.drv_name = "mtl_mx98360_rt5682",
-+		.machine_quirk = snd_soc_acpi_codec_list,
-+		.quirk_data = &mtl_max98360a_amp,
-+		.sof_tplg_filename = "sof-mtl-max98360a-rt5682.tplg",
-+	},
- 	{},
- };
- EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_mtl_machines);
+ 	BT_DBG("func %p", func);
+ 
++	cancel_work_sync(&data->work);
+ 	if (!data)
+ 		return;
+ 
 -- 
 2.39.2
 
