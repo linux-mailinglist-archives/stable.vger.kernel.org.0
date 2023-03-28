@@ -2,137 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 127B76CBE54
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9296A6CBE56
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232841AbjC1MB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55098 "EHLO
+        id S232840AbjC1MCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 08:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbjC1MB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:01:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B937199
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:01:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E5AC616DF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 12:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB7FEC433D2;
-        Tue, 28 Mar 2023 12:01:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680004914;
-        bh=/uYr58Ti2bothrwgGQa8DTx9cwzFBbUjKPmLGjJr+Cw=;
-        h=Subject:To:Cc:From:Date:From;
-        b=bLfJQZmY0oiQlHE/eXJV03bz0TB3xboIY+GNaOdjksmShlj/6pXpSBIzxEnYU6Jww
-         lrgx+V/BMPNqN6cJoPoVg2Sitb9ccJagFTzM6J/LBRRzw6Hr3P546a+QLcFO0xcVyF
-         ymx3GSQnaMboBMeqUwuGi+Z49Edkqd1guf1UqU3c=
-Subject: FAILED: patch "[PATCH] mm: kfence: fix using kfence_metadata without initialization" failed to apply to 5.15-stable tree
-To:     muchun.song@linux.dev, akpm@linux-foundation.org,
-        dvyukov@google.com, elver@google.com, glider@google.com,
-        jannh@google.com, sjpark@amazon.de, songmuchun@bytedance.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Mar 2023 14:01:51 +0200
-Message-ID: <16800049118459@kroah.com>
+        with ESMTP id S232904AbjC1MCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:02:11 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFF87EE5
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:02:06 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id er13so7636818edb.9
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:02:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=grsecurity.net; s=grsec; t=1680004925;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=pS4Fobk4rbnvFOqUGO4sloBO/Pdy7bHW5mqwk3UMU+E=;
+        b=lIAozFQlh4U4yuo+XC8enmoEAniv0i3PChrRB7EQWmpjYohHBvaWzUosjt8RnQvQvD
+         c1DevfhQXfW4lev6+SKhTHFWZK+4nej8ZJ2bLbm63Mgd4OAQYRVnqVOSSxsdMjIajJCc
+         6kRZw8T52/KZvNpwMo3Ww1RbblK5j3trcjRTYDfH2oiSDAZc9fY/vYYfikHAVA76NJJ1
+         uU1tEJLXkVTc23OK5SU+UMKlEy+kTYyQuP+cPgMStK2QixtHqsC7RdIbEvjgnHFu6oTz
+         zfS7IBos2KU8hVQG7cxeDhW/hFD7AE8lBTe22ZJgxTM6AWAgMgLjxVdkx3ySw8Cp6ZB7
+         xhKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680004925;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pS4Fobk4rbnvFOqUGO4sloBO/Pdy7bHW5mqwk3UMU+E=;
+        b=fwRvHa3Ys+KhxlW6TT3bYs2ZTCQJowTQmxnWllGUTFVZHgszlOhHzrAKBHwDZ2MEod
+         v7brWBjuNsKM39RVpkxKYkCyVq33krKkPUTKNfTS4fzb7ns+M8UlwcOAR/3zuIZRCIDP
+         66NZegOV4kMbCNTvXWMSFCVdRzhyCEw0Ah7fva1CH8IyVVfVqULq630wZqmrtOSdgzlS
+         rjQU6/m9rSjCyis1ys9wRpuw5mjYEqjqdJDXxijzohXSH/PZ3FqAqfsPO5bBSpE5sgEL
+         +MmBEo0kSN2es7PQgpAXCIwgB/CvVCzUYTRUAYuTWXcwY7//b7mCpNjsR0zvk3CvnYVk
+         1oQg==
+X-Gm-Message-State: AAQBX9dJ6NEKSvKFdE8mPawdBgEc4AZFE6f9xe5WwzX6QpH1beMjgs+D
+        2QWVWXSVSt4u3N049ZQVJu9Nh6vtj6t+hd+egtM=
+X-Google-Smtp-Source: AKy350al2o/SOWe50tAeCWNYpHoai78MclyPykTYMAGBH7mjvsG8K7rVa/8wtKR5EV8DAZsw74P7Fg==
+X-Received: by 2002:a05:6402:1a48:b0:501:d3a1:9a4a with SMTP id bf8-20020a0564021a4800b00501d3a19a4amr15606297edb.19.1680004924925;
+        Tue, 28 Mar 2023 05:02:04 -0700 (PDT)
+Received: from ?IPV6:2003:f6:af12:cb00:3146:384f:5efc:fd5d? (p200300f6af12cb003146384f5efcfd5d.dip0.t-ipconnect.de. [2003:f6:af12:cb00:3146:384f:5efc:fd5d])
+        by smtp.gmail.com with ESMTPSA id x11-20020a1709064a8b00b009342fe44911sm12238923eju.123.2023.03.28.05.02.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Mar 2023 05:02:04 -0700 (PDT)
+Message-ID: <c359c777-c3af-b4a6-791d-d51916160bf5@grsecurity.net>
+Date:   Tue, 28 Mar 2023 14:02:03 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: Linux 5.15.103
+Content-Language: en-US, de-DE
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, lwn@lwn.net, jslaby@suse.cz
+References: <1679040264214179@kroah.com>
+From:   Mathias Krause <minipli@grsecurity.net>
+In-Reply-To: <1679040264214179@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 17.03.23 09:04, Greg Kroah-Hartman wrote:
+> I'm announcing the release of the 5.15.103 kernel.
+> 
+> [...]
+> 
+> Vitaly Kuznetsov (4):
+>       KVM: Optimize kvm_make_vcpus_request_mask() a bit
+>       KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()
+>       KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
+>       KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
+> 
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+That list is missing commit 6470accc7ba9 ("KVM: x86: hyper-v: Avoid
+calling kvm_make_vcpus_request_mask() with vcpu_mask==NULL") to fulfill
+the prerequisite of "KVM: Optimize kvm_make_vcpus_request_mask() a bit".
 
-To reproduce the conflict and resubmit, you may use the following commands:
+Right now the kvm selftests trigger a kernel NULL deref for the hyperv
+test, making the system hang.
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
-git checkout FETCH_HEAD
-git cherry-pick -x 1c86a188e03156223a34d09ce290b49bd4dd0403
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800049118459@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+Please consider applying commit 6470accc7ba9 for the next v5.15.x release.
 
-Possible dependencies:
-
-1c86a188e031 ("mm: kfence: fix using kfence_metadata without initialization in show_object()")
-b33f778bba5e ("kfence: alloc kfence_pool after system startup")
-698361bca2d5 ("kfence: allow re-enabling KFENCE after system startup")
-07e8481d3c38 ("kfence: always use static branches to guard kfence_alloc()")
-08f6b10630f2 ("kfence: limit currently covered allocations when pool nearly full")
-a9ab52bbcb52 ("kfence: move saving stack trace of allocations into __kfence_alloc()")
-9a19aeb56650 ("kfence: count unexpectedly skipped allocations")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 1c86a188e03156223a34d09ce290b49bd4dd0403 Mon Sep 17 00:00:00 2001
-From: Muchun Song <muchun.song@linux.dev>
-Date: Wed, 15 Mar 2023 11:44:41 +0800
-Subject: [PATCH] mm: kfence: fix using kfence_metadata without initialization
- in show_object()
-
-The variable kfence_metadata is initialized in kfence_init_pool(), then,
-it is not initialized if kfence is disabled after booting.  In this case,
-kfence_metadata will be used (e.g.  ->lock and ->state fields) without
-initialization when reading /sys/kernel/debug/kfence/objects.  There will
-be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
-debugfs files when necessary.
-
-Link: https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
-Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Marco Elver <elver@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: SeongJae Park <sjpark@amazon.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-
-diff --git a/mm/kfence/core.c b/mm/kfence/core.c
-index 5349c37a5dac..79c94ee55f97 100644
---- a/mm/kfence/core.c
-+++ b/mm/kfence/core.c
-@@ -726,10 +726,14 @@ static const struct seq_operations objects_sops = {
- };
- DEFINE_SEQ_ATTRIBUTE(objects);
- 
--static int __init kfence_debugfs_init(void)
-+static int kfence_debugfs_init(void)
- {
--	struct dentry *kfence_dir = debugfs_create_dir("kfence", NULL);
-+	struct dentry *kfence_dir;
- 
-+	if (!READ_ONCE(kfence_enabled))
-+		return 0;
-+
-+	kfence_dir = debugfs_create_dir("kfence", NULL);
- 	debugfs_create_file("stats", 0444, kfence_dir, NULL, &stats_fops);
- 	debugfs_create_file("objects", 0400, kfence_dir, NULL, &objects_fops);
- 	return 0;
-@@ -883,6 +887,8 @@ static int kfence_init_late(void)
- 	}
- 
- 	kfence_init_enable();
-+	kfence_debugfs_init();
-+
- 	return 0;
- }
- 
-
+Thanks,
+Mathias
