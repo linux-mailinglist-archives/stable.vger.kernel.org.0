@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9356CC26F
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7AF76CC270
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbjC1Op1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
+        id S233193AbjC1Op3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:45:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232604AbjC1OpW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:22 -0400
+        with ESMTP id S230407AbjC1Op1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:45:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70A9D50F
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E08D32D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:45:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51EFE61830
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60014C433D2;
-        Tue, 28 Mar 2023 14:45:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25EE16182C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:45:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3402EC433D2;
+        Tue, 28 Mar 2023 14:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680014702;
-        bh=dGo9Cm+Xrt82oZruMMnqM56KelznjyAXdwGOxmQtW6A=;
+        s=korg; t=1680014705;
+        bh=xP7nSp9eV98Qnkf7CTqbpoDHS4UhTgVPbD/j/d5lWv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeq5fgLgM8v7NS3X+ThbZBRwuYOjjlrFZY3zUGrJ+aXFtGkCCtRlccdUcWByFLE1F
-         vQDfM36/qdyTTPeoZeOQla30zeEf6zm0CUCJlYMeJyfITIU8yp+79lW61Gl52fbxE9
-         trJsxbpiLR2criICP0VzuwrbCbgyc7xq8O2FHpI8=
+        b=Bks5ymhOi/psulZNZHikuHYFlYz3fA7LtBiW2qckBOisIRdL66JjRav5v5ebZ/cCx
+         1NnIfCjQIjBfVsXicT0Fg1p0ITvsZI+l/qa10yHPttofWenSr8bCfGmqC9LlqLqnOh
+         sjfID8eqf2Q/QF7w4wH/wMkioD14OmUnVPuQZHm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Halaney <ahalaney@redhat.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 021/240] arm64: dts: imx8dxl-evk: Fix eqos phy reset gpio
-Date:   Tue, 28 Mar 2023 16:39:44 +0200
-Message-Id: <20230328142620.546814166@linuxfoundation.org>
+Subject: [PATCH 6.2 022/240] ARM: dts: imx6sll: e70k02: fix usbotg1 pinctrl
+Date:   Tue, 28 Mar 2023 16:39:45 +0200
+Message-Id: <20230328142620.581941463@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
 References: <20230328142619.643313678@linuxfoundation.org>
@@ -54,54 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Halaney <ahalaney@redhat.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit feafeb53140af3cde3fba46b292b15b3a0c0635c ]
+[ Upstream commit 3d37f7685d525e58674c23d607020e66d501dcd1 ]
 
-The deprecated property is named snps,reset-gpio, but this devicetree
-used snps,reset-gpios instead which results in the reset not being used
-and the following make dtbs_check error:
+usb@2184000: 'pinctrl-0' is a dependency of 'pinctrl-names'
 
-    ./arch/arm64/boot/dts/freescale/imx8dxl-evk.dtb: ethernet@5b050000: 'snps,reset-gpio' is a dependency of 'snps,reset-delays-us'
-        From schema: ./Documentation/devicetree/bindings/net/snps,dwmac.yaml
-
-Use the preferred method of defining the reset gpio in the phy node
-itself. Note that this drops the 10 us pre-delay, but prior this wasn't
-used at all and a pre-delay doesn't make much sense in this context so
-it should be fine.
-
-Fixes: 8dd495d12374 ("arm64: dts: freescale: add support for i.MX8DXL EVK board")
-Signed-off-by: Andrew Halaney <ahalaney@redhat.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Fixes: 3bb3fd856505 ("ARM: dts: add Netronix E70K02 board common file")
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8dxl-evk.dts | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/e70k02.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
-index 1bcf228a22b8b..852420349c013 100644
---- a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
-@@ -121,8 +121,6 @@ &eqos {
- 	phy-handle = <&ethphy0>;
- 	nvmem-cells = <&fec_mac1>;
- 	nvmem-cell-names = "mac-address";
--	snps,reset-gpios = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
--	snps,reset-delays-us = <10 20 200000>;
- 	status = "okay";
+diff --git a/arch/arm/boot/dts/e70k02.dtsi b/arch/arm/boot/dts/e70k02.dtsi
+index 27ef9a62b23cf..a1f9fbd6004aa 100644
+--- a/arch/arm/boot/dts/e70k02.dtsi
++++ b/arch/arm/boot/dts/e70k02.dtsi
+@@ -312,6 +312,7 @@ &usdhc3 {
  
- 	mdio {
-@@ -136,6 +134,9 @@ ethphy0: ethernet-phy@0 {
- 			eee-broken-1000t;
- 			qca,disable-smarteee;
- 			qca,disable-hibernation-mode;
-+			reset-gpios = <&pca6416_1 2 GPIO_ACTIVE_LOW>;
-+			reset-assert-us = <20>;
-+			reset-deassert-us = <200000>;
- 			vddio-supply = <&vddio0>;
- 
- 			vddio0: vddio-regulator {
+ &usbotg1 {
+ 	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usbotg1>;
+ 	disable-over-current;
+ 	srp-disable;
+ 	hnp-disable;
 -- 
 2.39.2
 
