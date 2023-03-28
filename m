@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C351E6CC39C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD9B6CC2B1
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233321AbjC1Ozn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58320 "EHLO
+        id S232502AbjC1Orm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:47:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233544AbjC1Ozn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A98DBE6
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:42 -0700 (PDT)
+        with ESMTP id S231755AbjC1Orl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:47:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E798E048
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:47:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBF0EB81D77
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192B0C433EF;
-        Tue, 28 Mar 2023 14:55:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 19246CE1D9E
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17E18C433D2;
+        Tue, 28 Mar 2023 14:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015339;
-        bh=AhKZeW1kP5KyMlZufFL9M2/BCDQj5XPVmrPtge7ixa4=;
+        s=korg; t=1680014826;
+        bh=JBnIcdhdbT2au5uCwynSbRY4PmUIGoPGDsboYpLwM1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxTkDtbEo331B7CcRBgrUNtcn0dADhc4zNSO6p4Hv11NZal6BMBTQOoPDkvVPB5is
-         FI7X9fItDAytT/0z+DRpo4YSyBTMiTsLe2CPJlgtrTMR8Yj06wygJoU081AM9u4wv7
-         C3mj3Cp2d0ZTztktSnGQsMwE9/ZMxSLhoacPB6d8=
+        b=nhE2esyvTbnknFfq95tM9yC6/E6exw3dID+NlI7aVkszRapLcGyQBFXzzY28HZWcn
+         /QoMbvWp+/KmIatzfUi7mgbGvXIIhK+E1voyW1eUQay1M+A57fuZpkwXbaGPYEqQ/2
+         H4KqS19J+GZCIhhgYp2n1YwSPH9csLfxFwX7W4fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Shawn Guo <shawn.guo@linaro.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 003/224] interconnect: qcom: qcm2290: Fix MASTER_SNOC_BIMC_NRT
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 036/240] i2c: imx-lpi2c: check only for enabled interrupt flags
 Date:   Tue, 28 Mar 2023 16:39:59 +0200
-Message-Id: <20230328142617.351911604@linuxfoundation.org>
+Message-Id: <20230328142621.112166483@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 633a12fda6536a1a17bcea29502e777e86a4547e ]
+[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
 
-Due to what seems to be a copy-paste error, the _NRT master was
-identical to the _RT master, which should not be the case.. Fix it
-using the values available from the downstream kernel [1].
+When reading from I2C, the Tx watermark is set to 0. Unfortunately the
+TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
+than watermark. So it is set in every case, hence the reset default of 1.
+This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
+to send Tx data on a read message.
+Mask the IRQ status to filter for wanted flags only.
 
-[1] https://android.googlesource.com/kernel/msm-extra/devicetree/+/refs/heads/android-msm-bramble-4.19-android11-qpr1/qcom/scuba-bus.dtsi#127
-Fixes: 1a14b1ac3935 ("interconnect: qcom: Add QCM2290 driver support")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Acked-by: Shawn Guo <shawn.guo@linaro.org>
-Link: https://lore.kernel.org/r/20230103142120.15605-1-konrad.dybcio@linaro.org
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/qcm2290.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/interconnect/qcom/qcm2290.c b/drivers/interconnect/qcom/qcm2290.c
-index 0da612d6398c5..a29cdb4fac03f 100644
---- a/drivers/interconnect/qcom/qcm2290.c
-+++ b/drivers/interconnect/qcom/qcm2290.c
-@@ -147,9 +147,9 @@ static struct qcom_icc_node mas_snoc_bimc_nrt = {
- 	.name = "mas_snoc_bimc_nrt",
- 	.buswidth = 16,
- 	.qos.ap_owned = true,
--	.qos.qos_port = 2,
-+	.qos.qos_port = 3,
- 	.qos.qos_mode = NOC_QOS_MODE_BYPASS,
--	.mas_rpm_id = 163,
-+	.mas_rpm_id = 164,
- 	.slv_rpm_id = -1,
- 	.num_links = ARRAY_SIZE(mas_snoc_bimc_nrt_links),
- 	.links = mas_snoc_bimc_nrt_links,
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 188f2a36d2fd6..9b2f9544c5681 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -503,10 +503,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
+ {
+ 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
++	unsigned int enabled;
+ 	unsigned int temp;
+ 
++	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
++
+ 	lpi2c_imx_intctrl(lpi2c_imx, 0);
+ 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
++	temp &= enabled;
+ 
+ 	if (temp & MSR_RDF)
+ 		lpi2c_imx_read_rxfifo(lpi2c_imx);
 -- 
 2.39.2
 
