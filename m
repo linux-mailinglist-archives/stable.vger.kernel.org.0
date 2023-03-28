@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84AD66CC388
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 428C76CC4ED
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233357AbjC1Oyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57150 "EHLO
+        id S230164AbjC1PKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:10:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233159AbjC1Oyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:54:49 -0400
+        with ESMTP id S232802AbjC1PKK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:10:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6150BBA8
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:54:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F9B5EB51
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:08:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5320B6182C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6999CC4339B;
-        Tue, 28 Mar 2023 14:54:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7DFA61861
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:08:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59F8C433EF;
+        Tue, 28 Mar 2023 15:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015287;
-        bh=NLvOwBAmfmEKC/d6fA8LZ3/lkBqO3t1YDa/zE/o3dBA=;
+        s=korg; t=1680016134;
+        bh=kV3THHze1rCwfklsM6UPvTmJfxhv3PNvg8Dbvy6leoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cg/LOAfnc21XynP5q28K6KWcQ4q+HUl+/K6QcVMtE/syKJJdBa0mtS2gjNmKWknTS
-         IdDrX5HOv+EZj2UpyRCYn9hkTj3B2eIlxk+mqCyCOSD/rbmVWBIXrdk9zMTrxDCLJy
-         Il3xe66Njsh490O+APAX1qxTW6eKPCR+CWTCY7m4=
+        b=C2XDj5NeFJ35aeooP7ZnD7pbD+ky01ivNaWMwLKBUXBi7l/LGYBQIDZzpecF40Nto
+         cowdvxa6ObtKALbtX9ELvL1cxai+nQq+p6MhzqTqj1VojPsIp1BT558jC+YoZ7A2qn
+         JqZExM46qWA5QwyVUwQTUoTYn1uLokf2lGL0Ubgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Savino Dicanosa <sd7.dev@pm.me>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.2 204/240] io_uring/rsrc: fix null-ptr-deref in io_file_bitmap_get()
+        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
+        Anson Tsao <anson.tsao@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.15 078/146] thunderbolt: Disable interrupt auto clear for rings
 Date:   Tue, 28 Mar 2023 16:42:47 +0200
-Message-Id: <20230328142628.182813129@linuxfoundation.org>
+Message-Id: <20230328142605.954955016@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Savino Dicanosa <sd7.dev@pm.me>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 02a4d923e4400a36d340ea12d8058f69ebf3a383 upstream.
+commit 468c49f44759720a312e52d44a71c3949ed63d7c upstream.
 
-When fixed files are unregistered, file_alloc_end and alloc_hint
-are not cleared. This can later cause a NULL pointer dereference in
-io_file_bitmap_get() if auto index selection is enabled via
-IORING_FILE_INDEX_ALLOC:
+When interrupt auto clear is programmed, any read to the interrupt
+status register will clear all interrupts.  If two interrupts have
+come in before one can be serviced then this will cause lost interrupts.
 
-[    6.519129] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[...]
-[    6.541468] RIP: 0010:_find_next_zero_bit+0x1a/0x70
-[...]
-[    6.560906] Call Trace:
-[    6.561322]  <TASK>
-[    6.561672]  io_file_bitmap_get+0x38/0x60
-[    6.562281]  io_fixed_fd_install+0x63/0xb0
-[    6.562851]  ? __pfx_io_socket+0x10/0x10
-[    6.563396]  io_socket+0x93/0xf0
-[    6.563855]  ? __pfx_io_socket+0x10/0x10
-[    6.564411]  io_issue_sqe+0x5b/0x3d0
-[    6.564914]  io_submit_sqes+0x1de/0x650
-[    6.565452]  __do_sys_io_uring_enter+0x4fc/0xb20
-[    6.566083]  ? __do_sys_io_uring_register+0x11e/0xd80
-[    6.566779]  do_syscall_64+0x3c/0x90
-[    6.567247]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-[...]
+On AMD USB4 routers this has manifested in odd problems particularly
+with long strings of control tranfers such as reading the DROM via bit
+banging.
 
-To fix the issue, set file alloc range and alloc_hint to zero after
-file tables are freed.
+Instead of clearing interrupts automatically, clear the bit corresponding
+to the given ring's interrupt in the ISR.
 
+Fixes: 7a1808f82a37 ("thunderbolt: Handle ring interrupt by reading interrupt status register")
+Cc: Sanju Mehta <Sanju.Mehta@amd.com>
 Cc: stable@vger.kernel.org
-Fixes: 4278a0deb1f6 ("io_uring: defer alloc_hint update to io_file_bitmap_set()")
-Signed-off-by: Savino Dicanosa <sd7.dev@pm.me>
-[axboe: add explicit bitmap == NULL check as well]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Tested-by: Anson Tsao <anson.tsao@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/filetable.c |    3 +++
- io_uring/rsrc.c      |    1 +
- 2 files changed, 4 insertions(+)
+ drivers/thunderbolt/nhi.c      |   40 +++++++++++++++++++++++++---------------
+ drivers/thunderbolt/nhi_regs.h |    6 ++++--
+ 2 files changed, 29 insertions(+), 17 deletions(-)
 
---- a/io_uring/filetable.c
-+++ b/io_uring/filetable.c
-@@ -19,6 +19,9 @@ static int io_file_bitmap_get(struct io_
- 	unsigned long nr = ctx->file_alloc_end;
- 	int ret;
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -68,24 +68,31 @@ static void ring_interrupt_active(struct
+ 		u32 step, shift, ivr, misc;
+ 		void __iomem *ivr_base;
+ 		int index;
++		int bit;
  
-+	if (!table->bitmap)
-+		return -ENFILE;
+ 		if (ring->is_tx)
+ 			index = ring->hop;
+ 		else
+ 			index = ring->hop + ring->nhi->hop_count;
+ 
+-		if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT) {
+-			/*
+-			 * Ask the hardware to clear interrupt status
+-			 * bits automatically since we already know
+-			 * which interrupt was triggered.
+-			 */
+-			misc = ioread32(ring->nhi->iobase + REG_DMA_MISC);
+-			if (!(misc & REG_DMA_MISC_INT_AUTO_CLEAR)) {
+-				misc |= REG_DMA_MISC_INT_AUTO_CLEAR;
+-				iowrite32(misc, ring->nhi->iobase + REG_DMA_MISC);
+-			}
+-		}
++		/*
++		 * Intel routers support a bit that isn't part of
++		 * the USB4 spec to ask the hardware to clear
++		 * interrupt status bits automatically since
++		 * we already know which interrupt was triggered.
++		 *
++		 * Other routers explicitly disable auto-clear
++		 * to prevent conditions that may occur where two
++		 * MSIX interrupts are simultaneously active and
++		 * reading the register clears both of them.
++		 */
++		misc = ioread32(ring->nhi->iobase + REG_DMA_MISC);
++		if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT)
++			bit = REG_DMA_MISC_INT_AUTO_CLEAR;
++		else
++			bit = REG_DMA_MISC_DISABLE_AUTO_CLEAR;
++		if (!(misc & bit))
++			iowrite32(misc | bit, ring->nhi->iobase + REG_DMA_MISC);
+ 
+ 		ivr_base = ring->nhi->iobase + REG_INT_VEC_ALLOC_BASE;
+ 		step = index / REG_INT_VEC_ALLOC_REGS * REG_INT_VEC_ALLOC_BITS;
+@@ -390,14 +397,17 @@ EXPORT_SYMBOL_GPL(tb_ring_poll_complete)
+ 
+ static void ring_clear_msix(const struct tb_ring *ring)
+ {
++	int bit;
 +
- 	do {
- 		ret = find_next_zero_bit(table->bitmap, nr, table->alloc_hint);
- 		if (ret != nr)
---- a/io_uring/rsrc.c
-+++ b/io_uring/rsrc.c
-@@ -794,6 +794,7 @@ void __io_sqe_files_unregister(struct io
- 	}
- #endif
- 	io_free_file_tables(&ctx->file_table);
-+	io_file_table_set_alloc_range(ctx, 0, 0);
- 	io_rsrc_data_free(ctx->file_data);
- 	ctx->file_data = NULL;
- 	ctx->nr_user_files = 0;
+ 	if (ring->nhi->quirks & QUIRK_AUTO_CLEAR_INT)
+ 		return;
+ 
++	bit = ring_interrupt_index(ring) & 31;
+ 	if (ring->is_tx)
+-		ioread32(ring->nhi->iobase + REG_RING_NOTIFY_BASE);
++		iowrite32(BIT(bit), ring->nhi->iobase + REG_RING_INT_CLEAR);
+ 	else
+-		ioread32(ring->nhi->iobase + REG_RING_NOTIFY_BASE +
+-			 4 * (ring->nhi->hop_count / 32));
++		iowrite32(BIT(bit), ring->nhi->iobase + REG_RING_INT_CLEAR +
++			  4 * (ring->nhi->hop_count / 32));
+ }
+ 
+ static irqreturn_t ring_msix(int irq, void *data)
+--- a/drivers/thunderbolt/nhi_regs.h
++++ b/drivers/thunderbolt/nhi_regs.h
+@@ -77,12 +77,13 @@ struct ring_desc {
+ 
+ /*
+  * three bitfields: tx, rx, rx overflow
+- * Every bitfield contains one bit for every hop (REG_HOP_COUNT). Registers are
+- * cleared on read. New interrupts are fired only after ALL registers have been
++ * Every bitfield contains one bit for every hop (REG_HOP_COUNT).
++ * New interrupts are fired only after ALL registers have been
+  * read (even those containing only disabled rings).
+  */
+ #define REG_RING_NOTIFY_BASE	0x37800
+ #define RING_NOTIFY_REG_COUNT(nhi) ((31 + 3 * nhi->hop_count) / 32)
++#define REG_RING_INT_CLEAR	0x37808
+ 
+ /*
+  * two bitfields: rx, tx
+@@ -105,6 +106,7 @@ struct ring_desc {
+ 
+ #define REG_DMA_MISC			0x39864
+ #define REG_DMA_MISC_INT_AUTO_CLEAR     BIT(2)
++#define REG_DMA_MISC_DISABLE_AUTO_CLEAR	BIT(17)
+ 
+ #define REG_INMAIL_DATA			0x39900
+ 
 
 
