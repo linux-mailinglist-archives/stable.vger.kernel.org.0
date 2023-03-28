@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3C86CC392
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236E56CC4A4
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233526AbjC1OzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
+        id S233878AbjC1PGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:06:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233462AbjC1OzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:16 -0400
+        with ESMTP id S233877AbjC1PGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:06:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE915D521
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF73BBDF2
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:05:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56D536183C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F38C4339B;
-        Tue, 28 Mar 2023 14:55:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 054A06184A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1713AC433D2;
+        Tue, 28 Mar 2023 15:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015314;
-        bh=xvku7KTGDzRFy4ccL0e8V2lFj3/LsgT4YJuHM8n+pIk=;
+        s=korg; t=1680015866;
+        bh=pngvrPoAZ5sQwovWrZ2Et43HlzAY7YmPaBid4d9jo+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcuy3V5Sz9YYcP3CJdWiRMzAWwfZtMNW5AWOA71tvVu8Ph6E675TIUwWH0MyBniMx
-         IqKmKzM2fa0lVDxKQcWqOEbyEn2AE8PV//OSoFRobfmNT8ouxtyR2geB0sTwrkwR/4
-         6VXIifWYLa37cwChKd7LHZ0Yl1vJ4b8YO2p1i5/g=
+        b=W0RQpqa55RirlQFbQjMcfuAl8tyQlXoJL1po4rClvCwRXLuVTxTPF/y4EZl8RBEW+
+         gBWHN3rfRqxHBymTIyarWot3ubsnQaoj7soiDcpGBo0LmRcjjiS6DM6bwNNM3a/i7J
+         93q4BW/Eof6sUJb0lhADC1at5PoJlL86ENQHcEfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, yangerkun <yangerkun@huawei.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.2 237/240] dm crypt: add cond_resched() to dmcrypt_write()
+        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 204/224] drm/amdgpu: skip ASIC reset for APUs when go to S4
 Date:   Tue, 28 Mar 2023 16:43:20 +0200
-Message-Id: <20230328142629.566386494@linuxfoundation.org>
+Message-Id: <20230328142625.861872541@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tim Huang <tim.huang@amd.com>
 
-commit fb294b1c0ba982144ca467a75e7d01ff26304e2b upstream.
+commit b589626674de94d977e81c99bf7905872b991197 upstream.
 
-The loop in dmcrypt_write may be running for unbounded amount of time,
-thus we need cond_resched() in it.
+For GC IP v11.0.4/11, PSP TMR need to be reserved
+for ASIC mode2 reset. But for S4, when psp suspend,
+it will destroy the TMR that fails the ASIC reset.
 
-This commit fixes the following warning:
+[  96.006101] amdgpu 0000:62:00.0: amdgpu: MODE2 reset
+[  100.409717] amdgpu 0000:62:00.0: amdgpu: SMU: I'm not done with your previous command: SMN_C2PMSG_66:0x00000011 SMN_C2PMSG_82:0x00000002
+[  100.411593] amdgpu 0000:62:00.0: amdgpu: Mode2 reset failed!
+[  100.412470] amdgpu 0000:62:00.0: PM: pci_pm_freeze(): amdgpu_pmops_freeze+0x0/0x50 [amdgpu] returns -62
+[  100.414020] amdgpu 0000:62:00.0: PM: dpm_run_callback(): pci_pm_freeze+0x0/0xd0 returns -62
+[  100.415311] amdgpu 0000:62:00.0: PM: pci_pm_freeze+0x0/0xd0 returned -62 after 4623202 usecs
+[  100.416608] amdgpu 0000:62:00.0: PM: failed to freeze async: error -62
 
-[ 3391.153255][   C12] watchdog: BUG: soft lockup - CPU#12 stuck for 23s! [dmcrypt_write/2:2897]
-...
-[ 3391.387210][   C12] Call trace:
-[ 3391.390338][   C12]  blk_attempt_bio_merge.part.6+0x38/0x158
-[ 3391.395970][   C12]  blk_attempt_plug_merge+0xc0/0x1b0
-[ 3391.401085][   C12]  blk_mq_submit_bio+0x398/0x550
-[ 3391.405856][   C12]  submit_bio_noacct+0x308/0x380
-[ 3391.410630][   C12]  dmcrypt_write+0x1e4/0x208 [dm_crypt]
-[ 3391.416005][   C12]  kthread+0x130/0x138
-[ 3391.419911][   C12]  ret_from_fork+0x10/0x18
+We can skip the reset on APUs, assuming we can resume them
+properly. Verified on some GFX11, GFX10 and old GFX9 APUs.
 
-Reported-by: yangerkun <yangerkun@huawei.com>
-Fixes: dc2676210c42 ("dm crypt: offload writes to thread")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-crypt.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -1933,6 +1933,7 @@ pop_from_list:
- 			io = crypt_io_from_node(rb_first(&write_tree));
- 			rb_erase(&io->rb_node, &write_tree);
- 			kcryptd_io_write(io);
-+			cond_resched();
- 		} while (!RB_EMPTY_ROOT(&write_tree));
- 		blk_finish_plug(&plug);
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -2447,7 +2447,10 @@ static int amdgpu_pmops_freeze(struct de
+ 	adev->in_s4 = false;
+ 	if (r)
+ 		return r;
+-	return amdgpu_asic_reset(adev);
++
++	if (amdgpu_acpi_should_gpu_reset(adev))
++		return amdgpu_asic_reset(adev);
++	return 0;
+ }
+ 
+ static int amdgpu_pmops_thaw(struct device *dev)
 
 
