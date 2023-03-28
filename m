@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9CB6CC43E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:01:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 862126CC35E
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233750AbjC1PBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:01:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41586 "EHLO
+        id S233257AbjC1Ox3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233751AbjC1PBo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:01:44 -0400
+        with ESMTP id S233520AbjC1OxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF074EB57
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:01:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76BAB26A0
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C6F06183C
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA61C433EF;
-        Tue, 28 Mar 2023 15:01:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7DA261840
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F26C433D2;
+        Tue, 28 Mar 2023 14:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015675;
-        bh=x8V2g7ZD+Au9PDGMbS/5phCngMePeOQTK1SYJlN3vCo=;
+        s=korg; t=1680015192;
+        bh=UCOUbbinkANOkKeBF2oBYAEPjBNp5ACM0g1MCyUk5RY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L9itobJPq70UHx/AQbZbYy3M8f7SkUMQEjXi5TTA2ax7vMFM4i9bwEQehIshX+2kf
-         9leHs9tW7S9zQuJLQvBlYj0gKvfUOA/ENPWDx9Ik0rIL9SUQD2hElDi4zB0TPIj5I4
-         0hzH5KeRYtcW+noUTax7RHjj+ttAI6ZYsjFHIZZg=
+        b=At3aSNNzUZokVrF8ANXcEVw54RvK96fjIyBe2cDfO6UOGmlAd80Pl2uBcNJ6+G5Nt
+         pY06TizUbf55h7BFvSAXn7+H+e4z0fCUE9831c24tkMcFSC0SX6hhlKOR+k9ApBk4z
+         inkrUcnb8OnVirh7hQncbrZCZ41cL2fZIS2BuJf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kang Chen <void0red@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 134/224] scsi: lpfc: Check kzalloc() in lpfc_sli4_cgn_params_read()
-Date:   Tue, 28 Mar 2023 16:42:10 +0200
-Message-Id: <20230328142622.969327992@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 168/240] cifs: fix dentry lookups in directory handle cache
+Date:   Tue, 28 Mar 2023 16:42:11 +0200
+Message-Id: <20230328142626.654309912@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +53,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Tee <justin.tee@broadcom.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-[ Upstream commit 312320b0e0ec21249a17645683fe5304d796aec1 ]
+commit be4fde79812f02914e350bde0bc4cfeae8429378 upstream.
 
-If kzalloc() fails in lpfc_sli4_cgn_params_read(), then we rely on
-lpfc_read_object()'s routine to NULL check pdata.
+Get rid of any prefix paths in @path before lookup_positive_unlocked()
+as it will call ->lookup() which already adds those prefix paths
+through build_path_from_dentry().
 
-Currently, an early return error is thrown from lpfc_read_object() to
-protect us from NULL ptr dereference, but the errno code is -ENODEV.
+This has caused a performance regression when mounting shares with a
+prefix path where readdir(2) would end up retrying several times to
+open bad directory names that contained duplicate prefix paths.
 
-Change the errno code to a more appropriate -ENOMEM.
+Fix this by skipping any prefix paths in @path before calling
+lookup_positive_unlocked().
 
-Reported-by: Kang Chen <void0red@gmail.com>
-Link: https://lore.kernel.org/all/20230226102338.3362585-1-void0red@gmail.com
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Link: https://lore.kernel.org/r/20230228044336.5195-1-justintee8345@gmail.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e4029e072673 ("cifs: find and use the dentry for cached non-root directories also")
+Cc: stable@vger.kernel.org # 6.1+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 2 ++
- drivers/scsi/lpfc/lpfc_sli.c  | 4 ----
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ fs/cifs/cached_dir.c |   36 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index b535f1fd30100..2f38c8d5a48a9 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -7234,6 +7234,8 @@ lpfc_sli4_cgn_params_read(struct lpfc_hba *phba)
- 	/* Find out if the FW has a new set of congestion parameters. */
- 	len = sizeof(struct lpfc_cgn_param);
- 	pdata = kzalloc(len, GFP_KERNEL);
-+	if (!pdata)
-+		return -ENOMEM;
- 	ret = lpfc_read_object(phba, (char *)LPFC_PORT_CFG_NAME,
- 			       pdata, len);
+--- a/fs/cifs/cached_dir.c
++++ b/fs/cifs/cached_dir.c
+@@ -99,6 +99,23 @@ path_to_dentry(struct cifs_sb_info *cifs
+ 	return dentry;
+ }
  
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index b93c948c4fcc4..43e06bb917e77 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -22096,10 +22096,6 @@ lpfc_read_object(struct lpfc_hba *phba, char *rdobject, uint32_t *datap,
- 	struct lpfc_dmabuf *pcmd;
- 	u32 rd_object_name[LPFC_MBX_OBJECT_NAME_LEN_DW] = {0};
++static const char *path_no_prefix(struct cifs_sb_info *cifs_sb,
++				  const char *path)
++{
++	size_t len = 0;
++
++	if (!*path)
++		return path;
++
++	if ((cifs_sb->mnt_cifs_flags & CIFS_MOUNT_USE_PREFIX_PATH) &&
++	    cifs_sb->prepath) {
++		len = strlen(cifs_sb->prepath) + 1;
++		if (unlikely(len > strlen(path)))
++			return ERR_PTR(-EINVAL);
++	}
++	return path + len;
++}
++
+ /*
+  * Open the and cache a directory handle.
+  * If error then *cfid is not initialized.
+@@ -125,6 +142,7 @@ int open_cached_dir(unsigned int xid, st
+ 	struct dentry *dentry = NULL;
+ 	struct cached_fid *cfid;
+ 	struct cached_fids *cfids;
++	const char *npath;
  
--	/* sanity check on queue memory */
--	if (!datap)
--		return -ENODEV;
--
- 	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
- 	if (!mbox)
- 		return -ENOMEM;
--- 
-2.39.2
-
+ 	if (tcon == NULL || tcon->cfids == NULL || tcon->nohandlecache ||
+ 	    is_smb1_server(tcon->ses->server))
+@@ -161,6 +179,20 @@ int open_cached_dir(unsigned int xid, st
+ 	}
+ 
+ 	/*
++	 * Skip any prefix paths in @path as lookup_positive_unlocked() ends up
++	 * calling ->lookup() which already adds those through
++	 * build_path_from_dentry().  Also, do it earlier as we might reconnect
++	 * below when trying to send compounded request and then potentially
++	 * having a different prefix path (e.g. after DFS failover).
++	 */
++	npath = path_no_prefix(cifs_sb, path);
++	if (IS_ERR(npath)) {
++		rc = PTR_ERR(npath);
++		kfree(utf16_path);
++		return rc;
++	}
++
++	/*
+ 	 * We do not hold the lock for the open because in case
+ 	 * SMB2_open needs to reconnect.
+ 	 * This is safe because no other thread will be able to get a ref
+@@ -252,10 +284,10 @@ int open_cached_dir(unsigned int xid, st
+ 				(char *)&cfid->file_all_info))
+ 		cfid->file_all_info_is_valid = true;
+ 
+-	if (!path[0])
++	if (!npath[0])
+ 		dentry = dget(cifs_sb->root);
+ 	else {
+-		dentry = path_to_dentry(cifs_sb, path);
++		dentry = path_to_dentry(cifs_sb, npath);
+ 		if (IS_ERR(dentry)) {
+ 			rc = -ENOENT;
+ 			goto oshr_free;
 
 
