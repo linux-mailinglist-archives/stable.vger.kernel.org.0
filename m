@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3AD6CC35D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19FA6CC45F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233498AbjC1Ox0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42584 "EHLO
+        id S233792AbjC1PEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233350AbjC1OxN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:53:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6591DBBA8
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:53:12 -0700 (PDT)
+        with ESMTP id S233791AbjC1PEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8289B47C
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00684B81BBF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:53:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51308C4339B;
-        Tue, 28 Mar 2023 14:53:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EEFAB81D86
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D995C4339B;
+        Tue, 28 Mar 2023 15:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015189;
-        bh=nGtLg67O8dMCGSO/jfVs9elCVnbhqXczJgjQafb3XtM=;
+        s=korg; t=1680015754;
+        bh=hWDveVcO63/N+u/HOLSx0BaRMQYb3vr1b+/kzv1G5Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIZPcWQP6pz3Z8e/4oV2goBvLt2cHSVO8eDVGtIUPR+O9C/UlcEpxeF0QOpWSocRg
-         Duotpt5HJ/Y8etk2iH2iimFph4qpBt6G2Iv9TiVSm3cm+Paj/I0xjbkjIvQRffx9iE
-         nKAmuK1p784r83wdcUXplesQuxOeHIhKS3Gvgqho=
+        b=ctFkcGVg4CMXVK8xpAYyED+DgAXSU+1gSHcw2I/GcZQXvai8aLM87ZWfMDohIiO0j
+         NO1VVM1JviC4vLQiq2zBFlYUEdLxyFQNKprqeLfkggPFEAwWi8GteNHbmmgwi/OhMV
+         mGZnb3qmQiY6v9MJKj0LkrWbuoStpR/8bSZA1mbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
-        Xu Yang <xu.yang_2@nxp.com>
-Subject: [PATCH 6.2 197/240] usb: chipidea: core: fix possible concurrent when switch role
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 164/224] btrfs: zoned: fix btrfs_can_activate_zone() to support DUP profile
 Date:   Tue, 28 Mar 2023 16:42:40 +0200
-Message-Id: <20230328142627.871113709@linuxfoundation.org>
+Message-Id: <20230328142624.203134766@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,107 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yang <xu.yang_2@nxp.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 451b15ed138ec15bffbebb58a00ebdd884c3e659 upstream.
+commit 9e1cdf0c354e46e428c0e0cab008abbe81b6013d upstream.
 
-The user may call role_store() when driver is handling
-ci_handle_id_switch() which is triggerred by otg event or power lost
-event. Unfortunately, the controller may go into chaos in this case.
-Fix this by protecting it with mutex lock.
+btrfs_can_activate_zone() returns true if at least one device has one zone
+available for activation. This is OK for the single profile, but not OK for
+DUP profile. We need two zones to create a DUP block group. Fix it by
+properly handling the case with the profile flags.
 
-Fixes: a932a8041ff9 ("usb: chipidea: core: add sysfs group")
-cc: <stable@vger.kernel.org>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Link: https://lore.kernel.org/r/20230317061516.2451728-2-xu.yang_2@nxp.com
+Fixes: 265f7237dd25 ("btrfs: zoned: allow DUP on meta-data block groups")
+CC: stable@vger.kernel.org # 6.1+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/ci.h   | 2 ++
- drivers/usb/chipidea/core.c | 8 +++++++-
- drivers/usb/chipidea/otg.c  | 5 ++++-
- 3 files changed, 13 insertions(+), 2 deletions(-)
+ fs/btrfs/zoned.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/chipidea/ci.h b/drivers/usb/chipidea/ci.h
-index 005c67cb3afb..f210b7489fd5 100644
---- a/drivers/usb/chipidea/ci.h
-+++ b/drivers/usb/chipidea/ci.h
-@@ -208,6 +208,7 @@ struct hw_bank {
-  * @in_lpm: if the core in low power mode
-  * @wakeup_int: if wakeup interrupt occur
-  * @rev: The revision number for controller
-+ * @mutex: protect code from concorrent running when doing role switch
-  */
- struct ci_hdrc {
- 	struct device			*dev;
-@@ -260,6 +261,7 @@ struct ci_hdrc {
- 	bool				in_lpm;
- 	bool				wakeup_int;
- 	enum ci_revision		rev;
-+	struct mutex                    mutex;
- };
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -2113,11 +2113,21 @@ bool btrfs_can_activate_zone(struct btrf
+ 		if (!device->bdev)
+ 			continue;
  
- static inline struct ci_role_driver *ci_role(struct ci_hdrc *ci)
-diff --git a/drivers/usb/chipidea/core.c b/drivers/usb/chipidea/core.c
-index b6f2a41de20e..281fc51720ce 100644
---- a/drivers/usb/chipidea/core.c
-+++ b/drivers/usb/chipidea/core.c
-@@ -987,8 +987,12 @@ static ssize_t role_store(struct device *dev,
- 	if (role == CI_ROLE_END)
- 		return -EINVAL;
- 
--	if (role == ci->role)
-+	mutex_lock(&ci->mutex);
+-		if (!zinfo->max_active_zones ||
+-		    atomic_read(&zinfo->active_zones_left)) {
++		if (!zinfo->max_active_zones) {
+ 			ret = true;
+ 			break;
+ 		}
 +
-+	if (role == ci->role) {
-+		mutex_unlock(&ci->mutex);
- 		return n;
-+	}
- 
- 	pm_runtime_get_sync(dev);
- 	disable_irq(ci->irq);
-@@ -998,6 +1002,7 @@ static ssize_t role_store(struct device *dev,
- 		ci_handle_vbus_change(ci);
- 	enable_irq(ci->irq);
- 	pm_runtime_put_sync(dev);
-+	mutex_unlock(&ci->mutex);
- 
- 	return (ret == 0) ? n : ret;
- }
-@@ -1033,6 +1038,7 @@ static int ci_hdrc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	spin_lock_init(&ci->lock);
-+	mutex_init(&ci->mutex);
- 	ci->dev = dev;
- 	ci->platdata = dev_get_platdata(dev);
- 	ci->imx28_write_fix = !!(ci->platdata->flags &
-diff --git a/drivers/usb/chipidea/otg.c b/drivers/usb/chipidea/otg.c
-index 622c3b68aa1e..f5490f2a5b6b 100644
---- a/drivers/usb/chipidea/otg.c
-+++ b/drivers/usb/chipidea/otg.c
-@@ -167,8 +167,10 @@ static int hw_wait_vbus_lower_bsv(struct ci_hdrc *ci)
- 
- void ci_handle_id_switch(struct ci_hdrc *ci)
- {
--	enum ci_role role = ci_otg_role(ci);
-+	enum ci_role role;
- 
-+	mutex_lock(&ci->mutex);
-+	role = ci_otg_role(ci);
- 	if (role != ci->role) {
- 		dev_dbg(ci->dev, "switching from %s to %s\n",
- 			ci_role(ci)->name, ci->roles[role]->name);
-@@ -198,6 +200,7 @@ void ci_handle_id_switch(struct ci_hdrc *ci)
- 		if (role == CI_ROLE_GADGET)
- 			ci_handle_vbus_change(ci);
++		switch (flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) {
++		case 0: /* single */
++			ret = (atomic_read(&zinfo->active_zones_left) >= 1);
++			break;
++		case BTRFS_BLOCK_GROUP_DUP:
++			ret = (atomic_read(&zinfo->active_zones_left) >= 2);
++			break;
++		}
++		if (ret)
++			break;
  	}
-+	mutex_unlock(&ci->mutex);
- }
- /**
-  * ci_otg_work - perform otg (vbus/id) event handle
--- 
-2.40.0
-
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
 
 
