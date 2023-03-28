@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D3D6CC50D
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75266CC457
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229937AbjC1PMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52420 "EHLO
+        id S233776AbjC1PDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:03:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230261AbjC1PMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9B9F746
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:23 -0700 (PDT)
+        with ESMTP id S233781AbjC1PDv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032D2EB55
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82482B81D85
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:09:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E716EC4339B;
-        Tue, 28 Mar 2023 15:09:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5B5361844
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D545DC433EF;
+        Tue, 28 Mar 2023 15:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680016186;
-        bh=yd9XK92dBvylX5xDPEBYWBCxoYN3rgxRUCTi1OyXLkA=;
+        s=korg; t=1680015741;
+        bh=9hsS/okGxwCBR+WOx4ZbRSqYvE2dmW31JTytB/zOLpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEzIFeKmnktsLjKpqoR3iKSgBGlyim24SF0ZkVe1Va6h7io8HI1ZMgQXMXhb1jpSf
-         hD1JpR69qP091wwOloppxmWyLjVueB+vVq3lVyqyE9Tj/ySonrKQnwXozWcOe163hz
-         DwKzrqV6+LgW7tflmwqWR/8VP7LHL/OkrCqrabIc=
+        b=Z9Be3LpJ5dGC9EdSGuVojYTfJHOvRc30L0KgW2RCLW5ND7QeEgqp1V/yns8uenx8M
+         +52YFHmp1KA7Zxq+3SJOsQzoqam+qE+NLlZ2aWesNWCW67xLg18bPnVDFjuD6dVyGq
+         U2KTNBeYa//T95Azs1VkaK1D3oHqsuxk+YjVuKgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 066/146] Bluetooth: btsdio: fix use after free bug in btsdio_remove due to unfinished work
+        patches@lists.linux.dev,
+        Joel Selvaraj <joelselvaraj.oss@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.1 159/224] scsi: core: Add BLIST_SKIP_VPD_PAGES for SKhynix H28U74301AMR
 Date:   Tue, 28 Mar 2023 16:42:35 +0200
-Message-Id: <20230328142605.462968466@linuxfoundation.org>
+Message-Id: <20230328142623.992809284@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
-References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 
-[ Upstream commit 1e9ac114c4428fdb7ff4635b45d4f46017e8916f ]
+commit a204b490595de71016b2360a1886ec8c12d0afac upstream.
 
-In btsdio_probe, &data->work was bound with btsdio_work.In
-btsdio_send_frame, it was started by schedule_work.
+Xiaomi Poco F1 (qcom/sdm845-xiaomi-beryllium*.dts) comes with a SKhynix
+H28U74301AMR UFS. The sd_read_cpr() operation leads to a 120 second
+timeout, making the device bootup very slow:
 
-If we call btsdio_remove with an unfinished job, there may
-be a race condition and cause UAF bug on hdev.
+[  121.457736] sd 0:0:0:1: [sdb] tag#23 timing out command, waited 120s
 
-Fixes: ddbaf13e3609 ("[Bluetooth] Add generic driver for Bluetooth SDIO devices")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Setting the BLIST_SKIP_VPD_PAGES allows the device to skip the failing
+sd_read_cpr operation and boot normally.
+
+Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
+Link: https://lore.kernel.org/r/20230313041402.39330-1-joelselvaraj.oss@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btsdio.c | 1 +
+ drivers/scsi/scsi_devinfo.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bluetooth/btsdio.c b/drivers/bluetooth/btsdio.c
-index 199e8f7d426d9..7050a16e7efeb 100644
---- a/drivers/bluetooth/btsdio.c
-+++ b/drivers/bluetooth/btsdio.c
-@@ -352,6 +352,7 @@ static void btsdio_remove(struct sdio_func *func)
- 
- 	BT_DBG("func %p", func);
- 
-+	cancel_work_sync(&data->work);
- 	if (!data)
- 		return;
- 
--- 
-2.39.2
-
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -234,6 +234,7 @@ static struct {
+ 	{"SGI", "RAID5", "*", BLIST_SPARSELUN},
+ 	{"SGI", "TP9100", "*", BLIST_REPORTLUN2},
+ 	{"SGI", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
++	{"SKhynix", "H28U74301AMR", NULL, BLIST_SKIP_VPD_PAGES},
+ 	{"IBM", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
+ 	{"SUN", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
+ 	{"DELL", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
 
 
