@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4E6E6CC322
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61326CC44D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233338AbjC1Ovf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S233779AbjC1PDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:03:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233331AbjC1OvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:51:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C475EE054
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:50:59 -0700 (PDT)
+        with ESMTP id S233770AbjC1PDB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:03:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61F2EC57
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:02:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 695CBB81D67
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A679DC4339B;
-        Tue, 28 Mar 2023 14:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFD261847
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:01:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96ECFC433D2;
+        Tue, 28 Mar 2023 15:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015057;
-        bh=5VMwDl1Jsw26GjyXU8bTq4Dwad0lh0CCc32p19PzZOs=;
+        s=korg; t=1680015713;
+        bh=KASXsKcwhzOFvQl9CRD+V3oEgR7AUj1FxHxAfxlkrZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpqeR8Tkp2EVPbGZcc1J0Ut2v+Z4FdhxKQ8hIaXH7sjEUuJ0fq1kJDxeAL+dxG96j
-         mUDUn+fMSoUsbKdn6jc3eSliQzxrwnuURQRlL2YMiXOL2CbKAwEgTuFXcGveeuc9k0
-         77cSKVFWRPIefX+JggHIy9DKYgOjUti8kUJKKQAw=
+        b=mzu7fzzibV28k23tDBfntKwZenvQu3h2s1gIrrx75plbM+9gnHQcVMceFW76Zng8x
+         bxrbGKy0EV1xProTnWmbbElEW/8B1Khr0aqgK40Rx8XhsDmQec7bbLNp0OgkwUkJzG
+         lKkr1/+ATqnqpw6MDRJUnjpG14sPTb6wJ348wcZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ranjan Kumar <ranjan.kumar@broadcom.com>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Duc Anh Le <lub.the.studio@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 150/240] scsi: mpi3mr: NVMe command size greater than 8K fails
-Date:   Tue, 28 Mar 2023 16:41:53 +0200
-Message-Id: <20230328142625.961962476@linuxfoundation.org>
+Subject: [PATCH 6.1 118/224] ASoC: amd: yc: Add DMI entries to support HP OMEN 16-n0xxx (8A43)
+Date:   Tue, 28 Mar 2023 16:41:54 +0200
+Message-Id: <20230328142622.275048508@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjan Kumar <ranjan.kumar@broadcom.com>
+From: Duc Anh Le <lub.the.studio@gmail.com>
 
-[ Upstream commit 4f297e856a7b5da2f2c66a12e739666e23943560 ]
+[ Upstream commit d52279d5c9204a041e9ba02a66a353573b2f96e4 ]
 
-A wrong variable is checked while populating PRP entries in the PRP page
-and this results in failure. No PRP entries in the PRP page were
-successfully created and any NVMe Encapsulated commands with PRP of size
-greater than 8K failed.
+This model requires an additional detection quirk to enable the internal microphone.
 
-Signed-off-by: Ranjan Kumar <ranjan.kumar@broadcom.com>
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Link: https://lore.kernel.org/r/20230228140835.4075-6-ranjan.kumar@broadcom.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Duc Anh Le <lub.the.studio@gmail.com>
+Link: https://lore.kernel.org/r/20230227234921.7784-1-lub.the.studio@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_app.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_app.c b/drivers/scsi/mpi3mr/mpi3mr_app.c
-index bff6377023979..d10c6afb7f9cd 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_app.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_app.c
-@@ -886,7 +886,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
- 			 * each time through the loop.
- 			 */
- 			*prp_entry = cpu_to_le64(dma_addr);
--			if (*prp1_entry & sgemod_mask) {
-+			if (*prp_entry & sgemod_mask) {
- 				dprint_bsg_err(mrioc,
- 				    "%s: PRP address collides with SGE modifier\n",
- 				    __func__);
-@@ -895,7 +895,7 @@ static int mpi3mr_build_nvme_prp(struct mpi3mr_ioc *mrioc,
- 			*prp_entry &= ~sgemod_mask;
- 			*prp_entry |= sgemod_val;
- 			prp_entry++;
--			prp_entry_dma++;
-+			prp_entry_dma += prp_size;
+diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
+index 4e681e9c08fe5..4a69ce702360c 100644
+--- a/sound/soc/amd/yc/acp6x-mach.c
++++ b/sound/soc/amd/yc/acp6x-mach.c
+@@ -262,6 +262,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "OMEN by HP Gaming Laptop 16z-n000"),
  		}
+ 	},
++	{
++		.driver_data = &acp6x_card,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
++			DMI_MATCH(DMI_BOARD_NAME, "8A43"),
++		}
++	},
+ 	{}
+ };
  
- 		/*
 -- 
 2.39.2
 
