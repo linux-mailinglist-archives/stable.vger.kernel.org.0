@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 696A36CC38E
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9453B6CC51F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:12:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbjC1OzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57496 "EHLO
+        id S231197AbjC1PMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:12:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233544AbjC1OzC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:55:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A9BD510
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:55:02 -0700 (PDT)
+        with ESMTP id S231192AbjC1PMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB72819D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:11:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB5EA6181B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFDDEC433EF;
-        Tue, 28 Mar 2023 14:55:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56D70B81D87
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F9DBC433EF;
+        Tue, 28 Mar 2023 15:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015301;
-        bh=JL7swysdZjFPmLwy5SPweFAjgwocKbKWkI3q0AwtqnM=;
+        s=korg; t=1680016211;
+        bh=OIQgs3wl+xCQMgSnsW/GHkga3djyDt7KRSbbxH0Q/04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ImKQB5fkEy7JUqU8YXxD6vx5A63l6kgzu7uJ1rv2f75sKy+X8N3xUf0lIT/cTluoX
-         IkzA92eWIJJaNTw7V7bsIcdcsgSGg0Lp9mWq752FXrMBdqRvGIaDWoux/sNSHEw8eS
-         E6j5ro5F9fh3HpbYyqqAvY910E9VsrjmNIDVUKIY=
+        b=DTlcg0v7UrDY+iH8AgOtnOsOhUlBSiVKwr6XDMdxFA1rmtmyUq9I2at/7SXE2PimL
+         g92JcQ71OgMqu1+L2aCtqWGtHWEdIlrEcblVtzIePfeWhvvd8CWwluxJKQ+SzYyaOq
+         f3qxGX9T3ucaIYBtb0pEwGXn4xfGeYK2H3MAdmlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abel Vesa <abel.vesa@linaro.org>,
-        Juerg Haefliger <juerg.haefliger@canonical.com>,
-        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.2 232/240] soc: qcom: llcc: Fix slice configuration values for SC8280XP
+        patches@lists.linux.dev,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        John Keeping <john@metanate.com>
+Subject: [PATCH 5.15 106/146] usb: gadget: u_audio: dont let userspace block driver unbind
 Date:   Tue, 28 Mar 2023 16:43:15 +0200
-Message-Id: <20230328142629.379087634@linuxfoundation.org>
+Message-Id: <20230328142607.108241860@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@linaro.org>
+From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-commit 77bf4b3ed42e31d29b255fcd6530fb7a1e217e89 upstream.
+commit 6c67ed9ad9b83e453e808f9b31a931a20a25629b upstream.
 
-The slice IDs for CVPFW, CPUSS1 and CPUWHT currently overflow the 32bit
-LLCC config registers, which means it is writing beyond the upper limit
-of the ATTR0_CFGn and ATTR1_CFGn range of registers. But the most obvious
-impact is the fact that the mentioned slices do not get configured at all,
-which will result in reduced performance. Fix that by using the slice ID
-values taken from the latest LLCC SC table.
+In the unbind callback for f_uac1 and f_uac2, a call to snd_card_free()
+via g_audio_cleanup() will disconnect the card and then wait for all
+resources to be released, which happens when the refcount falls to zero.
+Since userspace can keep the refcount incremented by not closing the
+relevant file descriptor, the call to unbind may block indefinitely.
+This can cause a deadlock during reboot, as evidenced by the following
+blocked task observed on my machine:
 
-Fixes: ec69dfbdc426 ("soc: qcom: llcc: Add sc8180x and sc8280xp configurations")
-Cc: stable@vger.kernel.org	# 5.19+
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Tested-by: Juerg Haefliger <juerg.haefliger@canonical.com>
-Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-Acked-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230306135527.509796-1-abel.vesa@linaro.org
+  task:reboot  state:D stack:0   pid:2827  ppid:569    flags:0x0000000c
+  Call trace:
+   __switch_to+0xc8/0x140
+   __schedule+0x2f0/0x7c0
+   schedule+0x60/0xd0
+   schedule_timeout+0x180/0x1d4
+   wait_for_completion+0x78/0x180
+   snd_card_free+0x90/0xa0
+   g_audio_cleanup+0x2c/0x64
+   afunc_unbind+0x28/0x60
+   ...
+   kernel_restart+0x4c/0xac
+   __do_sys_reboot+0xcc/0x1ec
+   __arm64_sys_reboot+0x28/0x30
+   invoke_syscall+0x4c/0x110
+   ...
+
+The issue can also be observed by opening the card with arecord and
+then stopping the process through the shell before unbinding:
+
+  # arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
+  Recording WAVE '/dev/null' : Signed 32 bit Little Endian, Rate 48000 Hz, Stereo
+  ^Z[1]+  Stopped                    arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
+  # echo gadget.0 > /sys/bus/gadget/drivers/configfs-gadget/unbind
+  (observe that the unbind command never finishes)
+
+Fix the problem by using snd_card_free_when_closed() instead, which will
+still disconnect the card as desired, but defer the task of freeing the
+resources to the core once userspace closes its file descriptor.
+
+Fixes: 132fcb460839 ("usb: gadget: Add Audio Class 2.0 Driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20230302163648.3349669-1-alvin@pqrs.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/qcom/llcc-qcom.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/function/u_audio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/qcom/llcc-qcom.c
-+++ b/drivers/soc/qcom/llcc-qcom.c
-@@ -191,9 +191,9 @@ static const struct llcc_slice_config sc
- 	{ LLCC_CVP,      28, 512,  3, 1, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
- 	{ LLCC_APTCM,    30, 1024, 3, 1, 0x0,   0x1, 1, 0, 0, 1, 0, 0 },
- 	{ LLCC_WRCACHE,  31, 1024, 1, 1, 0xfff, 0x0, 0, 0, 0, 0, 1, 0 },
--	{ LLCC_CVPFW,    32, 512,  1, 0, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
--	{ LLCC_CPUSS1,   33, 2048, 1, 1, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
--	{ LLCC_CPUHWT,   36, 512,  1, 1, 0xfff, 0x0, 0, 0, 0, 0, 1, 0 },
-+	{ LLCC_CVPFW,    17, 512,  1, 0, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
-+	{ LLCC_CPUSS1,   3, 2048, 1, 1, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
-+	{ LLCC_CPUHWT,   5, 512,  1, 1, 0xfff, 0x0, 0, 0, 0, 0, 1, 0 },
- };
+--- a/drivers/usb/gadget/function/u_audio.c
++++ b/drivers/usb/gadget/function/u_audio.c
+@@ -1174,7 +1174,7 @@ void g_audio_cleanup(struct g_audio *g_a
+ 	uac = g_audio->uac;
+ 	card = uac->card;
+ 	if (card)
+-		snd_card_free(card);
++		snd_card_free_when_closed(card);
  
- static const struct llcc_slice_config sdm845_data[] =  {
+ 	kfree(uac->p_prm.reqs);
+ 	kfree(uac->c_prm.reqs);
 
 
