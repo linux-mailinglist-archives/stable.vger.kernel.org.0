@@ -2,117 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C59B6CB9E9
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 10:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D625F6CB9FD
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 11:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232381AbjC1Iy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 04:54:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
+        id S230103AbjC1JC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 05:02:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232276AbjC1Iyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 04:54:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B253719A1;
-        Tue, 28 Mar 2023 01:54:45 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6230DB81BBF;
-        Tue, 28 Mar 2023 08:54:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD22FC433EF;
-        Tue, 28 Mar 2023 08:54:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679993683;
-        bh=FlhEhP6prp2j0gTaGdnVSIx+i5NWL7KCri11ZYnsy3I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SJRGXCjhZkx/iOapcmyPGdXscZHKSIdLVHHLMURh1Rf6qwEnc3Xlad0Qvwr7KT+qF
-         1MENXlQqeB6wAxszDpo0TlZmxkBw9FBjElNI3lmZEwodbevs5J0gzufBZbX0mRJdhf
-         vC8+Ux1CbqncIrFCgHueOAiBJ+SC1rsOFyCvtvF8jIFY1Og2EUQ7iCdVEy7jrzzCGJ
-         YQsXyp4K2PTCsfootJyrObN8PSegqIaDFVCs650s/Kz/BEbhs4gmnYGP3HVngdZrES
-         FvDmZClERmEwCYz3P6muXFqsF2d3ARRaq5wJPoyotbW36VpAoQYf/hmQcGjpBck2D5
-         QfcbOfLgQZHBw==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1ph56U-0003mE-05; Tue, 28 Mar 2023 10:54:54 +0200
-Date:   Tue, 28 Mar 2023 10:54:53 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     andersson@kernel.org, Thinh.Nguyen@synopsys.com,
-        gregkh@linuxfoundation.org, mathias.nyman@intel.com,
-        konrad.dybcio@linaro.org, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/5] arm64: dts: qcom: sc8280xp: Add missing dwc3 quirks
-Message-ID: <ZCKrXZn7Eu/jvdpG@hovoldconsulting.com>
-References: <20230325165217.31069-1-manivannan.sadhasivam@linaro.org>
- <20230325165217.31069-2-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S230093AbjC1JCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 05:02:25 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2B8210E;
+        Tue, 28 Mar 2023 02:02:24 -0700 (PDT)
+Received: from dggpeml500018.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Pm3WW6mbCzSmZr;
+        Tue, 28 Mar 2023 16:58:47 +0800 (CST)
+Received: from [10.67.111.186] (10.67.111.186) by
+ dggpeml500018.china.huawei.com (7.185.36.186) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Tue, 28 Mar 2023 17:02:21 +0800
+Message-ID: <899c8be7-fe1a-7dd2-c174-6a8b9934ba39@huawei.com>
+Date:   Tue, 28 Mar 2023 17:02:21 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230325165217.31069-2-manivannan.sadhasivam@linaro.org>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.1
+Subject: Re: Patch "sched/fair: sanitize vruntime of entity being placed" has
+ been added to the 4.14-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>
+CC:     Sasha Levin <sashal@kernel.org>, <stable-commits@vger.kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>
+References: <20230305040248.1787312-1-sashal@kernel.org>
+ <cf0108ec-d949-a5ab-7367-f358b6685873@huawei.com>
+ <ZAWwIrMQ2EUikr6t@kroah.com>
+ <1f8388a8-39cf-080c-4a6d-36b3059544a5@huawei.com>
+ <ZAW69nTPaqHHLzON@kroah.com>
+ <e0c8a7e2-0560-25a4-ee8f-0eaebd98074a@huawei.com>
+ <ZAdXD0c9MSZ5H9ls@kroah.com>
+From:   Zhang Qiao <zhangqiao22@huawei.com>
+In-Reply-To: <ZAdXD0c9MSZ5H9ls@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.111.186]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500018.china.huawei.com (7.185.36.186)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-2.3 required=5.0 tests=NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 25, 2023 at 10:22:13PM +0530, Manivannan Sadhasivam wrote:
-> Add missing quirks for the USB DWC3 IP.
 
-This is not an acceptable commit message generally and certainly not for
-something that you have tagged for stable.
 
-At a minimum, you need to describe why these are needed and what the
-impact is.
-
-Also, why are you sending as part of a series purporting to enable
-runtime PM when it appears to be all about optimising specific gadget
-applications?
-
-Did you confirm that the below makes any sense or has this just been
-copied verbatim from the vendor devicetree (it looks like that)?
-
-The fact that almost none of the qcom SoCs sets these also indicates
-that something is not right here.
-
-> Cc: stable@vger.kernel.org # 5.20
-> Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> ---
->  arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+在 2023/3/7 23:23, Greg KH 写道:
+> On Mon, Mar 06, 2023 at 06:51:15PM +0800, Zhang Qiao wrote:
+>>
+>>
+>> 在 2023/3/6 18:05, Greg KH 写道:
+>>> On Mon, Mar 06, 2023 at 05:28:41PM +0800, Zhang Qiao wrote:
+>>>>
+>>>>
+>>>> 在 2023/3/6 17:19, Greg KH 写道:
+>>>>> On Mon, Mar 06, 2023 at 04:31:57PM +0800, Zhang Qiao wrote:
+>>>>>>
+>>>>>>
+>>>>>> 在 2023/3/5 12:02, Sasha Levin 写道:
+>>>>>>> This is a note to let you know that I've just added the patch titled
+>>>>>>>
+>>>>>>>     sched/fair: sanitize vruntime of entity being placed
+>>>>>>>
+>>>>>>> to the 4.14-stable tree which can be found at:
+>>>>>>>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>>>>>>>
+>>>>>>> The filename of the patch is:
+>>>>>>>      sched-fair-sanitize-vruntime-of-entity-being-placed.patch
+>>>>>>> and it can be found in the queue-4.14 subdirectory.
+>>>>>>>
+>>>>>>> If you, or anyone else, feels it should not be added to the stable tree,
+>>>>>>> please let <stable@vger.kernel.org> know about it.
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> commit 38247e1de3305a6ef644404ac818bc6129440eae
+>>>>>>
+>>>>>> Hi,
+>>>>>> This patch has significant impact on the hackbench.throughput [1].
+>>>>>> Please don't backport this patch.
+>>>>>>
+>>>>>> [1] https://lore.kernel.org/lkml/202302211553.9738f304-yujie.liu@intel.com/T/#u
+>>>>>
+>>>>> This link says it made hackbench.throughput faster, not slower, so why
+>>>>> would we NOT want it?
+>>>>
+>>>> Please see this section. In some cases, this patch reset task's vruntime by mistake and
+>>>> will lead to wrong results.
+>>>>
+>>>>
+>>>> On Tue, Feb 21, 2023 at 03:34:16PM +0800, kernel test robot wrote:
+>>>>>
+>>>>> FYI, In addition to that, the commit also has significant impact on the following tests:
+>>>>>
+>>>>> +------------------+--------------------------------------------------+
+>>>>> | testcase: change | hackbench: hackbench.throughput -8.1% regression |
+>>>>> | test machine     | 104 threads 2 sockets (Skylake) with 192G memory |
+>>>>> | test parameters  | cpufreq_governor=performance                     |
+>>>>> |                  | ipc=socket                                       |
+>>>>> |                  | iterations=4                                     |
+>>>>> |                  | mode=process                                     |
+>>>>> |                  | nr_threads=100%                                  |
+>>>>> +------------------+--------------------------------------------------+
+>>>>>
+>>>>> Details are as below:
+>>>
+>>> So one benchmark did better, by a lot, and one did less, by a little?
+>>> Which one matters "more">
+>>>
+>>> So Linus's tree now has a regression?  Or not?  I'm confused.  We are
+>>
+>> Yes, Linus's tree also has a regression, and i have sent a patch[1] for fix this regression.
+>>
+>>
+>> [1]: https://lore.kernel.org/lkml/79850642-ebac-5c23-d32d-b28737dcb91e@huawei.com/
+>>
+>> thanks.
+>> Zhang qiao.
 > 
-> diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-> index 0d02599d8867..266a94c712aa 100644
-> --- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-> @@ -3040,6 +3040,13 @@ usb_0_dwc3: usb@a600000 {
->  				iommus = <&apps_smmu 0x820 0x0>;
->  				phys = <&usb_0_hsphy>, <&usb_0_qmpphy QMP_USB43DP_USB3_PHY>;
->  				phy-names = "usb2-phy", "usb3-phy";
-> +				snps,hird-threshold = /bits/ 8 <0x0>;
-> +				snps,usb2-gadget-lpm-disable;
+> Ok, I've dropped this from all stable queues now.  Please let us know
+> when we can pick it up again and what the fixup commit id in Linus's
+> tree is when it lands there.
 
-Here you are disabling LPM for gadget mode, which makes most of the
-other properties entirely pointless.
+Hi,
 
-> +				snps,is-utmi-l1-suspend;
-> +				snps,dis-u1-entry-quirk;
-> +				snps,dis-u2-entry-quirk;
+The fixup patch has been merged into Linus's tree, its commit id is:
+a53ce18cacb477dd0513c607f187d16f0fa96f71 ("sched/fair: Sanitize vruntime of entity being migrated")
 
-These appear to be used to optimise certain gadget application and
-likely not something that should be set in a dtsi.
+thanks,
+Zhangqiao.
 
-> +				snps,has-lpm-erratum;
-> +				tx-fifo-resize;
-
-Same here.
-
->  				port {
->  					usb_0_role_switch: endpoint {
-
-Johan
+> 
+> thanks,
+> 
+> greg k-h
+> .
+> 
