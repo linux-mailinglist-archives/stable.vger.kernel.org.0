@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 164CF6CC3E7
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F606CC305
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233658AbjC1O6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33656 "EHLO
+        id S233438AbjC1Oup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 10:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233666AbjC1O6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:58:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CBE85271
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:58:11 -0700 (PDT)
+        with ESMTP id S233437AbjC1Oub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:50:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9926DCDE6
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:49:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 181A4B81D75
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CCCC433EF;
-        Tue, 28 Mar 2023 14:58:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7942C6181A
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87702C433EF;
+        Tue, 28 Mar 2023 14:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015488;
-        bh=LIci1sEodLQcOY8bE5V5xQxaWohW8aP85+rhhznkQIo=;
+        s=korg; t=1680014993;
+        bh=pSMiX2rHKJCPkFdCK4tKUID+GbpZO3gXUGYAUf+VHHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqvJs5Tz25Dpxtr/o2ZjrLotX6R2em4zdO/XVvIU+sNo4ZC2cbk73j+lms8KHjHoB
-         E3SNdPp3MsSWAFqOeGIgy0kSuVufrnFxCrqMJAeQZ1wcmewY1Of1fCkUycBZdxcLuw
-         37dTTze1NEZb/mWLbO0KBKl3l1JLNx0RB6M7At2E=
+        b=n31paQuYxMs83ZOrakJuTevJTKGBbhXNwnDM+o0GQCP6jGG0LbyuaPhAefpAFFZjV
+         21Q/1N1j2qyiSAEvtBneNMzRYd6QaYlFJ0jfPZOQyUfFiVxUNTUQyHA7a/VdYp1RmL
+         8Mp41+ud+QccXro9pnjreUMTwJNI2OtLaB3LypiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Raed Salem <raeds@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 067/224] net/mlx5e: Overcome slow response for first macsec ASO WQE
+Subject: [PATCH 6.2 100/240] efi/libstub: Use relocated version of kernels struct screen_info
 Date:   Tue, 28 Mar 2023 16:41:03 +0200
-Message-Id: <20230328142620.143690217@linuxfoundation.org>
+Message-Id: <20230328142623.936352253@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
+References: <20230328142619.643313678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,53 +53,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emeel Hakim <ehakim@nvidia.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 7e3fce82d945cf6e7f99034b113ff2d250d7524d ]
+[ Upstream commit fc3608aaa5751318837e4bbe0282b3836bca5080 ]
 
-First ASO WQE poll causes a cache miss in hardware hence the resut is
-delayed. It causes to the situation where such WQE is polled earlier
-than it is needed.
+In some cases, we expose the kernel's struct screen_info to the EFI stub
+directly, so it gets populated before even entering the kernel.  This
+means the early console is available as soon as the early param parsing
+happens, which is nice. It also means we need two different ways to pass
+this information, as this trick only works if the EFI stub is baked into
+the core kernel image, which is not always the case.
 
-Add logic to retry ASO CQ polling operation.
+Huacai reports that the preparatory refactoring that was needed to
+implement this alternative method for zboot resulted in a non-functional
+efifb earlycon for other cases as well, due to the reordering of the
+kernel image relocation with the population of the screen_info struct,
+and the latter now takes place after copying the image to its new
+location, which means we copy the old, uninitialized state.
 
-Fixes: 739cfa34518e ("net/mlx5: Make ASO poll CQ usable in atomic context") 
-Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+So let's ensure that the same-image version of alloc_screen_info()
+produces the correct screen_info pointer, by taking the displacement of
+the loaded image into account.
+
+Reported-by: Huacai Chen <chenhuacai@loongson.cn>
+Tested-by: Huacai Chen <chenhuacai@loongson.cn>
+Link: https://lore.kernel.org/linux-efi/20230310021749.921041-1-chenhuacai@loongson.cn/
+Fixes: 42c8ea3dca094ab8 ("efi: libstub: Factor out EFI stub entrypoint into separate file")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en_accel/macsec.c    | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/libstub/arm64-stub.c     |  4 +++-
+ drivers/firmware/efi/libstub/efi-stub-entry.c | 11 +++++++++++
+ drivers/firmware/efi/libstub/efi-stub.c       |  5 -----
+ drivers/firmware/efi/libstub/efistub.h        |  1 +
+ drivers/firmware/efi/libstub/screen_info.c    |  9 +--------
+ drivers/firmware/efi/libstub/zboot.c          |  5 +++++
+ 6 files changed, 21 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-index 0c23340bfcc75..0f8f3ce35537d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-@@ -1412,6 +1412,7 @@ static int macsec_aso_query(struct mlx5_core_dev *mdev, struct mlx5e_macsec *mac
- 	struct mlx5e_macsec_aso *aso;
- 	struct mlx5_aso_wqe *aso_wqe;
- 	struct mlx5_aso *maso;
-+	unsigned long expires;
- 	int err;
+diff --git a/drivers/firmware/efi/libstub/arm64-stub.c b/drivers/firmware/efi/libstub/arm64-stub.c
+index 7327b98d8e3fe..7c502dafe6f91 100644
+--- a/drivers/firmware/efi/libstub/arm64-stub.c
++++ b/drivers/firmware/efi/libstub/arm64-stub.c
+@@ -85,8 +85,10 @@ efi_status_t handle_kernel_image(unsigned long *image_addr,
+ 		}
+ 	}
  
- 	aso = &macsec->aso;
-@@ -1425,7 +1426,13 @@ static int macsec_aso_query(struct mlx5_core_dev *mdev, struct mlx5e_macsec *mac
- 	macsec_aso_build_wqe_ctrl_seg(aso, &aso_wqe->aso_ctrl, NULL);
+-	if (image->image_base != _text)
++	if (image->image_base != _text) {
+ 		efi_err("FIRMWARE BUG: efi_loaded_image_t::image_base has bogus value\n");
++		image->image_base = _text;
++	}
  
- 	mlx5_aso_post_wqe(maso, false, &aso_wqe->ctrl);
--	err = mlx5_aso_poll_cq(maso, false);
-+	expires = jiffies + msecs_to_jiffies(10);
-+	do {
-+		err = mlx5_aso_poll_cq(maso, false);
-+		if (err)
-+			usleep_range(2, 10);
-+	} while (err && time_is_after_jiffies(expires));
+ 	if (!IS_ALIGNED((u64)_text, SEGMENT_ALIGN))
+ 		efi_err("FIRMWARE BUG: kernel image not aligned on %dk boundary\n",
+diff --git a/drivers/firmware/efi/libstub/efi-stub-entry.c b/drivers/firmware/efi/libstub/efi-stub-entry.c
+index 5245c4f031c0a..cc4dcaea67fa6 100644
+--- a/drivers/firmware/efi/libstub/efi-stub-entry.c
++++ b/drivers/firmware/efi/libstub/efi-stub-entry.c
+@@ -5,6 +5,15 @@
+ 
+ #include "efistub.h"
+ 
++static unsigned long screen_info_offset;
 +
- 	if (err)
- 		goto err_out;
++struct screen_info *alloc_screen_info(void)
++{
++	if (IS_ENABLED(CONFIG_ARM))
++		return __alloc_screen_info();
++	return (void *)&screen_info + screen_info_offset;
++}
++
+ /*
+  * EFI entry point for the generic EFI stub used by ARM, arm64, RISC-V and
+  * LoongArch. This is the entrypoint that is described in the PE/COFF header
+@@ -56,6 +65,8 @@ efi_status_t __efiapi efi_pe_entry(efi_handle_t handle,
+ 		return status;
+ 	}
  
++	screen_info_offset = image_addr - (unsigned long)image->image_base;
++
+ 	status = efi_stub_common(handle, image, image_addr, cmdline_ptr);
+ 
+ 	efi_free(image_size, image_addr);
+diff --git a/drivers/firmware/efi/libstub/efi-stub.c b/drivers/firmware/efi/libstub/efi-stub.c
+index 2955c1ac6a36e..f9c1e8a2bd1d3 100644
+--- a/drivers/firmware/efi/libstub/efi-stub.c
++++ b/drivers/firmware/efi/libstub/efi-stub.c
+@@ -47,11 +47,6 @@
+ static u64 virtmap_base = EFI_RT_VIRTUAL_BASE;
+ static bool flat_va_mapping = (EFI_RT_VIRTUAL_OFFSET != 0);
+ 
+-struct screen_info * __weak alloc_screen_info(void)
+-{
+-	return &screen_info;
+-}
+-
+ void __weak free_screen_info(struct screen_info *si)
+ {
+ }
+diff --git a/drivers/firmware/efi/libstub/efistub.h b/drivers/firmware/efi/libstub/efistub.h
+index f527816abab3e..1926644b43dea 100644
+--- a/drivers/firmware/efi/libstub/efistub.h
++++ b/drivers/firmware/efi/libstub/efistub.h
+@@ -1042,6 +1042,7 @@ efi_enable_reset_attack_mitigation(void) { }
+ void efi_retrieve_tpm2_eventlog(void);
+ 
+ struct screen_info *alloc_screen_info(void);
++struct screen_info *__alloc_screen_info(void);
+ void free_screen_info(struct screen_info *si);
+ 
+ void efi_cache_sync_image(unsigned long image_base,
+diff --git a/drivers/firmware/efi/libstub/screen_info.c b/drivers/firmware/efi/libstub/screen_info.c
+index 8e76a8b384ba1..4be1c4d1f922b 100644
+--- a/drivers/firmware/efi/libstub/screen_info.c
++++ b/drivers/firmware/efi/libstub/screen_info.c
+@@ -15,18 +15,11 @@
+  * early, but it only works if the EFI stub is part of the core kernel image
+  * itself. The zboot decompressor can only use the configuration table
+  * approach.
+- *
+- * In order to support both methods from the same build of the EFI stub
+- * library, provide this dummy global definition of struct screen_info. If it
+- * is required to satisfy a link dependency, it means we need to override the
+- * __weak alloc and free methods with the ones below, and those will be pulled
+- * in as well.
+  */
+-struct screen_info screen_info;
+ 
+ static efi_guid_t screen_info_guid = LINUX_EFI_SCREEN_INFO_TABLE_GUID;
+ 
+-struct screen_info *alloc_screen_info(void)
++struct screen_info *__alloc_screen_info(void)
+ {
+ 	struct screen_info *si;
+ 	efi_status_t status;
+diff --git a/drivers/firmware/efi/libstub/zboot.c b/drivers/firmware/efi/libstub/zboot.c
+index 66be5fdc6b588..22c2cf38ccc20 100644
+--- a/drivers/firmware/efi/libstub/zboot.c
++++ b/drivers/firmware/efi/libstub/zboot.c
+@@ -57,6 +57,11 @@ void __weak efi_cache_sync_image(unsigned long image_base,
+ 	// executable code loaded into memory to be safe for execution.
+ }
+ 
++struct screen_info *alloc_screen_info(void)
++{
++	return __alloc_screen_info();
++}
++
+ asmlinkage efi_status_t __efiapi
+ efi_zboot_entry(efi_handle_t handle, efi_system_table_t *systab)
+ {
 -- 
 2.39.2
 
