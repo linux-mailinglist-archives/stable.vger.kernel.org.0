@@ -2,103 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0453D6CBFC9
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 14:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 952A06CC03D
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 15:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbjC1Mv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 08:51:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41528 "EHLO
+        id S232604AbjC1NLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 09:11:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232694AbjC1Mvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 08:51:36 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9644EA27D
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:51:00 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id x20so12409882ljq.9
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 05:51:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680007858;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oPp+3nUFhZ+YccWkOIH56CCwebX/zcxyGIO1u7xt7XA=;
-        b=UMUoBtzi8Lljz2Sgb34U5+xP6Cu5rQuIeiaCyv2PE0Qy2pb0JDEUpuRrub0zyOxEpG
-         Cz6ta8fT083O124Iuv8hNxLEjJEaTEwySKZRBOCj4XCsSnnCQsJJd1SbR1KDebBCx/UD
-         W8Ju0NAR93gKRNTOFefaA1HYM9rkGhZPYuap7A75MkKBehF60/Cc+O93aT6FvX6pfPzb
-         3i76DO71uzn07NOuoPLptIeTq79g+lpO7aYaikD/lxpuEbfGnlTogT3qhMT1dSSlSfbO
-         4HAwb96diIMyQTLi/KEOP+kT7Khau+oMMDYhtMZgdTEZAduqhqmlh81XdhL6BnLxG/9b
-         7Fmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680007858;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oPp+3nUFhZ+YccWkOIH56CCwebX/zcxyGIO1u7xt7XA=;
-        b=OBFxAAfin6jFRmzG68Wfyywf5rnZivxnLcTKIAU7yvGggmXzkfwNiN3vZIJFf9yD6R
-         4CUDeBNXqINVx9EsiWRM3wF3qBNDJat/Ln6kbJmW7VR+g/Lh7AKwS0plSw8isvSzzXt1
-         cJRnSXq28YEZGAAsgLocFXzA5DMk2swJZB7HajpoQy1bTSiLMF3BBvdx+IPBjhQeKmwu
-         wyYaKLu7IcJWmlxowSO9GcwV44h8HJdRqEFYk9WxPB+QC9anS58qxqd6xeNl8cAZ3WE9
-         XyAUq9032Us5dOGOhTFPfHvMlVIQd0pVcPrkg6nTrsi7Xgy1HkeWTEP9f+Du4ug1G6L4
-         jZsA==
-X-Gm-Message-State: AAQBX9e9JZ/5Qtb3/K8xNGkcHJeUysEEr6diryxYpUkgQGH+1uGOz+oX
-        8k/kAWTWMTf2098khHLJ0TP84A==
-X-Google-Smtp-Source: AKy350Yfu+WCDB8OJ9f2IMPSw0LR1xCUAsN/WKbV1RchlDNRGKaVMzSWeu/KVaJJcuMAw7GWBZ8XcQ==
-X-Received: by 2002:a2e:9d0c:0:b0:29e:4fa5:1708 with SMTP id t12-20020a2e9d0c000000b0029e4fa51708mr4844998lji.3.1680007858273;
-        Tue, 28 Mar 2023 05:50:58 -0700 (PDT)
-Received: from ?IPV6:2001:14ba:a085:4d00::8a5? (dzccz6yyyyyyyyyyybcwt-3.rev.dnainternet.fi. [2001:14ba:a085:4d00::8a5])
-        by smtp.gmail.com with ESMTPSA id y2-20020a2eb002000000b0029b32a40934sm4666781ljk.113.2023.03.28.05.50.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Mar 2023 05:50:57 -0700 (PDT)
-Message-ID: <40178a1b-4a97-8f18-74ca-ccb1fc7403d4@linaro.org>
-Date:   Tue, 28 Mar 2023 15:50:57 +0300
+        with ESMTP id S232475AbjC1NLJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 09:11:09 -0400
+X-Greylist: delayed 470 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Mar 2023 06:10:32 PDT
+Received: from out-63.mta1.migadu.com (out-63.mta1.migadu.com [95.215.58.63])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B94493F9
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 06:10:32 -0700 (PDT)
+Message-ID: <90d1ad90-028c-7fa2-70dd-09737eece60c@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1680008559;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jrgWfgmDvRPsXnaxvcypfwDf65oRjIFSf746iLMzzVA=;
+        b=OwuWymanFlZrHSXooNsV67XYE+S/XMgnflxPYg4CnESYCHe6O9jkC8d7TUDtkNl3hydG2o
+        wokZ/QsAneMKhNT42g9EWIhvsSoPqCC9olCCQ8bmhPVPf06F4cJOPesKAgEardcGBGgAq2
+        PqZyEZ9gqJtBNtsqyV7n2qGHU11PzCw=
+Date:   Tue, 28 Mar 2023 21:02:27 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 08/10] drm/msm: fix workqueue leak on bind errors
-Content-Language: en-GB
-To:     Johan Hovold <johan+linaro@kernel.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Cc:     Sean Paul <sean@poorly.run>, David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20230306100722.28485-1-johan+linaro@kernel.org>
- <20230306100722.28485-9-johan+linaro@kernel.org>
-From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-In-Reply-To: <20230306100722.28485-9-johan+linaro@kernel.org>
+Subject: Re: FAILED: patch "[PATCH] mm: kfence: fix using kfence_metadata
+ without initialization" failed to apply to 5.15-stable tree
+To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
+        dvyukov@google.com, elver@google.com, glider@google.com,
+        jannh@google.com, sjpark@amazon.de, songmuchun@bytedance.com,
+        stable@vger.kernel.org
+References: <16800049118459@kroah.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <16800049118459@kroah.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/03/2023 12:07, Johan Hovold wrote:
-> Make sure to destroy the workqueue also in case of early errors during
-> bind (e.g. a subcomponent failing to bind).
-> 
-> Since commit c3b790ea07a1 ("drm: Manage drm_mode_config_init with
-> drmm_") the mode config will be freed when the drm device is released
-> also when using the legacy interface, but add an explicit cleanup for
-> consistency and to facilitate backporting.
-> 
-> Fixes: 060530f1ea67 ("drm/msm: use componentised device support")
-> Cc: stable@vger.kernel.org      # 3.15
-> Cc: Rob Clark <robdclark@gmail.com>
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> ---
->   drivers/gpu/drm/msm/msm_drv.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
 
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
--- 
-With best wishes
-Dmitry
+On 2023/3/28 20:01, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> To reproduce the conflict and resubmit, you may use the following commands:
+>
+> git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+> git checkout FETCH_HEAD
+> git cherry-pick -x 1c86a188e03156223a34d09ce290b49bd4dd0403
+> # <resolve conflicts, build, test, etc.>
+> git commit -s
+> git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16800049118459@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+>
+> Possible dependencies:
+>
+> 1c86a188e031 ("mm: kfence: fix using kfence_metadata without initialization in show_object()")
+> b33f778bba5e ("kfence: alloc kfence_pool after system startup")
+> 698361bca2d5 ("kfence: allow re-enabling KFENCE after system startup")
+> 07e8481d3c38 ("kfence: always use static branches to guard kfence_alloc()")
+> 08f6b10630f2 ("kfence: limit currently covered allocations when pool nearly full")
+> a9ab52bbcb52 ("kfence: move saving stack trace of allocations into __kfence_alloc()")
+> 9a19aeb56650 ("kfence: count unexpectedly skipped allocations")
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+>  From 1c86a188e03156223a34d09ce290b49bd4dd0403 Mon Sep 17 00:00:00 2001
+> From: Muchun Song <muchun.song@linux.dev>
+> Date: Wed, 15 Mar 2023 11:44:41 +0800
+> Subject: [PATCH] mm: kfence: fix using kfence_metadata without initialization
+>   in show_object()
+>
+> The variable kfence_metadata is initialized in kfence_init_pool(), then,
+> it is not initialized if kfence is disabled after booting.  In this case,
+> kfence_metadata will be used (e.g.  ->lock and ->state fields) without
+> initialization when reading /sys/kernel/debug/kfence/objects.  There will
+> be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
+> debugfs files when necessary.
+>
+> Link: https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
+> Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> Tested-by: Marco Elver <elver@google.com>
+> Reviewed-by: Marco Elver <elver@google.com>
+> Cc: Alexander Potapenko <glider@google.com>
+> Cc: Dmitry Vyukov <dvyukov@google.com>
+> Cc: Jann Horn <jannh@google.com>
+> Cc: SeongJae Park <sjpark@amazon.de>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+>
+> diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+> index 5349c37a5dac..79c94ee55f97 100644
+> --- a/mm/kfence/core.c
+> +++ b/mm/kfence/core.c
+> @@ -726,10 +726,14 @@ static const struct seq_operations objects_sops = {
+>   };
+>   DEFINE_SEQ_ATTRIBUTE(objects);
+>   
+> -static int __init kfence_debugfs_init(void)
+> +static int kfence_debugfs_init(void)
+>   {
+> -	struct dentry *kfence_dir = debugfs_create_dir("kfence", NULL);
+> +	struct dentry *kfence_dir;
+>   
+> +	if (!READ_ONCE(kfence_enabled))
+> +		return 0;
+> +
+> +	kfence_dir = debugfs_create_dir("kfence", NULL);
+>   	debugfs_create_file("stats", 0444, kfence_dir, NULL, &stats_fops);
+>   	debugfs_create_file("objects", 0400, kfence_dir, NULL, &objects_fops);
+>   	return 0;
+> @@ -883,6 +887,8 @@ static int kfence_init_late(void)
+>   	}
+>   
+>   	kfence_init_enable();
+> +	kfence_debugfs_init();
+> +
+>   	return 0;
+>   }
+>   
+
+I have implemented a following patch based on v5.15 branch.
+
+ From ba26f344fa3e477456a3cc60488a7b8e5af0e88d Mon Sep 17 00:00:00 2001
+From: Muchun Song <songmuchun@bytedance.com>
+Date: Wed, 15 Mar 2023 11:44:41 +0800
+Subject: [PATCH] mm: kfence: fix using kfence_metadata without 
+initialization
+  in show_object()
+
+The variable kfence_metadata is initialized in kfence_init_pool(), then,
+it is not initialized if kfence is disabled after booting.  In this case,
+kfence_metadata will be used (e.g.  ->lock and ->state fields) without
+initialization when reading /sys/kernel/debug/kfence/objects.  There will
+be a warning if you enable CONFIG_DEBUG_SPINLOCK.  Fix it by creating
+debugfs files when necessary.
+
+Link: 
+https://lkml.kernel.org/r/20230315034441.44321-1-songmuchun@bytedance.com
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: SeongJae Park <sjpark@amazon.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+  mm/kfence/core.c | 8 ++++++--
+  1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index 39a6c434e355..573f34e6af0b 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -678,10 +678,14 @@ static const struct file_operations objects_fops = {
+      .release = seq_release,
+  };
+
+-static int __init kfence_debugfs_init(void)
++static int kfence_debugfs_init(void)
+  {
+-    struct dentry *kfence_dir = debugfs_create_dir("kfence", NULL);
++    struct dentry *kfence_dir;
+
++    if (!READ_ONCE(kfence_enabled))
++        return 0;
++
++    kfence_dir = debugfs_create_dir("kfence", NULL);
+      debugfs_create_file("stats", 0444, kfence_dir, NULL, &stats_fops);
+      debugfs_create_file("objects", 0400, kfence_dir, NULL, &objects_fops);
+      return 0;
+--
+2.11.0
 
