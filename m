@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D08A6CC423
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FACE6CC424
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbjC1PAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37384 "EHLO
+        id S233666AbjC1PAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:00:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233693AbjC1PAQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E21BE065
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:15 -0700 (PDT)
+        with ESMTP id S233606AbjC1PAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:00:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD2D1BC
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:00:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8358B81CAF
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43602C433D2;
-        Tue, 28 Mar 2023 15:00:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5851B81D68
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:00:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 175BDC433D2;
+        Tue, 28 Mar 2023 15:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015612;
-        bh=NjmRWM0xEXG/zUQcEE7zhOg6Fqc4ekjsfjN1lv+duH0=;
+        s=korg; t=1680015615;
+        bh=ppcyU463xwZOaxo01RMStBuHylzzBwo3UIENdFO8CC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NL7Jfykx9gpiVTMoS1XohGvLBTTt60D+cLlXzeJzktaODXZu8CkLJIsLZmT4aeQJ3
-         /YRjZXNvNSrth1Lr/KICy4+pVpZVosrqj8fNYTmAatePJwr772j2nB3byExbAILNlV
-         pem/WV2F51HNQ4cZtoYV/9W7gOyUSPKJsQGZ3Us8=
+        b=ZuxbsUNijgiOLmMx2OZr8W32QoSF8hRkGnHBKMS0RK4PIp3VrrC4bek6TiOa/dbSI
+         5AaKJGwFiurK9awV7WGUvpmtQN1RSCryEeL4jo23kgR7D1nSfAKr6d8yy/Au/l1ZiG
+         UInFAE5TCYHKO3BO0+ws4B4ro8h5YwR2auU0ZSFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanjay R Mehta <sanju.mehta@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        patches@lists.linux.dev,
         Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 6.1 110/224] thunderbolt: Add quirk to disable CLx
-Date:   Tue, 28 Mar 2023 16:41:46 +0200
-Message-Id: <20230328142621.935270979@linuxfoundation.org>
+Subject: [PATCH 6.1 111/224] thunderbolt: Fix memory leak in margining
+Date:   Tue, 28 Mar 2023 16:41:47 +0200
+Message-Id: <20230328142621.981617977@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
 References: <20230328142617.205414124@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,89 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sanjay R Mehta <sanju.mehta@amd.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 7af9da8ce8f9a16221ecd8ba4280582f5bd452fc upstream.
+commit acec726473822bc6b585961f4ca2a11fa7f28341 upstream.
 
-Add QUIRK_NO_CLX to disable the CLx state for hardware which
-doesn't supports it.
+Memory for the usb4->margining needs to be relased for the upstream port
+of the router as well, even though the debugfs directory gets released
+with the router device removal. Fix this.
 
-AMD Yellow Carp and Pink Sardine don't support CLx state,
-hence disabling it using QUIRK_NO_CLX.
-
+Fixes: d0f1e0c2a699 ("thunderbolt: Add support for receiver lane margining")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-[mw: added debug log when the quirk is run]
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/quirks.c |   13 +++++++++++++
- drivers/thunderbolt/tb.h     |   11 ++++++++---
- 2 files changed, 21 insertions(+), 3 deletions(-)
+ drivers/thunderbolt/debugfs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/thunderbolt/quirks.c
-+++ b/drivers/thunderbolt/quirks.c
-@@ -20,6 +20,12 @@ static void quirk_dp_credit_allocation(s
- 	}
- }
+diff --git a/drivers/thunderbolt/debugfs.c b/drivers/thunderbolt/debugfs.c
+index 4339e706cc3a..f92ad71ef983 100644
+--- a/drivers/thunderbolt/debugfs.c
++++ b/drivers/thunderbolt/debugfs.c
+@@ -942,7 +942,8 @@ static void margining_port_remove(struct tb_port *port)
  
-+static void quirk_clx_disable(struct tb_switch *sw)
-+{
-+	sw->quirks |= QUIRK_NO_CLX;
-+	tb_sw_dbg(sw, "disabling CL states\n");
-+}
-+
- struct tb_quirk {
- 	u16 hw_vendor_id;
- 	u16 hw_device_id;
-@@ -37,6 +43,13 @@ static const struct tb_quirk tb_quirks[]
- 	 * DP buffers.
- 	 */
- 	{ 0x8087, 0x0b26, 0x0000, 0x0000, quirk_dp_credit_allocation },
-+	/*
-+	 * CLx is not supported on AMD USB4 Yellow Carp and Pink Sardine platforms.
-+	 */
-+	{ 0x0438, 0x0208, 0x0000, 0x0000, quirk_clx_disable },
-+	{ 0x0438, 0x0209, 0x0000, 0x0000, quirk_clx_disable },
-+	{ 0x0438, 0x020a, 0x0000, 0x0000, quirk_clx_disable },
-+	{ 0x0438, 0x020b, 0x0000, 0x0000, quirk_clx_disable },
- };
+ 	snprintf(dir_name, sizeof(dir_name), "port%d", port->port);
+ 	parent = debugfs_lookup(dir_name, port->sw->debugfs_dir);
+-	debugfs_remove_recursive(debugfs_lookup("margining", parent));
++	if (parent)
++		debugfs_remove_recursive(debugfs_lookup("margining", parent));
  
- /**
---- a/drivers/thunderbolt/tb.h
-+++ b/drivers/thunderbolt/tb.h
-@@ -23,6 +23,11 @@
- #define NVM_MAX_SIZE		SZ_512K
- #define NVM_DATA_DWORDS		16
+ 	kfree(port->usb4->margining);
+ 	port->usb4->margining = NULL;
+@@ -967,19 +968,18 @@ static void margining_switch_init(struct tb_switch *sw)
  
-+/* Keep link controller awake during update */
-+#define QUIRK_FORCE_POWER_LINK_CONTROLLER		BIT(0)
-+/* Disable CLx if not supported */
-+#define QUIRK_NO_CLX					BIT(1)
-+
- /**
-  * struct tb_nvm - Structure holding NVM information
-  * @dev: Owner of the NVM
-@@ -997,6 +1002,9 @@ static inline bool tb_switch_is_clx_enab
-  */
- static inline bool tb_switch_is_clx_supported(const struct tb_switch *sw)
+ static void margining_switch_remove(struct tb_switch *sw)
  {
-+	if (sw->quirks & QUIRK_NO_CLX)
-+		return false;
++	struct tb_port *upstream, *downstream;
+ 	struct tb_switch *parent_sw;
+-	struct tb_port *downstream;
+ 	u64 route = tb_route(sw);
+ 
+ 	if (!route)
+ 		return;
+ 
+-	/*
+-	 * Upstream is removed with the router itself but we need to
+-	 * remove the downstream port margining directory.
+-	 */
++	upstream = tb_upstream_port(sw);
+ 	parent_sw = tb_switch_parent(sw);
+ 	downstream = tb_port_at(route, parent_sw);
 +
- 	return tb_switch_is_usb4(sw) || tb_switch_is_titan_ridge(sw);
++	margining_port_remove(upstream);
+ 	margining_port_remove(downstream);
  }
  
-@@ -1254,9 +1262,6 @@ struct usb4_port *usb4_port_device_add(s
- void usb4_port_device_remove(struct usb4_port *usb4);
- int usb4_port_device_resume(struct usb4_port *usb4);
- 
--/* Keep link controller awake during update */
--#define QUIRK_FORCE_POWER_LINK_CONTROLLER		BIT(0)
--
- void tb_check_quirks(struct tb_switch *sw);
- 
- #ifdef CONFIG_ACPI
+-- 
+2.40.0
+
 
 
