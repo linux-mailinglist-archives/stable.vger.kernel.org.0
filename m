@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC076CC348
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 16:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4F36CC468
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233412AbjC1Ows (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 10:52:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
+        id S233743AbjC1PEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:04:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233526AbjC1Ow1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 10:52:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE786DBD6
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 07:52:18 -0700 (PDT)
+        with ESMTP id S233807AbjC1PEs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:04:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583CAEB4D
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:03:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AACA617F1
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 14:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD8EC433EF;
-        Tue, 28 Mar 2023 14:52:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E3A3B81D63
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:02:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8C88C433EF;
+        Tue, 28 Mar 2023 15:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015137;
-        bh=gavlMGtxXSwrJ/ohFz/ESjITzjNT/6pLtOqjllQPSKY=;
+        s=korg; t=1680015730;
+        bh=o2hSVSgxLu9H00c5eClJaIkDhqs030/SP8ijcu8C2BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEGRs33f+I7h5KIsnDUuY1+b6l+EX+zzv2Gef9wxDkQ70kTwnzolIASo1G1cTzTO3
-         iFqIbx9GrHQAImZBiMTv5iam6a5FYUwTBVtjinaOEAZH8dTO6s8g9bTWuAIV1YSUs+
-         ytWl8IWXTB75ndw6Zdv7YVk17+1By85ECcDpLJt0=
+        b=jdu1SWWBH/7myCWS7yC40Et6vgP3qbNz4y3GOftcGvjF/67id/+pKNr/cs+JZbcJT
+         yTnM1cmSJWdBjyS4YadFKUYRBoWHWYxvzkIUlNa5pC+3dQYKX0NW4YjgP0DCayswbU
+         SgtrEdAKuurIULquX4YN4v7qQqWvuh8kylai8O3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Min Li <lm0963hack@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 6.2 180/240] Bluetooth: Fix race condition in hci_cmd_sync_clear
+        patches@lists.linux.dev, Thomas Glanzmann <thomas@glanzmann.de>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 147/224] drm/amd: Fix initialization mistake for NBIO 7.3.0
 Date:   Tue, 28 Mar 2023 16:42:23 +0200
-Message-Id: <20230328142627.125460499@linuxfoundation.org>
+Message-Id: <20230328142623.483002770@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-References: <20230328142619.643313678@linuxfoundation.org>
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+References: <20230328142617.205414124@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,99 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Min Li <lm0963hack@gmail.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 1c66bee492a5fe00ae3fe890bb693bfc99f994c6 upstream.
+[ Upstream commit 1717cc5f2962a4652c76ed3858b499ccae6c277c ]
 
-There is a potential race condition in hci_cmd_sync_work and
-hci_cmd_sync_clear, and could lead to use-after-free. For instance,
-hci_cmd_sync_work is added to the 'req_workqueue' after cancel_work_sync
-The entry of 'cmd_sync_work_list' may be freed in hci_cmd_sync_clear, and
-causing kernel panic when it is used in 'hci_cmd_sync_work'.
+The same strapping initialization issue that happened on NBIO 7.5.1
+appears to be happening on NBIO 7.3.0.
+Apply the same fix to 7.3.0 as well.
 
-Here's the call trace:
+Note: This workaround relies upon the integrated GPU being enabled
+in BIOS. If the integrated GPU is disabled in BIOS a different
+workaround will be required.
 
-dump_stack_lvl+0x49/0x63
-print_report.cold+0x5e/0x5d3
-? hci_cmd_sync_work+0x282/0x320
-kasan_report+0xaa/0x120
-? hci_cmd_sync_work+0x282/0x320
-__asan_report_load8_noabort+0x14/0x20
-hci_cmd_sync_work+0x282/0x320
-process_one_work+0x77b/0x11c0
-? _raw_spin_lock_irq+0x8e/0xf0
-worker_thread+0x544/0x1180
-? poll_idle+0x1e0/0x1e0
-kthread+0x285/0x320
-? process_one_work+0x11c0/0x11c0
-? kthread_complete_and_exit+0x30/0x30
-ret_from_fork+0x22/0x30
-</TASK>
-
-Allocated by task 266:
-kasan_save_stack+0x26/0x50
-__kasan_kmalloc+0xae/0xe0
-kmem_cache_alloc_trace+0x191/0x350
-hci_cmd_sync_queue+0x97/0x2b0
-hci_update_passive_scan+0x176/0x1d0
-le_conn_complete_evt+0x1b5/0x1a00
-hci_le_conn_complete_evt+0x234/0x340
-hci_le_meta_evt+0x231/0x4e0
-hci_event_packet+0x4c5/0xf00
-hci_rx_work+0x37d/0x880
-process_one_work+0x77b/0x11c0
-worker_thread+0x544/0x1180
-kthread+0x285/0x320
-ret_from_fork+0x22/0x30
-
-Freed by task 269:
-kasan_save_stack+0x26/0x50
-kasan_set_track+0x25/0x40
-kasan_set_free_info+0x24/0x40
-____kasan_slab_free+0x176/0x1c0
-__kasan_slab_free+0x12/0x20
-slab_free_freelist_hook+0x95/0x1a0
-kfree+0xba/0x2f0
-hci_cmd_sync_clear+0x14c/0x210
-hci_unregister_dev+0xff/0x440
-vhci_release+0x7b/0xf0
-__fput+0x1f3/0x970
-____fput+0xe/0x20
-task_work_run+0xd4/0x160
-do_exit+0x8b0/0x22a0
-do_group_exit+0xba/0x2a0
-get_signal+0x1e4a/0x25b0
-arch_do_signal_or_restart+0x93/0x1f80
-exit_to_user_mode_prepare+0xf5/0x1a0
-syscall_exit_to_user_mode+0x26/0x50
-ret_from_fork+0x15/0x30
-
-Fixes: 6a98e3836fa2 ("Bluetooth: Add helper for serialized HCI command execution")
-Cc: stable@vger.kernel.org
-Signed-off-by: Min Li <lm0963hack@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Thomas Glanzmann <thomas@glanzmann.de>
+Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Link: https://lore.kernel.org/linux-usb/Y%2Fz9GdHjPyF2rNG3@glanzmann.de/T/#u
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -643,6 +643,7 @@ void hci_cmd_sync_clear(struct hci_dev *
- 	cancel_work_sync(&hdev->cmd_sync_work);
- 	cancel_work_sync(&hdev->reenable_adv_work);
- 
-+	mutex_lock(&hdev->cmd_sync_work_lock);
- 	list_for_each_entry_safe(entry, tmp, &hdev->cmd_sync_work_list, list) {
- 		if (entry->destroy)
- 			entry->destroy(hdev, entry->data, -ECANCELED);
-@@ -650,6 +651,7 @@ void hci_cmd_sync_clear(struct hci_dev *
- 		list_del(&entry->list);
- 		kfree(entry);
+diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
+index 4b0d563c6522c..4ef1fa4603c8e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
+@@ -382,11 +382,6 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
+ 		if (def != data)
+ 			WREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regBIF1_PCIE_MST_CTRL_3), data);
+ 		break;
+-	case IP_VERSION(7, 5, 1):
+-		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
+-		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
+-		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
+-		fallthrough;
+ 	default:
+ 		def = data = RREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regPCIE_CONFIG_CNTL));
+ 		data = REG_SET_FIELD(data, PCIE_CONFIG_CNTL,
+@@ -399,6 +394,15 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
+ 		break;
  	}
-+	mutex_unlock(&hdev->cmd_sync_work_lock);
- }
  
- void __hci_cmd_sync_cancel(struct hci_dev *hdev, int err)
++	switch (adev->ip_versions[NBIO_HWIP][0]) {
++	case IP_VERSION(7, 3, 0):
++	case IP_VERSION(7, 5, 1):
++		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
++		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
++		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
++		break;
++	}
++
+ 	if (amdgpu_sriov_vf(adev))
+ 		adev->rmmio_remap.reg_offset = SOC15_REG_OFFSET(NBIO, 0,
+ 			regBIF_BX_PF0_HDP_MEM_COHERENCY_FLUSH_CNTL) << 2;
+-- 
+2.39.2
+
 
 
