@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4C16CC48C
-	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258546CC53F
+	for <lists+stable@lfdr.de>; Tue, 28 Mar 2023 17:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233848AbjC1PFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 11:05:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45348 "EHLO
+        id S233006AbjC1PNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 11:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233859AbjC1PFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:05:50 -0400
+        with ESMTP id S233010AbjC1PMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 11:12:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87527D53B
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:04:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11080EFB0
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 08:12:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6325CB81D7A
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:03:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC6AEC433EF;
-        Tue, 28 Mar 2023 15:03:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8894FB81D89
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 15:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C9BC433EF;
+        Tue, 28 Mar 2023 15:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680015834;
-        bh=IcPqGMhvHTalH1PfA6xanNWPq+lGcIvvWJDn6QEKnqw=;
+        s=korg; t=1680016282;
+        bh=9pqy6cm2pliud712t3PhK4bvOEz6Syd+QExKEaPjr6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9dH6vVBsqTgTXd7cKIMpRr4op7vuTRJJdPaXDitzhTnhZdNpdgB/edA28l3wup0a
-         Ow+hKmptFELyClvOOF2iP9HOlkOH8i8XAqlLJk683LR1a7gvBN3jr3Z03SVN0M21z7
-         RJm+LJdnP9rPSCk95Kx743WwwolyY25IOz98Ot4c=
+        b=zDUh2y3dtHxmhQsn7f4nsjaXj90N3ugCDgndEhxA1SSXqfx8ksP7e4wNr2WvGFbwW
+         GG2Ogh+h0F9K/zeBlQnwjz8OiMJaeubSVzXxVdkuJh5E/4BBc31fyr2vOhJwa5TUuJ
+         FchJ1pdAx6M0hXdPwUaZ4yyaK8jjUlteYFPyux74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steve French <stfrench@microsoft.com>,
-        Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH 6.1 193/224] ksmbd: dont terminate inactive sessions after a few seconds
+        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 100/146] net/sched: act_mirred: better wording on protection against excessive stack growth
 Date:   Tue, 28 Mar 2023 16:43:09 +0200
-Message-Id: <20230328142625.424832804@linuxfoundation.org>
+Message-Id: <20230328142606.850741197@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-References: <20230328142617.205414124@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+References: <20230328142602.660084725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,150 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit be6f42fad5f5fd1fea9d562df82c38ad6ed3bfe9 upstream.
+[ Upstream commit 78dcdffe0418ac8f3f057f26fe71ccf4d8ed851f ]
 
-Steve reported that inactive sessions are terminated after a few
-seconds. ksmbd terminate when receiving -EAGAIN error from
-kernel_recvmsg(). -EAGAIN means there is no data available in timeout.
-So ksmbd should keep connection with unlimited retries instead of
-terminating inactive sessions.
+with commit e2ca070f89ec ("net: sched: protect against stack overflow in
+TC act_mirred"), act_mirred protected itself against excessive stack growth
+using per_cpu counter of nested calls to tcf_mirred_act(), and capping it
+to MIRRED_RECURSION_LIMIT. However, such protection does not detect
+recursion/loops in case the packet is enqueued to the backlog (for example,
+when the mirred target device has RPS or skb timestamping enabled). Change
+the wording from "recursion" to "nesting" to make it more clear to readers.
 
-Cc: stable@vger.kernel.org
-Reported-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Stable-dep-of: ca22da2fbd69 ("act_mirred: use the backlog for nested calls to mirred ingress")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/connection.c     |    4 ++--
- fs/ksmbd/connection.h     |    3 ++-
- fs/ksmbd/transport_rdma.c |    2 +-
- fs/ksmbd/transport_tcp.c  |   35 +++++++++++++++++++++++------------
- 4 files changed, 28 insertions(+), 16 deletions(-)
+ net/sched/act_mirred.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -298,7 +298,7 @@ int ksmbd_conn_handler_loop(void *p)
- 		kvfree(conn->request_buf);
- 		conn->request_buf = NULL;
+diff --git a/net/sched/act_mirred.c b/net/sched/act_mirred.c
+index efc963ab995a3..b28d49495de09 100644
+--- a/net/sched/act_mirred.c
++++ b/net/sched/act_mirred.c
+@@ -28,8 +28,8 @@
+ static LIST_HEAD(mirred_list);
+ static DEFINE_SPINLOCK(mirred_list_lock);
  
--		size = t->ops->read(t, hdr_buf, sizeof(hdr_buf));
-+		size = t->ops->read(t, hdr_buf, sizeof(hdr_buf), -1);
- 		if (size != sizeof(hdr_buf))
- 			break;
+-#define MIRRED_RECURSION_LIMIT    4
+-static DEFINE_PER_CPU(unsigned int, mirred_rec_level);
++#define MIRRED_NEST_LIMIT    4
++static DEFINE_PER_CPU(unsigned int, mirred_nest_level);
  
-@@ -344,7 +344,7 @@ int ksmbd_conn_handler_loop(void *p)
- 		 * We already read 4 bytes to find out PDU size, now
- 		 * read in PDU
- 		 */
--		size = t->ops->read(t, conn->request_buf + 4, pdu_size);
-+		size = t->ops->read(t, conn->request_buf + 4, pdu_size, 2);
- 		if (size < 0) {
- 			pr_err("sock_read failed: %d\n", size);
- 			break;
---- a/fs/ksmbd/connection.h
-+++ b/fs/ksmbd/connection.h
-@@ -114,7 +114,8 @@ struct ksmbd_transport_ops {
- 	int (*prepare)(struct ksmbd_transport *t);
- 	void (*disconnect)(struct ksmbd_transport *t);
- 	void (*shutdown)(struct ksmbd_transport *t);
--	int (*read)(struct ksmbd_transport *t, char *buf, unsigned int size);
-+	int (*read)(struct ksmbd_transport *t, char *buf,
-+		    unsigned int size, int max_retries);
- 	int (*writev)(struct ksmbd_transport *t, struct kvec *iovs, int niov,
- 		      int size, bool need_invalidate_rkey,
- 		      unsigned int remote_key);
---- a/fs/ksmbd/transport_rdma.c
-+++ b/fs/ksmbd/transport_rdma.c
-@@ -670,7 +670,7 @@ static int smb_direct_post_recv(struct s
- }
- 
- static int smb_direct_read(struct ksmbd_transport *t, char *buf,
--			   unsigned int size)
-+			   unsigned int size, int unused)
+ static bool tcf_mirred_is_act_redirect(int action)
  {
- 	struct smb_direct_recvmsg *recvmsg;
- 	struct smb_direct_data_transfer *data_transfer;
---- a/fs/ksmbd/transport_tcp.c
-+++ b/fs/ksmbd/transport_tcp.c
-@@ -291,16 +291,18 @@ static int ksmbd_tcp_run_kthread(struct
+@@ -223,7 +223,7 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
+ 	struct sk_buff *skb2 = skb;
+ 	bool m_mac_header_xmit;
+ 	struct net_device *dev;
+-	unsigned int rec_level;
++	unsigned int nest_level;
+ 	int retval, err = 0;
+ 	bool use_reinsert;
+ 	bool want_ingress;
+@@ -234,11 +234,11 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
+ 	int mac_len;
+ 	bool at_nh;
  
- /**
-  * ksmbd_tcp_readv() - read data from socket in given iovec
-- * @t:		TCP transport instance
-- * @iov_orig:	base IO vector
-- * @nr_segs:	number of segments in base iov
-- * @to_read:	number of bytes to read from socket
-+ * @t:			TCP transport instance
-+ * @iov_orig:		base IO vector
-+ * @nr_segs:		number of segments in base iov
-+ * @to_read:		number of bytes to read from socket
-+ * @max_retries:	maximum retry count
-  *
-  * Return:	on success return number of bytes read from socket,
-  *		otherwise return error number
-  */
- static int ksmbd_tcp_readv(struct tcp_transport *t, struct kvec *iov_orig,
--			   unsigned int nr_segs, unsigned int to_read)
-+			   unsigned int nr_segs, unsigned int to_read,
-+			   int max_retries)
- {
- 	int length = 0;
- 	int total_read;
-@@ -308,7 +310,6 @@ static int ksmbd_tcp_readv(struct tcp_tr
- 	struct msghdr ksmbd_msg;
- 	struct kvec *iov;
- 	struct ksmbd_conn *conn = KSMBD_TRANS(t)->conn;
--	int max_retry = 2;
+-	rec_level = __this_cpu_inc_return(mirred_rec_level);
+-	if (unlikely(rec_level > MIRRED_RECURSION_LIMIT)) {
++	nest_level = __this_cpu_inc_return(mirred_nest_level);
++	if (unlikely(nest_level > MIRRED_NEST_LIMIT)) {
+ 		net_warn_ratelimited("Packet exceeded mirred recursion limit on dev %s\n",
+ 				     netdev_name(skb->dev));
+-		__this_cpu_dec(mirred_rec_level);
++		__this_cpu_dec(mirred_nest_level);
+ 		return TC_ACT_SHOT;
+ 	}
  
- 	iov = get_conn_iovec(t, nr_segs);
- 	if (!iov)
-@@ -335,14 +336,23 @@ static int ksmbd_tcp_readv(struct tcp_tr
- 		} else if (conn->status == KSMBD_SESS_NEED_RECONNECT) {
- 			total_read = -EAGAIN;
- 			break;
--		} else if ((length == -ERESTARTSYS || length == -EAGAIN) &&
--			   max_retry) {
-+		} else if (length == -ERESTARTSYS || length == -EAGAIN) {
-+			/*
-+			 * If max_retries is negative, Allow unlimited
-+			 * retries to keep connection with inactive sessions.
-+			 */
-+			if (max_retries == 0) {
-+				total_read = length;
-+				break;
-+			} else if (max_retries > 0) {
-+				max_retries--;
-+			}
-+
- 			usleep_range(1000, 2000);
- 			length = 0;
--			max_retry--;
- 			continue;
- 		} else if (length <= 0) {
--			total_read = -EAGAIN;
-+			total_read = length;
- 			break;
+@@ -308,7 +308,7 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
+ 			err = tcf_mirred_forward(res->ingress, skb);
+ 			if (err)
+ 				tcf_action_inc_overlimit_qstats(&m->common);
+-			__this_cpu_dec(mirred_rec_level);
++			__this_cpu_dec(mirred_nest_level);
+ 			return TC_ACT_CONSUMED;
  		}
  	}
-@@ -358,14 +368,15 @@ static int ksmbd_tcp_readv(struct tcp_tr
-  * Return:	on success return number of bytes read from socket,
-  *		otherwise return error number
-  */
--static int ksmbd_tcp_read(struct ksmbd_transport *t, char *buf, unsigned int to_read)
-+static int ksmbd_tcp_read(struct ksmbd_transport *t, char *buf,
-+			  unsigned int to_read, int max_retries)
- {
- 	struct kvec iov;
+@@ -320,7 +320,7 @@ static int tcf_mirred_act(struct sk_buff *skb, const struct tc_action *a,
+ 		if (tcf_mirred_is_act_redirect(m_eaction))
+ 			retval = TC_ACT_SHOT;
+ 	}
+-	__this_cpu_dec(mirred_rec_level);
++	__this_cpu_dec(mirred_nest_level);
  
- 	iov.iov_base = buf;
- 	iov.iov_len = to_read;
- 
--	return ksmbd_tcp_readv(TCP_TRANS(t), &iov, 1, to_read);
-+	return ksmbd_tcp_readv(TCP_TRANS(t), &iov, 1, to_read, max_retries);
+ 	return retval;
  }
- 
- static int ksmbd_tcp_writev(struct ksmbd_transport *t, struct kvec *iov,
+-- 
+2.39.2
+
 
 
