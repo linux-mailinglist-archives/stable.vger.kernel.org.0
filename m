@@ -2,233 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 022EC6CDA0F
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 15:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7B46CDAA9
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 15:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbjC2NHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 09:07:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53938 "EHLO
+        id S230320AbjC2NYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 09:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229720AbjC2NHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 09:07:00 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3611A4C28;
-        Wed, 29 Mar 2023 06:06:37 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 11359219A6;
-        Wed, 29 Mar 2023 13:06:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1680095196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vuqiwL5WOHhi9vY4nLsSMA4hwqodR1/I22u11aU6o8o=;
-        b=3XzsDcmRODNZh63PhpIc8D2uvzhHz2mBrGx8DYc1FZJSY45CKVPBtD5WcjVu6JgZ5D8An7
-        9cVDmfWVkGW/sApFemF2uumxnK82oO+oQ2lMhYjzqX/i143P5CX/gB8xrLFGoHoKIIItwG
-        2S/FvxFeO1IYFCeAzEV3jw1dlt2JwCU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1680095196;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vuqiwL5WOHhi9vY4nLsSMA4hwqodR1/I22u11aU6o8o=;
-        b=NhrqOAitaVTTwcKrGvNi5GrfzJdBMgw6wu/78KlHqBwG4N/S6gBAWv6WHGhu28z6ygpQaL
-        ljG7HUQmlN0VS5DQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F3471139D3;
-        Wed, 29 Mar 2023 13:06:35 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 9vVWO9s3JGQEBwAAMHmgww
-        (envelope-from <jack@suse.cz>); Wed, 29 Mar 2023 13:06:35 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 75A4DA071E; Wed, 29 Mar 2023 15:06:35 +0200 (CEST)
-Date:   Wed, 29 Mar 2023 15:06:35 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Baokun Li <libaokun1@huawei.com>
-Cc:     linux-ext4@vger.kernel.org, tytso@mit.edu,
-        adilger.kernel@dilger.ca, jack@suse.cz, ritesh.list@gmail.com,
-        linux-kernel@vger.kernel.org, yi.zhang@huawei.com,
-        yangerkun@huawei.com, yukuai3@huawei.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3] ext4: fix race between writepages and remount
-Message-ID: <20230329130635.utcb3mzekp5izu3q@quack3>
-References: <20230329085036.2755843-1-libaokun1@huawei.com>
+        with ESMTP id S230326AbjC2NXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 09:23:55 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDF6525A
+        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 06:23:51 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id om3-20020a17090b3a8300b0023efab0e3bfso18526375pjb.3
+        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 06:23:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1680096231;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=FCUGbgE2LvNcR7hLPqcrIx6jkWOTrrbsJMaWnGrYcZ4=;
+        b=KOcZAsDTxZl7koKyj6wYIlCsU6ulFQUfwnmbNVoN9FKVwVCSKoe3HauI0NUqCmMrIL
+         NFiVp/FgPcd3DpbvHxDD6Ka9Rvw+t4iQGO/foZVud5a9L1mBMOYDCO6fV832Rp6aR1Po
+         2W0mIUYKldNX0sdCy7nuawQ5Ke/Lt0DcFnCh9+wZD2CCM7ZpAc4WKkZB93ZqcudJLK9Z
+         YaAoEjRhcjcA/uUpXnTfJaqpHANKcQoZUbrWpfO1MV7C16ZBktngQNLB3hqSiYM0MYOI
+         lRiQB3uTaYWtMcX25ZgK2+fD7n0GR6TAtchS6oZFtVD75ICQ/aFME3UuBwP3lENXxJXU
+         3k+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680096231;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FCUGbgE2LvNcR7hLPqcrIx6jkWOTrrbsJMaWnGrYcZ4=;
+        b=lcKmFS4mgggN+CPniOQqahoqwq69JQZFrD/lMUP7bphadiCVHWp8U0YGngjgNNt403
+         SfMs20pzQCIGsWD1XKtPxSh81h/Z8DiPsQUsaR75rNVPFihdrjxZqcnHMO3PXZBK+0ui
+         jvTOB1Lo9fJQD1arLyL1iABwWWgqdekHrMx7h6YqkBrZssgSQw+xAabLAxKBFXxfLq8U
+         hWkkkHO6PBfmzzl3XB5KHEKD5/M4IkXpKQ6eJ6yEqCs++10cnvZQVVwQ5iP4qGDUA/vI
+         ik1mjmTZOstkBoldQkOgF2mQeC3QPkJpsgjyKXJnGQ2XLRDx/W0C7Xgpki3lzQITQHqX
+         or/Q==
+X-Gm-Message-State: AO0yUKVMpLY6Yazxrd+7XxsTqFPubZqUaDMZaHKZQUQ2wLu+n51tpCpY
+        5CakrK3VUWbhtmUzSvfMEjMq
+X-Google-Smtp-Source: AK7set9i8PpqmejhrZD8QpXUtYVJK4X7NibCw11JissA18lCRfqRt0POdmynhT5zRtEgfPgNAtN61g==
+X-Received: by 2002:a05:6a20:b288:b0:dd:9848:a1a8 with SMTP id ei8-20020a056a20b28800b000dd9848a1a8mr16627275pzb.16.1680096230581;
+        Wed, 29 Mar 2023 06:23:50 -0700 (PDT)
+Received: from thinkpad ([117.216.120.213])
+        by smtp.gmail.com with ESMTPSA id g7-20020aa78187000000b0062d8107b3c8sm6140226pfi.42.2023.03.29.06.23.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Mar 2023 06:23:50 -0700 (PDT)
+Date:   Wed, 29 Mar 2023 18:53:43 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     andersson@kernel.org, Thinh.Nguyen@synopsys.com,
+        gregkh@linuxfoundation.org, mathias.nyman@intel.com,
+        konrad.dybcio@linaro.org, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/5] arm64: dts: qcom: sc8280xp: Add missing dwc3 quirks
+Message-ID: <20230329132343.GD5575@thinkpad>
+References: <20230325165217.31069-1-manivannan.sadhasivam@linaro.org>
+ <20230325165217.31069-2-manivannan.sadhasivam@linaro.org>
+ <ZCKrXZn7Eu/jvdpG@hovoldconsulting.com>
+ <20230328093853.GA5695@thinkpad>
+ <20230329052600.GA5575@thinkpad>
+ <ZCP4MHe+9M24S4nJ@hovoldconsulting.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230329085036.2755843-1-libaokun1@huawei.com>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_SOFTFAIL autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZCP4MHe+9M24S4nJ@hovoldconsulting.com>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 29-03-23 16:50:36, Baokun Li wrote:
-> We got a WARNING in ext4_add_complete_io:
-> ==================================================================
->  WARNING: at fs/ext4/page-io.c:231 ext4_put_io_end_defer+0x182/0x250
->  CPU: 10 PID: 77 Comm: ksoftirqd/10 Tainted: 6.3.0-rc2 #85
->  RIP: 0010:ext4_put_io_end_defer+0x182/0x250 [ext4]
->  [...]
->  Call Trace:
->   <TASK>
->   ext4_end_bio+0xa8/0x240 [ext4]
->   bio_endio+0x195/0x310
->   blk_update_request+0x184/0x770
->   scsi_end_request+0x2f/0x240
->   scsi_io_completion+0x75/0x450
->   scsi_finish_command+0xef/0x160
->   scsi_complete+0xa3/0x180
->   blk_complete_reqs+0x60/0x80
->   blk_done_softirq+0x25/0x40
->   __do_softirq+0x119/0x4c8
->   run_ksoftirqd+0x42/0x70
->   smpboot_thread_fn+0x136/0x3c0
->   kthread+0x140/0x1a0
->   ret_from_fork+0x2c/0x50
-> ==================================================================
+On Wed, Mar 29, 2023 at 10:34:56AM +0200, Johan Hovold wrote:
+> On Wed, Mar 29, 2023 at 10:56:00AM +0530, Manivannan Sadhasivam wrote:
+> > On Tue, Mar 28, 2023 at 03:09:03PM +0530, Manivannan Sadhasivam wrote:
+> > > On Tue, Mar 28, 2023 at 10:54:53AM +0200, Johan Hovold wrote:
+> > > > On Sat, Mar 25, 2023 at 10:22:13PM +0530, Manivannan Sadhasivam wrote:
+> > > > > Add missing quirks for the USB DWC3 IP.
+> > > > 
+> > > > This is not an acceptable commit message generally and certainly not for
+> > > > something that you have tagged for stable.
+> > > > 
+> > > > At a minimum, you need to describe why these are needed and what the
+> > > > impact is.
+> > > > 
+> > > 
+> > > I can certainly improve the commit message. But usually the quirks are copied
+> > > from the downstream devicetree where qualcomm engineers would've added them
+> > > based on the platform requirements.
+> > > 
+> > > > Also, why are you sending as part of a series purporting to enable
+> > > > runtime PM when it appears to be all about optimising specific gadget
+> > > > applications?
+> > > > 
+> > > 
+> > > It's not related to this series I agree but just wanted to group it with a
+> > > series touching usb so that it won't get lost.
+> > > 
+> > > I could respin it separately though in v2.
 > 
-> Above issue may happen as follows:
+> That's also generally best for USB patches as Greg expects series to be
+> merged through a single tree.
 > 
->             cpu1                        cpu2
-> ----------------------------|----------------------------
-> mount -o dioread_lock
-> ext4_writepages
->  ext4_do_writepages
->   *if (ext4_should_dioread_nolock(inode))*
->     // rsv_blocks is not assigned here
->                                  mount -o remount,dioread_nolock
->   ext4_journal_start_with_reserve
->    __ext4_journal_start
->     __ext4_journal_start_sb
->      jbd2__journal_start
->       *if (rsv_blocks)*
->         // h_rsv_handle is not initialized here
->   mpage_map_and_submit_extent
->     mpage_map_one_extent
->       dioread_nolock = ext4_should_dioread_nolock(inode)
->       if (dioread_nolock && (map->m_flags & EXT4_MAP_UNWRITTEN))
->         mpd->io_submit.io_end->handle = handle->h_rsv_handle
->         ext4_set_io_unwritten_flag
->           io_end->flag |= EXT4_IO_END_UNWRITTEN
->       // now io_end->handle is NULL but has EXT4_IO_END_UNWRITTEN flag
-> 
-> scsi_finish_command
->  scsi_io_completion
->   scsi_io_completion_action
->    scsi_end_request
->     blk_update_request
->      req_bio_endio
->       bio_endio
->        bio->bi_end_io  > ext4_end_bio
->         ext4_put_io_end_defer
-> 	 ext4_add_complete_io
-> 	  // trigger WARN_ON(!io_end->handle && sbi->s_journal);
-> 
-> The immediate cause of this problem is that ext4_should_dioread_nolock()
-> function returns inconsistent values in the ext4_do_writepages() and
-> mpage_map_one_extent(). There are four conditions in this function that
-> can be changed at mount time to cause this problem. These four conditions
-> can be divided into two categories:
-> 
->     (1) journal_data and EXT4_EXTENTS_FL, which can be changed by ioctl
->     (2) DELALLOC and DIOREAD_NOLOCK, which can be changed by remount
-> 
-> The two in the first category have been fixed by commit c8585c6fcaf2
-> ("ext4: fix races between changing inode journal mode and ext4_writepages")
-> and commit cb85f4d23f79 ("ext4: fix race between writepages and enabling
-> EXT4_EXTENTS_FL") respectively.
-> 
-> Two cases in the other category have not yet been fixed, and the above
-> issue is caused by this situation. We refer to the fix for the first
-> category, when applying options during remount, we grab s_writepages_rwsem
-> to avoid racing with writepages ops to trigger this problem.
-> 
-> Fixes: 6b523df4fb5a ("ext4: use transaction reservation for extent conversion in ext4_end_io")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Baokun Li <libaokun1@huawei.com>
 
-Looks good. Nice that you've spotted also the restore options case. Feel
-free to add:
+Ok, good to know.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+> > > > Did you confirm that the below makes any sense or has this just been
+> > > > copied verbatim from the vendor devicetree (it looks like that)?
+> > > > 
+> > > 
+> > > As you've mentioned, most of the quirks are for gadget mode which is not
+> > > supported by the upstream supported boards. So I haven't really tested them but
+> > > for I assumed that Qcom engineers did.
+> > > 
+> > > > The fact that almost none of the qcom SoCs sets these also indicates
+> > > > that something is not right here.
+> > > > 
+> > > > > Cc: stable@vger.kernel.org # 5.20
+> > > > > Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
+> > > > > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > > > > ---
+> > > > >  arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 14 ++++++++++++++
+> > > > >  1 file changed, 14 insertions(+)
+> > > > > 
+> > > > > diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+> > > > > index 0d02599d8867..266a94c712aa 100644
+> > > > > --- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+> > > > > +++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+> > > > > @@ -3040,6 +3040,13 @@ usb_0_dwc3: usb@a600000 {
+> > > > >  				iommus = <&apps_smmu 0x820 0x0>;
+> > > > >  				phys = <&usb_0_hsphy>, <&usb_0_qmpphy QMP_USB43DP_USB3_PHY>;
+> > > > >  				phy-names = "usb2-phy", "usb3-phy";
+> > > > > +				snps,hird-threshold = /bits/ 8 <0x0>;
+> > > > > +				snps,usb2-gadget-lpm-disable;
+> > > > 
+> > > > Here you are disabling LPM for gadget mode, which makes most of the
+> > > > other properties entirely pointless.
+> > 
+> > Checked with Qcom on these quirks. So this one is just disabling lpm for USB2
+> > and rest of the quirks below are for SS/SSP modes.
+> 
+> No, snps,hird-threshold is for USB2 LPM and so is
+> snps,is-utmi-l1-suspend and snps,has-lpm-erratum as you'll see if you
+> look at the implementation.
+> 
 
-								Honza
+Correct me if I'm wrong. When I look into the code, "snps,is-utmi-l1-suspend"
+and "snps,hird-threshold" are used independently of the LPM mode atleast in one
+place:
 
-> ---
-> V1->V2:
-> 	Grab s_writepages_rwsem unconditionally during remount.
-> 	Remove patches 1,2 that are no longer needed.
-> V2->V3:
-> 	Also grab s_writepages_rwsem when restoring options.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/usb/dwc3/gadget.c#n2867
+
+But I could be completely wrong here as my understanding of the usb stack is not
+that great.
+
+> > > > > +				snps,is-utmi-l1-suspend;
+> > > > > +				snps,dis-u1-entry-quirk;
+> > > > > +				snps,dis-u2-entry-quirk;
+> > > > 
+> > > > These appear to be used to optimise certain gadget application and
+> > > > likely not something that should be set in a dtsi.
+> > > > 
+> > > 
+> > > I will cross check these with Qcom and respin accordingly.
+> > > 
+> > 
+> > These quirks are needed as per the DWC IP integration with this SoC it seems.
+> > But I got the point that these don't add any values for host only
+> > configurations. At the same time, these quirks still hold true for the SoC even
+> > if not exercised.
+> > 
+> > So I think we should keep these in the dtsi itself.
 > 
->  fs/ext4/ext4.h  |  3 ++-
->  fs/ext4/super.c | 12 ++++++++++++
->  2 files changed, 14 insertions(+), 1 deletion(-)
+> Please take a closer look at the quirks you're enabling first. Commit
+> 729dcffd1ed3 ("usb: dwc3: gadget: Add support for disabling U1 and U2
+> entries") which added 
 > 
-> diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-> index 9b2cfc32cf78..5f5ee0c20673 100644
-> --- a/fs/ext4/ext4.h
-> +++ b/fs/ext4/ext4.h
-> @@ -1703,7 +1703,8 @@ struct ext4_sb_info {
->  
->  	/*
->  	 * Barrier between writepages ops and changing any inode's JOURNAL_DATA
-> -	 * or EXTENTS flag.
-> +	 * or EXTENTS flag or between writepages ops and changing DELALLOC or
-> +	 * DIOREAD_NOLOCK mount options on remount.
->  	 */
->  	struct percpu_rw_semaphore s_writepages_rwsem;
->  	struct dax_device *s_daxdev;
-> diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-> index e6d84c1e34a4..8396da483c17 100644
-> --- a/fs/ext4/super.c
-> +++ b/fs/ext4/super.c
-> @@ -6403,7 +6403,16 @@ static int __ext4_remount(struct fs_context *fc, struct super_block *sb)
->  
->  	}
->  
-> +	/*
-> +	 * Changing the DIOREAD_NOLOCK or DELALLOC mount options may cause
-> +	 * two calls to ext4_should_dioread_nolock() to return inconsistent
-> +	 * values, triggering WARN_ON in ext4_add_complete_io(). we grab
-> +	 * here s_writepages_rwsem to avoid race between writepages ops and
-> +	 * remount.
-> +	 */
-> +	percpu_down_write(&sbi->s_writepages_rwsem);
->  	ext4_apply_options(fc, sb);
-> +	percpu_up_write(&sbi->s_writepages_rwsem);
->  
->  	if ((old_opts.s_mount_opt & EXT4_MOUNT_JOURNAL_CHECKSUM) ^
->  	    test_opt(sb, JOURNAL_CHECKSUM)) {
-> @@ -6614,6 +6623,7 @@ static int __ext4_remount(struct fs_context *fc, struct super_block *sb)
->  	return 0;
->  
->  restore_opts:
-> +	percpu_down_write(&sbi->s_writepages_rwsem);
->  	sb->s_flags = old_sb_flags;
->  	sbi->s_mount_opt = old_opts.s_mount_opt;
->  	sbi->s_mount_opt2 = old_opts.s_mount_opt2;
-> @@ -6622,6 +6632,8 @@ static int __ext4_remount(struct fs_context *fc, struct super_block *sb)
->  	sbi->s_commit_interval = old_opts.s_commit_interval;
->  	sbi->s_min_batch_time = old_opts.s_min_batch_time;
->  	sbi->s_max_batch_time = old_opts.s_max_batch_time;
-> +	percpu_up_write(&sbi->s_writepages_rwsem);
-> +
->  	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->s_system_blks)
->  		ext4_release_system_zone(sb);
->  #ifdef CONFIG_QUOTA
-> -- 
-> 2.31.1
+> > > > > +				snps,dis-u1-entry-quirk;
+> > > > > +				snps,dis-u2-entry-quirk;
 > 
+> explicitly mentions
+> 
+> 	Gadget applications may have a requirement to disable the U1 and U2
+> 	entry based on the usecase.
+> 
+> which sounds like something that needs to be done in a per board dts at
+> least.
+> 
+
+Going by this commit message it sounds like it. But...
+
+> Perhaps keeping all of these in in the dtsi is correct, but that's going
+> to need some more motivation than simply that some vendor does so (as
+> they often do all sorts of things they should not).
+> 
+
+If you read my last reply one more time, I didn't reason it based on the vendor
+code.
+
+But I hear a contradict reply from Qcom saying that these properties are
+required as a part of the DWC3 IP integration with the SoC. I need to recheck
+with them again tomorrow.
+
+Also, if these properties are application specific then they shouldn't be in
+devicetree atleast :/
+
+- Mani
+
+- Mani
+
+> Johan
+
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+மணிவண்ணன் சதாசிவம்
