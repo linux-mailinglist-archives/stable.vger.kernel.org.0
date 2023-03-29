@@ -2,95 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A0C26CF5B2
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 23:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDFE6CF623
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 00:05:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229906AbjC2Vya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 17:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
+        id S229504AbjC2WFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 18:05:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbjC2Vy3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 17:54:29 -0400
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F9F997;
-        Wed, 29 Mar 2023 14:54:28 -0700 (PDT)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-5416698e889so319878637b3.2;
-        Wed, 29 Mar 2023 14:54:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680126867;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wuJnhqOglm39EigVBOorfLFET4EJvRI41CYQanO44wE=;
-        b=RR7FRCugnk5U51rg3Y0p5oRleymdIcY3kRaH41wkygg/t7izHSgVSqpiOOlLqo0q3p
-         lp+FFjkF2hXhFKtua4KcjqxOGgnkMFiNy6ea5u497E554KmNIyY6xDeu6ceI+U4HPLGE
-         iTIeoMgZCdrQ3BYNTi6l2TrELklRlSuEDyrTB3+M+6XZV6zuuCeEQoEKLbf9AqCP9RQN
-         aQttkXbUHWfiy4l3lyIru146D49LXUkbCiCk54XMlrRnmmIhyblFBIWk8gBHiiRKHy/R
-         NGhk1+TKyEXLECw2JxuFWDsjlK79hfO4ZdB4TOmQL8WsMZ09CkB2WRcQryQaLqYxffFa
-         3umg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680126867;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wuJnhqOglm39EigVBOorfLFET4EJvRI41CYQanO44wE=;
-        b=POQ+gDcqMkwHVnVyx26QgDS22sWG4kTygGmP7c/0YlsrBzgfvsjdfV/+Gf6DqkaPYe
-         1aWQCTu8xkNg1XGlrr6GERE+idXE19hricO4eNWqz46Ohrr87HFATXUElz2VQCowqpWP
-         q1GLhS5sKmvEU1c3bCEIonrmDK7DPz4s1ol4atC4LbSLU/doRKHwuneIEp7ZQt9Zi7d1
-         cO3EInv/QvM2F+mMgSkPIpVLF1pH5a0iudyyWqzyGZ4wEt5ZEZeOvfl8mVD992mGnMvu
-         sOptI7UOlbLHwoUPSmJHCyl9C2tQnr4O45/RLXul0CNNLMw2IbVpgateHwJbG0cF0h5v
-         TlPQ==
-X-Gm-Message-State: AAQBX9fHPt61MZ93ntNTvG4Hc1ASQjffAT0dcULA6cUFVVlzGf7YKrbW
-        sal7IEx1+vyWSLCLkOVxpiXKu3IibOw=
-X-Google-Smtp-Source: AKy350bJRteG/ORlYIW4b6bWV9t0iBvfTo+73hIctNo2CSCTcOD0C9HvwPFtn1vOfm5LoswRNSXRxA==
-X-Received: by 2002:a81:4ecc:0:b0:544:4d3d:4231 with SMTP id c195-20020a814ecc000000b005444d3d4231mr21168821ywb.47.1680126867682;
-        Wed, 29 Mar 2023 14:54:27 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id by1-20020a05690c082100b00545a08184f5sm3195290ywb.133.2023.03.29.14.54.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Mar 2023 14:54:27 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 29 Mar 2023 14:54:26 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/224] 6.1.22-rc1 review
-Message-ID: <232b80c4-e885-43f4-8f77-924cd1b763fe@roeck-us.net>
-References: <20230328142617.205414124@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
-X-Spam-Status: No, score=0.7 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FORGED_FROMDOMAIN,
-        FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S230219AbjC2WFb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 18:05:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F89D3;
+        Wed, 29 Mar 2023 15:05:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FE3B61E40;
+        Wed, 29 Mar 2023 22:05:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91585C433D2;
+        Wed, 29 Mar 2023 22:05:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1680127527;
+        bh=R/7u4KPs6mZSMViaEmawvtJ1k16I7IpU1u836QM6Yq4=;
+        h=Date:To:From:Subject:From;
+        b=RniCIN+TdX1Hm7zn6TYqmkjuI/mRXbEPq0O7nyTs7q00LYqxmeNS2mrVwQSdVAJLK
+         4PvvpkAYDtVnRL4n3NuhApARPiqdRC3Lynsch9W3KJ0BCW5httSyS6JG4OYyjJkWrK
+         1fid/785ZROkVI6zm5siYbSAQJyyaZfoP/gvu4tU=
+Date:   Wed, 29 Mar 2023 15:05:26 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        rcampbell@nvidia.com, jhubbard@nvidia.com, apopple@nvidia.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [to-be-updated] mm-take-a-page-reference-when-removing-device-exclusive-entries.patch removed from -mm tree
+Message-Id: <20230329220527.91585C433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 28, 2023 at 04:39:56PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.22 release.
-> There are 224 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 519 pass: 519 fail: 0
+The quilt patch titled
+     Subject: mm: take a page reference when removing device exclusive entries
+has been removed from the -mm tree.  Its filename was
+     mm-take-a-page-reference-when-removing-device-exclusive-entries.patch
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+This patch was dropped because an updated version will be merged
 
-Guenter
+------------------------------------------------------
+From: Alistair Popple <apopple@nvidia.com>
+Subject: mm: take a page reference when removing device exclusive entries
+Date: Tue, 28 Mar 2023 13:14:34 +1100
+
+Device exclusive page table entries are used to prevent CPU access to a
+page whilst it is being accessed from a device.  Typically this is used to
+implement atomic operations when the underlying bus does not support
+atomic access.  When a CPU thread encounters a device exclusive entry it
+locks the page and restores the original entry after calling mmu notifiers
+to signal drivers that exclusive access is no longer available.
+
+The device exclusive entry holds a reference to the page making it safe to
+access the struct page whilst the entry is present.  However the fault
+handling code does not hold the PTL when taking the page lock.  This means
+if there are multiple threads faulting concurrently on the device
+exclusive entry one will remove the entry whilst others will wait on the
+page lock without holding a reference.
+
+This can lead to threads locking or waiting on a page with a zero
+refcount.  Whilst mmap_lock prevents the pages getting freed via munmap()
+they may still be freed by a migration.  This leads to warnings such as
+PAGE_FLAGS_CHECK_AT_FREE due to the page being locked when the refcount
+drops to zero.  Note that during removal of the device exclusive entry the
+PTE is currently re-checked under the PTL so no futher bad page accesses
+occur once it is locked.
+
+Link: https://lkml.kernel.org/r/20230328021434.292971-1-apopple@nvidia.com
+Fixes: b756a3b5e7ea ("mm: device exclusive memory access")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+--- a/mm/memory.c~mm-take-a-page-reference-when-removing-device-exclusive-entries
++++ a/mm/memory.c
+@@ -3563,8 +3563,19 @@ static vm_fault_t remove_device_exclusiv
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct mmu_notifier_range range;
+ 
+-	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags))
++	/*
++	 * We need a page reference to lock the page because we don't hold the
++	 * PTL so a racing thread can remove the device-exclusive entry and
++	 * unmap the page. If the page is free the entry must have been
++	 * removed already.
++	 */
++	if (!get_page_unless_zero(vmf->page))
++		return 0;
++
++	if (!folio_lock_or_retry(folio, vma->vm_mm, vmf->flags)) {
++		put_page(vmf->page);
+ 		return VM_FAULT_RETRY;
++	}
+ 	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0,
+ 				vma->vm_mm, vmf->address & PAGE_MASK,
+ 				(vmf->address & PAGE_MASK) + PAGE_SIZE, NULL);
+@@ -3577,6 +3588,7 @@ static vm_fault_t remove_device_exclusiv
+ 
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	folio_unlock(folio);
++	put_page(vmf->page);
+ 
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	return 0;
+_
+
+Patches currently in -mm which might be from apopple@nvidia.com are
+
+
