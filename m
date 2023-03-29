@@ -2,120 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1CD86CD3D0
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 09:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDE66CD3EF
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 10:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230073AbjC2H4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 03:56:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50604 "EHLO
+        id S229749AbjC2IE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 04:04:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229874AbjC2H4n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 03:56:43 -0400
-Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6761D211B
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 00:56:40 -0700 (PDT)
-Received: from gproxy1-pub.mail.unifiedlayer.com (unknown [69.89.25.95])
-        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 7EBBB80308D7
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 07:56:38 +0000 (UTC)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 3136410048EAB
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 07:56:37 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id hQfdpDAibaaYZhQfdpnGnX; Wed, 29 Mar 2023 07:56:37 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=b813XvKx c=1 sm=1 tr=0 ts=6423ef35
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=k__wU0fu6RkA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=d+eF+E8ANnCURjnXP9gSySb7ilKifBaKExn2Bht4pd8=; b=jePc/srXmC13ZHfYuXwqfejDDS
-        npwz9U9tgf3tzbv9BKuEFYLwgZsPq7I+GvDOkH3hqy6Ihq1YVsDFTVKCUYsM8TVsnDydXelU6vet9
-        kX+7SM/supZZVKwwrygoIsBrrp8pb18qqngHNrFzvDWYcOBF87vIcitbp0slB+IBknLI2xiKaH6W0
-        Tdk0MWkEO0qRHq4YicYrxGllZyfA1JZslog4IdOf7S0F1XmVUBNERliFUDF9DaoDcX8+t88TGzMBS
-        IDQZMUHmaL1icSoImho+3Bmv0JkoFH8vJsJXz3npIiTPrKmM5rWhDMLCkQKWdRKwo82U42SNB5umx
-        ytibA0rQ==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33594 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1phQfb-0006TM-Lo;
-        Wed, 29 Mar 2023 01:56:35 -0600
-Subject: Re: [PATCH 6.2 000/240] 6.2.9-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230328142619.643313678@linuxfoundation.org>
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <4e0400e1-08cc-ef8e-5386-6ce5900945f4@w6rz.net>
-Date:   Wed, 29 Mar 2023 00:56:32 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229513AbjC2IE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 04:04:28 -0400
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2074.outbound.protection.outlook.com [40.107.93.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFA31FE7
+        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 01:04:26 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Yzs75Ek6dA+LIcaaSrIGCpsYJdPfIeozJyL9rDK6qAa8MHUhUVM0n5fzJUs75Srudi9Ci+27SILguGKWDVqVqX9xm+JouQ2hOSOObR3brZikQaFraozR/dmQuKEtLngDjapLxxTv6edU/v03v+pGBfHH4Ug7NFZ3XoVZsU/4C+33gLMD1u7VOmlfq6EIMamKrguetcI4CaBQV+mooAkgXSFVCqThMERwMNpKSk+bZeGAt4veNjYz7YkIdoYGB7JKhh1k+v7rwIS0Fp6Uuz7pOZhxKpov3ZXLYCiWgDWJrphiST4kEn0AyBjObkqtLiKuAVQ+iBiWMwt9ZsfySQZ0Xw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VMctb8oYf/jWGQtaZza/DSaJjqOzioGW62qU4VAPqZk=;
+ b=U9SFmja6T+TY0GFXtKDqTdbY89X+RcVVfm13qG3Vgr24tyyz7ECbyWPNcZf9Mido+JBzo6LH1xNhw9oDdoQqvn5865+uzYsQV/y2iCKVJQTZdRDRcrIiOphHnsYC7gz9SdX8XcKkR3aljF2uqIBbWXKGkXyMCStYQgmW9pN53QQgilOOOJo4sXrFIiTcAXyq6pPZb3eU2aZJxdjDgDbo7U7oli2MIz9/SWBSReo6GNOQ43rPs9r4WT0pQYJaGF0nfBH4ODbqkPuGAB0vqttFoiqS0UEu/nBaVJdXnvffeoWj2CaKOZW7BUb3LWQqBWF/MrU//VqYRslLMvuG8by/EQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 8.4.225.30) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=infinera.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=infinera.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VMctb8oYf/jWGQtaZza/DSaJjqOzioGW62qU4VAPqZk=;
+ b=jaMmFmOREVmHhzkAT5QmD8P9NnZFDoIwIfaxnOrJQrhNt2SbvJmlRMa2uRd770q5n64+oAFpVUcr/esyCjQvs6noaO9i/KG8Xf05XIX2TSajKTvUCC8yTCVSDvDTUQOSpH4J0ChsruXhe5n6eJO8CNIhbfcobzrSLBUiZ9YWo1JqpvZbgelERwCfq2lmdUSEQqtdOofSB4HLPXzg5jIHu2ec9sbmeah8nDoT5XexdqMubngoie052/CKvbFlAB213pW3p8pYqFds4oXVCsDnHhf508v/lmyB+qHHMH1TakqdB0hYTFV7eLbyxTdLJAXd9+wVN/FLvGatoTTgPO1ZQQ==
+Received: from BN1PR12CA0001.namprd12.prod.outlook.com (2603:10b6:408:e1::6)
+ by BY5PR10MB4132.namprd10.prod.outlook.com (2603:10b6:a03:20b::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.35; Wed, 29 Mar
+ 2023 08:04:23 +0000
+Received: from BN8NAM11FT031.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:e1:cafe::6) by BN1PR12CA0001.outlook.office365.com
+ (2603:10b6:408:e1::6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.43 via Frontend
+ Transport; Wed, 29 Mar 2023 08:04:23 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 8.4.225.30)
+ smtp.mailfrom=infinera.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=infinera.com;
+Received-SPF: Pass (protection.outlook.com: domain of infinera.com designates
+ 8.4.225.30 as permitted sender) receiver=protection.outlook.com;
+ client-ip=8.4.225.30; helo=owa.infinera.com; pr=C
+Received: from owa.infinera.com (8.4.225.30) by
+ BN8NAM11FT031.mail.protection.outlook.com (10.13.177.25) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6254.20 via Frontend Transport; Wed, 29 Mar 2023 08:04:23 +0000
+Received: from sv-ex16-prd.infinera.com (10.100.96.229) by
+ sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.14; Wed, 29 Mar 2023 01:04:19 -0700
+Received: from sv-smtp-prod2.infinera.com (10.100.98.82) by
+ sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server id
+ 15.1.2176.14 via Frontend Transport; Wed, 29 Mar 2023 01:04:19 -0700
+Received: from se-metroit-prd1.infinera.com ([10.210.32.58]) by sv-smtp-prod2.infinera.com with Microsoft SMTPSVC(7.5.7601.17514);
+         Wed, 29 Mar 2023 01:04:19 -0700
+Received: from gentoo-jocke.infinera.com (gentoo-jocke.infinera.com [10.210.71.2])
+        by se-metroit-prd1.infinera.com (Postfix) with ESMTP id D396C2C06D80;
+        Wed, 29 Mar 2023 10:04:18 +0200 (CEST)
+Received: by gentoo-jocke.infinera.com (Postfix, from userid 1001)
+        id CCCDE127D2; Wed, 29 Mar 2023 10:04:18 +0200 (CEST)
+From:   Joakim Tjernlund <joakim.tjernlund@infinera.com>
+To:     <stable@vger.kernel.org>
+CC:     Hans de Goede <hdegoede@redhat.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Subject: [PATCH] usb: ucsi: Fix ucsi->connector race
+Date:   Wed, 29 Mar 2023 10:03:58 +0200
+Message-ID: <20230329080358.29193-1-joakim.tjernlund@infinera.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <16800048817970@kroah.com>
+References: <16800048817970@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1phQfb-0006TM-Lo
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:33594
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 29 Mar 2023 08:04:19.0575 (UTC) FILETIME=[108E8070:01D96215]
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT031:EE_|BY5PR10MB4132:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4b53ee2c-f0f4-485c-9b90-08db302c3540
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: LHlhPhtfB7xIV5YgMSc7/yQOi/02SMhHFmPWSvRqovvq7wqH3V4bbxYpzkWgx6lVn2ryasIEabhJ0x2C91KeT8FAVA8isvytb2pyNXJ6lJKO70s1s2/knpJ88CpP8W50d+gFI+hDQP/j0bgkrvqpIHCV+c70uI7z1pv5qCeeCbx28u9g1tceQ1dcl9cGdzUU/agjipDN+IbgYXZj07fHa5KkRjRE+3UDKCSHP5lf/Y74/FrOBDPy2SuABOjA2gRsZsMFoogCj36UqeqSSiHbPkqvzH9O08/J3LnSEuttz65PKvewos3YeO9YJNqPcgdcLUnvPAA6gDDCStJhJ4pvFJikgrMFklcoiwK+0Cq5B+p/9nN2bFCCUUkzckdRnwq3PdpLpiA/HvVG0zkv8z87XCaFVJnzr30MGA2oM1zI8HpsK1mFXrEjpRU+7qzRGdYqE6rgpIVZCKZVmSVS9JED8g7fAbXnqaIK5l8SETVFj94sgS7Wz1WNWQoUOX9iClBs6KGow1vnFy+dPTEA/epJwD8Qf1tXNWHju2ttQqGcH7sCrNjRfgZmnYTn6hLm79vmMXfESbZ/WhxIfiVpvZtUAp+0x34P05/nXnU9uxexXYMVP6srzhk7TSTmMyPBYRQsXw5MCIN6BLhjLPAhFEmdi1mWb0V7HWK6pmhhD2c7aKo2kZdbG1WxuXKhD6ZYiRE1
+X-Forefront-Antispam-Report: CIP:8.4.225.30;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:owa.infinera.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230028)(4636009)(396003)(39850400004)(136003)(346002)(376002)(451199021)(36840700001)(46966006)(40480700001)(36860700001)(42186006)(54906003)(8676002)(6916009)(4326008)(356005)(81166007)(41300700001)(82740400003)(70206006)(70586007)(316002)(6266002)(186003)(26005)(1076003)(83380400001)(426003)(336012)(47076005)(2616005)(966005)(478600001)(107886003)(6666004)(86362001)(82310400005)(36756003)(44832011)(2906002)(5660300002)(8936002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: infinera.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2023 08:04:23.1615
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4b53ee2c-f0f4-485c-9b90-08db302c3540
+X-MS-Exchange-CrossTenant-Id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=285643de-5f5b-4b03-a153-0ae2dc8aaf77;Ip=[8.4.225.30];Helo=[owa.infinera.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT031.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4132
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/28/23 7:39 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.9 release.
-> There are 240 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.9-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Hans de Goede <hdegoede@redhat.com>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+ucsi_init() which runs from a workqueue sets ucsi->connector and
+on an error will clear it again.
 
-Tested-by: Ron Economos <re@w6rz.net>
+ucsi->connector gets dereferenced by ucsi_resume(), this checks for
+ucsi->connector being NULL in case ucsi_init() has not finished yet;
+or in case ucsi_init() has failed.
+
+ucsi_init() setting ucsi->connector and then clearing it again on
+an error creates a race where the check in ucsi_resume() may pass,
+only to have ucsi->connector free-ed underneath it when ucsi_init()
+hits an error.
+
+Fix this race by making ucsi_init() store the connector array in
+a local variable and only assign it to ucsi->connector on success.
+
+Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+Cc: stable@vger.kernel.org
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230308154244.722337-3-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(cherry picked from commit 0482c34ec6f8557e06cd0f8e2d0e20e8ede6a22c)
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+---
+
+ - This is a dry port to 6.1.x, will be some time before it will be tested.
+
+ drivers/usb/typec/ucsi/ucsi.c | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index 8cbbb002fefe..086b50968983 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1039,9 +1039,8 @@ static struct fwnode_handle *ucsi_find_fwnode(struct ucsi_connector *con)
+ 	return NULL;
+ }
+ 
+-static int ucsi_register_port(struct ucsi *ucsi, int index)
++static int ucsi_register_port(struct ucsi *ucsi, struct ucsi_connector *con)
+ {
+-	struct ucsi_connector *con = &ucsi->connector[index];
+ 	struct typec_capability *cap = &con->typec_cap;
+ 	enum typec_accessory *accessory = cap->accessory;
+ 	enum usb_role u_role = USB_ROLE_NONE;
+@@ -1062,7 +1061,6 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ 	init_completion(&con->complete);
+ 	mutex_init(&con->lock);
+ 	INIT_LIST_HEAD(&con->partner_tasks);
+-	con->num = index + 1;
+ 	con->ucsi = ucsi;
+ 
+ 	cap->fwnode = ucsi_find_fwnode(con);
+@@ -1204,7 +1202,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+  */
+ static int ucsi_init(struct ucsi *ucsi)
+ {
+-	struct ucsi_connector *con;
++	struct ucsi_connector *con, *connector;
+ 	u64 command, ntfy;
+ 	int ret;
+ 	int i;
+@@ -1235,16 +1233,16 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	}
+ 
+ 	/* Allocate the connectors. Released in ucsi_unregister() */
+-	ucsi->connector = kcalloc(ucsi->cap.num_connectors + 1,
+-				  sizeof(*ucsi->connector), GFP_KERNEL);
+-	if (!ucsi->connector) {
++	connector = kcalloc(ucsi->cap.num_connectors + 1, sizeof(*connector), GFP_KERNEL);
++	if (!connector) {
+ 		ret = -ENOMEM;
+ 		goto err_reset;
+ 	}
+ 
+ 	/* Register all connectors */
+ 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
+-		ret = ucsi_register_port(ucsi, i);
++		connector[i].num = i + 1;
++		ret = ucsi_register_port(ucsi, &connector[i]);
+ 		if (ret)
+ 			goto err_unregister;
+ 	}
+@@ -1256,11 +1254,12 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	if (ret < 0)
+ 		goto err_unregister;
+ 
++	ucsi->connector = connector;
+ 	ucsi->ntfy = ntfy;
+ 	return 0;
+ 
+ err_unregister:
+-	for (con = ucsi->connector; con->port; con++) {
++	for (con = connector; con->port; con++) {
+ 		ucsi_unregister_partner(con);
+ 		ucsi_unregister_altmodes(con, UCSI_RECIPIENT_CON);
+ 		ucsi_unregister_port_psy(con);
+@@ -1269,10 +1268,7 @@ static int ucsi_init(struct ucsi *ucsi)
+ 		typec_unregister_port(con->port);
+ 		con->port = NULL;
+ 	}
+-
+-	kfree(ucsi->connector);
+-	ucsi->connector = NULL;
+-
++	kfree(connector);
+ err_reset:
+ 	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+ 	ucsi_reset_ppm(ucsi);
+-- 
+2.39.1
 
