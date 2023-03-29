@@ -2,286 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833996CF6FF
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 01:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D4E6CF6E3
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 01:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbjC2XYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 19:24:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33472 "EHLO
+        id S229940AbjC2XUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 19:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231197AbjC2XYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 19:24:44 -0400
-X-Greylist: delayed 424 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 29 Mar 2023 16:24:39 PDT
-Received: from dispatch1-us1.ppe-hosted.com (dispatch1-us1.ppe-hosted.com [148.163.129.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8B6468F
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 16:24:39 -0700 (PDT)
-Received: from dispatch1-us1.ppe-hosted.com (ip6-localhost [127.0.0.1])
-        by dispatch1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id 4FB542CB312
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 23:17:45 +0000 (UTC)
-X-Virus-Scanned: Proofpoint Essentials engine
-Received: from mail3.candelatech.com (mail2.candelatech.com [208.74.158.173])
-        by mx1-us1.ppe-hosted.com (PPE Hosted ESMTP Server) with ESMTP id C42A1C40067;
-        Wed, 29 Mar 2023 23:17:31 +0000 (UTC)
-Received: from [192.168.1.115] (unknown [98.97.35.182])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail3.candelatech.com (Postfix) with ESMTPSA id E7D5C13C2B0;
-        Wed, 29 Mar 2023 16:17:29 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail3.candelatech.com E7D5C13C2B0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=candelatech.com;
-        s=default; t=1680131851;
-        bh=LS3MKLWJd4mb/vj5so6zIWCqxhs9UCjfJNfmEm+z63A=;
-        h=Subject:From:To:Cc:References:Date:In-Reply-To:From;
-        b=gmoVy/lqIaVvnAC+w93vZ19p89ZJosatdIFXRYbvPBJf/sHEZsbTOQLWkuR3NdSTZ
-         25ajfHOwtFpV1RM+8thfcST1Zz5vxX97iUCIKvDhSaL2PVAV0lT3zOJvY1VP4OX65x
-         3SX+lnB3H8ZM2x9EwW35bqrzPT6sDInk0HOfxpr8=
-Subject: Re: [PATCH 5.4 182/389] PCI/portdrv: Dont disable AER reporting in
- get_port_device_capability()
-From:   Ben Greear <greearb@candelatech.com>
-To:     =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bjorn@helgaas.com,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Stefan Roese <sr@denx.de>, Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Yao Hongbo <yaohongbo@linux.alibaba.com>,
-        Naveen Naidu <naveennaidu479@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220823080115.331990024@linuxfoundation.org>
- <20220823080123.228828362@linuxfoundation.org>
- <CABhMZUVycsyy76j2Z=K+C6S1fwtzKE1Lx2povXKfB80o9g0MtQ@mail.gmail.com>
- <YwXH/l37HaYQD66B@kroah.com>
- <47b775c5-57fa-5edf-b59e-8a9041ffbee7@candelatech.com>
- <20220830205832.g3lyysmgkarijkvj@pali>
- <00735f18-11f9-c6c6-4abf-002d378957df@candelatech.com>
- <20220830215532.6nnl6d4cfg55dmcl@pali>
- <370dee6c-919a-2f98-1404-a3feda14d1ba@candelatech.com>
-Organization: Candela Technologies
-Message-ID: <9dfa04c4-e0cc-f265-5935-254f43db931b@candelatech.com>
-Date:   Wed, 29 Mar 2023 16:17:29 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        with ESMTP id S229623AbjC2XT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 19:19:59 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2062.outbound.protection.outlook.com [40.107.94.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA082E3;
+        Wed, 29 Mar 2023 16:19:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=MbnLoZd3fVjqPI8L7aFA11XA9nFEdVIOtp29qU5JkKpYFVZ1dBC8bx7tqshT0iLEoyZxjec+Wh3QKrKjERfyN3zfC8n63xdvTWI4yNCPtjfXlO2Is8G4CPrwAb1OkP+A1J34gynpK3DnT8hYueYMYvJqjIbauPgoqFD00ouKBEgQwPNXETxItZmJKpzxfV/MaQ5JuxwKfcXpf1TRMdn+vUGWgNNkDGTUvTSDIqfKFis38/tIPX8RIYwH4YY0hyFMth685P42a+g3KJ8AU/0OfWLnvGMCEc4r05KR9mWamMpv4mo748aIb2E7RrbuB01kGI7FkGf0aQccico2XEZ0CA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Y/kX8qYNlXwuWrAPBMe748avmZtxV/AfEqDk7APmL8c=;
+ b=au3gUphRTWGD0CR06DZ+SyIaD/IrgSOznN8vVusfOBHrzY4MD8Zs4H9j0ErefbpBkyyISJ+iOhwwyL6vehi50GRiTf5c8HhJiV1rby3s5mZQHbepSmy0IHVn/6FsEj25J8QKTaTQ3DPS0XZoCFbAW9XsUXfWCc/hu0ZIAs2lqpVx74jwUxCCsLUeBX49oBlsivrk87oCKview4dmxJnfKCZE6Y8H7u+QL8mUiTKA3CAvfh9UTJp0spZGzJt/9ttTef6zCi9jFKPMBPX3GTDnoI/3RUhNNV6KqrBvy0VJmgOqAv0vvr4jSWLEADqJCr/JF3tg6gSXHV4l1dleWB9I0A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Y/kX8qYNlXwuWrAPBMe748avmZtxV/AfEqDk7APmL8c=;
+ b=IM9WLvruNBZpEjII7+92gcTtOdHoDbx3Q9l8v9pTFe+W6YOB7veQUEGJ+osxsvau5iLc4mALhQWr/gV/VdHp1z+O1e0EvI8h+pN46fQbYy8HuDaW6OR+d7PYxVVWccDr3ufgpbQsSZpZG/sOkumYL3MlUcqA4sK5j2YpxC8Ud3k=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com (2603:10b6:5:398::12)
+ by IA1PR12MB7686.namprd12.prod.outlook.com (2603:10b6:208:422::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.38; Wed, 29 Mar
+ 2023 23:19:55 +0000
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::5b56:bf13:70be:ea60]) by DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::5b56:bf13:70be:ea60%6]) with mapi id 15.20.6222.033; Wed, 29 Mar 2023
+ 23:19:55 +0000
+Message-ID: <839942af-2b48-a06f-7fc1-6be1ce7cebcd@amd.com>
+Date:   Wed, 29 Mar 2023 18:19:52 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH] crypto: ccp - Clear PSP interrupt status register before
+ calling handler
+Content-Language: en-US
+To:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        linux-crypto@vger.kernel.org
+Cc:     John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20230328151636.1353846-1-jpiotrowski@linux.microsoft.com>
+From:   Tom Lendacky <thomas.lendacky@amd.com>
+In-Reply-To: <20230328151636.1353846-1-jpiotrowski@linux.microsoft.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SA0PR11CA0128.namprd11.prod.outlook.com
+ (2603:10b6:806:131::13) To DM4PR12MB5229.namprd12.prod.outlook.com
+ (2603:10b6:5:398::12)
 MIME-Version: 1.0
-In-Reply-To: <370dee6c-919a-2f98-1404-a3feda14d1ba@candelatech.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-MW
-Content-Transfer-Encoding: 8bit
-X-MDID: 1680131853-JyskUiQsUrIm
-X-MDID-O: us5;ut7;1680131853;JyskUiQsUrIm;<greearb@candelatech.com>;66c7af989e59a0657cb045da8e674f5e
-X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5229:EE_|IA1PR12MB7686:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9540b5d4-7fb9-44ff-7d54-08db30ac1af9
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: kMGPK2tTrR+DrPOCk+WLJpwaMNK5iZGnCcc6nzp+4nPS1QyfVqbpDTx8FWbOPYXbBt6qLb4l46DLCFkz3zCqZI/cNHx+2b96qxMhYU/6H5f/Ob4VjJj+orkBZxgeUSZiJ+fBc8Cwzj464R36F667LWnXaQy///HhyrBV/p7Mz+steofdcYgHvMCJg3Pmyn4VrH+GsikqS1dtli9VagG2JEDy10NAf/Ka3y4cqYGVBRGJIKXgjsqFrsPFaf/HRqGC4PMzPh8tJZG2ut58RqPy00K5ArkjXiKFgBu+6U8UbtduAMBCOViTBFAOy7d6Br2ELj6hHz1/7OGVo2ZtrUsdM37s4YuDWR14tVOZrMnudZri4+hEoK989DfaxXfsQfkeCPzCMlco8UIzyZNsnXAC1HUeoW3uh9P6Ieps5uooCRfsCqEuoaJRFiJkjq7hes3c+/nVW4HCSumFWXJc2NERfP/8xeK2UIZzU4/KiA2rRTx2h+MzHdERjBTDvr8ruS36XKVfeuxokWFZRlCgy3mOrzYjHWHiR1eHexWpjJCWYSuM5vRy04VsBE0jM/HggvwWRyG+cmNHhW37AStKAHh6m6AEBrdFoKbhU7n0+8jJFRlVangqdRWDi+5uHtj1ES1t5mxn4c0sGlr1BuD39DELCw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5229.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(346002)(136003)(396003)(39860400002)(366004)(451199021)(4326008)(66556008)(66476007)(8676002)(66946007)(41300700001)(6506007)(38100700002)(31696002)(86362001)(6486002)(36756003)(54906003)(26005)(6666004)(478600001)(6512007)(53546011)(316002)(83380400001)(186003)(2616005)(31686004)(5660300002)(8936002)(2906002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Z040czByUGFBSlUxTHhVbG1peFhCSU8zcnJxSW1MenNwOHYzdURRbk80T1I3?=
+ =?utf-8?B?T05uUzN0aXprc1dMRmFJcGxRZWVZd2hiT1BsMG5hM2xUMmhZWFcxMVNybkov?=
+ =?utf-8?B?MWVpbEtjY3Zpa1ZxZ3FVTjJ6ODMzMU9NVDZLbGdRT3RzZUZhbXBraW9MNjRS?=
+ =?utf-8?B?T09SK045SWwwOEx5cUR2RDVCR2lETUxxMTFHSExTOWZGTUFVb0h0K0pRR0cx?=
+ =?utf-8?B?Wk13RVJiWThsUVBsNjFoYy8vQW5LZUZsWVNiN0NRZ2EwOE95cUtaRUhSaTE5?=
+ =?utf-8?B?d1lDemh4cnhCdGdwSGRObEFTZmM1S29XOU8rRDE0WlFrdFRjMjhkZVB1MWVu?=
+ =?utf-8?B?M2dBYUlUbDVLUVNyamt2T2xlYU9zTW1OMlBpaHF1V1UvTU1TNjhPUWhnRDln?=
+ =?utf-8?B?UGZHN0hRZDRkMGJKM2dKMjhlQmM4TExvcTJ3VG9XQXltTUdWSUNWVFpVekJ1?=
+ =?utf-8?B?RmllUEZMdktIa0FmaU9EQ2U4TTVxMkFMMWg5cnhmRSt3cEtMWGdHTHJqMWMr?=
+ =?utf-8?B?Z1hzSU44S3pSR2QwaTZseWZHTE9PT25SMjQweFlMdW55a2IwcHgrbWYvUmpr?=
+ =?utf-8?B?dEdzQmVVeUVkbWl6b21HK3VCZXFTckVSSlM3OEZVTFgxTWtJaHZTY05LMjBk?=
+ =?utf-8?B?ZUpWTmx4V2pzUkVLRUVUYVFkbEwxMGcvVnlzMDRxQi9XVVZpcUJ3ZWUyN051?=
+ =?utf-8?B?b2JtOXh5L1ZUV1R5cWUxNE5ZSHVlZnlFbmNZMTJwWTdRT1VwSnYrWUN1cjlG?=
+ =?utf-8?B?QTA3SEg2cE9iaThETkQ4MS9mVjZ5czhYcGhLWmdSSS9XZ01lU044dDFSRVZK?=
+ =?utf-8?B?ZXIrUFpML2VoMkZwNFdJLyt5Mm5hM3M5T205SUJ2V3BYVHFFK1dhMG9mMEJL?=
+ =?utf-8?B?UnVOQlh0b0Z6N01kanhHQkJIaE54bmhXMlV4UXFJb0tQWldSUmdiRXVGNUtO?=
+ =?utf-8?B?MFI1OVZiUFNmZmx4K2NjRjhGSElwSzFwUWRNbmJCWHZxZmtzc2VJV0JjQzZ3?=
+ =?utf-8?B?aXl4M21vMVlOd1V0ZHNROE1teFR3QWZHUXN3eDlmSk0zUjRjRjY1d0JGQnZN?=
+ =?utf-8?B?cUhYOGRjSExSaTNTVi8yUWVtY3RIVE5GYS82d1doQlQ0eURqNjAwZGwrTUNj?=
+ =?utf-8?B?WTd4VkxCaGRkeStSMnpvUDVlOTU4dnN0aGdxRU1NTG8vZ2NrM0E5ZGVNYlJG?=
+ =?utf-8?B?OVNLTVNmdHdHVlgxWWlzMytBWncwak14cmtDZ0N2TlIwQ29ZZFlkbjNxaGFU?=
+ =?utf-8?B?N2kvY3hWNEdrVzJsZUFMSzY4Znc2RFpkU0tsUkE2RnNjdHFrSmFRMU5NVHBV?=
+ =?utf-8?B?T1pCaDNTZDd5d3FOZXI1VzZYVlZXS25GRjNVbER1YnFrWEx2TnFka2k3WThj?=
+ =?utf-8?B?VHhyT29oN1N3SEdqeXErVU1HZWlKdkw1RlgzUGo3VDBLUXRNNTgvUHprdFZ1?=
+ =?utf-8?B?OVNEZWhWRkZnY3M5ZXczbXRTanZaRHJXMzh0UmJRSFRYNXE4R21ZUWM3SmFS?=
+ =?utf-8?B?Y2lMdTRWUVhTaGRFS0hyZjhyTEtsRktNZWZwd1hvVDIyS1pKdklSaWhuVTJW?=
+ =?utf-8?B?ZWxxbkxHRnRWMzJpRnE5TmJjdlRDZFY2dVlETUZwd0hFemt6dW54ZkxkWVJ5?=
+ =?utf-8?B?cElIY3I4WmNqRS9IMTJsTFFyVnVjeHQxU3IrNmJrOUsyTU8ySVhocjAyWlk0?=
+ =?utf-8?B?SER1V0lDYjBPYkpFUlcvc1ZoR1N5ZHc5enhDa05FRlIrbTBXaDBPRndyeVh3?=
+ =?utf-8?B?ZHNvQ2REenVGRG9VNzRoTENnWkJmQ3UzUkdwaHNsNlBSaDY3YkZTY0xJZVEz?=
+ =?utf-8?B?T29yZXNwUkx6TFV2QzYxSW9WZytZZUZmMTZubnNXUTd3QWV6bjZJWGhYcVg4?=
+ =?utf-8?B?TGVtQlJ1Mk1ka281MERvWFQ5S2psUndBZWZxSDdzVkxPNE1GdTBEZDJkNGNt?=
+ =?utf-8?B?LzlZTzYvaTZUaU9YL1pWYVJKbGRHblZWTlZIMFdUUkFTaEZFL1JyV1RjcVI5?=
+ =?utf-8?B?clpKcWxzTHRDT0ZIeElhTkx3Y000QW01ODhBRU5seWo5WGlwUGlTemlZQ2JH?=
+ =?utf-8?B?TFhJTTdwVzYrbVhycnl5YjZhUk5jSVFoQlJNcFN4VWZFSWx1VkpxaHJFTE50?=
+ =?utf-8?Q?vTS8lE0KiSZEGbiYn8e8GOfhw?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9540b5d4-7fb9-44ff-7d54-08db30ac1af9
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5229.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2023 23:19:55.0195
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: By6fk5ij3SYHIVwdt7W4jM96jkSiEsomRn+F3ZdY4r3X0y4C8ziPSirvubMJT5RU3kIlXvD1SdYkh7k6/gkMog==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7686
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/30/22 3:16 PM, Ben Greear wrote:
-> On 8/30/22 2:55 PM, Pali Rohár wrote:
->> On Tuesday 30 August 2022 14:28:14 Ben Greear wrote:
->>> On 8/30/22 1:58 PM, Pali Rohár wrote:
->>>> On Tuesday 30 August 2022 13:47:48 Ben Greear wrote:
->>>>> On 8/23/22 11:41 PM, Greg Kroah-Hartman wrote:
->>>>>> On Tue, Aug 23, 2022 at 07:20:14AM -0500, Bjorn Helgaas wrote:
->>>>>>> On Tue, Aug 23, 2022, 6:35 AM Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>>>>> wrote:
->>>>>>>
->>>>>>>> From: Stefan Roese <sr@denx.de>
->>>>>>>>
->>>>>>>> [ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
->>>>>>>>
->>>>>>>
->>>>>>> There's an open regression related to this commit:
->>>>>>>
->>>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=216373
->>>>>>
->>>>>> This is already in the following released stable kernels:
->>>>>>     5.10.137 5.15.61 5.18.18 5.19.2
->>>>>>
->>>>>> I'll go drop it from the 4.19 and 5.4 queues, but when this gets
->>>>>> resolved in Linus's tree, make sure there's a cc: stable on the fix so
->>>>>> that we know to backport it to the above branches as well.  Or at the
->>>>>> least, a "Fixes:" tag.
->>>>>
->>>>> This is still in 5.19.5.  We saw some funny iwlwifi crashes in 5.19.3+
->>>>> that we did not see in 5.19.0+.  I just bisected the scary looking AER errors to this
->>>>> patch, though I do not know for certain if it causes the iwlwifi related crashes yet.
->>>>>
->>>>> In general, from reading the commit msg, this patch doesn't seem to be a great candidate
->>>>> for stable in general.  Does it fix some important problem?
->>>>>
->>>>> In case it helps, here is example of what I see in dmesg.  The kernel crashes in iwlwifi
->>>>> had to do with rx messages from the firmware, and some warnings lead me to believe that
->>>>> pci messages were slow coming back and/or maybe duplicated.  So maybe this AER patch changes
->>>>> timing or otherwise screws up the PCI adapter boards we use...
->>>>
->>>>   From that log I have feeling that issue is in that intel wifi card and
->>>> it was there also before that commit. Card is crashing (or something
->>>> other happens on PCIe bus) and because kernel had disabled Error
->>>> Reporting for this card, nobody spotted any issue. And that commit just
->>>> opened eye to kernel to see those errors.
->>>>
->>>> I think this issue should be reported to intel wifi card developers,
->>>> maybe they comment it, why card is reporting errors.
->>>
->>> My main concern is not that AER messages started showing up, but that there
->>> started being kernel NPE and WARNINGS showing up sometime after 5.19.0.
->>>
->>> Possibly this AER thing is mis-direction and the real bug is elsewhere,
->>> but since the bugzilla also indicated (different) driver crashes, then
->>> I am suspicious this changes things more significantly, at least in a subset
->>> of hardware out there.
->>
->> Yea, of course, this is something needed to investigate.
->>
->> Anyway, do you see driver crashes? Or just these AER errors? And are
->> your PCIe cards working, or after seeing these messages in dmesg they
->> stopped working? It is needed to know if you are just spammed by tons of
->> lines in dmesg and otherwise everything works. Or if after AER errors
->> your PCIe devices stop working and rebooting system is required.
+On 3/28/23 10:16, Jeremi Piotrowski wrote:
+> The PSP IRQ is edge-triggered (MSI or MSI-X) in all cases supported by
+> the psp module so clear the interrupt status register early in the
+> handler to prevent missed interrupts. sev_irq_handler() calls wake_up()
+> on a wait queue, which can result in a new command being submitted from
+> a different CPU. This then races with the clearing of isr and can result
+> in missed interrupts. A missed interrupt results in a command waiting
+> until it times out, which results in the psp being declared dead.
 > 
-> We did see higher frequency of weird crashes (accessing null-ish pointer) after upgrading to 5.19.3,
-> I am building kernel now with 5.19.5 and that AER patch reverted.  We will
-> test to see if that solves the crashes.
+> This is unlikely on bare metal, but has been observed when running
+> virtualized. In the cases where this is observed, sev->cmdresp_reg has
+> PSP_CMDRESP_RESP set which indicates that the command was processed
+> correctly but no interrupt was asserted.
 > 
->>> Also, any idea what this error in my logs is actually indicating?
->>
->> Your PCIe controller received non-fatal, but uncorrected error. There is
->> also indication of Unsupported Request Completion Status. Unsupported
->> Request is generated by PCIe device when controller / host / kernel try
->> to do something which is not supported by device; pretty generic error.
->> PCIe base spec describe lot of scenarios when card should return this
->> error. Maybe some more detailed information are in TLP Header hexdump,
->> but I cannot decode it now.
->>
->> Basically it is PCIe card driver who could know how fatal it is that
->> issue and how to recover from it. But as you can see intel wifi driver
->> does not implement that callback.
+> The full sequence of events looks like this:
+> 
+> CPU 1: submits SEV cmd #1
+> CPU 1: calls wait_event_timeout()
+> CPU 0: enters psp_irq_handler()
+> CPU 0: calls sev_handler()->wake_up()
+> CPU 1: wakes up; finishes processing cmd #1
+> CPU 1: submits SEV cmd #2
+> CPU 1: calls wait_event_timeout()
+> PSP:   finishes processing cmd #2; interrupt status is still set; no interrupt
+> CPU 0: clears intsts
+> CPU 0: exits psp_irq_handler()
+> CPU 1: wait_event_timeout() times out; psp_dead=true
+> 
+> Fixes: 200664d5237f ("crypto: ccp: Add Secure Encrypted Virtualization (SEV) command support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
 
-Hello,
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 
-I notice this patch appears to be in 6.2.6 kernel, and my kernel logs are
-full of spam and system is unstable.  Possibly the unstable part is related
-to something else, but the log spam is definitely extreme.
-
-These systems are fairly stable on 5.19-ish kernels without the patch in
-question.
-
-Any suggested cures for this other than reverting the patch?
-
-Here is sample of the spam:
-
-[ 1675.547023] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1675.556851] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1675.563904] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1675.569398] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1675.576296] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1675.576302] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1675.576303] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1675.576317] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1675.586144] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1675.593196] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1675.598691] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1675.605584] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1675.605588] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1676.497155] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1676.497174] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.507015] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.514091] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1676.519599] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1676.526491] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1676.526516] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1676.526517] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1676.526531] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.536367] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.543440] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1676.548936] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1676.555830] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1676.555850] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1676.555851] pcieport 0000:00:1c.0: AER: Multiple Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1676.555955] pcieport 0000:03:01.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.565792] pcieport 0000:03:01.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.572846] pcieport 0000:03:01.0:    [20] UnsupReq               (First)
-[ 1676.578344] pcieport 0000:03:01.0: AER:   TLP Header: 34000000 04001f10 00000000 88c888c8
-[ 1676.585268] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.595105] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.602162] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1676.607655] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1676.614538] pcieport 0000:03:02.0: AER:   Error of this Agent is reported first
-[ 1676.620566] pcieport 0000:03:03.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.630398] pcieport 0000:03:03.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.637454] pcieport 0000:03:03.0:    [20] UnsupReq               (First)
-[ 1676.642945] pcieport 0000:03:03.0: AER:   TLP Header: 34000000 06001f10 00000000 88c888c8
-[ 1676.649840] pcieport 0000:03:05.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.659681] pcieport 0000:03:05.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.666738] pcieport 0000:03:05.0:    [20] UnsupReq               (First)
-[ 1676.672253] pcieport 0000:03:05.0: AER:   TLP Header: 34000000 07001f10 00000000 88c888c8
-[ 1676.679172] pcieport 0000:03:07.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.689002] pcieport 0000:03:07.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.696055] pcieport 0000:03:07.0:    [20] UnsupReq               (First)
-[ 1676.701550] pcieport 0000:03:07.0: AER:   TLP Header: 34000000 08001f10 00000000 88c888c8
-[ 1676.708461] iwlwifi 0000:04:00.0: AER: can't recover (no error_detected callback)
-[ 1676.708467] pcieport 0000:03:01.0: AER: device recovery failed
-[ 1676.708480] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1676.708483] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1676.708496] iwlwifi 0000:06:00.0: AER: can't recover (no error_detected callback)
-[ 1676.708499] pcieport 0000:03:03.0: AER: device recovery failed
-[ 1676.708511] iwlwifi 0000:07:00.0: AER: can't recover (no error_detected callback)
-[ 1676.708515] pcieport 0000:03:05.0: AER: device recovery failed
-[ 1676.708541] iwlwifi 0000:08:00.0: AER: can't recover (no error_detected callback)
-[ 1676.708544] pcieport 0000:03:07.0: AER: device recovery failed
-[ 1676.893674] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1676.893692] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.903527] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.910584] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1676.916098] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1676.923010] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1676.923018] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1676.923018] pcieport 0000:00:1c.0: AER: Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1676.923046] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.932876] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.939929] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1676.945425] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1676.952319] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1676.952325] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1676.952325] pcieport 0000:00:1c.0: AER: Multiple Uncorrected (Non-Fatal) error received: 0000:03:02.0
-[ 1676.952462] pcieport 0000:03:01.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.962292] pcieport 0000:03:01.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.969347] pcieport 0000:03:01.0:    [20] UnsupReq               (First)
-[ 1676.974839] pcieport 0000:03:01.0: AER:   TLP Header: 34000000 04001f10 00000000 88c888c8
-[ 1676.981734] pcieport 0000:03:02.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1676.991560] pcieport 0000:03:02.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1676.998614] pcieport 0000:03:02.0:    [20] UnsupReq               (First)
-[ 1677.004107] pcieport 0000:03:02.0: AER:   TLP Header: 34000000 05001f10 00000000 88c888c8
-[ 1677.010991] pcieport 0000:03:02.0: AER:   Error of this Agent is reported first
-[ 1677.017014] pcieport 0000:03:03.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1677.026841] pcieport 0000:03:03.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1677.033894] pcieport 0000:03:03.0:    [20] UnsupReq               (First)
-[ 1677.039390] pcieport 0000:03:03.0: AER:   TLP Header: 34000000 06001f10 00000000 88c888c8
-[ 1677.046292] pcieport 0000:03:05.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1677.056118] pcieport 0000:03:05.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1677.063174] pcieport 0000:03:05.0:    [20] UnsupReq               (First)
-[ 1677.068667] pcieport 0000:03:05.0: AER:   TLP Header: 34000000 07001f10 00000000 88c888c8
-[ 1677.075575] pcieport 0000:03:07.0: PCIe Bus Error: severity=Uncorrected (Non-Fatal), type=Transaction Layer, (Requester ID)
-[ 1677.085402] pcieport 0000:03:07.0:   device [10b5:8619] error status/mask=00100000/00000000
-[ 1677.092457] pcieport 0000:03:07.0:    [20] UnsupReq               (First)
-[ 1677.097951] pcieport 0000:03:07.0: AER:   TLP Header: 34000000 08001f10 00000000 88c888c8
-[ 1677.104844] iwlwifi 0000:04:00.0: AER: can't recover (no error_detected callback)
-[ 1677.104849] pcieport 0000:03:01.0: AER: device recovery failed
-[ 1677.104881] iwlwifi 0000:05:00.0: AER: can't recover (no error_detected callback)
-[ 1677.104884] pcieport 0000:03:02.0: AER: device recovery failed
-[ 1677.104908] iwlwifi 0000:06:00.0: AER: can't recover (no error_detected callback)
-[ 1677.104911] pcieport 0000:03:03.0: AER: device recovery failed
-[ 1677.104938] iwlwifi 0000:07:00.0: AER: can't recover (no error_detected callback)
-[ 1677.104943] pcieport 0000:03:05.0: AER: device recovery failed
-[ 1677.104968] iwlwifi 0000:08:00.0: AER: can't recover (no error_detected callback)
-[ 1677.104971] pcieport 0000:03:07.0: AER: device recovery failed
-
-
-Thanks,
-Ben
-
-
+> ---
+>   drivers/crypto/ccp/psp-dev.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/crypto/ccp/psp-dev.c b/drivers/crypto/ccp/psp-dev.c
+> index c9c741ac8442..949a3fa0b94a 100644
+> --- a/drivers/crypto/ccp/psp-dev.c
+> +++ b/drivers/crypto/ccp/psp-dev.c
+> @@ -42,6 +42,9 @@ static irqreturn_t psp_irq_handler(int irq, void *data)
+>   	/* Read the interrupt status: */
+>   	status = ioread32(psp->io_regs + psp->vdata->intsts_reg);
+>   
+> +	/* Clear the interrupt status by writing the same value we read. */
+> +	iowrite32(status, psp->io_regs + psp->vdata->intsts_reg);
+> +
+>   	/* invoke subdevice interrupt handlers */
+>   	if (status) {
+>   		if (psp->sev_irq_handler)
+> @@ -51,9 +54,6 @@ static irqreturn_t psp_irq_handler(int irq, void *data)
+>   			psp->tee_irq_handler(irq, psp->tee_irq_data, status);
+>   	}
+>   
+> -	/* Clear the interrupt status by writing the same value we read. */
+> -	iowrite32(status, psp->io_regs + psp->vdata->intsts_reg);
+> -
+>   	return IRQ_HANDLED;
+>   }
+>   
