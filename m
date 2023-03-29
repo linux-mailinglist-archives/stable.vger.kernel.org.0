@@ -2,113 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D61A6CD10F
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 06:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 444E96CD180
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 07:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbjC2ELw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 00:11:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
+        id S229600AbjC2F0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 01:26:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229457AbjC2ELv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 00:11:51 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B07FC4;
-        Tue, 28 Mar 2023 21:11:50 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id f22so9615923plr.0;
-        Tue, 28 Mar 2023 21:11:50 -0700 (PDT)
+        with ESMTP id S229564AbjC2F0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 01:26:08 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD79A30C2
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 22:26:06 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id h31so8587964pgl.6
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 22:26:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680063109;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=L7ZNbdRmLBVQTUyoFW+BtEddrBJyh3gW/MajDq9ikHM=;
-        b=qQlxkV3hMPXscS6z7rJW7Pm0dZHaGpjozG5zVgPQ6OXYjeJ1fVgQiXQGz10BflIwmN
-         Gf3X/Qe6MOftjTMZZBj4ybDisdtVRHOV9o9yi1D1mD9ff/ihNPxfNUKD/AOVrjX4akjp
-         QtfS+Ud6cbB8HVmS66esPN6sCzuy3wik46GeI8gzKsdTCjwt7lF21zyOcIxl7uZsraHa
-         Go2CXa8+ij7GMi427EI45eZiQRgvVDNMqfhOGirGEIHCP/p9yJ3oMsTwI4uq+oVYvPmy
-         vu0Aj9w589xovesMwShrpUAa84IebDk8kR7yxlMsDw/3HQKggEoXDjGPKLBYKOLbvY7l
-         K5mA==
+        d=linaro.org; s=google; t=1680067566;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=qQIXqBu8Ww1KbLzbdxyi7eKblMVEL5V0lkPPVDOGsus=;
+        b=zC6OuQGl8ITaMlmisTb73e1nyeSHXNqCU6pMeR4mD4PNlLAhxqKU3oIvKuUioBZIGE
+         mM9fIW0jsQq+WlnGW8cE4LZbMU1wAAawDcBU0TUKBNO1qBPRsJjzdt1zExgMVeQwIs2l
+         z0gPsuF8iawtG2k0lNQXJJPBbpqVLoyWns0Vb/OJ6biAVyZZqh3MINDKRRjW4vGHxC5i
+         lq7JC2eZPPoFXajT9Wu0Wxxxqu69zk5FGtYOpp8+XyyzMs8zWbTIW56FFahuMTX+uKpu
+         ZzjvbXZsaznUeAxazyCYuezUCb8cSWeo1crqyq894VdFu1+62ZAz8xyN773KX7FePJ+4
+         4yMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680063109;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=L7ZNbdRmLBVQTUyoFW+BtEddrBJyh3gW/MajDq9ikHM=;
-        b=2y6VGy8PXiyE0+fED/DfIK1RaZhKYIMOewxbynHjJ1kiJ7W0eydt8irSBVyij8+xRK
-         kRozbCWsIJxEIgY5rR/E/B5yc8dlbnYYBjiF+ccROYn7LOObr5K46NB+TYQfza9hdPlC
-         YuqXKIqaBZjl6wBqVqKJwdISmm8WQope/4ztX/h7vxPa0toJfuKK3Rn68bPrH3oUqL2j
-         ncTdSSLuT+8aKZEYs/YVBxzwyML3jjYBHSNHZFFUXZ91Zw+61cj8YnFQX5VatiM0/ykf
-         1xABKoZEiCp+8cqkA2cNJ14Y13VJn1ZPA3zIhEGjZ4PE5Cx9dxMvXhQitqvLC9QGHCo1
-         N9eA==
-X-Gm-Message-State: AO0yUKUn84Qe1kM84+paUHYiqBWuNiE9YZKMgeJoI+cSka6ByDzeSrN+
-        IDEWcnZS9zOpKrnSH+C+qpQ=
-X-Google-Smtp-Source: AK7set9k90dFBO7hBEhIQiDpNaTi3InRtsFJDliavAy940FUyFVjqPo/TNO1TYOrg46Cnk75+A/tKQ==
-X-Received: by 2002:a05:6a20:c10f:b0:d9:84d2:7a9f with SMTP id bh15-20020a056a20c10f00b000d984d27a9fmr16315514pzb.24.1680063109559;
-        Tue, 28 Mar 2023 21:11:49 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-7.three.co.id. [180.214.232.7])
-        by smtp.gmail.com with ESMTPSA id i22-20020aa78b56000000b005aa60d8545esm21830967pfd.61.2023.03.28.21.11.48
+        d=1e100.net; s=20210112; t=1680067566;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=qQIXqBu8Ww1KbLzbdxyi7eKblMVEL5V0lkPPVDOGsus=;
+        b=3eIGWfcqR+l1zRzu43CpnEoEiy1AS0L03fEBHM9Y/OjMVYKbbC3JxAXas1UxUxRFDG
+         KPO1qelVYtehNuFkV1zKGqH/szOdZDtWEQ2NTx9t89Ph/RVouQ8kc3zpBoE0kIhcsgMg
+         BJXilhRpGEgU/4yxK8uLYsBcTbrbR0+ZQ7+pcXNn9uHEFS2RnUws6zNRf5Z+/Pm1oVy4
+         L3unjgO9dV95UzF4+CTIibb6F5N3WgFLb6UN9SOnmZJMHnBDMk/EBZ3f/5q5vYQOOV5w
+         +A9bhNR2zJX7WqbXiQBzXTzXmzwBO1OcrRsnRzr2iqezQ/N9uBZLcFnCeGyX+vljNhci
+         7UTg==
+X-Gm-Message-State: AAQBX9fHDUAURTNx++1VYjjhyDuYiKt8UkrZWp38S/bYaIPCaThV3St6
+        oDT4UTgDiB1SaMJhZYePaAJM
+X-Google-Smtp-Source: AKy350aGXfZ5LQ5WZlCLH4Xf/5IlT9NCsh8UH8ET+/ub4ddsq/suqjDPww+ZkZ3gzRT1bxojKMvTXQ==
+X-Received: by 2002:aa7:93c4:0:b0:626:6a3:6b81 with SMTP id y4-20020aa793c4000000b0062606a36b81mr16936230pff.15.1680067566189;
+        Tue, 28 Mar 2023 22:26:06 -0700 (PDT)
+Received: from thinkpad ([117.202.191.80])
+        by smtp.gmail.com with ESMTPSA id j19-20020aa783d3000000b0062d2a66397esm6595484pfn.136.2023.03.28.22.26.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Mar 2023 21:11:49 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id A376A1066F7; Wed, 29 Mar 2023 11:11:45 +0700 (WIB)
-Date:   Wed, 29 Mar 2023 11:11:45 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 000/240] 6.2.9-rc1 review
-Message-ID: <ZCO6gRM7ozbbXwua@debian.me>
-References: <20230328142619.643313678@linuxfoundation.org>
+        Tue, 28 Mar 2023 22:26:05 -0700 (PDT)
+Date:   Wed, 29 Mar 2023 10:56:00 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     andersson@kernel.org, Thinh.Nguyen@synopsys.com,
+        gregkh@linuxfoundation.org, mathias.nyman@intel.com,
+        konrad.dybcio@linaro.org, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/5] arm64: dts: qcom: sc8280xp: Add missing dwc3 quirks
+Message-ID: <20230329052600.GA5575@thinkpad>
+References: <20230325165217.31069-1-manivannan.sadhasivam@linaro.org>
+ <20230325165217.31069-2-manivannan.sadhasivam@linaro.org>
+ <ZCKrXZn7Eu/jvdpG@hovoldconsulting.com>
+ <20230328093853.GA5695@thinkpad>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="+g+mtS8KVUMZPKw0"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-X-Spam-Status: No, score=1.3 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: *
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230328093853.GA5695@thinkpad>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 28, 2023 at 03:09:03PM +0530, Manivannan Sadhasivam wrote:
+> On Tue, Mar 28, 2023 at 10:54:53AM +0200, Johan Hovold wrote:
+> > On Sat, Mar 25, 2023 at 10:22:13PM +0530, Manivannan Sadhasivam wrote:
+> > > Add missing quirks for the USB DWC3 IP.
+> > 
+> > This is not an acceptable commit message generally and certainly not for
+> > something that you have tagged for stable.
+> > 
+> > At a minimum, you need to describe why these are needed and what the
+> > impact is.
+> > 
+> 
+> I can certainly improve the commit message. But usually the quirks are copied
+> from the downstream devicetree where qualcomm engineers would've added them
+> based on the platform requirements.
+> 
+> > Also, why are you sending as part of a series purporting to enable
+> > runtime PM when it appears to be all about optimising specific gadget
+> > applications?
+> > 
+> 
+> It's not related to this series I agree but just wanted to group it with a
+> series touching usb so that it won't get lost.
+> 
+> I could respin it separately though in v2.
+> 
+> > Did you confirm that the below makes any sense or has this just been
+> > copied verbatim from the vendor devicetree (it looks like that)?
+> > 
+> 
+> As you've mentioned, most of the quirks are for gadget mode which is not
+> supported by the upstream supported boards. So I haven't really tested them but
+> for I assumed that Qcom engineers did.
+> 
+> > The fact that almost none of the qcom SoCs sets these also indicates
+> > that something is not right here.
+> > 
+> > > Cc: stable@vger.kernel.org # 5.20
+> > > Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
+> > > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > > ---
+> > >  arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 14 ++++++++++++++
+> > >  1 file changed, 14 insertions(+)
+> > > 
+> > > diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+> > > index 0d02599d8867..266a94c712aa 100644
+> > > --- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+> > > +++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+> > > @@ -3040,6 +3040,13 @@ usb_0_dwc3: usb@a600000 {
+> > >  				iommus = <&apps_smmu 0x820 0x0>;
+> > >  				phys = <&usb_0_hsphy>, <&usb_0_qmpphy QMP_USB43DP_USB3_PHY>;
+> > >  				phy-names = "usb2-phy", "usb3-phy";
+> > > +				snps,hird-threshold = /bits/ 8 <0x0>;
+> > > +				snps,usb2-gadget-lpm-disable;
+> > 
+> > Here you are disabling LPM for gadget mode, which makes most of the
+> > other properties entirely pointless.
+> > 
 
---+g+mtS8KVUMZPKw0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Checked with Qcom on these quirks. So this one is just disabling lpm for USB2
+and rest of the quirks below are for SS/SSP modes.
 
-On Tue, Mar 28, 2023 at 04:39:23PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.9 release.
-> There are 240 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+> > > +				snps,is-utmi-l1-suspend;
+> > > +				snps,dis-u1-entry-quirk;
+> > > +				snps,dis-u2-entry-quirk;
+> > 
+> > These appear to be used to optimise certain gadget application and
+> > likely not something that should be set in a dtsi.
+> > 
+> 
+> I will cross check these with Qcom and respin accordingly.
+> 
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+These quirks are needed as per the DWC IP integration with this SoC it seems.
+But I got the point that these don't add any values for host only
+configurations. At the same time, these quirks still hold true for the SoC even
+if not exercised.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+So I think we should keep these in the dtsi itself.
 
---=20
-An old man doll... just what I always wanted! - Clara
+- Mani
 
---+g+mtS8KVUMZPKw0
-Content-Type: application/pgp-signature; name="signature.asc"
+> - Mani
+> 
+> > > +				snps,has-lpm-erratum;
+> > > +				tx-fifo-resize;
+> > 
+> > Same here.
+> > 
+> > >  				port {
+> > >  					usb_0_role_switch: endpoint {
+> > 
+> > Johan
+> 
+> -- 
+> மணிவண்ணன் சதாசிவம்
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZCO6gQAKCRD2uYlJVVFO
-o5HoAP9FWcqsjccJRMe659wLDmyDQH9bTYwZGRV5k1DHgtG/gwD+OLt2wWXOH329
-5wYVCQNC5ky9zqG7xsBu/4C2DVnWqAo=
-=5Xix
------END PGP SIGNATURE-----
-
---+g+mtS8KVUMZPKw0--
+-- 
+மணிவண்ணன் சதாசிவம்
