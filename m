@@ -2,75 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0AD6CF17E
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 19:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A575C6CF248
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 20:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbjC2RzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 13:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49476 "EHLO
+        id S229738AbjC2SiU convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 29 Mar 2023 14:38:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbjC2RzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 13:55:05 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BBE6A6;
-        Wed, 29 Mar 2023 10:55:04 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id z19so15714634plo.2;
-        Wed, 29 Mar 2023 10:55:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680112503; x=1682704503;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=nFMskmbDwPlyi0rZMeVPTGVdXdnjVvoj5ddZvdjzimg=;
-        b=M0oRUUq3AEXq9SjE4Tww/aJLDdp4yDXUCOOuy9Tp4jTCX9DQw0oByObXolZ2A3c4hp
-         qLXpUdZs7hYIqsghvbuZiVhDkkf/EGw815TZl38xuyplkMu0sXKjJKRMqq/Yw4/TJoen
-         mCVemyoH61OHEUgohv3tKTO0En0hUmS/bn7k+2mCnAUeRkX2RdqdH5/3FxzuZMlWpaA/
-         8XFNjSK1Iq2mPNqY3CZ+pazPcCFM1hRG9hUaPKbEUf/QYWKaNdPqUDxlyZgYpsI6v1/C
-         8eOSHYeSu1qNOIyiGiWfRzyql0uQUASdD9OAygLFmy+EklLQo+2D60VHyXv7HwWrCoLr
-         44eA==
+        with ESMTP id S229733AbjC2SiJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 14:38:09 -0400
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABE931FE2;
+        Wed, 29 Mar 2023 11:38:08 -0700 (PDT)
+Received: by mail-ed1-f53.google.com with SMTP id r11so67122201edd.5;
+        Wed, 29 Mar 2023 11:38:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680112503; x=1682704503;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=nFMskmbDwPlyi0rZMeVPTGVdXdnjVvoj5ddZvdjzimg=;
-        b=WOgdIG/ukoirQnLtPwK9WCjmeW3U69CcLCv55ooYdSjfSlGSSONTPZU61Pr7akszeV
-         OFh6TZk2Lp7r8+cgJqfwz8oNkBiwsULKi34sMfWfhDvFVH16I7nRih5hs1L7PenZKoVX
-         qQLBea3kgUYXhTTHcGH4CSZAT5YqFlrblE7J1IxYCkQoYsJgKj1TPjzbhf/TU2kJeBFG
-         znzvFjP9HXmrE5AVGwIOYldlO9jVr5gRFiGCf694JoQ5YO2gr9xrewD9d8GTF4yT8Zfz
-         neU160AjD2f5eZmxZsiVEgua76WU+OpgueBOzmL0VLB/0g1GAR5r+B+txSwsGIVRkfJ9
-         e1vw==
-X-Gm-Message-State: AO0yUKW0BwKtig+a/ucGQiGKaoaPsh7QliTgJ0to0YdtaJwWIEA4qkTI
-        WoJWv6PBV8awfGPl0aAMuWU=
-X-Google-Smtp-Source: AK7set8Y6YQ8WF/DlbZ0mclLLM8Wb2iN3vrmxB6+UI99d2kpfyLc27k3rfTfXobkoiYzONoLMI3ohQ==
-X-Received: by 2002:a05:6a20:be10:b0:d8:cb1a:f4e5 with SMTP id ge16-20020a056a20be1000b000d8cb1af4e5mr18322789pzb.23.1680112503609;
-        Wed, 29 Mar 2023 10:55:03 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id j11-20020a62e90b000000b005825b8e0540sm5682278pfh.204.2023.03.29.10.55.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Mar 2023 10:55:02 -0700 (PDT)
-Message-ID: <6c54bcdc-b65b-1738-4d99-51b5d98e996c@gmail.com>
-Date:   Wed, 29 Mar 2023 10:55:01 -0700
+        d=1e100.net; s=20210112; t=1680115087;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kqpDvgPhxjybA6O6J83PctT4fmZDiL55ZH7/KdrAc4M=;
+        b=b1BGwGt4atOwLwGLVgYjRG+GJk/wlCW3PjEsfaQ0Zq4oZEojfFC5qL7RlJ5RNpW+kO
+         J90ma8XVvnb1tbYhQBDRXoSGJBPqQXI9Bliy3nNoUB7FdEsWiuTYOH6VrfMGy2tQanxJ
+         /bV3rX8KCiskV6VJK6wkgrqoXdy+Ss5XGxUr62Zm8n/0Swil8n773+WE+WMsk5AldbQ3
+         dl7ixtmEFBBHT1/wmX9yG/whjDwm5euQVfSp8MdqGQ81SlzmJCW9j2t4QfKjuqUSq2ZX
+         Xcfl4j/P42HLZ43BrhYP8pEtSMJKxc2i6KiwtDJg37n7kYXhbj8o/OZg3RrUuysUZPPN
+         0P+A==
+X-Gm-Message-State: AAQBX9e/HNHmdLyDeO5e2b1JVHGIEvLz9Gi0WKhWzZdmAZLZiAPxLWVK
+        GoYfEtGQ2TCacaXBTVmxnsDWJNx7ME925t18HOo=
+X-Google-Smtp-Source: AKy350bHlW2Ztb1e3p6I7MCUYVVt6rsLJAvu+BHmQidJQ8uPC4PVyzvnN8BITUGaFyRF/YPK/ixgKlkTDckqSQw+61I=
+X-Received: by 2002:a17:907:d687:b0:93d:a14f:c9b4 with SMTP id
+ wf7-20020a170907d68700b0093da14fc9b4mr10307692ejc.2.1680115087111; Wed, 29
+ Mar 2023 11:38:07 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 6.2 000/240] 6.2.9-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+References: <20230329152207.991768-1-srinivas.pandruvada@linux.intel.com>
+In-Reply-To: <20230329152207.991768-1-srinivas.pandruvada@linux.intel.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 29 Mar 2023 20:37:55 +0200
+Message-ID: <CAJZ5v0iz6HAG+bhGb0HHmjwANdGmziJLHzH4XEz_CK7R1MexWQ@mail.gmail.com>
+Subject: Re: [PATCH] thermal: intel: int340x: processor_thermal: Fix
+ additional deadlock
+To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     rafael@kernel.org, rui.zhang@intel.com, daniel.lezcano@linaro.org,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230328142619.643313678@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230328142619.643313678@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=0.5 required=5.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+        FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,29 +58,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/28/23 07:39, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.9 release.
-> There are 240 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.9-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Wed, Mar 29, 2023 at 5:23 PM Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> Commit 52f04f10b900 ("thermal: intel: int340x: processor_thermal: Fix
+> deadlock") addressed deadlock issue during user space trip update. But it
+> missed a case when thermal zone device is disabled when user writes 0.
+>
+> Call to thermal_zone_device_disable() also causes deadlock as it also
+> tries to lock tz->lock, which is already claimed by trip_point_temp_store()
+> in the thermal core code.
+>
+> Remove call to thermal_zone_device_disable() in the function
+> sys_set_trip_temp(), which is called from trip_point_temp_store().
+>
+> Fixes: 52f04f10b900 ("thermal: intel: int340x: processor_thermal: Fix deadlock")
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Cc: stable@vger.kernel.org # 6.2+
+> ---
+>  .../thermal/intel/int340x_thermal/processor_thermal_device_pci.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
+> index 90526f46c9b1..d71ee50e7878 100644
+> --- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
+> +++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
+> @@ -153,7 +153,6 @@ static int sys_set_trip_temp(struct thermal_zone_device *tzd, int trip, int temp
+>                 cancel_delayed_work_sync(&pci_info->work);
+>                 proc_thermal_mmio_write(pci_info, PROC_THERMAL_MMIO_INT_ENABLE_0, 0);
+>                 proc_thermal_mmio_write(pci_info, PROC_THERMAL_MMIO_THRES_0, 0);
+> -               thermal_zone_device_disable(tzd);
+>                 pci_info->stored_thres = 0;
+>                 return 0;
+>         }
+> --
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
-
+Applied as 6.3-rc material, thanks!
