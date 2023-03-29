@@ -2,103 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDE66CD3EF
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 10:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09FE86CD491
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 10:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229749AbjC2IE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 04:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
+        id S229918AbjC2I2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 04:28:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbjC2IE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 04:04:28 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2074.outbound.protection.outlook.com [40.107.93.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFA31FE7
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 01:04:26 -0700 (PDT)
+        with ESMTP id S229912AbjC2I2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 04:28:36 -0400
+Received: from JPN01-OS0-obe.outbound.protection.outlook.com (mail-os0jpn01on2135.outbound.protection.outlook.com [40.107.113.135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B478C0;
+        Wed, 29 Mar 2023 01:28:35 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Yzs75Ek6dA+LIcaaSrIGCpsYJdPfIeozJyL9rDK6qAa8MHUhUVM0n5fzJUs75Srudi9Ci+27SILguGKWDVqVqX9xm+JouQ2hOSOObR3brZikQaFraozR/dmQuKEtLngDjapLxxTv6edU/v03v+pGBfHH4Ug7NFZ3XoVZsU/4C+33gLMD1u7VOmlfq6EIMamKrguetcI4CaBQV+mooAkgXSFVCqThMERwMNpKSk+bZeGAt4veNjYz7YkIdoYGB7JKhh1k+v7rwIS0Fp6Uuz7pOZhxKpov3ZXLYCiWgDWJrphiST4kEn0AyBjObkqtLiKuAVQ+iBiWMwt9ZsfySQZ0Xw==
+ b=DpyNqQXlFPHIW+/mR1S3fQ8MZ8+JQ/5obUp8nlNKjIFJJn5+ZcEIy/9YbYHthtz79AwfyKYoflAV9pAGyj17t/nGQE5E/uHE2Q2+tv3XSm2qIDLgMYHO1Rc3ZkZ/0ilTMV6E7xznheYDCEzAwZhHV7poEHhWaLJy/SUEU7VYDPNotkpRIPB1TZqC/H0YXdRE2vc1+Zp4xzdBh0Za4FZ9/vwfpT8f+onwz5FO8/K+zMJ+DEc0AyP1627ijejpN7JBirhSw7mpd7EVhLd1ToYT287XbTKzmetz6isdjkhioRuvhLw8rtbvT92i6rKH0L29obZ8VZXO/IaFYBksJ3BvgA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VMctb8oYf/jWGQtaZza/DSaJjqOzioGW62qU4VAPqZk=;
- b=U9SFmja6T+TY0GFXtKDqTdbY89X+RcVVfm13qG3Vgr24tyyz7ECbyWPNcZf9Mido+JBzo6LH1xNhw9oDdoQqvn5865+uzYsQV/y2iCKVJQTZdRDRcrIiOphHnsYC7gz9SdX8XcKkR3aljF2uqIBbWXKGkXyMCStYQgmW9pN53QQgilOOOJo4sXrFIiTcAXyq6pPZb3eU2aZJxdjDgDbo7U7oli2MIz9/SWBSReo6GNOQ43rPs9r4WT0pQYJaGF0nfBH4ODbqkPuGAB0vqttFoiqS0UEu/nBaVJdXnvffeoWj2CaKOZW7BUb3LWQqBWF/MrU//VqYRslLMvuG8by/EQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 8.4.225.30) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=infinera.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=infinera.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
- s=selector2;
+ bh=sQIe492E+TxVx5wwzJjSY3gtsPC+DffUVMOYBelpmhs=;
+ b=bJ4Pmcv7bC7Bsp2CmzuSBSY2KR9XUxj2KWHp/NKfS3nTSvcrwBf5ZxcKXsYhaKfcYIUK9SPF5LzDDJmI+G2PicwcwG/0V7hc6rEy+F4rqZWRL4+DZ/0FgwMpuxUZQcT+K9lpfb1z5ZodKDho9j71Wy3ngAdV0tuaZx3KLFeq91aEE5h80TTbQIpQ3pfSSfof6KTTsopIHwHG+9dBJ/ypBfd/pw5T+g7GCt/zFUpdemVeQRhG4g64eubIgrBkLk1WPHhYZFtJhslUzS8ek9Cgr2mua7Nl2d3RVXZ16yjAfM7fzAahUmd3HF2pOe3cywTxjYPjT4kHBY59bVdC5mNv7A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=renesas.com;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VMctb8oYf/jWGQtaZza/DSaJjqOzioGW62qU4VAPqZk=;
- b=jaMmFmOREVmHhzkAT5QmD8P9NnZFDoIwIfaxnOrJQrhNt2SbvJmlRMa2uRd770q5n64+oAFpVUcr/esyCjQvs6noaO9i/KG8Xf05XIX2TSajKTvUCC8yTCVSDvDTUQOSpH4J0ChsruXhe5n6eJO8CNIhbfcobzrSLBUiZ9YWo1JqpvZbgelERwCfq2lmdUSEQqtdOofSB4HLPXzg5jIHu2ec9sbmeah8nDoT5XexdqMubngoie052/CKvbFlAB213pW3p8pYqFds4oXVCsDnHhf508v/lmyB+qHHMH1TakqdB0hYTFV7eLbyxTdLJAXd9+wVN/FLvGatoTTgPO1ZQQ==
-Received: from BN1PR12CA0001.namprd12.prod.outlook.com (2603:10b6:408:e1::6)
- by BY5PR10MB4132.namprd10.prod.outlook.com (2603:10b6:a03:20b::10) with
+ bh=sQIe492E+TxVx5wwzJjSY3gtsPC+DffUVMOYBelpmhs=;
+ b=KHUMKJ73bEmkJceT0mUWbkJlciYqwkCET4h75vBGXj6rQkuhlJGBFekjTUv/yfAEYCJMnSETXYNz+mH6iWUMJuRXEpliTp2kh/74Frgc4shobyA1LY0P1VD2EpBtvfTwixud09b3YMY+x73fJHCxs6HZp8gPafg0Ptctiv9tV6E=
+Received: from TY2PR01MB3788.jpnprd01.prod.outlook.com (2603:1096:404:dd::14)
+ by OS3PR01MB6168.jpnprd01.prod.outlook.com (2603:1096:604:d7::8) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.35; Wed, 29 Mar
- 2023 08:04:23 +0000
-Received: from BN8NAM11FT031.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:e1:cafe::6) by BN1PR12CA0001.outlook.office365.com
- (2603:10b6:408:e1::6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.43 via Frontend
- Transport; Wed, 29 Mar 2023 08:04:23 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 8.4.225.30)
- smtp.mailfrom=infinera.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=infinera.com;
-Received-SPF: Pass (protection.outlook.com: domain of infinera.com designates
- 8.4.225.30 as permitted sender) receiver=protection.outlook.com;
- client-ip=8.4.225.30; helo=owa.infinera.com; pr=C
-Received: from owa.infinera.com (8.4.225.30) by
- BN8NAM11FT031.mail.protection.outlook.com (10.13.177.25) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6254.20 via Frontend Transport; Wed, 29 Mar 2023 08:04:23 +0000
-Received: from sv-ex16-prd.infinera.com (10.100.96.229) by
- sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.14; Wed, 29 Mar 2023 01:04:19 -0700
-Received: from sv-smtp-prod2.infinera.com (10.100.98.82) by
- sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server id
- 15.1.2176.14 via Frontend Transport; Wed, 29 Mar 2023 01:04:19 -0700
-Received: from se-metroit-prd1.infinera.com ([10.210.32.58]) by sv-smtp-prod2.infinera.com with Microsoft SMTPSVC(7.5.7601.17514);
-         Wed, 29 Mar 2023 01:04:19 -0700
-Received: from gentoo-jocke.infinera.com (gentoo-jocke.infinera.com [10.210.71.2])
-        by se-metroit-prd1.infinera.com (Postfix) with ESMTP id D396C2C06D80;
-        Wed, 29 Mar 2023 10:04:18 +0200 (CEST)
-Received: by gentoo-jocke.infinera.com (Postfix, from userid 1001)
-        id CCCDE127D2; Wed, 29 Mar 2023 10:04:18 +0200 (CEST)
-From:   Joakim Tjernlund <joakim.tjernlund@infinera.com>
-To:     <stable@vger.kernel.org>
-CC:     Hans de Goede <hdegoede@redhat.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Subject: [PATCH] usb: ucsi: Fix ucsi->connector race
-Date:   Wed, 29 Mar 2023 10:03:58 +0200
-Message-ID: <20230329080358.29193-1-joakim.tjernlund@infinera.com>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <16800048817970@kroah.com>
-References: <16800048817970@kroah.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.41; Wed, 29 Mar
+ 2023 08:28:32 +0000
+Received: from TY2PR01MB3788.jpnprd01.prod.outlook.com
+ ([fe80::1dc8:5434:72a7:eeea]) by TY2PR01MB3788.jpnprd01.prod.outlook.com
+ ([fe80::1dc8:5434:72a7:eeea%7]) with mapi id 15.20.6222.033; Wed, 29 Mar 2023
+ 08:28:32 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "patches@lists.linux.dev" <patches@lists.linux.dev>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "pavel@denx.de" <pavel@denx.de>,
+        "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+        "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
+        "sudipm.mukherjee@gmail.com" <sudipm.mukherjee@gmail.com>,
+        "srw@sladewatkins.net" <srw@sladewatkins.net>,
+        "rwarsow@gmx.de" <rwarsow@gmx.de>
+Subject: RE: [PATCH 5.15 000/146] 5.15.105-rc1 review
+Thread-Topic: [PATCH 5.15 000/146] 5.15.105-rc1 review
+Thread-Index: AQHZYYeJvAvfqqAMvkyQFwU70Hk7uK8RbSRg
+Date:   Wed, 29 Mar 2023 08:28:32 +0000
+Message-ID: <TY2PR01MB378837CFC52C5DEB2BFAB1CDB7899@TY2PR01MB3788.jpnprd01.prod.outlook.com>
+References: <20230328142602.660084725@linuxfoundation.org>
+In-Reply-To: <20230328142602.660084725@linuxfoundation.org>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=renesas.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: TY2PR01MB3788:EE_|OS3PR01MB6168:EE_
+x-ms-office365-filtering-correlation-id: 9ca2c90c-b00f-4a87-17f1-08db302f94e7
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: NWm7DBmgIDszuIb2n6kBHbGxIV9fx9u13Lwz5kHCmMa/Hph4GvGZiANp95CQRDjZy4mwSYZMfupEq4WBSlsAAl33KOVmWXCYplQ91bWEUpS9U5KFzu1+oDb6YMa1kzaWwftxHUwTGuL5pzwOTg5wrLR0lSaTUnH+DKJqkeu6FGj6D/seOBWR3f1slOmXT7HBpOj9Sef8IaGfIewAMcsDHs1O0DiO9LVffDn8NPwzhD7zxQgUo4G7a3TL64XwwCz/nzpalgsD9cab/kbVcxNIsQP2yzOV5saeBHYlEvWUv+pmhmf54owdMMDIjxXr/S6PYr2YDHsNcLCUuwqGPxQUdwmb6nTY9q36Zid+2WYomXVyxmejjtRpGvon7UVk0mF4lcNXXGis6A6B9nOyrSqwnw81ZzBWBczDBTJ8waMxJqVevimNvQaARKwU4wXD8FS67u3xQ5QrC5z7ZvNeSAINmPn6stA5DpPe+dpwok3xYJryenaNtiEvi25aulD3Qm4udLGjnMjjLftFqHLjcsV1kWcPnWDnbkmLtX5tRXXus4VuEH5Wvw+tOVlQhzUTbH8OlK+aXiAvbsthoAiu6BBjHovclb/+OFzHPC3aXZqGUBzS9qNfADZNDQSMChQecBwi7p5LEXbnf+2QvchIGw0hBw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY2PR01MB3788.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(39860400002)(346002)(396003)(376002)(136003)(451199021)(966005)(41300700001)(4744005)(76116006)(64756008)(66446008)(66946007)(66556008)(4326008)(186003)(8676002)(66476007)(7696005)(7416002)(71200400001)(5660300002)(122000001)(86362001)(2906002)(38100700002)(26005)(6506007)(110136005)(52536014)(8936002)(9686003)(38070700005)(316002)(33656002)(55016003)(478600001)(54906003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?windows-1254?Q?XzOrIxlgHVQolHyVynRYxkcKVLo9qiMoMpoSYTkVkKBlKciepbafe6F/?=
+ =?windows-1254?Q?plYD4Wfu3ml2lrgysm8MN8dD3NUfT1EpeAKYHU2FJNgZwv12lufEZn9y?=
+ =?windows-1254?Q?SqPjPkc8sAkLG9S1/ZXcpunkDeX0QXTb+tYk1/zBW1+hYurZ0Cve8DYN?=
+ =?windows-1254?Q?+u06TBz++45X5TNf7/aV3XVek/IyrEDh6YG7yqekq6lMy1tLmHv3A6/p?=
+ =?windows-1254?Q?tYtoFOc5YU2TzkZlSvuNANHxQe6EkC9vCpi6KtMV8b2S0l2GNwCiz/7A?=
+ =?windows-1254?Q?D8hAw6F0nCxyl6+El1291Sh1dsjpJUmi7e0jvwl1lJxlmXppg9wgT/N0?=
+ =?windows-1254?Q?SRwbH+pnNEIi5HPsqSd8j/S7h7PPbgvIoA8nrJn7mGKqnJd2QG7+6V6b?=
+ =?windows-1254?Q?reBVrp93EvDwTpTgCXX+A+OWEc1hB4HnSLbnQfbx7TXRVCu4w6b5k32a?=
+ =?windows-1254?Q?YY+qiql8H8tLUu9NMUja6Xg8VWBborMhavTAYvxB3Id3p7eEAN+mjREi?=
+ =?windows-1254?Q?zttFgcdmApaQKGi1j8K4fpuYCjVLPwVdqMok34ve/2X3pDPTVDXP+XYJ?=
+ =?windows-1254?Q?LHW6zgTAX95V9KK0UXLaQOuQ7epN9d+vSQ7/1N8kpb2sPuFicY+HMfyM?=
+ =?windows-1254?Q?k7zO8OKsq5eNuhiu6QiYJA2fEy1CJvmC0d6bOfupiZydEgZbox3+/vLs?=
+ =?windows-1254?Q?+8QoR8NjTc5LLzRBvOuRvBHRHozIByKKNMHb0aqwbmqzty9hEJRMMQMx?=
+ =?windows-1254?Q?CC1wqVG+thmh/N1tr+YIoJv2P3w8nHWK++J4OrwwHc8S7nKXvh+zAnDQ?=
+ =?windows-1254?Q?VClWEpwqAh+g3u/TOiT/uRaDNB9swzVHUh4al9a5ct7zs8BTMXpJYP7c?=
+ =?windows-1254?Q?YLkowk/VcElEpmCggKBY3HfSOvtBTdlgQLopCfovtSZQEQfORlkHyqL/?=
+ =?windows-1254?Q?rfYxmImbCeFcIC03RaxjY1WjUJGm012Jx0Q7rloPhoQuQ+jQRCUtsu2N?=
+ =?windows-1254?Q?4b3Dwp+XHTA+i4ASFAyYivPUM6v37WLilDCRhLdpX7z6BniHebX1m5Vm?=
+ =?windows-1254?Q?pUJ4E8Q+j4t3QEUUt//BD+I4mIBnSvCZs7nPsICr6NxNqOwaH2DNdSyC?=
+ =?windows-1254?Q?aiLVDHYiVfbZ1wLkJYUknw4RksvPliwNi5z+11mr/tjK2tKyJkfJuF22?=
+ =?windows-1254?Q?vlFznt7cyOD7c+dmgOyQBsUTj5AvIIKo/tVcsw4SIWR1Rx7gN+qvHcZL?=
+ =?windows-1254?Q?HXT6QvBGp2+alVl8jF+q93AbdF7+D0NJtT3GP+5OIZ41b+l8wYUXJCsO?=
+ =?windows-1254?Q?PNe07PdwwNT0/yfkZdvaY0MrVAbJQFuiKfAE6u+1BP9R2nxwtVYFen1T?=
+ =?windows-1254?Q?fm2S2YDi+UZ+QXvdsrEHRbYot2+20FRaXg4mQycIzgLb9XJP42X3WNbJ?=
+ =?windows-1254?Q?fSJ6Kd/RMEoZvZZmw6Eh+6EkxssxV5Vf8OjLaoYQmuBppl+45peyXXSo?=
+ =?windows-1254?Q?xnZok5bSUk2pR60TDLu65trupkTkXkwggOi6fX9nt4GkfYbo2t6oX66G?=
+ =?windows-1254?Q?SC60dhAb8b7BxXzQndktPUt7Xx5CF9zWBS2lmySxcPWKQl4JsgAq3Cfd?=
+ =?windows-1254?Q?O/RMJHaHPIat1WD+O8hlAz2pRxoI9b0zbHaF8oUoFbYIQHkPxPKbY3s6?=
+ =?windows-1254?Q?081qf0+jTw7cenG/ddk3xQD2SU9nTfFdeR+q73cxVizhUlroXbX16w?=
+ =?windows-1254?Q?=3D=3D?=
+Content-Type: text/plain; charset="windows-1254"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 29 Mar 2023 08:04:19.0575 (UTC) FILETIME=[108E8070:01D96215]
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT031:EE_|BY5PR10MB4132:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4b53ee2c-f0f4-485c-9b90-08db302c3540
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: LHlhPhtfB7xIV5YgMSc7/yQOi/02SMhHFmPWSvRqovvq7wqH3V4bbxYpzkWgx6lVn2ryasIEabhJ0x2C91KeT8FAVA8isvytb2pyNXJ6lJKO70s1s2/knpJ88CpP8W50d+gFI+hDQP/j0bgkrvqpIHCV+c70uI7z1pv5qCeeCbx28u9g1tceQ1dcl9cGdzUU/agjipDN+IbgYXZj07fHa5KkRjRE+3UDKCSHP5lf/Y74/FrOBDPy2SuABOjA2gRsZsMFoogCj36UqeqSSiHbPkqvzH9O08/J3LnSEuttz65PKvewos3YeO9YJNqPcgdcLUnvPAA6gDDCStJhJ4pvFJikgrMFklcoiwK+0Cq5B+p/9nN2bFCCUUkzckdRnwq3PdpLpiA/HvVG0zkv8z87XCaFVJnzr30MGA2oM1zI8HpsK1mFXrEjpRU+7qzRGdYqE6rgpIVZCKZVmSVS9JED8g7fAbXnqaIK5l8SETVFj94sgS7Wz1WNWQoUOX9iClBs6KGow1vnFy+dPTEA/epJwD8Qf1tXNWHju2ttQqGcH7sCrNjRfgZmnYTn6hLm79vmMXfESbZ/WhxIfiVpvZtUAp+0x34P05/nXnU9uxexXYMVP6srzhk7TSTmMyPBYRQsXw5MCIN6BLhjLPAhFEmdi1mWb0V7HWK6pmhhD2c7aKo2kZdbG1WxuXKhD6ZYiRE1
-X-Forefront-Antispam-Report: CIP:8.4.225.30;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:owa.infinera.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230028)(4636009)(396003)(39850400004)(136003)(346002)(376002)(451199021)(36840700001)(46966006)(40480700001)(36860700001)(42186006)(54906003)(8676002)(6916009)(4326008)(356005)(81166007)(41300700001)(82740400003)(70206006)(70586007)(316002)(6266002)(186003)(26005)(1076003)(83380400001)(426003)(336012)(47076005)(2616005)(966005)(478600001)(107886003)(6666004)(86362001)(82310400005)(36756003)(44832011)(2906002)(5660300002)(8936002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: infinera.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2023 08:04:23.1615
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TY2PR01MB3788.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9ca2c90c-b00f-4a87-17f1-08db302f94e7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Mar 2023 08:28:32.2407
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4b53ee2c-f0f4-485c-9b90-08db302c3540
-X-MS-Exchange-CrossTenant-Id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=285643de-5f5b-4b03-a153-0ae2dc8aaf77;Ip=[8.4.225.30];Helo=[owa.infinera.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT031.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4132
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: dRGdwddYrfMItjar5zx3SMtp6U1boeFELUYwTXyXrEaic0H1BtHem7IWGtw5LtbcU1GhInGYnvC3k8d/zSP35vG5UfUGZSBRX96ElzfAtNI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS3PR01MB6168
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
         DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
         SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
@@ -109,117 +131,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+Hello Greg,
 
-ucsi_init() which runs from a workqueue sets ucsi->connector and
-on an error will clear it again.
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Sent: 28 March 2023 15:41
+>=20
+> This is the start of the stable review cycle for the 5.15.105 release.
+> There are 146 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
+> Anything received after that time might be too late.
 
-ucsi->connector gets dereferenced by ucsi_resume(), this checks for
-ucsi->connector being NULL in case ucsi_init() has not finished yet;
-or in case ucsi_init() has failed.
+CIP configurations built and booted with Linux 5.15.105-rc1 (ea115396267e):
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/8=
+20594995
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/commits/lin=
+ux-5.15.y
 
-ucsi_init() setting ucsi->connector and then clearing it again on
-an error creates a race where the check in ucsi_resume() may pass,
-only to have ucsi->connector free-ed underneath it when ucsi_init()
-hits an error.
+Tested-by: Chris Paterson (CIP) <chris.paterson2@renesas.com>
 
-Fix this race by making ucsi_init() store the connector array in
-a local variable and only assign it to ucsi->connector on success.
-
-Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230308154244.722337-3-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-(cherry picked from commit 0482c34ec6f8557e06cd0f8e2d0e20e8ede6a22c)
-Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
----
-
- - This is a dry port to 6.1.x, will be some time before it will be tested.
-
- drivers/usb/typec/ucsi/ucsi.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
-index 8cbbb002fefe..086b50968983 100644
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -1039,9 +1039,8 @@ static struct fwnode_handle *ucsi_find_fwnode(struct ucsi_connector *con)
- 	return NULL;
- }
- 
--static int ucsi_register_port(struct ucsi *ucsi, int index)
-+static int ucsi_register_port(struct ucsi *ucsi, struct ucsi_connector *con)
- {
--	struct ucsi_connector *con = &ucsi->connector[index];
- 	struct typec_capability *cap = &con->typec_cap;
- 	enum typec_accessory *accessory = cap->accessory;
- 	enum usb_role u_role = USB_ROLE_NONE;
-@@ -1062,7 +1061,6 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
- 	init_completion(&con->complete);
- 	mutex_init(&con->lock);
- 	INIT_LIST_HEAD(&con->partner_tasks);
--	con->num = index + 1;
- 	con->ucsi = ucsi;
- 
- 	cap->fwnode = ucsi_find_fwnode(con);
-@@ -1204,7 +1202,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
-  */
- static int ucsi_init(struct ucsi *ucsi)
- {
--	struct ucsi_connector *con;
-+	struct ucsi_connector *con, *connector;
- 	u64 command, ntfy;
- 	int ret;
- 	int i;
-@@ -1235,16 +1233,16 @@ static int ucsi_init(struct ucsi *ucsi)
- 	}
- 
- 	/* Allocate the connectors. Released in ucsi_unregister() */
--	ucsi->connector = kcalloc(ucsi->cap.num_connectors + 1,
--				  sizeof(*ucsi->connector), GFP_KERNEL);
--	if (!ucsi->connector) {
-+	connector = kcalloc(ucsi->cap.num_connectors + 1, sizeof(*connector), GFP_KERNEL);
-+	if (!connector) {
- 		ret = -ENOMEM;
- 		goto err_reset;
- 	}
- 
- 	/* Register all connectors */
- 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
--		ret = ucsi_register_port(ucsi, i);
-+		connector[i].num = i + 1;
-+		ret = ucsi_register_port(ucsi, &connector[i]);
- 		if (ret)
- 			goto err_unregister;
- 	}
-@@ -1256,11 +1254,12 @@ static int ucsi_init(struct ucsi *ucsi)
- 	if (ret < 0)
- 		goto err_unregister;
- 
-+	ucsi->connector = connector;
- 	ucsi->ntfy = ntfy;
- 	return 0;
- 
- err_unregister:
--	for (con = ucsi->connector; con->port; con++) {
-+	for (con = connector; con->port; con++) {
- 		ucsi_unregister_partner(con);
- 		ucsi_unregister_altmodes(con, UCSI_RECIPIENT_CON);
- 		ucsi_unregister_port_psy(con);
-@@ -1269,10 +1268,7 @@ static int ucsi_init(struct ucsi *ucsi)
- 		typec_unregister_port(con->port);
- 		con->port = NULL;
- 	}
--
--	kfree(ucsi->connector);
--	ucsi->connector = NULL;
--
-+	kfree(connector);
- err_reset:
- 	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
- 	ucsi_reset_ppm(ucsi);
--- 
-2.39.1
-
+Kind regards, Chris
