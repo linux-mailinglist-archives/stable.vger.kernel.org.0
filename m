@@ -2,112 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D816CCFE0
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 04:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C2B6CD036
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 04:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbjC2CSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Mar 2023 22:18:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36924 "EHLO
+        id S229976AbjC2CkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Mar 2023 22:40:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjC2CSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 22:18:32 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD341FE8
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 19:18:31 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id z11so9325782pfh.4
-        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 19:18:31 -0700 (PDT)
+        with ESMTP id S229740AbjC2CkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Mar 2023 22:40:11 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697D32D75
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 19:40:01 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id j11-20020a25230b000000b00b6871c296bdso13864120ybj.5
+        for <stable@vger.kernel.org>; Tue, 28 Mar 2023 19:40:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680056311;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QrW0Sz8GBPnu6OCGpvxmOnmlGOMzTNgDleQT9EalNAI=;
-        b=D72gCuRP5NC6bGMxOir/jppWtpiClPwVbPbGJctFSn7NciK8mbmLLbi+JD27jOAh6W
-         vIUgl7qhFdOdGBVzqBoUwjJOXHmYJ4xcS6GzMBxSjquWR9Rm6LdoIM+iGAH12Bn0e7wo
-         tv6cOfbCReRK+GHwvZH02yZUR3KAzDaqoO54BjGLyigctTmRz3hkpGJcF0+MqWZC5peO
-         gpVcHt5X3COtf/OaerfVoOrBumeau+cBMNQB28JOEA04IbzgVaRGWQSCOzdnu5ZXBN7y
-         /E5isO76zHsJX9b6zpoKULKEoUOho6PFVPgKxqkiR0nxbBRk3qAjrrvbu8nmdXiCUh9j
-         cG0w==
+        d=google.com; s=20210112; t=1680057600;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=g+L6ngmQzqeAkDT2zaXK2CAjwgR4YJ46Vd4xGrMqvOI=;
+        b=I8QIadBdOlQ7lazV39hVWI0Kws6dkOboQeyNkOYTnlXnAnszJyff8w0ygPp8su/4Zu
+         Nny1qhPbY5EOcYeQP1NkrwbXxY9MfZ9fB9M6RWdP3JzQNJkPujH5JbCWDapX+IxYy7+I
+         qnJKGvD4Xsjb2nMJiMKeVTp/IrQWdvZoczS1B0WMdtjAJbNlLBD2BEy198yTua4eFZ7O
+         Z+plU+9ITDrs63mqQpAEZZgu718LG4YwwwpdYMpJiczCIS0Hz/f5Pw4NCQFaRQhUGVQu
+         f3c+eYfO/VIoCeOqsBFoU4wsPozrWQHpb/ikLkDBG2iATuNEw4LBou028tCKfEyUO5E0
+         z9eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680056311;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QrW0Sz8GBPnu6OCGpvxmOnmlGOMzTNgDleQT9EalNAI=;
-        b=Su50Ni++N22l7QToKAhAGTkYEZ++/r+tcoeBLAGJiasEMP/h4ADlXPVCIi/vV+hPwf
-         3bvPsATx9PpqTbAqcEwaPAsQs5JJ5ZBuGu7BwdrdGFPs+GTfd7C1J1NdkBro3FA1oNUp
-         FkSrba/vaWHjkC+KpXtDrGjM5nEpGfCr2kgymfHKM1NJsE2Rg0bXWR0b3RASK4GaLkq8
-         ouAU97sJm9Cbi5LJ+GxtEfAqxPKiS7YY1vWulKDVFrT78c8nvbcQnmqtmhOV4BfC+sTy
-         BwIEzLbODkn+fecFurss+8G6k1vBIVofPq4xYt60eRCDIoexUL1RwRYryfe2vWt5JvF9
-         BC8A==
-X-Gm-Message-State: AAQBX9f7pHsOgykeSRWkeykDJGQzTJZa5ZFrQMRTcjMGR7UTYw+tzjR9
-        IpQBvGcF6sSRnIHd/jVqf12sAqupjRmi2dEl0ss=
-X-Google-Smtp-Source: AKy350aSDgT1uL2jwTdsHElciWtF87Hacfk3xK4+1ZSd/3tl3QbpVOiZNkRgxHWI2Y9gmcMRCnMgk4N0NwaLCVEUuiQ=
-X-Received: by 2002:a63:34c:0:b0:50f:a35d:9dd2 with SMTP id
- 73-20020a63034c000000b0050fa35d9dd2mr4976084pgd.4.1680056310934; Tue, 28 Mar
- 2023 19:18:30 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:7300:ba90:b0:b2:67c:e1c7 with HTTP; Tue, 28 Mar 2023
- 19:18:30 -0700 (PDT)
-Reply-To: davidllawrence15@gmail.com
-From:   "Mrs. Nelson Philip" <johnkimani3744@gmail.com>
-Date:   Tue, 28 Mar 2023 19:18:30 -0700
-Message-ID: <CANseNOy1QGvFWNnfMr74+XgjObfOxQqwJoSFyRRdb=JAoekEvQ@mail.gmail.com>
-Subject: Your Bank Draft is ready for delivery!!
-To:     undisclosed-recipients:;
+        d=1e100.net; s=20210112; t=1680057600;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=g+L6ngmQzqeAkDT2zaXK2CAjwgR4YJ46Vd4xGrMqvOI=;
+        b=Qe3987vXktdCD+AZcJK4u7PRbquIuECcfou9BWz3aBO3Er47fTQTJleYVHJs6eCcqT
+         DYzi4Eesm2KoXUul2504W3nMbr9lrWVBxsh5/ODOvLna0kBilR/FyYl1CNhSEV5MCvEe
+         eYQ3RKKjquRTkoRR6XDFJNzIiXcxj1mWQWKc4Bc0TK4OrGywr5+UUxAvuXgz1gHFjdXH
+         7oczguE/I0vMAG6XpQc3fHuNjgq1riz1AKdWeP1ZBMrROskH23WQukNiwXhEKTwIxXEU
+         q6daW08THOzrbZBkMrstYRZVimF8RLY6XjmpOf5MaCIhzhTWZksIpBlq5TolmQ67UHNw
+         OIAg==
+X-Gm-Message-State: AAQBX9dJj1hpqFktqDqHNyGP6zUjfXBCv8K2yq9cpw1N8r6LU9u/aP4i
+        UTrCeqeJrL2e9N+qi27LBo2d546GaGg=
+X-Google-Smtp-Source: AKy350Z396WmO5htsaorEF4lDrOAYg2qSUXByMyFmFnN20rjqJnOIXx38KZo3aNWtmyFJDUISkk9iVSdNco=
+X-Received: from reijiw-west4.c.googlers.com ([fda3:e722:ac3:cc00:20:ed76:c0a8:aa1])
+ (user=reijiw job=sendgmr) by 2002:a81:ad05:0:b0:545:fff5:b639 with SMTP id
+ l5-20020a81ad05000000b00545fff5b639mr3570058ywh.1.1680057600649; Tue, 28 Mar
+ 2023 19:40:00 -0700 (PDT)
+Date:   Tue, 28 Mar 2023 19:39:44 -0700
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.40.0.348.gf938b09366-goog
+Message-ID: <20230329023944.2488484-1-reijiw@google.com>
+Subject: [PATCH v2] KVM: arm64: PMU: Restore the guest's EL0 event counting
+ after migration
+From:   Reiji Watanabe <reijiw@google.com>
+To:     Marc Zyngier <maz@kernel.org>,
+        Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev
+Cc:     kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Jing Zhang <jingzhangos@google.com>,
+        Raghavendra Rao Anata <rananta@google.com>,
+        Will Deacon <will@kernel.org>,
+        Reiji Watanabe <reijiw@google.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.8 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,LOTS_OF_MONEY,
-        MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_HK_NAME_FM_MR_MRS,UNDISC_FREEM,UNDISC_MONEY,XFER_LOTSA_MONEY
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:42f listed in]
-        [list.dnswl.org]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [johnkimani3744[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [johnkimani3744[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [davidllawrence15[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  1.1 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  0.5 XFER_LOTSA_MONEY Transfer a lot of money
-        *  2.0 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+X-Spam-Status: No, score=-7.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-How are you
+Currently, with VHE, KVM enables the EL0 event counting for the
+guest on vcpu_load() or KVM enables it as a part of the PMU
+register emulation process, when needed.  However, in the migration
+case (with VHE), the same handling is lacking, as vPMU register
+values that were restored by userspace haven't been propagated yet
+(the PMU events haven't been created) at the vcpu load-time on the
+first KVM_RUN (kvm_vcpu_pmu_restore_guest() called from vcpu_load()
+on the first KVM_RUN won't do anything as events_{guest,host} of
+kvm_pmu_events are still zero).
 
-I want to inform you that I have succeeded in transferring
-the huge amount of funds under the cooperation of the new
-partner from London and I have written a Bank Draft of $1.9M for
-you.
+So, with VHE, enable the guest's EL0 event counting on the first
+KVM_RUN (after the migration) when needed.  More specifically,
+have kvm_pmu_handle_pmcr() call kvm_vcpu_pmu_restore_guest()
+so that kvm_pmu_handle_pmcr() on the first KVM_RUN can take
+care of it.
 
-Have you received it? In-case you have not, Contact Mr.
-David Lawrence And Ask him for the Bank draft which I kept
-for Compensation okay. His email address
-(davidllawrence@consultant.com)Phone+:+1(945)212-0126
+Fixes: d0c94c49792c ("KVM: arm64: Restore PMU configuration on first run")
+Cc: stable@vger.kernel.org
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Reiji Watanabe <reijiw@google.com>
 
-Mrs. Ester Nelson Philipsxxxxx
+---
+v2:
+ - Added more explanation to the commit message [Marc]
+ - Added Marc's r-b tag (Thank you!)
+
+v1: https://lore.kernel.org/all/20230328034725.2051499-1-reijiw@google.com/
+---
+ arch/arm64/kvm/pmu-emul.c | 1 +
+ arch/arm64/kvm/sys_regs.c | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/kvm/pmu-emul.c b/arch/arm64/kvm/pmu-emul.c
+index 24908400e190..74e0d2b153b5 100644
+--- a/arch/arm64/kvm/pmu-emul.c
++++ b/arch/arm64/kvm/pmu-emul.c
+@@ -557,6 +557,7 @@ void kvm_pmu_handle_pmcr(struct kvm_vcpu *vcpu, u64 val)
+ 		for_each_set_bit(i, &mask, 32)
+ 			kvm_pmu_set_pmc_value(kvm_vcpu_idx_to_pmc(vcpu, i), 0, true);
+ 	}
++	kvm_vcpu_pmu_restore_guest(vcpu);
+ }
+ 
+ static bool kvm_pmu_counter_is_enabled(struct kvm_pmc *pmc)
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 53749d3a0996..425e1e9adae7 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -794,7 +794,6 @@ static bool access_pmcr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+ 		if (!kvm_supports_32bit_el0())
+ 			val |= ARMV8_PMU_PMCR_LC;
+ 		kvm_pmu_handle_pmcr(vcpu, val);
+-		kvm_vcpu_pmu_restore_guest(vcpu);
+ 	} else {
+ 		/* PMCR.P & PMCR.C are RAZ */
+ 		val = __vcpu_sys_reg(vcpu, PMCR_EL0)
+
+base-commit: 197b6b60ae7bc51dd0814953c562833143b292aa
+-- 
+2.40.0.348.gf938b09366-goog
+
