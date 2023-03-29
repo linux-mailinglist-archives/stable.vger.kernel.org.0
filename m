@@ -2,86 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9786CD7A7
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 12:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E29A56CD7C5
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 12:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230027AbjC2K3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 06:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
+        id S231253AbjC2Kes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 06:34:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjC2K3f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 06:29:35 -0400
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A791BFC
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 03:29:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1680085773; x=1711621773;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=ZfiAFX8XaZ4Y2SnEwE3frv4lf93lUmWwveHL0oa12/w=;
-  b=N0fm0P+ykQD5I5qiVYD5g3/0imlVPer2xAcSNA9iT2tsv5F6KoZa/VkD
-   3VZ/Ls25UyxKL0uboD5QFKWAdaU1PvVtTEngrkdf360rh1t/fj+R5qLEL
-   iMrP0Kky3MTy7nEFiJP8YpPJPgxKLq2jHSQismW/2ZBfMkX9Gb6LSK1gg
-   HqW7tN3dsYfCOZne+E2CUQTim58hm3lyRPVHrsWFoBPpc7+sBlSzWcBiL
-   MUgbFOE0RCIvi9oC3Lh5mP+92+xpCuhwIZ2p3UloGO/ZrjWGrMjMEmgCm
-   DyskK7yHAu4xnQet0+PPA42aX/juqM27FQ8sEY0zxFGwGHUT60D4z02HM
-   w==;
-X-IronPort-AV: E=Sophos;i="5.98,300,1673884800"; 
-   d="scan'208";a="226777124"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 29 Mar 2023 18:29:33 +0800
-IronPort-SDR: tSV2GF4F6WR2yJ+GNfxm9pHPrFYrxEZcxOqQwlGUVh998LOiezSEpfbu6sd60SSmh3rZZRoqpX
- 4qOQK8IAW8Z8kUmQRFXFj2neIqt+YNJd6q69yDrSIBvIgh8H+pG1Yt5MkNq6txTUfpvnjyBVWl
- NV43xLYjz74XxiH7oHufwl8Sfkdn6kGMB5EiRnVcLg9bQbqXXRIDQUNrdzbVYbpKGURcNHGCr+
- M2A1LpNt2yjZmghVxIkS04CLy1W53jIej5Wu+6UqSfdup/oaOvylzLs129re3ezfE0rUdfB6JU
- mbA=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Mar 2023 02:40:02 -0700
-IronPort-SDR: tA/FvFUdvtiyzGjiDvf5WEQO6LJu8OGPLox2aoJb3zThMRjA99xGdr4afBFhQyUop8Wmnu8sLm
- w8HsV4EthhFF+eQn5bp3NBOpdNpTumfeYTEdhmvdzEGCwn6MBRioOivqR3EuaVyOip87MXIh56
- 4bM5leY8JGMDpFnw7P+9D+5yrAA5Tc3CsgxfOKShHfLj7OxhDwWDQDHMkkwbzrUcFIVofdoIV5
- Ab8FSLU5BLGYr+XhqRva4Me9R4hdXdyygz5QinOazy0vW4Wn3igsHvIfx2+0evNJbMJTi2KvCJ
- wd4=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Mar 2023 03:29:33 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4PmjTn3fL9z1RtVn
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 03:29:33 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:mime-version
-        :references:in-reply-to:x-mailer:message-id:date:subject:to
-        :from; s=dkim; t=1680085773; x=1682677774; bh=ZfiAFX8XaZ4Y2SnEwE
-        3frv4lf93lUmWwveHL0oa12/w=; b=tsQoSKw382fgToneNjvsoVASPVl1Rmdiib
-        qikTiP8aIH1NIE4meu1HtcEN85hcF0sqo381nF73JNxzVLTCe+aIPSdoEFxNXVmC
-        HLYd13uuyI1KJMPviy8JjSQhOPArhnj0pF1VEt2pkI75mxypLHqU3PCpI8XSp32z
-        rB4u/HXCr1LcAATFr1jbKUj6Trk+fPgiUFUaJTIwDKbTk99rSPVO4EpT2g0H5+XF
-        +6xXn1lphaYejs0SmmvwY7GqnrVcUL2GI5sy/8tbQpHT1pGXO2jnoiU/sWV3IUrq
-        TkHUUQo00SuTwfFx2gCvdfFV/Jc7bHwrLsEp/NYx/NUoFU160zmg==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 19r5r_sO9eWz for <stable@vger.kernel.org>;
-        Wed, 29 Mar 2023 03:29:33 -0700 (PDT)
-Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4PmjTm6J5Gz1RtVm
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 03:29:32 -0700 (PDT)
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 6.2.y] zonefs: Fix error message in zonefs_file_dio_append()
-Date:   Wed, 29 Mar 2023 19:29:31 +0900
-Message-Id: <20230329102931.1788623-1-damien.lemoal@opensource.wdc.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <1680003625145213@kroah.com>
-References: <1680003625145213@kroah.com>
+        with ESMTP id S231263AbjC2Ke3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 06:34:29 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE0D249DC
+        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 03:34:15 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id f6-20020a17090ac28600b0023b9bf9eb63so15680400pjt.5
+        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 03:34:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=heitbaum.com; s=google; t=1680086054;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+G0x4df8nN5k7A1CedGNXaYeU9br6DP1S70P25KOU3Q=;
+        b=leicsZUabtl/b04clZPzdxhIVtE92NjsAby5skkmC4BOrHrwDbqMDxyNy7EYxS/KMO
+         pEfo1a6DcBrFeFSzXBkyZigB2nsKXlYpwMHc+X552mssmZFgNZuHXRal13MypE8FXa+q
+         0R2JXsv0JPohslv6/ObMVaQDVHWIAAa3gwQ6Q=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680086054;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+G0x4df8nN5k7A1CedGNXaYeU9br6DP1S70P25KOU3Q=;
+        b=ktQGQ9hFwb4WpwgidirwICV8+DMU8k/0BRr9+BI6ueeNqtzPL74NOGcz51j39yFHIU
+         xFzw8PvY1TZmRX/KQDJh9oVo2nvYNkZuE1zymDuBU2KNDBTwT4K/OIG7ZrzV08m2opyx
+         KkX+gxRCKHMn7cbiNFFu4QD4aoZJh0r6021fdgwyh/2G7eK7+T7xx0jyDMadtosfPHeI
+         lP9VJ/zyOhhM6oq9TiA5oZhu8NGQRQquu2gMQZDiiA0atYmWV6st9v6YBUtDT5Cncfl6
+         aB6KTnfJv1fPFT+Tmuh7QBQgI8YYYpFR3hxhb4Q+Z4IIyubblHMDrmKdnp9WLIv+fcny
+         NGug==
+X-Gm-Message-State: AAQBX9dus9fXcjU4RBcKSbnS9NJleoj8QCxkbT9j6DSwqt8rsEyn2Ve6
+        DL2H5+4cnazvL6rhikWzEhH6Hg==
+X-Google-Smtp-Source: AKy350Z7IkUvnWfi8bjLMEeSSg/1XJxBZz8APPh8P42x16gp4l7TciaEW0XJpMJcStPFJvhfLDdnIQ==
+X-Received: by 2002:a17:90a:1de:b0:234:b964:5703 with SMTP id 30-20020a17090a01de00b00234b9645703mr20022640pjd.18.1680086054136;
+        Wed, 29 Mar 2023 03:34:14 -0700 (PDT)
+Received: from 67ca92301206 (124-148-239-102.tpgi.com.au. [124.148.239.102])
+        by smtp.gmail.com with ESMTPSA id lt15-20020a17090b354f00b0023b2bc8ebc4sm1160182pjb.9.2023.03.29.03.34.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Mar 2023 03:34:13 -0700 (PDT)
+Date:   Wed, 29 Mar 2023 10:34:05 +0000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/224] 6.1.22-rc1 review
+Message-ID: <20230329103405.GA8@67ca92301206>
+References: <20230328142617.205414124@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_PASS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230328142617.205414124@linuxfoundation.org>
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
         autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -89,37 +70,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 88b170088ad2c3e27086fe35769aa49f8a512564 upstream.
+On Tue, Mar 28, 2023 at 04:39:56PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.22 release.
+> There are 224 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 30 Mar 2023 14:25:33 +0000.
+> Anything received after that time might be too late.
 
-Since the expected write location in a sequential file is always at the
-end of the file (append write), when an invalid write append location is
-detected in zonefs_file_dio_append(), print the invalid written location
-instead of the expected write location.
+Hi Greg,
 
-Fixes: a608da3bd730 ("zonefs: Detect append writes at invalid locations")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
----
- fs/zonefs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+6.1.22-rc1 tested.
 
-diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
-index a9c5c3f720ad..2d9027eb48a9 100644
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -822,7 +822,7 @@ static ssize_t zonefs_file_dio_append(struct kiocb *i=
-ocb, struct iov_iter *from)
- 		if (bio->bi_iter.bi_sector !=3D wpsector) {
- 			zonefs_warn(inode->i_sb,
- 				"Corrupted write pointer %llu for zone at %llu\n",
--				wpsector, zi->i_zsector);
-+				bio->bi_iter.bi_sector, zi->i_zsector);
- 			ret =3D -EIO;
- 		}
- 	}
---=20
-2.39.2
+Run tested on:
+- Allwinner H6 (Tanix TX6)
+- Intel Alder Lake x86_64 (nuc12 i7-1260P)
 
+In addition - build tested for:
+- Allwinner A64
+- Allwinner H3
+- Allwinner H5
+- NXP iMX6
+- NXP iMX8
+- Qualcomm Dragonboard
+- Rockchip RK3288
+- Rockchip RK3328
+- Rockchip RK3399pro
+- Samsung Exynos
+
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+--
+Rudi
