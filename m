@@ -2,141 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D79E6CF36A
-	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 21:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093276CF3B4
+	for <lists+stable@lfdr.de>; Wed, 29 Mar 2023 21:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbjC2Tn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Mar 2023 15:43:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50664 "EHLO
+        id S230403AbjC2Tvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 15:51:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230218AbjC2TnN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 15:43:13 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9436A60
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 12:42:42 -0700 (PDT)
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32TEj7OG025562
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 19:42:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : subject :
- date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2022-7-12;
- bh=IZyLlXhCAMBF1wQdqn0DjLf9xN1kg0KeGUYVs6i0SqQ=;
- b=BZRVRDCM8h+DMEdV91Ndcuoivb6JT5x08/JFRHEoSBEfjPHzHxUHK5IraxvuiLIU+3P4
- ftuoBEXW84TJBhQQy0sSHXi9bVwdnTwRwFzncuGL2EFm2BdHgfDZOXID7+VOUPy9veZE
- loSjTEE+ArpEVseoGVjfursWHE0neHCCBkylQl3AuoyTD/cIksTB5Ckjw3y8wh8g9pPK
- STk7AJz4xaImxtY2kby+REu5a6SITQ5cpUkKUmU4YiqBbm7dAYAy3u6V+x/u/aRHRacp
- aF3c35AGM/XV+ky76TRReSN6KuPOGFWLU4U7kiszbIgGLX6Ir6th4pGge5nBxWMJkIjy NA== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pmqbyrumh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 19:42:41 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 32TJG3ig036404
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 19:42:41 GMT
-Received: from alaljime-amd-bm-e3.allregionalphxs.osdevelopmenphx.oraclevcn.com (alaljime-amd-bm-e3.allregionalphxs.osdevelopmenphx.oraclevcn.com [100.107.196.22])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3phqdg35hv-1
-        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 19:42:41 +0000
-From:   Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 5.15.y] KVM: x86: Purge "highest ISR" cache when updating APICv state
-Date:   Wed, 29 Mar 2023 19:42:40 +0000
-Message-Id: <20230329194240.238392-1-alejandro.j.jimenez@oracle.com>
-X-Mailer: git-send-email 2.34.2
-In-Reply-To: <167812333979118@kroah.com>
-References: <167812333979118@kroah.com>
+        with ESMTP id S230334AbjC2Tvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 15:51:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609947DA0;
+        Wed, 29 Mar 2023 12:51:25 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1A97B82435;
+        Wed, 29 Mar 2023 19:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A242C433D2;
+        Wed, 29 Mar 2023 19:50:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680119445;
+        bh=DdQ/InU+JW6FxMcEa544An9vo1GjuN7pFdS9qPTwzR0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FBi6j/qw9eZ7S+XE7GyglFFe6nIcEepVGw/DOcSKnd/j6Eb3QlyQfhm366ogCr3qH
+         lYYkW+fqmZskhWF23oz88zeyfcXxvMECpRZI7H1w6HCyVu/uy+ZfeQletZYWD44Fol
+         shTvFUmhzCoHQfD0bjlXxZVwWhVJJBWPHRBCSFH/5lIVlpt5NzaEzsqdVOZrF2E614
+         1Qn11Ot6C1/KDBrSVTqLu07QFFa7KjVVM4kMUvgZIt++hX+lqrFSZYFiyhVfUgNNfD
+         efRwFGaND95MyeCelC4PyYTjsbka4+J+SGj4ayMKgROGEKMi3EFs4rq/Onk7QDvpKh
+         vpET/yHmUU+wQ==
+Date:   Wed, 29 Mar 2023 21:50:42 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Benjamin Bara <bbara93@gmail.com>
+Cc:     Lee Jones <lee@kernel.org>, rafael.j.wysocki@intel.com,
+        dmitry.osipenko@collabora.com, jonathanh@nvidia.com,
+        richard.leitner@linux.dev, treding@nvidia.com,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org,
+        Benjamin Bara <benjamin.bara@skidata.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3 2/4] i2c: core: run atomic i2c xfer when !preemptible
+Message-ID: <ZCSWkhyQjnzByDoR@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Benjamin Bara <bbara93@gmail.com>, Lee Jones <lee@kernel.org>,
+        rafael.j.wysocki@intel.com, dmitry.osipenko@collabora.com,
+        jonathanh@nvidia.com, richard.leitner@linux.dev, treding@nvidia.com,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org,
+        Benjamin Bara <benjamin.bara@skidata.com>, stable@vger.kernel.org
+References: <20230327-tegra-pmic-reboot-v3-0-3c0ee3567e14@skidata.com>
+ <20230327-tegra-pmic-reboot-v3-2-3c0ee3567e14@skidata.com>
+ <ZCGuMzmS0Lz5WX2/@ninjato>
+ <CAJpcXm6bt100442y8ajz7kR0nF3Gm9PVVwo3EKVBDC4Pmd-7Ag@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-29_12,2023-03-28_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 bulkscore=0 spamscore=0
- phishscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
- definitions=main-2303290150
-X-Proofpoint-GUID: lRWJLOQFA7h4a4XdQ2YDImlsyhetbp7m
-X-Proofpoint-ORIG-GUID: lRWJLOQFA7h4a4XdQ2YDImlsyhetbp7m
-X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="VVeP+HbfnOeUVDlq"
+Content-Disposition: inline
+In-Reply-To: <CAJpcXm6bt100442y8ajz7kR0nF3Gm9PVVwo3EKVBDC4Pmd-7Ag@mail.gmail.com>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
 
-commit 97a71c444a147ae41c7d0ab5b3d855d7f762f3ed upstream.
+--VVeP+HbfnOeUVDlq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Purge the "highest ISR" cache when updating APICv state on a vCPU.  The
-cache must not be used when APICv is active as hardware may emulate EOIs
-(and other operations) without exiting to KVM.
+On Mon, Mar 27, 2023 at 06:23:24PM +0200, Benjamin Bara wrote:
+> On Mon, 27 Mar 2023 at 16:54, Wolfram Sang <wsa@kernel.org> wrote:
+> > For the !CONFIG_PREEMPT_COUNT case, preemptible() is defined 0. So,
+> > don't we lose the irqs_disabled() check in that case?
+>=20
+> Thanks for the feedback!
+> PREEMPT_COUNT is selected by PREEMPTION, so I guess in the case of
+> !PREEMPT_COUNT,
+> we should be atomic (anyways)?
 
-This fixes a bug where KVM will effectively block IRQs in perpetuity due
-to the "highest ISR" never getting reset if APICv is activated on a vCPU
-while an IRQ is in-service.  Hardware emulates the EOI and KVM never gets
-a chance to update its cache.
+Could you make sure please? Asking Peter Zijlstra might be a good idea.
+He helped me with the current implementation.
 
-Fixes: b26a695a1d78 ("kvm: lapic: Introduce APICv update helper function")
-Cc: stable@vger.kernel.org
-Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20230106011306.85230-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-[Alejandro: stable backport 5.15.y]
+--VVeP+HbfnOeUVDlq
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Trivial conflicts in kvm_apic_set_state() due to missing:
+-----BEGIN PGP SIGNATURE-----
 
-ce0a58f4756c ("KVM: x86: Move "apicv_active" into "struct kvm_lapic"")
-which modifies check for APICv active.
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmQklpIACgkQFA3kzBSg
+KbYNNA/+Lc8HqdBhMVtjtKZDd3Km+SqobG8vzuo0octKy5b3E6mK3/y6ZdGssoBs
+EBZ30DQ1H3dBfNsLFz4Ydy2Dir2SLgcxBKT3IPp6bTzjheXumCjCMTa65N8jmBX2
+zX2eu9mVBv5XZAZ1pVzeZVK9EVUU2u/stFuknIg8Cmk+jEgaNCxkKsCnPbnL2l/a
+lKzps+mfNQWI+Tda5XdBPmLP0gtcHvqQpAJ2SRvDwtf03w+YLY4dJ2jN6IhuwSGO
+fisy58cwOPwgen46mk3BLPoEftAw9Ss7smkGmQOb8QY6ZWBo1d2KaxOnaY325kI7
+oGqqtJP1lWinThlqmEhNfUnqJpDrSySgisyT1NKJ6b60Wr0u9BbM8rkfclpnnzyY
+QGZW7lfL4EFzKKbMq1GQiMCDn3tN9nR35W9KtqXPM7i3urOHKWQ3/3dFjcv69Tuk
+QU79XKhnrzEhb43YAhzpfYb8QMB4YdahH78/PhDrwTsfZodqN5yNJeAvx70XiCYp
+3J9jrzmwKquFhz/too/2CLjsiJHie9tcwQZthiV/9+NsulXGg4E0Kv9XKKINB4+e
+condSDcIwRbw0c0T5V5GSHILnNptQywbPoU8npgThFQGsJX4dluRv9+SD4K4hwsf
+qOPVXjiwt+UIZPyz3qW0dHp+dD4TgwmyuH3rl7HAZyk4Csiu/Vw=
+=JbH5
+-----END PGP SIGNATURE-----
 
-d39850f57d21 ("KVM: x86: Drop @vcpu parameter from kvm_x86_ops.hwapic_isr_update()")
-abb6d479e226 ("KVM: x86: make several APIC virtualization callbacks optional")
-which replace instances of static_call() with static_call_cond() in
-kvm_apic_set_state() and change the signature of the hwapic_isr_update()
-callback.
-
-Signed-off-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
----
-Sanity tested by booting guest on AMD Genoa host with AVIC (no x2AVIC) enabled,
-and guest on Intel Skylake-SP host with posted interrupts enabled.
-
- arch/x86/kvm/lapic.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 243aa43f7113..40fc1879a697 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2316,6 +2316,7 @@ void kvm_apic_update_apicv(struct kvm_vcpu *vcpu)
- 		apic->irr_pending = (apic_search_irr(apic) != -1);
- 		apic->isr_count = count_vectors(apic->regs + APIC_ISR);
- 	}
-+	apic->highest_isr_cache = -1;
- }
- EXPORT_SYMBOL_GPL(kvm_apic_update_apicv);
- 
-@@ -2368,7 +2369,6 @@ void kvm_lapic_reset(struct kvm_vcpu *vcpu, bool init_event)
- 		kvm_lapic_set_reg(apic, APIC_TMR + 0x10 * i, 0);
- 	}
- 	kvm_apic_update_apicv(vcpu);
--	apic->highest_isr_cache = -1;
- 	update_divide_count(apic);
- 	atomic_set(&apic->lapic_timer.pending, 0);
- 
-@@ -2638,7 +2638,6 @@ int kvm_apic_set_state(struct kvm_vcpu *vcpu, struct kvm_lapic_state *s)
- 	__start_apic_timer(apic, APIC_TMCCT);
- 	kvm_lapic_set_reg(apic, APIC_TMCCT, 0);
- 	kvm_apic_update_apicv(vcpu);
--	apic->highest_isr_cache = -1;
- 	if (vcpu->arch.apicv_active) {
- 		static_call(kvm_x86_apicv_post_state_restore)(vcpu);
- 		static_call(kvm_x86_hwapic_irr_update)(vcpu,
--- 
-2.34.2
-
+--VVeP+HbfnOeUVDlq--
