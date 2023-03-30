@@ -2,100 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B06216D0F75
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 21:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ACDA6D0FA1
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 22:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbjC3T4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 15:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58236 "EHLO
+        id S229487AbjC3UES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 16:04:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231820AbjC3T4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 15:56:09 -0400
-Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E679EFF19;
-        Thu, 30 Mar 2023 12:56:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
-        s=smtpout1; t=1680206164;
-        bh=ccdCK8cB1yDs2Qew7hb2Qs/bMNJYZZtrVs8VhxEJ4v8=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=GC8dpnFqcrogDv720XejMUUpwoNhZrhNHwZHtxeA8YFLTRkrdizktLBcyp7sIj5A/
-         kEO1vhD1f0m2q8TJL+J/VZ4NcjitpLNEkWCL5OV4AMYlwe7uU1+Qj13S76ECZZ36xx
-         aXwgwAMQ+O7Qyl+77CukTcWbChw7OS6vxS003VtdwEaCkC8ztqEJ4u8glCNLFzDERo
-         SzjTLMvRxnPMQ3L1jLr08URNU07TrX+Vat/oTCk4e2RwuIMOTCCnTo4wH5vZ3dNXE9
-         vkEvtxkqMIhRUN4outwRjTX0IhsQqBS0GX1qvOsMiiOdm2npBWrokJR6W2d5OifJHe
-         ULM1EJJgyXr1Q==
-Received: from [172.16.0.188] (192-222-143-198.qc.cable.ebox.net [192.222.143.198])
-        by smtpout.efficios.com (Postfix) with ESMTPSA id 4PnZ103kdcztBL;
-        Thu, 30 Mar 2023 15:56:04 -0400 (EDT)
-Message-ID: <91a414dd-9d21-01a1-536a-fee698080f1a@efficios.com>
-Date:   Thu, 30 Mar 2023 15:56:18 -0400
+        with ESMTP id S229379AbjC3UEQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 16:04:16 -0400
+Received: from smtp29.i.mail.ru (smtp29.i.mail.ru [95.163.41.68])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A1B1024E;
+        Thu, 30 Mar 2023 13:04:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru; s=mail4;
+        h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:From:From:Subject:Content-Type:Content-Transfer-Encoding:To:Cc; bh=JCg3BsTwVloRNZZvxu0+ptB5/YDd2TwxXiQPiGRCfC4=;
+        t=1680206653;x=1680296653; 
+        b=MGkP7SHdR6bAoqd77OVlTvVnu/TmnK0hzixXeoF8t5Tn0E1uuIUEXe+hCYToAnC1O0rpvf3anI61bofeFHLKr7B/95btNc8K9wiLE5YuU+mqDMP7BInVKF2MygXOMoUoH5hT4mdQfg2Dr8unmj8667X1dggX6uJ69cfWK9Amv9X6bR3uyBgEYheLT6YqeBhi+vUP/xuNHNzWuDMgeD2vdPLpJ5UeoSgJJzr1ouL7x3Bp33Ze3OtroDUM5G709nQxZdPORR0dEfdhg+Nk/4rDEcxZxg5D1j5jyavR3Ij/yW/Q0efz4v+syu4sKSPQ2W3b3zekkTIlWNSJGszvNJ04/g==;
+Received: by smtp29.i.mail.ru with esmtpa (envelope-from <listdansp@mail.ru>)
+        id 1phyVF-00DNfA-V3; Thu, 30 Mar 2023 23:04:10 +0300
+From:   Danila Chernetsov <listdansp@mail.ru>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Danila Chernetsov <listdansp@mail.ru>,
+        Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
+        lvc-project@linuxtesting.org
+Subject: 
+Date:   Thu, 30 Mar 2023 20:01:11 +0000
+Message-Id: <20230330200112.17334-1-listdansp@mail.ru>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH 1/1] mm: Fix memory leak on mm_init error handling
-Content-Language: en-US
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        linux-mm@kvack.org, stable@vger.kernel.org
-References: <20230330133822.66271-1-mathieu.desnoyers@efficios.com>
- <20230330124230.9f3d4f63374eb15a3b990ff8@linux-foundation.org>
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-In-Reply-To: <20230330124230.9f3d4f63374eb15a3b990ff8@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Authentication-Results: smtp29.i.mail.ru; auth=pass smtp.auth=listdansp@mail.ru smtp.mailfrom=listdansp@mail.ru
+X-Mailru-Src: smtp
+X-7564579A: 646B95376F6C166E
+X-77F55803: 4F1203BC0FB41BD9381BDEF7E89052232C49CCEA131822E541EB010991002639182A05F5380850408AD410657D1066875A33708A1285539340239D105F430AF9266A583505E06169
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE7548C33FFD72831AFEA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F7900637204D59D994DFFAD78638F802B75D45FF36EB9D2243A4F8B5A6FCA7DBDB1FC311F39EFFDF887939037866D6147AF826D833549D98EA1572EDC635E3CF230D57776F9789CCF6C18C3F8528715B7D10C86878DA827A17800CE7D95CD71E3F6002669FA2833FD35BB23D9E625A9149C048EEC65AC60A1F0286FEE5D25F19253116ADD2E47CDBA5A96583BD4B6F7A4D31EC0BC014FD901B82EE079FA2833FD35BB23D27C277FBC8AE2E8B612DEA037BE4019FA471835C12D1D977C4224003CC836476EB9C4185024447017B076A6E789B0E975F5C1EE8F4F765FC59558F97383F811D3AA81AA40904B5D9CF19DD082D7633A078D18283394535A93AA81AA40904B5D98AA50765F790063760A376DC6F02B751D81D268191BDAD3D3666184CF4C3C14F3FC91FA280E0CE3D1A620F70A64A45A98AA50765F79006372E808ACE2090B5E1725E5C173C3A84C3C5EA940A35A165FF2DBA43225CD8A89FD2A95C73FD1EFF45156CCFE7AF13BCA4B5C8C57E37DE458BEDA766A37F9254B7
+X-C1DE0DAB: 0D63561A33F958A58F753172CC8DDD5895AB441B7CAD1C7933991E9EFB6A2775F87CCE6106E1FC07E67D4AC08A07B9B01F9513A7CA91E5559C5DF10A05D560A950611B66E3DA6D700B0A020F03D25A090CABCCA60F52D7EBCB5012B2E24CD356
+X-C8649E89: 1C3962B70DF3F0ADBF74143AD284FC7177DD89D51EBB7742DC8270968E61249B1004E42C50DC4CA955A7F0CF078B5EC49A30900B95165D34F1ADD4D8CD3C81CE74974C150B985249C4C60459A5BD849D65ED21271C1DF4D74B8AD8C59060A3BE1D7E09C32AA3244CD9212B06358046D8ECFAAF83AD96A0586C24832127668422DCA3B3C10BC03908
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5ycPtXkTV4k65bRjmOUUP8cvGozZ33TWg5HZplvhhXbhDGzqmQDTd6OAevLeAnq3Ra9uf7zvY2zzsIhlcp/Y7m53TZgf2aB4JOg4gkr2biojoVQ5iBoMj9bonzQXyps1vA==
+X-Mailru-Sender: F244DC1430FACE54496B7D2C616565FDCE95EFB7D4082D8A1FE56E1E01600253333B6A85FACC7993CE8DDCF05647143DC77752E0C033A69E3DC0BC7494A416CF0226C39053983FF0B4A721A3011E896F
+X-Mras: Ok
 X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023-03-30 15:42, Andrew Morton wrote:
-> On Thu, 30 Mar 2023 09:38:22 -0400 Mathieu Desnoyers <mathieu.desnoyers@efficios.com> wrote:
-> 
->> commit f1a7941243c1 ("mm: convert mm's rss stats into percpu_counter")
->> introduces a memory leak by missing a call to destroy_context() when a
->> percpu_counter fails to allocate.
->>
->> Before introducing the per-cpu counter allocations, init_new_context()
->> was the last call that could fail in mm_init(), and thus there was no
->> need to ever invoke destroy_context() in the error paths. Adding the
->> following percpu counter allocations adds error paths after
->> init_new_context(), which means its associated destroy_context() needs
->> to be called when percpu counters fail to allocate.
->>
->> ...
->>
->> --- a/kernel/fork.c
->> +++ b/kernel/fork.c
->> @@ -1171,6 +1171,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
->>   fail_pcpu:
->>   	while (i > 0)
->>   		percpu_counter_destroy(&mm->rss_stat[--i]);
->> +	destroy_context(mm);
->>   fail_nocontext:
->>   	mm_free_pgd(mm);
->>   fail_nopgd:
-> 
-> Is there really a leak?  I wasn't able to find a version of
-> init_new_context() which performs allocation.
+Date: Thu, 30 Mar 2023 18:44:28 +0000
+Subject: [PATCH 5.10 0/1] staging: rtl8192u: Add null check in
+ rtl8192_usb_initendpoints
 
-AFAIU, at least on powerpc:
+SVACE reports return value of a function 'usb_alloc_urb' is dereferenced
+ without checking for null in 5.10 stable releases.
+The problem has been fixed by the following 
+patch which can be cleanly applied to the 5.10 branch.
 
-arch/powerpc/mm/book3s64/mmu_context.c: init_new_context() calls 
-radix__init_new_context() or hash__init_new_context() which
-leak IDs through ida_alloc_range.
-
-Thanks,
-
-Mathieu
-
-
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-https://www.efficios.com
-
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
