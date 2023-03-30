@@ -2,199 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 437A76D0A56
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 17:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A4E36D0A87
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 17:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbjC3PuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 11:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
+        id S233473AbjC3P6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 11:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233346AbjC3PuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 11:50:00 -0400
-Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0688ECA07
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 08:49:35 -0700 (PDT)
-Received: by mail-qt1-x836.google.com with SMTP id bz27so18878068qtb.1
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 08:49:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google; t=1680191368;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Vil2eKpiNnTMX9jA+HvlVZIvmGd1fQxhTcUQOW8Puig=;
-        b=e8Mih22wrNYCfAXGBK0vuNlm8UKe2HkzjWtxH7CV/4rx1Q4AibeFr4Xjfur15O4YmW
-         IMBHepmG+q913Bx4QnLZoUBIeClqEdkjLwYwbuWYb4HoJob09uNFDDyUbGW1PXzSgnaF
-         copoSVW03mRQqk12K5e6fSYri+EF723APIZRs=
+        with ESMTP id S233393AbjC3P6E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 11:58:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B6B9A7
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 08:57:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680191835;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sP9rqjignnWh2VSPIiMl4HPMQh9/IMP3JUMCK79G4dM=;
+        b=RdtugMfMVsk9A/nF3Gb3lM1Zdt/KrsUxOCUlQx1Jvbue8RL7jLzC5qp0YGeBPFp58iz9qq
+        kY8EktRFg7pccTTYtt0RBr9rvAvDYNtcCLoZ0JGRoEwEK0xqguarlpRKLayYiYfhIeYr+G
+        SXXzXcZU0zmagoqBFcaleCmeCP4KTkE=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-374-OzSDnyiDNR6DJiEY9tsdBg-1; Thu, 30 Mar 2023 11:57:14 -0400
+X-MC-Unique: OzSDnyiDNR6DJiEY9tsdBg-1
+Received: by mail-qv1-f69.google.com with SMTP id j15-20020a0cc34f000000b005c824064b10so8456338qvi.17
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 08:57:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680191368;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Vil2eKpiNnTMX9jA+HvlVZIvmGd1fQxhTcUQOW8Puig=;
-        b=tQq6fELbNIC8GcNrFSV1gmHVfEVjxkKxGNpOw50uoSjKWR9zBgVMRo5lSPYqFb+NdN
-         owzKDBSJIWHJnaU7CvuQqkaPS4T6sUIHk2bUa7TPe1aBih3y2VbYYxbhEDQENpFlVs6e
-         PTKy8afJoOiENTvm/lN0qe3K+EhkJR1QtafcMprFARJ1NWG1cL7qBUmF1JJk4EI8d4EK
-         35LN2mFdfZhVT5nn4fwJbavjkD1GBcnI6kX6rW9A5oRDfeyeLTdQiWp70MPECXqDCGFk
-         euh+PZXvFFU7vUrJQmDavNiNywfNDKa7cQt5u0UyuwFrf6H+ZTPjAfE27rxograpPfrU
-         S54w==
-X-Gm-Message-State: AO0yUKXIIlUNtqjVtaSsCCtQ9P7Vhu3c5wYia9XJjDtChAlILErVDN9p
-        uiBf2URd5+xAG8mObcus+t0ujQ==
-X-Google-Smtp-Source: AK7set9bulSBIubZM96NEfSd6rzIkSdshjJcrQkRFjuAatfnDeaSj2RhFiEPOJRm8OkE4MvfvHDfcA==
-X-Received: by 2002:ac8:5b96:0:b0:3bf:c9d1:4276 with SMTP id a22-20020ac85b96000000b003bfc9d14276mr38021954qta.5.1680191368416;
-        Thu, 30 Mar 2023 08:49:28 -0700 (PDT)
-Received: from localhost (129.239.188.35.bc.googleusercontent.com. [35.188.239.129])
-        by smtp.gmail.com with ESMTPSA id s80-20020a37a953000000b00741a984943fsm11736875qke.40.2023.03.30.08.49.27
+        d=1e100.net; s=20210112; t=1680191832; x=1682783832;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sP9rqjignnWh2VSPIiMl4HPMQh9/IMP3JUMCK79G4dM=;
+        b=rbaZ1CVeRSGgYcdgFuCZfeJPWAbVnM3CH/xlHji3VarB7TxZMvVTnZi4SE6vqeXVPW
+         aV6L+CNG17B7QwsuYeBxmdzrR/87WexNeSrNIERlJYSHnyynij8J68o11cWCborZ2S53
+         ndYBXfJPyNnMuq8OOsuN7m2dSlYhuV7keEnmfWQMx7TX7t5COU1Sq+dqLsQRf4w7/sQY
+         J1AuciBJTe1LI5y6nTtZ5S//RiLWl5Lgby9Zc5ajJzgaO2zl93aR5OMVMe7jBahpFZ6u
+         zU9Y+PLUpQ/bEQbsMtfyWbo7LpEHCMWIV0YH+VsRf56GiUFxaHdNGPlhG6/UZcC+0hRN
+         0opw==
+X-Gm-Message-State: AO0yUKXNzFSUlr9GO+bZ8hHgzFIvPnBZ1mAsKKjD2IOxdMJXcWpNPvtW
+        Jg1Nh+EVhr98EK3I3+Jc6h73aX3UNkRgyjVIShRq2BX76mPgMB7OnXiAnSJ0rxJJyHk3nAIE4pU
+        pa5NRWAP2+VDNOODb
+X-Received: by 2002:a05:622a:1981:b0:3dc:483f:9c82 with SMTP id u1-20020a05622a198100b003dc483f9c82mr36684503qtc.0.1680191832426;
+        Thu, 30 Mar 2023 08:57:12 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+XjaORt6GiFu74wzWerLNgGw4I0eI596quziToVBJF2U76yQS3mN30JraI0EQ6rxzmNnxCxA==
+X-Received: by 2002:a05:622a:1981:b0:3dc:483f:9c82 with SMTP id u1-20020a05622a198100b003dc483f9c82mr36684482qtc.0.1680191832185;
+        Thu, 30 Mar 2023 08:57:12 -0700 (PDT)
+Received: from x1n.redhat.com (bras-base-aurron9127w-grc-40-70-52-229-124.dsl.bell.ca. [70.52.229.124])
+        by smtp.gmail.com with ESMTPSA id o10-20020a05620a0d4a00b0074281812276sm13059380qkl.97.2023.03.30.08.57.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Mar 2023 08:49:27 -0700 (PDT)
-Date:   Thu, 30 Mar 2023 15:49:27 +0000
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     Frederic Weisbecker <frederic@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Zhouyi Zhou <zhouzhouyi@gmail.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        rcu <rcu@vger.kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 04/13] tick/nohz: Fix cpu_is_hotpluggable() by
- checking with nohz subsystem
-Message-ID: <20230330154927.GJ2114899@google.com>
-References: <20230325173316.3118674-1-joel@joelfernandes.org>
- <20230325173316.3118674-5-joel@joelfernandes.org>
- <ZCCeS/VeGthUNgIY@localhost.localdomain>
+        Thu, 30 Mar 2023 08:57:10 -0700 (PDT)
+From:   Peter Xu <peterx@redhat.com>
+To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc:     peterx@redhat.com, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Leonardo Bras Soares Passos <lsoaresp@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-stable <stable@vger.kernel.org>
+Subject: [PATCH 01/29] Revert "userfaultfd: don't fail on unrecognized features"
+Date:   Thu, 30 Mar 2023 11:56:39 -0400
+Message-Id: <20230330155707.3106228-2-peterx@redhat.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230330155707.3106228-1-peterx@redhat.com>
+References: <20230330155707.3106228-1-peterx@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZCCeS/VeGthUNgIY@localhost.localdomain>
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 26, 2023 at 09:34:35PM +0200, Frederic Weisbecker wrote:
-> Le Sat, Mar 25, 2023 at 05:33:07PM +0000, Joel Fernandes (Google) a écrit :
-> > For CONFIG_NO_HZ_FULL systems, the tick_do_timer_cpu cannot be offlined.
-> > However, cpu_is_hotpluggable() still returns true for those CPUs. This causes
-> > torture tests that do offlining to end up trying to offline this CPU causing
-> > test failures. Such failure happens on all architectures.
-> 
-> It might be worth noting that hotplug failure is fine on hotplug testing.
-> The issue here is the repetitive error message in the logs.
-> 
-> Other than that:
-> 
-> Acked-by: Frederic Weisbecker <frederic@kernel.org>
+This is a proposal to revert commit 914eedcb9ba0ff53c33808.
 
-Thank you, below is the reworded update. Let me know if any other comment.
+I found this when writting a simple UFFDIO_API test to be the first unit
+test in this set.  Two things breaks with the commit:
 
--------8<-------
+  - UFFDIO_API check was lost and missing.  According to man page, the
+  kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
+  check is needed if the api version will be extended in the future, or
+  user app won't be able to identify which is a new kernel.
 
-From: "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Subject: [PATCH] tick/nohz: Fix cpu_is_hotpluggable() by checking with nohz
- subsystem
+  - Feature flags checks were removed, which means UFFDIO_API with a
+  feature that does not exist will also succeed.  According to the man
+  page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
+  unknown features passed in.
 
-For CONFIG_NO_HZ_FULL systems, the tick_do_timer_cpu cannot be offlined.
-However, cpu_is_hotpluggable() still returns true for those CPUs. This causes
-torture tests that do offlining to end up trying to offline this CPU causing
-test failures. Such failure happens on all architectures.
-
-Fix the repeated error messages thrown as a result (even if the hotplug
-errors are harmless), by asking the opinion of the nohz subsystem on whether
-the CPU can be hotplugged.
-
-[ Apply Frederic Weisbecker feedback on refactoring tick_nohz_cpu_down(). ]
-
-For drivers/base/ portion:
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Zhouyi Zhou <zhouzhouyi@gmail.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: rcu <rcu@vger.kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 2987557f52b9 ("driver-core/cpu: Expose hotpluggability to the rest of the kernel")
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Link: https://lore.kernel.org/r/20220722201513.1624158-1-axelrasmussen@google.com
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Peter Xu <peterx@redhat.com>
 ---
- drivers/base/cpu.c       |  3 ++-
- include/linux/tick.h     |  2 ++
- kernel/time/tick-sched.c | 11 ++++++++---
- 3 files changed, 12 insertions(+), 4 deletions(-)
+ fs/userfaultfd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
-index 182c6122f815..c1815b9dae68 100644
---- a/drivers/base/cpu.c
-+++ b/drivers/base/cpu.c
-@@ -487,7 +487,8 @@ static const struct attribute_group *cpu_root_attr_groups[] = {
- bool cpu_is_hotpluggable(unsigned int cpu)
- {
- 	struct device *dev = get_cpu_device(cpu);
--	return dev && container_of(dev, struct cpu, dev)->hotpluggable;
-+	return dev && container_of(dev, struct cpu, dev)->hotpluggable
-+		&& tick_nohz_cpu_hotpluggable(cpu);
- }
- EXPORT_SYMBOL_GPL(cpu_is_hotpluggable);
- 
-diff --git a/include/linux/tick.h b/include/linux/tick.h
-index bfd571f18cfd..9459fef5b857 100644
---- a/include/linux/tick.h
-+++ b/include/linux/tick.h
-@@ -216,6 +216,7 @@ extern void tick_nohz_dep_set_signal(struct task_struct *tsk,
- 				     enum tick_dep_bits bit);
- extern void tick_nohz_dep_clear_signal(struct signal_struct *signal,
- 				       enum tick_dep_bits bit);
-+extern bool tick_nohz_cpu_hotpluggable(unsigned int cpu);
- 
- /*
-  * The below are tick_nohz_[set,clear]_dep() wrappers that optimize off-cases
-@@ -280,6 +281,7 @@ static inline void tick_nohz_full_add_cpus_to(struct cpumask *mask) { }
- 
- static inline void tick_nohz_dep_set_cpu(int cpu, enum tick_dep_bits bit) { }
- static inline void tick_nohz_dep_clear_cpu(int cpu, enum tick_dep_bits bit) { }
-+static inline bool tick_nohz_cpu_hotpluggable(unsigned int cpu) { return true; }
- 
- static inline void tick_dep_set(enum tick_dep_bits bit) { }
- static inline void tick_dep_clear(enum tick_dep_bits bit) { }
-diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index ba2ac1469d47..a46506f7ec6d 100644
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -532,7 +532,7 @@ void __init tick_nohz_full_setup(cpumask_var_t cpumask)
- 	tick_nohz_full_running = true;
- }
- 
--static int tick_nohz_cpu_down(unsigned int cpu)
-+bool tick_nohz_cpu_hotpluggable(unsigned int cpu)
- {
- 	/*
- 	 * The tick_do_timer_cpu CPU handles housekeeping duty (unbound
-@@ -540,8 +540,13 @@ static int tick_nohz_cpu_down(unsigned int cpu)
- 	 * CPUs. It must remain online when nohz full is enabled.
- 	 */
- 	if (tick_nohz_full_running && tick_do_timer_cpu == cpu)
--		return -EBUSY;
--	return 0;
-+		return false;
-+	return true;
-+}
-+
-+static int tick_nohz_cpu_down(unsigned int cpu)
-+{
-+	return tick_nohz_cpu_hotpluggable(cpu) ? 0 : -EBUSY;
- }
- 
- void __init tick_nohz_init(void)
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index 8395605790f6..3b2a41c330e6 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -1977,8 +1977,10 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
+ 	ret = -EFAULT;
+ 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
+ 		goto out;
+-	/* Ignore unsupported features (userspace built against newer kernel) */
+-	features = uffdio_api.features & UFFD_API_FEATURES;
++	features = uffdio_api.features;
++	ret = -EINVAL;
++	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
++		goto err_out;
+ 	ret = -EPERM;
+ 	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
+ 		goto err_out;
 -- 
-2.40.0.rc1.284.g88254d51c5-goog
+2.39.1
 
