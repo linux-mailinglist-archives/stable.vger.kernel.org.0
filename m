@@ -2,127 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F096D0D12
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 19:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D320D6D0D24
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 19:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229997AbjC3RsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 13:48:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
+        id S230225AbjC3Ru2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 13:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229655AbjC3RsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 13:48:02 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98141C678
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 10:48:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680198481; x=1711734481;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Hb8F+c337avIDEuowr8PUDC8/cGZyEOtKtsItbSqNnY=;
-  b=LZoQVzeAATZuwqdWdr9L3e76be3auPw1yIkQWAllXAukCl7pFh3BQvnY
-   VpdDmI4R7zm2OdEkAEAIdAdM3RhpGm46VPH23+yima/t0i0UJ8Ehz+4WM
-   FrGdgwGurIr24mW+L2INdma464UbAtgQ88Xe8qckf+xpPjheP2wYuAc4E
-   i9HzPoWSIhI8a/ZFEDvsmzxjovehCY1zdwQtjjjbnILgVyYcKT1GCqxSf
-   2w7TTpvd9+dpbVkRzL6O4cvXzGdSrOI4TGSxjn4G8HPXxpsZTfDhrHCw0
-   L8XXjSvIldU4nfAtN3I5ECQbl0hoh7MNf+/Lhl+bslggnRkpcWJ/dAejS
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="342886795"
-X-IronPort-AV: E=Sophos;i="5.98,305,1673942400"; 
-   d="scan'208";a="342886795"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 10:48:01 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="678279906"
-X-IronPort-AV: E=Sophos;i="5.98,305,1673942400"; 
-   d="scan'208";a="678279906"
-Received: from mschmidt-mobl.ger.corp.intel.com (HELO uxy.intel.com) ([10.252.41.135])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 10:47:59 -0700
-From:   Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        stable@vger.kernel.org
-Subject: [v2] drm/i915: disable sampler indirect state in bindless heap
-Date:   Thu, 30 Mar 2023 20:47:40 +0300
-Message-Id: <20230330174740.2775776-1-lionel.g.landwerlin@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230309152611.1788656-1-lionel.g.landwerlin@intel.com>
-References: <20230309152611.1788656-1-lionel.g.landwerlin@intel.com>
+        with ESMTP id S232097AbjC3RuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 13:50:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD711CDC8;
+        Thu, 30 Mar 2023 10:50:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B5F6212D;
+        Thu, 30 Mar 2023 17:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F9FC433D2;
+        Thu, 30 Mar 2023 17:50:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680198601;
+        bh=ICH3ESIl1CksscQBcyysCyhAmW3u/rrPOIwMKWe+Uxw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ERMQcPrsVpQMqPZ+tcWr1mym91c1P6qzcSxgnFDkeN/NoNz+oXJcGSDMmu2Zy7W9Y
+         CxwC28c5KNlESVXyCzOjHGtCFpkewkyKHaI1HKarCPshhjR12IyDiZgEFmhDYwv2ev
+         YBV8NioXLtZiznXnBtQzqje7hcRWJTauVXMtbcGCH7QxLS59gUpX6eNp+ch5a1s8Bn
+         36mfNePmJVUgxkb5OIu3emHOnOmEFtsN4rjxXoBnOdKdBzxCXnBVnkxzRbZFHtMDl3
+         Th1UKvq6Mpv88xu+RAwwZGjNV7wYt++xeGS+AJQDX+L0nIe0/uxgd9BbE2wMehRZV4
+         WCdVSYunlxQWQ==
+Date:   Thu, 30 Mar 2023 13:50:00 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <ZCXLyBejq8U6dts1@sashalap>
+References: <Y/zswi91axMN8OsA@sol.localdomain>
+ <Y/zxKOBTLXFjSVyI@sol.localdomain>
+ <Y/0U8tpNkgePu00M@sashalap>
+ <Y/0i5pGYjrVw59Kk@gmail.com>
+ <Y/0wMiOwoeLcFefc@sashalap>
+ <Y/01z4EJNfioId1d@casper.infradead.org>
+ <Y/1QV9mQ31wbqFnp@sashalap>
+ <ZCTS4Yc44DN+cqcX@gmail.com>
+ <ZCWXM5onHfLbcIDN@sashalap>
+ <20230330172210.GB881@sol.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20230330172210.GB881@sol.localdomain>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-By default the indirect state sampler data (border colors) are stored
-in the same heap as the SAMPLER_STATE structure. For userspace drivers
-that can be 2 different heaps (dynamic state heap & bindless sampler
-state heap). This means that border colors have to copied in 2
-different places so that the same SAMPLER_STATE structure find the
-right data.
+On Thu, Mar 30, 2023 at 10:22:10AM -0700, Eric Biggers wrote:
+>On Thu, Mar 30, 2023 at 10:05:39AM -0400, Sasha Levin wrote:
+>> On Thu, Mar 30, 2023 at 12:08:01AM +0000, Eric Biggers wrote:
+>> > Hi Sasha,
+>> >
+>> > On Mon, Feb 27, 2023 at 07:52:39PM -0500, Sasha Levin wrote:
+>> > > > Sasha, 7 days is too short.  People have to be allowed to take holiday.
+>> > >
+>> > > That's true, and I don't have strong objections to making it longer. How
+>> > > often did it happen though? We don't end up getting too many replies
+>> > > past the 7 day window.
+>> > >
+>> > > I'll bump it to 14 days for a few months and see if it changes anything.
+>> >
+>> > I see that for recent AUTOSEL patches you're still using 7 days.  In fact, it
+>> > seems you may have even decreased it further to 5 days:
+>> >
+>> >    Sent Mar 14: https://lore.kernel.org/stable/20230314124435.471553-2-sashal@kernel.org
+>> >    Commited Mar 19: https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=69aaf98f41593b95c012d91b3e5adeb8360b4b8d
+>> >
+>> > Any update on your plan to increase it to 14 days?
+>>
+>> The commit you've pointed to was merged into Linus's tree on Feb 28th,
+>> and the first LTS tree that it was released in went out on March 22nd.
+>>
+>> Quoting the concern you've raised around the process:
+>>
+>> > BTW, another cause of this is that the commit (66f99628eb24) was AUTOSEL'd after
+>> > only being in mainline for 4 days, and *released* in all LTS kernels after only
+>> > being in mainline for 12 days.  Surely that's a timeline befitting a critical
+>> > security vulnerability, not some random neural-network-selected commit that
+>> > wasn't even fixing anything?
+>>
+>> So now there's at least 14 days between mainline inclusion and a release
+>> in an LTS kernel, does that not conform with what you thought I'd be
+>> doing?
+>
+>Not quite.  There are actually two different time periods:
+>
+>1. The time from mainline to release
+>2. The time from AUTOSEL email to release
+>
+>(1) is a superset of (2), but concerns were raised about *both* time periods
+>being too short.  Especially (1), but also (2) because reviewers can miss the
+>7-day review e.g. if they are on vacation for a week.  Yes, they can of course
+>miss non-AUTOSEL patches too, *if* they happen to get merged quickly enough
+>(most kernel patches take several weeks just to get to mainline).  But, AUTOSEL
+>patches are known to be low quality submissions that really need that review.
+>
+>I'm glad to hear that you've increased (1) to 14 days!  However, that does not
+>address (2).  It also does not feel like much of a difference, since 12 days for
+>(1) already seemed too short.
+>
+>To be honest, I hesitate a bit to give you a precise suggestion, as it's liable
+>to be used to push back on future suggestions as "this is what people agreed on
+>before".  (Just as you did in this thread, with saying 7 days had been agreed on
+>before.)  And it's not like there are any magic numbers -- we just know that the
+>current periods seem to be too short.  But, for a simple change, I think
+>increasing (2) to 14 days would be reasonable, as that automatically gives 14
+>days for (1) too.  If it isn't too much trouble to separate the periods, though,
+>it would also be reasonable to choose something a bit higher for (1), like 18-21
+>days, and something a bit lower for (2), like 10-12 days.
 
-This change is forcing the indirect state sampler data to only be in
-the dynamic state pool (more convinient for userspace drivers, they
-only have to have one copy of the border colors). This is reproducing
-the behavior of the Windows drivers.
+No objection on my end, I can enforce 18+ days for (1) and 14+ days for (2).
 
-BSpec: 46052
+I'd note that this isn't too far from what happened in the example in
+the previous mail:
 
-Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/i915/gt/intel_gt_regs.h     |  1 +
- drivers/gpu/drm/i915/gt/intel_workarounds.c | 19 +++++++++++++++++++
- 2 files changed, 20 insertions(+)
+  (1) happened in 23 days.
+  (2) happened in 9 days.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-index 4aecb5a7b6318..f298dc461a72f 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-@@ -1144,6 +1144,7 @@
- #define   ENABLE_SMALLPL			REG_BIT(15)
- #define   SC_DISABLE_POWER_OPTIMIZATION_EBB	REG_BIT(9)
- #define   GEN11_SAMPLER_ENABLE_HEADLESS_MSG	REG_BIT(5)
-+#define   GEN11_INDIRECT_STATE_BASE_ADDR_OVERRIDE	REG_BIT(0)
- 
- #define GEN9_HALF_SLICE_CHICKEN7		MCR_REG(0xe194)
- #define   DG2_DISABLE_ROUND_ENABLE_ALLOW_FOR_SSLA	REG_BIT(15)
-diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index e7ee24bcad893..0ce1c8c23c631 100644
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -2535,6 +2535,25 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
- 				 ENABLE_SMALLPL);
- 	}
- 
-+	if (GRAPHICS_VER(i915) >= 11) {
-+		/* This is not a Wa (although referred to as
-+		 * WaSetInidrectStateOverride in places), this allows
-+		 * applications that reference sampler states through
-+		 * the BindlessSamplerStateBaseAddress to have their
-+		 * border color relative to DynamicStateBaseAddress
-+		 * rather than BindlessSamplerStateBaseAddress.
-+		 *
-+		 * Otherwise SAMPLER_STATE border colors have to be
-+		 * copied in multiple heaps (DynamicStateBaseAddress &
-+		 * BindlessSamplerStateBaseAddress)
-+		 *
-+		 * BSpec: 46052
-+		 */
-+		wa_mcr_masked_en(wal,
-+				 GEN10_SAMPLER_MODE,
-+				 GEN11_INDIRECT_STATE_BASE_ADDR_OVERRIDE);
-+	}
-+
- 	if (GRAPHICS_VER(i915) == 11) {
- 		/* This is not an Wa. Enable for better image quality */
- 		wa_masked_en(wal,
 -- 
-2.34.1
-
+Thanks,
+Sasha
