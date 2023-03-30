@@ -2,67 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5882D6CFE54
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 10:32:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169496CFF61
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 11:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230074AbjC3Icc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 04:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45562 "EHLO
+        id S230128AbjC3JAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 05:00:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230085AbjC3Ibq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 04:31:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B11D6A72
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 01:31:20 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5E53B8264D
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 08:31:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8FAC433EF;
-        Thu, 30 Mar 2023 08:31:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680165077;
-        bh=i03g/+IiYS/vXG0yeL+qmZTIyYwpBoUK497JFQSVZQo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=al1nhc7wCV66jo8ISedX5zSzz3JQDxeFieynGXaEb4+qYU9fCHCXlZ9q8oHJILhc6
-         N6+gZjPpLXLAOImfkP0YjpzwIT0Q2Cpa82/uQ3C41LpLAgyJ3xLl5Lmi937S/aeQOA
-         v1rMZGLQS5QodYoqAiyCaZAqF0pbLTI8E51kd3C4=
-Date:   Thu, 30 Mar 2023 10:31:15 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Adrien Thierry <athierry@redhat.com>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Stanley Chu <chu.stanley@gmail.com>
-Subject: Re: [PATCH 5.15 082/146] scsi: ufs: core: Initialize devfreq
- synchronously
-Message-ID: <ZCVI08p-yaaKG8T0@kroah.com>
-References: <20230328142602.660084725@linuxfoundation.org>
- <20230328142606.118680029@linuxfoundation.org>
- <ZCR5Zef4oHYFkAss@fedora>
+        with ESMTP id S230445AbjC3JAH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 05:00:07 -0400
+Received: from nbd.name (nbd.name [46.4.11.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A217AAD;
+        Thu, 30 Mar 2023 02:00:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+        s=20160729; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=+ugixZ+XkTxTts9N5EMc/TLOjDm371nmVYbvX6WXngU=; b=tgz+mdgIsXdvtU+Q1LbH3Vxbq6
+        nC/m5JeiJYf4Jgy6qxBg8ZXAHgu+uschcXXx/h3/2ukaGkQp51aV09xvTf5bbf6HUbkSPiI+CqMgp
+        Sv9p4YnqXLzIipHp/YtWTRuUeNXO1WkdqhdaZly93Rl8D+mom2bbdjSGT9qZ/wrzcdsc=;
+Received: from p54ae9730.dip0.t-ipconnect.de ([84.174.151.48] helo=Maecks.lan)
+        by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+        (Exim 4.94.2)
+        (envelope-from <nbd@nbd.name>)
+        id 1pho8Y-008U3j-5R; Thu, 30 Mar 2023 11:00:02 +0200
+From:   Felix Fietkau <nbd@nbd.name>
+To:     linux-wireless@vger.kernel.org
+Cc:     johannes@sipsolutions.net, stable@vger.kernel.org
+Subject: [PATCH wireless 1/2] wifi: mac80211: drop bogus static keywords in A-MSDU rx
+Date:   Thu, 30 Mar 2023 11:00:00 +0200
+Message-Id: <20230330090001.60750-1-nbd@nbd.name>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZCR5Zef4oHYFkAss@fedora>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 29, 2023 at 01:46:13PM -0400, Adrien Thierry wrote:
-> A possible regression was found with this patch [1]
-> 
-> [1] https://lore.kernel.org/all/CAGaU9a_PMZhqv+YJ0r3w-hJMsR922oxW6Kg59vw+oen-NZ6Otw@mail.gmail.com
+These were unintentional copy&paste mistakes.
 
-Ok, I've dropped it from everywhere now.  When it gets resolved, please
-let us know what commits to pull into the stable trees.
+Cc: stable@vger.kernel.org
+Fixes: 986e43b19ae9 ("wifi: mac80211: fix receiving A-MSDU frames on mesh interfaces")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+---
+ net/mac80211/rx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-thanks,
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index 7e270eaeef72..b7b584a28163 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2899,7 +2899,7 @@ __ieee80211_rx_h_amsdu(struct ieee80211_rx_data *rx, u8 data_offset)
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
+ 	__le16 fc = hdr->frame_control;
+ 	struct sk_buff_head frame_list;
+-	static ieee80211_rx_result res;
++	ieee80211_rx_result res;
+ 	struct ethhdr ethhdr;
+ 	const u8 *check_da = ethhdr.h_dest, *check_sa = ethhdr.h_source;
+ 
+@@ -3040,7 +3040,7 @@ ieee80211_rx_h_data(struct ieee80211_rx_data *rx)
+ 	struct net_device *dev = sdata->dev;
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)rx->skb->data;
+ 	__le16 fc = hdr->frame_control;
+-	static ieee80211_rx_result res;
++	ieee80211_rx_result res;
+ 	bool port_control;
+ 	int err;
+ 
+-- 
+2.39.0
 
-greg k-h
