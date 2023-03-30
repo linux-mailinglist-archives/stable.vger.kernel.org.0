@@ -2,64 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C9526CFB0F
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 07:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956686CFC6E
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 09:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229525AbjC3F6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 01:58:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53660 "EHLO
+        id S229548AbjC3HNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 03:13:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbjC3F63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 01:58:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBB09E4;
-        Wed, 29 Mar 2023 22:58:28 -0700 (PDT)
+        with ESMTP id S230383AbjC3HNr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 03:13:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB2F96E8B;
+        Thu, 30 Mar 2023 00:13:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E93DB825DA;
-        Thu, 30 Mar 2023 05:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CAA0C433D2;
-        Thu, 30 Mar 2023 05:58:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680155906;
-        bh=vx/Rnvlz/DgN2zpFUitn4sJ61icshhEzaPkBFQHilaA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hqMaP3HREd0etYbIDJDe3wFNh2yBBggwgWJnYQhMaiWD9UbeD5IyvNh5E230ustkC
-         bVdvPiwvs8fFeb4lYFWXiXkZv85cYyiSLP35vyyxGrSCzoeTG9+tn39sVOg0d9xnCb
-         zlyfb7MK3rmCnayaKeoL51E3hJpm0po69Y7dh9fY=
-Date:   Thu, 30 Mar 2023 07:58:23 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     Boqun Feng <boqun.feng@gmail.com>,
-        "quic_jhugo@quicinc.com" <quic_jhugo@quicinc.com>,
-        "quic_carlv@quicinc.com" <quic_carlv@quicinc.com>,
-        "wei.liu@kernel.org" <wei.liu@kernel.org>,
-        KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        "sthemmin@microsoft.com" <sthemmin@microsoft.com>,
-        "lpieralisi@kernel.org" <lpieralisi@kernel.org>,
-        "bhelgaas@google.com" <bhelgaas@google.com>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
-        "robh@kernel.org" <robh@kernel.org>, "kw@linux.com" <kw@linux.com>,
-        "helgaas@kernel.org" <helgaas@kernel.org>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v2] PCI: hv: Fix the definition of vector in
- hv_compose_msi_msg()
-Message-ID: <ZCUk_9YQGSfedCOR@kroah.com>
-References: <20221027205256.17678-1-decui@microsoft.com>
- <ZCTsPFb7dBj2IZmo@boqun-archlinux>
- <ZCT6JEK/yGpKHVLn@boqun-archlinux>
- <SA1PR21MB13354973735A5E727F94A169BF8E9@SA1PR21MB1335.namprd21.prod.outlook.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D39C61F1B;
+        Thu, 30 Mar 2023 07:13:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913F7C4339B;
+        Thu, 30 Mar 2023 07:13:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680160402;
+        bh=G/raK3ocYVegw3OGWU88n2Ffrz9wyE2LoLFozbjp/Q0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=r+buEN7fejd0laG635oaSqHZcv+5essLQfQu1v4G4/qQggbkeNNimQ0XxuTzSkIj1
+         JIxbGYaR5b1w+ob2xDSpqSU5GsghUwnusFvsKFHeROCnV9l+wlEXuOk9X+9uJvUzCo
+         FSdE1bsMJsb7uwXfUcmnoEzkCMSz+pBhjJhGfzBjY/UCikmksHZ20KmMMxslkc6bca
+         yMQcM424mIg+YLovsX+pykjnwfUbaoDNnPOmpT0An4t+m+E5/mNWTEytUgf9iWs/f7
+         YkT0w/6MwUz3xwSgVkKeShrFrwQQYp6xR7v34S/b24AWi5i+F6K/FKWPjPsUVcFnIT
+         PQNKn+OmY66YA==
+Date:   Thu, 30 Mar 2023 09:13:16 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+        viro@zeniv.linux.org.uk,
+        syzbot+8ac3859139c685c4f597@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Christian Brauner <brauner@kernel.org>
+Subject: [PATCH] fs: drop peer group ids under namespace lock
+Message-ID: <20230330-vfs-mount_setattr-propagation-fix-v1-1-37548d91533b@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAI41JWQC/x2NwQqDMBBEf0Vy7kJqaKX9lVLKJm40B5Owu0pB/
+ PfGHh8z82Y3QpxIzLPbDdOWJJXc4HrpTJgxTwRpbGx62zvrnIUtCixlzfoRUlRlqFwqTqhtCTF
+ 9wd2dH8LtMQ7Rm+bxKASeMYf5NC0oSnwGlan1/+ev93H8ALwgrQGMAAAA
+X-Mailer: b4 0.13-dev-00303
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1119; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=6ePqaCE6h84elZe3L+tFR/+iRaxe2PhzaSxvtZilVWk=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaSomvbZHl0dvkNr6p0/qf2pTvd1ZL1jnm659dggr78+yX9t
+ 74ZTHaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABM5v56RYWWKc6K0ae2qulSBhx8UmK
+ /OqRFXigmKTlQSWGOgvnHuL0aGRfyfXvXtnpq9T9j3dVMBi4yN8sb5XKvu565YXr9ctS+NGwA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <SA1PR21MB13354973735A5E727F94A169BF8E9@SA1PR21MB1335.namprd21.prod.outlook.com>
+In-Reply-To: <00000000000088694505f8132d77@google.com>
+ <000000000000a0139105f81888eb@google.com>
 X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
@@ -69,59 +65,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 30, 2023 at 03:23:45AM +0000, Dexuan Cui wrote:
-> > From: Boqun Feng <boqun.feng@gmail.com>
-> > Sent: Wednesday, March 29, 2023 7:56 PM
-> > To: Dexuan Cui <decui@microsoft.com>
-> >  ...
-> > On Wed, Mar 29, 2023 at 06:56:12PM -0700, Boqun Feng wrote:
-> > > [Cc stable]
-> > >
-> > > On Thu, Oct 27, 2022 at 01:52:56PM -0700, Dexuan Cui wrote:
-> > > > The local variable 'vector' must be u32 rather than u8: see the
-> > > > struct hv_msi_desc3.
-> > > >
-> > > > 'vector_count' should be u16 rather than u8: see struct hv_msi_desc,
-> > > > hv_msi_desc2 and hv_msi_desc3.
-> > > >
-> > >
-> > > Dexuan, I think this patch should only be in 5.15, because...
-> > >
-> > 
-> > Sorry, I meant:
-> > 
-> > "this patch should also be backported in 5.15"
-> > 
-> > Regards,
-> > Boqun
-> > 
-> > > > Fixes: a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
-> > >
-> > > ^^^ this commit is already in 5.15.y (commit id 92dcb50f7f09).
-> > >
-> > > Upstream id e70af8d040d2b7904dca93d942ba23fb722e21b1
-> > > Cc: <stable@vger.kernel.org> # 5.15.x
-> 
-> The faulty commit a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
-> is in all the stable branches, even including 4.14.y, so yes, the commit
-> e70af8d040d2 ("PCI: hv: Fix the definition of vector in hv_compose_msi_msg()")
-> should be backported to all the stable branches as well, including
-> v5.15.y, v5.10.y, v5.4.y, v4.19.y, v4.14.y.
-> 
-> e70af8d040d2 has a Fixes tag. Not sure why it's not automatically backported.
+When cleaning up peer group ids in the failure path we need to make sure
+to hold on to the namespace lock. Otherwise another thread might just
+turn the mount from a shared into a non-shared mount concurrently.
 
-Because "Fixes:" is not the flag that we are sure to trigger off of.
-Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Reported-by: syzbot+8ac3859139c685c4f597@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/lkml/00000000000088694505f8132d77@google.com
+Fixes: 2a1867219c7b ("fs: add mount_setattr()")
+Cc: stable@vger.kernel.org # 5.12+
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/namespace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-That being said, because some subsystem maintainers do NOT put cc:
-stable in their patches, we do sometimes sweep the tree and try to pick
-up things with only "Fixes:" but we don't always catch everything.
+diff --git a/fs/namespace.c b/fs/namespace.c
+index bc0f15257b49..6836e937ee61 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -4183,9 +4183,9 @@ static int do_mount_setattr(struct path *path, struct mount_kattr *kattr)
+ 	unlock_mount_hash();
+ 
+ 	if (kattr->propagation) {
+-		namespace_unlock();
+ 		if (err)
+ 			cleanup_group_ids(mnt, NULL);
++		namespace_unlock();
+ 	}
+ 
+ 	return err;
 
-So if you want to be sure a patch is applied, please always add a cc:
-stable in the patch.
+---
+base-commit: 197b6b60ae7bc51dd0814953c562833143b292aa
+change-id: 20230330-vfs-mount_setattr-propagation-fix-363b7c59d7fb
 
-thanks,
-
-greg k-h
