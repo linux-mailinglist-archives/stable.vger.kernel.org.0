@@ -2,152 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E12B6D0E29
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 20:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABBF66D0DCC
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 20:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbjC3Szs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 14:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58300 "EHLO
+        id S231331AbjC3ScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 14:32:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229505AbjC3Szs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 14:55:48 -0400
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6D2DE;
-        Thu, 30 Mar 2023 11:55:46 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id 796255C0140;
-        Thu, 30 Mar 2023 14:55:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 30 Mar 2023 14:55:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
-        :cc:content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1680202543; x=1680288943; bh=TDo5jZQU9I
-        C6sywgEGOqzPOxZ7aUBvX49rI+0P5qm4M=; b=YUUnIRZLMok8GCi4FocI0W8ffH
-        OCnwU3bxzlbM5/7WDWYUo45uJ1bg8XOdyeuze5G16V52Aww+hYfVu1D0PKbBAgH4
-        zkQXOQaKQu0SXIqtObwFme1g4B4Vbp8uEdBqnFseJxGS4n1MLuwtaP6waWwLfOXr
-        KgxghKpkpR2g622ml3kXoBaZj0/vFGdIaERQxhoy8oQOtb7TcNlxFQ0140bFdmeq
-        q4qRzIJFVyzlV1TUN9sSIOyC/GtalhQKMWBKU4gZi/m/RE6N9Syg55ZRBglmvZIg
-        wxsNmk4zolUakgbsBB/gI5bRS/PGP/PFGwZY4n4CHSnGq4agNBujAg5iFgOw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:feedback-id:feedback-id:from:from
-        :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1680202543; x=1680288943; bh=TDo5jZQU9IC6s
-        ywgEGOqzPOxZ7aUBvX49rI+0P5qm4M=; b=ajTGmETHYzYFDrstGf22x7WNZofkA
-        NT8vzSXDCiLD64FmeN/IdTu7WOv2vl2NLzFTlpGQgZMavTYMrp2CRo5a2/mWZPWO
-        qz6v3pqocDBXEFJs+6Oxckah37XAJmfcHedQpQ2cpoL/2pqwuEhYyXWr76IEIkBK
-        iQJYf+7jIxDyPDZn1bPB6kq6thoItnnyGI9cmckDzjFM6hk1SLoCgzByblbLUfH2
-        mAxGgmqKJRnGOhZiPfMqh7/HcZqV9/+hgmF0RKwMR3qIqrLftdCDznRDzwL0FEDv
-        Ep39owL9m34YQLVXatTtxG/szBiYeRit+YG5WJWnpQ/qDpmnBtFMZaJ1Q==
-X-ME-Sender: <xms:LtslZH6_F25VBTpOAFRk0gSKxli1GSUkbbQWyUndO95RF6Y56khtWA>
-    <xme:LtslZM7YRUqU_xB5XRYRQo5T3gPE1pkQiR2XdfMRzIbA4b72YjFqW8shok9IKKd7y
-    dN5u-9Dr9V45t3r1w>
-X-ME-Received: <xmr:LtslZOe7ztlwA7GxRLBUrrirh73AZD4Sv3XAqDKBNh1LVp3_5Tda48DjHBMLL84JHgIF028L9UExtIG1wqtC6UO3ut-_uwwK>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdehledgfeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehlhihsshgr
-    ucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecuggftrfgrthhtvghrnhepueefie
-    dvheffveegieejjeevgfejjeduveekffeiveeuvedvtedvhfelieeutdfgnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehhihesrghlhihsshgrrdhish
-X-ME-Proxy: <xmx:LtslZIL3rkl7TX1GDdSypybenFWILqzROWAeeos8jvsYoI13L-PK-Q>
-    <xmx:LtslZLLy-bW9CXCjyB7dTbzS5NpayGemdVvygt9DAykZGpggMXaKaw>
-    <xmx:LtslZBzedqTWGZ0FoZ-wkJLpp6DPC74p5DUGlfrYSGHSm1oc7aTIgA>
-    <xmx:L9slZAdMAkfdHmY_WUtkjG1bTdRT_nNFH5DIHtHYZPftdRVLemcgPw>
-Feedback-ID: i12284293:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 30 Mar 2023 14:55:42 -0400 (EDT)
-Received: by x220.qyliss.net (Postfix, from userid 1000)
-        id 3BF532412; Thu, 30 Mar 2023 18:55:41 +0000 (UTC)
-From:   Alyssa Ross <hi@alyssa.is>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Nick Cao <nickcao@nichi.co>, linux-kbuild@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        linux-riscv@lists.infradead.org, Tom Rix <trix@redhat.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Alyssa Ross <hi@alyssa.is>, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH v3] purgatory: fix disabling debug info
-Date:   Thu, 30 Mar 2023 18:22:24 +0000
-Message-Id: <20230330182223.181775-1-hi@alyssa.is>
-X-Mailer: git-send-email 2.37.1
+        with ESMTP id S230019AbjC3ScY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 14:32:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89DB32133
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 11:31:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1680201094;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jobE+W1McsuIR3du17YGJC3Z6W/dejQUbpwCNwzU5Sc=;
+        b=T6+XjvoiP3LJB3AxponY00NK2NDy+4/jZyTQXvwvbYOHgFdZxrUmqgqdMYUXkxQjcVt2Lo
+        XIG/ntRwnvkk9524YVUf6lVSDzIMLEgnZjvwbdvjuhCEa9XftA7ycEqk7cMWG5MqGgO7LZ
+        VogHd5Q7cyqQEu3+OCXrvDbVFlX3AAg=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-ItYQefAdP8yXygw_mX28Xg-1; Thu, 30 Mar 2023 14:31:33 -0400
+X-MC-Unique: ItYQefAdP8yXygw_mX28Xg-1
+Received: by mail-pf1-f198.google.com with SMTP id c2-20020a62f842000000b0062d93664ad5so5198586pfm.19
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 11:31:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680201092;
+        h=content-transfer-encoding:in-reply-to:organization:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jobE+W1McsuIR3du17YGJC3Z6W/dejQUbpwCNwzU5Sc=;
+        b=JFs+jhfP0HKPleH/m81vGJPsoV5QIKBpvGzI0O++ks+D2pI4sTwxjSw5/9ASmtvz3W
+         tFGFJw+Rqe4wgGIzIOpnyeqETrj2DGDPNtIWZY9yw+0Wdo8m0fsL+kytNj0g1bG5ilH2
+         PcZvD5KakLrJdQXfrEPogrKfbYUe6nxkPm7CgcWlyRtE+ZYKMj/ehWPVcs3vip4B9dpb
+         SFQnTs4Y7pzw6jQ9KzfMxvaaDOIPe335tw2fs35vXVNT6DykYtBPq3PwrnDM2+vVjkpA
+         mJEnEjSK2HVqhAp3SjrnLPAHFeMGGh0qPG/f05S8DTVMpHeBIRtjs2bpIT6Df80c4b4v
+         olbw==
+X-Gm-Message-State: AAQBX9eGcMRY55Wd6cTn+Q01rpKk4haQF/k0Mxn2r3xa6FqzgQxtF7W7
+        22bdKh1DdctpwJIDGtEuJj2erepIziPGEQ0dyvievMjeqFKtYMQAtquQGTiwzVVJqSvrFg/qA1J
+        jNbvS1rwO/zWCz2QB
+X-Received: by 2002:a17:902:f550:b0:1a1:b8cc:59da with SMTP id h16-20020a170902f55000b001a1b8cc59damr34302067plf.33.1680201092400;
+        Thu, 30 Mar 2023 11:31:32 -0700 (PDT)
+X-Google-Smtp-Source: AKy350Y2XtPFSh2/v9wjpAeWlY42dx0ySEUXCrM0cIilFUSj200Kj1d2tPF9lFKbZ4sHT5e1f1bXcw==
+X-Received: by 2002:a17:902:f550:b0:1a1:b8cc:59da with SMTP id h16-20020a170902f55000b001a1b8cc59damr34302031plf.33.1680201092055;
+        Thu, 30 Mar 2023 11:31:32 -0700 (PDT)
+Received: from [10.20.159.115] ([204.239.251.6])
+        by smtp.gmail.com with ESMTPSA id c11-20020a170902724b00b001a1a31953a8sm50799pll.130.2023.03.30.11.31.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Mar 2023 11:31:31 -0700 (PDT)
+Message-ID: <6eb02bdd-e69e-d277-c44c-0aefb23430bb@redhat.com>
+Date:   Thu, 30 Mar 2023 20:31:30 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 01/29] Revert "userfaultfd: don't fail on unrecognized
+ features"
+To:     Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Leonardo Bras Soares Passos <lsoaresp@redhat.com>,
+        linux-stable <stable@vger.kernel.org>
+References: <20230330155707.3106228-1-peterx@redhat.com>
+ <20230330155707.3106228-2-peterx@redhat.com>
+Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20230330155707.3106228-2-peterx@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
--Wa versions of both of those if building with Clang and GNU as.  As a
-result, debug info was being generated for the purgatory objects, even
-though the intention was that it not be.
+On 30.03.23 17:56, Peter Xu wrote:
+> This is a proposal to revert commit 914eedcb9ba0ff53c33808.
+> 
+> I found this when writting a simple UFFDIO_API test to be the first unit
+> test in this set.  Two things breaks with the commit:
+> 
+>    - UFFDIO_API check was lost and missing.  According to man page, the
+>    kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
+>    check is needed if the api version will be extended in the future, or
+>    user app won't be able to identify which is a new kernel.
 
-Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Cc: stable@vger.kernel.org
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
----
-v2: https://lore.kernel.org/r/20230326182120.194541-1-hi@alyssa.is
+Agreed.
 
-Difference from v2: replaced asflags-remove-y with every possible
-debug flag with asflags-y += -g0, as suggested by Nick Desaulniers.
+> 
+>    - Feature flags checks were removed, which means UFFDIO_API with a
+>    feature that does not exist will also succeed.  According to the man
+>    page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
+>    unknown features passed in.
+> 
 
-Additionally, I've CCed the x86 maintainers this time, since Masahiro
-said he would like acks from subsystem maintainers, and
-get_maintainer.pl didn't pick them the first time around.
+Agreed.
 
- arch/riscv/purgatory/Makefile | 7 +------
- arch/x86/purgatory/Makefile   | 3 +--
- 2 files changed, 2 insertions(+), 8 deletions(-)
+I understand the motivation of the original commit, but it should not 
+have changed existing checks/functionality. Introducing a different way 
+to enable such functionality on explicit request would be better. But 
+maybe simple feature probing (is X support? is Y supported? is Z 
+supported) might be easier without requiring ABI changes.
 
-diff --git a/arch/riscv/purgatory/Makefile b/arch/riscv/purgatory/Makefile
-index d16bf715a586..9c1e71853ee7 100644
---- a/arch/riscv/purgatory/Makefile
-+++ b/arch/riscv/purgatory/Makefile
-@@ -84,12 +84,7 @@ CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_ctype.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_ctype.o			+= $(PURGATORY_CFLAGS)
- 
--AFLAGS_REMOVE_entry.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memcpy.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_memset.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strcmp.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strlen.o		+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_strncmp.o		+= -Wa,-gdwarf-2
-+asflags-y			+= -g0
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 17f09dc26381..8e6c81b1c8f7 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -69,8 +69,7 @@ CFLAGS_sha256.o			+= $(PURGATORY_CFLAGS)
- CFLAGS_REMOVE_string.o		+= $(PURGATORY_CFLAGS_REMOVE)
- CFLAGS_string.o			+= $(PURGATORY_CFLAGS)
- 
--AFLAGS_REMOVE_setup-x86_$(BITS).o	+= -Wa,-gdwarf-2
--AFLAGS_REMOVE_entry64.o			+= -Wa,-gdwarf-2
-+asflags-y			+= -g0
- 
- $(obj)/purgatory.ro: $(PURGATORY_OBJS) FORCE
- 		$(call if_changed,ld)
+I assume we better add
+
+Fixes: 914eedcb9ba0 ("userfaultfd: don't fail on unrecognized features")
+
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
+> Link: https://lore.kernel.org/r/20220722201513.1624158-1-axelrasmussen@google.com
+> Cc: Axel Rasmussen <axelrasmussen@google.com>
+> Cc: linux-stable <stable@vger.kernel.org>
+> Signed-off-by: Peter Xu <peterx@redhat.com>
+> ---
+>   fs/userfaultfd.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+> index 8395605790f6..3b2a41c330e6 100644
+> --- a/fs/userfaultfd.c
+> +++ b/fs/userfaultfd.c
+> @@ -1977,8 +1977,10 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
+>   	ret = -EFAULT;
+>   	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
+>   		goto out;
+> -	/* Ignore unsupported features (userspace built against newer kernel) */
+> -	features = uffdio_api.features & UFFD_API_FEATURES;
+> +	features = uffdio_api.features;
+> +	ret = -EINVAL;
+> +	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
+> +		goto err_out;
+>   	ret = -EPERM;
+>   	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
+>   		goto err_out;
+
 -- 
-2.37.1
+Thanks,
+
+David / dhildenb
 
