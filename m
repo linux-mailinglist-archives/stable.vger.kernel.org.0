@@ -2,225 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 481B86D0EC9
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 21:28:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF25E6D0EEA
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 21:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231634AbjC3T2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 15:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33652 "EHLO
+        id S232200AbjC3Tdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 15:33:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232117AbjC3T2F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 15:28:05 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C90959EA
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 12:27:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680204476; x=1711740476;
-  h=date:from:to:cc:subject:message-id:references:
-   in-reply-to:mime-version;
-  bh=ddXCE8LGKk0rdJVdFCqhg3CmhLCcJNYP1jqgLrI8tn4=;
-  b=Uaq80DBEMYoKjRJHFE8+nt3OfnpuvexhZdu3DFriVnozCkz+799e8NOj
-   gpewZYq9l3vlOI/Z1DQYVkKvEfHc75zund45Y7dxtlfPjvtKDyOi/S+Yl
-   87Fg09akWY0GTnyNnwwxhXvKU5+ZkfjoOtNO4kVG2Z0W7KB4/JS+sqFut
-   GD68UGezYFvmbeFU1ecw/z0xUAKt7smNqRwuUdGze7TcgXSFrESmhDcYU
-   pGKkQ92wYp5/zakfjaW4uw+X76J3BtpKyx0lDSsLL0v4wzWxY45k6i4UM
-   3qOFTlEPAXpqyNbbD8diq+dmxUpTCrTQ8eB8/wRpTecLCTuJ4Srj7RHu8
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="339992595"
-X-IronPort-AV: E=Sophos;i="5.98,305,1673942400"; 
-   d="scan'208";a="339992595"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 12:27:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="678311603"
-X-IronPort-AV: E=Sophos;i="5.98,305,1673942400"; 
-   d="scan'208";a="678311603"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by orsmga007.jf.intel.com with ESMTP; 30 Mar 2023 12:27:40 -0700
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Thu, 30 Mar 2023 12:27:39 -0700
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21 via Frontend Transport; Thu, 30 Mar 2023 12:27:39 -0700
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (104.47.58.107)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.21; Thu, 30 Mar 2023 12:27:38 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EQT3WcMmQxbkYjolpHiCtUYhfXKXlOKXTp72j58lcwLEHex/CcMEsKHFP63g/jOvF1zDVzDrFlI3wSZS1mHE6xmcQYOK/Tnt/AzIQtr8CDMbw+69yfQfJPK+tZMRblEqWUMb/jUgTVZXOdotWBZm5eVhiFlG1DKQ1xHqfv4Ry/L3aHDWKOjEvzynV928vgz14UYTvFWnV7/heACvHEcvivjzelamcMUuT/jRmML36ItfFRCNksXRxKPWLEaZJFhs5RLetvzBvtk0BfQdzm6Gp5hxE6dNQpC9H4WcQiVm3aY8i7Q0mjqMbkudd5utP3sEu7gxdQOu/hXZ6517+Te01w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dPFKFUHbun0a4H801zPFg4A5SwrAClM4z4EzQIn8w84=;
- b=c9QyAV8GcRfoHIR0MOeLqOU+N96kDMRZ6SnrsM0fGFomoV1w6otgVcKl3OJeYJ5Ls7mPXbd3Op374JJnWPKVakhxIqd4yKKovxo5MbcciIcbPiqreBCab7CDkaIK4l7RTSx9oOSx3M0O7PVGfIgwJGGTVAAqxf4IZx8VvC2lglAI+DwbwyhD2oavbmxPY/nQVJ574w7pBaiQUnSGq3m9NVMa4Ah7IQVIxLJ2KVhDDB+9qBaLZFtzirHDHyGWoNz1EXOhXKW3eKAHasEeGgI/nxJpPDU8j930qJ64UsJqGJKLBbyvbOiBm+38VJXXFsiKqB6Mk8TX5e4R3HveGX5adA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from BY5PR11MB4226.namprd11.prod.outlook.com (2603:10b6:a03:1bf::12)
- by PH8PR11MB7967.namprd11.prod.outlook.com (2603:10b6:510:25e::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.33; Thu, 30 Mar
- 2023 19:27:37 +0000
-Received: from BY5PR11MB4226.namprd11.prod.outlook.com
- ([fe80::6cce:2fa:c480:8bf0]) by BY5PR11MB4226.namprd11.prod.outlook.com
- ([fe80::6cce:2fa:c480:8bf0%6]) with mapi id 15.20.6222.033; Thu, 30 Mar 2023
- 19:27:37 +0000
-Date:   Thu, 30 Mar 2023 12:27:33 -0700
-From:   Matt Atwood <matthew.s.atwood@intel.com>
-To:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        <intel-gfx@lists.freedesktop.org>
-CC:     <intel-gfx@lists.freedesktop.org>, <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [v2] drm/i915: disable sampler indirect state in
- bindless heap
-Message-ID: <ZCXipYU8ULR6eEPc@msatwood-mobl>
-References: <20230309152611.1788656-1-lionel.g.landwerlin@intel.com>
- <20230330174740.2775776-1-lionel.g.landwerlin@intel.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-In-Reply-To: <20230330174740.2775776-1-lionel.g.landwerlin@intel.com>
-X-ClientProxiedBy: BY5PR17CA0039.namprd17.prod.outlook.com
- (2603:10b6:a03:167::16) To BY5PR11MB4226.namprd11.prod.outlook.com
- (2603:10b6:a03:1bf::12)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BY5PR11MB4226:EE_|PH8PR11MB7967:EE_
-X-MS-Office365-Filtering-Correlation-Id: e322c195-2977-460f-8890-08db3154d187
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Xxx5FHx1lV+FLWnyyADHXE4Qo6NYjymhXBdWbD97GfJDSK2FQg53tQ8h6qiQp6Szn2WbDxTHwAfiopon9k1YIZMIbtCNA7XixTE7EelXq4W6JY3RaxdY7hw/+MR1BneR55L9bl6rFwIZCCgVjxsuB/3mp+wkNdDrTLOCJdL0Ha3kiSh06TzNKqR6jzcHOl7vGYWjspn8Sv0VvqbZO2FZZnCHoSdqPJdA/xUy4RXLFDVDKCfpHM3laX79KVJj5Hi1YM/WpJDvRG5l+5SEYOwto4utt2VPLlkdLlIMD4ZV6vVnpIWqR1uwsalrLmj3zHfYBntMNNip7/TKfJtmgGfS35CO9UR0Sg0F7+weZvx6Y9cUyS5EqfSewfnKJaCulr2G4I4iTnn+nIgLTLT+ldBuPvGHaQpYMVo1VAtVZ4mkaDz0tgyW/pmiBgeU/edyHv1eZF6ZptRZ5BHgw+zOqUVU+xlFaF9OyGmYTEetALnIaFiJF7BkkwwGDnvycWo9WJTZYZ0/mpxIUW3Fp24MUs6OKgawC8XDVw7QgbOuok0PYIKLxdJzQVKJcqtdZJArjejR
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR11MB4226.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(7916004)(396003)(136003)(346002)(39860400002)(376002)(366004)(451199021)(6666004)(66476007)(6512007)(26005)(6506007)(6486002)(9686003)(478600001)(316002)(186003)(66556008)(83380400001)(8676002)(66946007)(41300700001)(2906002)(8936002)(4326008)(5660300002)(38100700002)(82960400001)(86362001)(33716001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QjRzUU9NTFdOSXhIdEhIai81ZDAyVG1ySDJPZDEzS2p6VktFMkJHUUJMdFRz?=
- =?utf-8?B?a014aXZDdmh1KzJKMFMvbmlEWDl1eVJ0VjcwZGZUamhPSEJnODBBdjZPcHVj?=
- =?utf-8?B?cUVKUUFhVkhLS1FXZ0xTRWg1QmViYnJjcGQ5RE42S1E1ck01dzgxTW0xYVla?=
- =?utf-8?B?bjlsY01lU0x2ZFUybG5vaXNPOHVhM055ZU9RRktEVWZoaDd6SXM4Zmt2c3A5?=
- =?utf-8?B?V0hQSzRaeTVRdEg0ZUNka3lleVRBRDFlV0JQL1J5OFc4ZzUxQ1B0VCtwM2lC?=
- =?utf-8?B?ZWdBUmx5eUtmeExrbk5rUUQvNXZjWUZ1TG9EODRrQmpWQ01mS3p0NmVmVEdh?=
- =?utf-8?B?TzR3cnEzeFhySU1vVkJYd290VkN5ays1VEJxdStiQXpuajVFVEFVcjZIN1Ba?=
- =?utf-8?B?OThqRUxKQ0xwWWJjdGp3QThZVmc3emk0RjhtdFljdytjMktrRXhaQWRCNzBx?=
- =?utf-8?B?RFl2aXB2Q1hYMUJOb1pzd0lKNGhxZjY5S2ZmWGpKWkdoSy96RGh4eUFNWWQz?=
- =?utf-8?B?YmNteTVpcExEUnJnYnV4U0kvVElySUxTQzZaa2RzaGkrNlB4TmRBNzFnYk5X?=
- =?utf-8?B?ZTBBQzluYXMzTElHc1J6WjVpdzVnRHJkbys5cGpxUmI3KzNBTVZMV0RrSEln?=
- =?utf-8?B?bytwZGh1cVZnZ3BPdWwvTE1BVVBwZzd0VEFULytDdnNnV1VwRW4xb2RGR0dS?=
- =?utf-8?B?cWFJZ0RVR3R1KzBUSmtZamZyeGNDZUN4QWN5QmduekdpYjcrK0dadVp5dUov?=
- =?utf-8?B?NXJZTWFPcHkwZTJlbW5hd2JYSUtRbTIvUGoxRFh0ZjBvaXlCdDJ1UHZheXJt?=
- =?utf-8?B?NGhuSlBBa3hMWXBXNllWbGZnYldLZ21jS2cyUnZoRkFOZ1k3UFd6Vk1hUFJM?=
- =?utf-8?B?VmlXRGp6K0ZGR0VKSzdjZVRtTUxxc3MyS1VlS2xtMnh4RDBhR2JLbWZHVFVT?=
- =?utf-8?B?WDZHUXBicUtsVzdXSkdkc3Znd29tbkttZ3pPWWMvTUhnTkNmY3dTQTR2cmtk?=
- =?utf-8?B?c1BoaWlUeHVUVGhDdGV3djA2a1d3N05TSmFhMUZGY2p4VFdSdXg2OEJvRis0?=
- =?utf-8?B?dHJlUmlmU05seTB5cWJkVjZyYUZMV0JySmlPZVhPekxWcE43Tk9MREFSMDgy?=
- =?utf-8?B?NktQbndScVBjcGlVNTdiNnZtc1kzbk5IUEs0SjZKYUJlbDVKcWl4YjZPaVYy?=
- =?utf-8?B?elhzUVNQajlUUk5nSVBEN0gwS2hObDlMWitBSWZjRWwrTTIxd2FNc1VqK0hE?=
- =?utf-8?B?d3ZjaXMwdSt6S3hTNENCRXcvYWlKMVM1d05PWjFPcDF6WEhORjhhMGFUMS9N?=
- =?utf-8?B?ZHNFTGtIZW4vV3ZwVU80c1AxQmFXSk5OZGJYUG9rTlRIT1c3ZStPNmgxaVFN?=
- =?utf-8?B?VENmSHRmcTNFb3BSa3hDZWNTNG9ZSUxYeDdRTndKbVpxdjI3NmZ4ZTBSa1B5?=
- =?utf-8?B?cm85djhxVERYbko5eG8vNE8vc2xUN2dpamdscE9XeHBNaW5zWk5jY0FXbFdY?=
- =?utf-8?B?RUx2SEZ1RW9sd3ZBaVVsMGtqMHNzTnJSQXM3SllWRFY0cXV1OFBhR1JZWkZW?=
- =?utf-8?B?TmxZTHZZV3ZXNW1iRkkwd0pDejVUZUZzTXNvV1BaU0ZXV2krWWk0cTRlaTZX?=
- =?utf-8?B?YzVVVDMzMDhKYjljTzFTWWF6Zzh4eS9LOWtHSDk1dWpCb0RJWks2a0xQVDhP?=
- =?utf-8?B?WWgyZ1M0bWZibUN3UUZTUTJDeUR1V3RvRjJTMlIzRHdzbVJPQXpVRGVYTWgz?=
- =?utf-8?B?eUZlTnlCTktwWnNib25TTWN2aDdvS05VYlc5cWVlcnU0bXpGbXZGMW9GTVla?=
- =?utf-8?B?eFQyZStXaXZxaUZPYzJYaEdXM1B1bTZkYkhqazRna3NOd2RWLzQzVGxxRDl3?=
- =?utf-8?B?NExHeklRS0p1TDAxeTRPRUpXQXo5OHJ4ZWxTVUk5cEJzeXdTc2FSM3ExY29t?=
- =?utf-8?B?eU1GclRVNU80ckplb0lLQWpVeVZHYjZFU3NQZ3UzUkgxWTFmZnhFYnJQK2NH?=
- =?utf-8?B?TFk1Z0RDdmhIMklsdS92WkxVZUthWlk5aUppbzhMSFhwQlhOUEt3NkNTU0dU?=
- =?utf-8?B?SXBRaDFmZ0l4Ly8xYm4yckVZb2ZING1nMmZxaFdPOXRSZkZHc05GN3F4aHYy?=
- =?utf-8?B?RmN5YkFMTitXbVBGMXJrWUVJbHVUM1pzeUVJL0FVcjNxRzRYSnkrYXJBUzlT?=
- =?utf-8?B?TUE9PQ==?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: e322c195-2977-460f-8890-08db3154d187
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR11MB4226.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Mar 2023 19:27:36.8610
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Fcr/iEvn6CgO7GPGc2r2VT4p+OdKqht9NQrkMBHabewb2KAScNJ6q0Z9KsZaQz54s/Mza+aHxKrP+2h+EKW+fLk3J2RwOS+COtnlDcQzUbg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB7967
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
+        with ESMTP id S232163AbjC3Tdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 15:33:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 168D46195;
+        Thu, 30 Mar 2023 12:33:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A645962181;
+        Thu, 30 Mar 2023 19:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A56FC433D2;
+        Thu, 30 Mar 2023 19:33:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1680204825;
+        bh=+yExk2GwcO6DQWwi3ueFHdindkEjHcjhUYUjRzTCtBk=;
+        h=Date:To:From:Subject:From;
+        b=NrEOxgpn+HqqlMfEaP58eB5ZfZixPEjiIabvXEzby1oFAiz/H6TQ1pBFH+gXGx8Ux
+         hQc2qHJ+SzbB8TMwqP66CyuEJ+uuJK3ziNzAtWAdHQQyAipRgWEKtpLiPzy5+EZ4Qo
+         Y76hVRMGpqsqd90J9E9nK4AQaEgvP7cfM8Yx0bQ8=
+Date:   Thu, 30 Mar 2023 12:33:44 -0700
+To:     mm-commits@vger.kernel.org, urezki@gmail.com,
+        stable@vger.kernel.org, lstoakes@gmail.com, hch@infradead.org,
+        laoar.shao@gmail.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230330193345.0A56FC433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 30, 2023 at 08:47:40PM +0300, Lionel Landwerlin wrote:
-> By default the indirect state sampler data (border colors) are stored
-> in the same heap as the SAMPLER_STATE structure. For userspace drivers
-> that can be 2 different heaps (dynamic state heap & bindless sampler
-> state heap). This means that border colors have to copied in 2
-> different places so that the same SAMPLER_STATE structure find the
-> right data.
-> 
-> This change is forcing the indirect state sampler data to only be in
-> the dynamic state pool (more convinient for userspace drivers, they
-			       convenient 
-> only have to have one copy of the border colors). This is reproducing
-> the behavior of the Windows drivers.
-> 
-> BSpec: 46052
-> 
-Assuming still good CI results..
-Reviewed-by: Matt Atwood <matthew.s.atwood@intel.com>
-> Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/i915/gt/intel_gt_regs.h     |  1 +
->  drivers/gpu/drm/i915/gt/intel_workarounds.c | 19 +++++++++++++++++++
->  2 files changed, 20 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-> index 4aecb5a7b6318..f298dc461a72f 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-> +++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-> @@ -1144,6 +1144,7 @@
->  #define   ENABLE_SMALLPL			REG_BIT(15)
->  #define   SC_DISABLE_POWER_OPTIMIZATION_EBB	REG_BIT(9)
->  #define   GEN11_SAMPLER_ENABLE_HEADLESS_MSG	REG_BIT(5)
-> +#define   GEN11_INDIRECT_STATE_BASE_ADDR_OVERRIDE	REG_BIT(0)
->  
->  #define GEN9_HALF_SLICE_CHICKEN7		MCR_REG(0xe194)
->  #define   DG2_DISABLE_ROUND_ENABLE_ALLOW_FOR_SSLA	REG_BIT(15)
-> diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-> index e7ee24bcad893..0ce1c8c23c631 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-> @@ -2535,6 +2535,25 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
->  				 ENABLE_SMALLPL);
->  	}
->  
-> +	if (GRAPHICS_VER(i915) >= 11) {
-> +		/* This is not a Wa (although referred to as
-> +		 * WaSetInidrectStateOverride in places), this allows
-> +		 * applications that reference sampler states through
-> +		 * the BindlessSamplerStateBaseAddress to have their
-> +		 * border color relative to DynamicStateBaseAddress
-> +		 * rather than BindlessSamplerStateBaseAddress.
-> +		 *
-> +		 * Otherwise SAMPLER_STATE border colors have to be
-> +		 * copied in multiple heaps (DynamicStateBaseAddress &
-> +		 * BindlessSamplerStateBaseAddress)
-> +		 *
-> +		 * BSpec: 46052
-> +		 */
-> +		wa_mcr_masked_en(wal,
-> +				 GEN10_SAMPLER_MODE,
-> +				 GEN11_INDIRECT_STATE_BASE_ADDR_OVERRIDE);
-> +	}
-> +
->  	if (GRAPHICS_VER(i915) == 11) {
->  		/* This is not an Wa. Enable for better image quality */
->  		wa_masked_en(wal,
-> -- 
-> 2.34.1
-> 
+
+The patch titled
+     Subject: mm: vmalloc: avoid warn_alloc noise caused by fatal signal
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal.patch
+
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Yafang Shao <laoar.shao@gmail.com>
+Subject: mm: vmalloc: avoid warn_alloc noise caused by fatal signal
+Date: Thu, 30 Mar 2023 16:26:25 +0000
+
+There're some suspicious warn_alloc on my test serer, for example,
+
+[13366.518837] warn_alloc: 81 callbacks suppressed
+[13366.518841] test_verifier: vmalloc error: size 4096, page order 0, failed to allocate pages, mode:0x500dc2(GFP_HIGHUSER|__GFP_ZERO|__GFP_ACCOUNT), nodemask=(null),cpuset=/,mems_allowed=0-1
+[13366.522240] CPU: 30 PID: 722463 Comm: test_verifier Kdump: loaded Tainted: G        W  O       6.2.0+ #638
+[13366.524216] Call Trace:
+[13366.524702]  <TASK>
+[13366.525148]  dump_stack_lvl+0x6c/0x80
+[13366.525712]  dump_stack+0x10/0x20
+[13366.526239]  warn_alloc+0x119/0x190
+[13366.526783]  ? alloc_pages_bulk_array_mempolicy+0x9e/0x2a0
+[13366.527470]  __vmalloc_area_node+0x546/0x5b0
+[13366.528066]  __vmalloc_node_range+0xc2/0x210
+[13366.528660]  __vmalloc_node+0x42/0x50
+[13366.529186]  ? bpf_prog_realloc+0x53/0xc0
+[13366.529743]  __vmalloc+0x1e/0x30
+[13366.530235]  bpf_prog_realloc+0x53/0xc0
+[13366.530771]  bpf_patch_insn_single+0x80/0x1b0
+[13366.531351]  bpf_jit_blind_constants+0xe9/0x1c0
+[13366.531932]  ? __free_pages+0xee/0x100
+[13366.532457]  ? free_large_kmalloc+0x58/0xb0
+[13366.533002]  bpf_int_jit_compile+0x8c/0x5e0
+[13366.533546]  bpf_prog_select_runtime+0xb4/0x100
+[13366.534108]  bpf_prog_load+0x6b1/0xa50
+[13366.534610]  ? perf_event_task_tick+0x96/0xb0
+[13366.535151]  ? security_capable+0x3a/0x60
+[13366.535663]  __sys_bpf+0xb38/0x2190
+[13366.536120]  ? kvm_clock_get_cycles+0x9/0x10
+[13366.536643]  __x64_sys_bpf+0x1c/0x30
+[13366.537094]  do_syscall_64+0x38/0x90
+[13366.537554]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+[13366.538107] RIP: 0033:0x7f78310f8e29
+[13366.538561] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 17 e0 2c 00 f7 d8 64 89 01 48
+[13366.540286] RSP: 002b:00007ffe2a61fff8 EFLAGS: 00000206 ORIG_RAX: 0000000000000141
+[13366.541031] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f78310f8e29
+[13366.541749] RDX: 0000000000000080 RSI: 00007ffe2a6200b0 RDI: 0000000000000005
+[13366.542470] RBP: 00007ffe2a620010 R08: 00007ffe2a6202a0 R09: 00007ffe2a6200b0
+[13366.543183] R10: 00000000000f423e R11: 0000000000000206 R12: 0000000000407800
+[13366.543900] R13: 00007ffe2a620540 R14: 0000000000000000 R15: 0000000000000000
+[13366.544623]  </TASK>
+[13366.545260] Mem-Info:
+[13366.546121] active_anon:81319 inactive_anon:20733 isolated_anon:0
+ active_file:69450 inactive_file:5624 isolated_file:0
+ unevictable:0 dirty:10 writeback:0
+ slab_reclaimable:69649 slab_unreclaimable:48930
+ mapped:27400 shmem:12868 pagetables:4929
+ sec_pagetables:0 bounce:0
+ kernel_misc_reclaimable:0
+ free:15870308 free_pcp:142935 free_cma:0
+[13366.551886] Node 0 active_anon:224836kB inactive_anon:33528kB active_file:175692kB inactive_file:13752kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:59248kB dirty:32kB writeback:0kB shmem:18252kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:4616kB pagetables:10664kB sec_pagetables:0kB all_unreclaimable? no
+[13366.555184] Node 1 active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB isolated(anon):0kB isolated(file):0kB mapped:50352kB dirty:8kB writeback:0kB shmem:33220kB shmem_thp: 0kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:3896kB pagetables:9052kB sec_pagetables:0kB all_unreclaimable? no
+[13366.558262] Node 0 DMA free:15360kB boost:0kB min:304kB low:380kB high:456kB reserved_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB present:15992kB managed:15360kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
+[13366.560821] lowmem_reserve[]: 0 2735 31873 31873 31873
+[13366.561981] Node 0 DMA32 free:2790904kB boost:0kB min:56028kB low:70032kB high:84036kB reserved_highatomic:0KB active_anon:1936kB inactive_anon:20kB active_file:396kB inactive_file:344kB unevictable:0kB writepending:0kB present:3129200kB managed:2801520kB mlocked:0kB bounce:0kB free_pcp:5188kB local_pcp:0kB free_cma:0kB
+[13366.565148] lowmem_reserve[]: 0 0 29137 29137 29137
+[13366.566168] Node 0 Normal free:28533824kB boost:0kB min:596740kB low:745924kB high:895108kB reserved_highatomic:28672KB active_anon:222900kB inactive_anon:33508kB active_file:175296kB inactive_file:13408kB unevictable:0kB writepending:32kB present:30408704kB managed:29837172kB mlocked:0kB bounce:0kB free_pcp:295724kB local_pcp:0kB free_cma:0kB
+[13366.569485] lowmem_reserve[]: 0 0 0 0 0
+[13366.570416] Node 1 Normal free:32141144kB boost:0kB min:660504kB low:825628kB high:990752kB reserved_highatomic:69632KB active_anon:100440kB inactive_anon:49404kB active_file:102108kB inactive_file:8744kB unevictable:0kB writepending:8kB present:33554432kB managed:33025372kB mlocked:0kB bounce:0kB free_pcp:270880kB local_pcp:46860kB free_cma:0kB
+[13366.573403] lowmem_reserve[]: 0 0 0 0 0
+[13366.574015] Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 1*2048kB (M) 3*4096kB (M) = 15360kB
+[13366.575474] Node 0 DMA32: 782*4kB (UME) 756*8kB (UME) 736*16kB (UME) 745*32kB (UME) 694*64kB (UME) 653*128kB (UME) 595*256kB (UME) 552*512kB (UME) 454*1024kB (UME) 347*2048kB (UME) 246*4096kB (UME) = 2790904kB
+[13366.577442] Node 0 Normal: 33856*4kB (UMEH) 51815*8kB (UMEH) 42418*16kB (UMEH) 36272*32kB (UMEH) 22195*64kB (UMEH) 10296*128kB (UMEH) 7238*256kB (UMEH) 5638*512kB (UEH) 5337*1024kB (UMEH) 3506*2048kB (UMEH) 1470*4096kB (UME) = 28533784kB
+[13366.580460] Node 1 Normal: 15776*4kB (UMEH) 37485*8kB (UMEH) 29509*16kB (UMEH) 21420*32kB (UMEH) 14818*64kB (UMEH) 13051*128kB (UMEH) 9918*256kB (UMEH) 7374*512kB (UMEH) 5397*1024kB (UMEH) 3887*2048kB (UMEH) 2002*4096kB (UME) = 32141240kB
+[13366.583027] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
+[13366.584380] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
+[13366.585702] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
+[13366.587042] Node 1 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
+[13366.588372] 87386 total pagecache pages
+[13366.589266] 0 pages in swap cache
+[13366.590327] Free swap  = 0kB
+[13366.591227] Total swap = 0kB
+[13366.592142] 16777082 pages RAM
+[13366.593057] 0 pages HighMem/MovableOnly
+[13366.594037] 357226 pages reserved
+[13366.594979] 0 pages hwpoisoned
+
+This failure really confuse me as there're still lots of available pages. 
+Finally I figured out it was caused by a fatal signal.  When a process is
+allocating memory via vm_area_alloc_pages(), it will break directly even
+if it hasn't allocated the requested pages when it receives a fatal
+signal.  In that case, we shouldn't show this warn_alloc, as it is
+useless.  We only need to show this warning when there're really no enough
+pages.
+
+Link: https://lkml.kernel.org/r/20230330162625.13604-1-laoar.shao@gmail.com
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Reviewed-by: Lorenzo Stoakes <lstoakes@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/vmalloc.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/mm/vmalloc.c~mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal
++++ a/mm/vmalloc.c
+@@ -3042,9 +3042,11 @@ static void *__vmalloc_area_node(struct
+ 	 * allocation request, free them via vfree() if any.
+ 	 */
+ 	if (area->nr_pages != nr_small_pages) {
+-		warn_alloc(gfp_mask, NULL,
+-			"vmalloc error: size %lu, page order %u, failed to allocate pages",
+-			area->nr_pages * PAGE_SIZE, page_order);
++		/* vm_area_alloc_pages() can also fail due to a fatal signal */
++		if (!fatal_signal_pending(current))
++			warn_alloc(gfp_mask, NULL,
++				"vmalloc error: size %lu, page order %u, failed to allocate pages",
++				area->nr_pages * PAGE_SIZE, page_order);
+ 		goto fail;
+ 	}
+ 
+_
+
+Patches currently in -mm which might be from laoar.shao@gmail.com are
+
+mm-vmalloc-avoid-warn_alloc-noise-caused-by-fatal-signal.patch
+
