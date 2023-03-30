@@ -2,92 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F59F6D0914
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 17:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 211BC6D0905
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 17:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232744AbjC3PHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 11:07:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53752 "EHLO
+        id S232644AbjC3PDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 11:03:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232741AbjC3PHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 11:07:20 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E28C647;
-        Thu, 30 Mar 2023 08:07:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680188825; x=1711724825;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=WjP6GPfoFS3QmD/u0mitD4XX36nF1GpzMNe7tOCMUBs=;
-  b=F0JBK5fQ1OJ3TNTHP3TJnoCcqwbFfqv8nbyaqtuGp9bgoic+bOlIV6US
-   lHutJ5ykN71ZK3N7x9IfAbQzcU2v+hlTIlHX3xW2fbenvMXoaFtCLocvx
-   0Q1nX4L61cCO2FRq8ghXXoWvMaJ3TZcBDDqdbikDq/FlXfk6Kd4G7+Z8J
-   eE93rwztji5lVTFL+0Ewd2vD0KBnPSsXOumXCcThC11KJZ0U0pZqnURbM
-   hAyDrhr+UxHvu/SwQ29/sisXn62skKYTpzwrh5vs06irdSrZsa5yJEyPb
-   HWnrVxXOBDbwPf33op4GKa52JamHjZn7XKwIBXcJ2OiyZragq5vTOdCNV
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="320844925"
-X-IronPort-AV: E=Sophos;i="5.98,303,1673942400"; 
-   d="scan'208";a="320844925"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 08:05:59 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="828370365"
-X-IronPort-AV: E=Sophos;i="5.98,303,1673942400"; 
-   d="scan'208";a="828370365"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 30 Mar 2023 08:05:57 -0700
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] usb: dwc3: pci: add support for the Intel Meteor Lake-S
-Date:   Thu, 30 Mar 2023 18:02:24 +0300
-Message-Id: <20230330150224.89316-1-heikki.krogerus@linux.intel.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S232602AbjC3PDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 11:03:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4152983F3;
+        Thu, 30 Mar 2023 08:03:29 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5CFEB828F5;
+        Thu, 30 Mar 2023 15:03:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1CFC433EF;
+        Thu, 30 Mar 2023 15:03:25 +0000 (UTC)
+Date:   Thu, 30 Mar 2023 11:03:23 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Ricardo Ribalda <ribalda@chromium.org>
+Cc:     Eric Biederman <ebiederm@xmission.com>,
+        Baoquan He <bhe@redhat.com>, Philipp Rudo <prudo@redhat.com>,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Ross Zwisler <zwisler@google.com>,
+        Simon Horman <horms@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v5 1/2] kexec: Support purgatories with .text.hot
+ sections
+Message-ID: <20230330110323.7963e3c6@gandalf.local.home>
+In-Reply-To: <20230321-kexec_clang16-v5-1-5563bf7c4173@chromium.org>
+References: <20230321-kexec_clang16-v5-0-5563bf7c4173@chromium.org>
+        <20230321-kexec_clang16-v5-1-5563bf7c4173@chromium.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.0 required=5.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch adds the necessary PCI ID for Intel Meteor Lake-S
-devices.
+On Thu, 30 Mar 2023 11:44:47 +0200
+Ricardo Ribalda <ribalda@chromium.org> wrote:
 
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: stable@vger.kernel.org
----
- drivers/usb/dwc3/dwc3-pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+> Clang16 links the purgatory text in two sections:
+> 
+>   [ 1] .text             PROGBITS         0000000000000000  00000040
+>        00000000000011a1  0000000000000000  AX       0     0     16
+>   [ 2] .rela.text        RELA             0000000000000000  00003498
+>        0000000000000648  0000000000000018   I      24     1     8
+>   ...
+>   [17] .text.hot.        PROGBITS         0000000000000000  00003220
+>        000000000000020b  0000000000000000  AX       0     0     1
+>   [18] .rela.text.hot.   RELA             0000000000000000  00004428
+>        0000000000000078  0000000000000018   I      24    17     8
+> 
+> And both of them have their range [sh_addr ... sh_addr+sh_size] on the
+> area pointed by `e_entry`.
+> 
+> This causes that image->start is calculated twice, once for .text and
+> another time for .text.hot. The second calculation leaves image->start
+> in a random location.
+> 
+> Because of this, the system crashes immediately after:
+> 
+> kexec_core: Starting new kernel
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 930457057abe ("kernel/kexec_file.c: split up __kexec_load_puragory")
+> Reviewed-by: Ross Zwisler <zwisler@google.com>
+> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+> ---
+>  kernel/kexec_file.c | 14 +++++++++++++-
+>  1 file changed, 13 insertions(+), 1 deletion(-)
+> 
+> diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+> index f1a0e4e3fb5c..c7a0e51a6d87 100644
+> --- a/kernel/kexec_file.c
+> +++ b/kernel/kexec_file.c
+> @@ -901,10 +901,22 @@ static int kexec_purgatory_setup_sechdrs(struct purgatory_info *pi,
+>  		}
+>  
+>  		offset = ALIGN(offset, align);
+> +
+> +		/*
+> +		 * Check if the segment contains the entry point, if so,
+> +		 * calculate the value of image->start based on it.
+> +		 * If the compiler has produced more than one .text section
+> +		 * (Eg: .text.hot), they are generally after the main .text
+> +		 * section, and they shall not be used to calculate
+> +		 * image->start. So do not re-calculate image->start if it
+> +		 * is not set to the initial value, and warn the user so they
+> +		 * have a chance to fix their purgatory's linker script.
+> +		 */
+>  		if (sechdrs[i].sh_flags & SHF_EXECINSTR &&
+>  		    pi->ehdr->e_entry >= sechdrs[i].sh_addr &&
+>  		    pi->ehdr->e_entry < (sechdrs[i].sh_addr
+> -					 + sechdrs[i].sh_size)) {
+> +					 + sechdrs[i].sh_size) &&
+> +		    !WARN_ON(kbuf->image->start != pi->ehdr->e_entry)) {
+>  			kbuf->image->start -= sechdrs[i].sh_addr;
+>  			kbuf->image->start += kbuf->mem + offset;
+>  		}
+> 
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index a23ddbb819795..560793545362a 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -49,6 +49,7 @@
- #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
- #define PCI_DEVICE_ID_INTEL_MTLM		0x7eb1
- #define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
-+#define PCI_DEVICE_ID_INTEL_MTLS		0x7f6f
- #define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
- #define PCI_DEVICE_ID_INTEL_TGL			0x9a15
- #define PCI_DEVICE_ID_AMD_MR			0x163a
-@@ -474,6 +475,9 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
- 
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLS),
-+	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
-+
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTL),
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
- 
--- 
-2.39.2
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
+Thanks Ricardo!
+
+-- Steve
