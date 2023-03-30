@@ -2,148 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 301406D0CF4
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 19:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F096D0D12
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 19:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231867AbjC3Rgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 13:36:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44354 "EHLO
+        id S229997AbjC3RsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 13:48:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232554AbjC3Rgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 13:36:38 -0400
+        with ESMTP id S229655AbjC3RsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 13:48:02 -0400
 Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B2B6A47;
-        Thu, 30 Mar 2023 10:36:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98141C678
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 10:48:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1680197797; x=1711733797;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=RBvzdW7pSSpZoGr/lhLmsN5VnHXIMJICoUqPvQK2N5Q=;
-  b=DLeQPrASHVmaxAqKK9uD5xx4gmQBbCVnK3MqduChJqHDNvUszkwXDaf2
-   snwReF1wD1JaLXm93RZHAhUA40ZOEapl+BOi6wf9PHVOihi+hj2RS34Yd
-   RVGDfId3WNFMPN/kwPi0TJKMe84picJN8RpxZmPG9M9KS8+ULd/SVVeMP
-   3s7L2irvS42FYA9brDYXkcF/3XeK4HKQWceF9K+yT2bTbZdMePk9WKD74
-   0bNomyailRjP4J+ZLxZiKWnfsLTKo2E8mfxvMhrA31k87qyLXWFwxvGkC
-   dlEEkMjHTZaUrfcZ2dOSYzeHOkMlRHUJiYFjNn/YXzVUF57xGQSwJwXS0
+  t=1680198481; x=1711734481;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Hb8F+c337avIDEuowr8PUDC8/cGZyEOtKtsItbSqNnY=;
+  b=LZoQVzeAATZuwqdWdr9L3e76be3auPw1yIkQWAllXAukCl7pFh3BQvnY
+   VpdDmI4R7zm2OdEkAEAIdAdM3RhpGm46VPH23+yima/t0i0UJ8Ehz+4WM
+   FrGdgwGurIr24mW+L2INdma464UbAtgQ88Xe8qckf+xpPjheP2wYuAc4E
+   i9HzPoWSIhI8a/ZFEDvsmzxjovehCY1zdwQtjjjbnILgVyYcKT1GCqxSf
+   2w7TTpvd9+dpbVkRzL6O4cvXzGdSrOI4TGSxjn4G8HPXxpsZTfDhrHCw0
+   L8XXjSvIldU4nfAtN3I5ECQbl0hoh7MNf+/Lhl+bslggnRkpcWJ/dAejS
    g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="342883002"
+X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="342886795"
 X-IronPort-AV: E=Sophos;i="5.98,305,1673942400"; 
-   d="scan'208";a="342883002"
+   d="scan'208";a="342886795"
 Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 10:36:36 -0700
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 10:48:01 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="678277381"
+X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="678279906"
 X-IronPort-AV: E=Sophos;i="5.98,305,1673942400"; 
-   d="scan'208";a="678277381"
-Received: from pabbey-mobl.amr.corp.intel.com ([10.212.62.67])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 10:36:35 -0700
-Message-ID: <9e65a37b8220943a540cc3aaf660a79cef4041dc.camel@linux.intel.com>
-Subject: Re: [PATCH] thermal: intel: powerclamp: Fix cpumask and max_idle
- module parameters
-From:   srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     David Arcari <darcari@redhat.com>, linux-pm@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Chen Yu <yu.c.chen@intel.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date:   Thu, 30 Mar 2023 10:36:33 -0700
-In-Reply-To: <20230330134218.1897786-1-darcari@redhat.com>
-References: <20230330134218.1897786-1-darcari@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4-0ubuntu1 
+   d="scan'208";a="678279906"
+Received: from mschmidt-mobl.ger.corp.intel.com (HELO uxy.intel.com) ([10.252.41.135])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 10:47:59 -0700
+From:   Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        stable@vger.kernel.org
+Subject: [v2] drm/i915: disable sampler indirect state in bindless heap
+Date:   Thu, 30 Mar 2023 20:47:40 +0300
+Message-Id: <20230330174740.2775776-1-lionel.g.landwerlin@intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230309152611.1788656-1-lionel.g.landwerlin@intel.com>
+References: <20230309152611.1788656-1-lionel.g.landwerlin@intel.com>
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2023-03-30 at 09:42 -0400, David Arcari wrote:
-Reviewed-by: Srinivas Pandruvada <>> When cpumask is specified as a module =
-parameter the value is
-> overwritten by the module init routine.=C2=A0 This can easily be fixed
-> by checking to see if the mask has already been allocated in the
-> init routine.
->=20
-> When max_idle is specified as a module parameter a panic will occur.
-> The problem is that the idle_injection_cpu_mask is not allocated
-> until
-> the module init routine executes. This can easily be fixed by
-> allocating
-> the cpumask if it's not already allocated.
->=20
-> Fixes: ebf519710218 ("thermal: intel: powerclamp: Add two module
-> parameters")
->=20
-> Signed-off-by: David Arcari <darcari@redhat.com>
-Reviewed-by: Srinivas Pandruvada<srinivas.pandruvada@linux.intel.com>
+By default the indirect state sampler data (border colors) are stored
+in the same heap as the SAMPLER_STATE structure. For userspace drivers
+that can be 2 different heaps (dynamic state heap & bindless sampler
+state heap). This means that border colors have to copied in 2
+different places so that the same SAMPLER_STATE structure find the
+right data.
 
->=20
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Cc: Amit Kucheria <amitk@kernel.org>
-> Cc: Zhang Rui <rui.zhang@intel.com>
-> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Cc: David Arcari <darcari@redhat.com>
-> Cc: Chen Yu <yu.c.chen@intel.com>
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
->=20
-> ---
-> =C2=A0drivers/thermal/intel/intel_powerclamp.c | 9 ++++++++-
-> =C2=A01 file changed, 8 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/thermal/intel/intel_powerclamp.c
-> b/drivers/thermal/intel/intel_powerclamp.c
-> index c7ba5680cd48..91fc7e239497 100644
-> --- a/drivers/thermal/intel/intel_powerclamp.c
-> +++ b/drivers/thermal/intel/intel_powerclamp.c
-> @@ -235,6 +235,12 @@ static int max_idle_set(const char *arg, const
-> struct kernel_param *kp)
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0goto skip_limit_set;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
-> =C2=A0
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (!cpumask_available(idle_in=
-jection_cpu_mask)) {
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0ret =3D
-> allocate_copy_idle_injection_mask(cpu_present_mask);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0if (ret)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0goto skip=
-_limit_set;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
-> +
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (check_invalid(idle_in=
-jection_cpu_mask, new_max_idle)) {
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0ret =3D -EINVAL;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0goto skip_limit_set;
-> @@ -791,7 +797,8 @@ static int __init powerclamp_init(void)
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0return retval;
-> =C2=A0
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_lock(&powerclamp_lo=
-ck);
-> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0retval =3D allocate_copy_idle_=
-injection_mask(cpu_present_mask);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (!cpumask_available(idle_in=
-jection_cpu_mask))
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0retval =3D
-> allocate_copy_idle_injection_mask(cpu_present_mask);
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0mutex_unlock(&powerclamp_=
-lock);
-> =C2=A0
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (retval)
+This change is forcing the indirect state sampler data to only be in
+the dynamic state pool (more convinient for userspace drivers, they
+only have to have one copy of the border colors). This is reproducing
+the behavior of the Windows drivers.
+
+BSpec: 46052
+
+Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/gt/intel_gt_regs.h     |  1 +
+ drivers/gpu/drm/i915/gt/intel_workarounds.c | 19 +++++++++++++++++++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
+index 4aecb5a7b6318..f298dc461a72f 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
+@@ -1144,6 +1144,7 @@
+ #define   ENABLE_SMALLPL			REG_BIT(15)
+ #define   SC_DISABLE_POWER_OPTIMIZATION_EBB	REG_BIT(9)
+ #define   GEN11_SAMPLER_ENABLE_HEADLESS_MSG	REG_BIT(5)
++#define   GEN11_INDIRECT_STATE_BASE_ADDR_OVERRIDE	REG_BIT(0)
+ 
+ #define GEN9_HALF_SLICE_CHICKEN7		MCR_REG(0xe194)
+ #define   DG2_DISABLE_ROUND_ENABLE_ALLOW_FOR_SSLA	REG_BIT(15)
+diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+index e7ee24bcad893..0ce1c8c23c631 100644
+--- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+@@ -2535,6 +2535,25 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
+ 				 ENABLE_SMALLPL);
+ 	}
+ 
++	if (GRAPHICS_VER(i915) >= 11) {
++		/* This is not a Wa (although referred to as
++		 * WaSetInidrectStateOverride in places), this allows
++		 * applications that reference sampler states through
++		 * the BindlessSamplerStateBaseAddress to have their
++		 * border color relative to DynamicStateBaseAddress
++		 * rather than BindlessSamplerStateBaseAddress.
++		 *
++		 * Otherwise SAMPLER_STATE border colors have to be
++		 * copied in multiple heaps (DynamicStateBaseAddress &
++		 * BindlessSamplerStateBaseAddress)
++		 *
++		 * BSpec: 46052
++		 */
++		wa_mcr_masked_en(wal,
++				 GEN10_SAMPLER_MODE,
++				 GEN11_INDIRECT_STATE_BASE_ADDR_OVERRIDE);
++	}
++
+ 	if (GRAPHICS_VER(i915) == 11) {
+ 		/* This is not an Wa. Enable for better image quality */
+ 		wa_masked_en(wal,
+-- 
+2.34.1
 
