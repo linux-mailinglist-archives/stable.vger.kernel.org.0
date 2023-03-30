@@ -2,88 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABBF66D0DCC
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 20:32:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430636D0E3A
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 21:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231331AbjC3ScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 14:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60748 "EHLO
+        id S229760AbjC3TAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 15:00:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbjC3ScY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 14:32:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89DB32133
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 11:31:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680201094;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jobE+W1McsuIR3du17YGJC3Z6W/dejQUbpwCNwzU5Sc=;
-        b=T6+XjvoiP3LJB3AxponY00NK2NDy+4/jZyTQXvwvbYOHgFdZxrUmqgqdMYUXkxQjcVt2Lo
-        XIG/ntRwnvkk9524YVUf6lVSDzIMLEgnZjvwbdvjuhCEa9XftA7ycEqk7cMWG5MqGgO7LZ
-        VogHd5Q7cyqQEu3+OCXrvDbVFlX3AAg=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-637-ItYQefAdP8yXygw_mX28Xg-1; Thu, 30 Mar 2023 14:31:33 -0400
-X-MC-Unique: ItYQefAdP8yXygw_mX28Xg-1
-Received: by mail-pf1-f198.google.com with SMTP id c2-20020a62f842000000b0062d93664ad5so5198586pfm.19
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 11:31:33 -0700 (PDT)
+        with ESMTP id S229379AbjC3TAp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 15:00:45 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F53EE
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 12:00:44 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id u20so13244214pfk.12
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 12:00:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1680202844;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=ey7aeW/EL2C7d1UgbgSnT8xpkpwSIVXUxCRZpBnBlJY=;
+        b=XBVP3AYlINmmlF0HupZtDHv95Mv5cCXa3c/uADe8Es0/887pGxlgErfkJtdcB5pbNu
+         9mND54DHNf7ew+jEtVhnw7oyQ3V74W/vN41JoDmIHx4KIgWPX2EAtRa2BV8xdzFCSeTY
+         3upm7m4+7wkWKG+EYsYLfc5kO9XoCCObyzt7/39OBrA3JXNiqUDPPxwWVmH0AO4bw7Pn
+         UvAK0xdeubucDj4kgqYFHNrWrBcM7QTiDdrF6Jjiik+RDixr9Nk/ZwVHOIjxMjw6UcBV
+         Ywg5W9grG3mIXNKQSjVjjFx6vPDX8BSqoe3sFQAzs4aoaU8bgrKsxwOTfSa42H2S/HeO
+         G4QA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680201092;
-        h=content-transfer-encoding:in-reply-to:organization:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jobE+W1McsuIR3du17YGJC3Z6W/dejQUbpwCNwzU5Sc=;
-        b=JFs+jhfP0HKPleH/m81vGJPsoV5QIKBpvGzI0O++ks+D2pI4sTwxjSw5/9ASmtvz3W
-         tFGFJw+Rqe4wgGIzIOpnyeqETrj2DGDPNtIWZY9yw+0Wdo8m0fsL+kytNj0g1bG5ilH2
-         PcZvD5KakLrJdQXfrEPogrKfbYUe6nxkPm7CgcWlyRtE+ZYKMj/ehWPVcs3vip4B9dpb
-         SFQnTs4Y7pzw6jQ9KzfMxvaaDOIPe335tw2fs35vXVNT6DykYtBPq3PwrnDM2+vVjkpA
-         mJEnEjSK2HVqhAp3SjrnLPAHFeMGGh0qPG/f05S8DTVMpHeBIRtjs2bpIT6Df80c4b4v
-         olbw==
-X-Gm-Message-State: AAQBX9eGcMRY55Wd6cTn+Q01rpKk4haQF/k0Mxn2r3xa6FqzgQxtF7W7
-        22bdKh1DdctpwJIDGtEuJj2erepIziPGEQ0dyvievMjeqFKtYMQAtquQGTiwzVVJqSvrFg/qA1J
-        jNbvS1rwO/zWCz2QB
-X-Received: by 2002:a17:902:f550:b0:1a1:b8cc:59da with SMTP id h16-20020a170902f55000b001a1b8cc59damr34302067plf.33.1680201092400;
-        Thu, 30 Mar 2023 11:31:32 -0700 (PDT)
-X-Google-Smtp-Source: AKy350Y2XtPFSh2/v9wjpAeWlY42dx0ySEUXCrM0cIilFUSj200Kj1d2tPF9lFKbZ4sHT5e1f1bXcw==
-X-Received: by 2002:a17:902:f550:b0:1a1:b8cc:59da with SMTP id h16-20020a170902f55000b001a1b8cc59damr34302031plf.33.1680201092055;
-        Thu, 30 Mar 2023 11:31:32 -0700 (PDT)
-Received: from [10.20.159.115] ([204.239.251.6])
-        by smtp.gmail.com with ESMTPSA id c11-20020a170902724b00b001a1a31953a8sm50799pll.130.2023.03.30.11.31.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Mar 2023 11:31:31 -0700 (PDT)
-Message-ID: <6eb02bdd-e69e-d277-c44c-0aefb23430bb@redhat.com>
-Date:   Thu, 30 Mar 2023 20:31:30 +0200
+        d=1e100.net; s=20210112; t=1680202844;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ey7aeW/EL2C7d1UgbgSnT8xpkpwSIVXUxCRZpBnBlJY=;
+        b=iCxE2ZPkm1Gf54UrJazAju0VmVpvVpdFftSNLpJhTJRFOF0Wyry/qvUvKarEEi1Rks
+         F0Qej5gNBn0k98eI19GdJ8iq1A1mBq0odFmoloc0gik3OPnqXYoH991ED9BblcvvJCXz
+         SwP1HWs/heHc05bAUkYC2KAq6ZPmfFBNJt+9xh+jYI9yucJ4g+GZ4Phk4o7CNo5pqrR/
+         vgljMwHw/ld2gwPyF71S/s+o8hRyKOZR+Kx2MJlTsvN/u7dD98oUPG7Pa6N+hO19yXHn
+         88nowK7VggplLC5jf6Ne5tj+fqBtmABxQL7+fUQnK2pRMmee0QoQ5sWbpq4PrOWLECCr
+         jzHg==
+X-Gm-Message-State: AO0yUKVw1p1UE3QnuIHLs9vb6C01oXRwlf+MBI7kzim32ScEozDcUwj1
+        xSeoqAR5AdBXuOTGRJhRN2hwLn0pzIrZ0xU+9WI=
+X-Google-Smtp-Source: AKy350YWq0lHL9SH4dyykwp7x61oozNlZpeKqNCatP73uAMmOQ9BE0gFl4DYgddapk6j0QduCCdlJw==
+X-Received: by 2002:a62:52d7:0:b0:622:c72a:d0e0 with SMTP id g206-20020a6252d7000000b00622c72ad0e0mr22497432pfb.13.1680202843765;
+        Thu, 30 Mar 2023 12:00:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e19-20020aa78c53000000b00575d1ba0ecfsm213586pfd.133.2023.03.30.12.00.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Mar 2023 12:00:43 -0700 (PDT)
+Message-ID: <6425dc5b.a70a0220.138d7.0f47@mx.google.com>
+Date:   Thu, 30 Mar 2023 12:00:43 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 01/29] Revert "userfaultfd: don't fail on unrecognized
- features"
-To:     Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Leonardo Bras Soares Passos <lsoaresp@redhat.com>,
-        linux-stable <stable@vger.kernel.org>
-References: <20230330155707.3106228-1-peterx@redhat.com>
- <20230330155707.3106228-2-peterx@redhat.com>
-Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20230330155707.3106228-2-peterx@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.279-62-g932f2c9ab1cb
+Subject: stable-rc/queue/4.19 baseline: 106 runs,
+ 2 regressions (v4.19.279-62-g932f2c9ab1cb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=0.0 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -91,69 +71,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30.03.23 17:56, Peter Xu wrote:
-> This is a proposal to revert commit 914eedcb9ba0ff53c33808.
-> 
-> I found this when writting a simple UFFDIO_API test to be the first unit
-> test in this set.  Two things breaks with the commit:
-> 
->    - UFFDIO_API check was lost and missing.  According to man page, the
->    kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
->    check is needed if the api version will be extended in the future, or
->    user app won't be able to identify which is a new kernel.
+stable-rc/queue/4.19 baseline: 106 runs, 2 regressions (v4.19.279-62-g932f2=
+c9ab1cb)
 
-Agreed.
+Regressions Summary
+-------------------
 
-> 
->    - Feature flags checks were removed, which means UFFDIO_API with a
->    feature that does not exist will also succeed.  According to the man
->    page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
->    unknown features passed in.
-> 
+platform      | arch | lab          | compiler | defconfig          | regre=
+ssions
+--------------+------+--------------+----------+--------------------+------=
+------
+at91sam9g20ek | arm  | lab-broonie  | gcc-10   | multi_v5_defconfig | 1    =
+      =
 
-Agreed.
-
-I understand the motivation of the original commit, but it should not 
-have changed existing checks/functionality. Introducing a different way 
-to enable such functionality on explicit request would be better. But 
-maybe simple feature probing (is X support? is Y supported? is Z 
-supported) might be easier without requiring ABI changes.
-
-I assume we better add
-
-Fixes: 914eedcb9ba0 ("userfaultfd: don't fail on unrecognized features")
+cubietruck    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1    =
+      =
 
 
-Acked-by: David Hildenbrand <david@redhat.com>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.279-62-g932f2c9ab1cb/plan/baseline/
 
-> Link: https://lore.kernel.org/r/20220722201513.1624158-1-axelrasmussen@google.com
-> Cc: Axel Rasmussen <axelrasmussen@google.com>
-> Cc: linux-stable <stable@vger.kernel.org>
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-> ---
->   fs/userfaultfd.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index 8395605790f6..3b2a41c330e6 100644
-> --- a/fs/userfaultfd.c
-> +++ b/fs/userfaultfd.c
-> @@ -1977,8 +1977,10 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
->   	ret = -EFAULT;
->   	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
->   		goto out;
-> -	/* Ignore unsupported features (userspace built against newer kernel) */
-> -	features = uffdio_api.features & UFFD_API_FEATURES;
-> +	features = uffdio_api.features;
-> +	ret = -EINVAL;
-> +	if (uffdio_api.api != UFFD_API || (features & ~UFFD_API_FEATURES))
-> +		goto err_out;
->   	ret = -EPERM;
->   	if ((features & UFFD_FEATURE_EVENT_FORK) && !capable(CAP_SYS_PTRACE))
->   		goto err_out;
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.279-62-g932f2c9ab1cb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      932f2c9ab1cb25c78e567d3bb04cea6d5e0bef35 =
 
--- 
-Thanks,
 
-David / dhildenb
 
+Test Regressions
+---------------- =
+
+
+
+platform      | arch | lab          | compiler | defconfig          | regre=
+ssions
+--------------+------+--------------+----------+--------------------+------=
+------
+at91sam9g20ek | arm  | lab-broonie  | gcc-10   | multi_v5_defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6425aae3ff345f46c862f86e
+
+  Results:     42 PASS, 9 FAIL, 1 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.279=
+-62-g932f2c9ab1cb/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
+m9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.279=
+-62-g932f2c9ab1cb/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
+m9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230324.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6425aae3ff345f46c862f8a0
+        failing since 3 days (last pass: v4.19.279-25-g8270940878fa3, first=
+ fail: v4.19.279-25-gc95d797f10041)
+
+    2023-03-30T15:28:59.415531  + set +x
+    2023-03-30T15:28:59.420742  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 250839_1.5.2=
+.4.1>
+    2023-03-30T15:28:59.534127  / # #
+    2023-03-30T15:28:59.636959  export SHELL=3D/bin/sh
+    2023-03-30T15:28:59.637727  #
+    2023-03-30T15:28:59.739742  / # export SHELL=3D/bin/sh. /lava-250839/en=
+vironment
+    2023-03-30T15:28:59.740498  =
+
+    2023-03-30T15:28:59.842467  / # . /lava-250839/environment/lava-250839/=
+bin/lava-test-runner /lava-250839/1
+    2023-03-30T15:28:59.843773  =
+
+    2023-03-30T15:28:59.850222  / # /lava-250839/bin/lava-test-runner /lava=
+-250839/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform      | arch | lab          | compiler | defconfig          | regre=
+ssions
+--------------+------+--------------+----------+--------------------+------=
+------
+cubietruck    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6425a7ae88cfd9e8f662f816
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.279=
+-62-g932f2c9ab1cb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.279=
+-62-g932f2c9ab1cb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230324.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6425a7ae88cfd9e8f662f81b
+        failing since 72 days (last pass: v4.19.269-9-gce7b59ec9d48, first =
+fail: v4.19.269-521-g305d312d039a)
+
+    2023-03-30T15:15:33.976928  + set +x<8>[    7.381914] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 3456056_1.5.2.4.1>
+    2023-03-30T15:15:33.977642  =
+
+    2023-03-30T15:15:34.086731  / # #
+    2023-03-30T15:15:34.189568  export SHELL=3D/bin/sh
+    2023-03-30T15:15:34.190864  #
+    2023-03-30T15:15:34.293287  / # export SHELL=3D/bin/sh. /lava-3456056/e=
+nvironment
+    2023-03-30T15:15:34.294427  =
+
+    2023-03-30T15:15:34.396677  / # . /lava-3456056/environment/lava-345605=
+6/bin/lava-test-runner /lava-3456056/1
+    2023-03-30T15:15:34.398472  =
+
+    2023-03-30T15:15:34.402893  / # /lava-3456056/bin/lava-test-runner /lav=
+a-3456056/1 =
+
+    ... (12 line(s) more)  =
+
+ =20
