@@ -2,161 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E590B6CF95D
-	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 04:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D41FD6CF97F
+	for <lists+stable@lfdr.de>; Thu, 30 Mar 2023 05:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjC3C7v convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 29 Mar 2023 22:59:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41700 "EHLO
+        id S229705AbjC3DQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Mar 2023 23:16:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbjC3C7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 22:59:50 -0400
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903A92111;
-        Wed, 29 Mar 2023 19:59:49 -0700 (PDT)
-Received: by mail-pj1-f54.google.com with SMTP id j13so15994286pjd.1;
-        Wed, 29 Mar 2023 19:59:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680145189;
-        h=content-transfer-encoding:fcc:content-language:user-agent
-         :mime-version:references:in-reply-to:message-id:date:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MyiOuYElhRICJI3D0PJA148VTpJc2bGE9WKOTKleOq8=;
-        b=OVqtWI41LKNKz5FSVNstBD0IxoM8cwcpLYVlO7Bhz68z8pcEMnPDcw7GliVSMQLuEl
-         fCx5DHrJ60wVpW0G9OBMsxfCqugg36JbRwy79SUwN+3wDh8WGWRruUF/eYAS+wS4IP/B
-         L3T+yvDuxn8HtAbP10u5UUzWPl5oUNE/F9UNxV5pjHxJ0/qGBQjLv2ay+yLkNpP6ARxc
-         fBk8DWS2eP1X92+2bxpQJTolo752L9N7yNEM74Y4XXY/U17LG00W/VKwvVPVzgMjNvOY
-         2DmskcVMepXyrNSzd9V1kNGS9RM7AMRbHUvfpLZmDXQIkzH6nokIv5vm++8yLMg1x91u
-         GARg==
-X-Gm-Message-State: AAQBX9fygfhJdCquhYFZ6RFB2iPk3IoopDpzJCF9k31vOCnlkTfbNQ65
-        xoF7gmSk4unCXoMl+XRmFgw3MMv+0oVGjg==
-X-Google-Smtp-Source: AKy350boGkhs/gbvGNKtpPaSEc4HaVUwU+oVgIsS+OdhxK/JAla3ArdI9wUsFz4DT4mMXrbnRKTqyg==
-X-Received: by 2002:a17:90a:190f:b0:237:50b6:9838 with SMTP id 15-20020a17090a190f00b0023750b69838mr25440663pjg.45.1680145188929;
-        Wed, 29 Mar 2023 19:59:48 -0700 (PDT)
-Received: from localhost ([116.128.244.169])
-        by smtp.gmail.com with ESMTPSA id g4-20020a655804000000b0050bd71ed66fsm2014953pgr.92.2023.03.29.19.59.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Mar 2023 19:59:48 -0700 (PDT)
-From:   Hongyu Xie <xiehongyu1@kylinos.cn>
-To:     mathias.nyman@linux.intel.com, mathias.nyman@intel.com,
-        gregkh@linuxfoundation.org
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, sunke <sunke@kylinos.cn>,
-        Hongyu Xie <xiehongyu1@kylinos.cn>
-Subject: Re: [PATCH -next v2] usb: xhci: do not free an empty cmd ring
-Date:   Thu, 30 Mar 2023 10:58:57 +0800
-Message-Id: <eff504ed-d5b0-171a-8eb8-f073f2ee9271@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <086a7af9-0a33-1a37-2bf3-1338adf96b12@linux.intel.com>
-References: <20230327011117.33953-1-xiehongyu1@kylinos.cn> <086a7af9-0a33-1a37-2bf3-1338adf96b12@linux.intel.com>
+        with ESMTP id S229697AbjC3DP6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Mar 2023 23:15:58 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2053.outbound.protection.outlook.com [40.107.244.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A04F55BF
+        for <stable@vger.kernel.org>; Wed, 29 Mar 2023 20:15:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=b6B4PZrkLM8vKzFM1hLZJz6aFKIxZfv48sllfALXOYtYEioGTZGxevd9llORIp1cw2tEUm+e+v+zm9LT4AYQzsGDFlcTr4ENKfVCO9OkjNkgEJS6UIU66OcSlv6tewmErjggI5YpxGVQP02u96LL/zCAvlS3XVTA1nEdeYSjKE4KtzLZY9rcUHbiPWyBS8mxVeTSB8SKMcdxVC+Ic7NzbhRDoEa3lgrDZxfAZFRPe3GtnUhqwsOoEgM8cGcBfFurMYWA4OIH6H00P+sDO9YXkBL1TsPLk/fcMc33x89QNfKrduMgqj2htMoSZC1RW9J6uYP2iQrKS1G+w6IWlDsuQw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=s0Ukv29Hkts/Ni4uxasjMZSuQa6STa91LkmbyXGJ/gE=;
+ b=mO1NYyp5aJmWhMPw42bsViMwLj+itzpYH1wrxpApLkMd5PIE3EBzeZkgS6C6Q1MPOzq4CnidjxBIAkVjLAGIjx2L0NiiAmd8wg0EvyCMCfNWH2+eFlo5Ii4rpq1sy2fC1wguv1/PoIxajQ+bw3qtiE/bvqVvuqVYDbQAhEygd9lVhBSkQFIzMp9y4byANwoA4arnNaU7mBZOrcCI6qYlxTW6RrCFf1SACiEkhc1FxL8m5DsxK0UdWsU+uOr8m9KrJ9nOrE1VcutXjrSDPC8/1gTzSiGqZtpPs+7Jt5dCHAfynlz4tswOOvUqvQtqY1qUmujyXXK3iS0sdgF70VyCXw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=s0Ukv29Hkts/Ni4uxasjMZSuQa6STa91LkmbyXGJ/gE=;
+ b=KOejPDDwkiyAVCW8JOBhbJrYl4mfj4TdS5DGFllr3vgV83lEmML9frNTw227n4kxzbcvLDv97T096I67xh2YK92hBySM1a0tP9GyzFtty+SZGrzGCSaRZNDiXBTAyG2JGvP869XtsZARkURiJWgT0EUc+cJubsWCEaet6gy16YK65vu6h8VKruJXwPCxsambR6eLpPL7bOc1/tgfjWs42xOnBQ51e5naIJeNjteBK6U7QHCvAh7GUlxPdlQ0CF2zG+2v3xwfdP+gNbWp7ALasJ8niON5MUMnDtyCKfjwC87k8uMOf9UQ+BYL1tp4fGWq/4vk6xU0+UToJ7FPc0H6xg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BYAPR12MB3176.namprd12.prod.outlook.com (2603:10b6:a03:134::26)
+ by SN7PR12MB6814.namprd12.prod.outlook.com (2603:10b6:806:266::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.33; Thu, 30 Mar
+ 2023 03:15:48 +0000
+Received: from BYAPR12MB3176.namprd12.prod.outlook.com
+ ([fe80::84b1:7c9:e9f0:bab5]) by BYAPR12MB3176.namprd12.prod.outlook.com
+ ([fe80::84b1:7c9:e9f0:bab5%7]) with mapi id 15.20.6222.035; Thu, 30 Mar 2023
+ 03:15:47 +0000
+References: <20230330012519.804116-1-apopple@nvidia.com>
+ <ZCTykyabcaS98Jnm@infradead.org>
+User-agent: mu4e 1.8.10; emacs 28.2
+From:   Alistair Popple <apopple@nvidia.com>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        nouveau@lists.freedesktop.org,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm: Take a page reference when removing device
+ exclusive entries
+Date:   Thu, 30 Mar 2023 14:11:29 +1100
+In-reply-to: <ZCTykyabcaS98Jnm@infradead.org>
+Message-ID: <875yajapzz.fsf@nvidia.com>
+Content-Type: text/plain
+X-ClientProxiedBy: BY3PR05CA0058.namprd05.prod.outlook.com
+ (2603:10b6:a03:39b::33) To BYAPR12MB3176.namprd12.prod.outlook.com
+ (2603:10b6:a03:134::26)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Thunderbird/102.8.0
-Content-Language: en-US
-X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=1
-X-Identity-Key: id1
-Fcc:    imap://xiehongyu1%40kylinos.cn@imap.kylinos.cn/Sent
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=0.7 required=5.0 tests=FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3176:EE_|SN7PR12MB6814:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1fef56df-2df1-474a-8d4b-08db30cd0e8b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ZesSMmalGWW6VGT6RMWXsYerP7WVA0CpLdTWiKb/M+vR8fwbb/a6m+VnwgqbUXbgqDwxcLuqZgglBy7XMvDUPtG39XsQjKz2odWav2KPJ4Fhty967+Kh6N0quqdUMJLDgVpxhx8TdgK0LDVpD44mvUjO1fzEx+RKPsJGvjjLaT/xzzXDDquvwFHfDvhGGVtrft6EQ7f4dKc0tFVqrNr1lp963IFuwFfdb/3e+FZk2voMk1JqDN7M+U3/mhiYPPiEb0GtztKAYvobp2JJEIwVJClvuPy1zW8oH+B0tJd+HhE4iJx2mADQKbG/GgBlEhsMPkQxjJqm93FR428dpI/Wd+8ctXDenXwQYYLy3KQMFNtn3OWOuxyWKiHPcNh5MdmIzJYTuVCG1jVsa5vYaa4lSDAdMsuyMyCDbIQUtQKL38PbCOUoIPmUh1Kwxt3fWs40Sl4nIBaJZyq/k+qbXRdomdf4PpIpVEXH7oG0XvL+EOAUGQKVYSdQXCliBrLJAHE51vKBDcPh/TibpjQo1i/Y0L1aXyUUiIJIMDBQoHXHqoDIpGCRthgFdpQy9sMmwx+1
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB3176.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(376002)(366004)(136003)(346002)(451199021)(38100700002)(36756003)(86362001)(66899021)(6506007)(54906003)(186003)(478600001)(6512007)(316002)(66946007)(41300700001)(4744005)(4326008)(26005)(8676002)(2616005)(6916009)(2906002)(6486002)(66476007)(66556008)(6666004)(5660300002)(8936002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?aofK7z8sOWu7XPzFCEChIQ2tomgJVBzJKusrpZbR4cHhf1fMJ4fMZXXel3dE?=
+ =?us-ascii?Q?gd8iNz1B9gO5kKA85eyeY0AOjI90qCI1+GRkpFU4FPMAt1M1/zTLW5DS5YA1?=
+ =?us-ascii?Q?uD8mUViG0h30I0xX285Zrc7vcc2oEb1mEsLOcrMZ9HPkLvrBCpSQvxjJKvDs?=
+ =?us-ascii?Q?rRo4v692cR74y9fPUdrrKE9agWYml5zzk2RZmIpH1/RHiJbuvi945+9ebQkp?=
+ =?us-ascii?Q?LBMOHk/xfeYk292ljfVMeEkgZRgQK9N4ifEgPaZzwHCfZxS6FLswyxXdmECb?=
+ =?us-ascii?Q?TitDJShYRYtfU2ZAkl2mpAX32PG2UE5PR+5ppbuvv8mh1FGj2uTKESOz7Svk?=
+ =?us-ascii?Q?gMZtaGnPURB2g880YH7hdYfNzSJNXKuVGnjCMkONelXjlCeUqq8mdYMt0gWG?=
+ =?us-ascii?Q?HWcnA0YdprkS+0R42ehRuIPuoiHVRZ+DNlYPz5wxfRFGRF8qLvGvU2GDRE+E?=
+ =?us-ascii?Q?8wvs0Cjzdje2vNKpTKL8iA6oJ74TMxKbT8zk0InPc1XgE8SGGM44mDxqQNvS?=
+ =?us-ascii?Q?6mbUw/ukGhBW67Xuc99cc2qVK7DJAI1tMgQhRKCLXIAzcOdUE/AVQSu3UDPS?=
+ =?us-ascii?Q?r5knApKV+Bz+vuqbvIwQa9nuU+mDL5J2jl4mzeeJ/D3E0IUob28SCNe+YF3Q?=
+ =?us-ascii?Q?dgJg8WlazYRiG9LRRBheEFS/Td8zKEzeGCBucEN+8p3ju9ntVBoHB4y1l+rc?=
+ =?us-ascii?Q?GaDiVz1GOxjQg42/4v8tjzFD0PCtd842EJFzstivBxfl58+j2//KBJKY3VzV?=
+ =?us-ascii?Q?kretdaLLgBIUArsxj3xp/YvZyjqofbDeSCj47wnzTdcnJ+z0NZMP7OgnD0BT?=
+ =?us-ascii?Q?+PlnUXpnJfBesNZ6aIgpJfB3lC+ahVSLhkPOjumitFWa5nYGalgHvLPePj4V?=
+ =?us-ascii?Q?eGKqX2x7wg6+uNkH0VWFGpBSoB63f/vK8m5libU78oPUwhyB5Q4g0xBZx8lY?=
+ =?us-ascii?Q?kCIg9oDw10BursQXgki/OSSxbfH+HbDSLMc4aDo5UApSopx/fcRklEH3ZF3j?=
+ =?us-ascii?Q?ZnLIQZZekaZcuw6NQ7Gb82uWeMUNKJ0DBgSC1TizB8ghxjFVdTwjA6j2odEA?=
+ =?us-ascii?Q?ccGr3hYCfM/wgtdqnwMky1hcYz7T8ff9JFGv9LHDauVXMGwELXaHReukaRro?=
+ =?us-ascii?Q?2wTYpwJWa29kGE3GhbqqFwBvqCEzpv5ffUXuM4TQwfprJvsTIOxvebF6RshG?=
+ =?us-ascii?Q?yeynvHTiXUXnZhLRSNdtOvTGQBDS6e1IKDwhQxrSXlKkMg5I4ekDf5vlThkF?=
+ =?us-ascii?Q?LFk7v6iiI9cUQNidC2WAFh+/Z/Q9BEbbF7dNRB4uTCOlR0CsSBKTDdqSC19y?=
+ =?us-ascii?Q?MYHzh4NL2ASiWAWKd8Vcw16FsKuMmZXTte7W8emKQnAnPzJ95qsStYgeOEoo?=
+ =?us-ascii?Q?9gkoZX+jC+u0hE3n3vsgnTa3cO0FD+v4s5H8jxP15SRmpBAJEoVwzkPms2RV?=
+ =?us-ascii?Q?SYBlPgR3ajdcY+iUqWUmBgxaUVvJR+nI8NXzIDlIFZnFAfy4f+NBWOBtk9ca?=
+ =?us-ascii?Q?cbaimNb5zcqvWNYOgcfuCCWFQmTZ024+Jqg6ecJvgZrayjA+AF4fhPLHHYWJ?=
+ =?us-ascii?Q?HoWM9ANvVEbnN7v10nOLhBa79adT69J+D9aNGmTc?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1fef56df-2df1-474a-8d4b-08db30cd0e8b
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB3176.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Mar 2023 03:15:47.5409
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: aH0kc+MJF4PQvUafZV/znLk5IBsUHV1zXiz6fSAcNZuRUOsoX1m2l3g6gC4KMXF0/qR86icQNj1Vp+KPS/84bQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6814
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-在 2023/3/27 22:58, Mathias Nyman 写道:
-> On 27.3.2023 4.11, Hongyu Xie wrote:
->> It was first found on HUAWEI Kirin 9006C platform with a builtin xhci
->> controller during stress cycle test(stress-ng, glmark2, x11perf, S4...).
->>
->> phase one:
->> [26788.706878] PM: dpm_run_callback(): platform_pm_thaw+0x0/0x68 returns -12
->> [26788.706878] PM: Device xhci-hcd.1.auto failed to thaw async: error -12
->> ...
->> phase two:
->> [28650.583496] [2023:01:19 04:43:29]Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
->> ...
->> [28650.583526] user pgtable: 4k pages, 39-bit VAs, pgdp=000000027862a000
->> [28650.583557] [0000000000000028] pgd=0000000000000000
->> ...
->> [28650.583587] pc : xhci_suspend+0x154/0x5b0
->> [28650.583618] lr : xhci_suspend+0x148/0x5b0
->> [28650.583618] sp : ffffffc01c7ebbd0
->> [28650.583618] x29: ffffffc01c7ebbd0 x28: ffffffec834d0000
->> [28650.583618] x27: ffffffc0106a3cc8 x26: ffffffb2c540c848
->> [28650.583618] x25: 0000000000000000 x24: ffffffec82ee30b0
->> [28650.583618] x23: ffffffb43b31c2f8 x22: 0000000000000000
->> [28650.583618] x21: 0000000000000000 x20: ffffffb43b31c000
->> [28650.583648] x19: ffffffb43b31c2a8 x18: 0000000000000001
->> [28650.583648] x17: 0000000000000803 x16: 00000000fffffffe
->> [28650.583648] x15: 0000000000001000 x14: ffffffb150b67e00
->> [28650.583648] x13: 00000000f0000000 x12: 0000000000000001
->> [28650.583648] x11: 0000000000000000 x10: 0000000000000a80
->> [28650.583648] x9 : ffffffc01c7eba00 x8 : ffffffb43ad10ae0
->> [28650.583648] x7 : ffffffb84cd98dc0 x6 : 0000000cceb6a101
->> [28650.583679] x5 : 00ffffffffffffff x4 : 0000000000000001
->> [28650.583679] x3 : 0000000000000011 x2 : 0000000000e2cfa8
->> [28650.583679] x1 : 00000000823535e1 x0 : 0000000000000000
->>
->> gdb:
->> (gdb) l *(xhci_suspend+0x154)
->> 0xffffffc010b6cd44 is in xhci_suspend (/.../drivers/usb/host/xhci.c:854).
->> 849	{
->> 850		struct xhci_ring *ring;
->> 851		struct xhci_segment *seg;
->> 852
->> 853		ring = xhci->cmd_ring;
->> 854		seg = ring->deq_seg;
->> (gdb) disassemble 0xffffffc010b6cd44
->> ...
->> 0xffffffc010b6cd40 <+336>:	ldr	x22, [x19, #160]
->> 0xffffffc010b6cd44 <+340>:	ldr	x20, [x22, #40]
->> 0xffffffc010b6cd48 <+344>:	mov	w1, #0x0                   	// #0
->>
->> During phase one, platform_pm_thaw called xhci_plat_resume which called
->> xhci_resume. The rest possible calling routine might be
->> xhci_resume->xhci_init->xhci_mem_init, and xhci->cmd_ring was cleaned in
->> xhci_mem_cleanup before xhci_mem_init returned -ENOMEM.
->>
->> During phase two, systemd was tring to hibernate again and called
->> xhci_suspend, then xhci_clear_command_ring dereferenced xhci->cmd_ring
->> which was already NULL.
->>
-> 
-> Any comments on the questions I had on the first version of the patch?
-Sorry, didn't notice your reply in the first version.
-> 
-> xhci_mem_init() failing with -ENOMEM looks like the real problem here.
-> 
-> Are we really running out of memory? does kmemleak say anything?
-It looks like running out of memory, since it was running a stress test. 
-But can't go any further without more details. Didn't run with kmemleak 
-open.
-> Any chance you could look into where exactly xhci_mem_init() fails as
-> xhci_mem_init() always returns -ENOMEM on failure?
-Can't reproduce the problem for a very long time. Still don't know where 
-did it fail in xhci_mem_init. But I think you can't blame xhci driver 
-for memory shortage, and you can't fix that.
-> 
->> So if xhci->cmd_ring is NULL, xhci_clear_command_ring just return.
-> 
-> This hides the problem more than solves it. Root cause is still unknown
-You were saying "If xhci_mem_init() failed then...it shouldn't be...", 
-and I agree with it. Further more, I think functions that calling 
-xhci_mem_init needs to check xhci_mem_init's return value, but it needs 
-another patch to do this. This patch is saying that 
-xhci_clear_command_ring should check a pointer before using it, because 
-somewhere else might clear cmd_ring, that's all.
-> 
-> Thanks
-> Mathias
-> 
-> 
-Thanks
+Christoph Hellwig <hch@infradead.org> writes:
 
-Hongyu Xie
+> s/page/folio/ in the entire commit log?
+
+I debated that but settled on leaving it as is because device exclusive
+entries only deal with non-compound pages for now and didn't want to
+give any other impression. Happy to change that though if people think
+it would be better/clearer.
