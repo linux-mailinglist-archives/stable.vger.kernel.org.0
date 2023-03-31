@@ -2,63 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C0A6D1353
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 01:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28E46D13E9
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 02:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231545AbjC3XdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Mar 2023 19:33:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
+        id S229459AbjCaAO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Mar 2023 20:14:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231388AbjC3XdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 19:33:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4277AB5
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 16:33:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E81AB82A90
-        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 23:33:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F37E7C433EF;
-        Thu, 30 Mar 2023 23:33:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680219182;
-        bh=4bFV6B2aLlNy2GeFsrhVevoxwGDd7o0P5F6REco4ges=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RoPuReSjEv9WlLbgOGPIGAwmm2KBJ7rA+KgLYjvyMqK6oUtYpPHBR24gFU43PTdkp
-         r8bwjFJtnE6HK83ERwx/BDFoonPamiYem0dMBUzMbN+JFpdDnwN0KPlvqEyg8LSML3
-         wZzIRhWYHAF9ni4YZPXqQ+iDnDtaDzrKCXmlpZBgOn8CBfGQuFC3PNNa6MWJ8DWhR0
-         Q+qU22eVu3htjf3P0eRL8v36sGAtf6Qz50063P3DRTcvXn4Stip/j47uM//MP0pERY
-         laE2klv5/osVw5fFP7scizU+F2bO8m4iR+6KO/Ch7pU/z5EHHdLUTxX+12ijHDsxDq
-         Jt6QODSlyjfEQ==
-Date:   Thu, 30 Mar 2023 19:33:00 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Nobel Barakat <nobelbarakat@google.com>
-Cc:     stable@vger.kernel.org
+        with ESMTP id S229602AbjCaAOy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Mar 2023 20:14:54 -0400
+Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDED12CE4
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 17:13:49 -0700 (PDT)
+Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-545e907790fso270002387b3.3
+        for <stable@vger.kernel.org>; Thu, 30 Mar 2023 17:13:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1680221522;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=mE2z5KXeFL3H1WpC0al7EAIysfK8Gyrov8EG6hwjT2w=;
+        b=MoPw3XISRQa0sGvO3JgEpaqRc+busMmDgNCecLvshmcSzm7m1XQOWB7OiXZ2g/2xjM
+         OMiuB9yKmdKicPyLAbNlnFuVRfrpulh5nxHyHFd1lfgINCl1BFOrsnEZ6MgjmOnha7wX
+         gYzPfEKXp29v7x9bL5ubTrpKGwd7wNhthPb3tLP8bA/5BRWjvkQCpvjTedb76f/jH1Pa
+         kzN+V8rXR/1FcIJr2v2PjzYZcjTnPRAXffjlDfOieYApOcSAZSEAGLZPgM8uQ/WCL/3m
+         ulspzihNWST29Sn5UG7e1pjv5H2mi1dSSF1zMNJSW71BMGuAqTZbsgUEbqCJp++zILPa
+         77Mg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680221522;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mE2z5KXeFL3H1WpC0al7EAIysfK8Gyrov8EG6hwjT2w=;
+        b=ebREVox/67Gj/y96dE7Y+ZGn96j9GRv3zidx4ZxVfMh1dBQJgofHR/P3F9kbVLFKT/
+         3cuNdtdf78XPlhykdeHBraFiPG+/DJocRzbhuJqv37YJ8BI/UdmPYWT/ufm7t2M+bW5R
+         jL0pko9O+3P6yWIGvDHQUprMN8FUCAyQuACht1YqzMc0Mi36ewTVga2DaJUh9ZHrxy6c
+         15oLwEAp8Ag00qFHe4mrjLYJ3ZxqpQ3LqoO/cR3oBDcfeaft9SXeOoJlh4HpVDbxbc4k
+         xNe/jgHAIzFSFsstR+tYz0pWRY742XYz3ff53iOpb+VqVuDB2B2ZRXgxePH3Xm3lNDVz
+         l79Q==
+X-Gm-Message-State: AAQBX9eV2QRa3CUkhRsXAatyi6KCLWh/WpxPpUonSfg5kdbz42Q8UUAR
+        6o39YRdtyIH3IlP90MLhMvDM6t/xFEztVPFCbu9Vzs4BhAyp3vgAzSJUXf5H
+X-Google-Smtp-Source: AKy350YFiw9LYi0Y9vCTisoqNlHHoTPWK5ec2OkXHs8HaMWHw1Ff2DAAuxe2jerSfml5d0vjfhLG4yIkSwYSPJVB8oI=
+X-Received: by 2002:a81:b388:0:b0:545:8202:bbcf with SMTP id
+ r130-20020a81b388000000b005458202bbcfmr11880863ywh.9.1680221521838; Thu, 30
+ Mar 2023 17:12:01 -0700 (PDT)
+MIME-Version: 1.0
+References: <CANZXNgMFifsEAUjCOtQWwxbZRbSvEYZz_Bwc4zrU6esb3xYRLA@mail.gmail.com>
+ <CANZXNgPgFwPSgz1-bE-CfTu1bgPgjKQVw8d8SqydVZe61J_41g@mail.gmail.com> <ZCYcLCfRwemynhS2@sashalap>
+In-Reply-To: <ZCYcLCfRwemynhS2@sashalap>
+From:   Nobel Barakat <nobelbarakat@google.com>
+Date:   Thu, 30 Mar 2023 17:11:50 -0700
+Message-ID: <CANZXNgNQGbP5Sd1+Eu55UfLWv_uwa=JdCvTDP=tchdmaVHT7+Q@mail.gmail.com>
 Subject: Re: 5.10 Backport Request: ovl: fail on invalid uid/gid mapping at
  copy up
-Message-ID: <ZCYcLCfRwemynhS2@sashalap>
-References: <CANZXNgMFifsEAUjCOtQWwxbZRbSvEYZz_Bwc4zrU6esb3xYRLA@mail.gmail.com>
- <CANZXNgPgFwPSgz1-bE-CfTu1bgPgjKQVw8d8SqydVZe61J_41g@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CANZXNgPgFwPSgz1-bE-CfTu1bgPgjKQVw8d8SqydVZe61J_41g@mail.gmail.com>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
+        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 28, 2023 at 04:01:24PM -0700, Nobel Barakat wrote:
->Sorry please ignore this, didn't realize the commit that introduced
->this issue landed on 5.11.
+Here's a link to the config we use:
+https://cos.googlesource.com/third_party/kernel/+/refs/heads/cos-6.1/arch/x86/configs/lakitu_defconfig
 
-Could you share your config? We're not seeing an issue on our end.
+Also, no issue here in this thread. The buggy commit looks like this one here:
+459c7c565ac3: ovl: unprivieged mounts
 
--- 
-Thanks,
-Sasha
+Since this landed on 5.11, 5.10 doesn't need a backport.
