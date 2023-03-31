@@ -2,187 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 442AD6D243C
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 17:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3472F6D2640
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 18:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229967AbjCaPmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 11:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35668 "EHLO
+        id S233130AbjCaQyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 12:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233040AbjCaPmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 11:42:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312E01DFA6;
-        Fri, 31 Mar 2023 08:42:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2B9FB83081;
-        Fri, 31 Mar 2023 15:42:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82024C433AA;
-        Fri, 31 Mar 2023 15:42:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680277370;
-        bh=MDMgoc2IHS3flEDrGytsmQQeZFpux/6WiPc3RwT4puI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=KWP9HPhTUvEN7mYuxZPxlkF9Hl4S+oz79fLOt03iQof2x7wP1wOPeSbl9oenZyFrQ
-         fkDVPvQe5EUtdywvNQCWWcj7+r87TalOf+BPYuacQ2p1R6v/ePP33qPL8LzC+eU2xO
-         s1W/QtS443bcYDdsN8uY5Cjvf3MzPXY5p4ZFjS3i1w306JKYM5VqXtdK6qe7ySxce9
-         VJoiB1rjWIUZASVQBZeVMhZYDh00vVW1OSd4xWx1hf69M1b4sdmS+D+f/CinScQgcb
-         xFZ+rNIpK+I1kT7u0Wj87x17ousfsfA6X04sI5JZXryQjh5NiOquyoDPdKlC+l22La
-         aywDmtF2nKWAg==
-Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-177b78067ffso23580301fac.7;
-        Fri, 31 Mar 2023 08:42:50 -0700 (PDT)
-X-Gm-Message-State: AAQBX9fA7tpbx/KjWdeDjSIzvx6WmuwCGaYF9EqLG0PYYcIQBWtM2R5a
-        zvATw8pv9tw/Tp/vXIsJoWuOQlgBI5yDwUZCYm0=
-X-Google-Smtp-Source: AKy350ZKdZjJtD7mXFXhuBEd3X3QxuVbk6K1rSdL3mLEnsD4V+CltTewuKSddNWpcoR4U4lyRHFFTL+c+TbiUqnDZcc=
-X-Received: by 2002:a05:6871:2797:b0:17e:9b69:3ee5 with SMTP id
- zd23-20020a056871279700b0017e9b693ee5mr9426869oab.11.1680277369598; Fri, 31
- Mar 2023 08:42:49 -0700 (PDT)
+        with ESMTP id S231695AbjCaQx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 12:53:57 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FCE1EFE4
+        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 09:52:54 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id bi9so29683180lfb.12
+        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 09:52:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112; t=1680281573; x=1682873573;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KRqGjA4IFBSpXp+ilR/BAk1W8vT0JhFNe6v3C7wlzoo=;
+        b=iGu2B9IotHWel6Gv85IfDHmIchNd4aW0ojCsJ7VnYnRa+9MecczZ9+5cJv8b3jW7ev
+         PZMfkriPP13RxLuKDvARNTn2qTt42mS9FzQDrqpp+8Yd6MrazVA6gEUYnxXQh3GAW96e
+         /k4WkALWmV8yTnzR8lJ7Ih3reb7oTWanoEu4y99Zh59JqpDa2cPjXCbfLXdF6fpGyjwn
+         4EJtt94dvioyIJlNgmoh9EFRAH/Z0Q0vl8pXprHTNym2WPhHJMUYzquDCYm+Q8MvI4i9
+         BqAor3JCRQ/LZRGRMwyQPlVFWTs0eJrfTOLgmdvsZr0MFZgEkcsyy0ZuwZT2bAPU0Tn4
+         i6hQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680281573; x=1682873573;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KRqGjA4IFBSpXp+ilR/BAk1W8vT0JhFNe6v3C7wlzoo=;
+        b=KYAqlfN1UEdd301b0TyI/FQ4owdKoNovMEQSLWsl7KYgVkCqc16gsi+gbGTZQdueMd
+         eX/ELockYycgszdnfeAKd2zizPgVnjPXOjGVMF7nq4h5cqSjI0CvUBxORd2dQGHHUeBL
+         p0EiPtK2D9uiGou0EpF5PFjD4I3QE0W+U5xbImbINSMFEtPWoAo+swrbZhgXB39T6shy
+         7Y29k98wPgbmxOvz+ShpzQGUrAXSTB4+5C27wzYlWVsfm5qGyGmy8F6HYJm1B6Q5C2it
+         Yra3ctgKPF/gPT8EpC8XLOmD5BfJ+EHTBTpvKyK/AtZizz0qaFhdVpKoUm4NZgKf2YYi
+         /XQw==
+X-Gm-Message-State: AAQBX9fdVIGR5PxFBZV7rrbaXacYxdeBdPzlSqR20YfnfYH8vUOXSNIg
+        eje0MxE8zh7N4xcw4QpbVn90ro7l/yo9YJHIqXUjHw==
+X-Google-Smtp-Source: AKy350ZDBdotJtsCIiTvfV4i36oUIym0exfSUykMqeFq2GnYu4xjZXuYqedJhRVqQCVhN8/MUcw2n83ZK2jY6xuaJMc=
+X-Received: by 2002:ac2:4434:0:b0:4dc:807a:d140 with SMTP id
+ w20-20020ac24434000000b004dc807ad140mr8163687lfl.10.1680281572661; Fri, 31
+ Mar 2023 09:52:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230330182223.181775-1-hi@alyssa.is> <20230330222928.GA644044@dev-arch.thelio-3990X>
-In-Reply-To: <20230330222928.GA644044@dev-arch.thelio-3990X>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Sat, 1 Apr 2023 00:42:13 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARU444UrZXVodNftud-scy5KKUjdtTM0GOrxHB9pyKmkg@mail.gmail.com>
-Message-ID: <CAK7LNARU444UrZXVodNftud-scy5KKUjdtTM0GOrxHB9pyKmkg@mail.gmail.com>
-Subject: Re: [PATCH v3] purgatory: fix disabling debug info
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Alyssa Ross <hi@alyssa.is>, Nick Cao <nickcao@nichi.co>,
-        linux-kbuild@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        linux-riscv@lists.infradead.org, Tom Rix <trix@redhat.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>
+References: <20230330155707.3106228-1-peterx@redhat.com> <20230330155707.3106228-2-peterx@redhat.com>
+ <CAJHvVcgDZBi6pH0BD12sQ3T+7Kr9exX1QU3-YLTd1voYhVBN0w@mail.gmail.com> <ZCYMu5P2BJy/2z5t@x1n>
+In-Reply-To: <ZCYMu5P2BJy/2z5t@x1n>
+From:   Axel Rasmussen <axelrasmussen@google.com>
+Date:   Fri, 31 Mar 2023 09:52:16 -0700
+Message-ID: <CAJHvVcggL+s=WEGzwR8+QvWgZANiLut+DhmosKtAXZ1F2vtFAg@mail.gmail.com>
+Subject: Re: [PATCH 01/29] Revert "userfaultfd: don't fail on unrecognized features"
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Leonardo Bras Soares Passos <lsoaresp@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-15.7 required=5.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,ENV_AND_HDR_SPF_MATCH,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL,
+        USER_IN_DEF_SPF_WL autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 31, 2023 at 7:29=E2=80=AFAM Nathan Chancellor <nathan@kernel.or=
-g> wrote:
+On Thu, Mar 30, 2023 at 3:27=E2=80=AFPM Peter Xu <peterx@redhat.com> wrote:
 >
-> On Thu, Mar 30, 2023 at 06:22:24PM +0000, Alyssa Ross wrote:
-> > Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAGS.
-> > Instead, it includes -g, the appropriate -gdwarf-* flag, and also the
-> > -Wa versions of both of those if building with Clang and GNU as.  As a
-> > result, debug info was being generated for the purgatory objects, even
-> > though the intention was that it not be.
+> On Thu, Mar 30, 2023 at 12:04:09PM -0700, Axel Rasmussen wrote:
+> > On Thu, Mar 30, 2023 at 8:57=E2=80=AFAM Peter Xu <peterx@redhat.com> wr=
+ote:
+> > >
+> > > This is a proposal to revert commit 914eedcb9ba0ff53c33808.
+> > >
+> > > I found this when writting a simple UFFDIO_API test to be the first u=
+nit
+> > > test in this set.  Two things breaks with the commit:
+> > >
+> > >   - UFFDIO_API check was lost and missing.  According to man page, th=
+e
+> > >   kernel should reject ioctl(UFFDIO_API) if uffdio_api.api !=3D 0xaa.=
+  This
+> > >   check is needed if the api version will be extended in the future, =
+or
+> > >   user app won't be able to identify which is a new kernel.
 > >
-> > Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S files=
-")
-> > Signed-off-by: Alyssa Ross <hi@alyssa.is>
-> > Cc: stable@vger.kernel.org
-> > Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+> > 100% agreed, this was a mistake.
+> >
+> > >
+> > >   - Feature flags checks were removed, which means UFFDIO_API with a
+> > >   feature that does not exist will also succeed.  According to the ma=
+n
+> > >   page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
+> > >   unknown features passed in.
+> >
+> > I still strongly disagree with reverting this part, my feeling is
+> > still that doing so makes things more complicated for no reason.
+> >
+> > Re: David's point, it's clearly wrong to change semantics so a thing
+> > that used to work now fails. But this instead makes it more permissive
+> > - existing userspace programs continue to work as-is, but *also* one
+> > can achieve the same thing more simply (combine probing +
+> > configuration into one step). I don't see any problem with that,
+> > generally.
+> >
+> > But, if David and others don't find my argument convincing, it isn't
+> > the end of the world. It just means I have to go update my userspace
+> > code to be a bit more complicated. :)
 >
-> This is definitely more future proof.
+> I'd say it's fine if it's your own program that you can in full control
+> easily. :) Sorry again for not noticing that earlier.
 >
-> Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-> Tested-by: Nathan Chancellor <nathan@kernel.org>
+> There's one reason that we may consider keeping the behavior.  IMHO it is
+> when there're major softwares that uses the "wrong" ABI (let's say so;
+> because it's not following the man pages).  If you're aware any such majo=
+r
+> softwares (especially open sourced) will break due to this revert patch,
+> please shoot.
 
+Well, I did find one example, criu:
+https://github.com/checkpoint-restore/criu/blob/criu-dev/criu/uffd.c#L266
+It doesn't do the two-step probing process, it looks to me like it
+does what my patch was intending users to do:
 
+It just asks for the requested features up-front, without any probing.
+And then it returns the subset of features it *actually* got,
+ostensibly so the caller can compare that vs. what it requested.
 
-I prefer v3 since it is cleaner, but unfortunately
-it does not work for Clang+GAS.
+Then again, it looks like the caller doesn't *actually* compare the
+features it got vs. what it asked for. I don't know enough about criu
+to know if this is a bug, or if they actually just don't care.
+https://github.com/checkpoint-restore/criu/blob/criu-dev/criu/uffd.c#L312
 
+>
+> >
+> > I also still think the man page is incorrect or at least incomplete no
+> > matter what we do here; we should be sure to update it as a follow-up.
+>
+> So far it looks still fine if with this revert.  Maybe I overlooked
+> somewhere?
+>
+> I'll add this into my todo, but with low priority.  If you have suggestio=
+n
+> already on how to improve the man page please do so before me!
 
-With v3 applied, I still see the debug info.
+My thinking is that it describes the bits and pieces, but doesn't
+explicitly describe end-to-end how to configure a userfaultfd using
+the two-step probing approach. (Or state that this is actually
+*required*, unless you only want to set features=3D0 in any case.)
 
+Maybe it will be easiest if I just send a patch myself with what I'm
+thinking, and we can see what folks think. Always easier to just look
+at a patch vs. talking about it in the abstract. :)
 
-
-$ make LLVM=3D1 LLVM_IAS=3D0  arch/x86/purgatory/setup-x86_64.o
-  UPD     include/config/kernel.release
-  UPD     include/generated/utsrelease.h
-  CALL    scripts/checksyscalls.sh
-  DESCEND objtool
-  INSTALL libsubcmd_headers
-  AS      arch/x86/purgatory/setup-x86_64.o
-$ readelf -S arch/x86/purgatory/setup-x86_64.o
-There are 18 section headers, starting at offset 0x14d8:
-
-Section Headers:
-  [Nr] Name              Type             Address           Offset
-       Size              EntSize          Flags  Link  Info  Align
-  [ 0]                   NULL             0000000000000000  00000000
-       0000000000000000  0000000000000000           0     0     0
-  [ 1] .text             PROGBITS         0000000000000000  00000040
-       0000000000000027  0000000000000000  AX       0     0     16
-  [ 2] .rela.text        RELA             0000000000000000  000012f8
-       0000000000000060  0000000000000018   I      15     1     8
-  [ 3] .data             PROGBITS         0000000000000000  00000067
-       0000000000000000  0000000000000000  WA       0     0     1
-  [ 4] .bss              NOBITS           0000000000000000  00001000
-       0000000000001000  0000000000000000  WA       0     0     4096
-  [ 5] .rodata           PROGBITS         0000000000000000  00001000
-       0000000000000020  0000000000000000   A       0     0     16
-  [ 6] .rela.rodata      RELA             0000000000000000  00001358
-       0000000000000018  0000000000000018   I      15     5     8
-  [ 7] .debug_line       PROGBITS         0000000000000000  00001020
-       000000000000005f  0000000000000000           0     0     1
-  [ 8] .rela.debug_line  RELA             0000000000000000  00001370
-       0000000000000018  0000000000000018   I      15     7     8
-  [ 9] .debug_info       PROGBITS         0000000000000000  0000107f
-       0000000000000027  0000000000000000           0     0     1
-  [10] .rela.debug_info  RELA             0000000000000000  00001388
-       0000000000000090  0000000000000018   I      15     9     8
-  [11] .debug_abbrev     PROGBITS         0000000000000000  000010a6
-       0000000000000014  0000000000000000           0     0     1
-  [12] .debug_aranges    PROGBITS         0000000000000000  000010c0
-       0000000000000030  0000000000000000           0     0     16
-  [13] .rela.debug_[...] RELA             0000000000000000  00001418
-       0000000000000030  0000000000000018   I      15    12     8
-  [14] .debug_str        PROGBITS         0000000000000000  000010f0
-       0000000000000054  0000000000000001  MS       0     0     1
-  [15] .symtab           SYMTAB           0000000000000000  00001148
-       0000000000000168  0000000000000018          16    12     8
-  [16] .strtab           STRTAB           0000000000000000  000012b0
-       0000000000000041  0000000000000000           0     0     1
-  [17] .shstrtab         STRTAB           0000000000000000  00001448
-       000000000000008d  0000000000000000           0     0     1
-Key to Flags:
-  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
-  L (link order), O (extra OS processing required), G (group), T (TLS),
-  C (compressed), x (unknown), o (OS specific), E (exclude),
-  D (mbind), l (large), p (processor specific)
-
-
-
-
-
-
-With -g0 given, GCC stops passing -g -gdwarf-4 down to GAS.
-
-
-Clang does not do anything about -g0 for the external assembler.
-
-
-
-
-I was thinking of dropping LLVM_IAS=3D0 support.
-When we decide to give up -fno-integrated-as,
-we can clean up the code in various places.
-
-
-Anyway, v3 does not work in the current situation.
-
-
-V2 works for all usecases.
-
-
-
-
---=20
-Best Regards
-Masahiro Yamada
+>
+> --
+> Peter Xu
+>
