@@ -2,174 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9B66D1B51
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 11:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442B96D1B66
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 11:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbjCaJHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 05:07:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55436 "EHLO
+        id S231213AbjCaJJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 05:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231710AbjCaJGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 05:06:46 -0400
-Received: from mx0a-0014ca01.pphosted.com (mx0a-0014ca01.pphosted.com [208.84.65.235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BEC21FD1A;
-        Fri, 31 Mar 2023 02:06:24 -0700 (PDT)
-Received: from pps.filterd (m0042385.ppops.net [127.0.0.1])
-        by mx0a-0014ca01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32V6qi78000864;
-        Fri, 31 Mar 2023 02:06:13 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=proofpoint;
- bh=vIp9Ev0lMVFELrGOwjeJWNdUx58OkSR+I0uEURRZWmU=;
- b=pRDIaaY2P6drnBS6e1agtQch5ShkDK7529+Jy27EKBoCnaE3p32gih3g1+tBJmZyHg5Y
- ZfkJaI71de8inG4Jn5oe9gNYrwabYVQ6PvvitmdHQClPeiqBtXgpsjvMMgouEYgoMooN
- G1PG5F+7CqPEf6pgx3y/ffvaCWJsBd7kQgyiqLdF0WSXFxdrMLtHWJjPvYaYYCyDZuK0
- whDa663NoeZln2wloKWKSA+xRTCyCxtzGs80NMWH1KKUepkEEvzuBmExWE7AJIo8LU8R
- A1lzO/v7W7g/1SPwGNb4Btf30M2OjHDHn4xTUy8istyQoIBKMnCOnRg4x6TdvLV+s3Uc xA== 
-Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2174.outbound.protection.outlook.com [104.47.59.174])
-        by mx0a-0014ca01.pphosted.com (PPS) with ESMTPS id 3pngsgkd6m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 31 Mar 2023 02:06:12 -0700
+        with ESMTP id S232009AbjCaJJI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 05:09:08 -0400
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com (mail-vi1eur04olkn2076.outbound.protection.outlook.com [40.92.75.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556261D92A
+        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 02:08:56 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HiAonXxcRXF9g+5LduP81ZwS64IxAHw4OXyU1HN9Q0njL0hUKFKTgsDSOyCofZV3rPHok0TAcY05p3i2vsp1F9Wh8T3h1XRHKztQMgR87zpJMnepYkTN9hXjGf/QrqO0M1DaBZuEMv5duSrg0wCCbGUsjsFjSDk5PMm3o5+hA/q+5eRJfBMq6Opyx0JvVE1IXVkDM62dYkqOxa+YDcjOuDNy9OC86DWj0jjUD5Kwl7s9kuwu0hqUAEjebql2ryToUjY5IzQeND1ONlgIWiaAxxwaTKA54z060WX4m2np8uXwuHKdXrrRVvun1Xy3LsChdmt4OKNYjM2DpprYRboYrQ==
+ b=lm41QuduuVTsSUfQ9HhEez2VEF7h9xM9wVeqzY5zaEaw7dNZj+VtJpq/5Jtx1+lr4n46t80fkc7kh4jd9jM8W7O3zpidmYMq+qRm+a4ubI/gaDFFFexCqk37ij0KSHROlGOvY4Vom0aUSs2VLE1NPwSVjDGe7jNc6YViKPwzLI1c7zlnloa0A0ss+DiIOvZgSkA3ScrMq2DxSmQnKwpS9V/3HrdLJUZU9VjHuR6ecAXwOrM7WHTNee3e0V62qmeLt50Zrm0Eu2OfUH4OS4xANWMCeDmE/wMGhtP5congO5/CU0pXzoOZgfZlo7al52oHOoKO+J/aSTItqVyzu8QJdA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vIp9Ev0lMVFELrGOwjeJWNdUx58OkSR+I0uEURRZWmU=;
- b=J2YS/Zuz4eTd7IwzJU91Lympn3cHEbKQ0dGlh+erqoJGkNMHmEtRHM5NN63wnMqRyYHELgZ3RpSAgouqqvmagm1IWaPIMoKI9BVp2wCUJ0HrZ7sMX9qVK56c4+/Oe+N3sVeay5HZc1UDnHO8EHyE6ouWaVWR5yVCzgIiSDGPZBhljEyd3wJxk3IsMf288LcCb5ooakj4gRZu338dvaWb43ihEzHsDUMvnm8v4IfgH8AyJQQSVYyqAmqOLnN8db1DD9eJDI9nyTs8xaGdNWBbEjtvKsJ1/uWnohjmIhWvg/OSx/BHQkZxyVIlsK6Mko/D3zYrij8Y4PB35PW6FJL8FQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 158.140.1.147) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=cadence.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=cadence.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
- s=selector2;
+ bh=8niAsrth9AV9GQJCvXT9MUP3VUprwN8VJxU+qjgmFEw=;
+ b=kElxRopNiSQ2ahbXfABh430opWXZRE3N9UVuzhXEkPaA/phAFzcHjOUMwxsYABShgPyvHFBIHAq+ertiqGPfLqVDPdJFSZLpiI5K/QEFq6tSjDS3o5pAv8erF7zvaPUuU+91dKWi9JJfq824h7yMKlSWg6vrPaF8w62QvinzSzhkOyx0bgOfc25nD6Fitcji7GuCraJ+CArmWgY18WFHj5c8/9hoheoI3ReQotk6uVzO0fhtwAmQ0d/ljg3Ezj5tMibA+ZOCsBMxQwOvwSmtGXkkJjCjn7GcPkoE71q9FC34hqALW+dmGQCDyb09ci+1zRMK580VD1lch3cSEOE74g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vIp9Ev0lMVFELrGOwjeJWNdUx58OkSR+I0uEURRZWmU=;
- b=fLo7xPAN3Tvs0QXjnwwFLXTq5MEEkCc+nZt8092BFgCrgIJwo7uq/vnsQu0QMYG4oFdoP+fjDR9P59q+2VQ6l93M9XVjgn5rmaSnXPekZNoSsxZjJht1rmyr27tm50VDpTOzw9dD083jc47UlZvlw6lOEhLG3L6TsFN08lJx9KQ=
-Received: from MW4PR04CA0048.namprd04.prod.outlook.com (2603:10b6:303:6a::23)
- by SJ0PR07MB9186.namprd07.prod.outlook.com (2603:10b6:a03:3e6::21) with
+ bh=8niAsrth9AV9GQJCvXT9MUP3VUprwN8VJxU+qjgmFEw=;
+ b=rrQjlpOzYMaD6Y0uOGBKcfsCZkVkWj2IMnAN+E3SjAUNF1iDnENSpHO+WMrzxEMNYKZ79KZLX134HV6mXO8yIX57WT4krihTTN0AsgI1gmI7KF/bhRCiVj6EBEARRrHebFSt/1mj26N1dQMGAk9JLIfA5sbh/N7J7sE13gDL0pkLuUf1IOKU6PJ8lCi4EBMtcznQ/VTnQ8XE8CfG+8NhXHoHwH6MxS4JvcgXM762VIVz9Shl8LReE7w4mx22jNok7iiaHXBEdMU7+R17iaskw9V/lUm/f+cDVwHInEFZrnk+J257WmelFJ0aRXDhBbRNVTBkggunVrV3HGHBvzoLGA==
+Received: from GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:150:93::14)
+ by PR3PR10MB4061.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:102:a1::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.22; Fri, 31 Mar
- 2023 09:06:10 +0000
-Received: from MW2NAM12FT071.eop-nam12.prod.protection.outlook.com
- (2603:10b6:303:6a:cafe::77) by MW4PR04CA0048.outlook.office365.com
- (2603:10b6:303:6a::23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.22 via Frontend
- Transport; Fri, 31 Mar 2023 09:06:10 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 158.140.1.147)
- smtp.mailfrom=cadence.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=cadence.com;
-Received-SPF: Pass (protection.outlook.com: domain of cadence.com designates
- 158.140.1.147 as permitted sender) receiver=protection.outlook.com;
- client-ip=158.140.1.147; helo=sjmaillnx1.cadence.com; pr=C
-Received: from sjmaillnx1.cadence.com (158.140.1.147) by
- MW2NAM12FT071.mail.protection.outlook.com (10.13.181.224) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6277.14 via Frontend Transport; Fri, 31 Mar 2023 09:06:10 +0000
-Received: from maileu4.global.cadence.com (eudvw-maileu4.cadence.com [10.160.110.201])
-        by sjmaillnx1.cadence.com (8.14.4/8.14.4) with ESMTP id 32V96603000543
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 31 Mar 2023 02:06:07 -0700
-Received: from maileu5.global.cadence.com (10.160.110.202) by
- maileu4.global.cadence.com (10.160.110.201) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.7; Fri, 31 Mar 2023 11:06:05 +0200
-Received: from eu-cn02.cadence.com (10.160.89.185) by
- maileu5.global.cadence.com (10.160.110.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24 via Frontend Transport; Fri, 31 Mar 2023 11:06:05 +0200
-Received: from eu-cn02.cadence.com (localhost.localdomain [127.0.0.1])
-        by eu-cn02.cadence.com (8.14.7/8.14.7) with ESMTP id 32V9656b454847;
-        Fri, 31 Mar 2023 05:06:05 -0400
-Received: (from pawell@localhost)
-        by eu-cn02.cadence.com (8.14.7/8.14.7/Submit) id 32V964C5454835;
-        Fri, 31 Mar 2023 05:06:04 -0400
-From:   Pawel Laszczak <pawell@cadence.com>
-To:     <peter.chen@kernel.org>
-CC:     <gregkh@linuxfoundation.org>, <linux-usb@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Pawel Laszczak <pawell@cadence.com>, <stable@vger.kernel.org>
-Subject: [PATCH] usb: cdnsp: Fixes error: uninitialized symbol 'len'
-Date:   Fri, 31 Mar 2023 05:06:00 -0400
-Message-ID: <20230331090600.454674-1-pawell@cadence.com>
-X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.12; Fri, 31 Mar
+ 2023 09:08:54 +0000
+Received: from GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::185f:8a4b:7994:c250]) by GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::185f:8a4b:7994:c250%6]) with mapi id 15.20.6277.014; Fri, 31 Mar 2023
+ 09:08:54 +0000
+Message-ID: <GV1PR10MB6241F8B5833F2805563CC486A38F9@GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM>
+Subject: Re: linux-5.15.105 broke /dev/sd* naming (probing)
+From:   Ilari =?ISO-8859-1?Q?J=E4=E4skel=E4inen?= 
+        <ijaaskelainen@outlook.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "linux-stable.git mailing-list" <stable@vger.kernel.org>
+Date:   Fri, 31 Mar 2023 12:08:51 +0300
+In-Reply-To: <ZCaULkVk6iHHJYm2@kroah.com>
+References: <GV1PR10MB62412F2794019C35025C7360A38F9@GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM>
+         <ZCaULkVk6iHHJYm2@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.4 (3.40.4-9.el9) 
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-CrossPremisesHeadersFilteredBySendConnector: maileu4.global.cadence.com
-X-OrganizationHeadersPreserved: maileu4.global.cadence.com
-X-EOPAttributedMessage: 0
+X-TMN:  [lpOFlU9yo20G9uhdJs+WsSIStgRKSFp+]
+X-ClientProxiedBy: SV0P279CA0046.NORP279.PROD.OUTLOOK.COM
+ (2603:10a6:f10:13::15) To GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:150:93::14)
+X-Microsoft-Original-Message-ID: <e0582ff4dc3aa82295897d300d14cadbde0c9434.camel@outlook.com>
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW2NAM12FT071:EE_|SJ0PR07MB9186:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7fb4175a-e019-439b-22a6-08db31c72ba5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
+X-MS-TrafficTypeDiagnostic: GV1PR10MB6241:EE_|PR3PR10MB4061:EE_
+X-MS-Office365-Filtering-Correlation-Id: 567c6e13-7cc0-4182-dbd3-08db31c78d10
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2Q9xWhQ7k5YymV+HpPOggANiWG6AsYhSaXhVNpj4zpbHaLSL31aIpN+0B9NQxwQb4WKDkmMEFkEiejzQ0rezmbkhfJLqAE9+ke65pHB21wgn1JGHOfQdqMiyDZC38rILLAXIzPXjHKm2krWtI4W4BxoriDdZi2liqDrc/DW85oFXUSzvdUqrHr1ABBBpNtZQFMCQzIoqJ+vezOM+BHLZcT+jNzPmlYMvTH2dJx8o8iUUhQNCDvEMZR19HRbT2m9o6qucd1u1W8TOao2LtnWHTyIIfpLHVjf5+DLjI+nHupVfYKekcRaA8jY8HNjCRCFG7sOJ94fvNYYH2l3vqfUPzkIeytNJWeTX0s55+CvnvDqHdZV87Ij6IRc/IxgEwQaP9G3SeMWRe08WOu5t7pOWrjuHK8VXX4QuzabIcMgmNg4s8wvUNd7ta/5KoZO/VhbYuQ6ASV5CIXoZltI4WAs4SZRVBzfH4eOqScJ2OAzVU3UlcsSN9/JXOltH+vpHSEasMDSUNlr10w7V76QxtkqGah4OZMp2NBiamxFCHuiReQ4GGV8PDcyaV+wjm0TT8M64bIE3EU5Ovppi6RIUKeIV52UZpt2qUfq5p9dRR/ZXTA7IxlebyuvWkjIiUSp8Bm+StHPHrs8aBAi6yoNNS2kAdgM3v9Uji00x0N5+Fb38QOfAy9CY51TtvqFo2cL1dabYz+C3Cn7OjLlbjImN+7t+Iw==
-X-Forefront-Antispam-Report: CIP:158.140.1.147;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:sjmaillnx1.cadence.com;PTR:unknown.Cadence.COM;CAT:NONE;SFS:(13230028)(4636009)(396003)(39860400002)(376002)(346002)(136003)(36092001)(451199021)(46966006)(40470700004)(36840700001)(47076005)(2616005)(336012)(1076003)(186003)(83380400001)(36860700001)(426003)(26005)(316002)(478600001)(42186006)(54906003)(6666004)(2906002)(82310400005)(356005)(40460700003)(8936002)(7636003)(8676002)(70586007)(40480700001)(36756003)(82740400003)(70206006)(41300700001)(4326008)(5660300002)(86362001)(6916009);DIR:OUT;SFP:1101;
-X-OriginatorOrg: cadence.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2023 09:06:10.3083
+X-Microsoft-Antispam-Message-Info: kUkaRpEULIprDy9Vke5ZzLvVfnFGpiZU3MFqm5zGFgx66bjRHtMvcsMjpuM9whQX5v9UELucc+k4iSNl6OVXfnHRvyGkIpeQSWp0pnB2RTrjQ2xmtMOWdUiZ+l7p6cBhYZcsThnxeEyH5SaHjy7XvsSB24DDyLf+WUR/IMnq5NOuDu/szjjg/WT602uBBhUlS+txNiwqfixIwqOFe6E3N+zlgZs0/s1cFDKkyFRo3W1qYNLFv9cAZ2leosGg6v4Il98Jf2vSzPwQKSSrSo9TCpM9aG44k/Z23J9gVPdntOHUq4wwjq3QCgCSNNS/1srqKCDrIa6wkil6GoSK2gcyVr81DuBV9t2vKhd5f6CLLUwuvQlz/7wR1d+pew4uOntkd+iOucZafvP0WJHxIoSf5RKsNmy/unp7PnvKYtRwixWX4w+3ApZwpeMTEOhmUsWsNI8yYB2d2J/rSxiYQahf4kpwR34Jgfqe3551AXSFjfuWDIG8KhEtJWhnJZoq1QdfuoONgKIwZEZdnv4xkS30RwuE/byFifGeTyC7HSRaRKzzS+R87DtN9UgzipKnsmff3A1il6YNB/83ancbq6/zF2qLLbCGFkQnJWcP/ffg0a9TMr/Tu+ilbJ/6O73wVFwD
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WWRsOXQ0d1YwTmI1QkN3ZTNKRUVncDdHU2lSWkE0ZmdxYmpKclVHN0MrQ095?=
+ =?utf-8?B?MFdPdlpvQ1R3VXhpMTlIZFVjcEt4M3JUOEdjem9KUVdIaUdnTEJjdEV5RHZD?=
+ =?utf-8?B?VGxYb1Y0QTROZlFyY2RJUDZTNS9GSGZ1V1pOaWw2Z1FzcGFYUTU1LzIyZUNE?=
+ =?utf-8?B?bHhnKzNoNmlURUl4N256dUNobkdPaWxENmpZeU5BM0FvQ3hONnRmcTA0ZEhK?=
+ =?utf-8?B?SnNkMnZ2TS9lbjZqdWhvMGhzR1p6MGczVFdTMXFxUkpLZ1BrellEMGhiTlc1?=
+ =?utf-8?B?dE9Mdy8xNzNGbDZVY0hlYjlBWGo1aXRtM2lwdWcwVTFvOGsvblVsYlBsdUgv?=
+ =?utf-8?B?QXdQL09YaERHdWhPZ1BoZzNTSVBKNVM2dWpUaStySnV4K1pxZXlhd1Zsd2l5?=
+ =?utf-8?B?MzBEZXIvQWFNcFBDUm9oaTVUQ01meGlvQVhqR2FITHU3TzhIYkE5d05DZzJk?=
+ =?utf-8?B?N2w1d0RQNEJvYjNHTmdGdXBxMGhTVTdOUXdwdDhIQyszcThpeHZSOWV6cS9P?=
+ =?utf-8?B?VGRoM3VxTzRBc2xJbWQyUHlhWDFQb1NrOWFndWpFNEdCWmlsVDJtWjJ5elcy?=
+ =?utf-8?B?RlpJLzJ2NzhHUVNYOVZqZERVZjlGaDM2M0dkNm9BUmlwR0JXYThsdVJRK0R4?=
+ =?utf-8?B?MzFJSndrRk9QQ1dxditXTGxNeENFL2RhK05hamdMWDFGWTJtZWZzUVJPN1Vn?=
+ =?utf-8?B?cFVqT1cyZzU1MkVsRDdndER0TWNJd1BqL2o0RVNTM3hJQkxIZ0hLb2hxVUQx?=
+ =?utf-8?B?VHlFTi9xeHFQdTVGZEw4QkR2TlZYK2tCU0s3b3dtYlZ0M0ZxSlN2TExtNmNj?=
+ =?utf-8?B?MDBvMERxUmR6SlZDUEI3UXVob0xDZDVxU3RzMmMyd1pPUGpsZXV0cXpVWUo5?=
+ =?utf-8?B?MXArdFRRYU10NmhEbTVOM0FOWllObDBTeHJLeTFla1RYSXkrUUtEQ1R5NjY1?=
+ =?utf-8?B?MklublZJOEI2Qmp0bUlOQThVZGpQdG5RcEFZSnV2c09sallzMWtOVnd3VEhw?=
+ =?utf-8?B?ZytmQ3N6bGNjR0Npc0NsVlRBOWhONDByZWhkaTF6S0ExcDRNdzZxZmlMUEVP?=
+ =?utf-8?B?L25OWVBQOWliRVMxejlyM2lXaUx1SU95Ry9CTTIrb3NiNUJDZ0RibXo0NXkz?=
+ =?utf-8?B?SUlsaWF3RmltU3cxdE50S0p1V1FqUk5TVXVOSC9mbnJmZVRiVmZXZHhEODZY?=
+ =?utf-8?B?dUVPa1ZFSGVVNE5FcUpFVDUxWEVGVDlUQll6Q3pkcmZZdzZPOFl3Vm42MkFa?=
+ =?utf-8?B?VVVWMzFTcXljY0svTmkwc3lOdW0ydjhVcE9ubkpiNTlHOVhLRDlaNGR6d3A3?=
+ =?utf-8?B?RnhKbDBBMDUvZi9FYXM4ZG5vamFZY2ZBbld4akViazVWWU05cExiejk1eGpV?=
+ =?utf-8?B?TVJzQlAvcjQ4UFZnR3VjS2tOOXgwNzdmOVhqU3d5NStLenVJaGdLWTFQeE1K?=
+ =?utf-8?B?TWo0UXNpUXJzeUJoWXpCVUpQeElxeHcwMlRqY0pwc1pLRFhEQmw1cC9XUEt0?=
+ =?utf-8?B?VGsrSy8vaDE5dTRGYmM1M2JCVVVHdGdxYnhFWWF4eVNYRnlzTUlPSnNEdWlx?=
+ =?utf-8?B?OGZicXJDNDVuSk03K0o5RFlOdWF0bnhqR3I0L0tjeVpSZHZ5SzJOd0lYVWpj?=
+ =?utf-8?Q?H/QwOeti5OhxvO9PH9m/ADCE7MqXRkgDuVG/y8fT6/W4=3D?=
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 567c6e13-7cc0-4182-dbd3-08db31c78d10
+X-MS-Exchange-CrossTenant-AuthSource: GV1PR10MB6241.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2023 09:08:54.0671
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7fb4175a-e019-439b-22a6-08db31c72ba5
-X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[158.140.1.147];Helo=[sjmaillnx1.cadence.com]
-X-MS-Exchange-CrossTenant-AuthSource: MW2NAM12FT071.eop-nam12.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR07MB9186
-X-Proofpoint-GUID: rXkctWpvP4ay04SKWU_0FQmR30mQ2A7k
-X-Proofpoint-ORIG-GUID: rXkctWpvP4ay04SKWU_0FQmR30mQ2A7k
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-31_04,2023-03-30_04,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 clxscore=1015
- mlxlogscore=746 malwarescore=0 priorityscore=1501 impostorscore=0
- mlxscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2303200000 definitions=main-2303310075
-X-Spam-Status: No, score=-0.9 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR10MB4061
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch 5bc38d33a5a1: "usb: cdnsp: Fixes issue with redundant
-Status Stage" leads to the following Smatch static checker warning:
+I am afraid I cant do that. I already almost wiped my root partition by
+accident because of this flaw.
+pe, 2023-03-31 kello 10:05 +0200, Greg KH kirjoitti:
+> On Fri, Mar 31, 2023 at 10:52:55AM +0300, Ilari Jääskeläinen wrote:
+> > As I attached a USB SSD into CentOS 9 Stream computer, after a
+> > short
+> > while it swaps /dev/sdb into /dev/sdc and the I/O gets ruined.
+> > Kind regards, Ilari Jääskeläinen.
+> > 
+> 
+> Is this using the CentOS kernel, or a kernel.org release?
+> 
+> And if a device changes names like that, it implies it was
+> disconnected
+> and then reconnected, what does the kernel logs say when this
+> happened?
+> 
+> thanks,
+> 
+> greg k-h
 
-  drivers/usb/cdns3/cdnsp-ep0.c:470 cdnsp_setup_analyze()
-  error: uninitialized symbol 'len'.
-
-cc: <stable@vger.kernel.org>
-Fixes: 5bc38d33a5a1 ("usb: cdnsp: Fixes issue with redundant Status Stage")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
----
- drivers/usb/cdns3/cdnsp-ep0.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/usb/cdns3/cdnsp-ep0.c b/drivers/usb/cdns3/cdnsp-ep0.c
-index d63d5d92f255..f317d3c84781 100644
---- a/drivers/usb/cdns3/cdnsp-ep0.c
-+++ b/drivers/usb/cdns3/cdnsp-ep0.c
-@@ -414,7 +414,7 @@ static int cdnsp_ep0_std_request(struct cdnsp_device *pdev,
- void cdnsp_setup_analyze(struct cdnsp_device *pdev)
- {
- 	struct usb_ctrlrequest *ctrl = &pdev->setup;
--	int ret = 0;
-+	int ret = -EINVAL;
- 	u16 len;
- 
- 	trace_cdnsp_ctrl_req(ctrl);
-@@ -424,7 +424,6 @@ void cdnsp_setup_analyze(struct cdnsp_device *pdev)
- 
- 	if (pdev->gadget.state == USB_STATE_NOTATTACHED) {
- 		dev_err(pdev->dev, "ERR: Setup detected in unattached state\n");
--		ret = -EINVAL;
- 		goto out;
- 	}
- 
--- 
-2.34.1
 
