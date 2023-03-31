@@ -2,90 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA27C6D26CB
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 19:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4666D278D
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 20:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbjCaRjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 13:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34604 "EHLO
+        id S232346AbjCaSId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 14:08:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230208AbjCaRjN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 13:39:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882A3C153
-        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 10:38:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680284292;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GYDHqdmMfVO2N43YvDMG75Acr8Ym/PPCssHQCbfBDWc=;
-        b=apWD5BVqioBdIZ8+CrwYMvwfb6JFhFRkLKg9ci44CJ9heeMlVfBHIrNaF9K0XoPKtn17cr
-        1QNeaAKte2k7UF63b0BIWNS+ak1gA5UUeMPCCPrSZPoxW3a2S8temHSFwc3HaJXIVt6QHN
-        ae1yVFY1KSZWn3EEwHojW5Q6K03l9zA=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-548-D3nBOxp9M8SLAhBrCzgVag-1; Fri, 31 Mar 2023 13:38:11 -0400
-X-MC-Unique: D3nBOxp9M8SLAhBrCzgVag-1
-Received: by mail-ed1-f72.google.com with SMTP id j21-20020a508a95000000b004fd82403c91so32660909edj.3
-        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 10:38:11 -0700 (PDT)
+        with ESMTP id S231609AbjCaSIc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 14:08:32 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB0C133;
+        Fri, 31 Mar 2023 11:08:31 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id 72-20020a9d064e000000b006a2f108924cso817929otn.1;
+        Fri, 31 Mar 2023 11:08:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680286111;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=M3lL8ptrd/luySMEjAQve8KEssZBP6yJTIAyyXPQHgg=;
+        b=TijtgZgJPoSAkrcF9V9ctcDVZf1Gr7uaoWdV1AaSjm/KZE5h4sYlBoiTiAt9zc1eCT
+         bEzo5N3F1nEvBlji5hWX5MiJWmvZ4/j1AY1gk3EaP6GT+eGUy5iA1vfl34lH6syE08ih
+         5m+fEYn4UId09hnyghSoIsBqnVREoKJ8cktxaK3unfkBnREtG+Tvg7W0FV9yFKoyTZ28
+         7RspSMLiGq/E5fUE0YWIYczKAThUMo5PGLplYoO3wc0tbyvULkxXR5Wdd8hGWdjz9Ki/
+         n8HzZzHwhI8BbETWOExrjzXGl+KiuUgdPOU4xcX+xg6NhdUtZvU71oUmjKhit4SAKBYP
+         03KQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680284290;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GYDHqdmMfVO2N43YvDMG75Acr8Ym/PPCssHQCbfBDWc=;
-        b=Zyr/leDB/o6LE1tbW5KSHepuuEkyQEZq1qexRWBgZqbF1kTuaHxoIZjZCQuNvt92G1
-         LWQHmufLwUugPJksmjVg0bIWyZTgFl7i2Hd8G2zsAsAMqo5bF2EzdRqJgZUXwP7oWsyv
-         KdJ7IZ0b2GqpklS83gnFVaickhGeXkhFBR6p8aF+LUEOmM9Rp8tf6bsAmXiaTAgbLl9Z
-         Hl+RtkwqUNlWXt3lP32vSw1iEugnaR84YbrCbyiBRRyhLqPI7aqfs6+p8oricvHHJjw6
-         YfitVR7pi4huVIfTe0Fvgf3Tl4Cquos6cOodfosKY9K3NzNcMXEAP0dohiq7D9NjaexD
-         7sHw==
-X-Gm-Message-State: AAQBX9cszynGvf8IJIf7IIBdiZXRlpl1Wy6/q7whwziCzfhW03IVdVfo
-        yAywC6HKi/SYL7TxC5nx+4NSXGPTQRL2yPicqBkErnT1PV4dWpV9ToNNAybK+rJFEhkhpe4Ou1O
-        WICuDHTUaJDZdpFT+
-X-Received: by 2002:a17:907:7701:b0:92f:efdc:610e with SMTP id kw1-20020a170907770100b0092fefdc610emr26616101ejc.66.1680284290013;
-        Fri, 31 Mar 2023 10:38:10 -0700 (PDT)
-X-Google-Smtp-Source: AKy350bttAblxAzeVcv520ae+I7/Dlz6cMxJmSXfGpZ2P5VuH7+8SybGtIrMlnlsSiHxo/ZcaYrqzA==
-X-Received: by 2002:a17:907:7701:b0:92f:efdc:610e with SMTP id kw1-20020a170907770100b0092fefdc610emr26616077ejc.66.1680284289697;
-        Fri, 31 Mar 2023 10:38:09 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id g19-20020a170906c19300b0093313f4fc3csm1182565ejz.70.2023.03.31.10.38.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 31 Mar 2023 10:38:09 -0700 (PDT)
-Message-ID: <7d386897-76a5-976b-e8ed-6e576f8e3ac9@redhat.com>
-Date:   Fri, 31 Mar 2023 19:38:08 +0200
+        d=1e100.net; s=20210112; t=1680286111;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=M3lL8ptrd/luySMEjAQve8KEssZBP6yJTIAyyXPQHgg=;
+        b=PXzEbaWzswOO8Dn7YjaWq2iMZdVDrDPvbPIju6OJGqapmdLCwk0RN4NOSmMHcTEjTu
+         LddJgE2fFYht/vZ5Gz+s8HRQbqc1BSyHf3ddgm4WR1n2BCXrmZmow2pwwVybiLVSAfx2
+         kvuieix+Z8EHoa51Ba+aK25hcqqKuLWwXYfCpJ6RI4M9Y1vqRCdrkzSrddktNs/iTr2J
+         ViCeWZKTe6KV96Pc/ZIdUGk0THvZskXLWCgOX2FKGSbmU37Ud1vBRpGrh/oUTz2yoAAL
+         BNYRFR9Xlej0s2UXj8q2PVAiZJMoE8TRreWrJCevE1P3kSPrhHPSNUAXfLDHgjuedhv3
+         mN3Q==
+X-Gm-Message-State: AO0yUKUax8pCKXGn/pMxnumnPZXKe5S0lASIjkaZA66h0fXVWz6GUfx3
+        SGzdfJV3woGIwd8MEwaeLiNwra536+3ExPyTFbE=
+X-Google-Smtp-Source: AK7set981SrirQiFBWaZxlcKxBR0kBTYWv3oV3+6NxYBBpyhgoIO34kYohYYC30hWZ7ZG587NryXaQK1ELbmMLMxtPw=
+X-Received: by 2002:a05:6830:86:b0:69f:2a7b:22b9 with SMTP id
+ a6-20020a056830008600b0069f2a7b22b9mr8992270oto.0.1680286110928; Fri, 31 Mar
+ 2023 11:08:30 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH] platform/x86: ideapad-laptop: Stop sending
- KEY_TOUCHPAD_TOGGLE
-Content-Language: en-US, nl
-To:     Mark Gross <markgross@kernel.org>,
-        Andy Shevchenko <andy@kernel.org>
-Cc:     =?UTF-8?Q?Barnab=c3=a1s_P=c5=91cze?= <pobrn@protonmail.com>,
-        Kai Heng Feng <kai.heng.feng@canonical.com>,
-        Maxim Mikityanskiy <maxtram95@gmail.com>,
-        GOESSEL Guillaume <g_goessel@outlook.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Manyi Li <limanyi@uniontech.com>,
-        =?UTF-8?Q?Eray_Or=c3=a7unus?= <erayorcunus@gmail.com>,
-        Philipp Jungkamp <p.jungkamp@gmx.net>,
-        Arnav Rawat <arnavr3@illinois.edu>,
-        Kelly Anderson <kelly@xilka.com>, Meng Dong <whenov@gmail.com>,
-        Felix Eckhofer <felix@eckhofer.com>,
-        Ike Panhc <ike.pan@canonical.com>,
-        platform-driver-x86@vger.kernel.org, stable@vger.kernel.org
-References: <20230330194644.64628-1-hdegoede@redhat.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20230330194644.64628-1-hdegoede@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+References: <20230330155707.3106228-1-peterx@redhat.com> <20230330155707.3106228-2-peterx@redhat.com>
+ <CAJHvVcgDZBi6pH0BD12sQ3T+7Kr9exX1QU3-YLTd1voYhVBN0w@mail.gmail.com>
+ <ZCYMu5P2BJy/2z5t@x1n> <CAJHvVcggL+s=WEGzwR8+QvWgZANiLut+DhmosKtAXZ1F2vtFAg@mail.gmail.com>
+In-Reply-To: <CAJHvVcggL+s=WEGzwR8+QvWgZANiLut+DhmosKtAXZ1F2vtFAg@mail.gmail.com>
+From:   Dmitry Safonov <0x7f454c46@gmail.com>
+Date:   Fri, 31 Mar 2023 19:08:19 +0100
+Message-ID: <CAJwJo6YrfDH5-Tdsbau-AevVUuqiDQE74se3XvenT20Fbrrcnw@mail.gmail.com>
+Subject: Re: [PATCH 01/29] Revert "userfaultfd: don't fail on unrecognized features"
+To:     Axel Rasmussen <axelrasmussen@google.com>
+Cc:     Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Leonardo Bras Soares Passos <lsoaresp@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -93,101 +78,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, 31 Mar 2023 at 17:52, Axel Rasmussen <axelrasmussen@google.com> wro=
+te:
+>
+> On Thu, Mar 30, 2023 at 3:27=E2=80=AFPM Peter Xu <peterx@redhat.com> wrot=
+e:
+> >
+> > On Thu, Mar 30, 2023 at 12:04:09PM -0700, Axel Rasmussen wrote:
+> > > On Thu, Mar 30, 2023 at 8:57=E2=80=AFAM Peter Xu <peterx@redhat.com> =
+wrote:
+> > > >
+> > > > This is a proposal to revert commit 914eedcb9ba0ff53c33808.
+> > > >
+> > > > I found this when writting a simple UFFDIO_API test to be the first=
+ unit
+> > > > test in this set.  Two things breaks with the commit:
+> > > >
+> > > >   - UFFDIO_API check was lost and missing.  According to man page, =
+the
+> > > >   kernel should reject ioctl(UFFDIO_API) if uffdio_api.api !=3D 0xa=
+a.  This
+> > > >   check is needed if the api version will be extended in the future=
+, or
+> > > >   user app won't be able to identify which is a new kernel.
+> > > >
+> > > >   - Feature flags checks were removed, which means UFFDIO_API with =
+a
+> > > >   feature that does not exist will also succeed.  According to the =
+man
+> > > >   page, we should (and it makes sense) to reject ioctl(UFFDIO_API) =
+if
+> > > >   unknown features passed in.
 
-On 3/30/23 21:46, Hans de Goede wrote:
-> Commit 5829f8a897e4 ("platform/x86: ideapad-laptop: Send
-> KEY_TOUCHPAD_TOGGLE on some models") made ideapad-laptop send
-> KEY_TOUCHPAD_TOGGLE when we receive an ACPI notify with VPC event bit 5 set
-> and the touchpad-state has not been changed by the EC itself already.
-> 
-> This was done under the assumption that this would be good to do to make
-> the touchpad-toggle hotkey work on newer models where the EC does not
-> toggle the touchpad on/off itself (because it is not routed through
-> the PS/2 controller, but uses I2C).
-> 
-> But it turns out that at least some models, e.g. the Yoga 7-15ITL5 the EC
-> triggers an ACPI notify with VPC event bit 5 set on resume, which would
-> now cause a spurious KEY_TOUCHPAD_TOGGLE on resume to which the desktop
-> environment responds by disabling the touchpad in software, breaking
-> the touchpad (until manually re-enabled) on resume.
-> 
-> It was never confirmed that sending KEY_TOUCHPAD_TOGGLE actually improves
-> things on new models and at least some new models like the Yoga 7-15ITL5
-> don't have a touchpad on/off toggle hotkey at all, while still sending
-> ACPI notify events with VPC event bit 5 set.
-> 
-> So it seems best to revert the change to send KEY_TOUCHPAD_TOGGLE when
-> receiving an ACPI notify events with VPC event bit 5 and the touchpad
-> state as reported by the EC has not changed.
-> 
-> Note this is not a full revert the code to cache the last EC touchpad
-> state is kept to avoid sending spurious KEY_TOUCHPAD_ON / _OFF events
-> on resume.
-> 
-> Fixes: 5829f8a897e4 ("platform/x86: ideapad-laptop: Send KEY_TOUCHPAD_TOGGLE on some models")
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=217234
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+If features/flags are not checked in kernel, and the kernel doesn't
+return an error on
+an unknown flag/error, that makes the syscall non-extendable, meaning
+that adding
+any new feature may break existing software, which doesn't sanitize
+them properly.
+https://lwn.net/Articles/588444/
 
-I've applied this patch to my fixes branch now:
-https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=fixes
+See a bunch of painful exercises from syscalls with numbers in the end:
+https://lwn.net/Articles/792628/
+To adding an additional setsockopt() because an old one didn't have
+sanity checks for flags:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=
+id=3D8917a777be3b
+(not the best example, as the new setsockopt() didn't check flags for
+sanity as well (sic!),
+but that's near the code I work on now)
 
-Note it will show up in my fixes branch once I've pushed my
-local branch there, which might take a while.
+This is even documented nowadays:
+https://www.kernel.org/doc/html/latest/process/adding-syscalls.html#designi=
+ng-the-api-planning-for-extension
 
-I will include this patch in my next fixes pull-req to Linus
-for the current kernel development cycle.
+...and everyone knows what happens when you blame userspace for breaking by
+not doing what you would have expected it to do:
+https://lkml.org/lkml/2012/12/23/75
 
-Regards,
+[..]
+> > There's one reason that we may consider keeping the behavior.  IMHO it =
+is
+> > when there're major softwares that uses the "wrong" ABI (let's say so;
+> > because it's not following the man pages).  If you're aware any such ma=
+jor
+> > softwares (especially open sourced) will break due to this revert patch=
+,
+> > please shoot.
+>
+> Well, I did find one example, criu:
+> https://github.com/checkpoint-restore/criu/blob/criu-dev/criu/uffd.c#L266
 
-Hans
+Mike can speak better than me about uffd, but AFAICS, CRIU correctly detect=
+s
+features with kerneldat/kdat:
+https://github.com/checkpoint-restore/criu/blob/criu-dev/criu/kerndat.c#L12=
+35
 
+So, doing a sane thing in kernel shouldn't break CRIU (at least here).
 
-
-> ---
->  drivers/platform/x86/ideapad-laptop.c | 23 ++++++++++-------------
->  1 file changed, 10 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-> index b5ef3452da1f..35c63cce0479 100644
-> --- a/drivers/platform/x86/ideapad-laptop.c
-> +++ b/drivers/platform/x86/ideapad-laptop.c
-> @@ -1170,7 +1170,6 @@ static const struct key_entry ideapad_keymap[] = {
->  	{ KE_KEY,  65, { KEY_PROG4 } },
->  	{ KE_KEY,  66, { KEY_TOUCHPAD_OFF } },
->  	{ KE_KEY,  67, { KEY_TOUCHPAD_ON } },
-> -	{ KE_KEY,  68, { KEY_TOUCHPAD_TOGGLE } },
->  	{ KE_KEY, 128, { KEY_ESC } },
->  
->  	/*
-> @@ -1526,18 +1525,16 @@ static void ideapad_sync_touchpad_state(struct ideapad_private *priv, bool send_
->  	if (priv->features.ctrl_ps2_aux_port)
->  		i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
->  
-> -	if (send_events) {
-> -		/*
-> -		 * On older models the EC controls the touchpad and toggles it
-> -		 * on/off itself, in this case we report KEY_TOUCHPAD_ON/_OFF.
-> -		 * If the EC did not toggle, report KEY_TOUCHPAD_TOGGLE.
-> -		 */
-> -		if (value != priv->r_touchpad_val) {
-> -			ideapad_input_report(priv, value ? 67 : 66);
-> -			sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
-> -		} else {
-> -			ideapad_input_report(priv, 68);
-> -		}
-> +	/*
-> +	 * On older models the EC controls the touchpad and toggles it on/off
-> +	 * itself, in this case we report KEY_TOUCHPAD_ON/_OFF. Some models do
-> +	 * an acpi-notify with VPC bit 5 set on resume, so this function get
-> +	 * called with send_events=true on every resume. Therefor if the EC did
-> +	 * not toggle, do nothing to avoid sending spurious KEY_TOUCHPAD_TOGGLE.
-> +	 */
-> +	if (send_events && value != priv->r_touchpad_val) {
-> +		ideapad_input_report(priv, value ? 67 : 66);
-> +		sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
->  	}
->  
->  	priv->r_touchpad_val = value;
-
+Thanks,
+             Dmitry
