@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 527FA6D2153
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 15:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 506D76D2156
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 15:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbjCaNQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 09:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51488 "EHLO
+        id S231781AbjCaNRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 09:17:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbjCaNQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 09:16:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECB81A46E;
-        Fri, 31 Mar 2023 06:16:50 -0700 (PDT)
+        with ESMTP id S230226AbjCaNRM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 09:17:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415091A47B;
+        Fri, 31 Mar 2023 06:17:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DE9062709;
-        Fri, 31 Mar 2023 13:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF3AC433EF;
-        Fri, 31 Mar 2023 13:16:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC3BBB82DC1;
+        Fri, 31 Mar 2023 13:17:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E771C433EF;
+        Fri, 31 Mar 2023 13:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680268609;
-        bh=2MPdnUHGU0aIs3VfxSa6Dd5lcSVZ7IsUdIpMm+VnV4Q=;
+        s=korg; t=1680268628;
+        bh=GzcVFio4AKLjf3M2ehf5Onz2XStfPLZyBXJzNjDKbCQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZJDDcYnep4pq7w27lu75r8wKD/9Ku5cpain6oQhP58hf2yok49Gumqo2E0Da9GJjh
-         jfuGYk34KrKbJZ249S9JYgSxpMqyqo/d1wBI7teQRH8kAG9Iree2Ncuft9VwcF3xwS
-         qCelkEOSavL7K9bRZ8n81Etf1tAlVesSxk/Vkd+Q=
-Date:   Fri, 31 Mar 2023 15:16:47 +0200
+        b=n1dTHJSMtP+h8o9JZ5ceaqLuJq8JJu4FOd8y7ZsWjRgJd2/b/Zzav6DSejtYk/c2k
+         QG4KRYBoP97Dmbed7Q0od/I7oreKHUNVFaYc6IMYiCueDxMeu8F/gKsx1P6TKiWy9Z
+         /QonQCe1RgF64HyKh5BI3Pbk6W5f4zI/IfVoFH3U=
+Date:   Fri, 31 Mar 2023 15:17:05 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sascha Hauer <s.hauer@pengutronix.de>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Hans Ulli Kroll <linux@ulli-kroll.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Pkshih <pkshih@realtek.com>, Tim K <tpkuester@gmail.com>,
-        "Alex G ." <mr.nuke.me@gmail.com>,
-        Nick Morrow <morrownr@gmail.com>,
-        Viktor Petrenko <g0000ga@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] wifi: rtw88: rtw8821c: Fix rfe_option field width
-Message-ID: <ZCbdP11nqQinOQNe@kroah.com>
-References: <20230331121054.112758-1-s.hauer@pengutronix.de>
- <20230331121054.112758-3-s.hauer@pengutronix.de>
+To:     Jianmin Lv <lvjianmin@loongson.cn>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, linux-kernel@vger.kernel.org,
+        loongarch@lists.linux.dev,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        loongson-kernel@lists.loongnix.cn, stable@vger.kernel.org
+Subject: Re: [PATCH V2 1/5] irqchip/loongson-eiointc: Fix returned value on
+ parsing MADT
+Message-ID: <ZCbdUbVhH7lmh3PI@kroah.com>
+References: <20230331113900.9105-1-lvjianmin@loongson.cn>
+ <20230331113900.9105-2-lvjianmin@loongson.cn>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230331121054.112758-3-s.hauer@pengutronix.de>
+In-Reply-To: <20230331113900.9105-2-lvjianmin@loongson.cn>
 X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
@@ -58,24 +56,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 31, 2023 at 02:10:54PM +0200, Sascha Hauer wrote:
-> On my RTW8821CU chipset rfe_option reads as 0x22. Looking at the
-> downstream driver suggests that the field width of rfe_option is 5 bit,
-> so rfe_option should be masked with 0x1f.
+On Fri, Mar 31, 2023 at 07:38:56PM +0800, Jianmin Lv wrote:
+> In pch_pic_parse_madt(), a NULL parent pointer will be
+> returned from acpi_get_vec_parent() for second pch-pic domain
+> related to second bridge while calling eiointc_acpi_init() at
+> first time, where the parent of it has not been initialized
+> yet, and will be initialized during second time calling
+> eiointc_acpi_init(). So, it's reasonable to return zero so
+> that failure of acpi_table_parse_madt() will be avoided, or else
+> acpi_cascade_irqdomain_init() will return and initialization of
+> followed pch_msi domain will be skipped.
 > 
-> Without this the rfe_option comparisons with 2 further down the
-> driver evaluate as false when they should really evaluate as true.
-> The effect is that 2G channels do not work.
+> Although it does not matter when pch_msi_parse_madt() returns
+> -EINVAL if no invalid parent is found, it's also reasonable to
+> return zero for that.
 > 
-> rfe_option is also used as an array index into rtw8821c_rfe_defs[].
-> rtw8821c_rfe_defs[34] (0x22) was added as part of adding USB support,
-> likely because rfe_option reads as 0x22. As this now becomes 0x2,
-> rtw8821c_rfe_defs[34] is no longer used and can be removed.
-> 
-> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
 > ---
->  drivers/net/wireless/realtek/rtw88/rtw8821c.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  drivers/irqchip/irq-loongson-eiointc.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
 <formletter>
 
