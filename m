@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74B06D1E53
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 12:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C696D1E54
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 12:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230082AbjCaKuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 06:50:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
+        id S231317AbjCaKva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 06:51:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231331AbjCaKuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 06:50:13 -0400
+        with ESMTP id S229939AbjCaKv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 06:51:29 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B5A6C1CBAB
-        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 03:50:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B1C582705
+        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 03:51:27 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9A5C42F4;
-        Fri, 31 Mar 2023 03:50:56 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D200A2F4;
+        Fri, 31 Mar 2023 03:52:11 -0700 (PDT)
 Received: from e120937-lin.. (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6BF763F6C4;
-        Fri, 31 Mar 2023 03:50:11 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 871323F6C4;
+        Fri, 31 Mar 2023 03:51:26 -0700 (PDT)
 From:   Cristian Marussi <cristian.marussi@arm.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
         Cristian Marussi <cristian.marussi@arm.com>,
         Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 4.19] firmware: arm_scmi: Fix device node validation for mailbox transport
-Date:   Fri, 31 Mar 2023 11:49:55 +0100
-Message-Id: <20230331104955.3800788-1-cristian.marussi@arm.com>
+Subject: [PATCH 5.4] firmware: arm_scmi: Fix device node validation for mailbox transport
+Date:   Fri, 31 Mar 2023 11:51:04 +0100
+Message-Id: <20230331105104.3803559-1-cristian.marussi@arm.com>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -50,25 +50,24 @@ shared memory areas: any other combination should be treated as invalid.
 Add more strict checking of SCMI mailbox transport device node descriptors.
 
 Fixes: fbc4d81ad285 ("firmware: arm_scmi: refactor in preparation to support per-protocol channels")
-Cc: <stable@vger.kernel.org> # 4.19
+Cc: <stable@vger.kernel.org> # 5.4
 Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
 Link: https://lore.kernel.org/r/20230307162324.891866-1-cristian.marussi@arm.com
 Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-[Cristian: backported to v4.19]
+[Cristian: backported to v5.4]
 Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
 ---
-Backporting was trivial but required since the patched function
-was moved around in a different file.
+Backporting just trivially adapting to v5.4 context.
 ---
  drivers/firmware/arm_scmi/driver.c | 37 ++++++++++++++++++++++++++++++
  1 file changed, 37 insertions(+)
 
 diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index e8cd66705ad7..5ccbbb3eb68e 100644
+index f0b055bc027c..9dae841b6167 100644
 --- a/drivers/firmware/arm_scmi/driver.c
 +++ b/drivers/firmware/arm_scmi/driver.c
-@@ -705,6 +705,39 @@ static int scmi_remove(struct platform_device *pdev)
- 	return ret;
+@@ -737,6 +737,39 @@ static int scmi_mailbox_check(struct device_node *np, int idx)
+ 					  idx, NULL);
  }
  
 +static int scmi_mailbox_chan_validate(struct device *cdev)
@@ -104,10 +103,10 @@ index e8cd66705ad7..5ccbbb3eb68e 100644
 +	return ret;
 +}
 +
- static inline int
- scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev, int prot_id)
+ static int scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev,
+ 				int prot_id, bool tx)
  {
-@@ -720,6 +753,10 @@ scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev, int prot_id)
+@@ -760,6 +793,10 @@ static int scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev,
  		goto idr_alloc;
  	}
  
