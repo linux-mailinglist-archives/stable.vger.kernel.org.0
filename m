@@ -2,73 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE45C6D1E26
-	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 12:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C74B06D1E53
+	for <lists+stable@lfdr.de>; Fri, 31 Mar 2023 12:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231538AbjCaKh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 06:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43160 "EHLO
+        id S230082AbjCaKuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 06:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231562AbjCaKhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 06:37:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4061A95A;
-        Fri, 31 Mar 2023 03:37:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0363CB82E4C;
-        Fri, 31 Mar 2023 10:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEFF1C433D2;
-        Fri, 31 Mar 2023 10:37:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680259038;
-        bh=dWyWOIVj1SDA63kPOq2AZvxwTmgsi+yXkOt75ifTxnI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3jEO53zGo6fMMXI1G8vyajMLtx3QGWLDUxqpbgU9KhUN2Wo+wff1KfOrTsQ2hoyf
-         bxtrqr1eGU6Ny4XJv7KlJ9KJW83ZD6l0NLx7KUx0oH2MLQMuxwt5qefUNTsyxkG85n
-         BrVy4PnfuBF3C2Hz8hg7AV2T5PQC8t4ho/jAMHbBOaYyxANeNU5XX6k52SdIOmNy1c
-         oEoVb+fQmT1y7UENmmeJaWaHsx70UsIWcqirMuj65SP4H6WdZXpHJkYB6Ee+GrRuMw
-         WwyVJCYj6jT5EZyAYF1ymLKk0nSptwt03/XEFIl49utgtRfRkmEjtIzoQg0my+aci8
-         rGwDeF9ulECZQ==
-From:   Christian Brauner <brauner@kernel.org>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     Christian Brauner <brauner@kernel.org>,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com,
-        viro@zeniv.linux.org.uk,
-        syzbot+8ac3859139c685c4f597@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] fs: drop peer group ids under namespace lock
-Date:   Fri, 31 Mar 2023 12:36:06 +0200
-Message-Id: <20230331-angler-enjoyer-820f825d7646@brauner>
+        with ESMTP id S231331AbjCaKuN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 06:50:13 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B5A6C1CBAB
+        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 03:50:12 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9A5C42F4;
+        Fri, 31 Mar 2023 03:50:56 -0700 (PDT)
+Received: from e120937-lin.. (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6BF763F6C4;
+        Fri, 31 Mar 2023 03:50:11 -0700 (PDT)
+From:   Cristian Marussi <cristian.marussi@arm.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 4.19] firmware: arm_scmi: Fix device node validation for mailbox transport
+Date:   Fri, 31 Mar 2023 11:49:55 +0100
+Message-Id: <20230331104955.3800788-1-cristian.marussi@arm.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230330-vfs-mount_setattr-propagation-fix-v1-1-37548d91533b@kernel.org>
-References: <20230330-vfs-mount_setattr-propagation-fix-v1-1-37548d91533b@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Developer-Signature: v=1; a=openpgp-sha256; l=481; i=brauner@kernel.org; h=from:subject:message-id; bh=gzgJPQ/tJyke88n1gF9CwJBXokKvoTocUw+rhclugD8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaSobTeziTIqqmI6G33g1X7ujabubtEHK6P9jSvs9p+Mfmm/ 9tPljlIWBjEuBlkxRRaHdpNwueU8FZuNMjVg5rAygQxh4OIUgInoxjIyXPFT/CF6dsPh/bfW67zfn/ 9loUDfvuvngmICTBd7/Dl7tpyR4XSH9yOzNtOjhuri6x9mzzuydJ6Z2o4aLSUO7phdm09nsgAA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.3 required=5.0 tests=RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 2ab4f4018cb6b8010ca5002c3bdc37783b5d28c2 upstream.
 
-On Thu, 30 Mar 2023 09:13:16 +0200, Christian Brauner wrote:
-> When cleaning up peer group ids in the failure path we need to make sure
-> to hold on to the namespace lock. Otherwise another thread might just
-> turn the mount from a shared into a non-shared mount concurrently.
-> 
-> 
+When mailboxes are used as a transport it is possible to setup the SCMI
+transport layer, depending on the underlying channels configuration, to use
+one or two mailboxes, associated, respectively, to one or two, distinct,
+shared memory areas: any other combination should be treated as invalid.
 
-Ok, syzbot is happy with this as well so let's get this fixed and backported,
+Add more strict checking of SCMI mailbox transport device node descriptors.
 
-tree: git://git.kernel.org/pub/scm/linux/kernel/git/vfs/idmapping.git
-branch: vfs.misc.fixes
-[1/1] fs: drop peer group ids under namespace lock
-      commit: cb2239c198ad9fbd5aced22cf93e45562da781eb
+Fixes: fbc4d81ad285 ("firmware: arm_scmi: refactor in preparation to support per-protocol channels")
+Cc: <stable@vger.kernel.org> # 4.19
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20230307162324.891866-1-cristian.marussi@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+[Cristian: backported to v4.19]
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+---
+Backporting was trivial but required since the patched function
+was moved around in a different file.
+---
+ drivers/firmware/arm_scmi/driver.c | 37 ++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index e8cd66705ad7..5ccbbb3eb68e 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -705,6 +705,39 @@ static int scmi_remove(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
++static int scmi_mailbox_chan_validate(struct device *cdev)
++{
++	int num_mb, num_sh, ret = 0;
++	struct device_node *np = cdev->of_node;
++
++	num_mb = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
++	num_sh = of_count_phandle_with_args(np, "shmem", NULL);
++	/* Bail out if mboxes and shmem descriptors are inconsistent */
++	if (num_mb <= 0 || num_sh > 2 || num_mb != num_sh) {
++		dev_warn(cdev, "Invalid channel descriptor for '%s'\n",
++			 of_node_full_name(np));
++		return -EINVAL;
++	}
++
++	if (num_sh > 1) {
++		struct device_node *np_tx, *np_rx;
++
++		np_tx = of_parse_phandle(np, "shmem", 0);
++		np_rx = of_parse_phandle(np, "shmem", 1);
++		/* SCMI Tx and Rx shared mem areas have to be distinct */
++		if (!np_tx || !np_rx || np_tx == np_rx) {
++			dev_warn(cdev, "Invalid shmem descriptor for '%s'\n",
++				 of_node_full_name(np));
++			ret = -EINVAL;
++		}
++
++		of_node_put(np_tx);
++		of_node_put(np_rx);
++	}
++
++	return ret;
++}
++
+ static inline int
+ scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev, int prot_id)
+ {
+@@ -720,6 +753,10 @@ scmi_mbox_chan_setup(struct scmi_info *info, struct device *dev, int prot_id)
+ 		goto idr_alloc;
+ 	}
+ 
++	ret = scmi_mailbox_chan_validate(dev);
++	if (ret)
++		return ret;
++
+ 	cinfo = devm_kzalloc(info->dev, sizeof(*cinfo), GFP_KERNEL);
+ 	if (!cinfo)
+ 		return -ENOMEM;
+-- 
+2.34.1
+
