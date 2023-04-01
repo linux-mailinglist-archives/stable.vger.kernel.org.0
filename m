@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB6F6D2D51
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BAB6D2CF8
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233909AbjDABsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:48:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
+        id S233791AbjDABpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233774AbjDABrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:47:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2239265AD;
-        Fri, 31 Mar 2023 18:45:30 -0700 (PDT)
+        with ESMTP id S233617AbjDABpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:45:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576BC22916;
+        Fri, 31 Mar 2023 18:43:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C791EB83318;
-        Sat,  1 Apr 2023 01:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D11CCC433D2;
-        Sat,  1 Apr 2023 01:43:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07E40B8331A;
+        Sat,  1 Apr 2023 01:43:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 013BAC4339C;
+        Sat,  1 Apr 2023 01:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313427;
-        bh=DRNAUhd7xodd9PlPJsbvFfafmxww8S+HTLuBkpEHq8g=;
+        s=k20201202; t=1680313428;
+        bh=MeGy0MOALBiuRe8CcWLS3lryePjtmMT+QnPF+LdrO28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVWqf0i92IcBTgDzcM/wqDUQ7zm+i+MkwN7oJgXIQE6sWLizxpLugHS3DjVjCZ73K
-         pPqsDkpuGLgTVBVytbFchS4jAmPn3ZPDHHW34Gglcj+vql76NaWfoHriqJjWJFPvq/
-         /R7jwgv4tkXHWlkzfB/1KAuDVm/95B9aHgY1GKd7s1CgOmvN1OQ5Ej2jZ+P4dyMSFd
-         5uRC1QC3u3nmSnL+ABgfJFO1jFCCxL+dPW9UMiscUV+Btxdq+/M7DsTvNknDbpXf5W
-         tayMgSq/uiV3G+s6Up7FgjlPnT+QY7YZRXl5scR5GnWlZNmmoIe/JITe86ZLPXKQ3w
-         y5+oDhuYvk73g==
+        b=g463gtaEeQciqP1sUulM+AviomgptnjMaHwmzO/wX3h19e10OhjdS3lTbTMvCTKKk
+         2tWlYy0BF1CrfCQ+4zFaFZAY4K4XfloUxOze93I/D+bLZMH4NxiDknTdk7nO+z+nb4
+         tn+El4LRehzZaSrkZjs0D09L3yXRox5i/HES2ZbbWOaTYTJO5izHdsHDwgh6dxnVZn
+         ykUdGde8DqA95Aq7FIUNEFMqDPA76YYytEF+HIN4vcCRKHW006zjejxLAkC1MS570/
+         +WsQAuQjjZIFuFdekUfylgNlEHjZMlUFdiIXV2GjmhdiPp65qcXor+6Tt6Qc8aErNA
+         FvfRo+GtGKUpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jane Jian <Jane.Jian@amd.com>, Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, tim.huang@amd.com, yifan1.zhang@amd.com,
-        Likun.Gao@amd.com, kenneth.feng@amd.com, evan.quan@amd.com,
-        mario.limonciello@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 23/24] drm/amdgpu/gfx: set cg flags to enter/exit safe mode
-Date:   Fri, 31 Mar 2023 21:42:39 -0400
-Message-Id: <20230401014242.3356780-23-sashal@kernel.org>
+Cc:     Aymeric Wibo <obiwac@gmail.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 24/24] ACPI: resource: Add Medion S17413 to IRQ override quirk
+Date:   Fri, 31 Mar 2023 21:42:40 -0400
+Message-Id: <20230401014242.3356780-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230401014242.3356780-1-sashal@kernel.org>
 References: <20230401014242.3356780-1-sashal@kernel.org>
@@ -51,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,37 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Jian <Jane.Jian@amd.com>
+From: Aymeric Wibo <obiwac@gmail.com>
 
-[ Upstream commit e06bfcc1a1c41bcb8c31470d437e147ce9f0acfd ]
+[ Upstream commit 2d0ab14634a26e54f8d6d231b47b7ef233e84599 ]
 
-sriov needs to enter/exit safe mode in update umd p state
-add the cg flag to let it enter or exit while needed
+Add DMI info of the Medion S17413 (board M1xA) to the IRQ override
+quirk table. This fixes the keyboard not working on these laptops.
 
-Signed-off-by: Jane Jian <Jane.Jian@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213031
+Signed-off-by: Aymeric Wibo <obiwac@gmail.com>
+[ rjw: Fixed up white space ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/acpi/resource.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-index 7a13129842602..0dd2fe4f071e8 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-@@ -1316,6 +1316,11 @@ static int gfx_v11_0_sw_init(void *handle)
- 		break;
- 	}
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index a222bda7e15b0..d08818baea88f 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -400,6 +400,13 @@ static const struct dmi_system_id medion_laptop[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "M17T"),
+ 		},
+ 	},
++	{
++		.ident = "MEDION S17413",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
++			DMI_MATCH(DMI_BOARD_NAME, "M1xA"),
++		},
++	},
+ 	{ }
+ };
  
-+	/* Enable CG flag in one VF mode for enabling RLC safe mode enter/exit */
-+	if (adev->ip_versions[GC_HWIP][0] == IP_VERSION(11, 0, 3) &&
-+		amdgpu_sriov_is_pp_one_vf(adev))
-+		adev->cg_flags = AMD_CG_SUPPORT_GFX_CGCG;
-+
- 	/* EOP Event */
- 	r = amdgpu_irq_add_id(adev, SOC21_IH_CLIENTID_GRBM_CP,
- 			      GFX_11_0_0__SRCID__CP_EOP_INTERRUPT,
 -- 
 2.39.2
 
