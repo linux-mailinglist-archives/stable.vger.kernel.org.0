@@ -2,53 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8E56D2D3A
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4F46D2D21
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233977AbjDABsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:48:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49226 "EHLO
+        id S233736AbjDABq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:46:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233852AbjDABro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:47:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A22265AB;
-        Fri, 31 Mar 2023 18:45:29 -0700 (PDT)
+        with ESMTP id S233752AbjDABpo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:45:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D8525455;
+        Fri, 31 Mar 2023 18:44:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 998ABB8330B;
-        Sat,  1 Apr 2023 01:44:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D8CC433D2;
-        Sat,  1 Apr 2023 01:44:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 737A1B83312;
+        Sat,  1 Apr 2023 01:44:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAFA6C433A0;
+        Sat,  1 Apr 2023 01:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313460;
-        bh=w+eQeY8xWmJH+xm58zvXHBkiJC8aAfsMU8f1VaxE4AQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=h5c8U9deAPAQUMONaFcJhgh3gZFuoQH1fc3m+4x9mH02qyQX8HSf2vGEaPKpfAVNl
-         rgh9bGM79KMi785HKaZ2fxoGMgQE+5p+SSkS7pALt3PtzalnFputdKGie/axkf5pYu
-         5p7iUHlH00KL6RUoywbflbCw2pY7gifFDQxzUkUwixu9DlkYiqjNp/uxocXnECGw5V
-         rOHk29f3wS8g4qcSbR6P8Yogd90cwT/b1gJkaNitepDAv93o2hAmXF5S/GZBOmcOE8
-         L/kYVn022dg7ekXg5Si9TEhUUpSqfw+SNmsx0cBeqg/hQZYA/wWN4Vl00Vf8UfT27G
-         Z1y5jHIsDpq+g==
+        s=k20201202; t=1680313462;
+        bh=cJsINUV4O0+bfXc26jmWZ2cSVuNdMVSmedNNpH0y7mI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AoUj+NaL9blpVxBnuZZD2qPfnHSGaHdAiO2oDMYmQoNUqmkcPbl0WxZIXiAeitoPG
+         Gk2W08htgOsn08KkluWdhVexcqsnxNUxTfHb9a9PHk+hZktIo52/UztB6d05aLkX62
+         jMaexSuPxg3MhiRdhvm1nN7vMKXeyFDdIq3dy/gcl9TIZ4csJD0/WRxndwBlBkf7xA
+         3wF6Taqy3eLUNyHUpCbXtO29oufAkZRi8KCUjOqt7w+Yryv/bP20wBWE6jPc4x+4pZ
+         b+eqf5SHCedfAf2n8OUsbLjoKVMF1pYrUG/o4yg2yIdKqtcUfwLaP+KkRTvGM7NVAM
+         F+Upx4UqCfhBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grant Grundler <grundler@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, bleung@chromium.org,
-        sre@kernel.org, chrome-platform@lists.linux.dev,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 1/7] power: supply: cros_usbpd: reclassify "default case!" as debug
-Date:   Fri, 31 Mar 2023 21:44:11 -0400
-Message-Id: <20230401014417.3357252-1-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        amitkarwar@gmail.com, ganapathi017@gmail.com,
+        sharvari.harisangam@nxp.com, huxinming820@gmail.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 2/7] wifi: mwifiex: mark OF related data as maybe unused
+Date:   Fri, 31 Mar 2023 21:44:12 -0400
+Message-Id: <20230401014417.3357252-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230401014417.3357252-1-sashal@kernel.org>
+References: <20230401014417.3357252-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +61,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Grundler <grundler@chromium.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 14c76b2e75bca4d96e2b85a0c12aa43e84fe3f74 ]
+[ Upstream commit 139f6973bf140c65d4d1d4bde5485badb4454d7a ]
 
-This doesn't need to be printed every second as an error:
-...
-<3>[17438.628385] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
-<3>[17439.634176] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
-<3>[17440.640298] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
-...
+The driver can be compile tested with !CONFIG_OF making certain data
+unused:
 
-Reduce priority from ERROR to DEBUG.
+  drivers/net/wireless/marvell/mwifiex/sdio.c:498:34: error: ‘mwifiex_sdio_of_match_table’ defined but not used [-Werror=unused-const-variable=]
+  drivers/net/wireless/marvell/mwifiex/pcie.c:175:34: error: ‘mwifiex_pcie_of_match_table’ defined but not used [-Werror=unused-const-variable=]
 
-Signed-off-by: Grant Grundler <grundler@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230312132523.352182-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cros_usbpd-charger.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 2 +-
+ drivers/net/wireless/marvell/mwifiex/sdio.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/cros_usbpd-charger.c b/drivers/power/supply/cros_usbpd-charger.c
-index d89e08efd2ad0..0a4f02e4ae7ba 100644
---- a/drivers/power/supply/cros_usbpd-charger.c
-+++ b/drivers/power/supply/cros_usbpd-charger.c
-@@ -276,7 +276,7 @@ static int cros_usbpd_charger_get_power_info(struct port_data *port)
- 		port->psy_current_max = 0;
- 		break;
- 	default:
--		dev_err(dev, "Port %d: default case!\n", port->port_number);
-+		dev_dbg(dev, "Port %d: default case!\n", port->port_number);
- 		port->psy_usb_type = POWER_SUPPLY_USB_TYPE_SDP;
- 	}
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index b0024893a1cba..50c34630ca302 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -183,7 +183,7 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
+ 	.can_ext_scan = true,
+ };
  
+-static const struct of_device_id mwifiex_pcie_of_match_table[] = {
++static const struct of_device_id mwifiex_pcie_of_match_table[] __maybe_unused = {
+ 	{ .compatible = "pci11ab,2b42" },
+ 	{ .compatible = "pci1b4b,2b42" },
+ 	{ }
+diff --git a/drivers/net/wireless/marvell/mwifiex/sdio.c b/drivers/net/wireless/marvell/mwifiex/sdio.c
+index 7fb6eef409285..b09e60fedeb16 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sdio.c
++++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
+@@ -484,7 +484,7 @@ static struct memory_type_mapping mem_type_mapping_tbl[] = {
+ 	{"EXTLAST", NULL, 0, 0xFE},
+ };
+ 
+-static const struct of_device_id mwifiex_sdio_of_match_table[] = {
++static const struct of_device_id mwifiex_sdio_of_match_table[] __maybe_unused = {
+ 	{ .compatible = "marvell,sd8787" },
+ 	{ .compatible = "marvell,sd8897" },
+ 	{ .compatible = "marvell,sd8997" },
 -- 
 2.39.2
 
