@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 108DD6D2D52
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8169D6D2D77
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233849AbjDABsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49114 "EHLO
+        id S232111AbjDAB41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233846AbjDABrm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:47:42 -0400
+        with ESMTP id S234013AbjDAB4L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:56:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF911EFDF;
-        Fri, 31 Mar 2023 18:45:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501F125551;
+        Fri, 31 Mar 2023 18:53:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B081062D1A;
-        Sat,  1 Apr 2023 01:44:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB21FC433AE;
-        Sat,  1 Apr 2023 01:44:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2503D62C80;
+        Sat,  1 Apr 2023 01:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B6FC433D2;
+        Sat,  1 Apr 2023 01:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313471;
-        bh=xIRVmdSoxQHHV+WQF3InEHiP6aN6H/TEQ+/N5ju+cTU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yqi8jHH56end0k08FQDMdYsqDsMclJo1Y7W6+t+vNUJ+OsYoSppPB3I25SD3mJAYq
-         v/ZcsoURhBwj7nmqz4gXhxzGqRukrjcnYyni7n46KN95go0NWgR5MWkJCHCzf3TUvg
-         j7qjtTDf4N6kG/iBkJWeLDHy/a1GrAj8dkOruMcbFyhULMPPaFENgJ+3QQlOfIfJtm
-         gTIVoRgtbb7xRbi2eF+5CkXo4SPcW5/WT7sO/tQ5dCj04Aa11JlMiFo4KUniF3OY4Q
-         UpMJkKh4PTHT0cnQpOcn7Iz+iTaSSySgrm+TXGAEyvW6o5COOHw+wzhAUXJ+AvWotQ
-         +Y4gZ7PRzLRmA==
+        s=k20201202; t=1680313474;
+        bh=OWsC+RlSBWRoNvougj80y3T8tX3mx0IkRNMcosEg6mo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iM56e0OE4WX3bMMJEAp6Nj67Q0Hcf/6tkwhGFbH76cuwE3rmLeOI2yRNZx6XR0Rp3
+         umhIWuDn5iE/+3QIYlYBxD0El3PQvXqhZUKMZScSs1qZA/KAfKYC7JHCXbUYt/yUWL
+         cJx4rNO/87hE6eI/NxAhn/CtwCGz1nI5DOmhkYrT2vLF1RhMpFq1Kkk0CJSXd+95s+
+         qR5ls8fr2Nd1/HFxnQKMpIxcHyqU0z9Xab4XSs6KsFKUVYvq5iX9gQG/ivT61IhEUv
+         sFsLj+kFJ4qMoQ0Eqtqapcrt0QTKCp8y8K5cRGh3tvUQbOiqYD2E4yPBcvxK8pznP1
+         7OTNxz88H5FnA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>,
-        davem@davemloft.net
-Subject: [PATCH AUTOSEL 5.10 7/7] asymmetric_keys: log on fatal failures in PE/pkcs7
-Date:   Fri, 31 Mar 2023 21:44:17 -0400
-Message-Id: <20230401014417.3357252-7-sashal@kernel.org>
+Cc:     Grant Grundler <grundler@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, bleung@chromium.org,
+        sre@kernel.org, chrome-platform@lists.linux.dev,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 1/6] power: supply: cros_usbpd: reclassify "default case!" as debug
+Date:   Fri, 31 Mar 2023 21:44:26 -0400
+Message-Id: <20230401014431.3357345-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230401014417.3357252-1-sashal@kernel.org>
-References: <20230401014417.3357252-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,156 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+From: Grant Grundler <grundler@chromium.org>
 
-[ Upstream commit 3584c1dbfffdabf8e3dc1dd25748bb38dd01cd43 ]
+[ Upstream commit 14c76b2e75bca4d96e2b85a0c12aa43e84fe3f74 ]
 
-These particular errors can be encountered while trying to kexec when
-secureboot lockdown is in place.  Without this change, even with a
-signed debug build, one still needs to reboot the machine to add the
-appropriate dyndbg parameters (since lockdown blocks debugfs).
+This doesn't need to be printed every second as an error:
+...
+<3>[17438.628385] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
+<3>[17439.634176] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
+<3>[17440.640298] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
+...
 
-Accordingly, upgrade all pr_debug() before fatal error into pr_warn().
+Reduce priority from ERROR to DEBUG.
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://lore.kernel.org/r/20230220171254.592347-3-rharwood@redhat.com/ # v2
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/asymmetric_keys/pkcs7_verify.c  | 10 +++++-----
- crypto/asymmetric_keys/verify_pefile.c | 24 ++++++++++++------------
- 2 files changed, 17 insertions(+), 17 deletions(-)
+ drivers/power/supply/cros_usbpd-charger.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/crypto/asymmetric_keys/pkcs7_verify.c b/crypto/asymmetric_keys/pkcs7_verify.c
-index ce49820caa97f..01e54450c846f 100644
---- a/crypto/asymmetric_keys/pkcs7_verify.c
-+++ b/crypto/asymmetric_keys/pkcs7_verify.c
-@@ -79,16 +79,16 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
- 		}
- 
- 		if (sinfo->msgdigest_len != sig->digest_size) {
--			pr_debug("Sig %u: Invalid digest size (%u)\n",
--				 sinfo->index, sinfo->msgdigest_len);
-+			pr_warn("Sig %u: Invalid digest size (%u)\n",
-+				sinfo->index, sinfo->msgdigest_len);
- 			ret = -EBADMSG;
- 			goto error;
- 		}
- 
- 		if (memcmp(sig->digest, sinfo->msgdigest,
- 			   sinfo->msgdigest_len) != 0) {
--			pr_debug("Sig %u: Message digest doesn't match\n",
--				 sinfo->index);
-+			pr_warn("Sig %u: Message digest doesn't match\n",
-+				sinfo->index);
- 			ret = -EKEYREJECTED;
- 			goto error;
- 		}
-@@ -488,7 +488,7 @@ int pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
- 			       const void *data, size_t datalen)
- {
- 	if (pkcs7->data) {
--		pr_debug("Data already supplied\n");
-+		pr_warn("Data already supplied\n");
- 		return -EINVAL;
- 	}
- 	pkcs7->data = data;
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index fe1bb374239d7..22beaf2213a22 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -74,7 +74,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
+diff --git a/drivers/power/supply/cros_usbpd-charger.c b/drivers/power/supply/cros_usbpd-charger.c
+index 6cc7c3910e098..0f80fdf88253c 100644
+--- a/drivers/power/supply/cros_usbpd-charger.c
++++ b/drivers/power/supply/cros_usbpd-charger.c
+@@ -282,7 +282,7 @@ static int cros_usbpd_charger_get_power_info(struct port_data *port)
+ 		port->psy_current_max = 0;
  		break;
- 
  	default:
--		pr_debug("Unknown PEOPT magic = %04hx\n", pe32->magic);
-+		pr_warn("Unknown PEOPT magic = %04hx\n", pe32->magic);
- 		return -ELIBBAD;
+-		dev_err(dev, "Port %d: default case!\n", port->port_number);
++		dev_dbg(dev, "Port %d: default case!\n", port->port_number);
+ 		port->psy_usb_type = POWER_SUPPLY_USB_TYPE_SDP;
  	}
  
-@@ -95,7 +95,7 @@ static int pefile_parse_binary(const void *pebuf, unsigned int pelen,
- 	ctx->certs_size = ddir->certs.size;
- 
- 	if (!ddir->certs.virtual_address || !ddir->certs.size) {
--		pr_debug("Unsigned PE binary\n");
-+		pr_warn("Unsigned PE binary\n");
- 		return -ENODATA;
- 	}
- 
-@@ -127,7 +127,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	unsigned len;
- 
- 	if (ctx->sig_len < sizeof(wrapper)) {
--		pr_debug("Signature wrapper too short\n");
-+		pr_warn("Signature wrapper too short\n");
- 		return -ELIBBAD;
- 	}
- 
-@@ -142,16 +142,16 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	 * rounded up since 0.110.
- 	 */
- 	if (wrapper.length > ctx->sig_len) {
--		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
--			 ctx->sig_len, wrapper.length);
-+		pr_warn("Signature wrapper bigger than sig len (%x > %x)\n",
-+			ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
--		pr_debug("Signature is not revision 2.0\n");
-+		pr_warn("Signature is not revision 2.0\n");
- 		return -ENOTSUPP;
- 	}
- 	if (wrapper.cert_type != WIN_CERT_TYPE_PKCS_SIGNED_DATA) {
--		pr_debug("Signature certificate type is not PKCS\n");
-+		pr_warn("Signature certificate type is not PKCS\n");
- 		return -ENOTSUPP;
- 	}
- 
-@@ -164,7 +164,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	ctx->sig_offset += sizeof(wrapper);
- 	ctx->sig_len -= sizeof(wrapper);
- 	if (ctx->sig_len < 4) {
--		pr_debug("Signature data missing\n");
-+		pr_warn("Signature data missing\n");
- 		return -EKEYREJECTED;
- 	}
- 
-@@ -198,7 +198,7 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 		return 0;
- 	}
- not_pkcs7:
--	pr_debug("Signature data not PKCS#7\n");
-+	pr_warn("Signature data not PKCS#7\n");
- 	return -ELIBBAD;
- }
- 
-@@ -341,8 +341,8 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
- 	digest_size = crypto_shash_digestsize(tfm);
- 
- 	if (digest_size != ctx->digest_len) {
--		pr_debug("Digest size mismatch (%zx != %x)\n",
--			 digest_size, ctx->digest_len);
-+		pr_warn("Digest size mismatch (%zx != %x)\n",
-+			digest_size, ctx->digest_len);
- 		ret = -EBADMSG;
- 		goto error_no_desc;
- 	}
-@@ -373,7 +373,7 @@ static int pefile_digest_pe(const void *pebuf, unsigned int pelen,
- 	 * PKCS#7 certificate.
- 	 */
- 	if (memcmp(digest, ctx->digest, ctx->digest_len) != 0) {
--		pr_debug("Digest mismatch\n");
-+		pr_warn("Digest mismatch\n");
- 		ret = -EKEYREJECTED;
- 	} else {
- 		pr_debug("The digests match!\n");
 -- 
 2.39.2
 
