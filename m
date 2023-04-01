@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF99B6D2D17
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:46:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB6F6D2D51
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233751AbjDABpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46084 "EHLO
+        id S233909AbjDABsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:48:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233749AbjDABo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:44:26 -0400
+        with ESMTP id S233774AbjDABrp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:47:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B2E323685;
-        Fri, 31 Mar 2023 18:43:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2239265AD;
+        Fri, 31 Mar 2023 18:45:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AABDB83301;
-        Sat,  1 Apr 2023 01:43:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96DB2C433D2;
-        Sat,  1 Apr 2023 01:43:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C791EB83318;
+        Sat,  1 Apr 2023 01:43:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D11CCC433D2;
+        Sat,  1 Apr 2023 01:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313421;
-        bh=7H5totHyxq4yVx5iYXOEPlYPqoU+uIYlMPC64nUrdwM=;
+        s=k20201202; t=1680313427;
+        bh=DRNAUhd7xodd9PlPJsbvFfafmxww8S+HTLuBkpEHq8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtQbddcQYVSSB7Ww2/TNrj9z9NeZJttypjjwTqxhm4hCHbNTAOgqCSAaRxJzJnuqB
-         8z7estf+dD3t2PWe6k9Vu9adKJLr/qty2HNAQnSlln7f6VliHU90lGF3p8uHHq37Mp
-         nB0XOWGBTbvjP01/SOez/XhobyEJrn6cVZ2ePKYsj5JjDf4NGEto7BZ6jQ5SuhC17q
-         S8tfvtUGHPwydu6Yk73/BRJz01Hy2SlDQF18CM19pE4YGUQEVjSc3hxGKeI3L3p1Mv
-         jfz6QxmU/8kUYr7lb3Xe62L/KBfUHnEfTZtOs5froxSYHt1J5HeaGlnUNek/pINbTs
-         zx/58O/YRi1MQ==
+        b=kVWqf0i92IcBTgDzcM/wqDUQ7zm+i+MkwN7oJgXIQE6sWLizxpLugHS3DjVjCZ73K
+         pPqsDkpuGLgTVBVytbFchS4jAmPn3ZPDHHW34Gglcj+vql76NaWfoHriqJjWJFPvq/
+         /R7jwgv4tkXHWlkzfB/1KAuDVm/95B9aHgY1GKd7s1CgOmvN1OQ5Ej2jZ+P4dyMSFd
+         5uRC1QC3u3nmSnL+ABgfJFO1jFCCxL+dPW9UMiscUV+Btxdq+/M7DsTvNknDbpXf5W
+         tayMgSq/uiV3G+s6Up7FgjlPnT+QY7YZRXl5scR5GnWlZNmmoIe/JITe86ZLPXKQ3w
+         y5+oDhuYvk73g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YuBiao Wang <YuBiao.Wang@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
+Cc:     Jane Jian <Jane.Jian@amd.com>, Lijo Lazar <lijo.lazar@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        andrey.grodzovsky@amd.com, Jiadong.Zhu@amd.com,
-        gpiccoli@igalia.com, Jack.Xiao@amd.com, Likun.Gao@amd.com,
-        slark_xiao@163.com, amd-gfx@lists.freedesktop.org,
+        Hawking.Zhang@amd.com, tim.huang@amd.com, yifan1.zhang@amd.com,
+        Likun.Gao@amd.com, kenneth.feng@amd.com, evan.quan@amd.com,
+        mario.limonciello@amd.com, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 22/24] drm/amdgpu: Force signal hw_fences that are embedded in non-sched jobs
-Date:   Fri, 31 Mar 2023 21:42:38 -0400
-Message-Id: <20230401014242.3356780-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 23/24] drm/amdgpu/gfx: set cg flags to enter/exit safe mode
+Date:   Fri, 31 Mar 2023 21:42:39 -0400
+Message-Id: <20230401014242.3356780-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230401014242.3356780-1-sashal@kernel.org>
 References: <20230401014242.3356780-1-sashal@kernel.org>
@@ -61,52 +60,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YuBiao Wang <YuBiao.Wang@amd.com>
+From: Jane Jian <Jane.Jian@amd.com>
 
-[ Upstream commit 033c56474acf567a450f8bafca50e0b610f2b716 ]
+[ Upstream commit e06bfcc1a1c41bcb8c31470d437e147ce9f0acfd ]
 
-[Why]
-For engines not supporting soft reset, i.e. VCN, there will be a failed
-ib test before mode 1 reset during asic reset. The fences in this case
-are never signaled and next time when we try to free the sa_bo, kernel
-will hang.
+sriov needs to enter/exit safe mode in update umd p state
+add the cg flag to let it enter or exit while needed
 
-[How]
-During pre_asic_reset, driver will clear job fences and afterwards the
-fences' refcount will be reduced to 1. For drm_sched_jobs it will be
-released in job_free_cb, and for non-sched jobs like ib_test, it's meant
-to be released in sa_bo_free but only when the fences are signaled. So
-we have to force signal the non_sched bad job's fence during
-pre_asic_reset or the clear is not complete.
-
-Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
-Acked-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Jane Jian <Jane.Jian@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index 6fdb679321d0d..3cc1929285fc0 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -624,6 +624,15 @@ void amdgpu_fence_driver_clear_job_fences(struct amdgpu_ring *ring)
- 		ptr = &ring->fence_drv.fences[i];
- 		old = rcu_dereference_protected(*ptr, 1);
- 		if (old && old->ops == &amdgpu_job_fence_ops) {
-+			struct amdgpu_job *job;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+index 7a13129842602..0dd2fe4f071e8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+@@ -1316,6 +1316,11 @@ static int gfx_v11_0_sw_init(void *handle)
+ 		break;
+ 	}
+ 
++	/* Enable CG flag in one VF mode for enabling RLC safe mode enter/exit */
++	if (adev->ip_versions[GC_HWIP][0] == IP_VERSION(11, 0, 3) &&
++		amdgpu_sriov_is_pp_one_vf(adev))
++		adev->cg_flags = AMD_CG_SUPPORT_GFX_CGCG;
 +
-+			/* For non-scheduler bad job, i.e. failed ib test, we need to signal
-+			 * it right here or we won't be able to track them in fence_drv
-+			 * and they will remain unsignaled during sa_bo free.
-+			 */
-+			job = container_of(old, struct amdgpu_job, hw_fence);
-+			if (!job->base.s_fence && !dma_fence_is_signaled(old))
-+				dma_fence_signal(old);
- 			RCU_INIT_POINTER(*ptr, NULL);
- 			dma_fence_put(old);
- 		}
+ 	/* EOP Event */
+ 	r = amdgpu_irq_add_id(adev, SOC21_IH_CLIENTID_GRBM_CP,
+ 			      GFX_11_0_0__SRCID__CP_EOP_INTERRUPT,
 -- 
 2.39.2
 
