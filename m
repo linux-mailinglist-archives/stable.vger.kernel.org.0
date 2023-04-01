@@ -2,66 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D59F76D2C7D
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:38:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D52956D2C85
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232111AbjDABgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:36:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42328 "EHLO
+        id S233385AbjDABle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230193AbjDABgY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:36:24 -0400
-Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 001501C1FE;
-        Fri, 31 Mar 2023 18:36:21 -0700 (PDT)
-Received: from loongson.cn (unknown [10.20.42.153])
-        by gateway (Coremail) with SMTP id _____8DxEzSUiidkhh4VAA--.32573S3;
-        Sat, 01 Apr 2023 09:36:20 +0800 (CST)
-Received: from [10.20.42.153] (unknown [10.20.42.153])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxLL6SiidkP30SAA--.15525S3;
-        Sat, 01 Apr 2023 09:36:18 +0800 (CST)
-Subject: Re: [PATCH V2 1/5] irqchip/loongson-eiointc: Fix returned value on
- parsing MADT
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, linux-kernel@vger.kernel.org,
-        loongarch@lists.linux.dev,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        loongson-kernel@lists.loongnix.cn, stable@vger.kernel.org
-References: <20230331113900.9105-1-lvjianmin@loongson.cn>
- <20230331113900.9105-2-lvjianmin@loongson.cn> <ZCbdUbVhH7lmh3PI@kroah.com>
-From:   Jianmin Lv <lvjianmin@loongson.cn>
-Message-ID: <f00383ba-6f2a-3111-9a55-c412f9a50e7f@loongson.cn>
-Date:   Sat, 1 Apr 2023 09:36:18 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        with ESMTP id S233074AbjDABld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:41:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46FC31D2DA;
+        Fri, 31 Mar 2023 18:41:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC7F1B832F1;
+        Sat,  1 Apr 2023 01:41:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76BDFC433EF;
+        Sat,  1 Apr 2023 01:41:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1680313289;
+        bh=DEWe0jkc9Y6r28LdFAGOYrRGMnBiZ+L83NWmkJE1QTM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ocFXtJH/eHnOw5bPRiMjeHa+eP1P6nNfGNnbvcdnwz3tGC+9ibya67KoAP40fU7wv
+         1tsnF/O5TI4lIRqJQJzBB5yud1pOE+lWU+8iI2zHBEmJVQs/cHMJcIT073PsiLNNgO
+         COlVywzrqSBiBovio0SqflUvSddu5m9no9qGWdiCodJlyAyvugammgqBqbqSenjive
+         wA8n8CREdXw7ZkyMnKZv0ehudckoOh5Kkl45XqGlLgmnzSUOs0jZp5FhwWKi78ZRTk
+         76tKJDRhbWdfBf+C8jXNQIbwoEPYmPtg54+Lwtc9REkuvvIQULScL9vfwrQ4yXA0yj
+         HHgtwIjSJ3FEw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Andrew Jeffery <andrew@aj.id.au>,
+        Zev Weiss <zev@bewilderbeest.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        anshuman.khandual@arm.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.2 01/25] ARM: 9290/1: uaccess: Fix KASAN false-positives
+Date:   Fri, 31 Mar 2023 21:40:59 -0400
+Message-Id: <20230401014126.3356410-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-In-Reply-To: <ZCbdUbVhH7lmh3PI@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8BxLL6SiidkP30SAA--.15525S3
-X-CM-SenderInfo: 5oymxthqpl0qxorr0wxvrqhubq/
-X-Coremail-Antispam: 1Uk129KBjvJXoW7tFWUCF1DZr47urW5Xry3CFg_yoW8JF4fpa
-        y7X398tr4Yy34fCw4ftw1rXFyrXa93Ca4ftr45WwsYkr1DurnrW3WIvw4I9F93CFW3Ka12
-        vF4aqan5Aw45A3DanT9S1TB71UUUUj7qnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
-        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
-        bDkYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
-        1l1IIY67AEw4v_JrI_Jryl8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
-        wVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwA2z4
-        x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267AKxVW8JVW8Jr1ln4kS
-        14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
-        1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E87Iv
-        67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
-        AlzVAYIcxG8wCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE
-        7xkEbVWUJVW8JwCFI7km07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I
-        0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAI
-        cVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcV
-        CF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8h0ePUUUUU==
-X-Spam-Status: No, score=-0.0 required=5.0 tests=NICE_REPLY_A,SPF_HELO_PASS,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,36 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ok, thanks, got it.
+From: Andrew Jeffery <andrew@aj.id.au>
 
-On 2023/3/31 下午9:17, Greg KH wrote:
-> On Fri, Mar 31, 2023 at 07:38:56PM +0800, Jianmin Lv wrote:
->> In pch_pic_parse_madt(), a NULL parent pointer will be
->> returned from acpi_get_vec_parent() for second pch-pic domain
->> related to second bridge while calling eiointc_acpi_init() at
->> first time, where the parent of it has not been initialized
->> yet, and will be initialized during second time calling
->> eiointc_acpi_init(). So, it's reasonable to return zero so
->> that failure of acpi_table_parse_madt() will be avoided, or else
->> acpi_cascade_irqdomain_init() will return and initialization of
->> followed pch_msi domain will be skipped.
->>
->> Although it does not matter when pch_msi_parse_madt() returns
->> -EINVAL if no invalid parent is found, it's also reasonable to
->> return zero for that.
->>
->> Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
->> ---
->>   drivers/irqchip/irq-loongson-eiointc.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
-> 
+[ Upstream commit ceac10c83b330680cc01ceaaab86cd49f4f30d81 ]
+
+__copy_to_user_memcpy() and __clear_user_memset() had been calling
+memcpy() and memset() respectively, leading to false-positive KASAN
+reports when starting userspace:
+
+    [   10.707901] Run /init as init process
+    [   10.731892] process '/bin/busybox' started with executable stack
+    [   10.745234] ==================================================================
+    [   10.745796] BUG: KASAN: user-memory-access in __clear_user_memset+0x258/0x3ac
+    [   10.747260] Write of size 2687 at addr 000de581 by task init/1
+
+Use __memcpy() and __memset() instead to allow userspace access, which
+is of course the intent of these functions.
+
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/lib/uaccess_with_memcpy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/lib/uaccess_with_memcpy.c b/arch/arm/lib/uaccess_with_memcpy.c
+index 14eecaaf295fa..e4c2677cc1e9e 100644
+--- a/arch/arm/lib/uaccess_with_memcpy.c
++++ b/arch/arm/lib/uaccess_with_memcpy.c
+@@ -116,7 +116,7 @@ __copy_to_user_memcpy(void __user *to, const void *from, unsigned long n)
+ 			tocopy = n;
+ 
+ 		ua_flags = uaccess_save_and_enable();
+-		memcpy((void *)to, from, tocopy);
++		__memcpy((void *)to, from, tocopy);
+ 		uaccess_restore(ua_flags);
+ 		to += tocopy;
+ 		from += tocopy;
+@@ -178,7 +178,7 @@ __clear_user_memset(void __user *addr, unsigned long n)
+ 			tocopy = n;
+ 
+ 		ua_flags = uaccess_save_and_enable();
+-		memset((void *)addr, 0, tocopy);
++		__memset((void *)addr, 0, tocopy);
+ 		uaccess_restore(ua_flags);
+ 		addr += tocopy;
+ 		n -= tocopy;
+-- 
+2.39.2
 
