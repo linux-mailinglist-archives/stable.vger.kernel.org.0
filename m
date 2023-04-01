@@ -2,53 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 954466D2D81
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CBF6D2D66
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233732AbjDAB7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52034 "EHLO
+        id S233777AbjDABuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:50:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234059AbjDAB7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:59:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B55FED52E;
-        Fri, 31 Mar 2023 18:58:22 -0700 (PDT)
+        with ESMTP id S233991AbjDABt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:49:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E8F1DFA6;
+        Fri, 31 Mar 2023 18:46:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A00C962D17;
-        Sat,  1 Apr 2023 01:44:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0C2C433D2;
-        Sat,  1 Apr 2023 01:44:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 722DE62D1C;
+        Sat,  1 Apr 2023 01:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D62A8C433D2;
+        Sat,  1 Apr 2023 01:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313497;
-        bh=OU6LrADSJFPUoD4Z7xbLPIIHonhmgwqmOMrgb7NVm/8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=iwbpvF1AOy8Oa+5mKf0UsHVxJ8OOFQta871svlGU6FNkgZd0TO9Q81NmEMV8wcWjr
-         iBMvs3nrCK8FaHBhQodh5+qPezByRdoGT1RZqAgxQ9DSRC7ViS2SmEmo9vadtfQXox
-         xadi4aTHBVSmV6Yx7SdLsyfbhn5kr8nzi5IK6EqGRTq8JSORqw4nD9WcOVStHZy4RY
-         0boreogJOl/UJgaZVyMHbHJz4YjRTNSXpop1kIncJYk2Kbf7L7ZNTlHGUn16ECQmp2
-         em1pQ1sYoRgWVZh9kQJT8ri0IafJ24Hgb7/SPiueKiU07cDiSHM0DZpq19oRpvAEP9
-         otM+phjBFUlYw==
+        s=k20201202; t=1680313499;
+        bh=1+g7eqLuyOnPiPDUrW+1zFjZb3jUlRhPKvkJOd1CUj0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=V6a9v6YquCEqE7Lrv6F/7f1A63H0ULkBD4RzAlCkP6eFRPMXgZ8aT7O9iRceG+dvV
+         V1XAlbP4U/y3kGkDp1usDYOhkgXo7I4p0V16+ERQNKjttvQ/q1CTLTG3zebFr6xJxK
+         A9Ek3i3sm6xXLAtN1v8aB9LPS1GwEvy4/ZiWivnMDEjqB5d1rkrUbKozlqMq41EFxt
+         D4+P+phhM1bWd2p3G9ZXiPIYp1opadxccfawxOztLyrTkCPFQKdb4aFuch5umdjIJP
+         Gwqe9WONc+kL4b0zYiEHHPN7Vxvpih8g8XtE6p1gsBybbmhoseBv4pJfvWie5f/E9A
+         r5ejjs7qTqlZA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        aisheng.dong@nxp.com, shawnguo@kernel.org,
-        linux-i2c@vger.kernel.org, linux-imx@nxp.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 1/3] i2c: imx-lpi2c: clean rx/tx buffers upon new message
-Date:   Fri, 31 Mar 2023 21:44:52 -0400
-Message-Id: <20230401014454.3357487-1-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/3] efi: sysfb_efi: Add quirk for Lenovo Yoga Book X91F/L
+Date:   Fri, 31 Mar 2023 21:44:53 -0400
+Message-Id: <20230401014454.3357487-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230401014454.3357487-1-sashal@kernel.org>
+References: <20230401014454.3357487-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,34 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 987dd36c0141f6ab9f0fbf14d6b2ec3342dedb2f ]
+[ Upstream commit 5ed213dd64681f84a01ceaa82fb336cf7d59ddcf ]
 
-When start sending a new message clear the Rx & Tx buffer pointers in
-order to avoid using stale pointers.
+Another Lenovo convertable which reports a landscape resolution of
+1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
+has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/sysfb_efi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index e86801a631206..dc89d8049d0f5 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -475,6 +475,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
- 		if (num == 1 && msgs[0].len == 0)
- 			goto stop;
+diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
+index dd8d7636c5420..5bc0fedb33420 100644
+--- a/arch/x86/kernel/sysfb_efi.c
++++ b/arch/x86/kernel/sysfb_efi.c
+@@ -273,6 +273,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
+ 					"IdeaPad Duet 3 10IGL5"),
+ 		},
+ 	},
++	{
++		/* Lenovo Yoga Book X91F / X91L */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			/* Non exact match to match F + L versions */
++			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
++		},
++	},
+ 	{},
+ };
  
-+		lpi2c_imx->rx_buf = NULL;
-+		lpi2c_imx->tx_buf = NULL;
- 		lpi2c_imx->delivered = 0;
- 		lpi2c_imx->msglen = msgs[i].len;
- 		init_completion(&lpi2c_imx->complete);
 -- 
 2.39.2
 
