@@ -2,108 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 110BD6D3101
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 15:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B326D34D4
+	for <lists+stable@lfdr.de>; Sun,  2 Apr 2023 00:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbjDANYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Apr 2023 09:24:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53428 "EHLO
+        id S229469AbjDAWUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Apr 2023 18:20:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229804AbjDANYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Apr 2023 09:24:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A12B4EEA;
-        Sat,  1 Apr 2023 06:23:56 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCFCE60E17;
-        Sat,  1 Apr 2023 13:23:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2362BC433D2;
-        Sat,  1 Apr 2023 13:23:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680355435;
-        bh=sAx2eyoHZphV7y6Ejbx4McAtoXE+uA+9ASpvRgIQZqg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=igOLlc1qJ2ipXS93uDABV2VrzqSUuSQSg+ylXfKyUAr3oN5Qn0iBWTg/F/Eedj8oh
-         f+H+R07Mmu9Q9uBvm98/yFjL8KThB6e4nSI3jvTOfCeiaXg429ouI2wJrwFOXYjcr1
-         VFJCH4cqp8IR/rvt3rCD62qmAHqTZMo9PaggzYJr8SqnKKT0OnBEL2mqNiFi8cxYe3
-         ahlx+kh4oGJEr9Vm5BdDL6KIQlmMRWjAcGb66nw8ktlC1xSLs9YPIlhD+dD6O9zgze
-         13Mi9SnyeSK1xgAWyayjM0M4dy1qezVRWC08kwUx9yhIP0mEwrHmhcFuBk7LE3FxDq
-         v2GyatgGzZ2Yg==
-Date:   Sat, 1 Apr 2023 09:23:53 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Mathias Krause <minipli@grsecurity.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        lwn@lwn.net, jslaby@suse.cz,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: Re: Linux 5.15.103
-Message-ID: <ZCgwaWSgnUWAPyiv@sashalap>
-References: <1679040264214179@kroah.com>
- <c359c777-c3af-b4a6-791d-d51916160bf5@grsecurity.net>
- <ZCLaLWJiIsDV5yGr@kroah.com>
- <f86cb36e-b331-8b8d-f087-5e2e8a5ae962@grsecurity.net>
+        with ESMTP id S229448AbjDAWUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Apr 2023 18:20:43 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A48E12845
+        for <stable@vger.kernel.org>; Sat,  1 Apr 2023 15:20:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680387642; x=1711923642;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=4kuqPSh49FMYTQBRKaeb1OXc9xcn/MeEKSO5jhTpOxo=;
+  b=h9MNQ4vF/lYe+bJP7gLwXsOOchzirzVqIY1Oi4fXtFysHlBXPT3GcwbW
+   NvWSAn9wBDNzBH4Ia/pria+85IMc3DtEz+kAvbdonQDBsRJBMZasOqhzK
+   SNMkVv3vw87lq8gE0DU7amuBzg9Fj+u/RV5JjUxSX1OOoFZcTa8gXinnD
+   7HL5d0jkUB7xiJRcekYTl/ENi+Zc7YKuwJwk6s2aNbTLqTbBc1neosBE1
+   IuoPvY1UYcpzRMua43+UhyffKJY3/CbZF62c9cwXG5VpbI5XUeRRL9Vhx
+   ZBU6USD2gvm/I7V4BzI1caKMrJyS2siJe5Nx4OZYsaMmyl6bjaKGq8m5Z
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10667"; a="404436020"
+X-IronPort-AV: E=Sophos;i="5.98,311,1673942400"; 
+   d="scan'208";a="404436020"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2023 15:20:42 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10667"; a="685512484"
+X-IronPort-AV: E=Sophos;i="5.98,311,1673942400"; 
+   d="scan'208";a="685512484"
+Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
+  by orsmga002.jf.intel.com with ESMTP; 01 Apr 2023 15:20:41 -0700
+Received: from kbuild by b613635ddfff with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pijaS-000N4t-0u;
+        Sat, 01 Apr 2023 22:20:40 +0000
+Date:   Sun, 2 Apr 2023 06:20:08 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH] mm/swap: fix swap_info_struct race between swapoff and
+ get_swap_pages()
+Message-ID: <ZCiuGEkyk/1Afisk@ec83ac1404bb>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f86cb36e-b331-8b8d-f087-5e2e8a5ae962@grsecurity.net>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <20230401221920.57986-1-rongwei.wang@linux.alibaba.com>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 28, 2023 at 02:29:11PM +0200, Mathias Krause wrote:
->On 28.03.23 14:14, Greg Kroah-Hartman wrote:
->> On Tue, Mar 28, 2023 at 02:02:03PM +0200, Mathias Krause wrote:
->>> On 17.03.23 09:04, Greg Kroah-Hartman wrote:
->>>> I'm announcing the release of the 5.15.103 kernel.
->>>>
->>>> [...]
->>>>
->>>> Vitaly Kuznetsov (4):
->>>>       KVM: Optimize kvm_make_vcpus_request_mask() a bit
->>>>       KVM: Pre-allocate cpumasks for kvm_make_all_cpus_request_except()
->>>>       KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
->>>>       KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
->>>>
->>>
->>> That list is missing commit 6470accc7ba9 ("KVM: x86: hyper-v: Avoid
->>> calling kvm_make_vcpus_request_mask() with vcpu_mask==NULL") to fulfill
->>> the prerequisite of "KVM: Optimize kvm_make_vcpus_request_mask() a bit".
->>>
->>> Right now the kvm selftests trigger a kernel NULL deref for the hyperv
->>> test, making the system hang.
->>>
->>> Please consider applying commit 6470accc7ba9 for the next v5.15.x release.
->>
->> It wasn't tagged for the stable kernels, so we didn't pick it up :(
->
->Neither were any of the above commits. o.O
->
->Commit 3e48a6349d29 ("KVM: Optimize kvm_make_vcpus_request_mask() a
->bit") has this tag, though:
->
->Stable-dep-of: 2b0128127373 ("KVM: Register /dev/kvm as the _very_ last
->thing during initialization")
->
->I don't know why, though. These two commits have little in common.
->Maybe Sasha knows why?
+Hi,
 
-Because you've skipped the commit in the middle of the two you've
-pointed out :)
+Thanks for your patch.
 
-3e48a6349d29 is needed by 0a0ecaf0988b ("KVM: Pre-allocate cpumasks for
-kvm_make_all_cpus_request_except()"), which in turn is needed by
-2b0128127373.
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
+
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH] mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()
+Link: https://lore.kernel.org/stable/20230401221920.57986-1-rongwei.wang%40linux.alibaba.com
+
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
 -- 
-Thanks,
-Sasha
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
+
