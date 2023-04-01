@@ -2,69 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 968CB6D2C56
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D59F76D2C7D
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbjDABJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:09:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37548 "EHLO
+        id S232111AbjDABgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:36:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232190AbjDABJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:09:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61351BF48;
-        Fri, 31 Mar 2023 18:09:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CDBE62CD9;
-        Sat,  1 Apr 2023 01:09:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0373C433A1;
-        Sat,  1 Apr 2023 01:09:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680311355;
-        bh=/LTUz3eEbeLJ0Mp6IRD/RWbRrFGs0YZv3TWcnSN0CV0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=lqX2jOkISgAicmlN3IB0/2Xe7FK88Yr8f6O2Vcn1f7VBk92gJ34hJ03ZUjg2X1O2w
-         MXyMILjQhdjZUGAN8EqK9PbxIXdOarz/nOStjk3jyujc64UrBY3NxliGICbkiWOLeD
-         tESbK0fSdiitrGY8qn70TV3day/iRt7TQWxxLH6aeKyGIbEXQPDPfeLcOCKHBbRCGd
-         kPtXKukgdaHmAbR62dbTXUDRHHWYFDqubsY023yacltLnh7xSTTFwGeWv8IRmcEofA
-         ZgLx++fmhFB5xBUtIZ86Pca07pCzaG9Tn59xmMf1X57+SIGxgWeJtnDV7+SA5X+ro7
-         sL9fm4QxIzRkA==
-Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-17aeb49429eso24988399fac.6;
-        Fri, 31 Mar 2023 18:09:15 -0700 (PDT)
-X-Gm-Message-State: AAQBX9f3rMnV2r5jhcH/0zo+y+GYsA4fbQkGF17yNcZ29B0/yqx9vAq0
-        4vH2qzPAUTKhw8J80r+yTb+MVgUJFDs2jK9d2c8=
-X-Google-Smtp-Source: AKy350ZGV1y0Nf0JZUb3XIQPYwf+PbORdDoVmjq9Gbwo2taA1C6i3WK4Xuu0kG0Hz6DIl7RRQWz6KWjQN65WQgfG23k=
-X-Received: by 2002:a05:6870:d20f:b0:16e:8993:9d7c with SMTP id
- g15-20020a056870d20f00b0016e89939d7cmr5363652oac.1.1680311354924; Fri, 31 Mar
- 2023 18:09:14 -0700 (PDT)
+        with ESMTP id S230193AbjDABgY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:36:24 -0400
+Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 001501C1FE;
+        Fri, 31 Mar 2023 18:36:21 -0700 (PDT)
+Received: from loongson.cn (unknown [10.20.42.153])
+        by gateway (Coremail) with SMTP id _____8DxEzSUiidkhh4VAA--.32573S3;
+        Sat, 01 Apr 2023 09:36:20 +0800 (CST)
+Received: from [10.20.42.153] (unknown [10.20.42.153])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxLL6SiidkP30SAA--.15525S3;
+        Sat, 01 Apr 2023 09:36:18 +0800 (CST)
+Subject: Re: [PATCH V2 1/5] irqchip/loongson-eiointc: Fix returned value on
+ parsing MADT
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, linux-kernel@vger.kernel.org,
+        loongarch@lists.linux.dev,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        loongson-kernel@lists.loongnix.cn, stable@vger.kernel.org
+References: <20230331113900.9105-1-lvjianmin@loongson.cn>
+ <20230331113900.9105-2-lvjianmin@loongson.cn> <ZCbdUbVhH7lmh3PI@kroah.com>
+From:   Jianmin Lv <lvjianmin@loongson.cn>
+Message-ID: <f00383ba-6f2a-3111-9a55-c412f9a50e7f@loongson.cn>
+Date:   Sat, 1 Apr 2023 09:36:18 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20230330182223.181775-1-hi@alyssa.is> <20230330222928.GA644044@dev-arch.thelio-3990X>
- <CAK7LNARU444UrZXVodNftud-scy5KKUjdtTM0GOrxHB9pyKmkg@mail.gmail.com> <20230331202716.mvny65ybaat3wsmm@x220>
-In-Reply-To: <20230331202716.mvny65ybaat3wsmm@x220>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Sat, 1 Apr 2023 10:08:37 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATN7hQFXx+Y5PguD9mvcP0-jadXxU_5WP4YQuHgKeyD1w@mail.gmail.com>
-Message-ID: <CAK7LNATN7hQFXx+Y5PguD9mvcP0-jadXxU_5WP4YQuHgKeyD1w@mail.gmail.com>
-Subject: Re: [PATCH v3] purgatory: fix disabling debug info
-To:     Alyssa Ross <hi@alyssa.is>
-Cc:     Nathan Chancellor <nathan@kernel.org>, Nick Cao <nickcao@nichi.co>,
-        linux-kbuild@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        linux-riscv@lists.infradead.org, Tom Rix <trix@redhat.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+In-Reply-To: <ZCbdUbVhH7lmh3PI@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8BxLL6SiidkP30SAA--.15525S3
+X-CM-SenderInfo: 5oymxthqpl0qxorr0wxvrqhubq/
+X-Coremail-Antispam: 1Uk129KBjvJXoW7tFWUCF1DZr47urW5Xry3CFg_yoW8JF4fpa
+        y7X398tr4Yy34fCw4ftw1rXFyrXa93Ca4ftr45WwsYkr1DurnrW3WIvw4I9F93CFW3Ka12
+        vF4aqan5Aw45A3DanT9S1TB71UUUUj7qnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bDkYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
+        1l1IIY67AEw4v_JrI_Jryl8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
+        wVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwA2z4
+        x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267AKxVW8JVW8Jr1ln4kS
+        14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+        1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E87Iv
+        67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
+        AlzVAYIcxG8wCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE
+        7xkEbVWUJVW8JwCFI7km07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I
+        0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAI
+        cVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcV
+        CF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8h0ePUUUUU==
+X-Spam-Status: No, score=-0.0 required=5.0 tests=NICE_REPLY_A,SPF_HELO_PASS,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,140 +69,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 1, 2023 at 5:27=E2=80=AFAM Alyssa Ross <hi@alyssa.is> wrote:
->
-> On Sat, Apr 01, 2023 at 12:42:13AM +0900, Masahiro Yamada wrote:
-> > On Fri, Mar 31, 2023 at 7:29=E2=80=AFAM Nathan Chancellor <nathan@kerne=
-l.org> wrote:
-> > >
-> > > On Thu, Mar 30, 2023 at 06:22:24PM +0000, Alyssa Ross wrote:
-> > > > Since 32ef9e5054ec, -Wa,-gdwarf-2 is no longer used in KBUILD_AFLAG=
-S.
-> > > > Instead, it includes -g, the appropriate -gdwarf-* flag, and also t=
-he
-> > > > -Wa versions of both of those if building with Clang and GNU as.  A=
-s a
-> > > > result, debug info was being generated for the purgatory objects, e=
-ven
-> > > > though the intention was that it not be.
-> > > >
-> > > > Fixes: 32ef9e5054ec ("Makefile.debug: re-enable debug info for .S f=
-iles")
-> > > > Signed-off-by: Alyssa Ross <hi@alyssa.is>
-> > > > Cc: stable@vger.kernel.org
-> > > > Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-> > >
-> > > This is definitely more future proof.
-> > >
-> > > Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-> > > Tested-by: Nathan Chancellor <nathan@kernel.org>
-> >
-> >
-> >
-> > I prefer v3 since it is cleaner, but unfortunately
-> > it does not work for Clang+GAS.
-> >
-> >
-> > With v3 applied, I still see the debug info.
-> >
-> >
-> >
-> > $ make LLVM=3D1 LLVM_IAS=3D0  arch/x86/purgatory/setup-x86_64.o
-> >   UPD     include/config/kernel.release
-> >   UPD     include/generated/utsrelease.h
-> >   CALL    scripts/checksyscalls.sh
-> >   DESCEND objtool
-> >   INSTALL libsubcmd_headers
-> >   AS      arch/x86/purgatory/setup-x86_64.o
-> > $ readelf -S arch/x86/purgatory/setup-x86_64.o
-> > There are 18 section headers, starting at offset 0x14d8:
-> >
-> > Section Headers:
-> >   [Nr] Name              Type             Address           Offset
-> >        Size              EntSize          Flags  Link  Info  Align
-> >   [ 0]                   NULL             0000000000000000  00000000
-> >        0000000000000000  0000000000000000           0     0     0
-> >   [ 1] .text             PROGBITS         0000000000000000  00000040
-> >        0000000000000027  0000000000000000  AX       0     0     16
-> >   [ 2] .rela.text        RELA             0000000000000000  000012f8
-> >        0000000000000060  0000000000000018   I      15     1     8
-> >   [ 3] .data             PROGBITS         0000000000000000  00000067
-> >        0000000000000000  0000000000000000  WA       0     0     1
-> >   [ 4] .bss              NOBITS           0000000000000000  00001000
-> >        0000000000001000  0000000000000000  WA       0     0     4096
-> >   [ 5] .rodata           PROGBITS         0000000000000000  00001000
-> >        0000000000000020  0000000000000000   A       0     0     16
-> >   [ 6] .rela.rodata      RELA             0000000000000000  00001358
-> >        0000000000000018  0000000000000018   I      15     5     8
-> >   [ 7] .debug_line       PROGBITS         0000000000000000  00001020
-> >        000000000000005f  0000000000000000           0     0     1
-> >   [ 8] .rela.debug_line  RELA             0000000000000000  00001370
-> >        0000000000000018  0000000000000018   I      15     7     8
-> >   [ 9] .debug_info       PROGBITS         0000000000000000  0000107f
-> >        0000000000000027  0000000000000000           0     0     1
-> >   [10] .rela.debug_info  RELA             0000000000000000  00001388
-> >        0000000000000090  0000000000000018   I      15     9     8
-> >   [11] .debug_abbrev     PROGBITS         0000000000000000  000010a6
-> >        0000000000000014  0000000000000000           0     0     1
-> >   [12] .debug_aranges    PROGBITS         0000000000000000  000010c0
-> >        0000000000000030  0000000000000000           0     0     16
-> >   [13] .rela.debug_[...] RELA             0000000000000000  00001418
-> >        0000000000000030  0000000000000018   I      15    12     8
-> >   [14] .debug_str        PROGBITS         0000000000000000  000010f0
-> >        0000000000000054  0000000000000001  MS       0     0     1
-> >   [15] .symtab           SYMTAB           0000000000000000  00001148
-> >        0000000000000168  0000000000000018          16    12     8
-> >   [16] .strtab           STRTAB           0000000000000000  000012b0
-> >        0000000000000041  0000000000000000           0     0     1
-> >   [17] .shstrtab         STRTAB           0000000000000000  00001448
-> >        000000000000008d  0000000000000000           0     0     1
-> > Key to Flags:
-> >   W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
-> >   L (link order), O (extra OS processing required), G (group), T (TLS),
-> >   C (compressed), x (unknown), o (OS specific), E (exclude),
-> >   D (mbind), l (large), p (processor specific)
-> >
-> >
-> >
-> >
-> >
-> >
-> > With -g0 given, GCC stops passing -g -gdwarf-4 down to GAS.
-> >
-> >
-> > Clang does not do anything about -g0 for the external assembler.
->
-> You're right.  Thank you for your thoughtful testing =E2=80=94 I forgot t=
-o check
-> LLVM for v3.  I thought maybe adding -Wa,-g0 would be enough, but it
-> turns out that GAS doesn't support that.  If -g has been specified,
-> there doesn't seem to be any way to disable debug info again later in
-> the command line.
->
-> So we probably can't do better than v2 while LLVM_IAS=3D0 is supported.
-> The only other option I see is (untested):
->
-> asflags-y                       +=3D -g0
-> asflags-remove-y                +=3D -Wa,-g -Wa,-gdwarf-4 -Wa,-gdwarf-5
->
-> But I don't like that option, because it means there are two completely
-> different ways of doing it depending on the compiler setup, and it makes
-> it even less likely anybody would remember to update asflags-remove-y
-> when DWARF 6 comes around or whatever.
+Ok, thanks, got it.
 
+On 2023/3/31 下午9:17, Greg KH wrote:
+> On Fri, Mar 31, 2023 at 07:38:56PM +0800, Jianmin Lv wrote:
+>> In pch_pic_parse_madt(), a NULL parent pointer will be
+>> returned from acpi_get_vec_parent() for second pch-pic domain
+>> related to second bridge while calling eiointc_acpi_init() at
+>> first time, where the parent of it has not been initialized
+>> yet, and will be initialized during second time calling
+>> eiointc_acpi_init(). So, it's reasonable to return zero so
+>> that failure of acpi_table_parse_madt() will be avoided, or else
+>> acpi_cascade_irqdomain_init() will return and initialization of
+>> followed pch_msi domain will be skipped.
+>>
+>> Although it does not matter when pch_msi_parse_madt() returns
+>> -EINVAL if no invalid parent is found, it's also reasonable to
+>> return zero for that.
+>>
+>> Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
+>> ---
+>>   drivers/irqchip/irq-loongson-eiointc.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> <formletter>
+> 
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
+> 
+> </formletter>
+> 
 
-Agree.
-This is uglier than v2.
-
-
-
-If nobody comes up with a better idea,
-I will pick up v2.
-
-
-
-
-
---=20
-Best Regards
-Masahiro Yamada
