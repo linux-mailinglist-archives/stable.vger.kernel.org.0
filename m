@@ -2,128 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2311E6D2D93
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 04:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA77D6D2DB4
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 04:27:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230011AbjDACFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 22:05:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37750 "EHLO
+        id S233331AbjDAC1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 22:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229909AbjDACFw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 22:05:52 -0400
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41AEFA;
-        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
-Received: by mail-oi1-x235.google.com with SMTP id r16so17983448oij.5;
-        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680314751;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=ftkFRlydY5j9a8m5plIM/f4/vr6ozLid81af03S9j0o=;
-        b=DR8REL8hzbCG1CFq0ozyUcgzrYkWCTOft8KUrNDGWOy1zpXJsDl7isUXf3q2fA8AdF
-         ZLiF0MAgAeVkEacAO9xYO+QgDN59PQA99gfEYAI7hpYqplYwrNUr6AGNeQAoGJmmp+rB
-         z0MnDQMAIc+7PDyALkNr0C3p82XJqI/yYJIB8q3XrPtMjzVVrjqXBswGMBUZ7+YuE472
-         TIdtHXs9G4eMe3LOGwiqk0DM0iS91qFcwPUG00lb5sVn0oqNhQR0JB7wFLND4DmU8cbu
-         IMM9EpwzYb2GM857AH/upY8DIMxmcYqNnWANEpQI9iR1eEvd049VxHLC8vw8mT1/+1wD
-         ozqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680314751;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ftkFRlydY5j9a8m5plIM/f4/vr6ozLid81af03S9j0o=;
-        b=KTzKDvnOiV84KgPtXae1GMYsUw3r7DlyeOir/oMjqrNOSFQBMMNqaRrtQKqj01p8re
-         KTXRXX1HzEYDSHE7wvhWNO6hVr8Qt0VFJCpMZ0T8dV6xtKT+FxibzNBtUepvzXpuQNtx
-         /YhIueR/YpB3IGvFNcqSxlx1v0fOSTUJ+mYCl6c4bhJ8KmVWl9AsaJRr/ZAIkJuUFZxE
-         zD/H4M2DJAggkiAuX3oV6RrEDgsAPU7TYZTO3D+NeqX2M7GoR6r0JClGuU19i9B0kf5g
-         7wjvOq7Gkxxvhor3YB7f0RP0DC8ix0rO64txkjxkE04fh3gHwEVRiYjhVcf2nOqy4kCw
-         ugOw==
-X-Gm-Message-State: AO0yUKUKRAIAKbH/Oqrt/CcZ0adPEu0zAaOA52dV9lBCrk1r4kvKslRu
-        Gub6mN8+U1/flHlmFgI0hAX3i6gKJJ0=
-X-Google-Smtp-Source: AK7set+7Qk16TsLMKrHNg/hT4yagB1I0GcCD4zhUKtXGOZkYXqKNEhoxTo60nQSgnQG9/O6O+6QuqA==
-X-Received: by 2002:a05:6808:5ca:b0:386:9dc5:2cc0 with SMTP id d10-20020a05680805ca00b003869dc52cc0mr12226101oij.25.1680314751260;
-        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
-Received: from [192.168.0.116] ([216.130.59.33])
-        by smtp.gmail.com with ESMTPSA id h38-20020a4a9429000000b0051a6cb524b6sm1525190ooi.2.2023.03.31.19.05.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
-Sender: Larry Finger <larry.finger@gmail.com>
-Message-ID: <4a76b5fe-c3d6-de44-c627-3f48fafdd905@lwfinger.net>
-Date:   Fri, 31 Mar 2023 21:05:49 -0500
+        with ESMTP id S233272AbjDAC1r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 22:27:47 -0400
+X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 31 Mar 2023 19:27:45 PDT
+Received: from mail.valdk.tel (mail.valdk.tel [185.177.150.13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4197DCA2C
+        for <stable@vger.kernel.org>; Fri, 31 Mar 2023 19:27:45 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 029EFA06B70;
+        Sat,  1 Apr 2023 05:09:02 +0300 (MSK)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=valdikss.org.ru;
+        s=msrv; t=1680314949;
+        h=from:subject:date:message-id:to:cc:mime-version:content-type:
+         content-language:in-reply-to:references;
+        bh=kps8MWry5MwGXQOY36Td8YfcSJbDESOL6s6xM+uSojk=;
+        b=hiy7/n+cM+XJm0XAnrSPhuAsTgHwC/8FyFh2rSzCCXx/M+JBIv5OTqCFUaUC77mcijwrz7
+        GZiDGfbb/GYr34lzpYADvGNGQlKw5iEQd2btcz4E9KHPavUvb/nSQc1Sn411juCHYl/ebq
+        +N3VXjjY4c6rtS9LALDWrzBX7PX4S58ls2np8z5sbbRo1o78BgEyQmZUHAnwZ7dRiLy7vG
+        iUq/HUrbna789XfCwHcYdNm33DRmfD8rlk6qpBj6iASQIZoMdZJ5L0SDJXkG7NCjp82VIx
+        PV98PBl5E1n844KiPA1sDO8esAv1v8vfMmRLynB9G7fC96vL9ab4URgY1q0LGg==
+Message-ID: <57d3052f-a38f-c45b-bc3f-aa8ebfd7188e@valdikss.org.ru>
+Date:   Sat, 1 Apr 2023 05:08:59 +0300
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.5.0) Gecko/20100101,
+ Thunderbird/78.5.0
 Subject: Re: [PATCH 0/2] RTW88 USB bug fixes
-Content-Language: en-US
-To:     "Alex G." <mr.nuke.me@gmail.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
+Content-Language: en-US, ru-RU
+To:     Sascha Hauer <s.hauer@pengutronix.de>,
         linux-wireless <linux-wireless@vger.kernel.org>
-Cc:     Hans Ulli Kroll <linux@ulli-kroll.de>, Pkshih <pkshih@realtek.com>,
-        Tim K <tpkuester@gmail.com>, Nick Morrow <morrownr@gmail.com>,
+Cc:     Hans Ulli Kroll <linux@ulli-kroll.de>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Pkshih <pkshih@realtek.com>, Tim K <tpkuester@gmail.com>,
+        Nick Morrow <morrownr@gmail.com>,
         Viktor Petrenko <g0000ga@gmail.com>,
-        Andreas Henriksson <andreas@fatal.se>,
-        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
-        stable@vger.kernel.org
+        Andreas Henriksson <andreas@fatal.se>, kernel@pengutronix.de,
+        stable@vger.kernel.org, "Alex G." <mr.nuke.me@gmail.com>
 References: <20230331121054.112758-1-s.hauer@pengutronix.de>
  <317782bf-b12a-b6b8-8f08-5e4e19f3b309@gmail.com>
-From:   Larry Finger <Larry.Finger@lwfinger.net>
+From:   ValdikSS <iam@valdikss.org.ru>
 In-Reply-To: <317782bf-b12a-b6b8-8f08-5e4e19f3b309@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------GM80ZT0493C1GmToVnA9BtnF"
+X-Last-TLS-Session-Version: TLSv1.3
+X-Spam-Status: No, score=-0.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/31/23 15:34, Alex G. wrote:
-> On 3/31/23 07:10, Sascha Hauer wrote:
->> This series fixes two bugs in the RTW88 USB driver I was reported from
->> several people and that I also encountered myself.
->>
->> The first one resulted in "timed out to flush queue 3" messages from the
->> driver and sometimes a complete stall of the TX queues.
->>
->> The second one is specific to the RTW8821CU chipset. Here 2GHz networks
->> were hardly seen and impossible to connect to. This goes down to
->> misinterpreting the rfe_option field in the efuse.
-> 
-> I applied both these patches, tested an 8821CU, and the news are good:
-> 
-> The number of kernel warnings and adapter hangs has gone down considerably.
-> 
-> The signal levels on 2.4GHz bands have improved noticeably. There is the 
-> occasional station coming in 30dB lower than on nearby adapters. I wasn't able 
-> to find a pattern here.
-> 
-> I can now run these adapters in IBSS and 802.11s modes on the 2.4 GHz band. That 
-> was not possible before.
-> 
-> I am impressed with the improvements in these patches. For the series:
-> 
-> Tested-by: Alexandru gagniuc <mr.nuke.me@gmail.com>
->>
->> Sascha Hauer (2):
->>    wifi: rtw88: usb: fix priority queue to endpoint mapping
->>    wifi: rtw88: rtw8821c: Fix rfe_option field width
->>
->>   drivers/net/wireless/realtek/rtw88/rtw8821c.c |  3 +- >>   drivers/net/wireless/realtek/rtw88/usb.c      | 70 +++++++++++++------
->>   2 files changed, 48 insertions(+), 25 deletions(-)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------GM80ZT0493C1GmToVnA9BtnF
+Content-Type: multipart/mixed; boundary="------------ATvweMDPt9nm92os43zcNLy8";
+ protected-headers="v1"
+From: ValdikSS <iam@valdikss.org.ru>
+To: Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-wireless <linux-wireless@vger.kernel.org>
+Cc: Hans Ulli Kroll <linux@ulli-kroll.de>,
+ Larry Finger <Larry.Finger@lwfinger.net>, Pkshih <pkshih@realtek.com>,
+ Tim K <tpkuester@gmail.com>, Nick Morrow <morrownr@gmail.com>,
+ Viktor Petrenko <g0000ga@gmail.com>, Andreas Henriksson <andreas@fatal.se>,
+ kernel@pengutronix.de, stable@vger.kernel.org, "Alex G."
+ <mr.nuke.me@gmail.com>
+Message-ID: <57d3052f-a38f-c45b-bc3f-aa8ebfd7188e@valdikss.org.ru>
+Subject: Re: [PATCH 0/2] RTW88 USB bug fixes
+References: <20230331121054.112758-1-s.hauer@pengutronix.de>
+ <317782bf-b12a-b6b8-8f08-5e4e19f3b309@gmail.com>
+In-Reply-To: <317782bf-b12a-b6b8-8f08-5e4e19f3b309@gmail.com>
 
-I can confirm that these changes cleared up my problems with the "timed out to 
-flush queue" warnings that caused a problem before with my rtw8822bu.
+--------------ATvweMDPt9nm92os43zcNLy8
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Tested-by: Larry Finger <Larry,Finger@lwfinger.net>
-
-Thanks,
-
-Larry
+T24gMzEuMDMuMjAyMyAyMzozNCwgQWxleCBHLiB3cm90ZToNCj4gT24gMy8zMS8yMyAwNzox
+MCwgU2FzY2hhIEhhdWVyIHdyb3RlOg0KPj4gVGhpcyBzZXJpZXMgZml4ZXMgdHdvIGJ1Z3Mg
+aW4gdGhlIFJUVzg4IFVTQiBkcml2ZXIgSSB3YXMgcmVwb3J0ZWQgZnJvbQ0KPj4gc2V2ZXJh
+bCBwZW9wbGUgYW5kIHRoYXQgSSBhbHNvIGVuY291bnRlcmVkIG15c2VsZi4NCj4+DQo+PiBU
+aGUgZmlyc3Qgb25lIHJlc3VsdGVkIGluICJ0aW1lZCBvdXQgdG8gZmx1c2ggcXVldWUgMyIg
+bWVzc2FnZXMgZnJvbSB0aGUNCj4+IGRyaXZlciBhbmQgc29tZXRpbWVzIGEgY29tcGxldGUg
+c3RhbGwgb2YgdGhlIFRYIHF1ZXVlcy4NCj4+DQo+PiBUaGUgc2Vjb25kIG9uZSBpcyBzcGVj
+aWZpYyB0byB0aGUgUlRXODgyMUNVIGNoaXBzZXQuIEhlcmUgMkdIeiBuZXR3b3Jrcw0KPj4g
+d2VyZSBoYXJkbHkgc2VlbiBhbmQgaW1wb3NzaWJsZSB0byBjb25uZWN0IHRvLiBUaGlzIGdv
+ZXMgZG93biB0bw0KPj4gbWlzaW50ZXJwcmV0aW5nIHRoZSByZmVfb3B0aW9uIGZpZWxkIGlu
+IHRoZSBlZnVzZS4NCg0KVGVzdGVkIG9uIFJUTDg4MTFDVSwgdGhlc2UgdHdvIHBhdGNoZXMg
+Zml4IGJvdGggaXNzdWVzLiAyLjQgR0h6IG5ldHdvcmtzIA0Kbm93IHdvcmsgcGVyZmVjdGx5
+IGZpbmUuDQoNClRlc3RlZC1ieTogVmFsZGlrU1MgPGlhbUB2YWxkaWtzcy5vcmcucnU+DQo=
 
 
+--------------ATvweMDPt9nm92os43zcNLy8--
+
+--------------GM80ZT0493C1GmToVnA9BtnF
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEMiogvXcpmS32v71gXNcgLu+I93IFAmQnkjsFAwAAAAAACgkQXNcgLu+I93JW
+YhAAyt31UScowu6VmI/qXRaNbSYypjkQHFO06zp2r2wJyDZI50yGRz6VqupTXCQLaFc6W5EAeB9c
+CI/CdRDIjtrM56fuerkArpJWoJkNyx/KyetCL4FD1A1Uxfu1ZTbR65+yNlZwKiM+aiWl9buan8Cr
+AlIoQ10tztXU3ga3HQ9dsOq+tR+b0l+kccvLCb2BxD/DwjlXvKtm58so07Zz9Fv6golSgonfC31r
+K/CvlyFaN+2PP+qPISqW5eF6rGQfspj3qrr5/54n3k1W21oTyEYAD/KPHO1erC9MSubIepa802j1
+qBK/V/bnKmXE6ZQPZw5PnTghf6n+agbjnh5sOSdCD/CMf0ydOsQQAAEW9tVwy3DtsCA7akXQKSjn
+s3rvH81XVNDWrjM3p28ntDuNHwfjAbd8Mbb74ZXfKz3d7W0xyaDx+T29wlWIfdSbgkoepIGX9t3D
+scA2pAV6MwkIv/oeN94CSv2ms/Lavmdbykt4m6byofaOfejLMADPTx0BGtl7MmwBUdIyyGmO4JlL
+emWmfN4YPltAd/HPgC+OZbGbC8Y9w8cslWSnyGPNX/STSVm1kykMS385U13V7xNQOYrIxBZHeTFm
+4of7xKbVeW3htGezngicFlxK+chrJQzBe3pXZ2rURV76gOG8VOwOd98Mhph9a6D9iY++auxTyx41
+oGY=
+=6GZ/
+-----END PGP SIGNATURE-----
+
+--------------GM80ZT0493C1GmToVnA9BtnF--
