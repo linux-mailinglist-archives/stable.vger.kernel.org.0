@@ -2,117 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC5266D2D65
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2311E6D2D93
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 04:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233592AbjDABuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59492 "EHLO
+        id S230011AbjDACFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 22:05:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234097AbjDABt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:49:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F84125459;
-        Fri, 31 Mar 2023 18:46:38 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0492162D18;
-        Sat,  1 Apr 2023 01:45:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F34CC433A0;
-        Sat,  1 Apr 2023 01:45:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313501;
-        bh=COtBPWd792pj4wDo6QCmYmv27EpEeD8uoH4fJakfhLM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roQzn49CfHGCeK35ch7COHPv7ggSSxsyfIqxPTAUojksAZRCOTM0KvfXX5MCaMUlY
-         ZhO7CWMdffAPqwV3lwzidmUa2EAvQGw+A1Yt8pMDxqCzNOYltHcLtq+4tqa5OP7ADe
-         pug/FkDGrLCO8kZiaqD1WdiRgFRJuATJjLgDOYhP3iVK7p43o8PcgROq0lOZOB1TFd
-         0r7uQGbfMr7bhV+ir4FN+03t3F2p8eTxzj7jm5eib6OYMlPIRqylCQCXiIjIwBtyn/
-         WRI8mkm+IBtqQXVooBgeBFytb9fi6C4HUYUH7nnX4oP7xK09cPdClOqpIvoCTgErye
-         IW8lAI/wGaUfA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robbie Harwood <rharwood@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        kexec@lists.infradead.org, Sasha Levin <sashal@kernel.org>,
-        davem@davemloft.net
-Subject: [PATCH AUTOSEL 4.14 3/3] verify_pefile: relax wrapper length check
-Date:   Fri, 31 Mar 2023 21:44:54 -0400
-Message-Id: <20230401014454.3357487-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230401014454.3357487-1-sashal@kernel.org>
-References: <20230401014454.3357487-1-sashal@kernel.org>
+        with ESMTP id S229909AbjDACFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 22:05:52 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41AEFA;
+        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id r16so17983448oij.5;
+        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680314751;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=ftkFRlydY5j9a8m5plIM/f4/vr6ozLid81af03S9j0o=;
+        b=DR8REL8hzbCG1CFq0ozyUcgzrYkWCTOft8KUrNDGWOy1zpXJsDl7isUXf3q2fA8AdF
+         ZLiF0MAgAeVkEacAO9xYO+QgDN59PQA99gfEYAI7hpYqplYwrNUr6AGNeQAoGJmmp+rB
+         z0MnDQMAIc+7PDyALkNr0C3p82XJqI/yYJIB8q3XrPtMjzVVrjqXBswGMBUZ7+YuE472
+         TIdtHXs9G4eMe3LOGwiqk0DM0iS91qFcwPUG00lb5sVn0oqNhQR0JB7wFLND4DmU8cbu
+         IMM9EpwzYb2GM857AH/upY8DIMxmcYqNnWANEpQI9iR1eEvd049VxHLC8vw8mT1/+1wD
+         ozqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680314751;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ftkFRlydY5j9a8m5plIM/f4/vr6ozLid81af03S9j0o=;
+        b=KTzKDvnOiV84KgPtXae1GMYsUw3r7DlyeOir/oMjqrNOSFQBMMNqaRrtQKqj01p8re
+         KTXRXX1HzEYDSHE7wvhWNO6hVr8Qt0VFJCpMZ0T8dV6xtKT+FxibzNBtUepvzXpuQNtx
+         /YhIueR/YpB3IGvFNcqSxlx1v0fOSTUJ+mYCl6c4bhJ8KmVWl9AsaJRr/ZAIkJuUFZxE
+         zD/H4M2DJAggkiAuX3oV6RrEDgsAPU7TYZTO3D+NeqX2M7GoR6r0JClGuU19i9B0kf5g
+         7wjvOq7Gkxxvhor3YB7f0RP0DC8ix0rO64txkjxkE04fh3gHwEVRiYjhVcf2nOqy4kCw
+         ugOw==
+X-Gm-Message-State: AO0yUKUKRAIAKbH/Oqrt/CcZ0adPEu0zAaOA52dV9lBCrk1r4kvKslRu
+        Gub6mN8+U1/flHlmFgI0hAX3i6gKJJ0=
+X-Google-Smtp-Source: AK7set+7Qk16TsLMKrHNg/hT4yagB1I0GcCD4zhUKtXGOZkYXqKNEhoxTo60nQSgnQG9/O6O+6QuqA==
+X-Received: by 2002:a05:6808:5ca:b0:386:9dc5:2cc0 with SMTP id d10-20020a05680805ca00b003869dc52cc0mr12226101oij.25.1680314751260;
+        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
+Received: from [192.168.0.116] ([216.130.59.33])
+        by smtp.gmail.com with ESMTPSA id h38-20020a4a9429000000b0051a6cb524b6sm1525190ooi.2.2023.03.31.19.05.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Mar 2023 19:05:51 -0700 (PDT)
+Sender: Larry Finger <larry.finger@gmail.com>
+Message-ID: <4a76b5fe-c3d6-de44-c627-3f48fafdd905@lwfinger.net>
+Date:   Fri, 31 Mar 2023 21:05:49 -0500
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 0/2] RTW88 USB bug fixes
+Content-Language: en-US
+To:     "Alex G." <mr.nuke.me@gmail.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        linux-wireless <linux-wireless@vger.kernel.org>
+Cc:     Hans Ulli Kroll <linux@ulli-kroll.de>, Pkshih <pkshih@realtek.com>,
+        Tim K <tpkuester@gmail.com>, Nick Morrow <morrownr@gmail.com>,
+        Viktor Petrenko <g0000ga@gmail.com>,
+        Andreas Henriksson <andreas@fatal.se>,
+        ValdikSS <iam@valdikss.org.ru>, kernel@pengutronix.de,
+        stable@vger.kernel.org
+References: <20230331121054.112758-1-s.hauer@pengutronix.de>
+ <317782bf-b12a-b6b8-8f08-5e4e19f3b309@gmail.com>
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+In-Reply-To: <317782bf-b12a-b6b8-8f08-5e4e19f3b309@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=0.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robbie Harwood <rharwood@redhat.com>
+On 3/31/23 15:34, Alex G. wrote:
+> On 3/31/23 07:10, Sascha Hauer wrote:
+>> This series fixes two bugs in the RTW88 USB driver I was reported from
+>> several people and that I also encountered myself.
+>>
+>> The first one resulted in "timed out to flush queue 3" messages from the
+>> driver and sometimes a complete stall of the TX queues.
+>>
+>> The second one is specific to the RTW8821CU chipset. Here 2GHz networks
+>> were hardly seen and impossible to connect to. This goes down to
+>> misinterpreting the rfe_option field in the efuse.
+> 
+> I applied both these patches, tested an 8821CU, and the news are good:
+> 
+> The number of kernel warnings and adapter hangs has gone down considerably.
+> 
+> The signal levels on 2.4GHz bands have improved noticeably. There is the 
+> occasional station coming in 30dB lower than on nearby adapters. I wasn't able 
+> to find a pattern here.
+> 
+> I can now run these adapters in IBSS and 802.11s modes on the 2.4 GHz band. That 
+> was not possible before.
+> 
+> I am impressed with the improvements in these patches. For the series:
+> 
+> Tested-by: Alexandru gagniuc <mr.nuke.me@gmail.com>
+>>
+>> Sascha Hauer (2):
+>>    wifi: rtw88: usb: fix priority queue to endpoint mapping
+>>    wifi: rtw88: rtw8821c: Fix rfe_option field width
+>>
+>>   drivers/net/wireless/realtek/rtw88/rtw8821c.c |  3 +- >>   drivers/net/wireless/realtek/rtw88/usb.c      | 70 +++++++++++++------
+>>   2 files changed, 48 insertions(+), 25 deletions(-)
 
-[ Upstream commit 4fc5c74dde69a7eda172514aaeb5a7df3600adb3 ]
+I can confirm that these changes cleared up my problems with the "timed out to 
+flush queue" warnings that caused a problem before with my rtw8822bu.
 
-The PE Format Specification (section "The Attribute Certificate Table
-(Image Only)") states that `dwLength` is to be rounded up to 8-byte
-alignment when used for traversal.  Therefore, the field is not required
-to be an 8-byte multiple in the first place.
+Tested-by: Larry Finger <Larry,Finger@lwfinger.net>
 
-Accordingly, pesign has not performed this alignment since version
-0.110.  This causes kexec failure on pesign'd binaries with "PEFILE:
-Signature wrapper len wrong".  Update the comment and relax the check.
+Thanks,
 
-Signed-off-by: Robbie Harwood <rharwood@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Eric Biederman <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: keyrings@vger.kernel.org
-cc: linux-crypto@vger.kernel.org
-cc: kexec@lists.infradead.org
-Link: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-attribute-certificate-table-image-only
-Link: https://github.com/rhboot/pesign
-Link: https://lore.kernel.org/r/20230220171254.592347-2-rharwood@redhat.com/ # v2
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- crypto/asymmetric_keys/verify_pefile.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+Larry
 
-diff --git a/crypto/asymmetric_keys/verify_pefile.c b/crypto/asymmetric_keys/verify_pefile.c
-index d178650fd524c..411977947adbe 100644
---- a/crypto/asymmetric_keys/verify_pefile.c
-+++ b/crypto/asymmetric_keys/verify_pefile.c
-@@ -139,11 +139,15 @@ static int pefile_strip_sig_wrapper(const void *pebuf,
- 	pr_debug("sig wrapper = { %x, %x, %x }\n",
- 		 wrapper.length, wrapper.revision, wrapper.cert_type);
- 
--	/* Both pesign and sbsign round up the length of certificate table
--	 * (in optional header data directories) to 8 byte alignment.
-+	/* sbsign rounds up the length of certificate table (in optional
-+	 * header data directories) to 8 byte alignment.  However, the PE
-+	 * specification states that while entries are 8-byte aligned, this is
-+	 * not included in their length, and as a result, pesign has not
-+	 * rounded up since 0.110.
- 	 */
--	if (round_up(wrapper.length, 8) != ctx->sig_len) {
--		pr_debug("Signature wrapper len wrong\n");
-+	if (wrapper.length > ctx->sig_len) {
-+		pr_debug("Signature wrapper bigger than sig len (%x > %x)\n",
-+			 ctx->sig_len, wrapper.length);
- 		return -ELIBBAD;
- 	}
- 	if (wrapper.revision != WIN_CERT_REVISION_2_0) {
--- 
-2.39.2
 
