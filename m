@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9CE6D2CDA
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF476D2CBD
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233343AbjDABno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48538 "EHLO
+        id S233609AbjDABnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233635AbjDABnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:43:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7562661B2;
-        Fri, 31 Mar 2023 18:42:57 -0700 (PDT)
+        with ESMTP id S233653AbjDABmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:42:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEFFD20DBD;
+        Fri, 31 Mar 2023 18:42:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD6F862CF4;
-        Sat,  1 Apr 2023 01:41:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC49C4339C;
-        Sat,  1 Apr 2023 01:41:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8FA0B83262;
+        Sat,  1 Apr 2023 01:42:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36892C433EF;
+        Sat,  1 Apr 2023 01:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313318;
-        bh=xJod11SsprX4EwkdikpQC51szxq+xH/GFQps0769JuM=;
+        s=k20201202; t=1680313329;
+        bh=tZL4DKJKoUW8BGK7cCIIWkzg1Bq4GUlrjPFIyfxKvhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8xULYOWaQYJUZ+lV11B1P57CZFRaJtS2g63xIUFd69ogdHqt0wMZyOeBemktDIXM
-         cbNk/w+iBfyUD9lFJrM5jgBccsSPwQwi0yReavbEVgtOtiroI4mvfi340RlFvU8S/y
-         pe1U3xCr8fpSaD9F48Ww8xAStSMu3PPKNG4mfwZ/8Hxn6o3brLxMEvAiqBnXoRAQ+F
-         +66SQpZHMsaWlYXcCk2xkiUlqCf5YHV7WRCZnz5o02P62cA0nTJWrSeJ/4i/FBZIlf
-         qT5fB9D0vIzLZKbUcnw/6tSTGlhAxkks0xSHLDNbobFI0RDqlUQ5AbFQL5QB8fcs33
-         mIcbtKKCnTbew==
+        b=EFDByuftL7G9q0oUb35O1+5/tucAu/j4Ecz5Zd+XXG8tCoUle6HeDYycRmEBLZz3Q
+         PqhyFuUMODevW7OL36UKr6giftopXI+O4Ih7Y2O2bmywtVheA2HeVy6U4yrAuUk9WT
+         Z2hfK1/ih75QT7WQpkLVhKCOraJ6dtdaI2knFDzG4YAvU9TXdNXm0PMgO5DAB2Jd4g
+         sC2/g8Q8HnZ8oB956m8t2joQmDnqhO3Jgy0/B8PhG8//30h8lDGRDvfUEprpmOCtbU
+         z4ktoWhzSxeURFnYxTcNSNHzZ5JKuMJXpCnHVa8+l27WHPSOTFLf5kPVznbeXLsNha
+         v2KejzFjdbv3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin George <martinus.gpy@gmail.com>,
-        Martin George <marting@netapp.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.2 19/25] nvme: send Identify with CNS 06h only to I/O controllers
-Date:   Fri, 31 Mar 2023 21:41:17 -0400
-Message-Id: <20230401014126.3356410-19-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Benjamin Berg <benjamin.berg@intel.com>,
+        Jose Ignacio Tornos Martinez <jtornosm@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, gregory.greenman@intel.com,
+        kvalo@kernel.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        miriam.rachel.korenblit@intel.com, avraham.stern@intel.com,
+        shaul.triebitz@intel.com, quic_srirrama@quicinc.com,
+        daniel.lezcano@linaro.org, keescook@chromium.org,
+        ilan.peer@intel.com, haim.dreyfuss@intel.com,
+        yedidya.ben.shimol@intel.com, mordechay.goodstein@intel.com,
+        rostedt@goodmis.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 20/25] wifi: iwlwifi: mvm: fix mvmtxq->stopped handling
+Date:   Fri, 31 Mar 2023 21:41:18 -0400
+Message-Id: <20230401014126.3356410-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230401014126.3356410-1-sashal@kernel.org>
 References: <20230401014126.3356410-1-sashal@kernel.org>
@@ -48,8 +56,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,38 +65,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin George <martinus.gpy@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit def84ab600b71ea3fcc422a876d5d0d0daa7d4f3 ]
+[ Upstream commit b58e3d4311b54b6dd0e37165277965da0c9eb21d ]
 
-Identify CNS 06h (I/O Command Set Specific Identify Controller data
-structure) is supported only on i/o controllers.
+This could race if the queue is redirected while full, then
+the flushing internally would start it while it's not yet
+usable again. Fix it by using two state bits instead of just
+one.
 
-But nvme_init_non_mdts_limits() currently invokes this on all
-controllers.  Correct this by ensuring this is sent to I/O
-controllers only.
-
-Signed-off-by: Martin George <marting@netapp.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Benjamin Berg <benjamin.berg@intel.com>
+Tested-by: Jose Ignacio Tornos Martinez <jtornosm@redhat.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 5 ++++-
+ drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      | 4 +++-
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c      | 5 ++++-
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c      | 4 ++--
+ 4 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 70b5e891f6b3b..a8ad9c9fd2323 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3106,7 +3106,8 @@ static int nvme_init_non_mdts_limits(struct nvme_ctrl *ctrl)
- 	else
- 		ctrl->max_zeroes_sectors = 0;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 5273ade711176..5b4974181ff1c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -732,7 +732,10 @@ void iwl_mvm_mac_itxq_xmit(struct ieee80211_hw *hw, struct ieee80211_txq *txq)
  
--	if (nvme_ctrl_limited_cns(ctrl))
-+	if (ctrl->subsys->subtype != NVME_NQN_NVME ||
-+	    nvme_ctrl_limited_cns(ctrl))
- 		return 0;
+ 	rcu_read_lock();
+ 	do {
+-		while (likely(!mvmtxq->stopped &&
++		while (likely(!test_bit(IWL_MVM_TXQ_STATE_STOP_FULL,
++					&mvmtxq->state) &&
++			      !test_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT,
++					&mvmtxq->state) &&
+ 			      !test_bit(IWL_MVM_STATUS_IN_D3, &mvm->status))) {
+ 			skb = ieee80211_tx_dequeue(hw, txq);
  
- 	id = kzalloc(sizeof(*id), GFP_KERNEL);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+index ce6b701f3f4cd..3146b3d02bae8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+@@ -729,7 +729,9 @@ struct iwl_mvm_txq {
+ 	struct list_head list;
+ 	u16 txq_id;
+ 	atomic_t tx_request;
+-	bool stopped;
++#define IWL_MVM_TXQ_STATE_STOP_FULL	0
++#define IWL_MVM_TXQ_STATE_STOP_REDIRECT	1
++	unsigned long state;
+ };
+ 
+ static inline struct iwl_mvm_txq *
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+index ebe6d9c4ccafb..f43e617fb451f 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -1690,7 +1690,10 @@ static void iwl_mvm_queue_state_change(struct iwl_op_mode *op_mode,
+ 
+ 		txq = sta->txq[tid];
+ 		mvmtxq = iwl_mvm_txq_from_mac80211(txq);
+-		mvmtxq->stopped = !start;
++		if (start)
++			clear_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
++		else
++			set_bit(IWL_MVM_TXQ_STATE_STOP_FULL, &mvmtxq->state);
+ 
+ 		if (start && mvmsta->sta_state != IEEE80211_STA_NOTEXIST)
+ 			iwl_mvm_mac_itxq_xmit(mvm->hw, txq);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+index 69634fb82a9bf..21ad7b85c434c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -693,7 +693,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
+ 			    queue, iwl_mvm_ac_to_tx_fifo[ac]);
+ 
+ 	/* Stop the queue and wait for it to empty */
+-	txq->stopped = true;
++	set_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
+ 
+ 	ret = iwl_trans_wait_tx_queues_empty(mvm->trans, BIT(queue));
+ 	if (ret) {
+@@ -736,7 +736,7 @@ static int iwl_mvm_redirect_queue(struct iwl_mvm *mvm, int queue, int tid,
+ 
+ out:
+ 	/* Continue using the queue */
+-	txq->stopped = false;
++	clear_bit(IWL_MVM_TXQ_STATE_STOP_REDIRECT, &txq->state);
+ 
+ 	return ret;
+ }
 -- 
 2.39.2
 
