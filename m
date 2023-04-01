@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6688E6D2CFA
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F05426D2D96
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 04:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233685AbjDABpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:45:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46084 "EHLO
+        id S233656AbjDACJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 22:09:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233657AbjDABpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:45:05 -0400
+        with ESMTP id S229909AbjDACJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 22:09:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEFDA1EFE3;
-        Fri, 31 Mar 2023 18:43:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A181C1025E;
+        Fri, 31 Mar 2023 19:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADCB6B8331B;
-        Sat,  1 Apr 2023 01:43:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A016C433D2;
-        Sat,  1 Apr 2023 01:43:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36935B832FF;
+        Sat,  1 Apr 2023 01:43:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF9B2C4339C;
+        Sat,  1 Apr 2023 01:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313433;
-        bh=+CQiA2TpuPtNk29w+WbITPO+Y/iqiI7Ncoa4XcxFW/I=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BfttM5nAReRBBPaZ6JQkvC80GgSXaoPOJVn4JyRK7XXO+Ow3ssbtljnW56CXYl/3h
-         iEJKnrI1vx4tWZGmzsIHkvFHdPwUA1SxiffGPOsLxxa330MiY/oT6W1jIr/f0pHbK4
-         Gd5uMql/PUiMrf8dgqELlliSEyMRa02GOYdXEe8i/ke3ng8A4A9PW5aIh9uJOGt+Gb
-         oe6zgnA5fwdJ02bfjMJ4jb+ttPKaSx4YyNX7yScyGTdw5rhq4ArscQHXRlm5chupmK
-         Z/jpwf+c4sF+OWOdo6ORz8UCsiOxhiLFI89KQYSTcwv09/CZ0sEOIWH/ELNc3adLgn
-         mK+Y+ejXWNnmQ==
+        s=k20201202; t=1680313434;
+        bh=w+eQeY8xWmJH+xm58zvXHBkiJC8aAfsMU8f1VaxE4AQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AH+F1ExLfvTDrtvS4AUTy2nVgEPnoN/StVlBWgojpDbVwhz3A403DwMszb2ZUgeyv
+         ZNjUaT8b4Wnr6WlN6c9hQ/ERQuxExHTs/ClcGnseq9G7S26sjQMSkkV95YZzpx5vsv
+         QvCKppV2s+jFC2e8rPf7E81d1pJexWUmHg5Yzl1OWeaGkd2x1b3mscHLO72QCbItTV
+         jraUuYZFlITRy58PGtPrge7TMHRBSDe0bfiNGR0duVyLdMsApbPZ1jc8oQ1mA8AnYJ
+         CVQUm2sJObfL1JALRAVh/PHkMOztYZ91ZWY3KG2DnTMli5glUCWI1M/JIarIaNrUTS
+         fn6kDd5qUAoOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Jeffery <andrew@aj.id.au>,
-        Zev Weiss <zev@bewilderbeest.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        akpm@linux-foundation.org, anshuman.khandual@arm.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 01/11] ARM: 9290/1: uaccess: Fix KASAN false-positives
-Date:   Fri, 31 Mar 2023 21:43:39 -0400
-Message-Id: <20230401014350.3357107-1-sashal@kernel.org>
+Cc:     Grant Grundler <grundler@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, bleung@chromium.org,
+        sre@kernel.org, chrome-platform@lists.linux.dev,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/11] power: supply: cros_usbpd: reclassify "default case!" as debug
+Date:   Fri, 31 Mar 2023 21:43:40 -0400
+Message-Id: <20230401014350.3357107-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230401014350.3357107-1-sashal@kernel.org>
+References: <20230401014350.3357107-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,54 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Jeffery <andrew@aj.id.au>
+From: Grant Grundler <grundler@chromium.org>
 
-[ Upstream commit ceac10c83b330680cc01ceaaab86cd49f4f30d81 ]
+[ Upstream commit 14c76b2e75bca4d96e2b85a0c12aa43e84fe3f74 ]
 
-__copy_to_user_memcpy() and __clear_user_memset() had been calling
-memcpy() and memset() respectively, leading to false-positive KASAN
-reports when starting userspace:
+This doesn't need to be printed every second as an error:
+...
+<3>[17438.628385] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
+<3>[17439.634176] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
+<3>[17440.640298] cros-usbpd-charger cros-usbpd-charger.3.auto: Port 1: default case!
+...
 
-    [   10.707901] Run /init as init process
-    [   10.731892] process '/bin/busybox' started with executable stack
-    [   10.745234] ==================================================================
-    [   10.745796] BUG: KASAN: user-memory-access in __clear_user_memset+0x258/0x3ac
-    [   10.747260] Write of size 2687 at addr 000de581 by task init/1
+Reduce priority from ERROR to DEBUG.
 
-Use __memcpy() and __memset() instead to allow userspace access, which
-is of course the intent of these functions.
-
-Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/lib/uaccess_with_memcpy.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/cros_usbpd-charger.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/lib/uaccess_with_memcpy.c b/arch/arm/lib/uaccess_with_memcpy.c
-index 106f83a5ea6d2..35e03f6a62127 100644
---- a/arch/arm/lib/uaccess_with_memcpy.c
-+++ b/arch/arm/lib/uaccess_with_memcpy.c
-@@ -121,7 +121,7 @@ __copy_to_user_memcpy(void __user *to, const void *from, unsigned long n)
- 			tocopy = n;
+diff --git a/drivers/power/supply/cros_usbpd-charger.c b/drivers/power/supply/cros_usbpd-charger.c
+index d89e08efd2ad0..0a4f02e4ae7ba 100644
+--- a/drivers/power/supply/cros_usbpd-charger.c
++++ b/drivers/power/supply/cros_usbpd-charger.c
+@@ -276,7 +276,7 @@ static int cros_usbpd_charger_get_power_info(struct port_data *port)
+ 		port->psy_current_max = 0;
+ 		break;
+ 	default:
+-		dev_err(dev, "Port %d: default case!\n", port->port_number);
++		dev_dbg(dev, "Port %d: default case!\n", port->port_number);
+ 		port->psy_usb_type = POWER_SUPPLY_USB_TYPE_SDP;
+ 	}
  
- 		ua_flags = uaccess_save_and_enable();
--		memcpy((void *)to, from, tocopy);
-+		__memcpy((void *)to, from, tocopy);
- 		uaccess_restore(ua_flags);
- 		to += tocopy;
- 		from += tocopy;
-@@ -188,7 +188,7 @@ __clear_user_memset(void __user *addr, unsigned long n)
- 			tocopy = n;
- 
- 		ua_flags = uaccess_save_and_enable();
--		memset((void *)addr, 0, tocopy);
-+		__memset((void *)addr, 0, tocopy);
- 		uaccess_restore(ua_flags);
- 		addr += tocopy;
- 		n -= tocopy;
 -- 
 2.39.2
 
