@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3BAB6D2CF8
-	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6688E6D2CFA
+	for <lists+stable@lfdr.de>; Sat,  1 Apr 2023 03:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233791AbjDABpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Mar 2023 21:45:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48578 "EHLO
+        id S233685AbjDABpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Mar 2023 21:45:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233617AbjDABpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:45:03 -0400
+        with ESMTP id S233657AbjDABpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Mar 2023 21:45:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576BC22916;
-        Fri, 31 Mar 2023 18:43:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEFDA1EFE3;
+        Fri, 31 Mar 2023 18:43:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07E40B8331A;
-        Sat,  1 Apr 2023 01:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 013BAC4339C;
-        Sat,  1 Apr 2023 01:43:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADCB6B8331B;
+        Sat,  1 Apr 2023 01:43:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A016C433D2;
+        Sat,  1 Apr 2023 01:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313428;
-        bh=MeGy0MOALBiuRe8CcWLS3lryePjtmMT+QnPF+LdrO28=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g463gtaEeQciqP1sUulM+AviomgptnjMaHwmzO/wX3h19e10OhjdS3lTbTMvCTKKk
-         2tWlYy0BF1CrfCQ+4zFaFZAY4K4XfloUxOze93I/D+bLZMH4NxiDknTdk7nO+z+nb4
-         tn+El4LRehzZaSrkZjs0D09L3yXRox5i/HES2ZbbWOaTYTJO5izHdsHDwgh6dxnVZn
-         ykUdGde8DqA95Aq7FIUNEFMqDPA76YYytEF+HIN4vcCRKHW006zjejxLAkC1MS570/
-         +WsQAuQjjZIFuFdekUfylgNlEHjZMlUFdiIXV2GjmhdiPp65qcXor+6Tt6Qc8aErNA
-         FvfRo+GtGKUpQ==
+        s=k20201202; t=1680313433;
+        bh=+CQiA2TpuPtNk29w+WbITPO+Y/iqiI7Ncoa4XcxFW/I=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BfttM5nAReRBBPaZ6JQkvC80GgSXaoPOJVn4JyRK7XXO+Ow3ssbtljnW56CXYl/3h
+         iEJKnrI1vx4tWZGmzsIHkvFHdPwUA1SxiffGPOsLxxa330MiY/oT6W1jIr/f0pHbK4
+         Gd5uMql/PUiMrf8dgqELlliSEyMRa02GOYdXEe8i/ke3ng8A4A9PW5aIh9uJOGt+Gb
+         oe6zgnA5fwdJ02bfjMJ4jb+ttPKaSx4YyNX7yScyGTdw5rhq4ArscQHXRlm5chupmK
+         Z/jpwf+c4sF+OWOdo6ORz8UCsiOxhiLFI89KQYSTcwv09/CZ0sEOIWH/ELNc3adLgn
+         mK+Y+ejXWNnmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aymeric Wibo <obiwac@gmail.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 24/24] ACPI: resource: Add Medion S17413 to IRQ override quirk
-Date:   Fri, 31 Mar 2023 21:42:40 -0400
-Message-Id: <20230401014242.3356780-24-sashal@kernel.org>
+Cc:     Andrew Jeffery <andrew@aj.id.au>,
+        Zev Weiss <zev@bewilderbeest.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        akpm@linux-foundation.org, anshuman.khandual@arm.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 01/11] ARM: 9290/1: uaccess: Fix KASAN false-positives
+Date:   Fri, 31 Mar 2023 21:43:39 -0400
+Message-Id: <20230401014350.3357107-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230401014242.3356780-1-sashal@kernel.org>
-References: <20230401014242.3356780-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,40 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aymeric Wibo <obiwac@gmail.com>
+From: Andrew Jeffery <andrew@aj.id.au>
 
-[ Upstream commit 2d0ab14634a26e54f8d6d231b47b7ef233e84599 ]
+[ Upstream commit ceac10c83b330680cc01ceaaab86cd49f4f30d81 ]
 
-Add DMI info of the Medion S17413 (board M1xA) to the IRQ override
-quirk table. This fixes the keyboard not working on these laptops.
+__copy_to_user_memcpy() and __clear_user_memset() had been calling
+memcpy() and memset() respectively, leading to false-positive KASAN
+reports when starting userspace:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213031
-Signed-off-by: Aymeric Wibo <obiwac@gmail.com>
-[ rjw: Fixed up white space ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    [   10.707901] Run /init as init process
+    [   10.731892] process '/bin/busybox' started with executable stack
+    [   10.745234] ==================================================================
+    [   10.745796] BUG: KASAN: user-memory-access in __clear_user_memset+0x258/0x3ac
+    [   10.747260] Write of size 2687 at addr 000de581 by task init/1
+
+Use __memcpy() and __memset() instead to allow userspace access, which
+is of course the intent of these functions.
+
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/lib/uaccess_with_memcpy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index a222bda7e15b0..d08818baea88f 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -400,6 +400,13 @@ static const struct dmi_system_id medion_laptop[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "M17T"),
- 		},
- 	},
-+	{
-+		.ident = "MEDION S17413",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
-+			DMI_MATCH(DMI_BOARD_NAME, "M1xA"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/arch/arm/lib/uaccess_with_memcpy.c b/arch/arm/lib/uaccess_with_memcpy.c
+index 106f83a5ea6d2..35e03f6a62127 100644
+--- a/arch/arm/lib/uaccess_with_memcpy.c
++++ b/arch/arm/lib/uaccess_with_memcpy.c
+@@ -121,7 +121,7 @@ __copy_to_user_memcpy(void __user *to, const void *from, unsigned long n)
+ 			tocopy = n;
  
+ 		ua_flags = uaccess_save_and_enable();
+-		memcpy((void *)to, from, tocopy);
++		__memcpy((void *)to, from, tocopy);
+ 		uaccess_restore(ua_flags);
+ 		to += tocopy;
+ 		from += tocopy;
+@@ -188,7 +188,7 @@ __clear_user_memset(void __user *addr, unsigned long n)
+ 			tocopy = n;
+ 
+ 		ua_flags = uaccess_save_and_enable();
+-		memset((void *)addr, 0, tocopy);
++		__memset((void *)addr, 0, tocopy);
+ 		uaccess_restore(ua_flags);
+ 		addr += tocopy;
+ 		n -= tocopy;
 -- 
 2.39.2
 
