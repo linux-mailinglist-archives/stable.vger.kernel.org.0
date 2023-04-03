@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91BBF6D4AFC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8746D4AFD
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234112AbjDCOvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48642 "EHLO
+        id S233969AbjDCOvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234120AbjDCOva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:30 -0400
+        with ESMTP id S234254AbjDCOvc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AB742A5B1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:51:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3DA128E9F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:51:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE9C3B81D7E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69881C4339B;
-        Mon,  3 Apr 2023 14:50:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4B3B81D86
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0184EC433D2;
+        Mon,  3 Apr 2023 14:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533459;
-        bh=8K2O9HP3Im/RAWv8Xn6YYQUYu6sCHo3bhgjF2y2SkEo=;
+        s=korg; t=1680533462;
+        bh=EotIU3jwP+WvqfLrRtuyeKq4ksTkVKWXzyG8n97abb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/xwKQRZWU7sQXrG9NiMZaLqa3WpQna62Vx6S1wLstYekh3IXwbGrfImaW11ogYWy
-         5fQETKoOZyl0GxTfJoDE8qRx8WfNjblj8N83H3G0IpAsr5cf/rS84YXIBGbezEHfdZ
-         h4tEOVohvxlb9kKq4gK0/QjlZCyttVfb+8SNg32c=
+        b=zK3qK0Oywfp1n0QOCyjmubGBLiyjhFK8mL6hyF7O/FUbWwPj+fccs645x7W4K82zH
+         aQhZCfXymlYWf9PAXEdikFccu0gUguGYflZvifJgT71qnnfFbChSRIFIpLmnC73XVu
+         S9fumc0Sq0rV+bwM3A7NomY9JLcoRWw6eR/0Z6mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 184/187] libbpf: Fix btf_dumps packed struct determination
-Date:   Mon,  3 Apr 2023 16:10:29 +0200
-Message-Id: <20230403140422.408621338@linuxfoundation.org>
+        patches@lists.linux.dev, Xiaogang Chen <Xiaogang.Chen@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.2 185/187] drm/amdkfd: Get prange->offset after svm_range_vram_node_new
+Date:   Mon,  3 Apr 2023 16:10:30 +0200
+Message-Id: <20230403140422.459494223@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -54,132 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Xiaogang Chen <xiaogang.chen@amd.com>
 
-[ Upstream commit 4fb877aaa179dcdb1676d55216482febaada457e ]
+commit 8eeddc0d4200762063e1c66b9cc63afa7b24ebf0 upstream.
 
-Fix bug in btf_dump's logic of determining if a given struct type is
-packed or not. The notion of "natural alignment" is not needed and is
-even harmful in this case, so drop it altogether. The biggest difference
-in btf_is_struct_packed() compared to its original implementation is
-that we don't really use btf__align_of() to determine overall alignment
-of a struct type (because it could be 1 for both packed and non-packed
-struct, depending on specifci field definitions), and just use field's
-actual alignment to calculate whether any field is requiring packing or
-struct's size overall necessitates packing.
+During miration to vram prange->offset is valid after vram buffer is located,
+either use old one or allocate a new one. Move svm_range_vram_node_new before
+migrate for each vma to get valid prange->offset.
 
-Add two simple test cases that demonstrate the difference this change
-would make.
+v2: squash in warning fix
 
-Fixes: ea2ce1ba99aa ("libbpf: Fix BTF-to-C converter's padding logic")
-Reported-by: Eduard Zingerman <eddyz87@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Eduard Zingerman <eddyz87@gmail.com>
-Link: https://lore.kernel.org/bpf/20221215183605.4149488-1-andrii@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b4ee9606378b ("drm/amdkfd: Fix BO offset for multi-VMA page migration")
+Signed-off-by: Xiaogang Chen <Xiaogang.Chen@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/btf_dump.c                      | 33 ++++---------------
- .../bpf/progs/btf_dump_test_case_packing.c    | 19 +++++++++++
- 2 files changed, 25 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_migrate.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
-index e0f0b17541b4a..cfbec31e115cc 100644
---- a/tools/lib/bpf/btf_dump.c
-+++ b/tools/lib/bpf/btf_dump.c
-@@ -829,47 +829,26 @@ static void btf_dump_emit_type(struct btf_dump *d, __u32 id, __u32 cont_id)
- 	}
- }
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
+@@ -305,12 +305,6 @@ svm_migrate_copy_to_vram(struct amdgpu_d
+ 	src = scratch;
+ 	dst = (uint64_t *)(scratch + npages);
  
--static int btf_natural_align_of(const struct btf *btf, __u32 id)
--{
--	const struct btf_type *t = btf__type_by_id(btf, id);
--	int i, align, vlen;
--	const struct btf_member *m;
--
--	if (!btf_is_composite(t))
--		return btf__align_of(btf, id);
--
--	align = 1;
--	m = btf_members(t);
--	vlen = btf_vlen(t);
--	for (i = 0; i < vlen; i++, m++) {
--		align = max(align, btf__align_of(btf, m->type));
+-	r = svm_range_vram_node_new(adev, prange, true);
+-	if (r) {
+-		dev_dbg(adev->dev, "fail %d to alloc vram\n", r);
+-		goto out;
 -	}
 -
--	return align;
--}
--
- static bool btf_is_struct_packed(const struct btf *btf, __u32 id,
- 				 const struct btf_type *t)
- {
- 	const struct btf_member *m;
--	int align, i, bit_sz;
-+	int max_align = 1, align, i, bit_sz;
- 	__u16 vlen;
- 
--	align = btf_natural_align_of(btf, id);
--	/* size of a non-packed struct has to be a multiple of its alignment */
--	if (align && (t->size % align) != 0)
--		return true;
--
- 	m = btf_members(t);
- 	vlen = btf_vlen(t);
- 	/* all non-bitfield fields have to be naturally aligned */
- 	for (i = 0; i < vlen; i++, m++) {
--		align = btf_natural_align_of(btf, m->type);
-+		align = btf__align_of(btf, m->type);
- 		bit_sz = btf_member_bitfield_size(t, i);
- 		if (align && bit_sz == 0 && m->offset % (8 * align) != 0)
- 			return true;
-+		max_align = max(align, max_align);
+ 	amdgpu_res_first(prange->ttm_res, ttm_res_offset,
+ 			 npages << PAGE_SHIFT, &cursor);
+ 	for (i = j = 0; i < npages; i++) {
+@@ -391,7 +385,7 @@ out_free_vram_pages:
+ 		migrate->dst[i + 3] = 0;
  	}
--
-+	/* size of a non-packed struct has to be a multiple of its alignment */
-+	if (t->size % max_align != 0)
-+		return true;
- 	/*
- 	 * if original struct was marked as packed, but its layout is
- 	 * naturally aligned, we'll detect that it's not packed
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c
-index 5c6c62f7ed328..7998f27df7ddd 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c
-@@ -116,6 +116,23 @@ struct usb_host_endpoint {
- 	long: 0;
- };
+ #endif
+-out:
++
+ 	return r;
+ }
  
-+/* ----- START-EXPECTED-OUTPUT ----- */
-+struct nested_packed_struct {
-+	int a;
-+	char b;
-+} __attribute__((packed));
-+
-+struct outer_nonpacked_struct {
-+	short a;
-+	struct nested_packed_struct b;
-+};
-+
-+struct outer_packed_struct {
-+	short a;
-+	struct nested_packed_struct b;
-+} __attribute__((packed));
-+
-+/* ------ END-EXPECTED-OUTPUT ------ */
+@@ -520,6 +514,12 @@ svm_migrate_ram_to_vram(struct svm_range
  
- int f(struct {
- 	struct packed_trailing_space _1;
-@@ -128,6 +145,8 @@ int f(struct {
- 	union jump_code_union _8;
- 	struct outer_implicitly_packed_struct _9;
- 	struct usb_host_endpoint _10;
-+	struct outer_nonpacked_struct _11;
-+	struct outer_packed_struct _12;
- } *_)
- {
- 	return 0;
--- 
-2.39.2
-
+ 	start = prange->start << PAGE_SHIFT;
+ 	end = (prange->last + 1) << PAGE_SHIFT;
++
++	r = svm_range_vram_node_new(adev, prange, true);
++	if (r) {
++		dev_dbg(adev->dev, "fail %ld to alloc vram\n", r);
++		return r;
++	}
+ 	ttm_res_offset = prange->offset << PAGE_SHIFT;
+ 
+ 	for (addr = start; addr < end;) {
+@@ -543,6 +543,8 @@ svm_migrate_ram_to_vram(struct svm_range
+ 
+ 	if (cpages)
+ 		prange->actual_loc = best_loc;
++	else
++		svm_range_vram_node_free(prange);
+ 
+ 	return r < 0 ? r : 0;
+ }
 
 
