@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9968D6D4906
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F156D489B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233553AbjDCOeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
+        id S233364AbjDCOaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233564AbjDCOeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:23 -0400
+        with ESMTP id S233444AbjDCOaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0BDE7D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80A435005
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3854961E43
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47178C4339B;
-        Mon,  3 Apr 2023 14:33:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6156861DF6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 737E1C4339B;
+        Mon,  3 Apr 2023 14:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532429;
-        bh=yQpucFppg61iLd8+TE6u3745AlGx+fHxxxi4HMBtJ1c=;
+        s=korg; t=1680532205;
+        bh=iVDkv8kGe/IQdtLp0iSlgIIPgrNQvSUUR42GMN+nEuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXar0N1hmXuejeHDXs2wpIOF7gu5N3m4GMuiO8/Igiwg+dxjd6UH5K1oBGtZe7Agc
-         FZ+MXYbQKTsqTCs3yYQyXQU5leeKsy0J6zu4dQnrrbnwF1Hygfd2o3QdhQkdbRhDUV
-         m2CyqCXmOQx0qP/Z4tU4T+q54pCkahMr6zsIuFb4=
+        b=UUtRuRdQkjbFLerP4jB2Lnvqdgtr5qYrSiYz86w4fmbLgYjh+HwpyTTu35nWfBWFO
+         0C2NMHhC3zcrhRkKkIPbDBJSU1tb2Vb28NCCt4zC7zL5mAfNcwSJ4euMk113/RTwIX
+         4LAoM6dqzlPmNLNHiumXMp3DyCI1/UN0BVLKWNsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 78/99] powerpc: Dont try to copy PPR for task with NULL pt_regs
-Date:   Mon,  3 Apr 2023 16:09:41 +0200
-Message-Id: <20230403140406.379803918@linuxfoundation.org>
+        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 167/173] selftests/bpf: Test btf dump for struct with padding only fields
+Date:   Mon,  3 Apr 2023 16:09:42 +0200
+Message-Id: <20230403140419.847228278@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Eduard Zingerman <eddyz87@gmail.com>
 
-commit fd7276189450110ed835eb0a334e62d2f1c4e3be upstream.
+[ Upstream commit d503f1176b14f722a40ea5110312614982f9a80b ]
 
-powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
-from my (arguably very short) checking is not commonly done for other
-archs. This is fine, except when PF_IO_WORKER's have been created and
-the task does something that causes a coredump to be generated. Then we
-get this crash:
+Structures with zero regular fields but some padding constitute a
+special case in btf_dump.c:btf_dump_emit_struct_def with regards to
+newline before closing '}'.
 
-  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
-  BUG: Kernel NULL pointer dereference on read at 0x00000160
-  Faulting instruction address: 0xc0000000000c3a60
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
-  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
-  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
-  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
-  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
-  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
-  ...
-  NIP memcpy_power7+0x200/0x7d0
-  LR  ppr_get+0x64/0xb0
-  Call Trace:
-    ppr_get+0x40/0xb0 (unreliable)
-    __regset_get+0x180/0x1f0
-    regset_get_alloc+0x64/0x90
-    elf_core_dump+0xb98/0x1b60
-    do_coredump+0x1c34/0x24a0
-    get_signal+0x71c/0x1410
-    do_notify_resume+0x140/0x6f0
-    interrupt_exit_user_prepare_main+0x29c/0x320
-    interrupt_exit_user_prepare+0x6c/0xa0
-    interrupt_return_srr_user+0x8/0x138
-
-Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
-pt_regs.
-
-Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
-if not set. The actual error value doesn't seem to be important here, so
-just pick -EINVAL.
-
-Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[mpe: Trim oops in change log, add Fixes & Cc stable]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eduard Zingerman <eddyz87@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20221001104425.415768-2-eddyz87@gmail.com
+Stable-dep-of: ea2ce1ba99aa ("libbpf: Fix BTF-to-C converter's padding logic")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/ptrace/ptrace-view.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ .../selftests/bpf/progs/btf_dump_test_case_padding.c     | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/powerpc/kernel/ptrace/ptrace-view.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
-@@ -290,6 +290,9 @@ static int gpr_set(struct task_struct *t
- static int ppr_get(struct task_struct *target, const struct user_regset *regset,
- 		   struct membuf to)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
- }
+diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
+index 35c512818a56b..db5458da61826 100644
+--- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
++++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
+@@ -102,12 +102,21 @@ struct zone {
+ 	struct zone_padding __pad__;
+ };
  
-@@ -297,6 +300,9 @@ static int ppr_set(struct task_struct *t
- 		   unsigned int pos, unsigned int count, const void *kbuf,
- 		   const void __user *ubuf)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
++/* ----- START-EXPECTED-OUTPUT ----- */
++struct padding_wo_named_members {
++	long: 64;
++	long: 64;
++};
 +
- 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
- 				  &target->thread.regs->ppr, 0, sizeof(u64));
- }
++/* ------ END-EXPECTED-OUTPUT ------ */
++
+ int f(struct {
+ 	struct padded_implicitly _1;
+ 	struct padded_explicitly _2;
+ 	struct padded_a_lot _3;
+ 	struct padded_cache_line _4;
+ 	struct zone _5;
++	struct padding_wo_named_members _6;
+ } *_)
+ {
+ 	return 0;
+-- 
+2.39.2
+
 
 
