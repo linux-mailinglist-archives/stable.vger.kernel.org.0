@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D19986D4ADA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304696D48F4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234228AbjDCOus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
+        id S233617AbjDCOda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234152AbjDCOue (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11CCC2A5BB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:00 -0700 (PDT)
+        with ESMTP id S233590AbjDCOdV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C59F017651
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 12687CE1314
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FACAC433EF;
-        Mon,  3 Apr 2023 14:49:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 625FDB81C6F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC981C433EF;
+        Mon,  3 Apr 2023 14:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533357;
-        bh=oBdmUSTIaXMJEYtjpL+7zXX5ZYXXep+XtS4WHi757UU=;
+        s=korg; t=1680532388;
+        bh=rXWSQnHDgzO1HxIYihPpQoqa/ubR1to9glHIIiPKF8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLDmcN+sngdnMJaLJFteq1e8R4bmg2lXpLiu/YM0nUH2aLCJj24B882LwYpak/8ds
-         leSX7EiWAS3nLjK7/L6yeAObSZWi+milQ22ll0HhYgDoTipe8y40oEH3pG7bIDBjMZ
-         xrCodpIXbbrH5ZIcz4dg817t5zD446hCN5K8KhsU=
+        b=GB6ZbqNpx1pLfLQrvrOzvsP1RT/ErZ1Lhz/U6tIzmPKuFM6Q2lWzA+gWPNZ+YHGO2
+         5vfJ3uYse4OV9ZAuMGfXQ03IQGYDw1mUmiPubTLPjC3Ag57AUOUeBq3JVx9If2rj64
+         Llkx6IVMFd3oBiP4+pIbkCnvB9ahSgTZFt2K1ie8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simon Horman <simon.horman@corigine.com>,
-        Felix Fietkau <nbd@nbd.name>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 122/187] net: ethernet: mtk_eth_soc: fix L2 offloading with DSA untag offload
+        patches@lists.linux.dev,
+        Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 64/99] iommu/vt-d: Allow zero SAGAW if second-stage not supported
 Date:   Mon,  3 Apr 2023 16:09:27 +0200
-Message-Id: <20230403140419.979855334@linuxfoundation.org>
+Message-Id: <20230403140405.856596121@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,72 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 5f36ca1b841fb17a20249fd9fedafc7dc7fdd940 ]
+[ Upstream commit bfd3c6b9fa4a1dc78139dd1621d5bea321ffa69d ]
 
-Check for skb metadata in order to detect the case where the DSA header
-is not present.
+The VT-d spec states (in section 11.4.2) that hardware implementations
+reporting second-stage translation support (SSTS) field as Clear also
+report the SAGAW field as 0. Fix an inappropriate check in alloc_iommu().
 
-Fixes: 2d7605a72906 ("net: ethernet: mtk_eth_soc: enable hardware DSA untagging")
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20230330120840.52079-2-nbd@nbd.name
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 792fb43ce2c9 ("iommu/vt-d: Enable Intel IOMMU scalable mode by default")
+Suggested-by: Raghunathan Srinivasan <raghunathan.srinivasan@intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20230318024824.124542-1-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20230329134721.469447-3-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 6 +++---
- drivers/net/ethernet/mediatek/mtk_ppe.c     | 5 ++++-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/iommu/intel/dmar.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 9f9df6255baa1..bd7c18c839d42 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2006,9 +2006,6 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 			skb_checksum_none_assert(skb);
- 		skb->protocol = eth_type_trans(skb, netdev);
+diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
+index bff2420fc3e14..7c20083d4a798 100644
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -1080,7 +1080,8 @@ static int alloc_iommu(struct dmar_drhd_unit *drhd)
+ 	}
  
--		if (reason == MTK_PPE_CPU_REASON_HIT_UNBIND_RATE_REACHED)
--			mtk_ppe_check_skb(eth->ppe[0], skb, hash);
--
- 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX) {
- 			if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
- 				if (trxd.rxd3 & RX_DMA_VTAG_V2) {
-@@ -2036,6 +2033,9 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 			__vlan_hwaccel_put_tag(skb, htons(vlan_proto), vlan_tci);
- 		}
- 
-+		if (reason == MTK_PPE_CPU_REASON_HIT_UNBIND_RATE_REACHED)
-+			mtk_ppe_check_skb(eth->ppe[0], skb, hash);
-+
- 		skb_record_rx_queue(skb, 0);
- 		napi_gro_receive(napi, skb);
- 
-diff --git a/drivers/net/ethernet/mediatek/mtk_ppe.c b/drivers/net/ethernet/mediatek/mtk_ppe.c
-index 1ff024f42444b..52db211d9596a 100644
---- a/drivers/net/ethernet/mediatek/mtk_ppe.c
-+++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
-@@ -8,6 +8,7 @@
- #include <linux/platform_device.h>
- #include <linux/if_ether.h>
- #include <linux/if_vlan.h>
-+#include <net/dst_metadata.h>
- #include <net/dsa.h>
- #include "mtk_eth_soc.h"
- #include "mtk_ppe.h"
-@@ -699,7 +700,9 @@ void __mtk_ppe_check_skb(struct mtk_ppe *ppe, struct sk_buff *skb, u16 hash)
- 		    skb->dev->dsa_ptr->tag_ops->proto != DSA_TAG_PROTO_MTK)
- 			goto out;
- 
--		tag += 4;
-+		if (!skb_metadata_dst(skb))
-+			tag += 4;
-+
- 		if (get_unaligned_be16(tag) != ETH_P_8021Q)
- 			break;
- 
+ 	err = -EINVAL;
+-	if (cap_sagaw(iommu->cap) == 0) {
++	if (!cap_sagaw(iommu->cap) &&
++	    (!ecap_smts(iommu->ecap) || ecap_slts(iommu->ecap))) {
+ 		pr_info("%s: No supported address widths. Not attempting DMA translation.\n",
+ 			iommu->name);
+ 		drhd->ignored = 1;
 -- 
 2.39.2
 
