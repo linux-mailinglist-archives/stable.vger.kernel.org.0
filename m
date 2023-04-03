@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84DB76D46A7
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 416726D48AE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232905AbjDCOMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52472 "EHLO
+        id S233453AbjDCOaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230044AbjDCOMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8882951B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:01 -0700 (PDT)
+        with ESMTP id S233455AbjDCOay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B432D319AC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CFF7B81AF8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AEB9C433EF;
-        Mon,  3 Apr 2023 14:11:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 496B961DFE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B854C433EF;
+        Mon,  3 Apr 2023 14:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531118;
-        bh=doUINzl8CjaZfid4C522zUPd5p8Wyavp513+b6Q7ulY=;
+        s=korg; t=1680532252;
+        bh=+RT9YDSEttzIAMfCnD12uEqbt4kxuriKcntVTxpdabg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=il5+Jc5d8XqwL547qAM55R2OgNSSS6H+uAPVLmJMqTRGKPwJkJGhbNL8kOg+Qt4GZ
-         JsKoPLGrWKrJU4INyXrrDzcxMosqzcWfYNxvjc+8L2nNVr0gmVLwnAtn6pbKug8sOR
-         nBHb4hVPVGNcVLj6dRnuilireHprT3iojpFr9VVQ=
+        b=zLt43XAKzuDzcql+HWtcU7UMgHPoZO0cRyO8PJUd5EEzPenoIACJRAokgCN25lmXf
+         /tIVIgt557vpmuT2lbpiDakzFmV66Eybe6KNwb5XrUuxjFqXpVL5IPH5DVDK4pCF+K
+         l0ocAE6yBixS4g4iPdT29at9Pju3Fu2o4cxV83lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrien Thierry <athierry@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Kristian Overskeid <koverskeid@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/66] scsi: ufs: core: Add soft dependency on governor_simpleondemand
+Subject: [PATCH 5.15 12/99] net: hsr: Dont log netdev_err message on unknown prp dst node
 Date:   Mon,  3 Apr 2023 16:08:35 +0200
-Message-Id: <20230403140352.880817701@linuxfoundation.org>
+Message-Id: <20230403140356.838569161@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrien Thierry <athierry@redhat.com>
+From: Kristian Overskeid <koverskeid@gmail.com>
 
-[ Upstream commit 2ebe16155dc8bd4e602cad5b5f65458d2eaa1a75 ]
+[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
 
-The ufshcd driver uses simpleondemand governor for devfreq. Add it to the
-list of ufshcd softdeps to allow userspace initramfs tools like dracut to
-automatically pull the governor module into the initramfs together with UFS
-drivers.
+If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
+node will be deleted from the node_db list. If a frame is sent to the node
+after it is deleted, a netdev_err message for each slave interface is
+produced. This should not happen with dan nodes because of supervision
+frames, but can happen often with san nodes, which clutters the kernel
+log. Since the hsr protocol does not support sans, this is only relevant
+for the prp protocol.
 
-Link: https://lore.kernel.org/r/20230220140740.14379-1-athierry@redhat.com
-Signed-off-by: Adrien Thierry <athierry@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/hsr/hsr_framereg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 694c0fc31fbf7..fe7db66ab1f3e 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8087,5 +8087,6 @@ EXPORT_SYMBOL_GPL(ufshcd_init);
- MODULE_AUTHOR("Santosh Yaragnavi <santosh.sy@samsung.com>");
- MODULE_AUTHOR("Vinayak Holikatti <h.vinayak@samsung.com>");
- MODULE_DESCRIPTION("Generic UFS host controller driver Core");
-+MODULE_SOFTDEP("pre: governor_simpleondemand");
- MODULE_LICENSE("GPL");
- MODULE_VERSION(UFSHCD_DRIVER_VERSION);
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 414bf4d3d3c92..44eb9c9f80ee9 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -385,7 +385,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
+ 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
+ 				       eth_hdr(skb)->h_dest);
+ 	if (!node_dst) {
+-		if (net_ratelimit())
++		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
+ 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
+ 		return;
+ 	}
 -- 
 2.39.2
 
