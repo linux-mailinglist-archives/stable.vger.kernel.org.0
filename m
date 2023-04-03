@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 813846D496F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DA66D46F3
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233700AbjDCOiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48138 "EHLO
+        id S232926AbjDCOPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233712AbjDCOh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:57 -0400
+        with ESMTP id S232909AbjDCOPr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A1916F07
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A46842B0E5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25E14610A1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3977DC433D2;
-        Mon,  3 Apr 2023 14:37:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E1F561C83
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5508CC433EF;
+        Mon,  3 Apr 2023 14:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532667;
-        bh=frooMqeOYLIanJo4b1tpQmiXxHgvaZ8rKYC5kHxBHOY=;
+        s=korg; t=1680531336;
+        bh=Ln/lfPB/i44AdjzE3fAZ0YGhQc5SmLWIszoCNLrFTeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDcQLkduBt+WdFnCas+d2MUHXQiCnO5/u4RaUrRUgjH2CnpfLO4R/2WT491FGKRFS
-         3CsWAeJV6GEhU6eZBdaiHbUkXj8nHqCSPZzCbObTfSp3P5pXwbFPDSeLdxi6o5wMCC
-         8VRs5uMvXp+Fv1YCfvytFAkEQILH8c8qbwLuXDoE=
+        b=CHQlloryzJyGegV45rqqNHtDjC4UzeUrJyk2bO4pxi8GYtT+Q3wJOVShLQqyQyx8q
+         cfRqUqM/sO7StkB+NUOWvBw8XVLaVBY1GbcPRmmomGq+Zkb6Fwy2ttACpDNw5soaT7
+         BSk45u4N3N69sFi6WpyzRvIp2hoBp8ss4BVtCNxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rajnesh Kanwal <rkanwal@rivosinc.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Anup Patel <anup@brainfault.org>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 070/181] riscv/kvm: Fix VM hang in case of timer delta being zero.
+Subject: [PATCH 4.19 24/84] Bluetooth: btsdio: fix use after free bug in btsdio_remove due to unfinished work
 Date:   Mon,  3 Apr 2023 16:08:25 +0200
-Message-Id: <20230403140417.410269922@linuxfoundation.org>
+Message-Id: <20230403140354.193385390@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajnesh Kanwal <rkanwal@rivosinc.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 6eff38048944cadc3cddcf117acfa5199ec32490 ]
+[ Upstream commit 1e9ac114c4428fdb7ff4635b45d4f46017e8916f ]
 
-In case when VCPU is blocked due to WFI, we schedule the timer
-from `kvm_riscv_vcpu_timer_blocking()` to keep timer interrupt
-ticking.
+In btsdio_probe, &data->work was bound with btsdio_work.In
+btsdio_send_frame, it was started by schedule_work.
 
-But in case when delta_ns comes to be zero, we never schedule
-the timer and VCPU keeps sleeping indefinitely until any activity
-is done with VM console.
+If we call btsdio_remove with an unfinished job, there may
+be a race condition and cause UAF bug on hdev.
 
-This is easily reproduce-able using kvmtool.
-./lkvm-static run -c1 --console virtio -p "earlycon root=/dev/vda" \
-         -k ./Image -d rootfs.ext4
-
-Also, just add a print in kvm_riscv_vcpu_vstimer_expired() to
-check the interrupt delivery and run `top` or similar auto-upating
-cmd from guest. Within sometime one can notice that print from
-timer expiry routine stops and the `top` cmd output will stop
-updating.
-
-This change fixes this by making sure we schedule the timer even
-with delta_ns being zero to bring the VCPU out of sleep immediately.
-
-Fixes: 8f5cb44b1bae ("RISC-V: KVM: Support sstc extension")
-Signed-off-by: Rajnesh Kanwal <rkanwal@rivosinc.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Signed-off-by: Anup Patel <anup@brainfault.org>
+Fixes: ddbaf13e3609 ("[Bluetooth] Add generic driver for Bluetooth SDIO devices")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kvm/vcpu_timer.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/bluetooth/btsdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/kvm/vcpu_timer.c b/arch/riscv/kvm/vcpu_timer.c
-index ad34519c8a13d..3ac2ff6a65dac 100644
---- a/arch/riscv/kvm/vcpu_timer.c
-+++ b/arch/riscv/kvm/vcpu_timer.c
-@@ -147,10 +147,8 @@ static void kvm_riscv_vcpu_timer_blocking(struct kvm_vcpu *vcpu)
+diff --git a/drivers/bluetooth/btsdio.c b/drivers/bluetooth/btsdio.c
+index 20142bc77554c..bd55bf7a9914c 100644
+--- a/drivers/bluetooth/btsdio.c
++++ b/drivers/bluetooth/btsdio.c
+@@ -353,6 +353,7 @@ static void btsdio_remove(struct sdio_func *func)
+ 
+ 	BT_DBG("func %p", func);
+ 
++	cancel_work_sync(&data->work);
+ 	if (!data)
  		return;
  
- 	delta_ns = kvm_riscv_delta_cycles2ns(t->next_cycles, gt, t);
--	if (delta_ns) {
--		hrtimer_start(&t->hrt, ktime_set(0, delta_ns), HRTIMER_MODE_REL);
--		t->next_set = true;
--	}
-+	hrtimer_start(&t->hrt, ktime_set(0, delta_ns), HRTIMER_MODE_REL);
-+	t->next_set = true;
- }
- 
- static void kvm_riscv_vcpu_timer_unblocking(struct kvm_vcpu *vcpu)
 -- 
 2.39.2
 
