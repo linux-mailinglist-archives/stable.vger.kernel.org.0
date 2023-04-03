@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF1EB6D48AD
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7CA6D477D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233456AbjDCOay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
+        id S231279AbjDCOVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233453AbjDCOay (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3F931996
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:52 -0700 (PDT)
+        with ESMTP id S233057AbjDCOUt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:20:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557D13128F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 518FDB81C52
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE166C433EF;
-        Mon,  3 Apr 2023 14:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC7CD61D26
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCCE7C433D2;
+        Mon,  3 Apr 2023 14:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532250;
-        bh=AqSXgRIi/BJPiDJTWepOKNXUrQyyOJofAKS+fRFpeQ8=;
+        s=korg; t=1680531607;
+        bh=4omZSKTkIffqnauG7bNimvPwSOxuc8Am1Pj7x1PgLXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJOE5dbLSVa8KW88KdluudrSHSrqKItTuqy8KouBZ7D+QoENW6NUhOdp1tTauy4gz
-         B55y428eZQPgXVLI4YPSdQbGYwnP+nfgbOqSkFiklR/CxXAaM5EDbsas1A3EepkPY7
-         HFaVhJRNUpk24qlScd5DA5vbjabzEdm/ICkxRE3A=
+        b=e5rXon8iBG8SAU2dypOvMrurGQeteVbrVkY3aVGJD4mW2RHLcsgmhoXO7k6QKVlO0
+         2q1hipaZKmsfhqnn/M9qNGRt9VdPgfDlDfCfR8xbtYphdiUktKbuuEnjxEo2iZVMLZ
+         ThpKYuS7AdbT46ml8usg3cl47G+ynLfOR6gQmU+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 11/99] x86/PVH: obtain VGA console info in Dom0
-Date:   Mon,  3 Apr 2023 16:08:34 +0200
-Message-Id: <20230403140356.562484464@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Joel Selvaraj <joelselvaraj.oss@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 043/104] scsi: core: Add BLIST_SKIP_VPD_PAGES for SKhynix H28U74301AMR
+Date:   Mon,  3 Apr 2023 16:08:35 +0200
+Message-Id: <20230403140406.086401965@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,140 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 
-[ Upstream commit 934ef33ee75c3846f605f18b65048acd147e3918 ]
+commit a204b490595de71016b2360a1886ec8c12d0afac upstream.
 
-A new platform-op was added to Xen to allow obtaining the same VGA
-console information PV Dom0 is handed. Invoke the new function and have
-the output data processed by xen_init_vga().
+Xiaomi Poco F1 (qcom/sdm845-xiaomi-beryllium*.dts) comes with a SKhynix
+H28U74301AMR UFS. The sd_read_cpr() operation leads to a 120 second
+timeout, making the device bootup very slow:
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
+[  121.457736] sd 0:0:0:1: [sdb] tag#23 timing out command, waited 120s
 
-Link: https://lore.kernel.org/r/8f315e92-7bda-c124-71cc-478ab9c5e610@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Setting the BLIST_SKIP_VPD_PAGES allows the device to skip the failing
+sd_read_cpr operation and boot normally.
+
+Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
+Link: https://lore.kernel.org/r/20230313041402.39330-1-joelselvaraj.oss@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/Makefile            |  2 +-
- arch/x86/xen/enlighten_pv.c      |  3 ++-
- arch/x86/xen/enlighten_pvh.c     | 13 +++++++++++++
- arch/x86/xen/vga.c               |  5 ++---
- arch/x86/xen/xen-ops.h           |  7 ++++---
- include/xen/interface/platform.h |  3 +++
- 6 files changed, 25 insertions(+), 8 deletions(-)
+ drivers/scsi/scsi_devinfo.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
-index 4953260e281c3..40b5779fce21c 100644
---- a/arch/x86/xen/Makefile
-+++ b/arch/x86/xen/Makefile
-@@ -45,7 +45,7 @@ obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= spinlock.o
- 
- obj-$(CONFIG_XEN_DEBUG_FS)	+= debugfs.o
- 
--obj-$(CONFIG_XEN_PV_DOM0)	+= vga.o
-+obj-$(CONFIG_XEN_DOM0)		+= vga.o
- 
- obj-$(CONFIG_SWIOTLB_XEN)	+= pci-swiotlb-xen.o
- 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 561aad13412f9..998db0257e2ad 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1353,7 +1353,8 @@ asmlinkage __visible void __init xen_start_kernel(void)
- 
- 		x86_platform.set_legacy_features =
- 				xen_dom0_set_legacy_features;
--		xen_init_vga(info, xen_start_info->console.dom0.info_size);
-+		xen_init_vga(info, xen_start_info->console.dom0.info_size,
-+			     &boot_params.screen_info);
- 		xen_start_info->console.domU.mfn = 0;
- 		xen_start_info->console.domU.evtchn = 0;
- 
-diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
-index bcae606bbc5cf..1da44aca896c6 100644
---- a/arch/x86/xen/enlighten_pvh.c
-+++ b/arch/x86/xen/enlighten_pvh.c
-@@ -43,6 +43,19 @@ void __init xen_pvh_init(struct boot_params *boot_params)
- 	x86_init.oem.banner = xen_banner;
- 
- 	xen_efi_init(boot_params);
-+
-+	if (xen_initial_domain()) {
-+		struct xen_platform_op op = {
-+			.cmd = XENPF_get_dom0_console,
-+		};
-+		long ret = HYPERVISOR_platform_op(&op);
-+
-+		if (ret > 0)
-+			xen_init_vga(&op.u.dom0_console,
-+				     min(ret * sizeof(char),
-+					 sizeof(op.u.dom0_console)),
-+				     &boot_params->screen_info);
-+	}
- }
- 
- void __init mem_map_via_hcall(struct boot_params *boot_params_p)
-diff --git a/arch/x86/xen/vga.c b/arch/x86/xen/vga.c
-index e336f223f7f47..93697109592c3 100644
---- a/arch/x86/xen/vga.c
-+++ b/arch/x86/xen/vga.c
-@@ -9,10 +9,9 @@
- 
- #include "xen-ops.h"
- 
--void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size)
-+void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size,
-+			 struct screen_info *screen_info)
- {
--	struct screen_info *screen_info = &boot_params.screen_info;
--
- 	/* This is drawn from a dump from vgacon:startup in
- 	 * standard Linux. */
- 	screen_info->orig_video_mode = 3;
-diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
-index 16aed4b121297..71f31032c635f 100644
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -110,11 +110,12 @@ static inline void xen_uninit_lock_cpu(int cpu)
- 
- struct dom0_vga_console_info;
- 
--#ifdef CONFIG_XEN_PV_DOM0
--void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size);
-+#ifdef CONFIG_XEN_DOM0
-+void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size,
-+			 struct screen_info *);
- #else
- static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
--				       size_t size)
-+				       size_t size, struct screen_info *si)
- {
- }
- #endif
-diff --git a/include/xen/interface/platform.h b/include/xen/interface/platform.h
-index 732efb08c3e17..744bc41355678 100644
---- a/include/xen/interface/platform.h
-+++ b/include/xen/interface/platform.h
-@@ -500,6 +500,8 @@ struct xenpf_symdata {
- };
- DEFINE_GUEST_HANDLE_STRUCT(xenpf_symdata);
- 
-+#define XENPF_get_dom0_console 64
-+
- struct xen_platform_op {
- 	uint32_t cmd;
- 	uint32_t interface_version; /* XENPF_INTERFACE_VERSION */
-@@ -523,6 +525,7 @@ struct xen_platform_op {
- 		struct xenpf_mem_hotadd        mem_add;
- 		struct xenpf_core_parking      core_parking;
- 		struct xenpf_symdata           symdata;
-+		struct dom0_vga_console_info   dom0_console;
- 		uint8_t                        pad[128];
- 	} u;
- };
--- 
-2.39.2
-
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -232,6 +232,7 @@ static struct {
+ 	{"SGI", "RAID5", "*", BLIST_SPARSELUN},
+ 	{"SGI", "TP9100", "*", BLIST_REPORTLUN2},
+ 	{"SGI", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
++	{"SKhynix", "H28U74301AMR", NULL, BLIST_SKIP_VPD_PAGES},
+ 	{"IBM", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
+ 	{"SUN", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
+ 	{"DELL", "Universal Xport", "*", BLIST_NO_ULD_ATTACH},
 
 
