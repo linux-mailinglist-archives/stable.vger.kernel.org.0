@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DDCE6D494E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C9E6D480D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233672AbjDCOgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:36:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
+        id S233272AbjDCOZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:25:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233673AbjDCOgw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:52 -0400
+        with ESMTP id S233271AbjDCOZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82E417647
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3973AEFBF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 984C3B81CB0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC532C433D2;
-        Mon,  3 Apr 2023 14:36:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE331B81C00
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520D4C433D2;
+        Mon,  3 Apr 2023 14:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532589;
-        bh=isPfQ00TWsE+ydaPSPBDYVuwzRAb/0XbSXfRd2aGqa0=;
+        s=korg; t=1680531925;
+        bh=9VZJm/SzCBTqTJ+dZuWB3Bkdvz5jYnXcSSemUUrhajw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzTndkR8voqIVkGxeSI3Obg/RF9FY8yCJe6I09jJTSC9u1aD3Yg4x5kZ/1vt5JbNm
-         on6HfXMjhWwyLzWSf2T969BQiDqp010Mw134Z4KhZrnqodJUpgV9CsOBkCjFjQnSCx
-         WeIKaTb1b49IUg27mVM1sVgkUHG7bkqumasAOj14=
+        b=llo8FY204EsbU/0SuLqpCYeBgfL2KLFEE2M0IokNe8krfQ19Ncbhb9V6c5mV1gML+
+         hJfr/d2CYhcKMwMOfM7DNzlnfC4UL/rG+ZnxRCDx/WgMikRT1QgqVP/YEbjlasfC8a
+         tlsHscTnAA9U7PEKmVUJe3LZEav0lG3oyuvSJKAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Seppo Ingalsuo <seppo.ingalsuo@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 040/181] ASoC: SOF: ipc4-topology: Fix incorrect sample rate print unit
+        patches@lists.linux.dev, Lin Li <lilin@redhat.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 060/173] scsi: qla2xxx: Perform lockless command completion in abort path
 Date:   Mon,  3 Apr 2023 16:07:55 +0200
-Message-Id: <20230403140416.466994076@linuxfoundation.org>
+Message-Id: <20230403140416.401905689@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seppo Ingalsuo <seppo.ingalsuo@linux.intel.com>
+From: Nilesh Javali <njavali@marvell.com>
 
-[ Upstream commit 9e269e3aa9006440de639597079ee7140ef5b5f3 ]
+commit 0367076b0817d5c75dfb83001ce7ce5c64d803a9 upstream.
 
-This patch fixes the sample rate print unit from KHz to Hz.
-E.g. 48000KHz becomes 48000Hz.
+While adding and removing the controller, the following call trace was
+observed:
 
-Signed-off-by: Seppo Ingalsuo <seppo.ingalsuo@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307110751.2053-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+WARNING: CPU: 3 PID: 623596 at kernel/dma/mapping.c:532 dma_free_attrs+0x33/0x50
+CPU: 3 PID: 623596 Comm: sh Kdump: loaded Not tainted 5.14.0-96.el9.x86_64 #1
+RIP: 0010:dma_free_attrs+0x33/0x50
+
+Call Trace:
+   qla2x00_async_sns_sp_done+0x107/0x1b0 [qla2xxx]
+   qla2x00_abort_srb+0x8e/0x250 [qla2xxx]
+   ? ql_dbg+0x70/0x100 [qla2xxx]
+   __qla2x00_abort_all_cmds+0x108/0x190 [qla2xxx]
+   qla2x00_abort_all_cmds+0x24/0x70 [qla2xxx]
+   qla2x00_abort_isp_cleanup+0x305/0x3e0 [qla2xxx]
+   qla2x00_remove_one+0x364/0x400 [qla2xxx]
+   pci_device_remove+0x36/0xa0
+   __device_release_driver+0x17a/0x230
+   device_release_driver+0x24/0x30
+   pci_stop_bus_device+0x68/0x90
+   pci_stop_and_remove_bus_device_locked+0x16/0x30
+   remove_store+0x75/0x90
+   kernfs_fop_write_iter+0x11c/0x1b0
+   new_sync_write+0x11f/0x1b0
+   vfs_write+0x1eb/0x280
+   ksys_write+0x5f/0xe0
+   do_syscall_64+0x5c/0x80
+   ? do_user_addr_fault+0x1d8/0x680
+   ? do_syscall_64+0x69/0x80
+   ? exc_page_fault+0x62/0x140
+   ? asm_exc_page_fault+0x8/0x30
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The command was completed in the abort path during driver unload with a
+lock held, causing the warning in abort path. Hence complete the command
+without any lock held.
+
+Reported-by: Lin Li <lilin@redhat.com>
+Tested-by: Lin Li <lilin@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/20230313043711.13500-2-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/ipc4-topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_os.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/soc/sof/ipc4-topology.c b/sound/soc/sof/ipc4-topology.c
-index a81af5f73a4b4..41617569f50fb 100644
---- a/sound/soc/sof/ipc4-topology.c
-+++ b/sound/soc/sof/ipc4-topology.c
-@@ -154,7 +154,7 @@ static void sof_ipc4_dbg_audio_format(struct device *dev,
- 	for (i = 0; i < num_format; i++, ptr = (u8 *)ptr + object_size) {
- 		fmt = ptr;
- 		dev_dbg(dev,
--			" #%d: %uKHz, %ubit (ch_map %#x ch_cfg %u interleaving_style %u fmt_cfg %#x)\n",
-+			" #%d: %uHz, %ubit (ch_map %#x ch_cfg %u interleaving_style %u fmt_cfg %#x)\n",
- 			i, fmt->sampling_frequency, fmt->bit_depth, fmt->ch_map,
- 			fmt->ch_cfg, fmt->interleaving_style, fmt->fmt_cfg);
- 	}
--- 
-2.39.2
-
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -1762,6 +1762,17 @@ __qla2x00_abort_all_cmds(struct qla_qpai
+ 	for (cnt = 1; cnt < req->num_outstanding_cmds; cnt++) {
+ 		sp = req->outstanding_cmds[cnt];
+ 		if (sp) {
++			/*
++			 * perform lockless completion during driver unload
++			 */
++			if (qla2x00_chip_is_down(vha)) {
++				req->outstanding_cmds[cnt] = NULL;
++				spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
++				sp->done(sp, res);
++				spin_lock_irqsave(qp->qp_lock_ptr, flags);
++				continue;
++			}
++
+ 			switch (sp->cmd_type) {
+ 			case TYPE_SRB:
+ 				qla2x00_abort_srb(qp, sp, res, &flags);
 
 
