@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB706D4929
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42DF96D4A1C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233626AbjDCOfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42720 "EHLO
+        id S233884AbjDCOoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233565AbjDCOfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5820D16F19
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:17 -0700 (PDT)
+        with ESMTP id S233882AbjDCOoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:05 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9EF6280C4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EED5DB81C99
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5164DC433D2;
-        Mon,  3 Apr 2023 14:35:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3884ACE12C8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461CAC433EF;
+        Mon,  3 Apr 2023 14:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532515;
-        bh=yRgIFKuJ04v02ElTFYmhoub7Af/FQQrOiHDnSxjunq0=;
+        s=korg; t=1680532998;
+        bh=/2AU/WuhNrF9jlJOBtr6si7VXZRwdlG/144lyguqH6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KQeMgc+/4BRLsn6v5OdbC/XfVHRtaryActRn7ivGeDHOMUdMxXhW5krXo7B+hMTfq
-         YGb5Vv93N2fsS5g8T9zfo8iJX56yIsYx9GrYcsE0gcoXTLrcuqn6g/x8JeniuLyeDR
-         at0TgCpeLvB6EMDa2fZZfFCUoyeEjIAdMYp/DKV4=
+        b=SF4XG+P0U7NqUIk8jPvhQZEyL4zgj10J3lUJ8SrXl8QXqSAAwx3RFO31rLc3ZCrF7
+         cdWsqlwN8FD7DkDf/HP76nbAZTrujqqnVWOmW/Fq2Dc7nR/wclLEiNAL10Xm0uNaXm
+         KOcdCKK6DYcCMJ6duUNDJJuQtpfSA/8eiK40m2UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Naohiro Aota <naohiro.aota@wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 013/181] btrfs: rename BTRFS_FS_NO_OVERCOMMIT to BTRFS_FS_ACTIVE_ZONE_TRACKING
+Subject: [PATCH 6.2 003/187] cifs: prevent data race in cifs_reconnect_tcon()
 Date:   Mon,  3 Apr 2023 16:07:28 +0200
-Message-Id: <20230403140415.542808396@linuxfoundation.org>
+Message-Id: <20230403140416.129422885@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +54,253 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-[ Upstream commit bf1f1fec2724a33b67ec12032402ea75f2a83622 ]
+[ Upstream commit 1bcd548d935a33c6fc58331405eb1b82fd6150de ]
 
-This flag only gets set when we're doing active zone tracking, and we're
-going to need to use this flag for things related to this behavior.
-Rename the flag to represent what it actually means for the file system
-so it can be used in other ways and still make sense.
+Make sure to get an up-to-date TCP_Server_Info::nr_targets value prior
+to waiting the server to be reconnected in cifs_reconnect_tcon().  It
+is set in cifs_tcp_ses_needs_reconnect() and protected by
+TCP_Server_Info::srv_lock.
 
-Reviewed-by: Naohiro Aota <naohiro.aota@wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Create a new cifs_wait_for_server_reconnect() helper that can be used
+by both SMB2+ and CIFS reconnect code.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Stable-dep-of: bc962159e8e3 ("cifs: avoid race conditions with parallel reconnects")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h      | 7 ++-----
- fs/btrfs/space-info.c | 2 +-
- fs/btrfs/zoned.c      | 3 +--
- 3 files changed, 4 insertions(+), 8 deletions(-)
+ fs/cifs/cifsproto.h |  1 +
+ fs/cifs/cifssmb.c   | 43 ++----------------------
+ fs/cifs/misc.c      | 44 ++++++++++++++++++++++++
+ fs/cifs/smb2pdu.c   | 82 ++++++++++++---------------------------------
+ 4 files changed, 69 insertions(+), 101 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index a3febabacec04..3bcef0c4d6fc4 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -590,11 +590,8 @@ enum {
- 	/* Indicate we have to finish a zone to do next allocation. */
- 	BTRFS_FS_NEED_ZONE_FINISH,
+diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
+index e75184544ecb4..639df85dafd6c 100644
+--- a/fs/cifs/cifsproto.h
++++ b/fs/cifs/cifsproto.h
+@@ -697,5 +697,6 @@ static inline int cifs_create_options(struct cifs_sb_info *cifs_sb, int options)
  
--	/*
--	 * Indicate metadata over-commit is disabled. This is set when active
--	 * zone tracking is needed.
--	 */
--	BTRFS_FS_NO_OVERCOMMIT,
-+	/* This is set when active zone tracking is needed. */
-+	BTRFS_FS_ACTIVE_ZONE_TRACKING,
+ struct super_block *cifs_get_tcon_super(struct cifs_tcon *tcon);
+ void cifs_put_tcon_super(struct super_block *sb);
++int cifs_wait_for_server_reconnect(struct TCP_Server_Info *server, bool retry);
  
- #if BITS_PER_LONG == 32
- 	/* Indicate if we have error/warn message printed on 32bit systems */
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index 65c010159fb5f..c7642c00a65d0 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -404,7 +404,7 @@ int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
- 		return 0;
+ #endif			/* _CIFSPROTO_H */
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index 566e6a26b897c..5ca4a5383aaae 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -70,7 +70,6 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
+ 	struct cifs_ses *ses;
+ 	struct TCP_Server_Info *server;
+ 	struct nls_table *nls_codepage;
+-	int retries;
  
- 	used = btrfs_space_info_used(space_info, true);
--	if (test_bit(BTRFS_FS_NO_OVERCOMMIT, &fs_info->flags) &&
-+	if (test_bit(BTRFS_FS_ACTIVE_ZONE_TRACKING, &fs_info->flags) &&
- 	    (space_info->flags & BTRFS_BLOCK_GROUP_METADATA))
- 		avail = 0;
- 	else
-diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
-index 1b72004136ef8..0d88cc46ac5db 100644
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -538,8 +538,7 @@ int btrfs_get_dev_zone_info(struct btrfs_device *device, bool populate_cache)
- 		}
- 		atomic_set(&zone_info->active_zones_left,
- 			   max_active_zones - nactive);
--		/* Overcommit does not work well with active zone tacking. */
--		set_bit(BTRFS_FS_NO_OVERCOMMIT, &fs_info->flags);
-+		set_bit(BTRFS_FS_ACTIVE_ZONE_TRACKING, &fs_info->flags);
+ 	/*
+ 	 * SMBs NegProt, SessSetup, uLogoff do not have tcon yet so check for
+@@ -98,45 +97,9 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
  	}
+ 	spin_unlock(&tcon->tc_lock);
  
- 	/* Validate superblock log */
+-	retries = server->nr_targets;
+-
+-	/*
+-	 * Give demultiplex thread up to 10 seconds to each target available for
+-	 * reconnect -- should be greater than cifs socket timeout which is 7
+-	 * seconds.
+-	 */
+-	while (server->tcpStatus == CifsNeedReconnect) {
+-		rc = wait_event_interruptible_timeout(server->response_q,
+-						      (server->tcpStatus != CifsNeedReconnect),
+-						      10 * HZ);
+-		if (rc < 0) {
+-			cifs_dbg(FYI, "%s: aborting reconnect due to a received signal by the process\n",
+-				 __func__);
+-			return -ERESTARTSYS;
+-		}
+-
+-		/* are we still trying to reconnect? */
+-		spin_lock(&server->srv_lock);
+-		if (server->tcpStatus != CifsNeedReconnect) {
+-			spin_unlock(&server->srv_lock);
+-			break;
+-		}
+-		spin_unlock(&server->srv_lock);
+-
+-		if (retries && --retries)
+-			continue;
+-
+-		/*
+-		 * on "soft" mounts we wait once. Hard mounts keep
+-		 * retrying until process is killed or server comes
+-		 * back on-line
+-		 */
+-		if (!tcon->retry) {
+-			cifs_dbg(FYI, "gave up waiting on reconnect in smb_init\n");
+-			return -EHOSTDOWN;
+-		}
+-		retries = server->nr_targets;
+-	}
++	rc = cifs_wait_for_server_reconnect(server, tcon->retry);
++	if (rc)
++		return rc;
+ 
+ 	spin_lock(&ses->chan_lock);
+ 	if (!cifs_chan_needs_reconnect(ses, server) && !tcon->need_reconnect) {
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+index 9f4486b705d5c..5542893ef03f7 100644
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -1376,3 +1376,47 @@ int cifs_inval_name_dfs_link_error(const unsigned int xid,
+ 	return 0;
+ }
+ #endif
++
++int cifs_wait_for_server_reconnect(struct TCP_Server_Info *server, bool retry)
++{
++	int timeout = 10;
++	int rc;
++
++	spin_lock(&server->srv_lock);
++	if (server->tcpStatus != CifsNeedReconnect) {
++		spin_unlock(&server->srv_lock);
++		return 0;
++	}
++	timeout *= server->nr_targets;
++	spin_unlock(&server->srv_lock);
++
++	/*
++	 * Give demultiplex thread up to 10 seconds to each target available for
++	 * reconnect -- should be greater than cifs socket timeout which is 7
++	 * seconds.
++	 *
++	 * On "soft" mounts we wait once. Hard mounts keep retrying until
++	 * process is killed or server comes back on-line.
++	 */
++	do {
++		rc = wait_event_interruptible_timeout(server->response_q,
++						      (server->tcpStatus != CifsNeedReconnect),
++						      timeout * HZ);
++		if (rc < 0) {
++			cifs_dbg(FYI, "%s: aborting reconnect due to received signal\n",
++				 __func__);
++			return -ERESTARTSYS;
++		}
++
++		/* are we still trying to reconnect? */
++		spin_lock(&server->srv_lock);
++		if (server->tcpStatus != CifsNeedReconnect) {
++			spin_unlock(&server->srv_lock);
++			return 0;
++		}
++		spin_unlock(&server->srv_lock);
++	} while (retry);
++
++	cifs_dbg(FYI, "%s: gave up waiting on reconnect\n", __func__);
++	return -EHOSTDOWN;
++}
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 6e6e44d8b4c79..83d04cd2f9df8 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -139,66 +139,6 @@ smb2_hdr_assemble(struct smb2_hdr *shdr, __le16 smb2_cmd,
+ 	return;
+ }
+ 
+-static int wait_for_server_reconnect(struct TCP_Server_Info *server,
+-				     __le16 smb2_command, bool retry)
+-{
+-	int timeout = 10;
+-	int rc;
+-
+-	spin_lock(&server->srv_lock);
+-	if (server->tcpStatus != CifsNeedReconnect) {
+-		spin_unlock(&server->srv_lock);
+-		return 0;
+-	}
+-	timeout *= server->nr_targets;
+-	spin_unlock(&server->srv_lock);
+-
+-	/*
+-	 * Return to caller for TREE_DISCONNECT and LOGOFF and CLOSE
+-	 * here since they are implicitly done when session drops.
+-	 */
+-	switch (smb2_command) {
+-	/*
+-	 * BB Should we keep oplock break and add flush to exceptions?
+-	 */
+-	case SMB2_TREE_DISCONNECT:
+-	case SMB2_CANCEL:
+-	case SMB2_CLOSE:
+-	case SMB2_OPLOCK_BREAK:
+-		return -EAGAIN;
+-	}
+-
+-	/*
+-	 * Give demultiplex thread up to 10 seconds to each target available for
+-	 * reconnect -- should be greater than cifs socket timeout which is 7
+-	 * seconds.
+-	 *
+-	 * On "soft" mounts we wait once. Hard mounts keep retrying until
+-	 * process is killed or server comes back on-line.
+-	 */
+-	do {
+-		rc = wait_event_interruptible_timeout(server->response_q,
+-						      (server->tcpStatus != CifsNeedReconnect),
+-						      timeout * HZ);
+-		if (rc < 0) {
+-			cifs_dbg(FYI, "%s: aborting reconnect due to received signal\n",
+-				 __func__);
+-			return -ERESTARTSYS;
+-		}
+-
+-		/* are we still trying to reconnect? */
+-		spin_lock(&server->srv_lock);
+-		if (server->tcpStatus != CifsNeedReconnect) {
+-			spin_unlock(&server->srv_lock);
+-			return 0;
+-		}
+-		spin_unlock(&server->srv_lock);
+-	} while (retry);
+-
+-	cifs_dbg(FYI, "%s: gave up waiting on reconnect\n", __func__);
+-	return -EHOSTDOWN;
+-}
+-
+ static int
+ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	       struct TCP_Server_Info *server)
+@@ -239,7 +179,27 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	    (!tcon->ses->server) || !server)
+ 		return -EIO;
+ 
+-	rc = wait_for_server_reconnect(server, smb2_command, tcon->retry);
++	spin_lock(&server->srv_lock);
++	if (server->tcpStatus == CifsNeedReconnect) {
++		/*
++		 * Return to caller for TREE_DISCONNECT and LOGOFF and CLOSE
++		 * here since they are implicitly done when session drops.
++		 */
++		switch (smb2_command) {
++		/*
++		 * BB Should we keep oplock break and add flush to exceptions?
++		 */
++		case SMB2_TREE_DISCONNECT:
++		case SMB2_CANCEL:
++		case SMB2_CLOSE:
++		case SMB2_OPLOCK_BREAK:
++			spin_unlock(&server->srv_lock);
++			return -EAGAIN;
++		}
++	}
++	spin_unlock(&server->srv_lock);
++
++	rc = cifs_wait_for_server_reconnect(server, tcon->retry);
+ 	if (rc)
+ 		return rc;
+ 
 -- 
 2.39.2
 
