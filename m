@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B276D48EE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED61B6D47CC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233548AbjDCOdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:33:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
+        id S233166AbjDCOX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:23:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233536AbjDCOdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27A52707
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:58 -0700 (PDT)
+        with ESMTP id S233205AbjDCOXU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609032D7FE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:23:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B5B261B72
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 629FCC433D2;
-        Mon,  3 Apr 2023 14:32:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFA6961D65
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:23:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3DCEC433EF;
+        Mon,  3 Apr 2023 14:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532377;
-        bh=l+4mpfCWzP6k9cRkje+AxQpyYqqxzIFPOPM/y41iRMs=;
+        s=korg; t=1680531790;
+        bh=2aIhFII3eIVmS73uoFi9gINRR136PU1L00WNnJmuWXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u85dMiklt7vWr9td9bfqwIHDHq8EtST8eVQs0uVvSCDNEIHJy/LS/lUgRyvhITnvR
-         ToRD1gZCzKf5hUlJ6QC7zPBfGoB6qAYwtaw07es5jckG/H3trF015Hnd4S/fHeSDnb
-         OSrIZgjdhKoDpcR893EsyVr7N2pWjso9diMt+gZY=
+        b=Vmpci7pekawbb6ZxcDJw7ERctunC+DMvNzXXdZATNNeIMDQ652TlBHh1kTjdyQ3LS
+         uRf4YWC5YjcTuajgTfP7OP9tj2v+FP04r/BGq0nGm9QUTXIFEIUoMhfkbraLb77DZE
+         TpJfCJP/MP79yCHDisF+XKbJWmZ4s5qR6K+S/GB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Chan <michael.chan@broadcom.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 60/99] bnxt_en: Add missing 200G link speed reporting
-Date:   Mon,  3 Apr 2023 16:09:23 +0200
-Message-Id: <20230403140405.676594740@linuxfoundation.org>
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Paul Durrant <paul@xen.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.4 092/104] xen/netback: dont do grant copy across page boundary
+Date:   Mon,  3 Apr 2023 16:09:24 +0200
+Message-Id: <20230403140407.766876083@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,51 +52,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 581bce7bcb7e7f100908728e7b292e266c76895b ]
+commit 05310f31ca74673a96567fb14637b7d5d6c82ea5 upstream.
 
-bnxt_fw_to_ethtool_speed() is missing the case statement for 200G
-link speed reported by firmware.  As a result, ethtool will report
-unknown speed when the firmware reports 200G link speed.
+Fix xenvif_get_requests() not to do grant copy operations across local
+page boundaries. This requires to double the maximum number of copy
+operations per queue, as each copy could now be split into 2.
 
-Fixes: 532262ba3b84 ("bnxt_en: ethtool: support PAM4 link speeds up to 200G")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Make sure that struct xenvif_tx_cb doesn't grow too large.
+
+Cc: stable@vger.kernel.org
+Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 1 +
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/net/xen-netback/common.h  |    2 +-
+ drivers/net/xen-netback/netback.c |   25 +++++++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index e5874c829226e..ae4695fc067d5 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1202,6 +1202,7 @@ struct bnxt_link_info {
- #define BNXT_LINK_SPEED_40GB	PORT_PHY_QCFG_RESP_LINK_SPEED_40GB
- #define BNXT_LINK_SPEED_50GB	PORT_PHY_QCFG_RESP_LINK_SPEED_50GB
- #define BNXT_LINK_SPEED_100GB	PORT_PHY_QCFG_RESP_LINK_SPEED_100GB
-+#define BNXT_LINK_SPEED_200GB	PORT_PHY_QCFG_RESP_LINK_SPEED_200GB
- 	u16			support_speeds;
- 	u16			support_pam4_speeds;
- 	u16			auto_link_speeds;	/* fw adv setting */
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 9ac5f63784960..bc9812a0a91c3 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1670,6 +1670,8 @@ u32 bnxt_fw_to_ethtool_speed(u16 fw_link_speed)
- 		return SPEED_50000;
- 	case BNXT_LINK_SPEED_100GB:
- 		return SPEED_100000;
-+	case BNXT_LINK_SPEED_200GB:
-+		return SPEED_200000;
- 	default:
- 		return SPEED_UNKNOWN;
- 	}
--- 
-2.39.2
-
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data
+ 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
+ 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
+ 
+-	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
++	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
+ 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
+ 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
+ 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -327,6 +327,7 @@ static int xenvif_count_requests(struct
+ struct xenvif_tx_cb {
+ 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
+ 	u8 copy_count;
++	u32 split_mask;
+ };
+ 
+ #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
+@@ -354,6 +355,8 @@ static inline struct sk_buff *xenvif_all
+ 	struct sk_buff *skb =
+ 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
+ 			  GFP_ATOMIC | __GFP_NOWARN);
++
++	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
+ 	if (unlikely(skb == NULL))
+ 		return NULL;
+ 
+@@ -389,11 +392,13 @@ static void xenvif_get_requests(struct x
+ 	nr_slots = shinfo->nr_frags + 1;
+ 
+ 	copy_count(skb) = 0;
++	XENVIF_TX_CB(skb)->split_mask = 0;
+ 
+ 	/* Create copy ops for exactly data_len bytes into the skb head. */
+ 	__skb_put(skb, data_len);
+ 	while (data_len > 0) {
+ 		int amount = data_len > txp->size ? txp->size : data_len;
++		bool split = false;
+ 
+ 		cop->source.u.ref = txp->gref;
+ 		cop->source.domid = queue->vif->domid;
+@@ -406,6 +411,13 @@ static void xenvif_get_requests(struct x
+ 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
+ 				               - data_len);
+ 
++		/* Don't cross local page boundary! */
++		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
++			amount = XEN_PAGE_SIZE - cop->dest.offset;
++			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
++			split = true;
++		}
++
+ 		cop->len = amount;
+ 		cop->flags = GNTCOPY_source_gref;
+ 
+@@ -413,7 +425,8 @@ static void xenvif_get_requests(struct x
+ 		pending_idx = queue->pending_ring[index];
+ 		callback_param(queue, pending_idx).ctx = NULL;
+ 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
+-		copy_count(skb)++;
++		if (!split)
++			copy_count(skb)++;
+ 
+ 		cop++;
+ 		data_len -= amount;
+@@ -434,7 +447,8 @@ static void xenvif_get_requests(struct x
+ 			nr_slots--;
+ 		} else {
+ 			/* The copy op partially covered the tx_request.
+-			 * The remainder will be mapped.
++			 * The remainder will be mapped or copied in the next
++			 * iteration.
+ 			 */
+ 			txp->offset += amount;
+ 			txp->size -= amount;
+@@ -532,6 +546,13 @@ static int xenvif_tx_check_gop(struct xe
+ 		pending_idx = copy_pending_idx(skb, i);
+ 
+ 		newerr = (*gopp_copy)->status;
++
++		/* Split copies need to be handled together. */
++		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
++			(*gopp_copy)++;
++			if (!newerr)
++				newerr = (*gopp_copy)->status;
++		}
+ 		if (likely(!newerr)) {
+ 			/* The first frag might still have this slot mapped */
+ 			if (i < copy_count(skb) - 1 || !sharedslot)
 
 
