@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33EBD6D4796
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 439786D499A
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233079AbjDCOVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
+        id S233728AbjDCOjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233097AbjDCOVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 717C42D7CC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:18 -0700 (PDT)
+        with ESMTP id S233749AbjDCOj0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F340F1765D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5226061D2B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66411C433D2;
-        Mon,  3 Apr 2023 14:21:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B28F61EA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2021C4339C;
+        Mon,  3 Apr 2023 14:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531677;
-        bh=E4vPFq6KkOIXDrVd9H3/XXddQaNibLZsPHe/eNEX/cU=;
+        s=korg; t=1680532764;
+        bh=CMj4c/ZIUVRCCzFUFSz9++mPH9R/HYaVVlufubWf4wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSxCDCYMeMJeTMuFTkleX5juWJI0dDE1v9VQdmuuuNott1nKNn9H9AxFJ4Ayoa1mR
-         qYbc5LdbxXlBNs0hiMOjxzlAzoH+ni6ld3sFfgQnXcRGa2zoTl4+xpxvLlzq9xGnqt
-         +6tATV3kqujkTOt2JRTimHZYM1Yoye1SPuQ3+zto=
+        b=14+gpzTfzwAbbLFQ08z4+DdnmzMOftCaEFD3+B6ssyA7gXWSWO/LjkzpnZrcmWYxj
+         1HvYhhq7zkm69gbRRv811VKYIMN20wSikDnxcNzrGlRbVnCStkT4D5SR1qu7EEoi6c
+         Rm3XQ7YWea1JuVCebzuaHF8q6GZzRYxPtBd+VcuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/104] fbdev: au1200fb: Fix potential divide by zero
+        patches@lists.linux.dev, Robert Malz <robertx.malz@intel.com>,
+        Brett Creeley <brett.creeley@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Piotr Raczynski <piotr.raczynski@intel.com>,
+        Jakub Andrysiak <jakub.andrysiak@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 107/181] ice: Fix ice_cfg_rdma_fltr() to only update relevant fields
 Date:   Mon,  3 Apr 2023 16:09:02 +0200
-Message-Id: <20230403140406.925760406@linuxfoundation.org>
+Message-Id: <20230403140418.588168683@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,37 +57,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 44a3b36b42acfc433aaaf526191dd12fbb919fdb ]
+[ Upstream commit d94dbdc4e0209b5e7d736ab696f8d635b034e3ee ]
 
-var->pixclock can be assigned to zero by user. Without
-proper check, divide by zero would occur when invoking
-macro PICOS2KHZ in au1200fb_fb_check_var.
+The current implementation causes ice_vsi_update() to update all VSI
+fields based on the cached VSI context. This also assumes that the
+ICE_AQ_VSI_PROP_Q_OPT_VALID bit is set. This can cause problems if the
+VSI context is not correctly synced by the driver. Fix this by only
+updating the fields that correspond to ICE_AQ_VSI_PROP_Q_OPT_VALID.
+Also, make sure to save the updated result in the cached VSI context
+on success.
 
-Error out if var->pixclock is zero.
-
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 348048e724a0 ("ice: Implement iidc operations")
+Co-developed-by: Robert Malz <robertx.malz@intel.com>
+Signed-off-by: Robert Malz <robertx.malz@intel.com>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
+Tested-by: Jakub Andrysiak <jakub.andrysiak@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/au1200fb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_switch.c | 26 +++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/video/fbdev/au1200fb.c b/drivers/video/fbdev/au1200fb.c
-index 265d3b45efd0c..43a4dddaafd52 100644
---- a/drivers/video/fbdev/au1200fb.c
-+++ b/drivers/video/fbdev/au1200fb.c
-@@ -1040,6 +1040,9 @@ static int au1200fb_fb_check_var(struct fb_var_screeninfo *var,
- 	u32 pixclock;
- 	int screen_size, plane;
- 
-+	if (!var->pixclock)
-+		return -EINVAL;
+diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
+index 61f844d225123..46b36851af460 100644
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -1780,18 +1780,36 @@ ice_update_vsi(struct ice_hw *hw, u16 vsi_handle, struct ice_vsi_ctx *vsi_ctx,
+ int
+ ice_cfg_rdma_fltr(struct ice_hw *hw, u16 vsi_handle, bool enable)
+ {
+-	struct ice_vsi_ctx *ctx;
++	struct ice_vsi_ctx *ctx, *cached_ctx;
++	int status;
 +
- 	plane = fbdev->plane;
++	cached_ctx = ice_get_vsi_ctx(hw, vsi_handle);
++	if (!cached_ctx)
++		return -ENOENT;
  
- 	/* Make sure that the mode respect all LCD controller and
+-	ctx = ice_get_vsi_ctx(hw, vsi_handle);
++	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+-		return -EIO;
++		return -ENOMEM;
++
++	ctx->info.q_opt_rss = cached_ctx->info.q_opt_rss;
++	ctx->info.q_opt_tc = cached_ctx->info.q_opt_tc;
++	ctx->info.q_opt_flags = cached_ctx->info.q_opt_flags;
++
++	ctx->info.valid_sections = cpu_to_le16(ICE_AQ_VSI_PROP_Q_OPT_VALID);
+ 
+ 	if (enable)
+ 		ctx->info.q_opt_flags |= ICE_AQ_VSI_Q_OPT_PE_FLTR_EN;
+ 	else
+ 		ctx->info.q_opt_flags &= ~ICE_AQ_VSI_Q_OPT_PE_FLTR_EN;
+ 
+-	return ice_update_vsi(hw, vsi_handle, ctx, NULL);
++	status = ice_update_vsi(hw, vsi_handle, ctx, NULL);
++	if (!status) {
++		cached_ctx->info.q_opt_flags = ctx->info.q_opt_flags;
++		cached_ctx->info.valid_sections |= ctx->info.valid_sections;
++	}
++
++	kfree(ctx);
++	return status;
+ }
+ 
+ /**
 -- 
 2.39.2
 
