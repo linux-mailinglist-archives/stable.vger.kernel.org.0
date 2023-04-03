@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79EEE6D48A4
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9E76D4AE2
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233433AbjDCOac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33766 "EHLO
+        id S234205AbjDCOu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233444AbjDCOab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E082319BA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:29 -0700 (PDT)
+        with ESMTP id S234039AbjDCOul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD270280EF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CD53B81C55
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6067DC433EF;
-        Mon,  3 Apr 2023 14:30:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 951EFCE1312
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 844B8C433D2;
+        Mon,  3 Apr 2023 14:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532226;
-        bh=rvDxnpxMCENmFryhKk66DKvKmEFYKucWaQbQmY1G3wo=;
+        s=korg; t=1680533354;
+        bh=W/EwnJ/wOEZ/BA4j2am0zv3s+vhY8lehxly6aGXHsdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCQqJxIQEPrMFrGmwuMnpBpDuvCPOFyS7WCYJzR72fKUiK8ibVPBlZUMuZ7ReqJ48
-         9et/WctweHwd87GwiqsfxvO/YiqZ6rddwsgOCCxrzDMeaRb+0xzsYySg2X0SgTClnE
-         PsghNeuW96OPf3ZyYtxi4gtLJyqfdlwVjnpwxavg=
+        b=RwbiaKPSBrol7a6UU2mep2mX6st1j/XZojicchJhXG6Upr3qC2yZdTVquWvxsWIf8
+         DVZy9qk6DmYrxDsyy9FmwAdL3qOUhkGg23bC/BUvkomqtRXfVM8WN30wv8e8PRyg3O
+         qNSBXCF2rksShLd2iDlNolwDiAYnp0T3dFpiamUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Paul Durrant <paul@xen.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.10 151/173] xen/netback: dont do grant copy across page boundary
+        patches@lists.linux.dev, Simon Horman <simon.horman@corigine.com>,
+        Felix Fietkau <nbd@nbd.name>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 121/187] net: ethernet: mtk_eth_soc: fix flow block refcounting logic
 Date:   Mon,  3 Apr 2023 16:09:26 +0200
-Message-Id: <20230403140419.340479996@linuxfoundation.org>
+Message-Id: <20230403140419.941896579@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,118 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 05310f31ca74673a96567fb14637b7d5d6c82ea5 upstream.
+[ Upstream commit 8c1cb87c2a5c29da416848451a687473f379611c ]
 
-Fix xenvif_get_requests() not to do grant copy operations across local
-page boundaries. This requires to double the maximum number of copy
-operations per queue, as each copy could now be split into 2.
+Since we call flow_block_cb_decref on FLOW_BLOCK_UNBIND, we also need to
+call flow_block_cb_incref for a newly allocated cb.
+Also fix the accidentally inverted refcount check on unbind.
 
-Make sure that struct xenvif_tx_cb doesn't grow too large.
-
-Cc: stable@vger.kernel.org
-Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 502e84e2382d ("net: ethernet: mtk_eth_soc: add flow offloading support")
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230330120840.52079-1-nbd@nbd.name
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/common.h  |    2 +-
- drivers/net/xen-netback/netback.c |   25 +++++++++++++++++++++++--
- 2 files changed, 24 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_ppe_offload.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data
- 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
- 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
+diff --git a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
+index 81afd5ee3fbf1..161751bb36c9c 100644
+--- a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
+@@ -576,6 +576,7 @@ mtk_eth_setup_tc_block(struct net_device *dev, struct flow_block_offload *f)
+ 		if (IS_ERR(block_cb))
+ 			return PTR_ERR(block_cb);
  
--	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
-+	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
- 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
- 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
- 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -334,6 +334,7 @@ static int xenvif_count_requests(struct
- struct xenvif_tx_cb {
- 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
- 	u8 copy_count;
-+	u32 split_mask;
- };
++		flow_block_cb_incref(block_cb);
+ 		flow_block_cb_add(block_cb, f);
+ 		list_add_tail(&block_cb->driver_list, &block_cb_list);
+ 		return 0;
+@@ -584,7 +585,7 @@ mtk_eth_setup_tc_block(struct net_device *dev, struct flow_block_offload *f)
+ 		if (!block_cb)
+ 			return -ENOENT;
  
- #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
-@@ -361,6 +362,8 @@ static inline struct sk_buff *xenvif_all
- 	struct sk_buff *skb =
- 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
- 			  GFP_ATOMIC | __GFP_NOWARN);
-+
-+	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
- 	if (unlikely(skb == NULL))
- 		return NULL;
- 
-@@ -396,11 +399,13 @@ static void xenvif_get_requests(struct x
- 	nr_slots = shinfo->nr_frags + 1;
- 
- 	copy_count(skb) = 0;
-+	XENVIF_TX_CB(skb)->split_mask = 0;
- 
- 	/* Create copy ops for exactly data_len bytes into the skb head. */
- 	__skb_put(skb, data_len);
- 	while (data_len > 0) {
- 		int amount = data_len > txp->size ? txp->size : data_len;
-+		bool split = false;
- 
- 		cop->source.u.ref = txp->gref;
- 		cop->source.domid = queue->vif->domid;
-@@ -413,6 +418,13 @@ static void xenvif_get_requests(struct x
- 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
- 				               - data_len);
- 
-+		/* Don't cross local page boundary! */
-+		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
-+			amount = XEN_PAGE_SIZE - cop->dest.offset;
-+			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
-+			split = true;
-+		}
-+
- 		cop->len = amount;
- 		cop->flags = GNTCOPY_source_gref;
- 
-@@ -420,7 +432,8 @@ static void xenvif_get_requests(struct x
- 		pending_idx = queue->pending_ring[index];
- 		callback_param(queue, pending_idx).ctx = NULL;
- 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
--		copy_count(skb)++;
-+		if (!split)
-+			copy_count(skb)++;
- 
- 		cop++;
- 		data_len -= amount;
-@@ -441,7 +454,8 @@ static void xenvif_get_requests(struct x
- 			nr_slots--;
- 		} else {
- 			/* The copy op partially covered the tx_request.
--			 * The remainder will be mapped.
-+			 * The remainder will be mapped or copied in the next
-+			 * iteration.
- 			 */
- 			txp->offset += amount;
- 			txp->size -= amount;
-@@ -539,6 +553,13 @@ static int xenvif_tx_check_gop(struct xe
- 		pending_idx = copy_pending_idx(skb, i);
- 
- 		newerr = (*gopp_copy)->status;
-+
-+		/* Split copies need to be handled together. */
-+		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
-+			(*gopp_copy)++;
-+			if (!newerr)
-+				newerr = (*gopp_copy)->status;
-+		}
- 		if (likely(!newerr)) {
- 			/* The first frag might still have this slot mapped */
- 			if (i < copy_count(skb) - 1 || !sharedslot)
+-		if (flow_block_cb_decref(block_cb)) {
++		if (!flow_block_cb_decref(block_cb)) {
+ 			flow_block_cb_remove(block_cb, f);
+ 			list_del(&block_cb->driver_list);
+ 		}
+-- 
+2.39.2
+
 
 
