@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB38D6D3F7E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5090A6D3F80
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231450AbjDCIyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:54:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        id S230332AbjDCIzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230332AbjDCIyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:54:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC90D1BE7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:54:43 -0700 (PDT)
+        with ESMTP id S230269AbjDCIzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:55:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7221BE7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:54:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62098B815D1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:54:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA24C433D2;
-        Mon,  3 Apr 2023 08:54:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73A40B8090A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:54:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A63C433EF;
+        Mon,  3 Apr 2023 08:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680512081;
-        bh=VS4xsGVhx3S46mu5dYeXfR9zx9SZh2URDXL6zue5cZo=;
+        s=korg; t=1680512097;
+        bh=V1ZVcmAFqIEP9NeB9MYY3pAyYppXkjwlGDjp/uUIkhk=;
         h=Subject:To:Cc:From:Date:From;
-        b=NWPTknmKH1QbG+HSVpPrJ8C5n8kJcJW2DwYRrZqTgqIdgA9aVf2yHEEY8Efc7Ipte
-         9dcdk7N80ehMOL/r14DcbVD8rYZfpVGikaDB1O8Skw87vqf6LYZP/8zGKI1E504hD2
-         i8IwRrr6RZFAKfwzH3vJROFjcLnePUZ2UkutBwgw=
-Subject: FAILED: patch "[PATCH] drm/i915: Add a .color_post_update() hook" failed to apply to 6.1-stable tree
-To:     ville.syrjala@linux.intel.com, ddavenport@chromium.org,
-        imre.deak@intel.com, jani.nikula@intel.com,
-        jouni.hogander@intel.com, navaremanasi@google.com,
-        stable@vger.kernel.org
+        b=SL5/CTrxC8eQmd69sg9BK3B8O+dIowLQUf57gkeHFtRtqAy0U4d2sUFFmDVUNT3nU
+         8AjN6nIbGL2Ce6HM8/ZNBzX6aJzDd8uhT7XWpZDHX3/ehUGhHeQ4vLJ+O20sBaOznG
+         HoZDyuE2rDoG+pviq/avWVODrxaEfkHGdGrYSaBI=
+Subject: FAILED: patch "[PATCH] KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the" failed to apply to 5.10-stable tree
+To:     reijiw@google.com, maz@kernel.org, oliver.upton@linux.dev
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:54:30 +0200
-Message-ID: <2023040330-seventeen-sappy-3f9a@gregkh>
+Date:   Mon, 03 Apr 2023 10:54:54 +0200
+Message-ID: <2023040354-armful-augmented-752b@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -50,28 +47,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
-git cherry-pick -x c880f855d1e240a956dcfce884269bad92fc849c
+git cherry-pick -x 9228b26194d1cc00449f12f306f53ef2e234a55b
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040330-seventeen-sappy-3f9a@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040354-armful-augmented-752b@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
-c880f855d1e2 ("drm/i915: Add a .color_post_update() hook")
-efb2b57edf20 ("drm/i915: Move the DSB setup/cleaup into the color code")
-f5e674e92e95 ("drm/i915: Introduce intel_crtc_needs_color_update()")
-925ac8bc33bf ("drm/i915: Remove some local 'mode_changed' bools")
-52a90349f2ed ("drm/i915: Introduce intel_crtc_needs_fastset()")
-4c35e5d11900 ("drm/i915: Activate DRRS after state readout")
+9228b26194d1 ("KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the current value")
+0ab410a93d62 ("KVM: arm64: Narrow PMU sysreg reset values to architectural requirements")
+11663111cd49 ("KVM: arm64: Hide PMU registers from userspace when not available")
 
 thanks,
 
@@ -79,83 +73,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c880f855d1e240a956dcfce884269bad92fc849c Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Mon, 20 Mar 2023 11:54:35 +0200
-Subject: [PATCH] drm/i915: Add a .color_post_update() hook
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 9228b26194d1cc00449f12f306f53ef2e234a55b Mon Sep 17 00:00:00 2001
+From: Reiji Watanabe <reijiw@google.com>
+Date: Sun, 12 Mar 2023 20:32:08 -0700
+Subject: [PATCH] KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the
+ current value
 
-We're going to need stuff after the color management
-register latching has happened. Add a corresponding hook.
+Have KVM_GET_ONE_REG for vPMU counter (vPMC) registers (PMCCNTR_EL0
+and PMEVCNTR<n>_EL0) return the sum of the register value in the sysreg
+file and the current perf event counter value.
 
-Cc: <stable@vger.kernel.org> #v5.19+
-Cc: Manasi Navare <navaremanasi@google.com>
-Cc: Drew Davenport <ddavenport@chromium.org>
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Jouni Högander <jouni.hogander@intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-4-ville.syrjala@linux.intel.com
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-(cherry picked from commit 3962ca4e080a525fc9eae87aa6b2286f1fae351d)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Values of vPMC registers are saved in sysreg files on certain occasions.
+These saved values don't represent the current values of the vPMC
+registers if the perf events for the vPMCs count events after the save.
+The current values of those registers are the sum of the sysreg file
+value and the current perf event counter value.  But, when userspace
+reads those registers (using KVM_GET_ONE_REG), KVM returns the sysreg
+file value to userspace (not the sum value).
 
-diff --git a/drivers/gpu/drm/i915/display/intel_color.c b/drivers/gpu/drm/i915/display/intel_color.c
-index aa702292779f..b1d0b49fe8ef 100644
---- a/drivers/gpu/drm/i915/display/intel_color.c
-+++ b/drivers/gpu/drm/i915/display/intel_color.c
-@@ -46,6 +46,11 @@ struct intel_color_funcs {
- 	 * registers involved with the same commit.
- 	 */
- 	void (*color_commit_arm)(const struct intel_crtc_state *crtc_state);
-+	/*
-+	 * Perform any extra tasks needed after all the
-+	 * double buffered registers have been latched.
-+	 */
-+	void (*color_post_update)(const struct intel_crtc_state *crtc_state);
- 	/*
- 	 * Load LUTs (and other single buffered color management
- 	 * registers). Will (hopefully) be called during the vblank
-@@ -1411,6 +1416,14 @@ void intel_color_commit_arm(const struct intel_crtc_state *crtc_state)
- 	i915->display.funcs.color->color_commit_arm(crtc_state);
+Fix this to return the sum value for KVM_GET_ONE_REG.
+
+Fixes: 051ff581ce70 ("arm64: KVM: Add access handler for event counter register")
+Cc: stable@vger.kernel.org
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Reiji Watanabe <reijiw@google.com>
+Link: https://lore.kernel.org/r/20230313033208.1475499-1-reijiw@google.com
+Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
+
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 53749d3a0996..1b2c161120be 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -856,6 +856,22 @@ static bool pmu_counter_idx_valid(struct kvm_vcpu *vcpu, u64 idx)
+ 	return true;
  }
  
-+void intel_color_post_update(const struct intel_crtc_state *crtc_state)
++static int get_pmu_evcntr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r,
++			  u64 *val)
 +{
-+	struct drm_i915_private *i915 = to_i915(crtc_state->uapi.crtc->dev);
++	u64 idx;
 +
-+	if (i915->display.funcs.color->color_post_update)
-+		i915->display.funcs.color->color_post_update(crtc_state);
++	if (r->CRn == 9 && r->CRm == 13 && r->Op2 == 0)
++		/* PMCCNTR_EL0 */
++		idx = ARMV8_PMU_CYCLE_IDX;
++	else
++		/* PMEVCNTRn_EL0 */
++		idx = ((r->CRm & 3) << 3) | (r->Op2 & 7);
++
++	*val = kvm_pmu_get_counter_value(vcpu, idx);
++	return 0;
 +}
 +
- void intel_color_prepare_commit(struct intel_crtc_state *crtc_state)
- {
- 	struct intel_crtc *crtc = to_intel_crtc(crtc_state->uapi.crtc);
-diff --git a/drivers/gpu/drm/i915/display/intel_color.h b/drivers/gpu/drm/i915/display/intel_color.h
-index d620b5b1e2a6..8002492be709 100644
---- a/drivers/gpu/drm/i915/display/intel_color.h
-+++ b/drivers/gpu/drm/i915/display/intel_color.h
-@@ -21,6 +21,7 @@ void intel_color_prepare_commit(struct intel_crtc_state *crtc_state);
- void intel_color_cleanup_commit(struct intel_crtc_state *crtc_state);
- void intel_color_commit_noarm(const struct intel_crtc_state *crtc_state);
- void intel_color_commit_arm(const struct intel_crtc_state *crtc_state);
-+void intel_color_post_update(const struct intel_crtc_state *crtc_state);
- void intel_color_load_luts(const struct intel_crtc_state *crtc_state);
- void intel_color_get_config(struct intel_crtc_state *crtc_state);
- bool intel_color_lut_equal(const struct intel_crtc_state *crtc_state,
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 208b1b5b15dd..1a5ffa9642e8 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -1209,6 +1209,9 @@ static void intel_post_plane_update(struct intel_atomic_state *state,
- 	if (needs_cursorclk_wa(old_crtc_state) &&
- 	    !needs_cursorclk_wa(new_crtc_state))
- 		icl_wa_cursorclkgating(dev_priv, pipe, false);
-+
-+	if (intel_crtc_needs_color_update(new_crtc_state))
-+		intel_color_post_update(new_crtc_state);
- }
+ static bool access_pmu_evcntr(struct kvm_vcpu *vcpu,
+ 			      struct sys_reg_params *p,
+ 			      const struct sys_reg_desc *r)
+@@ -1072,7 +1088,7 @@ static bool access_pmuserenr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+ /* Macro to expand the PMEVCNTRn_EL0 register */
+ #define PMU_PMEVCNTR_EL0(n)						\
+ 	{ PMU_SYS_REG(SYS_PMEVCNTRn_EL0(n)),				\
+-	  .reset = reset_pmevcntr,					\
++	  .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,		\
+ 	  .access = access_pmu_evcntr, .reg = (PMEVCNTR0_EL0 + n), }
  
- static void intel_crtc_enable_flip_done(struct intel_atomic_state *state,
+ /* Macro to expand the PMEVTYPERn_EL0 register */
+@@ -1982,7 +1998,8 @@ static const struct sys_reg_desc sys_reg_descs[] = {
+ 	{ PMU_SYS_REG(SYS_PMCEID1_EL0),
+ 	  .access = access_pmceid, .reset = NULL },
+ 	{ PMU_SYS_REG(SYS_PMCCNTR_EL0),
+-	  .access = access_pmu_evcntr, .reset = reset_unknown, .reg = PMCCNTR_EL0 },
++	  .access = access_pmu_evcntr, .reset = reset_unknown,
++	  .reg = PMCCNTR_EL0, .get_user = get_pmu_evcntr},
+ 	{ PMU_SYS_REG(SYS_PMXEVTYPER_EL0),
+ 	  .access = access_pmu_evtyper, .reset = NULL },
+ 	{ PMU_SYS_REG(SYS_PMXEVCNTR_EL0),
 
