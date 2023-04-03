@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D236D494B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30EC36D480C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbjDCOgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:36:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45950 "EHLO
+        id S233267AbjDCOZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233681AbjDCOgn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A75871765B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:27 -0700 (PDT)
+        with ESMTP id S233271AbjDCOZ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B10A5241
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 356E361E80
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E80EC4339E;
-        Mon,  3 Apr 2023 14:36:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F6C3B81C02
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE565C433EF;
+        Mon,  3 Apr 2023 14:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532586;
-        bh=k+hmGhSaD1+QaJ7ZakF1ukiTvaTebvpE8t6aMcJUf28=;
+        s=korg; t=1680531923;
+        bh=BHr5Z/lMBlhHM5Gab5wpKGHuBeWTk8j/hOTrsQ78cew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTX0qo+EGcYmOqpKqNA2vO0VV5y/1d1NsyCdcL1Ek/yV4EARia2s4h/ig41M9lI1F
-         nsk3ybavzKt8lfR1UezQ4bYgQJjDJWLOoKSKTt96wFYMqpOS4MvfE6TdexHnmvZiHR
-         C3aFSAtnqqZglCHK/LJOeLIAYHmq5b8UPtoFlnRU=
+        b=r+ogF84dUJ1O+SCu7+tKpBvwI20oOOe0TYBxMxDlcO7//T+/NkUtS8yovG7kIicKq
+         lfS+Ny7OhC3bHIbTpdXPvEzI/BA1Nq9FNK/fzXZUqe4ujajSlM/IHyvBMkSOIvluJY
+         +E9rq/e5My+9vWH7e1LwoUYlxnnK1Iwj3EoT07qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Curtis Malainey <curtis@malainey.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 039/181] ASoC: SOF: ipc3: Check for upper size limit for the received message
+Subject: [PATCH 5.10 059/173] hwmon (it87): Fix voltage scaling for chips with 10.9mV  ADCs
 Date:   Mon,  3 Apr 2023 16:07:54 +0200
-Message-Id: <20230403140416.427934308@linuxfoundation.org>
+Message-Id: <20230403140416.367485639@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,43 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Frank Crawford <frank@crawford.emu.id.au>
 
-[ Upstream commit 989a3e4479177d0f4afab8be1960731bc0ffbbd0 ]
+[ Upstream commit 968b66ffeb7956acc72836a7797aeb7b2444ec51 ]
 
-The sof_ipc3_rx_msg() checks for minimum size of a new rx message but it is
-missing the check for upper limit.
-Corrupted or compromised firmware might be able to take advantage of this
-to cause out of bounds reads outside of the message area.
+Fix voltage scaling for chips that have 10.9mV ADCs, where scaling was
+not performed.
 
-Reported-by: Curtis Malainey <cujomalainey@chromium.org>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Curtis Malainey <curtis@malainey.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307114917.5124-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ead8080351c9 ("hwmon: (it87) Add support for IT8732F")
+Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
+Link: https://lore.kernel.org/r/20230318080543.1226700-2-frank@crawford.emu.id.au
+[groeck: Update subject and description to focus on bug fix]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/ipc3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hwmon/it87.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/ipc3.c b/sound/soc/sof/ipc3.c
-index b28af3a48b707..60b96b0c2412f 100644
---- a/sound/soc/sof/ipc3.c
-+++ b/sound/soc/sof/ipc3.c
-@@ -970,8 +970,9 @@ static void sof_ipc3_rx_msg(struct snd_sof_dev *sdev)
- 		return;
- 	}
+diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
+index fac9b5c68a6a0..85413d3dc3940 100644
+--- a/drivers/hwmon/it87.c
++++ b/drivers/hwmon/it87.c
+@@ -486,6 +486,8 @@ static const struct it87_devices it87_devices[] = {
+ #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
+ #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
+ #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
++#define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
++						     FEAT_10_9MV_ADC))
  
--	if (hdr.size < sizeof(hdr)) {
--		dev_err(sdev->dev, "The received message size is invalid\n");
-+	if (hdr.size < sizeof(hdr) || hdr.size > SOF_IPC_MSG_MAX_SIZE) {
-+		dev_err(sdev->dev, "The received message size is invalid: %u\n",
-+			hdr.size);
- 		return;
- 	}
+ struct it87_sio_data {
+ 	int sioaddr;
+@@ -3098,7 +3100,7 @@ static int it87_probe(struct platform_device *pdev)
+ 			 "Detected broken BIOS defaults, disabling PWM interface\n");
  
+ 	/* Starting with IT8721F, we handle scaling of internal voltages */
+-	if (has_12mv_adc(data)) {
++	if (has_scaling(data)) {
+ 		if (sio_data->internal & BIT(0))
+ 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
+ 		if (sio_data->internal & BIT(1))
 -- 
 2.39.2
 
