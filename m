@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 444C26D46A2
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF326D4976
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232859AbjDCOMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54066 "EHLO
+        id S233699AbjDCOiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232861AbjDCOMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593522C9D6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:48 -0700 (PDT)
+        with ESMTP id S233709AbjDCOiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5323A7A9B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13AE3B81B08
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C928C4339C;
-        Mon,  3 Apr 2023 14:11:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC1B961E4A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D09C1C4339B;
+        Mon,  3 Apr 2023 14:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531105;
-        bh=GQR2bvBPZnKqchUhO59T3agd+BxjrN7CbYwQ7RCqAiE=;
+        s=korg; t=1680532683;
+        bh=91f3rYXBheiyoSvrK9v8HR8nVGsHmUGeWKN+axlOpJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVFj1bkWlplM9auClW+EROPKtb5bO8JX7ONvEbeczRi+Uof0vjtmhuRJG+3Ah99Td
-         4LzHhiZ/yJHhoCB8gaG10I608ImLP5TIrjVMDuKlBiTfZC33Npd5NPZmIH/umxtxLc
-         c/7nd9nVwo2SrfK33WN+6z+IyX333ca2P0k34sTY=
+        b=rrUYbleJkQq8M8N7C0MVOxLlq+C8b3xb/SwOHLFl1RAamo6lbuBQlxEfXb9hMKg3t
+         kwjX97Iwn49OFRsfTNRoac7VCbXZDwwbsa1MlBy6Nt3GJkHvckHLl7j4nsuHe0jiBt
+         r50da/LUPv7a3GIJcq+DlngW+G1yuoSqxbmRxQHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 4.14 22/66] thunderbolt: Use const qualifier for `ring_interrupt_index`
-Date:   Mon,  3 Apr 2023 16:08:30 +0200
-Message-Id: <20230403140352.710019844@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Mark Pearson <mpearson-lenovo@squebb.ca>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 076/181] platform/x86: think-lmi: use correct possible_values delimiters
+Date:   Mon,  3 Apr 2023 16:08:31 +0200
+Message-Id: <20230403140417.605798681@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-commit 1716efdb07938bd6510e1127d02012799112c433 upstream.
+[ Upstream commit 45e21289bfc6e257885514790a8a8887da822d40 ]
 
-`ring_interrupt_index` doesn't change the data for `ring` so mark it as
-const. This is needed by the following patch that disables interrupt
-auto clear for rings.
+firmware-attributes class requires that possible values are delimited
+using ';' but the Lenovo firmware uses ',' instead.
+Parse string and replace where appropriate.
 
-Cc: Sanju Mehta <Sanju.Mehta@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Thomas Weißschuh <linux@weissschuh.net>
+Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230320003221.561750-2-mpearson-lenovo@squebb.ca
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/nhi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/think-lmi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/thunderbolt/nhi.c
-+++ b/drivers/thunderbolt/nhi.c
-@@ -30,7 +30,7 @@
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index 07c9dc21eff52..62241680c8a90 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -954,7 +954,7 @@ static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
  
- #define NHI_MAILBOX_TIMEOUT	500 /* ms */
- 
--static int ring_interrupt_index(struct tb_ring *ring)
-+static int ring_interrupt_index(const struct tb_ring *ring)
- {
- 	int bit = ring->hop;
- 	if (!ring->is_tx)
+ 	if (setting->possible_values) {
+ 		/* Figure out what setting type is as BIOS does not return this */
+-		if (strchr(setting->possible_values, ','))
++		if (strchr(setting->possible_values, ';'))
+ 			return sysfs_emit(buf, "enumeration\n");
+ 	}
+ 	/* Anything else is going to be a string */
+@@ -1441,6 +1441,13 @@ static int tlmi_analyze(void)
+ 				pr_info("Error retrieving possible values for %d : %s\n",
+ 						i, setting->display_name);
+ 		}
++		/*
++		 * firmware-attributes requires that possible_values are separated by ';' but
++		 * Lenovo FW uses ','. Replace appropriately.
++		 */
++		if (setting->possible_values)
++			strreplace(setting->possible_values, ',', ';');
++
+ 		kobject_init(&setting->kobj, &tlmi_attr_setting_ktype);
+ 		tlmi_priv.setting[i] = setting;
+ 		kfree(item);
+-- 
+2.39.2
+
 
 
