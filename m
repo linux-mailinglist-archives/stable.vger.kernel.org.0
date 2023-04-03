@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B596D46E8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D816D4756
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232893AbjDCOPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
+        id S233034AbjDCOTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:19:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232831AbjDCOPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844732BEF9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:11 -0700 (PDT)
+        with ESMTP id S233024AbjDCOTW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4492C9DA
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEFB361CAB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E04B8C433D2;
-        Mon,  3 Apr 2023 14:15:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA537B81BA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162ABC433D2;
+        Mon,  3 Apr 2023 14:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531310;
-        bh=F5oEs+V5GQZXXD6ZvwNXlGjOnJSg8N0w220pJeonFL4=;
+        s=korg; t=1680531559;
+        bh=xzkDB1uiJ+7IJS1LEtEGwk+zR+KsCP8XTZubpVXtn+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecnSSh/ppsam/0UEZdtOgQ8Td2D9HoRVi4XIdO8Lwkpg18bvISVzeMEdjV+3LboZA
-         R4lTQBoSZ3cIacvB5i67oBfBd3g6MIN0ZNSGDmKGn09oDASUuxip2uXp4UMLH5FHyC
-         FKTvbrA/BaDy2qPASjCT5eHLJFr2Oj3GysxtXfLE=
+        b=bYRSAzSODryORXY1YLr4b6TEMj+v9L578DKCYmjbqEopl2VgMtD9A68X/3z7hxFEh
+         hbiPOF4lAuhIhrIo3NopeSmz4ft3Ix4CssrTBFj4RuDyYJdmQ7WshpkWpG0SuCiMMI
+         vjznFLcBU3zrEJ/dnnPcBbfpQv6yTBLcJ0Rd64eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Duyck <alexanderduyck@fb.com>,
-        Geoff Levand <geoff@infradead.org>,
+        patches@lists.linux.dev, Liang He <windhl@126.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/84] net/ps3_gelic_net: Use dma_mapping_error
+Subject: [PATCH 5.4 024/104] net: mdio: thunder: Add missing fwnode_handle_put()
 Date:   Mon,  3 Apr 2023 16:08:16 +0200
-Message-Id: <20230403140353.898395054@linuxfoundation.org>
+Message-Id: <20230403140405.202496963@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,87 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoff Levand <geoff@infradead.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit bebe933d35a63d4f042fbf4dce4f22e689ba0fcd ]
+[ Upstream commit b1de5c78ebe9858ccec9d49af2f76724f1d47e3e ]
 
-The current Gelic Etherenet driver was checking the return value of its
-dma_map_single call, and not using the dma_mapping_error() routine.
+In device_for_each_child_node(), we should add fwnode_handle_put()
+when break out of the iteration device_for_each_child_node()
+as it will automatically increase and decrease the refcounter.
 
-Fixes runtime problems like these:
-
-  DMA-API: ps3_gelic_driver sb_05: device driver failed to check map error
-  WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:1027 .check_unmap+0x888/0x8dc
-
-Fixes: 02c1889166b4 ("ps3: gigabit ethernet driver for PS3, take3")
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Geoff Levand <geoff@infradead.org>
+Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
+Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/toshiba/ps3_gelic_net.c | 24 +++++++++++---------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/net/phy/mdio-thunder.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/toshiba/ps3_gelic_net.c b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
-index 67f61379ba672..572294678faf0 100644
---- a/drivers/net/ethernet/toshiba/ps3_gelic_net.c
-+++ b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
-@@ -330,15 +330,17 @@ static int gelic_card_init_chain(struct gelic_card *card,
- 
- 	/* set up the hardware pointers in each descriptor */
- 	for (i = 0; i < no; i++, descr++) {
-+		dma_addr_t cpu_addr;
-+
- 		gelic_descr_set_status(descr, GELIC_DESCR_DMA_NOT_IN_USE);
--		descr->bus_addr =
--			dma_map_single(ctodev(card), descr,
--				       GELIC_DESCR_SIZE,
--				       DMA_BIDIRECTIONAL);
- 
--		if (!descr->bus_addr)
-+		cpu_addr = dma_map_single(ctodev(card), descr,
-+					  GELIC_DESCR_SIZE, DMA_BIDIRECTIONAL);
-+
-+		if (dma_mapping_error(ctodev(card), cpu_addr))
- 			goto iommu_error;
- 
-+		descr->bus_addr = cpu_to_be32(cpu_addr);
- 		descr->next = descr + 1;
- 		descr->prev = descr - 1;
+diff --git a/drivers/net/phy/mdio-thunder.c b/drivers/net/phy/mdio-thunder.c
+index 1e2f57ed1ef75..31ca0361a11e0 100644
+--- a/drivers/net/phy/mdio-thunder.c
++++ b/drivers/net/phy/mdio-thunder.c
+@@ -104,6 +104,7 @@ static int thunder_mdiobus_pci_probe(struct pci_dev *pdev,
+ 		if (i >= ARRAY_SIZE(nexus->buses))
+ 			break;
  	}
-@@ -388,6 +390,7 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
- 	static const unsigned int rx_skb_size =
- 		ALIGN(GELIC_NET_MAX_FRAME, GELIC_NET_RXBUF_ALIGN) +
- 		GELIC_NET_RXBUF_ALIGN - 1;
-+	dma_addr_t cpu_addr;
- 	int offset;
++	fwnode_handle_put(fwn);
+ 	return 0;
  
- 	if (gelic_descr_get_status(descr) !=  GELIC_DESCR_DMA_NOT_IN_USE)
-@@ -411,11 +414,10 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
- 	if (offset)
- 		skb_reserve(descr->skb, GELIC_NET_RXBUF_ALIGN - offset);
- 	/* io-mmu-map the skb */
--	descr->buf_addr = cpu_to_be32(dma_map_single(ctodev(card),
--						     descr->skb->data,
--						     GELIC_NET_MAX_FRAME,
--						     DMA_FROM_DEVICE));
--	if (!descr->buf_addr) {
-+	cpu_addr = dma_map_single(ctodev(card), descr->skb->data,
-+				  GELIC_NET_MAX_FRAME, DMA_FROM_DEVICE);
-+	descr->buf_addr = cpu_to_be32(cpu_addr);
-+	if (dma_mapping_error(ctodev(card), cpu_addr)) {
- 		dev_kfree_skb_any(descr->skb);
- 		descr->skb = NULL;
- 		dev_info(ctodev(card),
-@@ -795,7 +797,7 @@ static int gelic_descr_prepare_tx(struct gelic_card *card,
- 
- 	buf = dma_map_single(ctodev(card), skb->data, skb->len, DMA_TO_DEVICE);
- 
--	if (!buf) {
-+	if (dma_mapping_error(ctodev(card), buf)) {
- 		dev_err(ctodev(card),
- 			"dma map 2 failed (%p, %i). Dropping packet\n",
- 			skb->data, skb->len);
+ err_release_regions:
 -- 
 2.39.2
 
