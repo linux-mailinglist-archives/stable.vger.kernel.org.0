@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 813A16D49C9
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF8C86D487B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233801AbjDCOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54948 "EHLO
+        id S233407AbjDCO3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233798AbjDCOlW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64DEF17ADF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:21 -0700 (PDT)
+        with ESMTP id S233399AbjDCO3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76486319B0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DD30B81CF3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE3EC433D2;
-        Mon,  3 Apr 2023 14:41:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E640617B9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2588EC433D2;
+        Mon,  3 Apr 2023 14:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532878;
-        bh=a7axbQYD8z8Xc7gCC1YfckJxcJAG4ev05FD4JTZNsjc=;
+        s=korg; t=1680532138;
+        bh=7kY+R7Lbs29oei3mRtewtiaJwB/b3MIPNLcDcJ6Z3NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifrLexNifsaEAFMg6yect8hAcQ5kQOOOfOLPSE3V1cZSiDRMDSgbsuozyY1gVx3uH
-         mieNW22PEg2dFrhvS36Mf3UwJpGYUVuJJohyDaXzbnMzXA7jWMBLPeKiDW9q3Y02WM
-         Jt9ohLpJrNtyRNQyTb9P9J/A7F/Y0nu17GgiI7oE=
+        b=2udnSsTOepvRswF4WA22jvX2VGZMrHRx5DYi6ZiDsEMzTSkr0jik4VUxln1zx6lfN
+         GHJsndEioXwNZUWJ6LJtUlJ6ChamZg4MsD4ItDCzAaFmwwHrTu8woK+VNiNT3RVdNW
+         e5MoWD30Mf7b4gXwcs/seuViciK3fSORri2sIKAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthias Benkmann <matthias.benkmann@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 121/181] Input: xpad - fix incorrectly applied patch for MAP_PROFILE_BUTTON
+Subject: [PATCH 5.10 141/173] bnxt_en: Fix typo in PCI id to device description string mapping
 Date:   Mon,  3 Apr 2023 16:09:16 +0200
-Message-Id: <20230403140419.015468929@linuxfoundation.org>
+Message-Id: <20230403140419.027995812@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,48 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Benkmann <matthias.benkmann@gmail.com>
+From: Kalesh AP <kalesh-anakkur.purayil@broadcom.com>
 
-[ Upstream commit ffa6206ebf8d39e83d87ac226df68dbbe155819a ]
+[ Upstream commit 62aad36ed31abc80f35db11e187e690448a79f7d ]
 
-When commit commit fff1011a26d6 ("Input: xpad - add X-Box Adaptive Profile
-button") was applied, one hunk ended up in the wrong function; move it to
-where it belongs.
+Fix 57502 and 57508 NPAR description string entries.  The typos
+caused these devices to not match up with lspci output.
 
-Fixes: fff1011a26d6 ("Input: xpad - add X-Box Adaptive Profile button")
-Signed-off-by: Matthias Benkmann <matthias.benkmann@gmail.com>
-Link: https://lore.kernel.org/r/20230318162106.0aef4ba5@ninja
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 49c98421e6ab ("bnxt_en: Add PCI IDs for 57500 series NPAR devices.")
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Kalesh AP <kalesh-anakkur.purayil@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/xpad.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 2959d80f7fdb6..cd36cf7165423 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -779,9 +779,6 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- 	input_report_key(dev, BTN_C, data[8]);
- 	input_report_key(dev, BTN_Z, data[9]);
- 
--	/* Profile button has a value of 0-3, so it is reported as an axis */
--	if (xpad->mapping & MAP_PROFILE_BUTTON)
--		input_report_abs(dev, ABS_PROFILE, data[34]);
- 
- 	input_sync(dev);
- }
-@@ -1059,6 +1056,10 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
- 					(__u16) le16_to_cpup((__le16 *)(data + 8)));
- 		}
- 
-+		/* Profile button has a value of 0-3, so it is reported as an axis */
-+		if (xpad->mapping & MAP_PROFILE_BUTTON)
-+			input_report_abs(dev, ABS_PROFILE, data[34]);
-+
- 		/* paddle handling */
- 		/* based on SDL's SDL_hidapi_xboxone.c */
- 		if (xpad->mapping & MAP_PADDLES) {
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 6928c0b578abb..3a9fcf942a6de 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -219,12 +219,12 @@ static const struct pci_device_id bnxt_pci_tbl[] = {
+ 	{ PCI_VDEVICE(BROADCOM, 0x1750), .driver_data = BCM57508 },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1751), .driver_data = BCM57504 },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1752), .driver_data = BCM57502 },
+-	{ PCI_VDEVICE(BROADCOM, 0x1800), .driver_data = BCM57508_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1800), .driver_data = BCM57502_NPAR },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1801), .driver_data = BCM57504_NPAR },
+-	{ PCI_VDEVICE(BROADCOM, 0x1802), .driver_data = BCM57502_NPAR },
+-	{ PCI_VDEVICE(BROADCOM, 0x1803), .driver_data = BCM57508_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1802), .driver_data = BCM57508_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1803), .driver_data = BCM57502_NPAR },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1804), .driver_data = BCM57504_NPAR },
+-	{ PCI_VDEVICE(BROADCOM, 0x1805), .driver_data = BCM57502_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1805), .driver_data = BCM57508_NPAR },
+ 	{ PCI_VDEVICE(BROADCOM, 0xd802), .driver_data = BCM58802 },
+ 	{ PCI_VDEVICE(BROADCOM, 0xd804), .driver_data = BCM58804 },
+ #ifdef CONFIG_BNXT_SRIOV
 -- 
 2.39.2
 
