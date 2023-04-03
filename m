@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A354E6D4938
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6EF6D47F4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233614AbjDCOf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
+        id S233235AbjDCOYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233643AbjDCOf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B020B16F09
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:53 -0700 (PDT)
+        with ESMTP id S233231AbjDCOYr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:24:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129DF1BD3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:24:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4865A61E62
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57AD5C433EF;
-        Mon,  3 Apr 2023 14:35:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C89E9B81BEF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:24:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29488C433EF;
+        Mon,  3 Apr 2023 14:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532552;
-        bh=zP9/bSNw2glLDw9aV4XlM9z05uvHQn095S2s1KTv3Vo=;
+        s=korg; t=1680531873;
+        bh=PP/5HoECrVOFSBjjMOznLKDhna6ItXoPmRQGXoE1gfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdqX6myPSvY7jJTzop47sK2VIR5SzAW449x+aLUmM8bU8r/bG0cDW5ZR8RNiBUqAF
-         29pTQjjqH51RwPcrn1JAq9RlMvGqgGhwU6RyjUyHF9rgMx09BIhtTtcUAi7562b5tM
-         HG4yheypbvGsShh/UFnQuO65fX2T/AdYQahVMcKs=
+        b=FrUton7I3SPopJv/LzLLLdYpYdmjq+CBFyGsR8dIDCmc5drX01BJSPXdx6N6XUcZy
+         3JQyNn2FMcQ2+o4oThBDeRqKDwQLHAt+LdHdC7llZLdGEss8VlesQOHlPwkE/jMX3+
+         2s1UhktoDCDhUfTwdkC5251w3iw7+86+OP6ud1q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Alexander Duyck <alexanderduyck@fb.com>,
+        Geoff Levand <geoff@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 019/181] drm/msm/dpu: correct sm8250 and sm8350 scaler
+Subject: [PATCH 5.10 039/173] net/ps3_gelic_net: Use dma_mapping_error
 Date:   Mon,  3 Apr 2023 16:07:34 +0200
-Message-Id: <20230403140415.752132240@linuxfoundation.org>
+Message-Id: <20230403140415.666145899@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Geoff Levand <geoff@infradead.org>
 
-[ Upstream commit 03c0c3cb22a4ff29afba1b43f0330289ea80433f ]
+[ Upstream commit bebe933d35a63d4f042fbf4dce4f22e689ba0fcd ]
 
-QSEED4 is a newer variant of QSEED3LITE, which should be used on
-sm8250 and sm8350. Fix the DPU caps structure and used feature masks.
+The current Gelic Etherenet driver was checking the return value of its
+dma_map_single call, and not using the dma_mapping_error() routine.
 
-Fixes: d21fc5dfc3df ("drm/msm/dpu1: add support for qseed3lite used on sm8250")
-Fixes: 0e91bcbb0016 ("drm/msm/dpu: Add SM8350 to hw catalog")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/522229/
-Link: https://lore.kernel.org/r/20230211231259.1308718-10-dmitry.baryshkov@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes runtime problems like these:
+
+  DMA-API: ps3_gelic_driver sb_05: device driver failed to check map error
+  WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:1027 .check_unmap+0x888/0x8dc
+
+Fixes: 02c1889166b4 ("ps3: gigabit ethernet driver for PS3, take3")
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/toshiba/ps3_gelic_net.c | 24 +++++++++++---------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index bbd884c8e0cb1..b1131860ada17 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -356,7 +356,7 @@ static const struct dpu_caps sc8180x_dpu_caps = {
- static const struct dpu_caps sm8250_dpu_caps = {
- 	.max_mixer_width = DEFAULT_DPU_OUTPUT_LINE_WIDTH,
- 	.max_mixer_blendstages = 0xb,
--	.qseed_type = DPU_SSPP_SCALER_QSEED3LITE,
-+	.qseed_type = DPU_SSPP_SCALER_QSEED4,
- 	.smart_dma_rev = DPU_SSPP_SMART_DMA_V2, /* TODO: v2.5 */
- 	.ubwc_version = DPU_HW_UBWC_VER_40,
- 	.has_src_split = true,
-@@ -855,22 +855,22 @@ static const struct dpu_sspp_cfg sc7180_sspp[] = {
- };
+diff --git a/drivers/net/ethernet/toshiba/ps3_gelic_net.c b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+index 013011285dd01..524098a7b6585 100644
+--- a/drivers/net/ethernet/toshiba/ps3_gelic_net.c
++++ b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+@@ -317,15 +317,17 @@ static int gelic_card_init_chain(struct gelic_card *card,
  
- static const struct dpu_sspp_sub_blks sm8250_vig_sblk_0 =
--				_VIG_SBLK("0", 5, DPU_SSPP_SCALER_QSEED3LITE);
-+				_VIG_SBLK("0", 5, DPU_SSPP_SCALER_QSEED4);
- static const struct dpu_sspp_sub_blks sm8250_vig_sblk_1 =
--				_VIG_SBLK("1", 6, DPU_SSPP_SCALER_QSEED3LITE);
-+				_VIG_SBLK("1", 6, DPU_SSPP_SCALER_QSEED4);
- static const struct dpu_sspp_sub_blks sm8250_vig_sblk_2 =
--				_VIG_SBLK("2", 7, DPU_SSPP_SCALER_QSEED3LITE);
-+				_VIG_SBLK("2", 7, DPU_SSPP_SCALER_QSEED4);
- static const struct dpu_sspp_sub_blks sm8250_vig_sblk_3 =
--				_VIG_SBLK("3", 8, DPU_SSPP_SCALER_QSEED3LITE);
-+				_VIG_SBLK("3", 8, DPU_SSPP_SCALER_QSEED4);
+ 	/* set up the hardware pointers in each descriptor */
+ 	for (i = 0; i < no; i++, descr++) {
++		dma_addr_t cpu_addr;
++
+ 		gelic_descr_set_status(descr, GELIC_DESCR_DMA_NOT_IN_USE);
+-		descr->bus_addr =
+-			dma_map_single(ctodev(card), descr,
+-				       GELIC_DESCR_SIZE,
+-				       DMA_BIDIRECTIONAL);
  
- static const struct dpu_sspp_cfg sm8250_sspp[] = {
--	SSPP_BLK("sspp_0", SSPP_VIG0, 0x4000, VIG_SM8250_MASK,
-+	SSPP_BLK("sspp_0", SSPP_VIG0, 0x4000, VIG_SC7180_MASK,
- 		sm8250_vig_sblk_0, 0,  SSPP_TYPE_VIG, DPU_CLK_CTRL_VIG0),
--	SSPP_BLK("sspp_1", SSPP_VIG1, 0x6000, VIG_SM8250_MASK,
-+	SSPP_BLK("sspp_1", SSPP_VIG1, 0x6000, VIG_SC7180_MASK,
- 		sm8250_vig_sblk_1, 4,  SSPP_TYPE_VIG, DPU_CLK_CTRL_VIG1),
--	SSPP_BLK("sspp_2", SSPP_VIG2, 0x8000, VIG_SM8250_MASK,
-+	SSPP_BLK("sspp_2", SSPP_VIG2, 0x8000, VIG_SC7180_MASK,
- 		sm8250_vig_sblk_2, 8, SSPP_TYPE_VIG, DPU_CLK_CTRL_VIG2),
--	SSPP_BLK("sspp_3", SSPP_VIG3, 0xa000, VIG_SM8250_MASK,
-+	SSPP_BLK("sspp_3", SSPP_VIG3, 0xa000, VIG_SC7180_MASK,
- 		sm8250_vig_sblk_3, 12,  SSPP_TYPE_VIG, DPU_CLK_CTRL_VIG3),
- 	SSPP_BLK("sspp_8", SSPP_DMA0, 0x24000,  DMA_SDM845_MASK,
- 		sdm845_dma_sblk_0, 1, SSPP_TYPE_DMA, DPU_CLK_CTRL_DMA0),
+-		if (!descr->bus_addr)
++		cpu_addr = dma_map_single(ctodev(card), descr,
++					  GELIC_DESCR_SIZE, DMA_BIDIRECTIONAL);
++
++		if (dma_mapping_error(ctodev(card), cpu_addr))
+ 			goto iommu_error;
+ 
++		descr->bus_addr = cpu_to_be32(cpu_addr);
+ 		descr->next = descr + 1;
+ 		descr->prev = descr - 1;
+ 	}
+@@ -375,6 +377,7 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
+ 	static const unsigned int rx_skb_size =
+ 		ALIGN(GELIC_NET_MAX_FRAME, GELIC_NET_RXBUF_ALIGN) +
+ 		GELIC_NET_RXBUF_ALIGN - 1;
++	dma_addr_t cpu_addr;
+ 	int offset;
+ 
+ 	if (gelic_descr_get_status(descr) !=  GELIC_DESCR_DMA_NOT_IN_USE)
+@@ -396,11 +399,10 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
+ 	if (offset)
+ 		skb_reserve(descr->skb, GELIC_NET_RXBUF_ALIGN - offset);
+ 	/* io-mmu-map the skb */
+-	descr->buf_addr = cpu_to_be32(dma_map_single(ctodev(card),
+-						     descr->skb->data,
+-						     GELIC_NET_MAX_FRAME,
+-						     DMA_FROM_DEVICE));
+-	if (!descr->buf_addr) {
++	cpu_addr = dma_map_single(ctodev(card), descr->skb->data,
++				  GELIC_NET_MAX_FRAME, DMA_FROM_DEVICE);
++	descr->buf_addr = cpu_to_be32(cpu_addr);
++	if (dma_mapping_error(ctodev(card), cpu_addr)) {
+ 		dev_kfree_skb_any(descr->skb);
+ 		descr->skb = NULL;
+ 		dev_info(ctodev(card),
+@@ -780,7 +782,7 @@ static int gelic_descr_prepare_tx(struct gelic_card *card,
+ 
+ 	buf = dma_map_single(ctodev(card), skb->data, skb->len, DMA_TO_DEVICE);
+ 
+-	if (!buf) {
++	if (dma_mapping_error(ctodev(card), buf)) {
+ 		dev_err(ctodev(card),
+ 			"dma map 2 failed (%p, %i). Dropping packet\n",
+ 			skb->data, skb->len);
 -- 
 2.39.2
 
