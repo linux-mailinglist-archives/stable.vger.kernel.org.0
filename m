@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C7136D491C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F96B6D49D7
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233629AbjDCOfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42698 "EHLO
+        id S233806AbjDCOls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:41:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233631AbjDCOfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8AF217658
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:51 -0700 (PDT)
+        with ESMTP id S233807AbjDCOls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B23217AEF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7984061E59
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DE5AC4339B;
-        Mon,  3 Apr 2023 14:34:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4F4FB81CF8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF55C433EF;
+        Mon,  3 Apr 2023 14:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532465;
-        bh=iVDkv8kGe/IQdtLp0iSlgIIPgrNQvSUUR42GMN+nEuU=;
+        s=korg; t=1680532904;
+        bh=XUfDKX8PfXQd2m13y8FvqIvW3p/kwCgWW7vbiS39yGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KR4a2Gi+qoR8IKLpg1ei6ct3ZOX3tdJEfSeuMZQTw6Gn+Fu46oGTsOn7WrwZnES16
-         4IcIxKiGIKtq3VufCPVzWfQTD2e6FAzg8aNT5pYFMoxzHC6QE8lry3pRV0+ryGRgay
-         ak3c5nN82FMVwAvVe1s/Evm8WFhRYlD+FAkqVTww=
+        b=WfBcK6ycBky5Si5HK8GfalugAjmwW0Tv0fRRpOaa4rT6T5qxtv2I32i7/8RnrpFlG
+         5la/VZ6OI1AMVckIDdaZqkJwoNaOxh2rmzdGsQwFIQCrj0Gw+AFsPZ7ANYyfMQrAfv
+         UuvDiksyB7Gc0XE4PGOqmqYXBWjEihNO6TyT382g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 94/99] selftests/bpf: Test btf dump for struct with padding only fields
+        patches@lists.linux.dev, Yuan Perry <Perry.Yuan@amd.com>,
+        Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 162/181] drm/amdgpu: allow more APUs to do mode2 reset when go to S4
 Date:   Mon,  3 Apr 2023 16:09:57 +0200
-Message-Id: <20230403140406.875007168@linuxfoundation.org>
+Message-Id: <20230403140420.354439226@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,51 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eduard Zingerman <eddyz87@gmail.com>
+From: Tim Huang <tim.huang@amd.com>
 
-[ Upstream commit d503f1176b14f722a40ea5110312614982f9a80b ]
+commit 2fec9dc8e0acc3dfb56d1389151bcf405f087b10 upstream.
 
-Structures with zero regular fields but some padding constitute a
-special case in btf_dump.c:btf_dump_emit_struct_def with regards to
-newline before closing '}'.
+Skip mode2 reset only for IMU enabled APUs when do S4.
 
-Signed-off-by: Eduard Zingerman <eddyz87@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20221001104425.415768-2-eddyz87@gmail.com
-Stable-dep-of: ea2ce1ba99aa ("libbpf: Fix BTF-to-C converter's padding logic")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is to fix the regression issue
+https://gitlab.freedesktop.org/drm/amd/-/issues/2483
+It is generated by commit b589626674de ("drm/amdgpu: skip ASIC reset
+for APUs when go to S4").
+
+Fixes: b589626674de ("drm/amdgpu: skip ASIC reset for APUs when go to S4")
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2483
+Tested-by:  Yuan  Perry <Perry.Yuan@amd.com>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../selftests/bpf/progs/btf_dump_test_case_padding.c     | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
-index 35c512818a56b..db5458da61826 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
-@@ -102,12 +102,21 @@ struct zone {
- 	struct zone_padding __pad__;
- };
- 
-+/* ----- START-EXPECTED-OUTPUT ----- */
-+struct padding_wo_named_members {
-+	long: 64;
-+	long: 64;
-+};
-+
-+/* ------ END-EXPECTED-OUTPUT ------ */
-+
- int f(struct {
- 	struct padded_implicitly _1;
- 	struct padded_explicitly _2;
- 	struct padded_a_lot _3;
- 	struct padded_cache_line _4;
- 	struct zone _5;
-+	struct padding_wo_named_members _6;
- } *_)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+index 60b1857f469e..aeeec211861c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -981,7 +981,12 @@ static bool amdgpu_atcs_pci_probe_handle(struct pci_dev *pdev)
+  */
+ bool amdgpu_acpi_should_gpu_reset(struct amdgpu_device *adev)
  {
- 	return 0;
+-	if (adev->flags & AMD_IS_APU)
++	if ((adev->flags & AMD_IS_APU) &&
++	    adev->gfx.imu.funcs) /* Not need to do mode2 reset for IMU enabled APUs */
++		return false;
++
++	if ((adev->flags & AMD_IS_APU) &&
++	    amdgpu_acpi_is_s3_active(adev))
+ 		return false;
+ 
+ 	if (amdgpu_sriov_vf(adev))
 -- 
-2.39.2
+2.40.0
 
 
 
