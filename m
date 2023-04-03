@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1616D49FC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A426D4922
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233088AbjDCOnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:43:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
+        id S233630AbjDCOfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:35:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233852AbjDCOnI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E18F18274
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:43 -0700 (PDT)
+        with ESMTP id S233585AbjDCOfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049F0EF88
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D56EC61583
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8703C433EF;
-        Mon,  3 Apr 2023 14:42:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6337CB81C87
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4398C433D2;
+        Mon,  3 Apr 2023 14:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532962;
-        bh=1dQzuZPz+jnbnzOpl70GQpZ4Y71D3bu64CjXhtVCbsE=;
+        s=korg; t=1680532492;
+        bh=DVsWSBvy+EpPeMBt0bjXaMfpsBY6XhGAU0Y/OE6SH4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWQR57bX+F8xyKtnJrA821OWOdxQfulIVIi7M4SBhJDWIT0W2QfdYyErdTOHjKNsq
-         Rg2dfjxELIQarwMo21kUnDh2nrxV/86cm2kbUPe13pfvVnbzXPQrQywyl8UzCZ3xHP
-         37VYuhZtZgl9XNMyfGUS6uQXiHqFGTLy9Cv8a+f0=
+        b=DV174mfLWNcHaw8T9c3+gtEbvp0p/GmMEStNpPw+90ihjw7kfKHyPYV9vxxnUavnH
+         V9lkXnCMRZxXjqHqQsTFLaS4mxpraelpQ+HVfYc56OYro9yiMuUtwV2utMFWOeMRLs
+         EsnSg83M7QRxxFusc2IWvr0TLdwtd4dEdJ97q8Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 153/181] ALSA: usb-audio: Fix regression on detection of Roland VS-100
+        patches@lists.linux.dev,
+        Douglas Raillard <douglas.raillard@arm.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.15 85/99] rcu: Fix rcu_torture_read ftrace event
 Date:   Mon,  3 Apr 2023 16:09:48 +0200
-Message-Id: <20230403140420.039436920@linuxfoundation.org>
+Message-Id: <20230403140406.588323049@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,46 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Douglas Raillard <douglas.raillard@arm.com>
 
-commit fa4e7a6fa12b1132340785e14bd439cbe95b7a5a upstream.
+commit d18a04157fc171fd48075e3dc96471bd3b87f0dd upstream.
 
-It's been reported that the recent kernel can't probe the PCM devices
-on Roland VS-100 properly, and it turned out to be a regression by the
-recent addition of the bit shift range check for the format bits.
-In the old code, we just did bit-shift and it resulted in zero, which
-is then corrected to the standard PCM format, while the new code
-explicitly returns an error in such a case.
+Fix the rcutorturename field so that its size is correctly reported in
+the text format embedded in trace.dat files. As it stands, it is
+reported as being of size 1:
 
-For addressing the regression, relax the check and fallback to the
-standard PCM type (with the info output).
+    field:char rcutorturename[8];   offset:8;       size:1; signed:0;
 
-Fixes: 43d5ca88dfcd ("ALSA: usb-audio: Fix potential out-of-bounds shift")
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217084
-Link: https://lore.kernel.org/r/20230324075005.19403-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Cc: stable@vger.kernel.org
+Fixes: 04ae87a52074e ("ftrace: Rework event_create_dir()")
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+[ boqun: Add "Cc" and "Fixes" tags per Steven ]
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/format.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ include/trace/events/rcu.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -39,8 +39,12 @@ static u64 parse_audio_format_i_type(str
- 	case UAC_VERSION_1:
- 	default: {
- 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
--		if (format >= 64)
--			return 0; /* invalid format */
-+		if (format >= 64) {
-+			usb_audio_info(chip,
-+				       "%u:%d: invalid format type 0x%llx is detected, processed as PCM\n",
-+				       fp->iface, fp->altsetting, format);
-+			format = UAC_FORMAT_TYPE_I_PCM;
-+		}
- 		sample_width = fmt->bBitResolution;
- 		sample_bytes = fmt->bSubframeSize;
- 		format = 1ULL << format;
+--- a/include/trace/events/rcu.h
++++ b/include/trace/events/rcu.h
+@@ -768,7 +768,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
+ 	TP_ARGS(rcutorturename, rhp, secs, c_old, c),
+ 
+ 	TP_STRUCT__entry(
+-		__field(char, rcutorturename[RCUTORTURENAME_LEN])
++		__array(char, rcutorturename, RCUTORTURENAME_LEN)
+ 		__field(struct rcu_head *, rhp)
+ 		__field(unsigned long, secs)
+ 		__field(unsigned long, c_old)
 
 
