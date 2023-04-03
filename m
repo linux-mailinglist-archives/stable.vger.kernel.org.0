@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5796D6D4AE5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC796D4AE6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234145AbjDCOvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36842 "EHLO
+        id S234218AbjDCOvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234142AbjDCOur (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944FE35032
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:13 -0700 (PDT)
+        with ESMTP id S234161AbjDCOuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A75028EAB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7DC661843
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCEEDC433D2;
-        Mon,  3 Apr 2023 14:50:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E934B81D77
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F067C433EF;
+        Mon,  3 Apr 2023 14:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533412;
-        bh=duG2v45e11lxeLkR+NFhv1VqCMvhwhJOv3fpi58oGJ0=;
+        s=korg; t=1680533414;
+        bh=I+7wxY6ajxodHY5GQ91m19+hQEwXVt3H4dkv8pOr3bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCzKoeB9iei23fA4I61rtMRi1LrcTMZoQGth1jT+xLTfcHYwAM9mMl3Rxy846KFeH
-         i/agBFdEq/WXxYbxzit4nPqIdjBeb9+jVzKeJBDiZD2nI1KEWSO89zRCXeeG70zBt7
-         X51lNQGgxV1vOmFtfUZFhZ7ocU+6edQgbl/dfg6Y=
+        b=MGVNVdXfKo4hUV6uDROJwCpUQz9ZmLi+VVBMm5J37dTvyjFGpgaP6vNSPqc7Ppg2B
+         57H1L3ptoPyOADypxqoNoIjmpU+/U4CWmh03aPmdkrFHtYBZ6KYUJxdJMAV52GdTYM
+         8mErVaZlhU4m3gw3tal5O7ZDE4mmUwlfoTd6/fr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Manasi Navare <navaremanasi@google.com>,
         Drew Davenport <ddavenport@chromium.org>,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
         Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.2 173/187] drm/i915: Disable DC states for all commits
-Date:   Mon,  3 Apr 2023 16:10:18 +0200
-Message-Id: <20230403140421.937079993@linuxfoundation.org>
+Subject: [PATCH 6.2 174/187] drm/i915: Split icl_color_commit_noarm() from skl_color_commit_noarm()
+Date:   Mon,  3 Apr 2023 16:10:19 +0200
+Message-Id: <20230403140421.978453625@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -59,104 +59,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit a2b6e99d8a623544f3bdccd28ee35b9c1b00daa5 upstream.
+commit 76b767d4d1cd052e455cf18e06929e8b2b70101d upstream.
 
-Keeping DC states enabled is incompatible with the _noarm()/_arm()
-split we use for writing pipe/plane registers. When DC5 and PSR
-are enabled, all pipe/plane registers effectively become self-arming
-on account of DC5 exit arming the update, and PSR exit latching it.
+We're going to want different behavior for skl/glk vs. icl
+in .color_commit_noarm(), so split the hook into two. Arguably
+we already had slightly different behaviour since
+csc_enable/gamma_enable are never set on icl+, so the old
+code was perhaps a bit confusing as well.
 
-What probably saves us most of the time is that (with PIPE_MISC[21]=0)
-all pipe register writes themselves trigger PSR exit, and then
-we don't re-enter PSR until the idle frame count has elapsed.
-So it may be that the PSR exit happens already before we've
-updated the state too much.
-
-Also the PSR1 panel (at least on this KBL) seems to discard the first
-frame we trasmit, presumably still scanning out from its internal
-framebuffer at that point. So only the second frame we transmit is
-actually visible. But I suppose that could also be panel specific
-behaviour. I haven't checked out how other PSR panels behave, nor
-did I bother to check what the eDP spec has to say about this.
-
-And since this really is all about DC states, let's switch from
-the MODESET domain to the DC_OFF domain. Functionally they are
-100% identical. We should probably remove the MODESET domain...
-
-And for good measure let's toss in an assert to the place where
-we do the _noarm() register writes to make sure DC states are
-in fact off.
-
-v2: Just use intel_display_power_is_enabled() (Imre)
-
-Cc: <stable@vger.kernel.org> #v5.17+
+Cc: <stable@vger.kernel.org> #v5.19+
 Cc: Manasi Navare <navaremanasi@google.com>
 Cc: Drew Davenport <ddavenport@chromium.org>
+Cc: Imre Deak <imre.deak@intel.com>
 Cc: Jouni Högander <jouni.hogander@intel.com>
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-Fixes: d13dde449580 ("drm/i915: Split pipe+output CSC programming to noarm+arm pair")
-Fixes: f8a005eb8972 ("drm/i915: Optimize icl+ universal plane programming")
-Fixes: 890b6ec4a522 ("drm/i915: Split skl+ plane update into noarm+arm pair")
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230320183532.17727-1-ville.syrjala@linux.intel.com
-(cherry picked from commit 41b4c7fe72b6105a4b49395eea9aa40cef94288d)
+Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-2-ville.syrjala@linux.intel.com
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+(cherry picked from commit f161eb01f50ab31f2084975b43bce54b7b671e17)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_display.c |   28 ++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_color.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -7107,6 +7107,8 @@ static void intel_update_crtc(struct int
+--- a/drivers/gpu/drm/i915/display/intel_color.c
++++ b/drivers/gpu/drm/i915/display/intel_color.c
+@@ -574,6 +574,25 @@ static void skl_color_commit_arm(const s
+ 			  crtc_state->csc_mode);
+ }
  
- 	intel_fbc_update(state, crtc);
- 
-+	drm_WARN_ON(&i915->drm, !intel_display_power_is_enabled(i915, POWER_DOMAIN_DC_OFF));
++static void icl_color_commit_arm(const struct intel_crtc_state *crtc_state)
++{
++	struct intel_crtc *crtc = to_intel_crtc(crtc_state->uapi.crtc);
++	struct drm_i915_private *i915 = to_i915(crtc->base.dev);
++	enum pipe pipe = crtc->pipe;
 +
- 	if (!modeset &&
- 	    intel_crtc_needs_color_update(new_crtc_state))
- 		intel_color_commit_noarm(new_crtc_state);
-@@ -7480,8 +7482,28 @@ static void intel_atomic_commit_tail(str
- 	drm_atomic_helper_wait_for_dependencies(&state->base);
- 	drm_dp_mst_atomic_wait_for_dependencies(&state->base);
- 
--	if (state->modeset)
--		wakeref = intel_display_power_get(dev_priv, POWER_DOMAIN_MODESET);
 +	/*
-+	 * During full modesets we write a lot of registers, wait
-+	 * for PLLs, etc. Doing that while DC states are enabled
-+	 * is not a good idea.
-+	 *
-+	 * During fastsets and other updates we also need to
-+	 * disable DC states due to the following scenario:
-+	 * 1. DC5 exit and PSR exit happen
-+	 * 2. Some or all _noarm() registers are written
-+	 * 3. Due to some long delay PSR is re-entered
-+	 * 4. DC5 entry -> DMC saves the already written new
-+	 *    _noarm() registers and the old not yet written
-+	 *    _arm() registers
-+	 * 5. DC5 exit -> DMC restores a mixture of old and
-+	 *    new register values and arms the update
-+	 * 6. PSR exit -> hardware latches a mixture of old and
-+	 *    new register values -> corrupted frame, or worse
-+	 * 7. New _arm() registers are finally written
-+	 * 8. Hardware finally latches a complete set of new
-+	 *    register values, and subsequent frames will be OK again
++	 * We don't (yet) allow userspace to control the pipe background color,
++	 * so force it to black.
 +	 */
-+	wakeref = intel_display_power_get(dev_priv, POWER_DOMAIN_DC_OFF);
- 
- 	intel_atomic_prepare_plane_clear_colors(state);
- 
-@@ -7625,8 +7647,8 @@ static void intel_atomic_commit_tail(str
- 		 * the culprit.
- 		 */
- 		intel_uncore_arm_unclaimed_mmio_detection(&dev_priv->uncore);
--		intel_display_power_put(dev_priv, POWER_DOMAIN_MODESET, wakeref);
- 	}
-+	intel_display_power_put(dev_priv, POWER_DOMAIN_DC_OFF, wakeref);
- 	intel_runtime_pm_put(&dev_priv->runtime_pm, state->wakeref);
- 
- 	/*
++	intel_de_write(i915, SKL_BOTTOM_COLOR(pipe), 0);
++
++	intel_de_write(i915, GAMMA_MODE(crtc->pipe),
++		       crtc_state->gamma_mode);
++
++	intel_de_write_fw(i915, PIPE_CSC_MODE(crtc->pipe),
++			  crtc_state->csc_mode);
++}
++
+ static struct drm_property_blob *
+ create_linear_lut(struct drm_i915_private *i915, int lut_size)
+ {
+@@ -2287,7 +2306,7 @@ static const struct intel_color_funcs i9
+ static const struct intel_color_funcs icl_color_funcs = {
+ 	.color_check = icl_color_check,
+ 	.color_commit_noarm = icl_color_commit_noarm,
+-	.color_commit_arm = skl_color_commit_arm,
++	.color_commit_arm = icl_color_commit_arm,
+ 	.load_luts = icl_load_luts,
+ 	.read_luts = icl_read_luts,
+ };
 
 
