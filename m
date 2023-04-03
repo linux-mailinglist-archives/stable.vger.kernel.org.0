@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA146D4A91
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE95A6D4868
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234050AbjDCOs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:48:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36770 "EHLO
+        id S233366AbjDCO2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234052AbjDCOrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C28D2A593
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:55 -0700 (PDT)
+        with ESMTP id S233363AbjDCO2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F56A59D2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D3E4B81D5A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF1CC433EF;
-        Mon,  3 Apr 2023 14:46:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE49161DBF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E29B9C433EF;
+        Mon,  3 Apr 2023 14:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533210;
-        bh=8xbVRTF9ZztDD4+eufl19RlMg14b2/KeL98vGIONwmY=;
+        s=korg; t=1680532102;
+        bh=z8bIqu+tjn/drb5jNXVqkU7gfS8hovNTfUF4ll+5mIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VucZW4SbLbe42+W3AzelxN7eOjpZAzGOdU8Jh/hVMlHY06LrUVng5vDPp6Y1XMT5H
-         kNP8xVzdj9S1qJh+BUgCYBPfzU4yKZb32iii4JGRvplp1qQG9gRhWiM18s6UuErba1
-         RIdcE3mp4xae9CF1EqukFVNwaVwpOHcgGsclT3WQ=
+        b=Q/aYYGl2eipNt+yuTt9mxsblBd9Ym5raHoJZ/nLxu04ymTYKEjx7RyMknf6V3jKWy
+         gfxXvXk22vMPNLPCS32Lb1xr7y/EMp4HwawoiRhyFOK6zMdgO/TIGpOrKsYy2nTLr/
+         ybFML1gfZByRHfquyVdt4DczcC879KWGvFrbLm0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com,
-        Ivan Orlov <ivan.orlov0322@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Tianhao Zhao <tizhao@redhat.com>,
+        Jonathan Cooper <jonathan.s.cooper@amd.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 097/187] can: bcm: bcm_tx_setup(): fix KMSAN uninit-value in vfs_write
-Date:   Mon,  3 Apr 2023 16:09:02 +0200
-Message-Id: <20230403140419.168448584@linuxfoundation.org>
+Subject: [PATCH 5.10 128/173] sfc: ef10: dont overwrite offload features at NIC reset
+Date:   Mon,  3 Apr 2023 16:09:03 +0200
+Message-Id: <20230403140418.591640030@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,116 +56,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Orlov <ivan.orlov0322@gmail.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 2b4c99f7d9a57ecd644eda9b1fb0a1072414959f ]
+[ Upstream commit ca4a80e4bb7e87daf33b27d2ab9e4f5311018a89 ]
 
-Syzkaller reported the following issue:
+At NIC reset, some offload features related to encapsulated traffic
+might have changed (this mainly happens if the firmware-variant is
+changed with the sfboot userspace tool). Because of this, features are
+checked and set again at reset time.
 
-=====================================================
-BUG: KMSAN: uninit-value in aio_rw_done fs/aio.c:1520 [inline]
-BUG: KMSAN: uninit-value in aio_write+0x899/0x950 fs/aio.c:1600
- aio_rw_done fs/aio.c:1520 [inline]
- aio_write+0x899/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+However, this was not done right, and some features were improperly
+overwritten at NIC reset:
+- Tunneled IPv6 segmentation was always disabled
+- Features disabled with ethtool were reenabled
+- Features that becomes unsupported after the reset were not disabled
 
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc+0x11d/0x3b0 mm/slab_common.c:981
- kmalloc_array include/linux/slab.h:636 [inline]
- bcm_tx_setup+0x80e/0x29d0 net/can/bcm.c:930
- bcm_sendmsg+0x3a2/0xce0 net/can/bcm.c:1351
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- sock_write_iter+0x495/0x5e0 net/socket.c:1108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Also, checking if the device supports IPV6_CSUM to enable TSO6 is no
+longer necessary because all currently supported devices support it.
+Additionally, move the assignment of some other features to the
+EF10_OFFLOAD_FEATURES macro, like it is done in ef100, leaving the
+selection of features in efx_pci_probe_post_io a bit cleaner.
 
-CPU: 1 PID: 5034 Comm: syz-executor350 Not tainted 6.2.0-rc6-syzkaller-80422-geda666ff2276 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
-=====================================================
-
-We can follow the call chain and find that 'bcm_tx_setup' function
-calls 'memcpy_from_msg' to copy some content to the newly allocated
-frame of 'op->frames'. After that the 'len' field of copied structure
-being compared with some constant value (64 or 8). However, if
-'memcpy_from_msg' returns an error, we will compare some uninitialized
-memory. This triggers 'uninit-value' issue.
-
-This patch will add 'memcpy_from_msg' possible errors processing to
-avoid uninit-value issue.
-
-Tested via syzkaller
-
-Reported-by: syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=47f897f8ad958bbde5790ebf389b5e7e0a345089
-Signed-off-by: Ivan Orlov <ivan.orlov0322@gmail.com>
-Fixes: 6f3b911d5f29b ("can: bcm: add support for CAN FD frames")
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230314120445.12407-1-ivan.orlov0322@gmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: ffffd2454a7a ("sfc: correctly advertise tunneled IPv6 segmentation")
+Fixes: 24b2c3751aa3 ("sfc: advertise encapsulated offloads on EF10")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Suggested-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
+Tested-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20230323083417.7345-1-ihuguet@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/sfc/ef10.c | 38 ++++++++++++++++++++++-----------
+ drivers/net/ethernet/sfc/efx.c  | 17 ++++++---------
+ 2 files changed, 33 insertions(+), 22 deletions(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index 27706f6ace34a..a962ec2b8ba5b 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -941,6 +941,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index eb1be73020822..32654fe1f8b59 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -1304,7 +1304,8 @@ static void efx_ef10_fini_nic(struct efx_nic *efx)
+ static int efx_ef10_init_nic(struct efx_nic *efx)
+ {
+ 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+-	netdev_features_t hw_enc_features = 0;
++	struct net_device *net_dev = efx->net_dev;
++	netdev_features_t tun_feats, tso_feats;
+ 	int rc;
  
- 			cf = op->frames + op->cfsiz * i;
- 			err = memcpy_from_msg((u8 *)cf, msg, op->cfsiz);
-+			if (err < 0)
-+				goto free_op;
+ 	if (nic_data->must_check_datapath_caps) {
+@@ -1349,20 +1350,30 @@ static int efx_ef10_init_nic(struct efx_nic *efx)
+ 		nic_data->must_restore_piobufs = false;
+ 	}
  
- 			if (op->flags & CAN_FD_FRAME) {
- 				if (cf->len > 64)
-@@ -950,12 +952,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 					err = -EINVAL;
- 			}
+-	/* add encapsulated checksum offload features */
++	/* encap features might change during reset if fw variant changed */
+ 	if (efx_has_cap(efx, VXLAN_NVGRE) && !efx_ef10_is_vf(efx))
+-		hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+-	/* add encapsulated TSO features */
+-	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
+-		netdev_features_t encap_tso_features;
++		net_dev->hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
++	else
++		net_dev->hw_enc_features &= ~(NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
  
--			if (err < 0) {
--				if (op->frames != &op->sframe)
--					kfree(op->frames);
--				kfree(op);
--				return err;
--			}
-+			if (err < 0)
-+				goto free_op;
+-		encap_tso_features = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
+-			NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
++	tun_feats = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
++		    NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
++	tso_feats = NETIF_F_TSO | NETIF_F_TSO6;
  
- 			if (msg_head->flags & TX_CP_CAN_ID) {
- 				/* copy can_id into frame */
-@@ -1026,6 +1024,12 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 		bcm_tx_start_timer(op);
+-		hw_enc_features |= encap_tso_features | NETIF_F_TSO;
+-		efx->net_dev->features |= encap_tso_features;
++	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
++		/* If this is first nic_init, or if it is a reset and a new fw
++		 * variant has added new features, enable them by default.
++		 * If the features are not new, maintain their current value.
++		 */
++		if (!(net_dev->hw_features & tun_feats))
++			net_dev->features |= tun_feats;
++		net_dev->hw_enc_features |= tun_feats | tso_feats;
++		net_dev->hw_features |= tun_feats;
++	} else {
++		net_dev->hw_enc_features &= ~(tun_feats | tso_feats);
++		net_dev->hw_features &= ~tun_feats;
++		net_dev->features &= ~tun_feats;
+ 	}
+-	efx->net_dev->hw_enc_features = hw_enc_features;
  
- 	return msg_head->nframes * op->cfsiz + MHSIZ;
+ 	/* don't fail init if RSS setup doesn't work */
+ 	rc = efx->type->rx_push_rss_config(efx, false,
+@@ -3977,7 +3988,10 @@ static unsigned int ef10_check_caps(const struct efx_nic *efx,
+ 	 NETIF_F_HW_VLAN_CTAG_FILTER |	\
+ 	 NETIF_F_IPV6_CSUM |		\
+ 	 NETIF_F_RXHASH |		\
+-	 NETIF_F_NTUPLE)
++	 NETIF_F_NTUPLE |		\
++	 NETIF_F_SG |			\
++	 NETIF_F_RXCSUM |		\
++	 NETIF_F_RXALL)
+ 
+ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
+ 	.is_vf = true,
+diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
+index 29c8d2c990044..c069659c9e2d0 100644
+--- a/drivers/net/ethernet/sfc/efx.c
++++ b/drivers/net/ethernet/sfc/efx.c
+@@ -1045,21 +1045,18 @@ static int efx_pci_probe_post_io(struct efx_nic *efx)
+ 	}
+ 
+ 	/* Determine netdevice features */
+-	net_dev->features |= (efx->type->offload_features | NETIF_F_SG |
+-			      NETIF_F_TSO | NETIF_F_RXCSUM | NETIF_F_RXALL);
+-	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM)) {
+-		net_dev->features |= NETIF_F_TSO6;
+-		if (efx_has_cap(efx, TX_TSO_V2_ENCAP))
+-			net_dev->hw_enc_features |= NETIF_F_TSO6;
+-	}
+-	/* Check whether device supports TSO */
+-	if (!efx->type->tso_versions || !efx->type->tso_versions(efx))
+-		net_dev->features &= ~NETIF_F_ALL_TSO;
++	net_dev->features |= efx->type->offload_features;
 +
-+free_op:
-+	if (op->frames != &op->sframe)
-+		kfree(op->frames);
-+	kfree(op);
-+	return err;
- }
++	/* Add TSO features */
++	if (efx->type->tso_versions && efx->type->tso_versions(efx))
++		net_dev->features |= NETIF_F_TSO | NETIF_F_TSO6;
++
+ 	/* Mask for features that also apply to VLAN devices */
+ 	net_dev->vlan_features |= (NETIF_F_HW_CSUM | NETIF_F_SG |
+ 				   NETIF_F_HIGHDMA | NETIF_F_ALL_TSO |
+ 				   NETIF_F_RXCSUM);
  
- /*
++	/* Determine user configurable features */
+ 	net_dev->hw_features |= net_dev->features & ~efx->fixed_features;
+ 
+ 	/* Disable receiving frames with bad FCS, by default. */
 -- 
 2.39.2
 
