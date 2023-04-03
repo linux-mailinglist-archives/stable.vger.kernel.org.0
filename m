@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC796D4AE6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 845B86D4AED
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbjDCOvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38376 "EHLO
+        id S234213AbjDCOvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234161AbjDCOuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A75028EAB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:18 -0700 (PDT)
+        with ESMTP id S234229AbjDCOvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B746F29054
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E934B81D77
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F067C433EF;
-        Mon,  3 Apr 2023 14:50:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C931BB81D72
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27779C433D2;
+        Mon,  3 Apr 2023 14:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533414;
-        bh=I+7wxY6ajxodHY5GQ91m19+hQEwXVt3H4dkv8pOr3bI=;
+        s=korg; t=1680533417;
+        bh=falNg0Dvc1ulElg6acVOUYX9K0AxNPNv6ZGvapuJOOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGVNVdXfKo4hUV6uDROJwCpUQz9ZmLi+VVBMm5J37dTvyjFGpgaP6vNSPqc7Ppg2B
-         57H1L3ptoPyOADypxqoNoIjmpU+/U4CWmh03aPmdkrFHtYBZ6KYUJxdJMAV52GdTYM
-         8mErVaZlhU4m3gw3tal5O7ZDE4mmUwlfoTd6/fr0=
+        b=OmqjscS4hkUhxdkfGMQWQDbm5oIIJY+hpjFjBV1TuIu4D3lurRbejDF7lh4Q9wgSu
+         iYinlRGmNCKwOkRYV5lzQgnRtJ+paFZNuaYxOG9b0D3FXjq0OlzlrgWD+FNi8wHLgI
+         v7Jqa4BTvUxFX1tqWxP8HOMMiYwOPib34IG4sChY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,9 +38,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.2 174/187] drm/i915: Split icl_color_commit_noarm() from skl_color_commit_noarm()
-Date:   Mon,  3 Apr 2023 16:10:19 +0200
-Message-Id: <20230403140421.978453625@linuxfoundation.org>
+Subject: [PATCH 6.2 175/187] drm/i915: Move CSC load back into .color_commit_arm() when PSR is enabled on skl/glk
+Date:   Mon,  3 Apr 2023 16:10:20 +0200
+Message-Id: <20230403140422.019873757@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -48,8 +48,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,65 +59,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 76b767d4d1cd052e455cf18e06929e8b2b70101d upstream.
+commit a8e03e00b62073b494886dbff32f8b5338066c8b upstream.
 
-We're going to want different behavior for skl/glk vs. icl
-in .color_commit_noarm(), so split the hook into two. Arguably
-we already had slightly different behaviour since
-csc_enable/gamma_enable are never set on icl+, so the old
-code was perhaps a bit confusing as well.
+SKL/GLK CSC unit suffers from a nasty issue where a CSC
+coeff/offset register read or write between DC5 exit and
+PSR exit will undo the CSC arming performed by DMC, and
+then during PSR exit the hardware will latch zeroes into
+the active CSC registers. This causes any plane going
+through the CSC to output all black.
+
+We can sidestep the issue by making sure the PSR exit has
+already actually happened before we touch the CSC coeff/offset
+registers. Easiest way to guarantee that is to just move the
+CSC programming back into the .color_commir_arm() as we force
+a PSR exit (and crucially wait for it to actually happen)
+prior to touching the arming registers.
+
+When PSR (and thus also DC states) are disabled we don't
+have anything to worry about, so we can keep using the
+more optional _noarm() hook for writing the CSC registers.
 
 Cc: <stable@vger.kernel.org> #v5.19+
 Cc: Manasi Navare <navaremanasi@google.com>
 Cc: Drew Davenport <ddavenport@chromium.org>
 Cc: Imre Deak <imre.deak@intel.com>
 Cc: Jouni Högander <jouni.hogander@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8283
+Fixes: d13dde449580 ("drm/i915: Split pipe+output CSC programming to noarm+arm pair")
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-2-ville.syrjala@linux.intel.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-3-ville.syrjala@linux.intel.com
 Reviewed-by: Imre Deak <imre.deak@intel.com>
-(cherry picked from commit f161eb01f50ab31f2084975b43bce54b7b671e17)
+(cherry picked from commit 80a892a4c2428b65366721599fc5fe50eaed35fd)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_color.c |   21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_color.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
 --- a/drivers/gpu/drm/i915/display/intel_color.c
 +++ b/drivers/gpu/drm/i915/display/intel_color.c
-@@ -574,6 +574,25 @@ static void skl_color_commit_arm(const s
- 			  crtc_state->csc_mode);
+@@ -514,6 +514,22 @@ static void icl_color_commit_noarm(const
+ 	icl_load_csc_matrix(crtc_state);
  }
  
-+static void icl_color_commit_arm(const struct intel_crtc_state *crtc_state)
++static void skl_color_commit_noarm(const struct intel_crtc_state *crtc_state)
 +{
-+	struct intel_crtc *crtc = to_intel_crtc(crtc_state->uapi.crtc);
-+	struct drm_i915_private *i915 = to_i915(crtc->base.dev);
-+	enum pipe pipe = crtc->pipe;
-+
 +	/*
-+	 * We don't (yet) allow userspace to control the pipe background color,
-+	 * so force it to black.
++	 * Possibly related to display WA #1184, SKL CSC loses the latched
++	 * CSC coeff/offset register values if the CSC registers are disarmed
++	 * between DC5 exit and PSR exit. This will cause the plane(s) to
++	 * output all black (until CSC_MODE is rearmed and properly latched).
++	 * Once PSR exit (and proper register latching) has occurred the
++	 * danger is over. Thus when PSR is enabled the CSC coeff/offset
++	 * register programming will be peformed from skl_color_commit_arm()
++	 * which is called after PSR exit.
 +	 */
-+	intel_de_write(i915, SKL_BOTTOM_COLOR(pipe), 0);
-+
-+	intel_de_write(i915, GAMMA_MODE(crtc->pipe),
-+		       crtc_state->gamma_mode);
-+
-+	intel_de_write_fw(i915, PIPE_CSC_MODE(crtc->pipe),
-+			  crtc_state->csc_mode);
++	if (!crtc_state->has_psr)
++		ilk_load_csc_matrix(crtc_state);
 +}
 +
- static struct drm_property_blob *
- create_linear_lut(struct drm_i915_private *i915, int lut_size)
+ static void ilk_color_commit_noarm(const struct intel_crtc_state *crtc_state)
  {
-@@ -2287,7 +2306,7 @@ static const struct intel_color_funcs i9
- static const struct intel_color_funcs icl_color_funcs = {
- 	.color_check = icl_color_check,
- 	.color_commit_noarm = icl_color_commit_noarm,
--	.color_commit_arm = skl_color_commit_arm,
-+	.color_commit_arm = icl_color_commit_arm,
- 	.load_luts = icl_load_luts,
- 	.read_luts = icl_read_luts,
- };
+ 	ilk_load_csc_matrix(crtc_state);
+@@ -556,6 +572,9 @@ static void skl_color_commit_arm(const s
+ 	enum pipe pipe = crtc->pipe;
+ 	u32 val = 0;
+ 
++	if (crtc_state->has_psr)
++		ilk_load_csc_matrix(crtc_state);
++
+ 	/*
+ 	 * We don't (yet) allow userspace to control the pipe background color,
+ 	 * so force it to black, but apply pipe gamma and CSC appropriately
+@@ -2313,7 +2332,7 @@ static const struct intel_color_funcs ic
+ 
+ static const struct intel_color_funcs glk_color_funcs = {
+ 	.color_check = glk_color_check,
+-	.color_commit_noarm = ilk_color_commit_noarm,
++	.color_commit_noarm = skl_color_commit_noarm,
+ 	.color_commit_arm = skl_color_commit_arm,
+ 	.load_luts = glk_load_luts,
+ 	.read_luts = glk_read_luts,
+@@ -2321,7 +2340,7 @@ static const struct intel_color_funcs gl
+ 
+ static const struct intel_color_funcs skl_color_funcs = {
+ 	.color_check = ivb_color_check,
+-	.color_commit_noarm = ilk_color_commit_noarm,
++	.color_commit_noarm = skl_color_commit_noarm,
+ 	.color_commit_arm = skl_color_commit_arm,
+ 	.load_luts = bdw_load_luts,
+ 	.read_luts = NULL,
 
 
