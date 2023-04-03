@@ -2,168 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C656D4994
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 210396D4A79
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbjDCOjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
+        id S234116AbjDCOrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:47:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233746AbjDCOjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8009331988
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:16 -0700 (PDT)
+        with ESMTP id S234045AbjDCOrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDEE16944
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAF5BB81CA8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F86C4339B;
-        Mon,  3 Apr 2023 14:39:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5BE661F4C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB54EC433D2;
+        Mon,  3 Apr 2023 14:46:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532753;
-        bh=a6mG5FKb02q1bL/eeUGR4r4kXmqIN29jjEwlBJPRBmQ=;
+        s=korg; t=1680533200;
+        bh=GOXd9LLtlIxzb3c3U7731ypA6ZZjJbJNhuTwL8ZiXNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2aHHphisj3y5q53w/id63YTgTX/0/XQIzwf0UQwiHDr5358DpVmzWUEdXWQiAXF8
-         wHwtcx1A8uZcdvEp1QVkDjdNiTmrGUAJ+pguHUoe9c2Ym0WvxSFeGuq8F4+pWErX/L
-         DvKephEy7rPS3KbsNgSsypB0HxtHq7zc4Y1oplRk=
+        b=TRQier/bXseFWY9rSGN48GcMoG7jx6TCak9dsgEKGYu4w2P6M60Mmkzlnk11m5djh
+         mlKJG5bAJjAw1D8XmD6qY8OiXUvxul1GiHaFTL/nhHNJLaH5nEz5jJoHJjJ9sjE7HD
+         KfnuTvpVhV7LHbRXmAPv2bdikKfLq64wMWAo9gDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Ashutosh Dixit <ashutosh.dixit@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 103/181] net: mvpp2: classifier flow fix fragmentation flags
+Subject: [PATCH 6.2 093/187] drm/i915/pmu: Use functions common with sysfs to read actual freq
 Date:   Mon,  3 Apr 2023 16:08:58 +0200
-Message-Id: <20230403140418.455667676@linuxfoundation.org>
+Message-Id: <20230403140419.038292110@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.7 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,UPPERCASE_50_75 autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Ashutosh Dixit <ashutosh.dixit@intel.com>
 
-[ Upstream commit 9a251cae51d57289908222e6c322ca61fccc25fd ]
+[ Upstream commit 12d4eb20d9d86fae5f84117ff047e966e470f7b9 ]
 
-Add missing IP Fragmentation Flag.
+Expose intel_rps_read_actual_frequency_fw to read the actual freq without
+taking forcewake for use by PMU. The code is refactored to use a common set
+of functions across sysfs and PMU. Using common functions with sysfs in PMU
+solves the issues of missing support for MTL and missing support for older
+generations (prior to Gen6). It also future proofs the PMU where sometimes
+code has been updated for sysfs and PMU has been missed.
 
-Fixes: f9358e12a0af ("net: mvpp2: split ingress traffic into multiple flows")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+v2: Remove runtime_pm_if_in_use from read_actual_frequency_fw (Tvrtko)
+
+v3: (Tvrtko)
+ - Remove goto in __read_cagf
+ - Unexport intel_rps_get_cagf and intel_rps_read_punit_req
+
+Fixes: 22009b6dad66 ("drm/i915/mtl: Modify CAGF functions for MTL")
+Link: https://gitlab.freedesktop.org/drm/intel/-/issues/8280
+Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230316004800.2539753-1-ashutosh.dixit@intel.com
+(cherry picked from commit 44df42e66139b5fac8db49ee354be279210f9816)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/mvpp2/mvpp2_cls.c    | 30 +++++++++++--------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_rps.c | 38 ++++++++++++++++-------------
+ drivers/gpu/drm/i915/gt/intel_rps.h |  4 +--
+ drivers/gpu/drm/i915/i915_pmu.c     | 10 +++-----
+ 3 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-index 41d935d1aaf6f..40aeaa7bd739f 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-@@ -62,35 +62,38 @@ static const struct mvpp2_cls_flow cls_flows[MVPP2_N_PRS_FLOWS] = {
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4 |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
+index 9ad3bc7201cba..fc73cfe0e39bb 100644
+--- a/drivers/gpu/drm/i915/gt/intel_rps.c
++++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+@@ -2074,16 +2074,6 @@ void intel_rps_sanitize(struct intel_rps *rps)
+ 		rps_disable_interrupts(rps);
+ }
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OPT |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+-u32 intel_rps_read_rpstat_fw(struct intel_rps *rps)
+-{
+-	struct drm_i915_private *i915 = rps_to_i915(rps);
+-	i915_reg_t rpstat;
+-
+-	rpstat = (GRAPHICS_VER(i915) >= 12) ? GEN12_RPSTAT1 : GEN6_RPSTAT1;
+-
+-	return intel_uncore_read_fw(rps_to_gt(rps)->uncore, rpstat);
+-}
+-
+ u32 intel_rps_read_rpstat(struct intel_rps *rps)
+ {
+ 	struct drm_i915_private *i915 = rps_to_i915(rps);
+@@ -2094,7 +2084,7 @@ u32 intel_rps_read_rpstat(struct intel_rps *rps)
+ 	return intel_uncore_read(rps_to_gt(rps)->uncore, rpstat);
+ }
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OTHER |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+-u32 intel_rps_get_cagf(struct intel_rps *rps, u32 rpstat)
++static u32 intel_rps_get_cagf(struct intel_rps *rps, u32 rpstat)
+ {
+ 	struct drm_i915_private *i915 = rps_to_i915(rps);
+ 	u32 cagf;
+@@ -2117,10 +2107,11 @@ u32 intel_rps_get_cagf(struct intel_rps *rps, u32 rpstat)
+ 	return cagf;
+ }
  
- 	/* TCP over IPv4 flows, fragmented, with vlan tag */
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
+-static u32 read_cagf(struct intel_rps *rps)
++static u32 __read_cagf(struct intel_rps *rps, bool take_fw)
+ {
+ 	struct drm_i915_private *i915 = rps_to_i915(rps);
+ 	struct intel_uncore *uncore = rps_to_uncore(rps);
++	i915_reg_t r = INVALID_MMIO_REG;
+ 	u32 freq;
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
+ 	/*
+@@ -2128,22 +2119,30 @@ static u32 read_cagf(struct intel_rps *rps)
+ 	 * registers will return 0 freq when GT is in RC6
+ 	 */
+ 	if (GRAPHICS_VER_FULL(i915) >= IP_VER(12, 70)) {
+-		freq = intel_uncore_read(uncore, MTL_MIRROR_TARGET_WP1);
++		r = MTL_MIRROR_TARGET_WP1;
+ 	} else if (GRAPHICS_VER(i915) >= 12) {
+-		freq = intel_uncore_read(uncore, GEN12_RPSTAT1);
++		r = GEN12_RPSTAT1;
+ 	} else if (IS_VALLEYVIEW(i915) || IS_CHERRYVIEW(i915)) {
+ 		vlv_punit_get(i915);
+ 		freq = vlv_punit_read(i915, PUNIT_REG_GPU_FREQ_STS);
+ 		vlv_punit_put(i915);
+ 	} else if (GRAPHICS_VER(i915) >= 6) {
+-		freq = intel_uncore_read(uncore, GEN6_RPSTAT1);
++		r = GEN6_RPSTAT1;
+ 	} else {
+-		freq = intel_uncore_read(uncore, MEMSTAT_ILK);
++		r = MEMSTAT_ILK;
+ 	}
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
++	if (i915_mmio_reg_valid(r))
++		freq = take_fw ? intel_uncore_read(uncore, r) : intel_uncore_read_fw(uncore, r);
++
+ 	return intel_rps_get_cagf(rps, freq);
+ }
  
- 	/* UDP over IPv4 flows, Not fragmented, no vlan tag */
-@@ -132,35 +135,38 @@ static const struct mvpp2_cls_flow cls_flows[MVPP2_N_PRS_FLOWS] = {
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4 |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
++static u32 read_cagf(struct intel_rps *rps)
++{
++	return __read_cagf(rps, true);
++}
++
+ u32 intel_rps_read_actual_frequency(struct intel_rps *rps)
+ {
+ 	struct intel_runtime_pm *rpm = rps_to_uncore(rps)->rpm;
+@@ -2156,7 +2155,12 @@ u32 intel_rps_read_actual_frequency(struct intel_rps *rps)
+ 	return freq;
+ }
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OPT |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+-u32 intel_rps_read_punit_req(struct intel_rps *rps)
++u32 intel_rps_read_actual_frequency_fw(struct intel_rps *rps)
++{
++	return intel_gpu_freq(rps, __read_cagf(rps, false));
++}
++
++static u32 intel_rps_read_punit_req(struct intel_rps *rps)
+ {
+ 	struct intel_uncore *uncore = rps_to_uncore(rps);
+ 	struct intel_runtime_pm *rpm = rps_to_uncore(rps)->rpm;
+diff --git a/drivers/gpu/drm/i915/gt/intel_rps.h b/drivers/gpu/drm/i915/gt/intel_rps.h
+index 9e1cad9ba0e9c..d86ddfee095ed 100644
+--- a/drivers/gpu/drm/i915/gt/intel_rps.h
++++ b/drivers/gpu/drm/i915/gt/intel_rps.h
+@@ -34,8 +34,8 @@ void intel_rps_mark_interactive(struct intel_rps *rps, bool interactive);
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OTHER |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+ int intel_gpu_freq(struct intel_rps *rps, int val);
+ int intel_freq_opcode(struct intel_rps *rps, int val);
+-u32 intel_rps_get_cagf(struct intel_rps *rps, u32 rpstat1);
+ u32 intel_rps_read_actual_frequency(struct intel_rps *rps);
++u32 intel_rps_read_actual_frequency_fw(struct intel_rps *rps);
+ u32 intel_rps_get_requested_frequency(struct intel_rps *rps);
+ u32 intel_rps_get_min_frequency(struct intel_rps *rps);
+ u32 intel_rps_get_min_raw_freq(struct intel_rps *rps);
+@@ -46,10 +46,8 @@ int intel_rps_set_max_frequency(struct intel_rps *rps, u32 val);
+ u32 intel_rps_get_rp0_frequency(struct intel_rps *rps);
+ u32 intel_rps_get_rp1_frequency(struct intel_rps *rps);
+ u32 intel_rps_get_rpn_frequency(struct intel_rps *rps);
+-u32 intel_rps_read_punit_req(struct intel_rps *rps);
+ u32 intel_rps_read_punit_req_frequency(struct intel_rps *rps);
+ u32 intel_rps_read_rpstat(struct intel_rps *rps);
+-u32 intel_rps_read_rpstat_fw(struct intel_rps *rps);
+ void gen6_rps_get_freq_caps(struct intel_rps *rps, struct intel_rps_freq_caps *caps);
+ void intel_rps_raise_unslice(struct intel_rps *rps);
+ void intel_rps_lower_unslice(struct intel_rps *rps);
+diff --git a/drivers/gpu/drm/i915/i915_pmu.c b/drivers/gpu/drm/i915/i915_pmu.c
+index 52531ab28c5f5..6d422b056f8a8 100644
+--- a/drivers/gpu/drm/i915/i915_pmu.c
++++ b/drivers/gpu/drm/i915/i915_pmu.c
+@@ -393,14 +393,12 @@ frequency_sample(struct intel_gt *gt, unsigned int period_ns)
+ 		 * case we assume the system is running at the intended
+ 		 * frequency. Fortunately, the read should rarely fail!
+ 		 */
+-		val = intel_rps_read_rpstat_fw(rps);
+-		if (val)
+-			val = intel_rps_get_cagf(rps, val);
+-		else
+-			val = rps->cur_freq;
++		val = intel_rps_read_actual_frequency_fw(rps);
++		if (!val)
++			val = intel_gpu_freq(rps, rps->cur_freq);
  
- 	/* UDP over IPv4 flows, fragmented, with vlan tag */
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
+ 		add_sample_mult(&pmu->sample[__I915_SAMPLE_FREQ_ACT],
+-				intel_gpu_freq(rps, val), period_ns / 1000);
++				val, period_ns / 1000);
+ 	}
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	/* TCP over IPv6 flows, not fragmented, no vlan tag */
+ 	if (pmu->enable & config_mask(I915_PMU_REQUESTED_FREQUENCY)) {
 -- 
 2.39.2
 
