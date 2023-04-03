@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1226D472C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CB576D4A9F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232994AbjDCORx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36612 "EHLO
+        id S234132AbjDCOtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232988AbjDCORu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:50 -0400
+        with ESMTP id S234164AbjDCOsv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:48:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F432BEF9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E379529BC1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89E0C61CBD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BEADC433EF;
-        Mon,  3 Apr 2023 14:17:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0933F61F52
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6C2C433D2;
+        Mon,  3 Apr 2023 14:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531468;
-        bh=/7UESJaSbLuYjJRWmY3fdKk3XgzPi1J1U01kCfYsG8w=;
+        s=korg; t=1680533250;
+        bh=hC3hSOEkwIzy9efsheKlHFY4fiD1g1yw28jKqQZmX6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjCk3km1GTGh5m4q1ySr1xFUQolzYylTUUdqIbJn59jsjhLIubCBGSwTaMcKkwGas
-         hnbOiav9nwq+WgUM54UAPOX2Vh4Ix5HjkJq9bBACE7SyUhdR8wFT2mbyFfoLkDYWO4
-         c9hUBHN8kNNRBnx0ETSlzHEYH2qG5r+CgY/bWat0=
+        b=L321YBU75igKsUPo/x8G/FMWnOfheunQJLQgRwEMZ7g0j4jy1TqgeECEm57CFn+oR
+         9awNUI2s38VMjdPyZ3HnJCHSSaD+NssKcVLoWyLUofDeM16Z0iClnRya+PGAq/tH3d
+         sUXD0UOG32YJ2JBFyV/kwAN+s/us2EDIC0MRiYWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 4.19 75/84] drm/etnaviv: fix reference leak when mmaping imported buffer
+        patches@lists.linux.dev,
+        M Chetan Kumar <m.chetan.kumar@linux.intel.com>,
+        Shane Parslow <shaneparslow808@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, Martin <mwolf@adiumentum.com>
+Subject: [PATCH 6.2 111/187] net: wwan: iosm: fixes 7560 modem crash
 Date:   Mon,  3 Apr 2023 16:09:16 +0200
-Message-Id: <20230403140355.999705696@linuxfoundation.org>
+Message-Id: <20230403140419.630259679@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
 
-commit 963b2e8c428f79489ceeb058e8314554ec9cbe6f upstream.
+[ Upstream commit 5f70bcbca469a087b54ad2d934185ed69a098576 ]
 
-drm_gem_prime_mmap() takes a reference on the GEM object, but before that
-drm_gem_mmap_obj() already takes a reference, which will be leaked as only
-one reference is dropped when the mapping is closed. Drop the extra
-reference when dma_buf_mmap() succeeds.
+ModemManger/Apps probing the wwan0xmmrpc0 port for 7560 Modem results in
+modem crash.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+7560 Modem FW uses the MBIM interface for control command communication
+whereas 7360 uses Intel RPC interface so disable wwan0xmmrpc0 port for
+7560.
+
+Fixes: d08b0f8f46e4 ("net: wwan: iosm: add rpc interface for xmm modems")
+Reported-and-tested-by: Martin <mwolf@adiumentum.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217200
+Signed-off-by: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
+Signed-off-by: Shane Parslow <shaneparslow808@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wwan/iosm/iosm_ipc_imem.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-@@ -91,7 +91,15 @@ static void *etnaviv_gem_prime_vmap_impl
- static int etnaviv_gem_prime_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
- 		struct vm_area_struct *vma)
- {
--	return dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	int ret;
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_imem.c b/drivers/net/wwan/iosm/iosm_ipc_imem.c
+index 1e6a479766429..c066b0040a3fe 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_imem.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_imem.c
+@@ -587,6 +587,13 @@ static void ipc_imem_run_state_worker(struct work_struct *instance)
+ 	while (ctrl_chl_idx < IPC_MEM_MAX_CHANNELS) {
+ 		if (!ipc_chnl_cfg_get(&chnl_cfg_port, ctrl_chl_idx)) {
+ 			ipc_imem->ipc_port[ctrl_chl_idx] = NULL;
 +
-+	ret = dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	if (!ret) {
-+		/* Drop the reference acquired by drm_gem_mmap_obj(). */
-+		drm_gem_object_put(&etnaviv_obj->base);
-+	}
++			if (ipc_imem->pcie->pci->device == INTEL_CP_DEVICE_7560_ID &&
++			    chnl_cfg_port.wwan_port_type == WWAN_PORT_XMMRPC) {
++				ctrl_chl_idx++;
++				continue;
++			}
 +
-+	return ret;
- }
- 
- static const struct etnaviv_gem_ops etnaviv_gem_prime_ops = {
+ 			if (ipc_imem->pcie->pci->device == INTEL_CP_DEVICE_7360_ID &&
+ 			    chnl_cfg_port.wwan_port_type == WWAN_PORT_MBIM) {
+ 				ctrl_chl_idx++;
+-- 
+2.39.2
+
 
 
