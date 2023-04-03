@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D9D6D47DF
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:24:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12E36D4931
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233170AbjDCOYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:24:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49770 "EHLO
+        id S233598AbjDCOfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:35:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233194AbjDCOX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA073AA2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:23:54 -0700 (PDT)
+        with ESMTP id S233582AbjDCOfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA3E8EF88
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDDB7B81BE8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D459C433D2;
-        Mon,  3 Apr 2023 14:23:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA32CB81CA4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350F6C4339B;
+        Mon,  3 Apr 2023 14:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531831;
-        bh=dNCakp8Nrfz218k+nbc02rJFvwGlZJSyLE4Hgo3cNjk=;
+        s=korg; t=1680532533;
+        bh=NJHF/NjHhx/f9ocyj5TyCfoMegS0VIU/roRrfmKd2jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEaiJ/jo6wiX3uCQEanUmLd3CeJ7apWHHg3/cKCNnFWVLMRG5gdLbuiTGND+oSkKh
-         Cu6HnzoKUvzxT1grZEqa2p9TE8lRrSbCWWaKjBmelsPRA47JxRENEHZwKN+HReOO+i
-         0Prg3bBtbbtGcZW3zr2jvrpL128uEOWuLEZxGw/8=
+        b=vOe4MGL+BafQcurPnt4rnvuLn/2Bp3DGIdyjJ65GJLetBdQvUsbKKEw+w7/X8BPAE
+         l5AIGM/6bFX88hJwhebl/+IpisyksfJbJEvlES0XwQszAGoUJ8IG1YBEHp4DZqFBKl
+         ok3gvYTNFL1BRjhbciPBVTT6EWyoBjKCJIQenevU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kal Conley <kal.conley@dectris.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/173] xsk: Add missing overflow check in xdp_umem_reg
+Subject: [PATCH 6.1 004/181] cifs: avoid race conditions with parallel reconnects
 Date:   Mon,  3 Apr 2023 16:07:19 +0200
-Message-Id: <20230403140415.122187473@linuxfoundation.org>
+Message-Id: <20230403140415.239397628@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,62 +54,331 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kal Conley <kal.conley@dectris.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-[ Upstream commit c7df4813b149362248d6ef7be41a311e27bf75fe ]
+[ Upstream commit bc962159e8e326af634a506508034a375bf2b858 ]
 
-The number of chunks can overflow u32. Make sure to return -EINVAL on
-overflow. Also remove a redundant u32 cast assigning umem->npgs.
+When multiple processes/channels do reconnects in parallel
+we used to return success immediately
+negotiate/session-setup/tree-connect, causing race conditions
+between processes that enter the function in parallel.
+This caused several errors related to session not found to
+show up during parallel reconnects.
 
-Fixes: bbff2f321a86 ("xsk: new descriptor addressing scheme")
-Signed-off-by: Kal Conley <kal.conley@dectris.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20230308174013.1114745-1-kal.conley@dectris.com
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xdp_umem.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/cifs/connect.c       | 48 ++++++++++++++++++++++++++++++-----------
+ fs/cifs/smb2pdu.c       | 44 +++++++++++++++++++++----------------
+ fs/cifs/smb2transport.c | 17 ++++++++++++---
+ 3 files changed, 76 insertions(+), 33 deletions(-)
 
-diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
-index 56a28a686988d..42b19feb2b6e5 100644
---- a/net/xdp/xdp_umem.c
-+++ b/net/xdp/xdp_umem.c
-@@ -153,10 +153,11 @@ static int xdp_umem_account_pages(struct xdp_umem *umem)
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 43637c1283748..077c88c49dfdf 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -261,31 +261,42 @@ cifs_mark_tcp_ses_conns_for_reconnect(struct TCP_Server_Info *server,
+ 			cifs_chan_update_iface(ses, server);
  
- static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
- {
--	u32 npgs_rem, chunk_size = mr->chunk_size, headroom = mr->headroom;
- 	bool unaligned_chunks = mr->flags & XDP_UMEM_UNALIGNED_CHUNK_FLAG;
--	u64 npgs, addr = mr->addr, size = mr->len;
--	unsigned int chunks, chunks_rem;
-+	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
-+	u64 addr = mr->addr, size = mr->len;
-+	u32 chunks_rem, npgs_rem;
-+	u64 chunks, npgs;
- 	int err;
+ 		spin_lock(&ses->chan_lock);
+-		if (!mark_smb_session && cifs_chan_needs_reconnect(ses, server))
+-			goto next_session;
++		if (!mark_smb_session && cifs_chan_needs_reconnect(ses, server)) {
++			spin_unlock(&ses->chan_lock);
++			continue;
++		}
  
- 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
-@@ -191,8 +192,8 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
- 	if (npgs > U32_MAX)
- 		return -EINVAL;
+ 		if (mark_smb_session)
+ 			CIFS_SET_ALL_CHANS_NEED_RECONNECT(ses);
+ 		else
+ 			cifs_chan_set_need_reconnect(ses, server);
  
--	chunks = (unsigned int)div_u64_rem(size, chunk_size, &chunks_rem);
--	if (chunks == 0)
-+	chunks = div_u64_rem(size, chunk_size, &chunks_rem);
-+	if (!chunks || chunks > U32_MAX)
- 		return -EINVAL;
++		cifs_dbg(FYI, "%s: channel connect bitmap: 0x%lx\n",
++			 __func__, ses->chans_need_reconnect);
++
+ 		/* If all channels need reconnect, then tcon needs reconnect */
+-		if (!mark_smb_session && !CIFS_ALL_CHANS_NEED_RECONNECT(ses))
+-			goto next_session;
++		if (!mark_smb_session && !CIFS_ALL_CHANS_NEED_RECONNECT(ses)) {
++			spin_unlock(&ses->chan_lock);
++			continue;
++		}
++		spin_unlock(&ses->chan_lock);
  
- 	if (!unaligned_chunks && chunks_rem)
-@@ -205,7 +206,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
- 	umem->headroom = headroom;
- 	umem->chunk_size = chunk_size;
- 	umem->chunks = chunks;
--	umem->npgs = (u32)npgs;
-+	umem->npgs = npgs;
- 	umem->pgs = NULL;
- 	umem->user = NULL;
- 	umem->flags = mr->flags;
++		spin_lock(&ses->ses_lock);
+ 		ses->ses_status = SES_NEED_RECON;
++		spin_unlock(&ses->ses_lock);
+ 
+ 		list_for_each_entry(tcon, &ses->tcon_list, tcon_list) {
+ 			tcon->need_reconnect = true;
++			spin_lock(&tcon->tc_lock);
+ 			tcon->status = TID_NEED_RECON;
++			spin_unlock(&tcon->tc_lock);
+ 		}
+ 		if (ses->tcon_ipc) {
+ 			ses->tcon_ipc->need_reconnect = true;
++			spin_lock(&ses->tcon_ipc->tc_lock);
+ 			ses->tcon_ipc->status = TID_NEED_RECON;
++			spin_unlock(&ses->tcon_ipc->tc_lock);
+ 		}
+-
+-next_session:
+-		spin_unlock(&ses->chan_lock);
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+ }
+@@ -4050,11 +4061,19 @@ cifs_negotiate_protocol(const unsigned int xid, struct cifs_ses *ses,
+ 
+ 	/* only send once per connect */
+ 	spin_lock(&server->srv_lock);
+-	if (!server->ops->need_neg(server) ||
++	if (server->tcpStatus != CifsGood &&
++	    server->tcpStatus != CifsNew &&
+ 	    server->tcpStatus != CifsNeedNegotiate) {
++		spin_unlock(&server->srv_lock);
++		return -EHOSTDOWN;
++	}
++
++	if (!server->ops->need_neg(server) &&
++	    server->tcpStatus == CifsGood) {
+ 		spin_unlock(&server->srv_lock);
+ 		return 0;
+ 	}
++
+ 	server->tcpStatus = CifsInNegotiate;
+ 	spin_unlock(&server->srv_lock);
+ 
+@@ -4088,23 +4107,28 @@ cifs_setup_session(const unsigned int xid, struct cifs_ses *ses,
+ 	bool is_binding = false;
+ 
+ 	spin_lock(&ses->ses_lock);
++	cifs_dbg(FYI, "%s: channel connect bitmap: 0x%lx\n",
++		 __func__, ses->chans_need_reconnect);
++
+ 	if (ses->ses_status != SES_GOOD &&
+ 	    ses->ses_status != SES_NEW &&
+ 	    ses->ses_status != SES_NEED_RECON) {
+ 		spin_unlock(&ses->ses_lock);
+-		return 0;
++		return -EHOSTDOWN;
+ 	}
+ 
+ 	/* only send once per connect */
+ 	spin_lock(&ses->chan_lock);
+-	if (CIFS_ALL_CHANS_GOOD(ses) ||
+-	    cifs_chan_in_reconnect(ses, server)) {
++	if (CIFS_ALL_CHANS_GOOD(ses)) {
++		if (ses->ses_status == SES_NEED_RECON)
++			ses->ses_status = SES_GOOD;
+ 		spin_unlock(&ses->chan_lock);
+ 		spin_unlock(&ses->ses_lock);
+ 		return 0;
+ 	}
+-	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
++
+ 	cifs_chan_set_in_reconnect(ses, server);
++	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
+ 	spin_unlock(&ses->chan_lock);
+ 
+ 	if (!is_binding)
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 83d04cd2f9df8..f0b1ae0835d71 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -199,6 +199,7 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	}
+ 	spin_unlock(&server->srv_lock);
+ 
++again:
+ 	rc = cifs_wait_for_server_reconnect(server, tcon->retry);
+ 	if (rc)
+ 		return rc;
+@@ -217,6 +218,7 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 
+ 	nls_codepage = load_nls_default();
+ 
++	mutex_lock(&ses->session_mutex);
+ 	/*
+ 	 * Recheck after acquire mutex. If another thread is negotiating
+ 	 * and the server never sends an answer the socket will be closed
+@@ -225,6 +227,11 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	spin_lock(&server->srv_lock);
+ 	if (server->tcpStatus == CifsNeedReconnect) {
+ 		spin_unlock(&server->srv_lock);
++		mutex_unlock(&ses->session_mutex);
++
++		if (tcon->retry)
++			goto again;
++
+ 		rc = -EHOSTDOWN;
+ 		goto out;
+ 	}
+@@ -234,19 +241,22 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	 * need to prevent multiple threads trying to simultaneously
+ 	 * reconnect the same SMB session
+ 	 */
++	spin_lock(&ses->ses_lock);
+ 	spin_lock(&ses->chan_lock);
+-	if (!cifs_chan_needs_reconnect(ses, server)) {
++	if (!cifs_chan_needs_reconnect(ses, server) &&
++	    ses->ses_status == SES_GOOD) {
+ 		spin_unlock(&ses->chan_lock);
+-
++		spin_unlock(&ses->ses_lock);
+ 		/* this means that we only need to tree connect */
+ 		if (tcon->need_reconnect)
+ 			goto skip_sess_setup;
+ 
++		mutex_unlock(&ses->session_mutex);
+ 		goto out;
+ 	}
+ 	spin_unlock(&ses->chan_lock);
++	spin_unlock(&ses->ses_lock);
+ 
+-	mutex_lock(&ses->session_mutex);
+ 	rc = cifs_negotiate_protocol(0, ses, server);
+ 	if (!rc) {
+ 		rc = cifs_setup_session(0, ses, server, nls_codepage);
+@@ -262,10 +272,8 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 		mutex_unlock(&ses->session_mutex);
+ 		goto out;
+ 	}
+-	mutex_unlock(&ses->session_mutex);
+ 
+ skip_sess_setup:
+-	mutex_lock(&ses->session_mutex);
+ 	if (!tcon->need_reconnect) {
+ 		mutex_unlock(&ses->session_mutex);
+ 		goto out;
+@@ -280,7 +288,7 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	cifs_dbg(FYI, "reconnect tcon rc = %d\n", rc);
+ 	if (rc) {
+ 		/* If sess reconnected but tcon didn't, something strange ... */
+-		pr_warn_once("reconnect tcon failed rc = %d\n", rc);
++		cifs_dbg(VFS, "reconnect tcon failed rc = %d\n", rc);
+ 		goto out;
+ 	}
+ 
+@@ -1252,9 +1260,9 @@ SMB2_sess_alloc_buffer(struct SMB2_sess_data *sess_data)
+ 	if (rc)
+ 		return rc;
+ 
+-	spin_lock(&ses->chan_lock);
+-	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
+-	spin_unlock(&ses->chan_lock);
++	spin_lock(&ses->ses_lock);
++	is_binding = (ses->ses_status == SES_GOOD);
++	spin_unlock(&ses->ses_lock);
+ 
+ 	if (is_binding) {
+ 		req->hdr.SessionId = cpu_to_le64(ses->Suid);
+@@ -1412,9 +1420,9 @@ SMB2_auth_kerberos(struct SMB2_sess_data *sess_data)
+ 		goto out_put_spnego_key;
+ 	}
+ 
+-	spin_lock(&ses->chan_lock);
+-	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
+-	spin_unlock(&ses->chan_lock);
++	spin_lock(&ses->ses_lock);
++	is_binding = (ses->ses_status == SES_GOOD);
++	spin_unlock(&ses->ses_lock);
+ 
+ 	/* keep session key if binding */
+ 	if (!is_binding) {
+@@ -1538,9 +1546,9 @@ SMB2_sess_auth_rawntlmssp_negotiate(struct SMB2_sess_data *sess_data)
+ 
+ 	cifs_dbg(FYI, "rawntlmssp session setup challenge phase\n");
+ 
+-	spin_lock(&ses->chan_lock);
+-	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
+-	spin_unlock(&ses->chan_lock);
++	spin_lock(&ses->ses_lock);
++	is_binding = (ses->ses_status == SES_GOOD);
++	spin_unlock(&ses->ses_lock);
+ 
+ 	/* keep existing ses id and flags if binding */
+ 	if (!is_binding) {
+@@ -1606,9 +1614,9 @@ SMB2_sess_auth_rawntlmssp_authenticate(struct SMB2_sess_data *sess_data)
+ 
+ 	rsp = (struct smb2_sess_setup_rsp *)sess_data->iov[0].iov_base;
+ 
+-	spin_lock(&ses->chan_lock);
+-	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
+-	spin_unlock(&ses->chan_lock);
++	spin_lock(&ses->ses_lock);
++	is_binding = (ses->ses_status == SES_GOOD);
++	spin_unlock(&ses->ses_lock);
+ 
+ 	/* keep existing ses id and flags if binding */
+ 	if (!is_binding) {
+diff --git a/fs/cifs/smb2transport.c b/fs/cifs/smb2transport.c
+index d827b7547ffad..790acf65a0926 100644
+--- a/fs/cifs/smb2transport.c
++++ b/fs/cifs/smb2transport.c
+@@ -81,6 +81,7 @@ int smb2_get_sign_key(__u64 ses_id, struct TCP_Server_Info *server, u8 *key)
+ 	struct cifs_ses *ses = NULL;
+ 	int i;
+ 	int rc = 0;
++	bool is_binding = false;
+ 
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 
+@@ -97,9 +98,12 @@ int smb2_get_sign_key(__u64 ses_id, struct TCP_Server_Info *server, u8 *key)
+ 	goto out;
+ 
+ found:
++	spin_lock(&ses->ses_lock);
+ 	spin_lock(&ses->chan_lock);
+-	if (cifs_chan_needs_reconnect(ses, server) &&
+-	    !CIFS_ALL_CHANS_NEED_RECONNECT(ses)) {
++
++	is_binding = (cifs_chan_needs_reconnect(ses, server) &&
++		      ses->ses_status == SES_GOOD);
++	if (is_binding) {
+ 		/*
+ 		 * If we are in the process of binding a new channel
+ 		 * to an existing session, use the master connection
+@@ -107,6 +111,7 @@ int smb2_get_sign_key(__u64 ses_id, struct TCP_Server_Info *server, u8 *key)
+ 		 */
+ 		memcpy(key, ses->smb3signingkey, SMB3_SIGN_KEY_SIZE);
+ 		spin_unlock(&ses->chan_lock);
++		spin_unlock(&ses->ses_lock);
+ 		goto out;
+ 	}
+ 
+@@ -119,10 +124,12 @@ int smb2_get_sign_key(__u64 ses_id, struct TCP_Server_Info *server, u8 *key)
+ 		if (chan->server == server) {
+ 			memcpy(key, chan->signkey, SMB3_SIGN_KEY_SIZE);
+ 			spin_unlock(&ses->chan_lock);
++			spin_unlock(&ses->ses_lock);
+ 			goto out;
+ 		}
+ 	}
+ 	spin_unlock(&ses->chan_lock);
++	spin_unlock(&ses->ses_lock);
+ 
+ 	cifs_dbg(VFS,
+ 		 "%s: Could not find channel signing key for session 0x%llx\n",
+@@ -392,11 +399,15 @@ generate_smb3signingkey(struct cifs_ses *ses,
+ 	bool is_binding = false;
+ 	int chan_index = 0;
+ 
++	spin_lock(&ses->ses_lock);
+ 	spin_lock(&ses->chan_lock);
+-	is_binding = !CIFS_ALL_CHANS_NEED_RECONNECT(ses);
++	is_binding = (cifs_chan_needs_reconnect(ses, server) &&
++		      ses->ses_status == SES_GOOD);
++
+ 	chan_index = cifs_ses_get_chan_index(ses, server);
+ 	/* TODO: introduce ref counting for channels when the can be freed */
+ 	spin_unlock(&ses->chan_lock);
++	spin_unlock(&ses->ses_lock);
+ 
+ 	/*
+ 	 * All channels use the same encryption/decryption keys but
 -- 
 2.39.2
 
