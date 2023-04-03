@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B973A6D470E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B7846D48C1
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232943AbjDCOQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34666 "EHLO
+        id S233492AbjDCObl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:31:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232947AbjDCOQk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:40 -0400
+        with ESMTP id S233477AbjDCObg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BDFE26256
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE49CD4F9B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E132761CCC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04647C433D2;
-        Mon,  3 Apr 2023 14:16:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C21F61DC8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63474C4339C;
+        Mon,  3 Apr 2023 14:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531397;
-        bh=+LAGahlCoieMvaa/zqYhaNCSTiMRtw7DvjY4ChPNe0Q=;
+        s=korg; t=1680532291;
+        bh=spU2mk02nSgoWe3tfnPu2qFBJVFM5uiI2NMJ37z2o+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kL89M1PgASX+H/kX5AoRB9TXTfoOScomnuUWpatLVRQ7RTxal28bN7+xGr24O7E6i
-         XEHrKj/R7obAVrs7JJ0zlBiEur38zqMfAddi8M7obeKv00feFYetjyS3pdYp3DvOy3
-         utU4aY1HsenYgmZpQpM4m313m8IhnoHSyWYfllt0=
+        b=nIgVv+UZeM6RnOjjHwKxr0uIGr63x0SjmsMitC2obnwGxI7sSRjYbavZErYTyJ+Ww
+         Rxzr37gmP15gEWT7l+E+vEgeRFiknCt1DqiY0seovWCJBZ3Q0rqOvUp4wSs6gjzeRq
+         gpAq37LI9vTc9V4+y90a+4oKGSLql2vaL+1/iVHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Zhang Qiao <zhangqiao22@huawei.com>
-Subject: [PATCH 4.19 48/84] sched/fair: Sanitize vruntime of entity being migrated
-Date:   Mon,  3 Apr 2023 16:08:49 +0200
-Message-Id: <20230403140355.046904707@linuxfoundation.org>
+        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 27/99] platform/x86: think-lmi: add missing type attribute
+Date:   Mon,  3 Apr 2023 16:08:50 +0200
+Message-Id: <20230403140403.992770380@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,131 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-commit a53ce18cacb477dd0513c607f187d16f0fa96f71 upstream.
+[ Upstream commit 583329dcf22e568a328a944f20427ccfc95dce01 ]
 
-Commit 829c1651e9c4 ("sched/fair: sanitize vruntime of entity being placed")
-fixes an overflowing bug, but ignore a case that se->exec_start is reset
-after a migration.
+This driver was missing the mandatory type attribute...oops.
 
-For fixing this case, we delay the reset of se->exec_start after
-placing the entity which se->exec_start to detect long sleeping task.
+Add it in along with logic to determine whether the attribute is an
+enumeration type or a string by parsing the possible_values attribute.
 
-In order to take into account a possible divergence between the clock_task
-of 2 rqs, we increase the threshold to around 104 days.
+Upstream bug https://bugzilla.kernel.org/show_bug.cgi?id=216460
 
-Fixes: 829c1651e9c4 ("sched/fair: sanitize vruntime of entity being placed")
-Originally-by: Zhang Qiao <zhangqiao22@huawei.com>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Zhang Qiao <zhangqiao22@huawei.com>
-Link: https://lore.kernel.org/r/20230317160810.107988-1-vincent.guittot@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230320003221.561750-1-mpearson-lenovo@squebb.ca
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c |    3 ++
- kernel/sched/fair.c |   53 ++++++++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 46 insertions(+), 10 deletions(-)
+ drivers/platform/x86/think-lmi.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -741,6 +741,9 @@ static inline void dequeue_task(struct r
- 
- void activate_task(struct rq *rq, struct task_struct *p, int flags)
- {
-+	if (task_on_rq_migrating(p))
-+		flags |= ENQUEUE_MIGRATED;
-+
- 	if (task_contributes_to_load(p))
- 		rq->nr_uninterruptible--;
- 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3854,11 +3854,33 @@ static void check_spread(struct cfs_rq *
- #endif
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index c4d9c45350f7c..0c166b4fa7167 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -531,6 +531,20 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
+ 	return sysfs_emit(buf, "%s\n", setting->possible_values);
  }
  
-+static inline bool entity_is_long_sleeper(struct sched_entity *se)
++static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
++		char *buf)
 +{
-+	struct cfs_rq *cfs_rq;
-+	u64 sleep_time;
++	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
 +
-+	if (se->exec_start == 0)
-+		return false;
-+
-+	cfs_rq = cfs_rq_of(se);
-+
-+	sleep_time = rq_clock_task(rq_of(cfs_rq));
-+
-+	/* Happen while migrating because of clock task divergence */
-+	if (sleep_time <= se->exec_start)
-+		return false;
-+
-+	sleep_time -= se->exec_start;
-+	if (sleep_time > ((1ULL << 63) / scale_load_down(NICE_0_LOAD)))
-+		return true;
-+
-+	return false;
++	if (setting->possible_values) {
++		/* Figure out what setting type is as BIOS does not return this */
++		if (strchr(setting->possible_values, ','))
++			return sysfs_emit(buf, "enumeration\n");
++	}
++	/* Anything else is going to be a string */
++	return sysfs_emit(buf, "string\n");
 +}
 +
- static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
- {
- 	u64 vruntime = cfs_rq->min_vruntime;
--	u64 sleep_time;
+ static ssize_t current_value_store(struct kobject *kobj,
+ 		struct kobj_attribute *attr,
+ 		const char *buf, size_t count)
+@@ -601,10 +615,13 @@ static struct kobj_attribute attr_possible_values = __ATTR_RO(possible_values);
  
- 	/*
- 	 * The 'current' period is already promised to the current tasks,
-@@ -3885,13 +3907,24 @@ place_entity(struct cfs_rq *cfs_rq, stru
+ static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 0600);
  
- 	/*
- 	 * Pull vruntime of the entity being placed to the base level of
--	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
--	 * slept for a long time, don't even try to compare its vruntime with
--	 * the base as it may be too far off and the comparison may get
--	 * inversed due to s64 overflow.
-+	 * cfs_rq, to prevent boosting it if placed backwards.
-+	 * However, min_vruntime can advance much faster than real time, with
-+	 * the extreme being when an entity with the minimal weight always runs
-+	 * on the cfs_rq. If the waking entity slept for a long time, its
-+	 * vruntime difference from min_vruntime may overflow s64 and their
-+	 * comparison may get inversed, so ignore the entity's original
-+	 * vruntime in that case.
-+	 * The maximal vruntime speedup is given by the ratio of normal to
-+	 * minimal weight: scale_load_down(NICE_0_LOAD) / MIN_SHARES.
-+	 * When placing a migrated waking entity, its exec_start has been set
-+	 * from a different rq. In order to take into account a possible
-+	 * divergence between new and prev rq's clocks task because of irq and
-+	 * stolen time, we take an additional margin.
-+	 * So, cutting off on the sleep time of
-+	 *     2^63 / scale_load_down(NICE_0_LOAD) ~ 104 days
-+	 * should be safe.
- 	 */
--	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
--	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-+	if (entity_is_long_sleeper(se))
- 		se->vruntime = vruntime;
- 	else
- 		se->vruntime = max_vruntime(se->vruntime, vruntime);
-@@ -3989,6 +4022,9 @@ enqueue_entity(struct cfs_rq *cfs_rq, st
++static struct kobj_attribute attr_type = __ATTR_RO(type);
++
+ static struct attribute *tlmi_attrs[] = {
+ 	&attr_displ_name.attr,
+ 	&attr_current_val.attr,
+ 	&attr_possible_values.attr,
++	&attr_type.attr,
+ 	NULL
+ };
  
- 	if (flags & ENQUEUE_WAKEUP)
- 		place_entity(cfs_rq, se, 0);
-+	/* Entity has migrated, no longer consider this task hot */
-+	if (flags & ENQUEUE_MIGRATED)
-+		se->exec_start = 0;
- 
- 	check_schedstat_required();
- 	update_stats_enqueue(cfs_rq, se, flags);
-@@ -6555,9 +6591,6 @@ static void migrate_task_rq_fair(struct
- 	/* Tell new CPU we are migrated */
- 	p->se.avg.last_update_time = 0;
- 
--	/* We have migrated, no longer consider this task hot */
--	p->se.exec_start = 0;
--
- 	update_scan_period(p, new_cpu);
- }
- 
+-- 
+2.39.2
+
 
 
