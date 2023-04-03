@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 375CB6D489D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E470B6D4AC0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233438AbjDCOaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S234032AbjDCOuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233437AbjDCOaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEBC31999
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:11 -0700 (PDT)
+        with ESMTP id S234198AbjDCOtq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0485E2D483
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D90661DF6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1CE1C433D2;
-        Mon,  3 Apr 2023 14:30:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 965B7B81D51
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8724C433A0;
+        Mon,  3 Apr 2023 14:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532211;
-        bh=QNDokEx/WTQv/8WCRIggFhlLEZhe8iWxxqz+qQ6/Rj4=;
+        s=korg; t=1680533323;
+        bh=DwY+yCmnnTVF6ZEf7AKk5MMt3RiJokAbP5E81GglWF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DGwfINHFX9ndQDIamMNzRRue+mStfq5qJH4rn+1eM8B8/+AvpS6sjd/+J3miSVnU1
-         KULaevL4lfxEoxBvnlM4CYYt5/veYQ165yUC/A5GqORS1vxuRY8QvgN1UUXjhvtKI4
-         JeYcUqp4ByuIE8bgxNKCrcjO2Jyd/IweWSXjZnWk=
+        b=M0kIC4Nk/axiVw/sHRmCdcaqNyzKqxPkHs/1cSPemT/aU9ICnzHdM8lLu2h2g8mMo
+         M1KyBYFRmvmAEU9lAWCnrUt+mXHz/bAzQpV880VgQjvVVntyox+PVmLDug+qXf2paE
+         MsURT+ZebEsdFoLOqmRSDiprBa06J9hv+yIusoVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 169/173] selftests/bpf: Add few corner cases to test padding handling of btf_dump
+        patches@lists.linux.dev, Christoph Hellwig <hch@infradead.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Hans Holmberg <hans.holmberg@wdc.com>
+Subject: [PATCH 6.2 139/187] zonefs: Do not propagate iomap_dio_rw() ENOTBLK error to user space
 Date:   Mon,  3 Apr 2023 16:09:44 +0200
-Message-Id: <20230403140419.914030533@linuxfoundation.org>
+Message-Id: <20230403140420.579704128@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,228 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit b148c8b9b926e257a59c8eb2cd6fa3adfd443254 ]
+commit 77af13ba3c7f91d91c377c7e2d122849bbc17128 upstream.
 
-Add few hand-crafted cases and few randomized cases found using script
-from [0] that tests btf_dump's padding logic.
+The call to invalidate_inode_pages2_range() in __iomap_dio_rw() may
+fail, in which case -ENOTBLK is returned and this error code is
+propagated back to user space trhough iomap_dio_rw() ->
+zonefs_file_dio_write() return chain. This error code is fairly obscure
+and may confuse the user. Avoid this and be consistent with the behavior
+of zonefs_file_dio_append() for similar invalidate_inode_pages2_range()
+errors by returning -EBUSY to user space when iomap_dio_rw() returns
+-ENOTBLK.
 
-  [0] https://lore.kernel.org/bpf/85f83c333f5355c8ac026f835b18d15060725fcb.camel@ericsson.com/
-
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221212211505.558851-7-andrii@kernel.org
-Stable-dep-of: 4fb877aaa179 ("libbpf: Fix btf_dump's packed struct determination")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Fixes: 8dcc1a9d90c1 ("fs: New zonefs file system")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Tested-by: Hans Holmberg <hans.holmberg@wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../bpf/progs/btf_dump_test_case_packing.c    |  61 +++++++++-
- .../bpf/progs/btf_dump_test_case_padding.c    | 104 ++++++++++++++++++
- 2 files changed, 164 insertions(+), 1 deletion(-)
+ fs/zonefs/file.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c
-index 1cef3bec1dc7f..3f7755247591c 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_packing.c
-@@ -58,7 +58,64 @@ union jump_code_union {
- 	} __attribute__((packed));
- };
+--- a/fs/zonefs/file.c
++++ b/fs/zonefs/file.c
+@@ -567,11 +567,21 @@ static ssize_t zonefs_file_dio_write(str
+ 		append = sync;
+ 	}
  
--/*------ END-EXPECTED-OUTPUT ------ */
-+/* ----- START-EXPECTED-OUTPUT ----- */
-+/*
-+ *struct nested_packed_but_aligned_struct {
-+ *	int x1;
-+ *	int x2;
-+ *};
-+ *
-+ *struct outer_implicitly_packed_struct {
-+ *	char y1;
-+ *	struct nested_packed_but_aligned_struct y2;
-+ *} __attribute__((packed));
-+ *
-+ */
-+/* ------ END-EXPECTED-OUTPUT ------ */
+-	if (append)
++	if (append) {
+ 		ret = zonefs_file_dio_append(iocb, from);
+-	else
++	} else {
++		/*
++		 * iomap_dio_rw() may return ENOTBLK if there was an issue with
++		 * page invalidation. Overwrite that error code with EBUSY to
++		 * be consistent with zonefs_file_dio_append() return value for
++		 * similar issues.
++		 */
+ 		ret = iomap_dio_rw(iocb, from, &zonefs_write_iomap_ops,
+ 				   &zonefs_write_dio_ops, 0, NULL, 0);
++		if (ret == -ENOTBLK)
++			ret = -EBUSY;
++	}
 +
-+struct nested_packed_but_aligned_struct {
-+	int x1;
-+	int x2;
-+} __attribute__((packed));
-+
-+struct outer_implicitly_packed_struct {
-+	char y1;
-+	struct nested_packed_but_aligned_struct y2;
-+};
-+/* ----- START-EXPECTED-OUTPUT ----- */
-+/*
-+ *struct usb_ss_ep_comp_descriptor {
-+ *	char: 8;
-+ *	char bDescriptorType;
-+ *	char bMaxBurst;
-+ *	short wBytesPerInterval;
-+ *};
-+ *
-+ *struct usb_host_endpoint {
-+ *	long: 64;
-+ *	char: 8;
-+ *	struct usb_ss_ep_comp_descriptor ss_ep_comp;
-+ *	long: 0;
-+ *} __attribute__((packed));
-+ *
-+ */
-+/* ------ END-EXPECTED-OUTPUT ------ */
-+
-+struct usb_ss_ep_comp_descriptor {
-+	char: 8;
-+	char bDescriptorType;
-+	char bMaxBurst;
-+	int: 0;
-+	short wBytesPerInterval;
-+} __attribute__((packed));
-+
-+struct usb_host_endpoint {
-+	long: 64;
-+	char: 8;
-+	struct usb_ss_ep_comp_descriptor ss_ep_comp;
-+	long: 0;
-+};
-+
- 
- int f(struct {
- 	struct packed_trailing_space _1;
-@@ -69,6 +126,8 @@ int f(struct {
- 	union union_is_never_packed _6;
- 	union union_does_not_need_packing _7;
- 	union jump_code_union _8;
-+	struct outer_implicitly_packed_struct _9;
-+	struct usb_host_endpoint _10;
- } *_)
- {
- 	return 0;
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
-index 28833f2694e9c..0b3cdffbfcf71 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_padding.c
-@@ -128,6 +128,98 @@ struct padding_weird_2 {
- 	char: 8;
- };
- 
-+/* ----- START-EXPECTED-OUTPUT ----- */
-+struct exact_1byte {
-+	char x;
-+};
-+
-+struct padded_1byte {
-+	char: 8;
-+};
-+
-+struct exact_2bytes {
-+	short x;
-+};
-+
-+struct padded_2bytes {
-+	short: 16;
-+};
-+
-+struct exact_4bytes {
-+	int x;
-+};
-+
-+struct padded_4bytes {
-+	int: 32;
-+};
-+
-+struct exact_8bytes {
-+	long x;
-+};
-+
-+struct padded_8bytes {
-+	long: 64;
-+};
-+
-+struct ff_periodic_effect {
-+	int: 32;
-+	short magnitude;
-+	long: 0;
-+	short phase;
-+	long: 0;
-+	int: 32;
-+	int custom_len;
-+	short *custom_data;
-+};
-+
-+struct ib_wc {
-+	long: 64;
-+	long: 64;
-+	int: 32;
-+	int byte_len;
-+	void *qp;
-+	union {} ex;
-+	long: 64;
-+	int slid;
-+	int wc_flags;
-+	long: 64;
-+	char smac[6];
-+	long: 0;
-+	char network_hdr_type;
-+};
-+
-+struct acpi_object_method {
-+	long: 64;
-+	char: 8;
-+	char type;
-+	short reference_count;
-+	char flags;
-+	short: 0;
-+	char: 8;
-+	char sync_level;
-+	long: 64;
-+	void *node;
-+	void *aml_start;
-+	union {} dispatch;
-+	long: 64;
-+	int aml_length;
-+};
-+
-+struct nested_unpacked {
-+	int x;
-+};
-+
-+struct nested_packed {
-+	struct nested_unpacked a;
-+	char c;
-+} __attribute__((packed));
-+
-+struct outer_mixed_but_unpacked {
-+	struct nested_packed b1;
-+	short a1;
-+	struct nested_packed b2;
-+};
-+
- /* ------ END-EXPECTED-OUTPUT ------ */
- 
- int f(struct {
-@@ -139,6 +231,18 @@ int f(struct {
- 	struct padding_wo_named_members _6;
- 	struct padding_weird_1 _7;
- 	struct padding_weird_2 _8;
-+	struct exact_1byte _100;
-+	struct padded_1byte _101;
-+	struct exact_2bytes _102;
-+	struct padded_2bytes _103;
-+	struct exact_4bytes _104;
-+	struct padded_4bytes _105;
-+	struct exact_8bytes _106;
-+	struct padded_8bytes _107;
-+	struct ff_periodic_effect _200;
-+	struct ib_wc _201;
-+	struct acpi_object_method _202;
-+	struct outer_mixed_but_unpacked _203;
- } *_)
- {
- 	return 0;
--- 
-2.39.2
-
+ 	if (zonefs_zone_is_seq(z) &&
+ 	    (ret > 0 || ret == -EIOCBQUEUED)) {
+ 		if (ret > 0)
 
 
