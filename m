@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1686D3F7D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:54:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB38D6D3F7E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231786AbjDCIyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
+        id S231450AbjDCIyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:54:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbjDCIyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:54:39 -0400
+        with ESMTP id S230332AbjDCIyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:54:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B265830E7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:54:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC90D1BE7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:54:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64D0EB815D1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3CC7C433D2;
-        Mon,  3 Apr 2023 08:54:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62098B815D1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:54:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA24C433D2;
+        Mon,  3 Apr 2023 08:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680512072;
-        bh=Pxn4DLFDDHgGk60bTt1GP7z1AvnNNS/WclnFdr/hqvY=;
+        s=korg; t=1680512081;
+        bh=VS4xsGVhx3S46mu5dYeXfR9zx9SZh2URDXL6zue5cZo=;
         h=Subject:To:Cc:From:Date:From;
-        b=jCoDogL+wam2w5jUVA1Xy2ErGzTiQOCOugb1nGVsD28fCkW+8dMUjIxmFp5j/wpFq
-         QfMhiGoiHGN1e3dkhFyR702D9XtJVzg4DcVPkmTzEqHjrboklWrDea78bWZ4a+GMi0
-         32WfPkpM2YMjoX2UgTAP723qx66ib5tNK5ZAkmx4=
-Subject: FAILED: patch "[PATCH] drm/i915: Add a .color_post_update() hook" failed to apply to 6.2-stable tree
+        b=NWPTknmKH1QbG+HSVpPrJ8C5n8kJcJW2DwYRrZqTgqIdgA9aVf2yHEEY8Efc7Ipte
+         9dcdk7N80ehMOL/r14DcbVD8rYZfpVGikaDB1O8Skw87vqf6LYZP/8zGKI1E504hD2
+         i8IwRrr6RZFAKfwzH3vJROFjcLnePUZ2UkutBwgw=
+Subject: FAILED: patch "[PATCH] drm/i915: Add a .color_post_update() hook" failed to apply to 6.1-stable tree
 To:     ville.syrjala@linux.intel.com, ddavenport@chromium.org,
         imre.deak@intel.com, jani.nikula@intel.com,
         jouni.hogander@intel.com, navaremanasi@google.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:54:29 +0200
-Message-ID: <2023040329-handclasp-prance-994d@gregkh>
+Date:   Mon, 03 Apr 2023 10:54:30 +0200
+Message-ID: <2023040330-seventeen-sappy-3f9a@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,24 +50,28 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
 git cherry-pick -x c880f855d1e240a956dcfce884269bad92fc849c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040329-handclasp-prance-994d@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040330-seventeen-sappy-3f9a@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
 c880f855d1e2 ("drm/i915: Add a .color_post_update() hook")
 efb2b57edf20 ("drm/i915: Move the DSB setup/cleaup into the color code")
+f5e674e92e95 ("drm/i915: Introduce intel_crtc_needs_color_update()")
+925ac8bc33bf ("drm/i915: Remove some local 'mode_changed' bools")
+52a90349f2ed ("drm/i915: Introduce intel_crtc_needs_fastset()")
+4c35e5d11900 ("drm/i915: Activate DRRS after state readout")
 
 thanks,
 
