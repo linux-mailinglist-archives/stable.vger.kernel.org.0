@@ -2,141 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CEFE6D3E67
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 09:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278AE6D3E84
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 09:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbjDCHt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 03:49:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41994 "EHLO
+        id S231749AbjDCH6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 03:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231738AbjDCHtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 03:49:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248781FDC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 00:48:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1680508117;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gg+D4CsPnhSBX6Ep/vVZ03qpNvjb7Nx0ShML5od8/7w=;
-        b=dpK8+CCEYMOjVW1FKWdtH4lgkac6A33uwEw0dVCcVp2gKueB/eJery2K5qYv8fdetpO9RK
-        Hxa2GD11D65BEVqiDawXGT7hk1xR4yY1MF/qKT3Mt16DN/8ZtKxFs226tiokXB8JXX7tze
-        KGw1lP6Gqoem56PWJg7BlxqDc0rxEmc=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-230-xzA9UF_gP_C0f7RkVDzWNw-1; Mon, 03 Apr 2023 03:48:34 -0400
-X-MC-Unique: xzA9UF_gP_C0f7RkVDzWNw-1
-Received: by mail-wm1-f69.google.com with SMTP id r11-20020a05600c458b00b003eea8d25f06so14327178wmo.1
-        for <stable@vger.kernel.org>; Mon, 03 Apr 2023 00:48:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680508113;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=gg+D4CsPnhSBX6Ep/vVZ03qpNvjb7Nx0ShML5od8/7w=;
-        b=UNbNkO6N69QIE6S8GT2gqUg5Vcm5cvVB0B67MiyJ5ZwPgxoiHKFdJpzL4L8RR2wqjq
-         KheVAtMxyFmlGmGUI6kZQqJvLlBcyP5lJ3nN28vopVVSvFjPhQZu8m/UlQL3xkiM9La1
-         jlArxTCqbUkZO72RBHbH1+LWDCOon00sYFeDfOvpWsgMZVe8NxHrKmIwc60dVaWARxfx
-         HTco6WjkeX1bE/qcAWdVLnSEKTtf7TyuDUVDAC7lpcd7gwzYSUGp13KX808V6/u1dukP
-         AvqPZu2tiBU8v851xkieQkE7J9kguU02aqjfUFOCJFYcbF2QrIMZjfaVnBS7/AMgNX5C
-         LERw==
-X-Gm-Message-State: AO0yUKXYD/a3p5ZUCjpoguSrxcW/J0vrT5praOEJqmfnS4RL4ljC+JAG
-        7lDyCP58LLXFWFAcb1aKrq6UkAswktYMuC5uW6ZpO49WCi/EJV36n5crSKikBFrL/d83BXy4lnJ
-        vZXUSAcq9FdpG7899
-X-Received: by 2002:a05:600c:2043:b0:3ee:4678:dde with SMTP id p3-20020a05600c204300b003ee46780ddemr26761749wmg.27.1680508113587;
-        Mon, 03 Apr 2023 00:48:33 -0700 (PDT)
-X-Google-Smtp-Source: AK7set+hIQJPk9AeYQ1jOGL8hezQ5AK7xpXic1LUhQyAL2YtCFuergW3icXKd9hRk2LAG4cOh0BRKQ==
-X-Received: by 2002:a05:600c:2043:b0:3ee:4678:dde with SMTP id p3-20020a05600c204300b003ee46780ddemr26761730wmg.27.1680508113216;
-        Mon, 03 Apr 2023 00:48:33 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c702:5e00:8e78:71f3:6243:77f0? (p200300cbc7025e008e7871f3624377f0.dip0.t-ipconnect.de. [2003:cb:c702:5e00:8e78:71f3:6243:77f0])
-        by smtp.gmail.com with ESMTPSA id q13-20020a7bce8d000000b003ef71d541cbsm11216347wmj.1.2023.04.03.00.48.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Apr 2023 00:48:32 -0700 (PDT)
-Message-ID: <cf4595d5-8b6c-efee-a721-c908bb3e3a5d@redhat.com>
-Date:   Mon, 3 Apr 2023 09:48:31 +0200
+        with ESMTP id S231723AbjDCH6A (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 3 Apr 2023 03:58:00 -0400
+Received: from domac.alu.hr (domac.alu.unizg.hr [161.53.235.3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 751CC7687;
+        Mon,  3 Apr 2023 00:57:55 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by domac.alu.hr (Postfix) with ESMTP id E60AF604F2;
+        Mon,  3 Apr 2023 09:57:53 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
+        t=1680508673; bh=npcvRlKenao0elOCCaduyMvW/IlxrNmXvf40wC8lN2I=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=0nkJeQFlcE6BxLro4TiO27/EmPfDUtHRO6Wq4DiIOAfFaIkaH1eD+EX5U0LBdhtS7
+         8KZ88vrf/QY9Eaw6S2PrLFdMXZyMg/ncgBRE2y4JIR0rDykiOl+WglBtpMNk7JjBKV
+         D0lowpr2wEtq0UsSmP/Tx7AND3t/lmsRVsU+EN2NQU0pwwFzKadjpr2rQQx9EPgFkP
+         cYnsR3n7YhwDa9TlHKF2Sj8tOBu5j5si3c7eksT1xzYBSzMekougfqwomZMfnWIMJz
+         6HzuYgM3RCG4/xg4w6PZ4GIC910Y29dU+k07I/PgbSn4TJ0TxIqXqjPK8OpahrG3M6
+         1/4b/QdhayqZA==
+X-Virus-Scanned: Debian amavisd-new at domac.alu.hr
+Received: from domac.alu.hr ([127.0.0.1])
+        by localhost (domac.alu.hr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 1WqrTfdiopT9; Mon,  3 Apr 2023 09:57:51 +0200 (CEST)
+Received: from [10.0.1.57] (grf-nat.grf.hr [161.53.83.23])
+        by domac.alu.hr (Postfix) with ESMTPSA id 28A65604F0;
+        Mon,  3 Apr 2023 09:57:50 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
+        t=1680508671; bh=npcvRlKenao0elOCCaduyMvW/IlxrNmXvf40wC8lN2I=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=BnNvjrkFn8P2wYH4IJwNfnoGGBfxeJ7EiAQFO6Cwpl0AIZz99sjL3cU0ijGBirVdP
+         Wh5rIPyz0HmCJoDsl4jW9A940tjXXr+9DT4XCi+4XYg+ce3+ScBmqrhuv+uLYaw5K2
+         2xTk5G+Nijk/nAV2gSmuPzNh76o5IgX0Inl+AhQvuRCpgjzsW+WubHKJW4crAuJ2JH
+         CJGvf5BGRQcO1qXCJatC357UvTd8kzFQRY9mzCMUGeHCr3tU+Zo/MVJQhOZxWAnxfO
+         oQMuOMh/wsXahLPsDfIItRj9gvjTQaZbzpHSlebyX+ilyg30OxHLrTaYRENV/BCMHC
+         JaoNgcC6Z275A==
+Message-ID: <eb08643a-eae1-dd59-ba89-bf593405c09f@alu.unizg.hr>
+Date:   Mon, 3 Apr 2023 09:57:49 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.9.1
-Subject: Re: [PATCH 01/29] Revert "userfaultfd: don't fail on unrecognized
- features"
-Content-Language: en-US
-To:     Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Leonardo Bras Soares Passos <lsoaresp@redhat.com>,
-        linux-stable <stable@vger.kernel.org>
-References: <20230330155707.3106228-1-peterx@redhat.com>
- <20230330155707.3106228-2-peterx@redhat.com>
- <CAJHvVcgDZBi6pH0BD12sQ3T+7Kr9exX1QU3-YLTd1voYhVBN0w@mail.gmail.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <CAJHvVcgDZBi6pH0BD12sQ3T+7Kr9exX1QU3-YLTd1voYhVBN0w@mail.gmail.com>
+Subject: Re: [PATCH 3/3] xhci: Free the command allocated for setting LPM if
+ we return early
+Content-Language: en-US, hr
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        linux-usb@vger.kernel.org, Stable@vger.kernel.org
+References: <20230330143056.1390020-1-mathias.nyman@linux.intel.com>
+ <20230330143056.1390020-4-mathias.nyman@linux.intel.com>
+ <2219a894-eb79-70a4-2b92-2b7ee7e1e966@alu.unizg.hr>
+ <2023040352-case-barterer-ccd1@gregkh>
+From:   Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+In-Reply-To: <2023040352-case-barterer-ccd1@gregkh>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30.03.23 21:04, Axel Rasmussen wrote:
-> On Thu, Mar 30, 2023 at 8:57 AM Peter Xu <peterx@redhat.com> wrote:
+On 3.4.2023. 9:24, Greg KH wrote:
+> On Mon, Apr 03, 2023 at 09:17:21AM +0200, Mirsad Goran Todorovac wrote:
+>> Hi, Mathias!
 >>
->> This is a proposal to revert commit 914eedcb9ba0ff53c33808.
+>> On 30.3.2023. 16:30, Mathias Nyman wrote:
+>>> The command allocated to set exit latency LPM values need to be freed in
+>>> case the command is never queued. This would be the case if there is no
+>>> change in exit latency values, or device is missing.
+>>>
+>>> Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+>>> Link: https://lore.kernel.org/linux-usb/24263902-c9b3-ce29-237b-1c3d6918f4fe@alu.unizg.hr
+>>> Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+>>> Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
+>>> Cc: <Stable@vger.kernel.org>
+>>> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+>>> ---
+>>>    drivers/usb/host/xhci.c | 1 +
+>>>    1 file changed, 1 insertion(+)
+>>>
+>>> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+>>> index bdb6dd819a3b..6307bae9cddf 100644
+>>> --- a/drivers/usb/host/xhci.c
+>>> +++ b/drivers/usb/host/xhci.c
+>>> @@ -4442,6 +4442,7 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
+>>>    	if (!virt_dev || max_exit_latency == virt_dev->current_mel) {
+>>>    		spin_unlock_irqrestore(&xhci->lock, flags);
+>>> +		xhci_free_command(xhci, command);
+>>>    		return 0;
+>>>    	}
 >>
->> I found this when writting a simple UFFDIO_API test to be the first unit
->> test in this set.  Two things breaks with the commit:
+>> There seems to be a problem with applying this patch with "git am", as it
+>> gives the following:
 >>
->>    - UFFDIO_API check was lost and missing.  According to man page, the
->>    kernel should reject ioctl(UFFDIO_API) if uffdio_api.api != 0xaa.  This
->>    check is needed if the api version will be extended in the future, or
->>    user app won't be able to identify which is a new kernel.
-> 
-> 100% agreed, this was a mistake.
-> 
+>> commit ff9de97baa02cb9362b7cb81e95bc9be424cab89
+>> Author: @ <@>
+>> Date:   Mon Apr 3 08:42:33 2023 +0200
 >>
->>    - Feature flags checks were removed, which means UFFDIO_API with a
->>    feature that does not exist will also succeed.  According to the man
->>    page, we should (and it makes sense) to reject ioctl(UFFDIO_API) if
->>    unknown features passed in.
+>>      The command allocated to set exit latency LPM values need to be freed in
+>>      case the command is never queued. This would be the case if there is no
+>>      change in exit latency values, or device is missing.
+>>
+>>      Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
+>>      Cc: <Stable@vger.kernel.org>
+>>      Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 > 
-> I still strongly disagree with reverting this part, my feeling is
-> still that doing so makes things more complicated for no reason.
+> This is already commit f6caea485555 ("xhci: Free the command allocated
+> for setting LPM if we return early") in Linus's tree, do you not see it
+> there?
 > 
-> Re: David's point, it's clearly wrong to change semantics so a thing
-> that used to work now fails. But this instead makes it more permissive
-> - existing userspace programs continue to work as-is, but *also* one
-> can achieve the same thing more simply (combine probing +
-> configuration into one step). I don't see any problem with that,
-> generally.
+> And how exactly did you save the message to apply it with 'git am'?  It
+> worked for me.
 > 
-> But, if David and others don't find my argument convincing, it isn't
-> the end of the world. It just means I have to go update my userspace
-> code to be a bit more complicated. :)
+> thanks,
+> 
+> greg k-h
 
+git am ../mathias-xhci.mail
 
-I'd probably find it more convincing if we'd started out with that 
-approach ;) . User space would have to deal with the behavior of old 
-kernels either way already? IOW, old kernels would reject the new flags, 
-new kernels would not reject them but mask them out. So changing that 
-behavior after the effects is somewhat suboptimal IMHO ... and rather 
-makes things more complicated.
+mtodorov@domac:~/linux/kernel/linux_torvalds$ cat ../mathias-xhci.mail
+From: Mathias Nyman @ 2023-03-27  9:50 UTC (permalink / raw)
+   To: mirsad.todorovac, linux-usb, linux-kernel
+   Cc: gregkh, ubuntu-devel-discuss, stern, arnd, Mathias Nyman, Stable
+
+The command allocated to set exit latency LPM values need to be freed in
+case the command is never queued. This would be the case if there is no
+change in exit latency values, or device is missing.
+
+Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+  drivers/usb/host/xhci.c | 1 +
+  1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index bdb6dd819a3b..6307bae9cddf 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4442,6 +4442,7 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
+
+         if (!virt_dev || max_exit_latency == virt_dev->current_mel) {
+                 spin_unlock_irqrestore(&xhci->lock, flags);
++               xhci_free_command(xhci, command);
+                 return 0;
+         }
+
+--
+2.25.1
+
+Sorry, no commit f6caea485555 in the "git pull":
+
+mtodorov@domac:~/linux/kernel/linux_torvalds$ git log --oneline | grep f6caea485555
+mtodorov@domac:~/linux/kernel/linux_torvalds$ git log --oneline | head -10
+10de4cefccf7 memstick: fix memory leak if card device is never registered
+feeedf59897c platform/x86: think-lmi: Clean up display of current_value on Thinkstation
+86cebdbfb8d2 platform/x86: think-lmi: Fix memory leaks when parsing ThinkStation WMI strings
+ff9de97baa02 The command allocated to set exit latency LPM values need to be freed in case the command is never queued. This would 
+be the case if there is no change in exit latency values, or device is missing.
+2ac6d07f1a81 platform/x86: think-lmi: Fix memory leak when showing current settings
+7e364e56293b Linux 6.3-rc5
+6ab608fe852b Merge tag 'for-6.3-rc4-tag' of git://git.kernel.org/pub/scm/linux/kernel/git/kdave/linux
+f95b8ea79c47 Revert "venus: firmware: Correct non-pix start and end addresses"
+a10ca0950afe Merge tag 'driver-core-6.3-rc5' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core
+95d0b9d89d78 Merge tag 'powerpc-6.3-4' of git://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux
+You have mail in /var/mail/mtodorov
+mtodorov@domac:~/linux/kernel/linux_torvalds$
+
+I don't see it here either. But it is not critical (no security issue).
+
+Have a nice day!
+
+Best regards,
+Mirsad
 
 -- 
-Thanks,
+Mirsad Todorovac
+System engineer
+Faculty of Graphic Arts | Academy of Fine Arts
+University of Zagreb
+Republic of Croatia, the European Union
 
-David / dhildenb
+Sistem inženjer
+Grafički fakultet | Akademija likovnih umjetnosti
+Sveučilište u Zagrebu
 
