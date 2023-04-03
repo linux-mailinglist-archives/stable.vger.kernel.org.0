@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 008786D4A39
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED416D4939
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233941AbjDCOpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:45:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60138 "EHLO
+        id S233627AbjDCOf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:35:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233979AbjDCOo5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B9E01825D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:39 -0700 (PDT)
+        with ESMTP id S233638AbjDCOf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A72D49F9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE04161F0A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6584C433D2;
-        Mon,  3 Apr 2023 14:44:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2EF961E79
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 014CFC433D2;
+        Mon,  3 Apr 2023 14:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533077;
-        bh=KjNWbRz+NTUDaMDdRDHdAG+ExiKm2KeUWsbNErJYR64=;
+        s=korg; t=1680532555;
+        bh=XKXMr5lMReRr8Ngfu/aYoDSGCqTAZ0Ikk8Ooz28fQj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA7PBqGDhN+d5SRLfv4zgRmJwfORuOIbQ/3CLWQon6hPRGYALM/tMoGYjQG65HKJU
-         yBN4FbG4NKF5I4dnzyNh4/avh2m8vLVmqeaQ4rOjn+780tbE2KnPsmYcyniBgiJDqB
-         1vXKBpx8Zhd90JBqkrJlxgKmII3m1OvrI7Rcbc04=
+        b=MsCUaWV4o65sz+/xDU20I17CATj+F2xk7I8piIHtJ5c9SMcPhsHT5PUoeFsvYgYJU
+         gDRdv/pLUnhuRvBtM820GV44rIV0ztqU4ksnqCVDZNxHeaj4/2IZVL6/QH81c7Fs7H
+         ZylsMmtIL32NfRgEydCFgTahcQwA9+WV00EC7SB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 018/187] ASoC: Intel: avs: da7219: Explicitly define codec format
+Subject: [PATCH 6.1 028/181] net: mscc: ocelot: fix stats region batching
 Date:   Mon,  3 Apr 2023 16:07:43 +0200
-Message-Id: <20230403140416.632446685@linuxfoundation.org>
+Message-Id: <20230403140416.078587480@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,61 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 61f368624fe4d0c25c6e9c917574b8ace51d776e ]
+[ Upstream commit 6acc72a43eac78a309160d0a7512bbc59bcdd757 ]
 
-da7219 is headset codec configured in 48000/2/S24_LE format regardless
-of front end format, so force it to be so.
+The blamed commit changed struct ocelot_stat_layout :: "u32 offset" to
+"u32 reg".
 
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230303134854.2277146-3-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+However, "u32 reg" is not quite a register address, but an enum
+ocelot_reg, which in itself encodes an enum ocelot_target target in the
+upper bits, and an index into the ocelot->map[target][] array in the
+lower bits.
+
+So, whereas the previous code comparison between stats_layout[i].offset
+and last + 1 was correct (because those "offsets" at the time were
+32-bit relative addresses), the new code, comparing layout[i].reg to
+last + 4 is not correct, because the "reg" here is an enum/index, not an
+actual register address.
+
+What we want to compare are indeed register addresses, but to do that,
+we need to actually go through the same motions as
+__ocelot_bulk_read_ix() itself.
+
+With this bug, all statistics counters are deemed by
+ocelot_prepare_stats_regions() as constituting their own region.
+(Truncated) log on VSC9959 (Felix) below (prints added by me):
+
+Before:
+
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x000]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x001]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x002]
+...
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x041]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x042]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x080]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x081]
+...
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x0ac]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x100]
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x101]
+...
+region of 1 contiguous counters starting with SYS:STAT:CNT[0x111]
+
+After:
+
+region of 67 contiguous counters starting with SYS:STAT:CNT[0x000]
+region of 45 contiguous counters starting with SYS:STAT:CNT[0x080]
+region of 18 contiguous counters starting with SYS:STAT:CNT[0x100]
+
+Since commit d87b1c08f38a ("net: mscc: ocelot: use bulk reads for
+stats") intended bulking as a performance improvement, and since now,
+with trivial-sized regions, performance is even worse than without
+bulking at all, this could easily qualify as a performance regression.
+
+Fixes: d4c367650704 ("net: mscc: ocelot: keep ocelot_stat_layout by reg address, not offset")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Acked-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/da7219.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/net/ethernet/mscc/ocelot_stats.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/avs/boards/da7219.c b/sound/soc/intel/avs/boards/da7219.c
-index acd43b6108e99..1a1d572cc1d02 100644
---- a/sound/soc/intel/avs/boards/da7219.c
-+++ b/sound/soc/intel/avs/boards/da7219.c
-@@ -117,6 +117,26 @@ static void avs_da7219_codec_exit(struct snd_soc_pcm_runtime *rtd)
- 	snd_soc_component_set_jack(asoc_rtd_to_codec(rtd, 0)->component, NULL, NULL);
- }
+diff --git a/drivers/net/ethernet/mscc/ocelot_stats.c b/drivers/net/ethernet/mscc/ocelot_stats.c
+index dbd20b125ceaf..0066219bb0e89 100644
+--- a/drivers/net/ethernet/mscc/ocelot_stats.c
++++ b/drivers/net/ethernet/mscc/ocelot_stats.c
+@@ -392,7 +392,8 @@ static int ocelot_prepare_stats_regions(struct ocelot *ocelot)
+ 		if (!ocelot->stats_layout[i].reg)
+ 			continue;
  
-+static int
-+avs_da7219_be_fixup(struct snd_soc_pcm_runtime *runrime, struct snd_pcm_hw_params *params)
-+{
-+	struct snd_interval *rate, *channels;
-+	struct snd_mask *fmt;
-+
-+	rate = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
-+	channels = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
-+	fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-+
-+	/* The ADSP will convert the FE rate to 48k, stereo */
-+	rate->min = rate->max = 48000;
-+	channels->min = channels->max = 2;
-+
-+	/* set SSP0 to 24 bit */
-+	snd_mask_none(fmt);
-+	snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S24_LE);
-+	return 0;
-+}
-+
- static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
- 			       struct snd_soc_dai_link **dai_link)
- {
-@@ -148,6 +168,7 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
- 	dl->num_platforms = 1;
- 	dl->id = 0;
- 	dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
-+	dl->be_hw_params_fixup = avs_da7219_be_fixup;
- 	dl->init = avs_da7219_codec_init;
- 	dl->exit = avs_da7219_codec_exit;
- 	dl->nonatomic = 1;
+-		if (region && ocelot->stats_layout[i].reg == last + 4) {
++		if (region && ocelot->map[SYS][ocelot->stats_layout[i].reg & REG_MASK] ==
++		    ocelot->map[SYS][last & REG_MASK] + 4) {
+ 			region->count++;
+ 		} else {
+ 			region = devm_kzalloc(ocelot->dev, sizeof(*region),
 -- 
 2.39.2
 
