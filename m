@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 417296D48EB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF3F6D47B0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbjDCOdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:33:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
+        id S233137AbjDCOWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233549AbjDCOdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04EE35039
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:52 -0700 (PDT)
+        with ESMTP id S233134AbjDCOWg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A4C13128B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34CF5B81AD8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940E8C433EF;
-        Mon,  3 Apr 2023 14:32:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78B9E61D2B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91383C433D2;
+        Mon,  3 Apr 2023 14:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532369;
-        bh=7ndKNZWViU2f84b78ppPFmwaLXby3ksYxtK1B8Y+UM8=;
+        s=korg; t=1680531732;
+        bh=R+POetAYSV5TRg5HgTiYf8CNFjTKmQTNrVBo5/RGKmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSwMgem81QCOLyRzbGdHh3Z6sziv3TXCXRjnR1avTYBsSeOItKUs1KklbT3O/Avdz
-         3r0AUXacvJ0vtT02sPbiCHwMpHOhtEkxBsA/1ccg4xiH8R6Jrxfl/xPcS762v0GxXT
-         R6Mr7shNSV77BbSm4n2awrDF5/DbTVCm/r48qPEM=
+        b=1crlUlpyzyq0HO2drV8DSYCLCRlsIftXDXyZ325y6LlCChL93jUWOZW+1Si7HMp/D
+         4hX/abOqPRDubb3FEnFOxULMvGihm3zIHkfPIKbQmn91Orm8QfJk0Ppunfu7N67ZdW
+         dPS7ntKZtEilGgSi2TcXChz1IZopmqoIIwa+E8Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Radoslaw Tyl <radoslawx.tyl@intel.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Arpana Arland <arpanax.arland@intel.com>
-Subject: [PATCH 5.15 57/99] i40e: fix registers dump after run ethtool adapter self test
-Date:   Mon,  3 Apr 2023 16:09:20 +0200
-Message-Id: <20230403140405.539108725@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 089/104] cifs: prevent infinite recursion in CIFSGetDFSRefer()
+Date:   Mon,  3 Apr 2023 16:09:21 +0200
+Message-Id: <20230403140407.645633395@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,91 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radoslaw Tyl <radoslawx.tyl@intel.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-[ Upstream commit c5cff16f461a4a434a9915a7be7ac9ced861a8a4 ]
+commit 09ba47b44d26b475bbdf9c80db9e0193d2b58956 upstream.
 
-Fix invalid registers dump from ethtool -d ethX after adapter self test
-by ethtool -t ethY. It causes invalid data display.
+We can't call smb_init() in CIFSGetDFSRefer() as cifs_reconnect_tcon()
+may end up calling CIFSGetDFSRefer() again to get new DFS referrals
+and thus causing an infinite recursion.
 
-The problem was caused by overwriting i40e_reg_list[].elements
-which is common for ethtool self test and dump.
-
-Fixes: 22dd9ae8afcc ("i40e: Rework register diagnostic")
-Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20230328172659.3906413-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Cc: stable@vger.kernel.org # 6.2
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_diag.c | 11 ++++++-----
- drivers/net/ethernet/intel/i40e/i40e_diag.h |  2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ fs/cifs/cifssmb.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.c b/drivers/net/ethernet/intel/i40e/i40e_diag.c
-index ef4d3762bf371..ca229b0efeb65 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_diag.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_diag.c
-@@ -44,7 +44,7 @@ static i40e_status i40e_diag_reg_pattern_test(struct i40e_hw *hw,
- 	return 0;
- }
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -4933,8 +4933,13 @@ CIFSGetDFSRefer(const unsigned int xid,
+ 		return -ENODEV;
  
--struct i40e_diag_reg_test_info i40e_reg_list[] = {
-+const struct i40e_diag_reg_test_info i40e_reg_list[] = {
- 	/* offset               mask         elements   stride */
- 	{I40E_QTX_CTL(0),       0x0000FFBF, 1,
- 		I40E_QTX_CTL(1) - I40E_QTX_CTL(0)},
-@@ -78,27 +78,28 @@ i40e_status i40e_diag_reg_test(struct i40e_hw *hw)
- {
- 	i40e_status ret_code = 0;
- 	u32 reg, mask;
-+	u32 elements;
- 	u32 i, j;
+ getDFSRetry:
+-	rc = smb_init(SMB_COM_TRANSACTION2, 15, ses->tcon_ipc, (void **) &pSMB,
+-		      (void **) &pSMBr);
++	/*
++	 * Use smb_init_no_reconnect() instead of smb_init() as
++	 * CIFSGetDFSRefer() may be called from cifs_reconnect_tcon() and thus
++	 * causing an infinite recursion.
++	 */
++	rc = smb_init_no_reconnect(SMB_COM_TRANSACTION2, 15, ses->tcon_ipc,
++				   (void **)&pSMB, (void **)&pSMBr);
+ 	if (rc)
+ 		return rc;
  
- 	for (i = 0; i40e_reg_list[i].offset != 0 &&
- 					     !ret_code; i++) {
- 
-+		elements = i40e_reg_list[i].elements;
- 		/* set actual reg range for dynamically allocated resources */
- 		if (i40e_reg_list[i].offset == I40E_QTX_CTL(0) &&
- 		    hw->func_caps.num_tx_qp != 0)
--			i40e_reg_list[i].elements = hw->func_caps.num_tx_qp;
-+			elements = hw->func_caps.num_tx_qp;
- 		if ((i40e_reg_list[i].offset == I40E_PFINT_ITRN(0, 0) ||
- 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(1, 0) ||
- 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(2, 0) ||
- 		     i40e_reg_list[i].offset == I40E_QINT_TQCTL(0) ||
- 		     i40e_reg_list[i].offset == I40E_QINT_RQCTL(0)) &&
- 		    hw->func_caps.num_msix_vectors != 0)
--			i40e_reg_list[i].elements =
--				hw->func_caps.num_msix_vectors - 1;
-+			elements = hw->func_caps.num_msix_vectors - 1;
- 
- 		/* test register access */
- 		mask = i40e_reg_list[i].mask;
--		for (j = 0; j < i40e_reg_list[i].elements && !ret_code; j++) {
-+		for (j = 0; j < elements && !ret_code; j++) {
- 			reg = i40e_reg_list[i].offset +
- 			      (j * i40e_reg_list[i].stride);
- 			ret_code = i40e_diag_reg_pattern_test(hw, reg, mask);
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.h b/drivers/net/ethernet/intel/i40e/i40e_diag.h
-index c3340f320a18c..1db7c6d572311 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_diag.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_diag.h
-@@ -20,7 +20,7 @@ struct i40e_diag_reg_test_info {
- 	u32 stride;	/* bytes between each element */
- };
- 
--extern struct i40e_diag_reg_test_info i40e_reg_list[];
-+extern const struct i40e_diag_reg_test_info i40e_reg_list[];
- 
- i40e_status i40e_diag_reg_test(struct i40e_hw *hw);
- i40e_status i40e_diag_eeprom_test(struct i40e_hw *hw);
--- 
-2.39.2
-
 
 
