@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD116D4970
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 828916D4821
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233703AbjDCOiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48292 "EHLO
+        id S233303AbjDCO0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbjDCOh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 792631FE1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:47 -0700 (PDT)
+        with ESMTP id S233301AbjDCO0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6529A31986
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A23BB81CA5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4C1C433EF;
-        Mon,  3 Apr 2023 14:37:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E248161D9C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0334AC433EF;
+        Mon,  3 Apr 2023 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532665;
-        bh=UgHQf1efIHBgU4uG2r7B5JWlDxv2+s1TXxnzspAXBoo=;
+        s=korg; t=1680531959;
+        bh=0FMPtk3315F7MSt5IxdOM9qvy0UdVkFPbawCxQKO86s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrGKJuNpzPSQ9IB8opJ86UlApbWwvaYl3bAcB3WzcicBOhuaXglRm2f/OXbHHKmYN
-         CFOGm8BMyKg5C6anezMJusB6HGkBdnYwIVuZFh/jWAtIDiJPKa0YU6OR+LyffBkR31
-         Bwxb7cSHDdc6LsuyBzyq/v0s1687AIfoEzmoVzw4=
+        b=Uxax0GBVc8ApVwBF6FY4I/Ueiqx11lsLoMOVj3pcmfXFkPO1zi9mDmr9LOa2MiPi7
+         NU16FBD67zAXN1McHDh4rHtXVlt7UaZKN75Dr9681Kn8pnEM5A8l0gojYIq33oPAC9
+         +YmWnrp5TiE4QgGChQdNudYksiAKTBfN4qUCrlLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Hariganesh Govindarajulu <hariganesh.govindarajulu@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 052/181] ACPI: tools: pfrut: Check if the input of level and type is in the right numeric range
+        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 072/173] scsi: lpfc: Avoid usage of list iterator variable after loop
 Date:   Mon,  3 Apr 2023 16:08:07 +0200
-Message-Id: <20230403140416.853458627@linuxfoundation.org>
+Message-Id: <20230403140416.770085108@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Yu <yu.c.chen@intel.com>
+From: Jakob Koschel <jkl820.git@gmail.com>
 
-[ Upstream commit 0bc23d8b2237a104d7f8379d687aa4cb82e2968b ]
+[ Upstream commit 2850b23e9f9ae3696e472d2883ea1b43aafa884e ]
 
-The user provides arbitrary non-numeic value to level and type,
-which could bring unexpected behavior. In this case the expected
-behavior would be to throw an error.
+If the &epd_pool->list is empty when executing
+lpfc_get_io_buf_from_expedite_pool() the function would return an invalid
+pointer. Even in the case if the list is guaranteed to be populated, the
+iterator variable should not be used after the loop to be more robust for
+future changes.
 
- pfrut -h
-usage: pfrut [OPTIONS]
-code injection:
--l, --load
--s, --stage
--a, --activate
--u, --update [stage and activate]
--q, --query
--d, --revid
-update telemetry:
--G, --getloginfo
--T, --type(0:execution, 1:history)
--L, --level(0, 1, 2, 4)
--R, --read
--D, --revid log
+Linus proposed to avoid any use of the list iterator variable after the
+loop, in the attempt to move the list iterator variable declaration into
+the macro to avoid any potential misuse after the loop [1].
 
- pfrut -T A
- pfrut -G
-log_level:0
-log_type:0
-log_revid:2
-max_data_size:65536
-chunk1_size:0
-chunk2_size:1530
-rollover_cnt:0
-reset_cnt:17
-
-Fix this by restricting the input to be in the expected range.
-
-Reported-by: Hariganesh Govindarajulu <hariganesh.govindarajulu@intel.com>
-Suggested-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
+Link: https://lore.kernel.org/r/20230301-scsi-lpfc-avoid-list-iterator-after-loop-v1-1-325578ae7561@gmail.com
+Reviewed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/acpi/tools/pfrut/pfrut.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/power/acpi/tools/pfrut/pfrut.c b/tools/power/acpi/tools/pfrut/pfrut.c
-index 52aa0351533c3..388c9e3ad0407 100644
---- a/tools/power/acpi/tools/pfrut/pfrut.c
-+++ b/tools/power/acpi/tools/pfrut/pfrut.c
-@@ -97,7 +97,7 @@ static struct option long_options[] = {
- static void parse_options(int argc, char **argv)
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 755d68b981602..923ceaba0bf30 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -20816,20 +20816,20 @@ lpfc_get_io_buf_from_private_pool(struct lpfc_hba *phba,
+ static struct lpfc_io_buf *
+ lpfc_get_io_buf_from_expedite_pool(struct lpfc_hba *phba)
  {
- 	int option_index = 0;
--	char *pathname;
-+	char *pathname, *endptr;
- 	int opt;
+-	struct lpfc_io_buf *lpfc_ncmd;
++	struct lpfc_io_buf *lpfc_ncmd = NULL, *iter;
+ 	struct lpfc_io_buf *lpfc_ncmd_next;
+ 	unsigned long iflag;
+ 	struct lpfc_epd_pool *epd_pool;
  
- 	pathname = strdup(argv[0]);
-@@ -125,11 +125,23 @@ static void parse_options(int argc, char **argv)
- 			log_getinfo = 1;
+ 	epd_pool = &phba->epd_pool;
+-	lpfc_ncmd = NULL;
+ 
+ 	spin_lock_irqsave(&epd_pool->lock, iflag);
+ 	if (epd_pool->count > 0) {
+-		list_for_each_entry_safe(lpfc_ncmd, lpfc_ncmd_next,
++		list_for_each_entry_safe(iter, lpfc_ncmd_next,
+ 					 &epd_pool->list, list) {
+-			list_del(&lpfc_ncmd->list);
++			list_del(&iter->list);
+ 			epd_pool->count--;
++			lpfc_ncmd = iter;
  			break;
- 		case 'T':
--			log_type = atoi(optarg);
-+			log_type = strtol(optarg, &endptr, 0);
-+			if (*endptr || (log_type != 0 && log_type != 1)) {
-+				printf("Number expected: type(0:execution, 1:history) - Quit.\n");
-+				exit(1);
-+			}
-+
- 			set_log_type = 1;
- 			break;
- 		case 'L':
--			log_level = atoi(optarg);
-+			log_level = strtol(optarg, &endptr, 0);
-+			if (*endptr ||
-+			    (log_level != 0 && log_level != 1 &&
-+			     log_level != 2 && log_level != 4)) {
-+				printf("Number expected: level(0, 1, 2, 4) - Quit.\n");
-+				exit(1);
-+			}
-+
- 			set_log_level = 1;
- 			break;
- 		case 'R':
+ 		}
+ 	}
 -- 
 2.39.2
 
