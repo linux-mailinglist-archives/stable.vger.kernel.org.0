@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A8236D4A2C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD26C6D4812
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233946AbjDCOou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:44:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59216 "EHLO
+        id S233225AbjDCOZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:25:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233954AbjDCOoe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABD2B280E6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:13 -0700 (PDT)
+        with ESMTP id S233274AbjDCOZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915842C9FC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B26EB6144D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6298C4339B;
-        Mon,  3 Apr 2023 14:44:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C64561D96
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4194DC433EF;
+        Mon,  3 Apr 2023 14:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533051;
-        bh=isO0RvN70ZcuYch9J00VGEUvSaWqdMj2Ho5yc7Tft/0=;
+        s=korg; t=1680531938;
+        bh=P4CzGikgM7jVUFgJYP7iZJQTknwuEyOTArmUon2XDVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xl4IhtxXYc5+eN4Kx7aSJFDP827WpNnfiVEvpI4QOaMzGBDk+xztMV/8/wYma4+ZG
-         yqRQFDN13AK4S7/fkuIpCSRpuIOmHJCJRmfRN38cdQDRnWFIZg0z24f+YW781wkeVT
-         FfBhznVoNvv29mknOiwn0qjkhQRYgBUKLnU58Mz8=
+        b=CJqZaR/G/yoMeEWZ3As2RTu67HKKuAJJ9r+dP+kp3Fmp1TFZUw1uzZ2FkiYt0KSRh
+         G48VagGqB+2hJLmb25Gvyi7IgcQ9Nnw0QNYCTvRG+9C2dqpQnvxzXW6lUDv6U+By6W
+         ZRWpPh3+2oTGeARVJQZnhq1kmPqwsznrf2wyEINk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Danny Kaehn <kaehndan@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 035/187] wifi: mac80211: check basic rates validity
+Subject: [PATCH 5.10 065/173] HID: cp2112: Fix driver not registering GPIO IRQ chip as threaded
 Date:   Mon,  3 Apr 2023 16:08:00 +0200
-Message-Id: <20230403140417.147598860@linuxfoundation.org>
+Message-Id: <20230403140416.558156432@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,62 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Danny Kaehn <kaehndan@gmail.com>
 
-[ Upstream commit ce04abc3fcc62cd5640af981ebfd7c4dc3bded28 ]
+[ Upstream commit 37f5b858a66543b2b67c0288280af623985abc29 ]
 
-When userspace sets basic rates, it might send us some rates
-list that's empty or consists of invalid values only. We're
-currently ignoring invalid values and then may end up with a
-rates bitmap that's empty, which later results in a warning.
+The CP2112 generates interrupts from a polling routine on a thread,
+and can only support threaded interrupts. This patch configures the
+gpiochip irq chip with this flag, disallowing consumers to request
+a hard IRQ from this driver, which resulted in a segfault previously.
 
-Reject the call if there were no valid rates.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
+Link: https://lore.kernel.org/r/20230210170044.11835-1-kaehndan@gmail.com
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/cfg.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/hid/hid-cp2112.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index d611e15301839..e24d2d5b04ad0 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -2576,6 +2576,17 @@ static int ieee80211_change_bss(struct wiphy *wiphy,
- 	if (!sband)
- 		return -EINVAL;
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 172f20e88c6c9..d902fe43cb818 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1352,6 +1352,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	girq->parents = NULL;
+ 	girq->default_type = IRQ_TYPE_NONE;
+ 	girq->handler = handle_simple_irq;
++	girq->threaded = true;
  
-+	if (params->basic_rates) {
-+		if (!ieee80211_parse_bitrates(link->conf->chandef.width,
-+					      wiphy->bands[sband->band],
-+					      params->basic_rates,
-+					      params->basic_rates_len,
-+					      &link->conf->basic_rates))
-+			return -EINVAL;
-+		changed |= BSS_CHANGED_BASIC_RATES;
-+		ieee80211_check_rate_mask(link);
-+	}
-+
- 	if (params->use_cts_prot >= 0) {
- 		link->conf->use_cts_prot = params->use_cts_prot;
- 		changed |= BSS_CHANGED_ERP_CTS_PROT;
-@@ -2597,16 +2608,6 @@ static int ieee80211_change_bss(struct wiphy *wiphy,
- 		changed |= BSS_CHANGED_ERP_SLOT;
- 	}
- 
--	if (params->basic_rates) {
--		ieee80211_parse_bitrates(link->conf->chandef.width,
--					 wiphy->bands[sband->band],
--					 params->basic_rates,
--					 params->basic_rates_len,
--					 &link->conf->basic_rates);
--		changed |= BSS_CHANGED_BASIC_RATES;
--		ieee80211_check_rate_mask(link);
--	}
--
- 	if (params->ap_isolate >= 0) {
- 		if (params->ap_isolate)
- 			sdata->flags |= IEEE80211_SDATA_DONT_BRIDGE_PACKETS;
+ 	ret = gpiochip_add_data(&dev->gc, dev);
+ 	if (ret < 0) {
 -- 
 2.39.2
 
