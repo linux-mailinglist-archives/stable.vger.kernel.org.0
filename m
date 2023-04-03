@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A82FC6D3E97
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5260D6D3E98
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231309AbjDCIGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58776 "EHLO
+        id S231695AbjDCIHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:07:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231683AbjDCIGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:06:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E213B10E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:06:51 -0700 (PDT)
+        with ESMTP id S231683AbjDCIHB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:07:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D0FB1FF7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:07:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D32D615B3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:06:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D05CC433EF;
-        Mon,  3 Apr 2023 08:06:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8756B8124F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CA01C433D2;
+        Mon,  3 Apr 2023 08:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680509210;
-        bh=lGVzqgLJRdTnxbJPX6z3JXo69VF+YeK91cw2Ooxa/ng=;
+        s=korg; t=1680509217;
+        bh=ee87DESojLRv6lfa9MaugaWUojsm4B8lYFmNVjd6xyk=;
         h=Subject:To:Cc:From:Date:From;
-        b=Mez9uvviBqjuA8jc12Zvl+p5oSOQdP+mmW2hPOLhNKaTpbIqg8KrpeJYMuF/WJRXS
-         DJCskZEiFSlH8wi7BATpTBIV8wzx/puFOu277c6NpD4npQ0W8aopC1VikMNhzKiEDg
-         bKqWd+jh+WWPvwR79iW6iy7ZM/JXFUxHZt5f45rA=
-Subject: FAILED: patch "[PATCH] btrfs: scan device in non-exclusive mode" failed to apply to 5.10-stable tree
-To:     anand.jain@oracle.com, dsterba@suse.com, oliver.sang@intel.com,
-        sherry.yang@oracle.com
+        b=spr4fxOGl56VnogVA8cwUVLbDQU9kiq+ALI6GbvQVPs70yF7vfDpl5FYRO7xoIdP2
+         OecGJEeYIbI58597Qpf1iJg1/PCurJtZw5OsbsYx5Hs+m30FyE2iFqqgywGjBdM+Iz
+         EuFFlhs6LoYqLdKLkAA8qaMZebeNXe3OuvJ33JZM=
+Subject: FAILED: patch "[PATCH] btrfs: ignore fiemap path cache when there are multiple paths" failed to apply to 6.1-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, jarno.pelkonen@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:06:40 +0200
-Message-ID: <2023040340-happiest-next-a09c@gregkh>
+Date:   Mon, 03 Apr 2023 10:06:55 +0200
+Message-ID: <2023040354-ramrod-papyrus-415b@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,28 +47,28 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x 50d281fc434cb8e2497f5e70a309ccca6b1a09f0
+git cherry-pick -x 2280d425ba3599bdd85c41bd0ec8ba568f00c032
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040340-happiest-next-a09c@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040354-ramrod-papyrus-415b@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-50d281fc434c ("btrfs: scan device in non-exclusive mode")
-12659251ca5d ("btrfs: implement log-structured superblock for ZONED mode")
-5d1ab66c56fe ("btrfs: disallow space_cache in ZONED mode")
-b70f509774ad ("btrfs: check and enable ZONED mode")
-5b316468983d ("btrfs: get zone information of zoned block devices")
-bacce86ae8a7 ("btrfs: drop unused argument step from btrfs_free_extra_devids")
+2280d425ba35 ("btrfs: ignore fiemap path cache when there are multiple paths for a node")
+73e339e6ab74 ("btrfs: cache sharedness of the last few data extents during fiemap")
+b629685803bc ("btrfs: remove roots ulist when checking data extent sharedness")
+84a7949d4097 ("btrfs: move ulists to data extent sharedness check context")
+61dbb952f0a5 ("btrfs: turn the backref sharedness check cache into a context object")
+ceb707da9ad9 ("btrfs: directly pass the inode to btrfs_is_data_extent_shared()")
 
 thanks,
 
@@ -77,85 +76,159 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 50d281fc434cb8e2497f5e70a309ccca6b1a09f0 Mon Sep 17 00:00:00 2001
-From: Anand Jain <anand.jain@oracle.com>
-Date: Thu, 23 Mar 2023 15:56:48 +0800
-Subject: [PATCH] btrfs: scan device in non-exclusive mode
+From 2280d425ba3599bdd85c41bd0ec8ba568f00c032 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 28 Mar 2023 10:45:20 +0100
+Subject: [PATCH] btrfs: ignore fiemap path cache when there are multiple paths
+ for a node
 
-This fixes mkfs/mount/check failures due to race with systemd-udevd
-scan.
+During fiemap, when walking backreferences to determine if a b+tree
+node/leaf is shared, we may find a tree block (leaf or node) for which
+two parents were added to the references ulist. This happens if we get
+for example one direct ref (shared tree block ref) and one indirect ref
+(non-shared tree block ref) for the tree block at the current level,
+which can happen during relocation.
 
-During the device scan initiated by systemd-udevd, other user space
-EXCL operations such as mkfs, mount, or check may get blocked and result
-in a "Device or resource busy" error. This is because the device
-scan process opens the device with the EXCL flag in the kernel.
+In that case the fiemap path cache can not be used since it's meant for
+a single path, with one tree block at each possible level, so having
+multiple references for a tree block at any level may result in getting
+the level counter exceed BTRFS_MAX_LEVEL and eventually trigger the
+warning:
 
-Two reports were received:
+   WARN_ON_ONCE(level >= BTRFS_MAX_LEVEL)
 
- - btrfs/179 test case, where the fsck command failed with the -EBUSY
-   error
+at lookup_backref_shared_cache() and at store_backref_shared_cache().
+This is harmless since the code ignores any level >= BTRFS_MAX_LEVEL, the
+warning is there just to catch any unexpected case like the one described
+above. However if a user finds this it may be scary and get reported.
 
- - LTP pwritev03 test case, where mkfs.vfs failed with
-   the -EBUSY error, when mkfs.vfs tried to overwrite old btrfs filesystem
-   on the device.
+So just ignore the path cache once we find a tree block for which there
+are more than one reference, which is the less common case, and update
+the cache with the sharedness check result for all levels below the level
+for which we found multiple references.
 
-In both cases, fsck and mkfs (respectively) were racing with a
-systemd-udevd device scan, and systemd-udevd won, resulting in the
--EBUSY error for fsck and mkfs.
-
-Reproducing the problem has been difficult because there is a very
-small window during which these userspace threads can race to
-acquire the exclusive device open. Even on the system where the problem
-was observed, the problem occurrences were anywhere between 10 to 400
-iterations and chances of reproducing decreases with debug printk()s.
-
-However, an exclusive device open is unnecessary for the scan process,
-as there are no write operations on the device during scan. Furthermore,
-during the mount process, the superblock is re-read in the below
-function call chain:
-
-  btrfs_mount_root
-   btrfs_open_devices
-    open_fs_devices
-     btrfs_open_one_device
-       btrfs_get_bdev_and_sb
-
-So, to fix this issue, removes the FMODE_EXCL flag from the scan
-operation, and add a comment.
-
-The case where mkfs may still write to the device and a scan is running,
-the btrfs signature is not written at that time so scan will not
-recognize such device.
-
-Reported-by: Sherry Yang <sherry.yang@oracle.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/oe-lkp/202303170839.fdf23068-oliver.sang@intel.com
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reported-by: Jarno Pelkonen <jarno.pelkonen@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CAKv8qLmDNAGJGCtsevxx_VZ_YOvvs1L83iEJkTgyA4joJertng@mail.gmail.com/
+Fixes: 12a824dc67a6 ("btrfs: speedup checking for extent sharedness during fiemap")
+CC: stable@vger.kernel.org # 6.1+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 6d0124b6e79e..ac0e8fb92fc8 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1366,8 +1366,17 @@ struct btrfs_device *btrfs_scan_one_device(const char *path, fmode_t flags,
- 	 * So, we need to add a special mount option to scan for
- 	 * later supers, using BTRFS_SUPER_MIRROR_MAX instead
- 	 */
--	flags |= FMODE_EXCL;
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 90e40d5ceccd..e54f0884802a 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -1921,8 +1921,7 @@ int btrfs_is_data_extent_shared(struct btrfs_inode *inode, u64 bytenr,
+ 	level = -1;
+ 	ULIST_ITER_INIT(&uiter);
+ 	while (1) {
+-		bool is_shared;
+-		bool cached;
++		const unsigned long prev_ref_count = ctx->refs.nnodes;
+ 
+ 		walk_ctx.bytenr = bytenr;
+ 		ret = find_parent_nodes(&walk_ctx, &shared);
+@@ -1940,21 +1939,36 @@ int btrfs_is_data_extent_shared(struct btrfs_inode *inode, u64 bytenr,
+ 		ret = 0;
+ 
+ 		/*
+-		 * If our data extent was not directly shared (without multiple
+-		 * reference items), than it might have a single reference item
+-		 * with a count > 1 for the same offset, which means there are 2
+-		 * (or more) file extent items that point to the data extent -
+-		 * this happens when a file extent item needs to be split and
+-		 * then one item gets moved to another leaf due to a b+tree leaf
+-		 * split when inserting some item. In this case the file extent
+-		 * items may be located in different leaves and therefore some
+-		 * of the leaves may be referenced through shared subtrees while
+-		 * others are not. Since our extent buffer cache only works for
+-		 * a single path (by far the most common case and simpler to
+-		 * deal with), we can not use it if we have multiple leaves
+-		 * (which implies multiple paths).
++		 * More than one extent buffer (bytenr) may have been added to
++		 * the ctx->refs ulist, in which case we have to check multiple
++		 * tree paths in case the first one is not shared, so we can not
++		 * use the path cache which is made for a single path. Multiple
++		 * extent buffers at the current level happen when:
++		 *
++		 * 1) level -1, the data extent: If our data extent was not
++		 *    directly shared (without multiple reference items), then
++		 *    it might have a single reference item with a count > 1 for
++		 *    the same offset, which means there are 2 (or more) file
++		 *    extent items that point to the data extent - this happens
++		 *    when a file extent item needs to be split and then one
++		 *    item gets moved to another leaf due to a b+tree leaf split
++		 *    when inserting some item. In this case the file extent
++		 *    items may be located in different leaves and therefore
++		 *    some of the leaves may be referenced through shared
++		 *    subtrees while others are not. Since our extent buffer
++		 *    cache only works for a single path (by far the most common
++		 *    case and simpler to deal with), we can not use it if we
++		 *    have multiple leaves (which implies multiple paths).
++		 *
++		 * 2) level >= 0, a tree node/leaf: We can have a mix of direct
++		 *    and indirect references on a b+tree node/leaf, so we have
++		 *    to check multiple paths, and the extent buffer (the
++		 *    current bytenr) may be shared or not. One example is
++		 *    during relocation as we may get a shared tree block ref
++		 *    (direct ref) and a non-shared tree block ref (indirect
++		 *    ref) for the same node/leaf.
+ 		 */
+-		if (level == -1 && ctx->refs.nnodes > 1)
++		if ((ctx->refs.nnodes - prev_ref_count) > 1)
+ 			ctx->use_path_cache = false;
+ 
+ 		if (level >= 0)
+@@ -1964,18 +1978,45 @@ int btrfs_is_data_extent_shared(struct btrfs_inode *inode, u64 bytenr,
+ 		if (!node)
+ 			break;
+ 		bytenr = node->val;
+-		level++;
+-		cached = lookup_backref_shared_cache(ctx, root, bytenr, level,
+-						     &is_shared);
+-		if (cached) {
+-			ret = (is_shared ? 1 : 0);
+-			break;
++		if (ctx->use_path_cache) {
++			bool is_shared;
++			bool cached;
++
++			level++;
++			cached = lookup_backref_shared_cache(ctx, root, bytenr,
++							     level, &is_shared);
++			if (cached) {
++				ret = (is_shared ? 1 : 0);
++				break;
++			}
+ 		}
+ 		shared.share_count = 0;
+ 		shared.have_delayed_delete_refs = false;
+ 		cond_resched();
+ 	}
  
 +	/*
-+	 * Avoid using flag |= FMODE_EXCL here, as the systemd-udev may
-+	 * initiate the device scan which may race with the user's mount
-+	 * or mkfs command, resulting in failure.
-+	 * Since the device scan is solely for reading purposes, there is
-+	 * no need for FMODE_EXCL. Additionally, the devices are read again
-+	 * during the mount process. It is ok to get some inconsistent
-+	 * values temporarily, as the device paths of the fsid are the only
-+	 * required information for assembling the volume.
++	 * If the path cache is disabled, then it means at some tree level we
++	 * got multiple parents due to a mix of direct and indirect backrefs or
++	 * multiple leaves with file extent items pointing to the same data
++	 * extent. We have to invalidate the cache and cache only the sharedness
++	 * result for the levels where we got only one node/reference.
 +	 */
- 	bdev = blkdev_get_by_path(path, flags, holder);
- 	if (IS_ERR(bdev))
- 		return ERR_CAST(bdev);
++	if (!ctx->use_path_cache) {
++		int i = 0;
++
++		level--;
++		if (ret >= 0 && level >= 0) {
++			bytenr = ctx->path_cache_entries[level].bytenr;
++			ctx->use_path_cache = true;
++			store_backref_shared_cache(ctx, root, bytenr, level, ret);
++			i = level + 1;
++		}
++
++		for ( ; i < BTRFS_MAX_LEVEL; i++)
++			ctx->path_cache_entries[i].bytenr = 0;
++	}
++
+ 	/*
+ 	 * Cache the sharedness result for the data extent if we know our inode
+ 	 * has more than 1 file extent item that refers to the data extent.
 
