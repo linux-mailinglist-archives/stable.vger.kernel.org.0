@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 147FF6D482C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EECCD6D4A3C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233340AbjDCO03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54920 "EHLO
+        id S233945AbjDCOpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233315AbjDCO0Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3799931984
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:12 -0700 (PDT)
+        with ESMTP id S233932AbjDCOpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8556A7E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCFB7B81C0E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F4CC433D2;
-        Mon,  3 Apr 2023 14:26:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF6D4B81D2C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5280BC433EF;
+        Mon,  3 Apr 2023 14:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531969;
-        bh=TMxWy7W4G7H+8Bf/fT9Q3JmFCESugBABHkH4m+efxbY=;
+        s=korg; t=1680533087;
+        bh=Bxw8gk1frQfqGVVaV8G4o0rrL81Chi1otyRo1UbmXOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuGcTXE2FP/ljjZ8I46fAwXsbKX1qn4NatoTkxqjTzBf9jR9TWl8LzJrCWXOm+uL3
-         wjAXrbHi6Dk8HwO8AZHOQnLZ2Ol6AMMZpv5seO9KQ4FGmxd79oKkZ52R8jIcEvTfiY
-         bHh3xC0rkXMteNIcO+fAHNI4ZusnVJge5R7+oybY=
+        b=NGlrJge7YKbmHkYvRReJYI4lgGyMhyOdNhcNbVQFN/RbbPlAM1EPhbBtguPpEoM1N
+         3ENRdTxPhHtqE1dYOvof38jrdvLUcEQs0Jtyyj+3OoGw08MHaZotXsv3lDok9M9FTw
+         yYqF03HIZu7KDXo/AYJOm1fuRbMLlUEARopZfZxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Caleb Sander <csander@purestorage.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/173] nvme-tcp: fix nvme_tcp_term_pdu to match spec
+        patches@lists.linux.dev,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 019/187] ASoC: Intel: avs: rt5682: Explicitly define codec format
 Date:   Mon,  3 Apr 2023 16:07:44 +0200
-Message-Id: <20230403140416.018827435@linuxfoundation.org>
+Message-Id: <20230403140416.660657379@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,42 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caleb Sander <csander@purestorage.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit aa01c67de5926fdb276793180564f172c55fb0d7 ]
+[ Upstream commit d24dbc865c2bd5946bef62bb862a65df092dfc79 ]
 
-The FEI field of C2HTermReq/H2CTermReq is 4 bytes but not 4-byte-aligned
-in the NVMe/TCP specification (it is located at offset 10 in the PDU).
-Split it into two 16-bit integers in struct nvme_tcp_term_pdu
-so no padding is inserted. There should also be 10 reserved bytes after.
-There are currently no users of this type.
+rt5682 is headset codec configured in 48000/2/S24_LE format regardless
+of front end format, so force it to be so.
 
-Fixes: fc221d05447aa6db ("nvme-tcp: Add protocol header")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Caleb Sander <csander@purestorage.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Link: https://lore.kernel.org/r/20230303134854.2277146-4-amadeuszx.slawinski@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/nvme-tcp.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/intel/avs/boards/rt5682.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/include/linux/nvme-tcp.h b/include/linux/nvme-tcp.h
-index 959e0bd9a913e..73364ae916890 100644
---- a/include/linux/nvme-tcp.h
-+++ b/include/linux/nvme-tcp.h
-@@ -114,8 +114,9 @@ struct nvme_tcp_icresp_pdu {
- struct nvme_tcp_term_pdu {
- 	struct nvme_tcp_hdr	hdr;
- 	__le16			fes;
--	__le32			fei;
--	__u8			rsvd[8];
-+	__le16			feil;
-+	__le16			feiu;
-+	__u8			rsvd[10];
+diff --git a/sound/soc/intel/avs/boards/rt5682.c b/sound/soc/intel/avs/boards/rt5682.c
+index 473e9fe5d0bf7..b2c2ba93dcb56 100644
+--- a/sound/soc/intel/avs/boards/rt5682.c
++++ b/sound/soc/intel/avs/boards/rt5682.c
+@@ -169,6 +169,27 @@ static const struct snd_soc_ops avs_rt5682_ops = {
+ 	.hw_params = avs_rt5682_hw_params,
  };
  
- /**
++static int
++avs_rt5682_be_fixup(struct snd_soc_pcm_runtime *runtime, struct snd_pcm_hw_params *params)
++{
++	struct snd_interval *rate, *channels;
++	struct snd_mask *fmt;
++
++	rate = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
++	channels = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
++	fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
++
++	/* The ADSP will convert the FE rate to 48k, stereo */
++	rate->min = rate->max = 48000;
++	channels->min = channels->max = 2;
++
++	/* set SSPN to 24 bit */
++	snd_mask_none(fmt);
++	snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S24_LE);
++
++	return 0;
++}
++
+ static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
+ 			       struct snd_soc_dai_link **dai_link)
+ {
+@@ -201,6 +222,7 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
+ 	dl->id = 0;
+ 	dl->init = avs_rt5682_codec_init;
+ 	dl->exit = avs_rt5682_codec_exit;
++	dl->be_hw_params_fixup = avs_rt5682_be_fixup;
+ 	dl->ops = &avs_rt5682_ops;
+ 	dl->nonatomic = 1;
+ 	dl->no_pcm = 1;
 -- 
 2.39.2
 
