@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF416D498E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 678376D4885
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233657AbjDCOjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50820 "EHLO
+        id S233420AbjDCO3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233739AbjDCOjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:06 -0400
+        with ESMTP id S233436AbjDCO3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A902BEE0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB4435034
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35B70B81CA5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A55A4C433EF;
-        Mon,  3 Apr 2023 14:38:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFAB0B81C35
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C4BFC4339B;
+        Mon,  3 Apr 2023 14:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532738;
-        bh=kzLXTTkJJ7Z3jt5XvXdnW1zQoy1TCpTl2yXgW1xDFB0=;
+        s=korg; t=1680532156;
+        bh=YLBdz2v1uElE0kuD27DV7pKAhTOP5ex0ZFJTftOa3/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhri2ItYrERR/BT220XtOjZWV1khVnN5G1QgB53IlthfIFG6lFcNPoXM5tXPfR0yu
-         dwVIhpUQm76pve7OQ8zvxmQGfAkbCFIN9PTXMWXUKczgdTqvdIf+eekgR0EFh19Nxm
-         rwiTaqspBxAcXm7ymZ8M5bRvV0MvkrW6kdf4cn3E=
+        b=VUaM88yHrHylbJlcSAX2ayiE8cqrGaSPK6D4zgm4IPa/khqJkz7y29H9MO/huH8Hg
+         sI1UozYbFCc8sP/lzq5tqE1dOCYQSBCW7hveOLDGs06ReUwzLhLqukfwaP8ypTz6nc
+         qN8gRTj7029qzkHgSPdSWTnh1fDVcGPYPm+E07GY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rajvi Jingar <rajvi.jingar@linux.intel.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 098/181] platform/x86/intel/pmc: Alder Lake PCH slp_s0_residency fix
+Subject: [PATCH 5.10 118/173] sched_getaffinity: dont assume cpumask_size() is fully initialized
 Date:   Mon,  3 Apr 2023 16:08:53 +0200
-Message-Id: <20230403140418.295008544@linuxfoundation.org>
+Message-Id: <20230403140418.276826321@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,57 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajvi Jingar <rajvi.jingar@linux.intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit fb5755100a0a5aa5957bdb204fd1e249684557fc ]
+[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
 
-For platforms with Alder Lake PCH (Alder Lake S and Raptor Lake S) the
-slp_s0_residency attribute has been reporting the wrong value. Unlike other
-platforms, ADL PCH does not have a counter for the time that the SLP_S0
-signal was asserted. Instead, firmware uses the aggregate of the Low Power
-Mode (LPM) substate counters as the S0ix value.  Since the LPM counters run
-at a different frequency, this lead to misreporting of the S0ix time.
+The getaffinity() system call uses 'cpumask_size()' to decide how big
+the CPU mask is - so far so good.  It is indeed the allocation size of a
+cpumask.
 
-Add a check for Alder Lake PCH and adjust the frequency accordingly when
-display slp_s0_residency.
+But the code also assumes that the whole allocation is initialized
+without actually doing so itself.  That's wrong, because we might have
+fixed-size allocations (making copying and clearing more efficient), but
+not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
 
-Fixes: bbab31101f44 ("platform/x86/intel: pmc/core: Add Alderlake support to pmc core driver")
-Signed-off-by: Rajvi Jingar <rajvi.jingar@linux.intel.com>
-Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20230320212029.3154407-1-david.e.box@linux.intel.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Having checked other users of 'cpumask_size()', they all seem to be ok,
+either using it purely for the allocation size, or explicitly zeroing
+the cpumask before using the size in bytes to copy it.
+
+See for example the ublk_ctrl_get_queue_affinity() function that uses
+the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
+cleared, whether the storage is on the stack or if it was an external
+allocation.
+
+Fix this by just zeroing the allocation before using it.  Do the same
+for the compat version of sched_getaffinity(), which had the same logic.
+
+Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
+access the bits.  For a cpumask_var_t, it ends up being a pointer to the
+same data either way, but it's just a good idea to treat it like you
+would a 'cpumask_t'.  The compat case already did that.
+
+Reported-by: Ryan Roberts <ryan.roberts@arm.com>
+Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
+Cc: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/pmc/core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ kernel/compat.c     | 2 +-
+ kernel/sched/core.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
-index 17ec5825d13d7..be0fb9401202a 100644
---- a/drivers/platform/x86/intel/pmc/core.c
-+++ b/drivers/platform/x86/intel/pmc/core.c
-@@ -958,7 +958,18 @@ static inline void pmc_core_reg_write(struct pmc_dev *pmcdev, int reg_offset,
+diff --git a/kernel/compat.c b/kernel/compat.c
+index 05adfd6fa8bf9..f9f7a79e07c5f 100644
+--- a/kernel/compat.c
++++ b/kernel/compat.c
+@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
+ 	if (len & (sizeof(compat_ulong_t)-1))
+ 		return -EINVAL;
  
- static inline u64 pmc_core_adjust_slp_s0_step(struct pmc_dev *pmcdev, u32 value)
- {
--	return (u64)value * pmcdev->map->slp_s0_res_counter_step;
-+	/*
-+	 * ADL PCH does not have the SLP_S0 counter and LPM Residency counters are
-+	 * used as a workaround which uses 30.5 usec tick. All other client
-+	 * programs have the legacy SLP_S0 residency counter that is using the 122
-+	 * usec tick.
-+	 */
-+	const int lpm_adj_x2 = pmcdev->map->lpm_res_counter_step_x2;
-+
-+	if (pmcdev->map == &adl_reg_map)
-+		return (u64)value * GET_X2_COUNTER((u64)lpm_adj_x2);
-+	else
-+		return (u64)value * pmcdev->map->slp_s0_res_counter_step;
- }
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
  
- static int set_etr3(struct pmc_dev *pmcdev)
+ 	ret = sched_getaffinity(pid, mask);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index abea8fb7bdd16..b4bd02d68185e 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6067,14 +6067,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
+ 	if (len & (sizeof(unsigned long)-1))
+ 		return -EINVAL;
+ 
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	ret = sched_getaffinity(pid, mask);
+ 	if (ret == 0) {
+ 		unsigned int retlen = min(len, cpumask_size());
+ 
+-		if (copy_to_user(user_mask_ptr, mask, retlen))
++		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
+ 			ret = -EFAULT;
+ 		else
+ 			ret = retlen;
 -- 
 2.39.2
 
