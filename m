@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF0A6D497B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCC96D4A3D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233661AbjDCOiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49592 "EHLO
+        id S233878AbjDCOp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233637AbjDCOiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7938213E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:17 -0700 (PDT)
+        with ESMTP id S233899AbjDCOpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC9D16964
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 88A21CE12DF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64070C433EF;
-        Mon,  3 Apr 2023 14:38:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F47461EEE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2698C433D2;
+        Mon,  3 Apr 2023 14:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532693;
-        bh=8VjH1txRsIhO2gzSw0U+DtvfThkQVvyRcfsMN7FFHKQ=;
+        s=korg; t=1680533072;
+        bh=owSwlma77mkOCIyn2UW6eaOPLBHPastApHjuYD7u7cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBAeWksf7R5aCddA14CzpZlD/37xuuH8r+K9s+gsicbydXHga0NMmtWczOZyoRE+r
-         WCij/IbGOKnID9vkw9vP1Y7ZUMYHmri7XKSlK0g6SvdZRceDPMtn6I+kp1bLvGHht1
-         ip6QHlsShyDIOUKVPvsuXyoz0E7JUpPkuuqLe+sQ=
+        b=Ri6SpJBF/f04D5yT8yfu8yUidmqWIDf0ZHiLC1/Z32b6ecVrxAshpJ4RIMNGL2hIj
+         lT3+kqm8Den1mP3Qvm5/0C7oBw9ANR7xSuiiRalJHAqsaoWeuRIr/A2IVR2ZQ01jS+
+         iJjHe6D0qVIj4OE1GMbA/dgWr/SjlZhWeDeoJzWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev, Kristian Overskeid <koverskeid@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 053/181] sched_getaffinity: dont assume cpumask_size() is fully initialized
+Subject: [PATCH 6.2 043/187] net: hsr: Dont log netdev_err message on unknown prp dst node
 Date:   Mon,  3 Apr 2023 16:08:08 +0200
-Message-Id: <20230403140416.883002461@linuxfoundation.org>
+Message-Id: <20230403140417.400710039@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,80 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Kristian Overskeid <koverskeid@gmail.com>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
+node will be deleted from the node_db list. If a frame is sent to the node
+after it is deleted, a netdev_err message for each slave interface is
+produced. This should not happen with dan nodes because of supervision
+frames, but can happen often with san nodes, which clutters the kernel
+log. Since the hsr protocol does not support sans, this is only relevant
+for the prp protocol.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
-
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
-
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
-
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
-
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
-
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/hsr/hsr_framereg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index 55551989d9da5..fb50f29d9b361 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 9ebfd484189b3..b23dcbeacdf33 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -8304,14 +8304,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		unsigned int retlen = min(len, cpumask_size());
- 
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 00db74d96583d..865eda39d6014 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -415,7 +415,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
+ 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
+ 				       eth_hdr(skb)->h_dest);
+ 	if (!node_dst) {
+-		if (net_ratelimit())
++		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
+ 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
+ 		return;
+ 	}
 -- 
 2.39.2
 
