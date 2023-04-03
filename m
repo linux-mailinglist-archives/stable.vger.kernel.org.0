@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D48A26D4910
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBE406D4A0D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbjDCOes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:34:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
+        id S233880AbjDCOnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233577AbjDCOeq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:46 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F4AE78
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:20 -0700 (PDT)
+        with ESMTP id S233910AbjDCOni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20DE3A8D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 787BBCE12D3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849CEC433D2;
-        Mon,  3 Apr 2023 14:34:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE07EB81D19
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B90C433D2;
+        Mon,  3 Apr 2023 14:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532452;
-        bh=TjMptBs9lwH1Y7OaUDJQ52Tv9RLGQb/zzsBQfNHbGR0=;
+        s=korg; t=1680532972;
+        bh=DVsWSBvy+EpPeMBt0bjXaMfpsBY6XhGAU0Y/OE6SH4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3FeE1nE84AMdTGKkuwIk7ba5wDNnpTwrMVbVbZO9FA+UVbRkZSrePAKvDhPAXDbx
-         qO/CD9NuVZHwiLK8a6WKdV0qc4y5yHpYnbkTxt4OqkDs7rMvGhMjAxJ1RlXQMpaH8u
-         aIyunCHnjo/tbNYG7sRAIYJQouT/N+svWD20Xm/g=
+        b=RIhVIT12sTaUuFExJ63KT8rPqy7OuzTRSssQwZBzGshXphRuZMtGCrPlPh5iuUGVi
+         ZxBa2EEtp9OQ2ThIHnPPAY3uPP4DPFhc10YJ6hg8RdY++tOy4mF2SeNO7Yk8dFhENp
+         XHd5KQcD05uuLCbOcG3vneHke/SevkXA9LqCOSCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.15 89/99] s390/uaccess: add missing earlyclobber annotations to __clear_user()
+        patches@lists.linux.dev,
+        Douglas Raillard <douglas.raillard@arm.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 6.1 157/181] rcu: Fix rcu_torture_read ftrace event
 Date:   Mon,  3 Apr 2023 16:09:52 +0200
-Message-Id: <20230403140406.719391018@linuxfoundation.org>
+Message-Id: <20230403140420.177916335@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Douglas Raillard <douglas.raillard@arm.com>
 
-commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
+commit d18a04157fc171fd48075e3dc96471bd3b87f0dd upstream.
 
-Add missing earlyclobber annotation to size, to, and tmp2 operands of the
-__clear_user() inline assembly since they are modified or written to before
-the last usage of all input operands. This can lead to incorrect register
-allocation for the inline assembly.
+Fix the rcutorturename field so that its size is correctly reported in
+the text format embedded in trace.dat files. As it stands, it is
+reported as being of size 1:
 
-Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
+    field:char rcutorturename[8];   offset:8;       size:1; signed:0;
+
+Signed-off-by: Douglas Raillard <douglas.raillard@arm.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 04ae87a52074e ("ftrace: Rework event_create_dir()")
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+[ boqun: Add "Cc" and "Fixes" tags per Steven ]
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/lib/uaccess.c |    2 +-
+ include/trace/events/rcu.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -227,7 +227,7 @@ static inline unsigned long clear_user_m
- 		"4: slgr  %0,%0\n"
- 		"5:\n"
- 		EX_TABLE(0b,2b) EX_TABLE(6b,2b) EX_TABLE(3b,5b) EX_TABLE(7b,5b)
--		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
-+		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
- 		: "a" (empty_zero_page), [spec] "K" (0x81UL)
- 		: "cc", "memory", "0");
- 	return size;
+--- a/include/trace/events/rcu.h
++++ b/include/trace/events/rcu.h
+@@ -768,7 +768,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
+ 	TP_ARGS(rcutorturename, rhp, secs, c_old, c),
+ 
+ 	TP_STRUCT__entry(
+-		__field(char, rcutorturename[RCUTORTURENAME_LEN])
++		__array(char, rcutorturename, RCUTORTURENAME_LEN)
+ 		__field(struct rcu_head *, rhp)
+ 		__field(unsigned long, secs)
+ 		__field(unsigned long, c_old)
 
 
