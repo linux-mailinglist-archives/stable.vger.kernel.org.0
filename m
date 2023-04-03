@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B59976D3F15
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46DD6D3F16
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230175AbjDCIfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55454 "EHLO
+        id S231446AbjDCIfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbjDCIfj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:35:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F034125
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:35:38 -0700 (PDT)
+        with ESMTP id S229843AbjDCIfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:35:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C4F0125
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:35:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BAC9B815AC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 790B6C433D2;
-        Mon,  3 Apr 2023 08:35:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E093615E6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:35:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B12C433D2;
+        Mon,  3 Apr 2023 08:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680510935;
-        bh=FF1gvDv3/TYr4yfBE7+b32vwLlzHosTybT1C8RB6RYY=;
+        s=korg; t=1680510945;
+        bh=Jyfr9GPkMDJQ9tsnHmkNTYTshLpc/sKPeUG+i1Gqpw4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Sp8r9zgP69HFIqvuDezGUbht8sPkxDoTo0q5Kfm8rYF/BGEBw0xdi7Xhc/gRuTDq7
-         LWO7jrVZVljNi11WHiAhx2gBflhhgaMsYnbI1PB7FA2fWdWRW8PPPBqUOjuwBNYRYz
-         6+06t4i2YuTd8VLOQdB7XJFheRAUFiwO7d3qVfBk=
-Subject: FAILED: patch "[PATCH] dm: fix improper splitting for abnormal bios" failed to apply to 6.2-stable tree
+        b=0RpCBrz21LL91YmiRdsggy66AftZGMLEycB6YAAj2iySH1/NyIBTC/xJI3gu59qiK
+         eZ87t+pAXusgDrsagc5XuEcMZkFkIFC6YI1MVnr3guFTkHnluIiFGc/3pVv3F4Tr9j
+         QUKjAsnCI/qbRBEGQSqlkenJtWNHdNL+bFzbb2G0=
+Subject: FAILED: patch "[PATCH] dm: fix improper splitting for abnormal bios" failed to apply to 6.1-stable tree
 To:     snitzer@kernel.org, orange@aiven.io
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:35:33 +0200
-Message-ID: <2023040332-dodgy-chamomile-54f5@gregkh>
+Date:   Mon, 03 Apr 2023 10:35:34 +0200
+Message-ID: <2023040334-attire-drone-2c8b@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
 git cherry-pick -x f7b58a69fad9d2c4c90cab0247811155dd0d48e7
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040332-dodgy-chamomile-54f5@gregkh' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040334-attire-drone-2c8b@gregkh' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
