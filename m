@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F326D4A2F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675326D46EE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233927AbjDCOo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33212 "EHLO
+        id S232797AbjDCOPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233980AbjDCOom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9D616942
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:20 -0700 (PDT)
+        with ESMTP id S232889AbjDCOPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5D52C9E5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FC5FB81D09
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D4DEC433D2;
-        Mon,  3 Apr 2023 14:44:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F6C461CC1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52835C4339B;
+        Mon,  3 Apr 2023 14:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533059;
-        bh=EnesByuTN3+cFtldbykaUe5M7GvSSZRNv1wpFYKaUXU=;
+        s=korg; t=1680531323;
+        bh=xoYnR4n68PX8w5dMyu+b2oRPsBIZKfQ3h8fN8Vh8khc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8L/b2flaO33XLPLqBz+OBxHtraULzI6EpEepVRwqd/wlq3DO/ObEvo91iizmKmT7
-         WlGCdpgGl0r8BkU4TB/F9fg4zEdqxtCRYP5ri2PBGxj2ewDTCYLkAytB251o/s21CY
-         Bp5aOAWS9Es40WBGIseiObvTyCdleblTrDBx3fQw=
+        b=wnnNz+wOnIOQsn742FFvgw3U1Z1xRSoaJMn6UzmPctpgT4m+J2YnR5HjsmdNgIhsy
+         1N2fYL+iLXS65rdlbkjZZAmQxOYYdRYaKeEvdnRZfV4Mu1xomfJ9bMl2y6j90gOfy1
+         ngo82aMmkfFugivZXIbCE2wXh+ddzei3iwzz8ze4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaogang Chen <Xiaogang.Chen@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pawe=C5=82=20Jab=C5=82o=C5=84ski?= 
+        <pawel.jablonski@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 038/187] drm/amdkfd: Fix BO offset for multi-VMA page migration
+Subject: [PATCH 4.19 02/84] i40evf: Change a VF mac without reloading the VF driver
 Date:   Mon,  3 Apr 2023 16:08:03 +0200
-Message-Id: <20230403140417.240011116@linuxfoundation.org>
+Message-Id: <20230403140353.493716936@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,107 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaogang Chen <Xiaogang.Chen@amd.com>
+From: Paweł Jabłoński <pawel.jablonski@intel.com>
 
-[ Upstream commit b4ee9606378bb9520c94d8b96f0305c3696f5c29 ]
+[ Upstream commit ae1e29f671b467f3e9e9aa2b82ee40e4300ea810 ]
 
-svm_migrate_ram_to_vram migrates a prange from sys ram to vram. The prange may
-cross multiple vma. Need remember current dst vram offset in the TTM resource for
-each migration.
+Add possibility to change a VF mac address from host side
+without reloading the VF driver on the guest side. Without
+this patch it is not possible to change the VF mac because
+executing i40evf_virtchnl_completion function with
+VIRTCHNL_OP_GET_VF_RESOURCES opcode resets the VF mac
+address to previous value.
 
-v2: squash in warning fix (Alex)
-
-Signed-off-by: Xiaogang Chen <Xiaogang.Chen@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Paweł Jabłoński <pawel.jablonski@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Stable-dep-of: 32d57f667f87 ("iavf: fix inverted Rx hash condition leading to disabled hash")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c  |  8 +++++---
+ drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c | 11 +++++++++--
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-index 10048ce16aea4..5c319007b4701 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-@@ -289,7 +289,7 @@ static unsigned long svm_migrate_unsuccessful_pages(struct migrate_vma *migrate)
- static int
- svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 			 struct migrate_vma *migrate, struct dma_fence **mfence,
--			 dma_addr_t *scratch)
-+			 dma_addr_t *scratch, uint64_t ttm_res_offset)
- {
- 	uint64_t npages = migrate->npages;
- 	struct device *dev = adev->dev;
-@@ -299,8 +299,8 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 	uint64_t i, j;
- 	int r;
- 
--	pr_debug("svms 0x%p [0x%lx 0x%lx]\n", prange->svms, prange->start,
--		 prange->last);
-+	pr_debug("svms 0x%p [0x%lx 0x%lx 0x%llx]\n", prange->svms, prange->start,
-+		 prange->last, ttm_res_offset);
- 
- 	src = scratch;
- 	dst = (uint64_t *)(scratch + npages);
-@@ -311,7 +311,7 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 		goto out;
- 	}
- 
--	amdgpu_res_first(prange->ttm_res, prange->offset << PAGE_SHIFT,
-+	amdgpu_res_first(prange->ttm_res, ttm_res_offset,
- 			 npages << PAGE_SHIFT, &cursor);
- 	for (i = j = 0; i < npages; i++) {
- 		struct page *spage;
-@@ -398,7 +398,7 @@ svm_migrate_copy_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- static long
- svm_migrate_vma_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 			struct vm_area_struct *vma, uint64_t start,
--			uint64_t end, uint32_t trigger)
-+			uint64_t end, uint32_t trigger, uint64_t ttm_res_offset)
- {
- 	struct kfd_process *p = container_of(prange->svms, struct kfd_process, svms);
- 	uint64_t npages = (end - start) >> PAGE_SHIFT;
-@@ -451,7 +451,7 @@ svm_migrate_vma_to_vram(struct amdgpu_device *adev, struct svm_range *prange,
- 	else
- 		pr_debug("0x%lx pages migrated\n", cpages);
- 
--	r = svm_migrate_copy_to_vram(adev, prange, &migrate, &mfence, scratch);
-+	r = svm_migrate_copy_to_vram(adev, prange, &migrate, &mfence, scratch, ttm_res_offset);
- 	migrate_vma_pages(&migrate);
- 
- 	pr_debug("successful/cpages/npages 0x%lx/0x%lx/0x%lx\n",
-@@ -499,6 +499,7 @@ svm_migrate_ram_to_vram(struct svm_range *prange, uint32_t best_loc,
- 	unsigned long addr, start, end;
- 	struct vm_area_struct *vma;
- 	struct amdgpu_device *adev;
-+	uint64_t ttm_res_offset;
- 	unsigned long cpages = 0;
- 	long r = 0;
- 
-@@ -519,6 +520,7 @@ svm_migrate_ram_to_vram(struct svm_range *prange, uint32_t best_loc,
- 
- 	start = prange->start << PAGE_SHIFT;
- 	end = (prange->last + 1) << PAGE_SHIFT;
-+	ttm_res_offset = prange->offset << PAGE_SHIFT;
- 
- 	for (addr = start; addr < end;) {
- 		unsigned long next;
-@@ -528,13 +530,14 @@ svm_migrate_ram_to_vram(struct svm_range *prange, uint32_t best_loc,
- 			break;
- 
- 		next = min(vma->vm_end, end);
--		r = svm_migrate_vma_to_vram(adev, prange, vma, addr, next, trigger);
-+		r = svm_migrate_vma_to_vram(adev, prange, vma, addr, next, trigger, ttm_res_offset);
- 		if (r < 0) {
- 			pr_debug("failed %ld to migrate\n", r);
- 			break;
- 		} else {
- 			cpages += r;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 240083201dbf4..1527c67b487b2 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2595,7 +2595,7 @@ static inline int i40e_check_vf_permission(struct i40e_vf *vf,
+ 		    !is_multicast_ether_addr(addr) && vf->pf_set_mac &&
+ 		    !ether_addr_equal(addr, vf->default_lan_addr.addr)) {
+ 			dev_err(&pf->pdev->dev,
+-				"VF attempting to override administratively set MAC address, reload the VF driver to resume normal operation\n");
++				"VF attempting to override administratively set MAC address, bring down and up the VF interface to resume normal operation\n");
+ 			return -EPERM;
  		}
-+		ttm_res_offset += next - addr;
- 		addr = next;
+ 	}
+@@ -4019,9 +4019,11 @@ int i40e_ndo_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
+ 			 mac, vf_id);
  	}
  
+-	/* Force the VF driver stop so it has to reload with new MAC address */
++	/* Force the VF interface down so it has to bring up with new MAC
++	 * address
++	 */
+ 	i40e_vc_disable_vf(vf);
+-	dev_info(&pf->pdev->dev, "Reload the VF driver to make this change effective.\n");
++	dev_info(&pf->pdev->dev, "Bring down and up the VF interface to make this change effective.\n");
+ 
+ error_param:
+ 	return ret;
+diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c b/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
+index 94dabc9d89f73..6579dabab78cf 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
++++ b/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
+@@ -1362,8 +1362,15 @@ void i40evf_virtchnl_completion(struct i40evf_adapter *adapter,
+ 		memcpy(adapter->vf_res, msg, min(msglen, len));
+ 		i40evf_validate_num_queues(adapter);
+ 		i40e_vf_parse_hw_config(&adapter->hw, adapter->vf_res);
+-		/* restore current mac address */
+-		ether_addr_copy(adapter->hw.mac.addr, netdev->dev_addr);
++		if (is_zero_ether_addr(adapter->hw.mac.addr)) {
++			/* restore current mac address */
++			ether_addr_copy(adapter->hw.mac.addr, netdev->dev_addr);
++		} else {
++			/* refresh current mac address if changed */
++			ether_addr_copy(netdev->dev_addr, adapter->hw.mac.addr);
++			ether_addr_copy(netdev->perm_addr,
++					adapter->hw.mac.addr);
++		}
+ 		i40evf_process_config(adapter);
+ 		}
+ 		break;
 -- 
 2.39.2
 
