@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E06306D46A3
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD4F6D46A4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232865AbjDCOMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
+        id S232840AbjDCOMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232864AbjDCOMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648782BEFA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:49 -0700 (PDT)
+        with ESMTP id S232876AbjDCOMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CCB52BEC2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0038761C4E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13EFBC433D2;
-        Mon,  3 Apr 2023 14:11:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42A72B81A49
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC904C4339B;
+        Mon,  3 Apr 2023 14:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531108;
-        bh=mjOBt0hwl4VEkVOuBgR29W11lOITYRPWxwYwBi1U/4k=;
+        s=korg; t=1680531111;
+        bh=8U0+KCB4JzpOYrOfqQpnHMvfkiX3CwL64HOjTw2QnaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/mqw+FTcFuIkNXpUUcK0kSMEJYoLSGy9KRXslQ80eghRXtqFC9MYsbpkArmF+d8B
-         B2+AhpDAliVFGaFW8kkSG8PV40MQWijjzz1aLVcVPBKh5lq9Fzq5n8RF4jlk7hlKBm
-         TbAC8+8KuKBLoVv2dlxdMM/ufLwInVQry7CawvpI=
+        b=yXx/CSADgRmkDawozfLsUKCtc36+AxZNrTj8aqNj5uwHYRnxrAjj7ocgsOfBpyWVA
+         6r3aFdJLAwneP3UBxVlqvjfHDIeFCu8WUOwqPfSZikya//9X7aXc4KQfOH/sxiIuIB
+         uyY/yvJ20NdwmS8rk0cBUDCHIDb0oWeQPKlHC/pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitry Vyukov <dvyukov@google.com>,
-        Alexandre Ghiti <alex@ghiti.fr>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, lianhui tang <bluetlh@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/66] riscv: Bump COMMAND_LINE_SIZE value to 1024
-Date:   Mon,  3 Apr 2023 16:08:31 +0200
-Message-Id: <20230403140352.744504065@linuxfoundation.org>
+Subject: [PATCH 4.14 24/66] ca8210: fix mac_len negative array access
+Date:   Mon,  3 Apr 2023 16:08:32 +0200
+Message-Id: <20230403140352.780803104@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
 References: <20230403140351.636471867@linuxfoundation.org>
@@ -54,44 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 61fc1ee8be26bc192d691932b0a67eabee45d12f ]
+[ Upstream commit 6c993779ea1d0cccdb3a5d7d45446dd229e610a3 ]
 
-Increase COMMAND_LINE_SIZE as the current default value is too low
-for syzbot kernel command line.
+This patch fixes a buffer overflow access of skb->data if
+ieee802154_hdr_peek_addrs() fails.
 
-There has been considerable discussion on this patch that has led to a
-larger patch set removing COMMAND_LINE_SIZE from the uapi headers on all
-ports.  That's not quite done yet, but it's gotten far enough we're
-confident this is not a uABI change so this is safe.
-
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Link: https://lore.kernel.org/r/20210316193420.904-1-alex@ghiti.fr
-[Palmer: it's not uabi]
-Link: https://lore.kernel.org/linux-riscv/874b8076-b0d1-4aaa-bcd8-05d523060152@app.fastmail.com/#t
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reported-by: lianhui tang <bluetlh@gmail.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20230217042504.3303396-1-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/uapi/asm/setup.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
- create mode 100644 arch/riscv/include/uapi/asm/setup.h
+ drivers/net/ieee802154/ca8210.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uapi/asm/setup.h
-new file mode 100644
-index 0000000000000..66b13a5228808
---- /dev/null
-+++ b/arch/riscv/include/uapi/asm/setup.h
-@@ -0,0 +1,8 @@
-+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
-+
-+#ifndef _UAPI_ASM_RISCV_SETUP_H
-+#define _UAPI_ASM_RISCV_SETUP_H
-+
-+#define COMMAND_LINE_SIZE	1024
-+
-+#endif /* _UAPI_ASM_RISCV_SETUP_H */
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index eff7571dbea20..76ca8c63bc379 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -1955,6 +1955,8 @@ static int ca8210_skb_tx(
+ 	 * packet
+ 	 */
+ 	mac_len = ieee802154_hdr_peek_addrs(skb, &header);
++	if (mac_len < 0)
++		return mac_len;
+ 
+ 	secspec.security_level = header.sec.level;
+ 	secspec.key_id_mode = header.sec.key_id_mode;
 -- 
 2.39.2
 
