@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C9E6D480D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C058F6D4758
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbjDCOZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53060 "EHLO
+        id S233041AbjDCOT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:19:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233271AbjDCOZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3973AEFBF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:28 -0700 (PDT)
+        with ESMTP id S233035AbjDCOT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6282CAE9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE331B81C00
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520D4C433D2;
-        Mon,  3 Apr 2023 14:25:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8233F61D0D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BE4C4339B;
+        Mon,  3 Apr 2023 14:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531925;
-        bh=9VZJm/SzCBTqTJ+dZuWB3Bkdvz5jYnXcSSemUUrhajw=;
+        s=korg; t=1680531564;
+        bh=9XlxrgNWI8hz43vbMlwtHm68xp2uW58rfC1al9PvXak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llo8FY204EsbU/0SuLqpCYeBgfL2KLFEE2M0IokNe8krfQ19Ncbhb9V6c5mV1gML+
-         hJfr/d2CYhcKMwMOfM7DNzlnfC4UL/rG+ZnxRCDx/WgMikRT1QgqVP/YEbjlasfC8a
-         tlsHscTnAA9U7PEKmVUJe3LZEav0lG3oyuvSJKAc=
+        b=kwM6hi7HYCUi7hyNzL4uYJN41Eo+gVoEUjqZF9kyOmuew3UIfP5A008ORaCN7fw35
+         47CNQ/OhZjQOan0hREqnz30anxzaRXYcC8zNuTFEU7LZUMft8uTKjreviz6yRwSq/X
+         bYPiQgyhWCHMSHnvio5WNGmygWk7MBtOWmrw4Ozo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Li <lilin@redhat.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 060/173] scsi: qla2xxx: Perform lockless command completion in abort path
+        patches@lists.linux.dev, Larysa Zaremba <larysa.zaremba@intel.com>,
+        Michal Kubiak <michal.kubiak@intel.com>,
+        Alexander Lobakin <aleksander.lobakin@intel.com>,
+        Rafal Romanowski <rafal.romanowski@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 003/104] iavf: fix inverted Rx hash condition leading to disabled hash
 Date:   Mon,  3 Apr 2023 16:07:55 +0200
-Message-Id: <20230403140416.401905689@linuxfoundation.org>
+Message-Id: <20230403140404.095463777@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,78 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Alexander Lobakin <aleksander.lobakin@intel.com>
 
-commit 0367076b0817d5c75dfb83001ce7ce5c64d803a9 upstream.
+[ Upstream commit 32d57f667f871bc5a8babbe27ea4c5e668ee0ea8 ]
 
-While adding and removing the controller, the following call trace was
-observed:
+Condition, which checks whether the netdev has hashing enabled is
+inverted. Basically, the tagged commit effectively disabled passing flow
+hash from descriptor to skb, unless user *disables* it via Ethtool.
+Commit a876c3ba59a6 ("i40e/i40evf: properly report Rx packet hash")
+fixed this problem, but only for i40e.
+Invert the condition now in iavf and unblock passing hash to skbs again.
 
-WARNING: CPU: 3 PID: 623596 at kernel/dma/mapping.c:532 dma_free_attrs+0x33/0x50
-CPU: 3 PID: 623596 Comm: sh Kdump: loaded Not tainted 5.14.0-96.el9.x86_64 #1
-RIP: 0010:dma_free_attrs+0x33/0x50
-
-Call Trace:
-   qla2x00_async_sns_sp_done+0x107/0x1b0 [qla2xxx]
-   qla2x00_abort_srb+0x8e/0x250 [qla2xxx]
-   ? ql_dbg+0x70/0x100 [qla2xxx]
-   __qla2x00_abort_all_cmds+0x108/0x190 [qla2xxx]
-   qla2x00_abort_all_cmds+0x24/0x70 [qla2xxx]
-   qla2x00_abort_isp_cleanup+0x305/0x3e0 [qla2xxx]
-   qla2x00_remove_one+0x364/0x400 [qla2xxx]
-   pci_device_remove+0x36/0xa0
-   __device_release_driver+0x17a/0x230
-   device_release_driver+0x24/0x30
-   pci_stop_bus_device+0x68/0x90
-   pci_stop_and_remove_bus_device_locked+0x16/0x30
-   remove_store+0x75/0x90
-   kernfs_fop_write_iter+0x11c/0x1b0
-   new_sync_write+0x11f/0x1b0
-   vfs_write+0x1eb/0x280
-   ksys_write+0x5f/0xe0
-   do_syscall_64+0x5c/0x80
-   ? do_user_addr_fault+0x1d8/0x680
-   ? do_syscall_64+0x69/0x80
-   ? exc_page_fault+0x62/0x140
-   ? asm_exc_page_fault+0x8/0x30
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The command was completed in the abort path during driver unload with a
-lock held, causing the warning in abort path. Hence complete the command
-without any lock held.
-
-Reported-by: Lin Li <lilin@redhat.com>
-Tested-by: Lin Li <lilin@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Link: https://lore.kernel.org/r/20230313043711.13500-2-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 857942fd1aa1 ("i40e: Fix Rx hash reported to the stack by our driver")
+Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
+Reviewed-by: Michal Kubiak <michal.kubiak@intel.com>
+Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
+Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf_txrx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -1762,6 +1762,17 @@ __qla2x00_abort_all_cmds(struct qla_qpai
- 	for (cnt = 1; cnt < req->num_outstanding_cmds; cnt++) {
- 		sp = req->outstanding_cmds[cnt];
- 		if (sp) {
-+			/*
-+			 * perform lockless completion during driver unload
-+			 */
-+			if (qla2x00_chip_is_down(vha)) {
-+				req->outstanding_cmds[cnt] = NULL;
-+				spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
-+				sp->done(sp, res);
-+				spin_lock_irqsave(qp->qp_lock_ptr, flags);
-+				continue;
-+			}
-+
- 			switch (sp->cmd_type) {
- 			case TYPE_SRB:
- 				qla2x00_abort_srb(qp, sp, res, &flags);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
+index 1f7b842c67638..7a1812912d6c1 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
+@@ -1061,7 +1061,7 @@ static inline void iavf_rx_hash(struct iavf_ring *ring,
+ 		cpu_to_le64((u64)IAVF_RX_DESC_FLTSTAT_RSS_HASH <<
+ 			    IAVF_RX_DESC_STATUS_FLTSTAT_SHIFT);
+ 
+-	if (ring->netdev->features & NETIF_F_RXHASH)
++	if (!(ring->netdev->features & NETIF_F_RXHASH))
+ 		return;
+ 
+ 	if ((rx_desc->wb.qword1.status_error_len & rss_mask) == rss_mask) {
+-- 
+2.39.2
+
 
 
