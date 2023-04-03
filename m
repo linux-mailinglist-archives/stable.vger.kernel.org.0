@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 122046D4835
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6ECD6D4942
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbjDCO0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
+        id S233643AbjDCOgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:36:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233309AbjDCO0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:38 -0400
+        with ESMTP id S233655AbjDCOgU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF582319A8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F270B17668
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B70B61D94
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36130C433A1;
-        Mon,  3 Apr 2023 14:26:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86CE361DE4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BEF1C433D2;
+        Mon,  3 Apr 2023 14:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531990;
-        bh=i2GGW3Zzb33Agi4Dth8sraYtXMV8E2zOCVJOmTcxFCI=;
+        s=korg; t=1680532571;
+        bh=4TgJablwOESgf7aAECG0zRxEoDPpNi4ShnAHqdp41b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYntbp1NJ0aS+mqmcGL7s0Ijcg7ueyhXcDK8wfoBSS+7ZfJZDybKZaPAeE+pUIolW
-         B5nO31Q4M5RCTYWf2WRqmdIc4z6wVU3O22974vwpZKfmuJk/MgYaGCRyiYIbEu0bRf
-         0QQOYWCzLGcJADnR5oMRbwX/rKl8ALvqxdNmEt3Y=
+        b=UJsCOrNTnhGlt+pYQ+qWAxripTU9k7YSP3rXbDfovFLRe1cKmxmCBg8DPUucqYsX/
+         WaN2E3M5jQuljqD9TtCCsR4cm8ByWpdyviOZVYL5qKIk/UgC3SvsR7oOHs+znWP2+h
+         0PgWhi0UVbQj1AJoM0tnYytSmkFW+5NvkKqEyD6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/173] Bluetooth: btqcomsmd: Fix command timeout after setting BD address
-Date:   Mon,  3 Apr 2023 16:07:48 +0200
-Message-Id: <20230403140416.162523085@linuxfoundation.org>
+Subject: [PATCH 6.1 034/181] ASoC: Intel: avs: da7219: Explicitly define codec format
+Date:   Mon,  3 Apr 2023 16:07:49 +0200
+Message-Id: <20230403140416.267170707@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 5d44ab9e204200a78ad55cdf185aa2bb109b5950 ]
+[ Upstream commit 61f368624fe4d0c25c6e9c917574b8ace51d776e ]
 
-On most devices using the btqcomsmd driver (e.g. the DragonBoard 410c
-and other devices based on the Qualcomm MSM8916/MSM8909/... SoCs)
-the Bluetooth firmware seems to become unresponsive for a while after
-setting the BD address. On recent kernel versions (at least 5.17+)
-this often causes timeouts for subsequent commands, e.g. the HCI reset
-sent by the Bluetooth core during initialization:
+da7219 is headset codec configured in 48000/2/S24_LE format regardless
+of front end format, so force it to be so.
 
-    Bluetooth: hci0: Opcode 0x c03 failed: -110
-
-Unfortunately this behavior does not seem to be documented anywhere.
-Experimentation suggests that the minimum necessary delay to avoid
-the problem is ~150us. However, to be sure add a sleep for > 1ms
-in case it is a bit longer on other firmware versions.
-
-Older kernel versions are likely also affected, although perhaps with
-slightly different errors or less probability. Side effects can easily
-hide the issue in most cases, e.g. unrelated incoming interrupts that
-cause the necessary delay.
-
-Fixes: 1511cc750c3d ("Bluetooth: Introduce Qualcomm WCNSS SMD based HCI driver")
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Link: https://lore.kernel.org/r/20230303134854.2277146-3-amadeuszx.slawinski@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btqcomsmd.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ sound/soc/intel/avs/boards/da7219.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/bluetooth/btqcomsmd.c b/drivers/bluetooth/btqcomsmd.c
-index 2acb719e596f5..11c7e04bf3947 100644
---- a/drivers/bluetooth/btqcomsmd.c
-+++ b/drivers/bluetooth/btqcomsmd.c
-@@ -122,6 +122,21 @@ static int btqcomsmd_setup(struct hci_dev *hdev)
+diff --git a/sound/soc/intel/avs/boards/da7219.c b/sound/soc/intel/avs/boards/da7219.c
+index 02ae542ad7792..a63563594b4cd 100644
+--- a/sound/soc/intel/avs/boards/da7219.c
++++ b/sound/soc/intel/avs/boards/da7219.c
+@@ -111,6 +111,26 @@ static int avs_da7219_codec_init(struct snd_soc_pcm_runtime *runtime)
  	return 0;
  }
  
-+static int btqcomsmd_set_bdaddr(struct hci_dev *hdev, const bdaddr_t *bdaddr)
++static int
++avs_da7219_be_fixup(struct snd_soc_pcm_runtime *runrime, struct snd_pcm_hw_params *params)
 +{
-+	int ret;
++	struct snd_interval *rate, *channels;
++	struct snd_mask *fmt;
 +
-+	ret = qca_set_bdaddr_rome(hdev, bdaddr);
-+	if (ret)
-+		return ret;
++	rate = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
++	channels = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
++	fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
 +
-+	/* The firmware stops responding for a while after setting the bdaddr,
-+	 * causing timeouts for subsequent commands. Sleep a bit to avoid this.
-+	 */
-+	usleep_range(1000, 10000);
++	/* The ADSP will convert the FE rate to 48k, stereo */
++	rate->min = rate->max = 48000;
++	channels->min = channels->max = 2;
++
++	/* set SSP0 to 24 bit */
++	snd_mask_none(fmt);
++	snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S24_LE);
 +	return 0;
 +}
 +
- static int btqcomsmd_probe(struct platform_device *pdev)
+ static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
+ 			       struct snd_soc_dai_link **dai_link)
  {
- 	struct btqcomsmd *btq;
-@@ -162,7 +177,7 @@ static int btqcomsmd_probe(struct platform_device *pdev)
- 	hdev->close = btqcomsmd_close;
- 	hdev->send = btqcomsmd_send;
- 	hdev->setup = btqcomsmd_setup;
--	hdev->set_bdaddr = qca_set_bdaddr_rome;
-+	hdev->set_bdaddr = btqcomsmd_set_bdaddr;
- 
- 	ret = hci_register_dev(hdev);
- 	if (ret < 0)
+@@ -142,6 +162,7 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
+ 	dl->num_platforms = 1;
+ 	dl->id = 0;
+ 	dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
++	dl->be_hw_params_fixup = avs_da7219_be_fixup;
+ 	dl->init = avs_da7219_codec_init;
+ 	dl->nonatomic = 1;
+ 	dl->no_pcm = 1;
 -- 
 2.39.2
 
