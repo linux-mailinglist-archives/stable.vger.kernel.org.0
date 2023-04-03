@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 134F76D496C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B786D478B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233690AbjDCOh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48160 "EHLO
+        id S233066AbjDCOVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbjDCOhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41301766E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:39 -0700 (PDT)
+        with ESMTP id S233058AbjDCOVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F188B312AB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53BEFB81CBC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D7CC433D2;
-        Mon,  3 Apr 2023 14:37:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95A9BB81B01
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D1FCC433A0;
+        Mon,  3 Apr 2023 14:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532657;
-        bh=NE99H+N2fc5lPLf+0ydmjzBy2LHMWhPInpLgsCfHzbk=;
+        s=korg; t=1680531654;
+        bh=yo/GowJspS9xIPJZdpuPQJlHVyI1uHUr04sRIKrsvcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXZmZs5hGN4MlB4TCAMTDyrrW+MPmJljpwbwXWvPJnJnKQpK4dxzGs4G11i6vzT2O
-         ylOs0dmuOvc89jBvngWcCp4rKB5IywhZ3k7ZFMmr+VHbYf/dnEH5VqdH41rmagn7qE
-         bYfILkafXqCGzbfmvw+SYitwtmBEJj3uUekPeZP0=
+        b=G8QXIQaCnTv5BJiMQnSjplWMS3r7QvuzLUfsbMETgDxP0uzNDJ7u5A1UWEVY7J3Cj
+         8XzpYJEEzTnc9gVLkK8fqedeQ7BtW425J9v7e2rPSheze3/D7caZ6fWgMRVzlrvGFY
+         tap/oHuo6+a2NeTUDK73vdS+5GQrwG/GyHKz1MUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 067/181] mtd: nand: mxic-ecc: Fix mxic_ecc_data_xfer_wait_for_completion() when irq is used
+        patches@lists.linux.dev, Yaroslav Furman <yaro330@gmail.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.4 030/104] uas: Add US_FL_NO_REPORT_OPCODES for JMicron JMS583Gen 2
 Date:   Mon,  3 Apr 2023 16:08:22 +0200
-Message-Id: <20230403140417.309433653@linuxfoundation.org>
+Message-Id: <20230403140405.484138146@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,43 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yaroslav Furman <yaro330@gmail.com>
 
-[ Upstream commit 75dce6a941e3f16c3b4878c8b2f46d5d07c619ce ]
+commit a37eb61b6ec064ac794b8a1e89fd33eb582fe51d upstream.
 
-wait_for_completion_timeout() and readl_poll_timeout() don't handle their
-return value the same way.
+Just like other JMicron JMS5xx enclosures, it chokes on report-opcodes,
+let's avoid them.
 
-wait_for_completion_timeout() returns 0 on time out (and >0 in all other
-cases)
-readl_poll_timeout() returns 0 on success and -ETIMEDOUT upon a timeout.
-
-In order for the error handling path to work in both cases, the logic
-against wait_for_completion_timeout() needs to be inverted.
-
-Fixes: 48e6633a9fa2 ("mtd: nand: mxic-ecc: Add Macronix external ECC engine support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/beddbc374557e44ceec897e68c4a5d12764ddbb9.1676459308.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yaroslav Furman <yaro330@gmail.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230312090745.47962-1-yaro330@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/ecc-mxic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/mtd/nand/ecc-mxic.c b/drivers/mtd/nand/ecc-mxic.c
-index 8afdca731b874..6b487ffe2f2dc 100644
---- a/drivers/mtd/nand/ecc-mxic.c
-+++ b/drivers/mtd/nand/ecc-mxic.c
-@@ -429,6 +429,7 @@ static int mxic_ecc_data_xfer_wait_for_completion(struct mxic_ecc_engine *mxic)
- 		mxic_ecc_enable_int(mxic);
- 		ret = wait_for_completion_timeout(&mxic->complete,
- 						  msecs_to_jiffies(1000));
-+		ret = ret ? 0 : -ETIMEDOUT;
- 		mxic_ecc_disable_int(mxic);
- 	} else {
- 		ret = readl_poll_timeout(mxic->regs + INTRPT_STS, val,
--- 
-2.39.2
-
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -111,6 +111,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BROKEN_FUA),
+ 
++/* Reported by: Yaroslav Furman <yaro330@gmail.com> */
++UNUSUAL_DEV(0x152d, 0x0583, 0x0000, 0x9999,
++		"JMicron",
++		"JMS583Gen 2",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_REPORT_OPCODES),
++
+ /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
+ UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
+ 		"PNY",
 
 
