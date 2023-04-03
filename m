@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1227B6D4699
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD446D46E5
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232835AbjDCOLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:11:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51396 "EHLO
+        id S232917AbjDCOPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232822AbjDCOLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:11:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D572C9E3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:28 -0700 (PDT)
+        with ESMTP id S232909AbjDCOPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53292953E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED9B8B81B07
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D371C433D2;
-        Mon,  3 Apr 2023 14:11:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40204B81B35
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C870C433EF;
+        Mon,  3 Apr 2023 14:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531084;
-        bh=FGzaECPAJipNzpIl9hT6PZYius2mSfj/XIZN0wJsyQI=;
+        s=korg; t=1680531305;
+        bh=ApVjCvisLECc8T7GZaG4NPq9k5E8KDEEC9ZqL3Xay98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2DceJQLnW1a3El00cNT++N7rH8qBetf35QsuWPfdwnVqliOHl4YuM60XU7xteIHF
-         E2G9BLVOBZQy3RgIwjQhrJs52YCEMAGnc4WM5kQuyCFVGNI3OX3vMU6Z5TTh6+uWbt
-         fRaceDUwZqpV4CZUszT23v+PAI9OTw02L6c51Gt4=
+        b=MafvIcnFHGOY9xW83Y5vlgh0Nk8CE3uK3WeVsVvxnqolIwAqxKhGVEMeqRw7LpTDg
+         LwrD/42vqmK8EOYUuCLo+SoSwiq/3m25WYylad6gVDl8sjoESYSxTjU0QR8Wf0zovt
+         BlYHmWJeVSJeNmDPwOGVGcHlIGWat0Aj3Mo0smPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/66] scsi: scsi_dh_alua: Fix memleak for qdata in alua_activate()
+Subject: [PATCH 4.19 13/84] net: qcom/emac: Fix use after free bug in emac_remove due to race condition
 Date:   Mon,  3 Apr 2023 16:08:14 +0200
-Message-Id: <20230403140351.986961681@linuxfoundation.org>
+Message-Id: <20230403140353.835274761@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,59 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit a13faca032acbf2699293587085293bdfaafc8ae ]
+[ Upstream commit 6b6bc5b8bd2d4ca9e1efa9ae0f98a0b0687ace75 ]
 
-If alua_rtpg_queue() failed from alua_activate(), then 'qdata' is not
-freed, which will cause following memleak:
+In emac_probe, &adpt->work_thread is bound with
+emac_work_thread. Then it will be started by timeout
+handler emac_tx_timeout or a IRQ handler emac_isr.
 
-unreferenced object 0xffff88810b2c6980 (size 32):
-  comm "kworker/u16:2", pid 635322, jiffies 4355801099 (age 1216426.076s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    40 39 24 c1 ff ff ff ff 00 f8 ea 0a 81 88 ff ff  @9$.............
-  backtrace:
-    [<0000000098f3a26d>] alua_activate+0xb0/0x320
-    [<000000003b529641>] scsi_dh_activate+0xb2/0x140
-    [<000000007b296db3>] activate_path_work+0xc6/0xe0 [dm_multipath]
-    [<000000007adc9ace>] process_one_work+0x3c5/0x730
-    [<00000000c457a985>] worker_thread+0x93/0x650
-    [<00000000cb80e628>] kthread+0x1ba/0x210
-    [<00000000a1e61077>] ret_from_fork+0x22/0x30
+If we remove the driver which will call emac_remove
+  to make cleanup, there may be a unfinished work.
 
-Fix the problem by freeing 'qdata' in error path.
+The possible sequence is as follows:
 
-Fixes: 625fe857e4fa ("scsi: scsi_dh_alua: Check scsi_device_get() return value")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20230315062154.668812-1-yukuai1@huaweicloud.com
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix it by finishing the work before cleanup in the emac_remove
+and disable timeout response.
+
+CPU0                  CPU1
+
+                    |emac_work_thread
+emac_remove         |
+free_netdev         |
+kfree(netdev);      |
+                    |emac_reinit_locked
+                    |emac_mac_down
+                    |//use netdev
+Fixes: b9b17debc69d ("net: emac: emac gigabit ethernet controller driver")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qualcomm/emac/emac.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index 2cf5579a9ad9c..750d57d77be3b 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -1025,10 +1025,12 @@ static int alua_activate(struct scsi_device *sdev,
- 	rcu_read_unlock();
- 	mutex_unlock(&h->init_mutex);
+diff --git a/drivers/net/ethernet/qualcomm/emac/emac.c b/drivers/net/ethernet/qualcomm/emac/emac.c
+index 76a9b37c8680f..3c764c28d5dbc 100644
+--- a/drivers/net/ethernet/qualcomm/emac/emac.c
++++ b/drivers/net/ethernet/qualcomm/emac/emac.c
+@@ -752,9 +752,15 @@ static int emac_remove(struct platform_device *pdev)
+ 	struct net_device *netdev = dev_get_drvdata(&pdev->dev);
+ 	struct emac_adapter *adpt = netdev_priv(netdev);
  
--	if (alua_rtpg_queue(pg, sdev, qdata, true))
-+	if (alua_rtpg_queue(pg, sdev, qdata, true)) {
- 		fn = NULL;
--	else
-+	} else {
-+		kfree(qdata);
- 		err = SCSI_DH_DEV_OFFLINED;
-+	}
- 	kref_put(&pg->kref, release_port_group);
- out:
- 	if (fn)
++	netif_carrier_off(netdev);
++	netif_tx_disable(netdev);
++
+ 	unregister_netdev(netdev);
+ 	netif_napi_del(&adpt->rx_q.napi);
+ 
++	free_irq(adpt->irq.irq, &adpt->irq);
++	cancel_work_sync(&adpt->work_thread);
++
+ 	emac_clks_teardown(adpt);
+ 
+ 	put_device(&adpt->phydev->mdio.dev);
 -- 
 2.39.2
 
