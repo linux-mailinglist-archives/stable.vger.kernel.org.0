@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 548A66D4723
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD676D46A9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232970AbjDCOR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36060 "EHLO
+        id S232827AbjDCOMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232963AbjDCOR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC1B2BEF5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:26 -0700 (PDT)
+        with ESMTP id S232824AbjDCOMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A60D1F7A5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BDAFB81B4D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CD4C433EF;
-        Mon,  3 Apr 2023 14:17:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F8061C67
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE8DAC433EF;
+        Mon,  3 Apr 2023 14:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531444;
-        bh=Q24NRcEzhgVm8UiR9gH3LzWlYm2ehh+5ZgK6JcpA32o=;
+        s=korg; t=1680531124;
+        bh=aT+9RI8B6H+7lryqebuiyR0u4hMFVVvihkuE336Cddw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFo3Qyl99mlltfkNPvONL23CJrxoglneBz25ep9kdwwuTeAVYY7Arj3Qs2jzjalhi
-         To9dyndWtOQYvAM+7hSKrNupZ/rb+hXYMdc40iQQj0tGY0927BDlfELanki+ltuCZv
-         2TYDTGUiTRoLpF9FNwpMGu126JWtmtuqj5QXZddo=
+        b=sDdTCLbp1BBQrCFuycXpzB9/Kw0e9+JLtklzyihWLrtFeSUQU/asd2Mn5YXWJyMbh
+         O3b+WdPXpW6k8q/YfxQrlKO+pzwWqWpRf/z31EzZCSZT5edEgqm0D1E5k1ezKMBzSS
+         nUyradyncIrHezPx8voU/VY5ybHXxrzb8RNtO7xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Rich Felker <dalias@libc.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/84] sh: sanitize the flags on sigreturn
+Subject: [PATCH 4.14 28/66] net: usb: cdc_mbim: avoid altsetting toggling for Telit FE990
 Date:   Mon,  3 Apr 2023 16:08:36 +0200
-Message-Id: <20230403140354.556334686@linuxfoundation.org>
+Message-Id: <20230403140352.912152444@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
+[ Upstream commit 418383e6ed6b4624a54ec05c535f13d184fbf33b ]
 
-We fetch %SR value from sigframe; it might have been modified by signal
-handler, so we can't trust it with any bits that are not modifiable in
-user mode.
+Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit FE990
+0x1081 composition in order to avoid bind error.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Rich Felker <dalias@libc.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Link: https://lore.kernel.org/r/20230306115933.198259-1-enrico.sau@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/processor_32.h | 1 +
- arch/sh/kernel/signal_32.c         | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/net/usb/cdc_mbim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/sh/include/asm/processor_32.h b/arch/sh/include/asm/processor_32.h
-index 95100d8a0b7b4..fc94603724b86 100644
---- a/arch/sh/include/asm/processor_32.h
-+++ b/arch/sh/include/asm/processor_32.h
-@@ -57,6 +57,7 @@
- #define SR_FD		0x00008000
- #define SR_MD		0x40000000
+diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
+index 41bac861ca99d..72a93dc2df868 100644
+--- a/drivers/net/usb/cdc_mbim.c
++++ b/drivers/net/usb/cdc_mbim.c
+@@ -665,6 +665,11 @@ static const struct usb_device_id mbim_devs[] = {
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
+ 	},
  
-+#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
- /*
-  * DSP structure and data
-  */
-diff --git a/arch/sh/kernel/signal_32.c b/arch/sh/kernel/signal_32.c
-index c46c0020ff55e..ce93ae78c3002 100644
---- a/arch/sh/kernel/signal_32.c
-+++ b/arch/sh/kernel/signal_32.c
-@@ -116,6 +116,7 @@ static int
- restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
- {
- 	unsigned int err = 0;
-+	unsigned int sr = regs->sr & ~SR_USER_MASK;
- 
- #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
- 			COPY(regs[1]);
-@@ -131,6 +132,8 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p
- 	COPY(sr);	COPY(pc);
- #undef COPY
- 
-+	regs->sr = (regs->sr & SR_USER_MASK) | sr;
++	/* Telit FE990 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1081, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
++	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
++	},
 +
- #ifdef CONFIG_SH_FPU
- 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
- 		int owned_fp;
+ 	/* default entry */
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
 -- 
 2.39.2
 
