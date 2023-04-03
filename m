@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 389066D46D3
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069006D473D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232793AbjDCOO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58922 "EHLO
+        id S232934AbjDCOSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232846AbjDCOO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BAC4EFD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:26 -0700 (PDT)
+        with ESMTP id S233013AbjDCOSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897912952D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 367BE61C2F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49FD6C433EF;
-        Mon,  3 Apr 2023 14:14:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E477B81B92
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABEEAC433EF;
+        Mon,  3 Apr 2023 14:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531265;
-        bh=Aeh4P4TT+k04DjzYUgpPDb1o1+M9iWo3CiOTETMf9Fw=;
+        s=korg; t=1680531510;
+        bh=2aIhFII3eIVmS73uoFi9gINRR136PU1L00WNnJmuWXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PxKMmwBU4XsmqSgRJQQ8+hf+AHq0EGjCZrGFXXMEo2w65lYoJa0MXcmIPD/4LJp84
-         /tDVCm65vyHCH3HdBTZljaGUNToZRztYpl8mx0GFxnw8P0VSOvMhx/tXQbN4xuu25D
-         5QqwXP3h71CUMwYnE24XXUB5WlUdzJrhaa34X1rI=
+        b=SisXhUwxq4j+C45XNSNT1Cv/KNjqqJAcUAjCIdMr2Vl6WYATAaxTLRzjaF7USoQ4V
+         YPgRkFVGJeqTEbYoqztejgKsfS1fi+4zrbkST7VNSz69bv9lCqd2qLk1GpTqAblv8y
+         rU7TckpYxW9Oka3rg58fwBJnEoUjatmREP8yIv+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com,
-        Jun Nie <jun.nie@linaro.org>, Ye Bin <yebin10@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 4.14 64/66] ext4: fix kernel BUG in ext4_write_inline_data_end()
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Paul Durrant <paul@xen.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 4.19 71/84] xen/netback: dont do grant copy across page boundary
 Date:   Mon,  3 Apr 2023 16:09:12 +0200
-Message-Id: <20230403140354.015532633@linuxfoundation.org>
+Message-Id: <20230403140355.880522451@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +52,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 5c099c4fdc438014d5893629e70a8ba934433ee8 upstream.
+commit 05310f31ca74673a96567fb14637b7d5d6c82ea5 upstream.
 
-Syzbot report follow issue:
-------------[ cut here ]------------
-kernel BUG at fs/ext4/inline.c:227!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 3629 Comm: syz-executor212 Not tainted 6.1.0-rc5-syzkaller-00018-g59d0d52c30d4 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:ext4_write_inline_data+0x344/0x3e0 fs/ext4/inline.c:227
-RSP: 0018:ffffc90003b3f368 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff8880704e16c0 RCX: 0000000000000000
-RDX: ffff888021763a80 RSI: ffffffff821e31a4 RDI: 0000000000000006
-RBP: 000000000006818e R08: 0000000000000006 R09: 0000000000068199
-R10: 0000000000000079 R11: 0000000000000000 R12: 000000000000000b
-R13: 0000000000068199 R14: ffffc90003b3f408 R15: ffff8880704e1c82
-FS:  000055555723e3c0(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fffe8ac9080 CR3: 0000000079f81000 CR4: 0000000000350ee0
-Call Trace:
- <TASK>
- ext4_write_inline_data_end+0x2a3/0x12f0 fs/ext4/inline.c:768
- ext4_write_end+0x242/0xdd0 fs/ext4/inode.c:1313
- ext4_da_write_end+0x3ed/0xa30 fs/ext4/inode.c:3063
- generic_perform_write+0x316/0x570 mm/filemap.c:3764
- ext4_buffered_write_iter+0x15b/0x460 fs/ext4/file.c:285
- ext4_file_write_iter+0x8bc/0x16e0 fs/ext4/file.c:700
- call_write_iter include/linux/fs.h:2191 [inline]
- do_iter_readv_writev+0x20b/0x3b0 fs/read_write.c:735
- do_iter_write+0x182/0x700 fs/read_write.c:861
- vfs_iter_write+0x74/0xa0 fs/read_write.c:902
- iter_file_splice_write+0x745/0xc90 fs/splice.c:686
- do_splice_from fs/splice.c:764 [inline]
- direct_splice_actor+0x114/0x180 fs/splice.c:931
- splice_direct_to_actor+0x335/0x8a0 fs/splice.c:886
- do_splice_direct+0x1ab/0x280 fs/splice.c:974
- do_sendfile+0xb19/0x1270 fs/read_write.c:1255
- __do_sys_sendfile64 fs/read_write.c:1323 [inline]
- __se_sys_sendfile64 fs/read_write.c:1309 [inline]
- __x64_sys_sendfile64+0x1d0/0x210 fs/read_write.c:1309
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
----[ end trace 0000000000000000 ]---
+Fix xenvif_get_requests() not to do grant copy operations across local
+page boundaries. This requires to double the maximum number of copy
+operations per queue, as each copy could now be split into 2.
 
-Above issue may happens as follows:
-ext4_da_write_begin
-  ext4_da_write_inline_data_begin
-    ext4_da_convert_inline_data_to_extent
-      ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-ext4_da_write_end
+Make sure that struct xenvif_tx_cb doesn't grow too large.
 
-ext4_run_li_request
-  ext4_mb_prefetch
-    ext4_read_block_bitmap_nowait
-      ext4_validate_block_bitmap
-        ext4_mark_group_bitmap_corrupted(sb, block_group, EXT4_GROUP_INFO_BBITMAP_CORRUPT)
-	 percpu_counter_sub(&sbi->s_freeclusters_counter,grp->bb_free);
-	  -> sbi->s_freeclusters_counter become zero
-ext4_da_write_begin
-  if (ext4_nonda_switch(inode->i_sb)) -> As freeclusters_counter is zero will return true
-    *fsdata = (void *)FALL_BACK_TO_NONDELALLOC;
-    ext4_write_begin
-ext4_da_write_end
-  if (write_mode == FALL_BACK_TO_NONDELALLOC)
-    ext4_write_end
-      if (inline_data)
-        ext4_write_inline_data_end
-	  ext4_write_inline_data
-	    BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
-           -> As inode is already convert to extent, so 'pos + len' > inline_size
-	   -> then trigger BUG.
-
-To solve this issue, instead of checking ext4_has_inline_data() which
-is only cleared after data has been written back, check the
-EXT4_STATE_MAY_INLINE_DATA flag in ext4_write_end().
-
-Fixes: f19d5870cbf7 ("ext4: add normal write support for inline data")
-Reported-by: syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com
-Reported-by: Jun Nie <jun.nie@linaro.org>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20221206144134.1919987-1-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-[ta: Fix conflict in if expression and use the local variable inline_data
-as it is initialized with ext4_has_inline_data(inode) anyway.]
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Cc: stable@vger.kernel.org
+Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/xen-netback/common.h  |    2 +-
+ drivers/net/xen-netback/netback.c |   25 +++++++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1425,7 +1425,8 @@ static int ext4_write_end(struct file *f
- 	int inline_data = ext4_has_inline_data(inode);
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data
+ 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
+ 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
  
- 	trace_ext4_write_end(inode, pos, len, copied);
--	if (inline_data) {
-+	if (inline_data &&
-+	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)) {
- 		ret = ext4_write_inline_data_end(inode, pos, len,
- 						 copied, page);
- 		if (ret < 0) {
+-	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
++	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
+ 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
+ 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
+ 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -327,6 +327,7 @@ static int xenvif_count_requests(struct
+ struct xenvif_tx_cb {
+ 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
+ 	u8 copy_count;
++	u32 split_mask;
+ };
+ 
+ #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
+@@ -354,6 +355,8 @@ static inline struct sk_buff *xenvif_all
+ 	struct sk_buff *skb =
+ 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
+ 			  GFP_ATOMIC | __GFP_NOWARN);
++
++	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
+ 	if (unlikely(skb == NULL))
+ 		return NULL;
+ 
+@@ -389,11 +392,13 @@ static void xenvif_get_requests(struct x
+ 	nr_slots = shinfo->nr_frags + 1;
+ 
+ 	copy_count(skb) = 0;
++	XENVIF_TX_CB(skb)->split_mask = 0;
+ 
+ 	/* Create copy ops for exactly data_len bytes into the skb head. */
+ 	__skb_put(skb, data_len);
+ 	while (data_len > 0) {
+ 		int amount = data_len > txp->size ? txp->size : data_len;
++		bool split = false;
+ 
+ 		cop->source.u.ref = txp->gref;
+ 		cop->source.domid = queue->vif->domid;
+@@ -406,6 +411,13 @@ static void xenvif_get_requests(struct x
+ 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
+ 				               - data_len);
+ 
++		/* Don't cross local page boundary! */
++		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
++			amount = XEN_PAGE_SIZE - cop->dest.offset;
++			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
++			split = true;
++		}
++
+ 		cop->len = amount;
+ 		cop->flags = GNTCOPY_source_gref;
+ 
+@@ -413,7 +425,8 @@ static void xenvif_get_requests(struct x
+ 		pending_idx = queue->pending_ring[index];
+ 		callback_param(queue, pending_idx).ctx = NULL;
+ 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
+-		copy_count(skb)++;
++		if (!split)
++			copy_count(skb)++;
+ 
+ 		cop++;
+ 		data_len -= amount;
+@@ -434,7 +447,8 @@ static void xenvif_get_requests(struct x
+ 			nr_slots--;
+ 		} else {
+ 			/* The copy op partially covered the tx_request.
+-			 * The remainder will be mapped.
++			 * The remainder will be mapped or copied in the next
++			 * iteration.
+ 			 */
+ 			txp->offset += amount;
+ 			txp->size -= amount;
+@@ -532,6 +546,13 @@ static int xenvif_tx_check_gop(struct xe
+ 		pending_idx = copy_pending_idx(skb, i);
+ 
+ 		newerr = (*gopp_copy)->status;
++
++		/* Split copies need to be handled together. */
++		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
++			(*gopp_copy)++;
++			if (!newerr)
++				newerr = (*gopp_copy)->status;
++		}
+ 		if (likely(!newerr)) {
+ 			/* The first frag might still have this slot mapped */
+ 			if (i < copy_count(skb) - 1 || !sharedslot)
 
 
