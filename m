@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 430336D4A7D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE186D4698
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234144AbjDCOru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:47:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38596 "EHLO
+        id S232828AbjDCOLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:11:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234073AbjDCOrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:24 -0400
+        with ESMTP id S232855AbjDCOLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:11:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACC61697A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5820A2D7CB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3FA061EFC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15730C4339B;
-        Mon,  3 Apr 2023 14:46:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7708A61C0C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B0ADC433EF;
+        Mon,  3 Apr 2023 14:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533192;
-        bh=Ks/vrInK+T10ZMd95fnDkU1UIouez3jI1LEu6oF2Mog=;
+        s=korg; t=1680531081;
+        bh=ygSp+g4Y+Ab1hDgl4rqv7mauQJdy7Fttff9lMibTLK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/dNz4lm2dxOUJix3yF836qVlvaEIju1MEPqVGmsdYY30U5iFBV+OGrNJDP2xofv1
-         B/fJhZPyqZNyyOZ6dgzVLU532Y0md8JxYZHtotKiW88hV4RjHuj7G6QjVR5H1me3Or
-         F9lafsuQ9AALLGozqVwPnHibzMYor9Yk4oZBzovE=
+        b=dKKIm9Jm1EUivHAJb4wDvgrNN2OwlwT9xu5TBJ5Cp8NkIFDW8JMq1iKPuzjG03bHA
+         n2/DuANwx1R3AFa5ZqwQgOCGO47+4nfVhU+kOlWWqsKlI5bPfGtG70GEQ8Hyl9l/+g
+         4+SJ8aiNTC+kxL/DcxPifu02sD+A1SfXlp1gYDKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 048/187] sched_getaffinity: dont assume cpumask_size() is fully initialized
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/66] i2c: imx-lpi2c: check only for enabled interrupt flags
 Date:   Mon,  3 Apr 2023 16:08:13 +0200
-Message-Id: <20230403140417.558102543@linuxfoundation.org>
+Message-Id: <20230403140351.940895159@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+When reading from I2C, the Tx watermark is set to 0. Unfortunately the
+TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
+than watermark. So it is set in every case, hence the reset default of 1.
+This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
+to send Tx data on a read message.
+Mask the IRQ status to filter for wanted flags only.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
-
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
-
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
-
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
-
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
-
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index 55551989d9da5..fb50f29d9b361 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -152,7 +152,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index e86801a631206..ca4d554126579 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -515,10 +515,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+ static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
+ {
+ 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
++	unsigned int enabled;
+ 	unsigned int temp;
  
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
++	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
++
+ 	lpi2c_imx_intctrl(lpi2c_imx, 0);
+ 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
++	temp &= enabled;
  
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 9a0698353d60f..57d84b534cdea 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -8404,14 +8404,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
- 
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
- 
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		unsigned int retlen = min(len, cpumask_size());
- 
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+ 	if (temp & MSR_RDF)
+ 		lpi2c_imx_read_rxfifo(lpi2c_imx);
 -- 
 2.39.2
 
