@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B859C6D47A3
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57256D4739
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233077AbjDCOV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44896 "EHLO
+        id S232997AbjDCOSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233054AbjDCOVx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:53 -0400
+        with ESMTP id S233003AbjDCOSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CAAD312B9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833422952D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68B2261D4F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D7AC433EF;
-        Mon,  3 Apr 2023 14:21:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CC5061CF1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29480C433D2;
+        Mon,  3 Apr 2023 14:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531693;
-        bh=wrhezHmLmCKjt4LuGcSQSpvYXsnUuqQcLgfeEZ4/JhE=;
+        s=korg; t=1680531499;
+        bh=0Smb4QBuAw+p2vpfDH6R5AGMEtDODAPQEEWPWaCioig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzdHtGSkncx25n/2eMTSvADzCUy6jIrglD5UEHT+ewsJkvG11q2BcTg3nxyPB6ivP
-         GoJx8qcscaIp/XqZq3d0gBEZFm/iCtRp0VcWWv3nCgqyF/Iysx3SvgHH/WqOWO/JSC
-         jstDWw0HJ1tK0yMpkvOItIsbcm9+CuviytlquIYA=
+        b=yApRJ9hF5K36mUnp8ie9rGve+XzuUzAwPMRy7qmfw+Ev+UYqChPcjUW2YPJsc3J34
+         50XCoP0EqMpVnfCqRNWrxSBNmui7mBo4wdavkLa8guo9AULRu5u38KPyjH/v8FbEza
+         rP76BoFMmDRt8ueIhd8GGMTdjPGyBu7yEwVjMfvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, SongJingyi <u201912584@hust.edu.cn>,
-        Dan Carpenter <error27@gmail.com>,
-        Dongliang Mu <dzm91@hust.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/104] ptp_qoriq: fix memory leak in probe()
+        patches@lists.linux.dev, msizanoen <msizanoen@qtmlabs.xyz>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 67/84] Input: alps - fix compatibility with -funsigned-char
 Date:   Mon,  3 Apr 2023 16:09:08 +0200
-Message-Id: <20230403140407.104429805@linuxfoundation.org>
+Message-Id: <20230403140355.751200267@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +52,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SongJingyi <u201912584@hust.edu.cn>
+From: msizanoen <msizanoen@qtmlabs.xyz>
 
-[ Upstream commit f33642224e38d7e0d59336e10e7b4e370b1c4506 ]
+commit 754ff5060daf5a1cf4474eff9b4edeb6c17ef7ab upstream.
 
-Smatch complains that:
-drivers/ptp/ptp_qoriq.c ptp_qoriq_probe()
-warn: 'base' from ioremap() not released.
+The AlpsPS/2 code previously relied on the assumption that `char` is a
+signed type, which was true on x86 platforms (the only place where this
+driver is used) before kernel 6.2. However, on 6.2 and later, this
+assumption is broken due to the introduction of -funsigned-char as a new
+global compiler flag.
 
-Fix this by revising the parameter from 'ptp_qoriq->base' to 'base'.
-This is only a bug if ptp_qoriq_init() returns on the
-first -ENODEV error path.
-For other error paths ptp_qoriq->base and base are the same.
-And this change makes the code more readable.
+Fix this by explicitly specifying the signedness of `char` when sign
+extending the values received from the device.
 
-Fixes: 7f4399ba405b ("ptp_qoriq: fix NULL access if ptp dt node missing")
-Signed-off-by: SongJingyi <u201912584@hust.edu.cn>
-Reviewed-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Dongliang Mu <dzm91@hust.edu.cn>
-Link: https://lore.kernel.org/r/20230324031406.1895159-1-u201912584@hust.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f3f33c677699 ("Input: alps - Rushmore and v7 resolution support")
+Signed-off-by: msizanoen <msizanoen@qtmlabs.xyz>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230320045228.182259-1-msizanoen@qtmlabs.xyz
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ptp/ptp_qoriq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/alps.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
-index a577218d1ab71..ca211feadb383 100644
---- a/drivers/ptp/ptp_qoriq.c
-+++ b/drivers/ptp/ptp_qoriq.c
-@@ -604,7 +604,7 @@ static int ptp_qoriq_probe(struct platform_device *dev)
- 	return 0;
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -855,8 +855,8 @@ static void alps_process_packet_v6(struc
+ 			x = y = z = 0;
  
- no_clock:
--	iounmap(ptp_qoriq->base);
-+	iounmap(base);
- no_ioremap:
- 	release_resource(ptp_qoriq->rsrc);
- no_resource:
--- 
-2.39.2
-
+ 		/* Divide 4 since trackpoint's speed is too fast */
+-		input_report_rel(dev2, REL_X, (char)x / 4);
+-		input_report_rel(dev2, REL_Y, -((char)y / 4));
++		input_report_rel(dev2, REL_X, (s8)x / 4);
++		input_report_rel(dev2, REL_Y, -((s8)y / 4));
+ 
+ 		psmouse_report_standard_buttons(dev2, packet[3]);
+ 
+@@ -1107,8 +1107,8 @@ static void alps_process_trackstick_pack
+ 	    ((packet[3] & 0x20) << 1);
+ 	z = (packet[5] & 0x3f) | ((packet[3] & 0x80) >> 1);
+ 
+-	input_report_rel(dev2, REL_X, (char)x);
+-	input_report_rel(dev2, REL_Y, -((char)y));
++	input_report_rel(dev2, REL_X, (s8)x);
++	input_report_rel(dev2, REL_Y, -((s8)y));
+ 	input_report_abs(dev2, ABS_PRESSURE, z);
+ 
+ 	psmouse_report_standard_buttons(dev2, packet[1]);
+@@ -2297,20 +2297,20 @@ static int alps_get_v3_v7_resolution(str
+ 	if (reg < 0)
+ 		return reg;
+ 
+-	x_pitch = (char)(reg << 4) >> 4; /* sign extend lower 4 bits */
++	x_pitch = (s8)(reg << 4) >> 4; /* sign extend lower 4 bits */
+ 	x_pitch = 50 + 2 * x_pitch; /* In 0.1 mm units */
+ 
+-	y_pitch = (char)reg >> 4; /* sign extend upper 4 bits */
++	y_pitch = (s8)reg >> 4; /* sign extend upper 4 bits */
+ 	y_pitch = 36 + 2 * y_pitch; /* In 0.1 mm units */
+ 
+ 	reg = alps_command_mode_read_reg(psmouse, reg_pitch + 1);
+ 	if (reg < 0)
+ 		return reg;
+ 
+-	x_electrode = (char)(reg << 4) >> 4; /* sign extend lower 4 bits */
++	x_electrode = (s8)(reg << 4) >> 4; /* sign extend lower 4 bits */
+ 	x_electrode = 17 + x_electrode;
+ 
+-	y_electrode = (char)reg >> 4; /* sign extend upper 4 bits */
++	y_electrode = (s8)reg >> 4; /* sign extend upper 4 bits */
+ 	y_electrode = 13 + y_electrode;
+ 
+ 	x_phys = x_pitch * (x_electrode - 1); /* In 0.1 mm units */
 
 
