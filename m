@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2ABD6D4926
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 881FC6D4A00
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233599AbjDCOfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42670 "EHLO
+        id S233833AbjDCOnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233645AbjDCOfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096664EE2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:13 -0700 (PDT)
+        with ESMTP id S233849AbjDCOnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C464EE2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5E26B81C9B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF197C433EF;
-        Mon,  3 Apr 2023 14:35:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0490C61EE3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AE5C433D2;
+        Mon,  3 Apr 2023 14:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532510;
-        bh=N52u+DWoEdzFmsxlmgeuEWsuC2lLud9JbZLOqLtNG8Y=;
+        s=korg; t=1680532980;
+        bh=y8N0mtvySikmI20WesIZfWebfWzfrmwo/vMN87eTlAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahowzpjD2S54s2zxemF0Cb6LEPUMfxZvxkiLUFk2fVHPBAbLS7XTsS5F3m2Dn36qj
-         23ivuIVZugJgRMnlTJ9YLf4DX1QELREEwrblQybXj1J3OsEFgTWbrlHRp2tf1B5zzM
-         6nEaunsJnuibnFO30v2BH68ia6ihz5iyUZCZuKso=
+        b=ptVJEUFTTMwbEwFhADiO8L581HfoUzvCuB1SOmYcUD7ctjGhcoPRyyZNeq9ou2SUg
+         rpI4x9Mr0Pzi3IXPP+5OHnzCylWHl8D8I4RYjxK/o1tjGRip9sOIhXotFGxZFBqfbw
+         ooVBfMwYEuhczznjitVUASGK2Ky70+DVbcYCzBxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anders Roxell <anders.roxell@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Marco Elver <elver@google.com>,
-        David Gow <davidgow@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Gil Fine <gil.fine@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 011/181] kernel: kcsan: kcsan_test: build without structleak plugin
+Subject: [PATCH 6.2 001/187] thunderbolt: Limit USB3 bandwidth of certain Intel USB4 host routers
 Date:   Mon,  3 Apr 2023 16:07:26 +0200
-Message-Id: <20230403140415.485035359@linuxfoundation.org>
+Message-Id: <20230403140416.062712820@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,42 +55,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Gil Fine <gil.fine@linux.intel.com>
 
-[ Upstream commit 6fcd4267a840d0536b8e5334ad5f31e4105fce85 ]
+[ Upstream commit f0a57dd33b3eadf540912cd130db727ea824d174 ]
 
-Building kcsan_test with structleak plugin enabled makes the stack frame
-size to grow.
+Current Intel USB4 host routers have hardware limitation that the USB3
+bandwidth cannot go higher than 16376 Mb/s. Work this around by adding a
+new quirk that limits the bandwidth for the affected host routers.
 
-kernel/kcsan/kcsan_test.c:704:1: error: the frame size of 3296 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
-
-Turn off the structleak plugin checks for kcsan_test.
-
-Link: https://lkml.kernel.org/r/20221128104358.2660634-1-anders.roxell@linaro.org
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Marco Elver <elver@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David Gow <davidgow@google.com>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Stable-dep-of: 5eb39cde1e24 ("kcsan: avoid passing -g for test")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gil Fine <gil.fine@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thunderbolt/quirks.c | 31 +++++++++++++++++++++++++++++++
+ drivers/thunderbolt/tb.h     |  3 +++
+ drivers/thunderbolt/usb4.c   | 17 +++++++++++++++--
+ 3 files changed, 49 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/kcsan/Makefile b/kernel/kcsan/Makefile
-index 4f35d1bced6a2..8cf70f068d92d 100644
---- a/kernel/kcsan/Makefile
-+++ b/kernel/kcsan/Makefile
-@@ -17,4 +17,5 @@ KCSAN_INSTRUMENT_BARRIERS_selftest.o := y
- obj-$(CONFIG_KCSAN_SELFTEST) += selftest.o
+diff --git a/drivers/thunderbolt/quirks.c b/drivers/thunderbolt/quirks.c
+index ae28a03fa890b..1157b8869bcca 100644
+--- a/drivers/thunderbolt/quirks.c
++++ b/drivers/thunderbolt/quirks.c
+@@ -26,6 +26,19 @@ static void quirk_clx_disable(struct tb_switch *sw)
+ 	tb_sw_dbg(sw, "disabling CL states\n");
+ }
  
- CFLAGS_kcsan_test.o := $(CFLAGS_KCSAN) -g -fno-omit-frame-pointer
-+CFLAGS_kcsan_test.o += $(DISABLE_STRUCTLEAK_PLUGIN)
- obj-$(CONFIG_KCSAN_KUNIT_TEST) += kcsan_test.o
++static void quirk_usb3_maximum_bandwidth(struct tb_switch *sw)
++{
++	struct tb_port *port;
++
++	tb_switch_for_each_port(sw, port) {
++		if (!tb_port_is_usb3_down(port))
++			continue;
++		port->max_bw = 16376;
++		tb_port_dbg(port, "USB3 maximum bandwidth limited to %u Mb/s\n",
++			    port->max_bw);
++	}
++}
++
+ struct tb_quirk {
+ 	u16 hw_vendor_id;
+ 	u16 hw_device_id;
+@@ -43,6 +56,24 @@ static const struct tb_quirk tb_quirks[] = {
+ 	 * DP buffers.
+ 	 */
+ 	{ 0x8087, 0x0b26, 0x0000, 0x0000, quirk_dp_credit_allocation },
++	/*
++	 * Limit the maximum USB3 bandwidth for the following Intel USB4
++	 * host routers due to a hardware issue.
++	 */
++	{ 0x8087, PCI_DEVICE_ID_INTEL_ADL_NHI0, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
++	{ 0x8087, PCI_DEVICE_ID_INTEL_ADL_NHI1, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
++	{ 0x8087, PCI_DEVICE_ID_INTEL_RPL_NHI0, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
++	{ 0x8087, PCI_DEVICE_ID_INTEL_RPL_NHI1, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
++	{ 0x8087, PCI_DEVICE_ID_INTEL_MTL_M_NHI0, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
++	{ 0x8087, PCI_DEVICE_ID_INTEL_MTL_P_NHI0, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
++	{ 0x8087, PCI_DEVICE_ID_INTEL_MTL_P_NHI1, 0x0000, 0x0000,
++		  quirk_usb3_maximum_bandwidth },
+ 	/*
+ 	 * CLx is not supported on AMD USB4 Yellow Carp and Pink Sardine platforms.
+ 	 */
+diff --git a/drivers/thunderbolt/tb.h b/drivers/thunderbolt/tb.h
+index e11d973a8f9b6..f034723b1b40e 100644
+--- a/drivers/thunderbolt/tb.h
++++ b/drivers/thunderbolt/tb.h
+@@ -252,6 +252,8 @@ struct tb_switch {
+  * @ctl_credits: Buffers reserved for control path
+  * @dma_credits: Number of credits allocated for DMA tunneling for all
+  *		 DMA paths through this port.
++ * @max_bw: Maximum possible bandwidth through this adapter if set to
++ *	    non-zero.
+  *
+  * In USB4 terminology this structure represents an adapter (protocol or
+  * lane adapter).
+@@ -277,6 +279,7 @@ struct tb_port {
+ 	unsigned int total_credits;
+ 	unsigned int ctl_credits;
+ 	unsigned int dma_credits;
++	unsigned int max_bw;
+ };
+ 
+ /**
+diff --git a/drivers/thunderbolt/usb4.c b/drivers/thunderbolt/usb4.c
+index d5cd219ee9e6b..3a11b30b6c86a 100644
+--- a/drivers/thunderbolt/usb4.c
++++ b/drivers/thunderbolt/usb4.c
+@@ -1882,6 +1882,15 @@ int usb4_port_retimer_nvm_read(struct tb_port *port, u8 index,
+ 				usb4_port_retimer_nvm_read_block, &info);
+ }
+ 
++static inline unsigned int
++usb4_usb3_port_max_bandwidth(const struct tb_port *port, unsigned int bw)
++{
++	/* Take the possible bandwidth limitation into account */
++	if (port->max_bw)
++		return min(bw, port->max_bw);
++	return bw;
++}
++
+ /**
+  * usb4_usb3_port_max_link_rate() - Maximum support USB3 link rate
+  * @port: USB3 adapter port
+@@ -1903,7 +1912,9 @@ int usb4_usb3_port_max_link_rate(struct tb_port *port)
+ 		return ret;
+ 
+ 	lr = (val & ADP_USB3_CS_4_MSLR_MASK) >> ADP_USB3_CS_4_MSLR_SHIFT;
+-	return lr == ADP_USB3_CS_4_MSLR_20G ? 20000 : 10000;
++	ret = lr == ADP_USB3_CS_4_MSLR_20G ? 20000 : 10000;
++
++	return usb4_usb3_port_max_bandwidth(port, ret);
+ }
+ 
+ /**
+@@ -1930,7 +1941,9 @@ int usb4_usb3_port_actual_link_rate(struct tb_port *port)
+ 		return 0;
+ 
+ 	lr = val & ADP_USB3_CS_4_ALR_MASK;
+-	return lr == ADP_USB3_CS_4_ALR_20G ? 20000 : 10000;
++	ret = lr == ADP_USB3_CS_4_ALR_20G ? 20000 : 10000;
++
++	return usb4_usb3_port_max_bandwidth(port, ret);
+ }
+ 
+ static int usb4_usb3_port_cm_request(struct tb_port *port, bool request)
 -- 
 2.39.2
 
