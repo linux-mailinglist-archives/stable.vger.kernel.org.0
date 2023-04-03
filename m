@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFC96D48A5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 021396D47C5
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233444AbjDCOaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33846 "EHLO
+        id S233210AbjDCOXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233445AbjDCOah (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A0935009
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:34 -0700 (PDT)
+        with ESMTP id S233167AbjDCOXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65BA92D7D8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33EF3B81BB7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2865C433D2;
-        Mon,  3 Apr 2023 14:30:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00AFE61D5F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14430C4339B;
+        Mon,  3 Apr 2023 14:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532232;
-        bh=03YZrf2VCFWNpy8ZcTFRFIV7F7IL0ymhrLpTIc2whbs=;
+        s=korg; t=1680531774;
+        bh=LGxED/n1YkWwhiEoXO7dPNsBXTGMmhf3fHFvcpDd4ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PL3e2URKrkDsWReyV+9hSp6LCvS0MrxilNAjqfZBS1s1Y0/AQ2GR6xwu+qH55BW4m
-         qfHIJW1mbfn+GsNtPsCib9zVBPZepRxVzbnYrIaPGPztr9bEJ8RBHe1GyZ/taimN+1
-         eChkrijiUNJlHKvC3ojmbPwiYC25/Y7Z1q2/3ocY=
+        b=FJWDo7eNvthpBtIC46jIN78JShXOe2M3B/wQfvGh16PYd9Uxp+iQoWsQ8Ay8eN9OW
+         efR3Q80LxeE9wMEn27tfqqNylr6hXytPT9n8f6hiG3L2yXTTBMCD4bdT2IXMLQMpfe
+         GkdFkVDkoXzZqCVFu2HdJ7gUdRwzUojuWQeN3cHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 153/173] pinctrl: amd: Disable and mask interrupts on resume
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 096/104] ALSA: usb-audio: Fix regression on detection of Roland VS-100
 Date:   Mon,  3 Apr 2023 16:09:28 +0200
-Message-Id: <20230403140419.399462426@linuxfoundation.org>
+Message-Id: <20230403140407.925942878@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kornel Dulęba <korneld@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 upstream.
+commit fa4e7a6fa12b1132340785e14bd439cbe95b7a5a upstream.
 
-This fixes a similar problem to the one observed in:
-commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
+It's been reported that the recent kernel can't probe the PCM devices
+on Roland VS-100 properly, and it turned out to be a regression by the
+recent addition of the bit shift range check for the format bits.
+In the old code, we just did bit-shift and it resulted in zero, which
+is then corrected to the standard PCM format, while the new code
+explicitly returns an error in such a case.
 
-On some systems, during suspend/resume cycle firmware leaves
-an interrupt enabled on a pin that is not used by the kernel.
-This confuses the AMD pinctrl driver and causes spurious interrupts.
+For addressing the regression, relax the check and fallback to the
+standard PCM type (with the info output).
 
-The driver already has logic to detect if a pin is used by the kernel.
-Leverage it to re-initialize interrupt fields of a pin only if it's not
-used by us.
-
-Cc: stable@vger.kernel.org
-Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 43d5ca88dfcd ("ALSA: usb-audio: Fix potential out-of-bounds shift")
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217084
+Link: https://lore.kernel.org/r/20230324075005.19403-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ sound/usb/format.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -764,32 +764,34 @@ static const struct pinconf_ops amd_pinc
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
- 
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
- {
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	const struct pin_desc *pd;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
--	int i;
- 
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
- 
--	for (i = 0; i < desc->npins; i++) {
--		int pin = desc->pins[i].number;
--		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
--
--		if (!pd)
--			continue;
-+	pd = pin_desc_get(gpio_dev->pctrl, pin);
-+	if (!pd)
-+		return;
- 
--		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	pin_reg = readl(gpio_dev->base + pin * 4);
-+	pin_reg &= ~mask;
-+	writel(pin_reg, gpio_dev->base + pin * 4);
-+	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+}
- 
--		pin_reg = readl(gpio_dev->base + i * 4);
--		pin_reg &= ~mask;
--		writel(pin_reg, gpio_dev->base + i * 4);
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+{
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	int i;
- 
--		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--	}
-+	for (i = 0; i < desc->npins; i++)
-+		amd_gpio_irq_init_pin(gpio_dev, i);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -842,8 +844,10 @@ static int amd_gpio_resume(struct device
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin))
-+		if (!amd_gpio_should_save(gpio_dev, pin)) {
-+			amd_gpio_irq_init_pin(gpio_dev, pin);
- 			continue;
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -40,8 +40,12 @@ static u64 parse_audio_format_i_type(str
+ 	case UAC_VERSION_1:
+ 	default: {
+ 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
+-		if (format >= 64)
+-			return 0; /* invalid format */
++		if (format >= 64) {
++			usb_audio_info(chip,
++				       "%u:%d: invalid format type 0x%llx is detected, processed as PCM\n",
++				       fp->iface, fp->altsetting, format);
++			format = UAC_FORMAT_TYPE_I_PCM;
 +		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
+ 		sample_width = fmt->bBitResolution;
+ 		sample_bytes = fmt->bSubframeSize;
+ 		format = 1ULL << format;
 
 
