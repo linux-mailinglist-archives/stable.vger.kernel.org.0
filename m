@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 016336D4977
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145DF6D4779
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233708AbjDCOiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48330 "EHLO
+        id S233140AbjDCOUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:20:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbjDCOiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C5159F8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:08 -0700 (PDT)
+        with ESMTP id S233030AbjDCOUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:20:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FE52D7FB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 074F1B81CBD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78429C433EF;
-        Mon,  3 Apr 2023 14:38:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D397B81B01
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE9CAC433EF;
+        Mon,  3 Apr 2023 14:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532685;
-        bh=6q0Ps7XB8faagxeptPEDGa8C3aWgFEcEf3qeY75/eCo=;
+        s=korg; t=1680531599;
+        bh=D9LIHxXi/O8sYDMR6WuLMz/qSGJTzq0BcnjwBtBH1F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/Z+raefoDM1PTVC0aZ2oTlev7c5znCgGgnWvNHv17c58iQQ80uHdp89qkXKzVJZz
-         v78tBJHff7GAnYD3z4pZGL/wEeZGPEzraUtcymtBAN8bmIolkmB3SRNMy2NhMY5Hww
-         z+QAhGsxkt3nfu3nEGzv7W4xMjC1da88bbGY9b4M=
+        b=b3iwH0apG009G6p0OsxbGZx5UZjNdoPTNU1N9JuzV7h/oMEr57Jrk+6Ak85Qxuq+u
+         ArU03e6tcCGd1TqbILUU5GC7n4AyIgwrKbkkA3Jf6MkK9QpGMEAFZ4C+/JtUW8O8+o
+         dde0ihhBADgz5pYq1DQPkg2qAsrwkLZXa3EJlg58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 077/181] platform/x86: think-lmi: only display possible_values if available
+Subject: [PATCH 5.4 040/104] net: usb: qmi_wwan: add Telit 0x1080 composition
 Date:   Mon,  3 Apr 2023 16:08:32 +0200
-Message-Id: <20230403140417.642823124@linuxfoundation.org>
+Message-Id: <20230403140405.951690400@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,65 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <mpearson-lenovo@squebb.ca>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-[ Upstream commit cf337f27f3bfc4aeab4954c468239fd6233c7638 ]
+[ Upstream commit 382e363d5bed0cec5807b35761d14e55955eee63 ]
 
-Some attributes don't have any values available. In those cases don't
-make the possible_values entry visible.
+Add the following Telit FE990 composition:
 
-Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Link: https://lore.kernel.org/r/20230320003221.561750-3-mpearson-lenovo@squebb.ca
-Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+0x1080: tty, adb, rmnet, tty, tty, tty, tty
+
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Link: https://lore.kernel.org/r/20230306120528.198842-1-enrico.sau@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/think-lmi.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index 62241680c8a90..ccd085bacf298 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -941,9 +941,6 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
- {
- 	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
- 
--	if (!tlmi_priv.can_get_bios_selections)
--		return -EOPNOTSUPP;
--
- 	return sysfs_emit(buf, "%s\n", setting->possible_values);
- }
- 
-@@ -1052,6 +1049,18 @@ static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 06
- 
- static struct kobj_attribute attr_type = __ATTR_RO(type);
- 
-+static umode_t attr_is_visible(struct kobject *kobj,
-+					     struct attribute *attr, int n)
-+{
-+	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
-+
-+	/* We don't want to display possible_values attributes if not available */
-+	if ((attr == &attr_possible_values.attr) && (!setting->possible_values))
-+		return 0;
-+
-+	return attr->mode;
-+}
-+
- static struct attribute *tlmi_attrs[] = {
- 	&attr_displ_name.attr,
- 	&attr_current_val.attr,
-@@ -1061,6 +1070,7 @@ static struct attribute *tlmi_attrs[] = {
- };
- 
- static const struct attribute_group tlmi_attr_group = {
-+	.is_visible = attr_is_visible,
- 	.attrs = tlmi_attrs,
- };
- 
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index c310cdbfd583e..c2307cfaf4009 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1319,6 +1319,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1070, 2)},	/* Telit FN990 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1080, 2)}, /* Telit FE990 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
 -- 
 2.39.2
 
