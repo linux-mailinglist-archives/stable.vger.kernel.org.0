@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE186D4698
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:11:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5EB86D4830
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232828AbjDCOLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52450 "EHLO
+        id S233339AbjDCO0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232855AbjDCOLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:11:41 -0400
+        with ESMTP id S233322AbjDCO0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5820A2D7CB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 167132D7DA
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7708A61C0C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B0ADC433EF;
-        Mon,  3 Apr 2023 14:11:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5C1561D9C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B5CC433D2;
+        Mon,  3 Apr 2023 14:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531081;
-        bh=ygSp+g4Y+Ab1hDgl4rqv7mauQJdy7Fttff9lMibTLK8=;
+        s=korg; t=1680531980;
+        bh=3daxzkFPuxbdjUbhKZ1aw70KQY+g7Qxap4qxrQBIIOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKKIm9Jm1EUivHAJb4wDvgrNN2OwlwT9xu5TBJ5Cp8NkIFDW8JMq1iKPuzjG03bHA
-         n2/DuANwx1R3AFa5ZqwQgOCGO47+4nfVhU+kOlWWqsKlI5bPfGtG70GEQ8Hyl9l/+g
-         4+SJ8aiNTC+kxL/DcxPifu02sD+A1SfXlp1gYDKw=
+        b=Ux2CDzw2rnPQ7JXjsOwk92gx+5yJLo1ATmj0WsgMx2G/RF8Uzg1ssKU+XfaIXm2ve
+         gfLyUw2bUtJ7TWCpAzEszn1x3V+iYbtteoFJWaQy+RGQ6wFfLV0Z9yMmq7ByfmEvcK
+         2EcAeaDvXo3+0ckkqf/GVVa5LyRdRQPgS3u94uN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/66] i2c: imx-lpi2c: check only for enabled interrupt flags
-Date:   Mon,  3 Apr 2023 16:08:13 +0200
-Message-Id: <20230403140351.940895159@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Subject: [PATCH 5.10 079/173] usb: dwc2: fix a devres leak in hw_enable upon suspend resume
+Date:   Mon,  3 Apr 2023 16:08:14 +0200
+Message-Id: <20230403140416.975398068@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
+commit f747313249b74f323ddf841a9c8db14d989f296a upstream.
 
-When reading from I2C, the Tx watermark is set to 0. Unfortunately the
-TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
-than watermark. So it is set in every case, hence the reset default of 1.
-This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
-to send Tx data on a read message.
-Mask the IRQ status to filter for wanted flags only.
+Each time the platform goes to low power, PM suspend / resume routines
+call: __dwc2_lowlevel_hw_enable -> devm_add_action_or_reset().
+This adds a new devres each time.
+This may also happen at runtime, as dwc2_lowlevel_hw_enable() can be
+called from udc_start().
 
-Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can be seen with tracing:
+- echo 1 > /sys/kernel/debug/tracing/events/dev/devres_log/enable
+- go to low power
+- cat /sys/kernel/debug/tracing/trace
+
+A new "ADD" entry is found upon each low power cycle:
+... devres_log: 49000000.usb-otg ADD 82a13bba devm_action_release (8 bytes)
+... devres_log: 49000000.usb-otg ADD 49889daf devm_action_release (8 bytes)
+...
+
+A second issue is addressed here:
+- regulator_bulk_enable() is called upon each PM cycle (suspend/resume).
+- regulator_bulk_disable() never gets called.
+
+So the reference count for these regulators constantly increase, by one
+upon each low power cycle, due to missing regulator_bulk_disable() call
+in __dwc2_lowlevel_hw_disable().
+
+The original fix that introduced the devm_add_action_or_reset() call,
+fixed an issue during probe, that happens due to other errors in
+dwc2_driver_probe() -> dwc2_core_reset(). Then the probe fails without
+disabling regulators, when dr_mode == USB_DR_MODE_PERIPHERAL.
+
+Rather fix the error path: disable all the low level hardware in the
+error path, by using the "hsotg->ll_hw_enabled" flag. Checking dr_mode
+has been introduced to avoid a dual call to dwc2_lowlevel_hw_disable().
+"ll_hw_enabled" should achieve the same (and is used currently in the
+remove() routine).
+
+Fixes: 54c196060510 ("usb: dwc2: Always disable regulators on driver teardown")
+Fixes: 33a06f1300a7 ("usb: dwc2: Fix error path in gadget registration")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20230316084127.126084-1-fabrice.gasnier@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/dwc2/platform.c |   16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index e86801a631206..ca4d554126579 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -515,10 +515,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
- static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -121,13 +121,6 @@ static int dwc2_get_dr_mode(struct dwc2_
+ 	return 0;
+ }
+ 
+-static void __dwc2_disable_regulators(void *data)
+-{
+-	struct dwc2_hsotg *hsotg = data;
+-
+-	regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
+-}
+-
+ static int __dwc2_lowlevel_hw_enable(struct dwc2_hsotg *hsotg)
  {
- 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
-+	unsigned int enabled;
- 	unsigned int temp;
+ 	struct platform_device *pdev = to_platform_device(hsotg->dev);
+@@ -138,11 +131,6 @@ static int __dwc2_lowlevel_hw_enable(str
+ 	if (ret)
+ 		return ret;
  
-+	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
-+
- 	lpi2c_imx_intctrl(lpi2c_imx, 0);
- 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+	temp &= enabled;
+-	ret = devm_add_action_or_reset(&pdev->dev,
+-				       __dwc2_disable_regulators, hsotg);
+-	if (ret)
+-		return ret;
+-
+ 	if (hsotg->clk) {
+ 		ret = clk_prepare_enable(hsotg->clk);
+ 		if (ret)
+@@ -198,7 +186,7 @@ static int __dwc2_lowlevel_hw_disable(st
+ 	if (hsotg->clk)
+ 		clk_disable_unprepare(hsotg->clk);
  
- 	if (temp & MSR_RDF)
- 		lpi2c_imx_read_rxfifo(lpi2c_imx);
--- 
-2.39.2
-
+-	return 0;
++	return regulator_bulk_disable(ARRAY_SIZE(hsotg->supplies), hsotg->supplies);
+ }
+ 
+ /**
+@@ -625,7 +613,7 @@ error_init:
+ 	if (hsotg->params.activate_stm_id_vb_detection)
+ 		regulator_disable(hsotg->usb33d);
+ error:
+-	if (hsotg->dr_mode != USB_DR_MODE_PERIPHERAL)
++	if (hsotg->ll_hw_enabled)
+ 		dwc2_lowlevel_hw_disable(hsotg);
+ 	return retval;
+ }
 
 
