@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA57F6D3F81
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50FF66D3F83
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230269AbjDCIzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47806 "EHLO
+        id S231826AbjDCIzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:55:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231837AbjDCIzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:55:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E37CDE1A2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:55:01 -0700 (PDT)
+        with ESMTP id S231754AbjDCIzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:55:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A1DAF0C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:55:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FBCC616DD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843BFC433EF;
-        Mon,  3 Apr 2023 08:55:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D010FB815D8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:55:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA6AC433D2;
+        Mon,  3 Apr 2023 08:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680512100;
-        bh=/6ElWtZyreTF+eI4L2x6FeCuNqEU7A4Izyqi1Udu+o0=;
+        s=korg; t=1680512103;
+        bh=rUc/FIgSuNNdF69o22PukcEOd7VvrrnRGlCumOYUAt4=;
         h=Subject:To:Cc:From:Date:From;
-        b=VEnpHcjj4/lHOwWNQaYYkDc7nOBenwQKvcdb0NJErl3PzHw8H9cinHdR1JyEwVFYv
-         5NMk7SPIWA9rCfBH95747olvw8WqvNO0h/dDMMdCRUaUK/9I9M+n7VszOuQgdDnbyf
-         yWl/pS9sdDh7NHxhSSWA16KFX/MPQvV0oaDDOHxs=
-Subject: FAILED: patch "[PATCH] KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the" failed to apply to 5.4-stable tree
+        b=N9B/yuStgqVSF+rkj+iDn+JzVQh0XRP1FTSkM8U0OBON20MmRtKaD0zKkVDvio/6J
+         SI1/mCYfyAyHBqtzRXIeDK1eBz3OXUOJyol2fsPqtztd4uSFc4uLO/CLNsBrP1fz9+
+         nlXOQ0c+4o+87J+SGVB6QcXj2i/chpro8tMV9smg=
+Subject: FAILED: patch "[PATCH] KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the" failed to apply to 4.19-stable tree
 To:     reijiw@google.com, maz@kernel.org, oliver.upton@linux.dev
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:54:55 +0200
-Message-ID: <2023040355-harsh-endowment-6808@gregkh>
+Date:   Mon, 03 Apr 2023 10:54:57 +0200
+Message-ID: <2023040356-immerse-arming-cc39@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 9228b26194d1cc00449f12f306f53ef2e234a55b
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040355-harsh-endowment-6808@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040356-immerse-arming-cc39@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
@@ -67,6 +67,8 @@ Possible dependencies:
 0ab410a93d62 ("KVM: arm64: Narrow PMU sysreg reset values to architectural requirements")
 11663111cd49 ("KVM: arm64: Hide PMU registers from userspace when not available")
 7ccadf23b861 ("KVM: arm64: Add missing reset handlers for PMU emulation")
+03fdfb269009 ("KVM: arm64: Don't write junk to sysregs on reset")
+20589c8cc47d ("arm/arm64: KVM: Don't panic on failure to properly reset system registers")
 
 thanks,
 
