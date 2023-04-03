@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A5A6D486A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD336D4735
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233370AbjDCO2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:28:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58248 "EHLO
+        id S232990AbjDCOSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbjDCO2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:31 -0400
+        with ESMTP id S233003AbjDCOSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065582CACD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2ED31BC5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97C9561DD3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FB5C4339E;
-        Mon,  3 Apr 2023 14:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A3736155B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82CCCC433EF;
+        Mon,  3 Apr 2023 14:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532110;
-        bh=V7R50GzPEh0LA6RroHUD3MkOHCM67gpVWZSpW7uxhKY=;
+        s=korg; t=1680531488;
+        bh=ehJUsNhEVSvDbvx/mh9U9pSmg7rr+bXaqy60FE1nGWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuJdGGihNBF9kKi9FMuUymRSQLyLwhGlXA6qOSKaPVx4wFfPcH4w59hUAr75Xuhny
-         9cYjzB/IDO+WNqCUKQMth26mSaDOQn72Ss30nA+L339aj/9u6uwA8+dFrnot+L8Q/D
-         7oHQj1Co2Uj8RSbRlQFyAtk18+pcx3POm3qoRT/g=
+        b=VI+XwP6Bxadqjtd5YXZtycqLtdcOlcMw7eaHma8Lpxob9lFWW29BwaOz6Pnt6ZEK+
+         wxF66ryz8QzFaDmSEymIObLRV6feqp7uEDX8kjhHCetVCS4WhAtt2FJt2jxBfjei3E
+         2WuaAIaM6Nb6WqQfuTtkL060EZ8TdSxWdmP7I7qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChunHao Lin <hau@realtek.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Steffen=20B=C3=A4tz?= <steffen@innosonix.de>,
+        Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/173] r8169: fix RTL8168H and RTL8107E rx crc error
+Subject: [PATCH 4.19 65/84] net: dsa: mv88e6xxx: Enable IGMP snooping on user ports only
 Date:   Mon,  3 Apr 2023 16:09:06 +0200
-Message-Id: <20230403140418.706912277@linuxfoundation.org>
+Message-Id: <20230403140355.664238660@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChunHao Lin <hau@realtek.com>
+From: Steffen Bätz <steffen@innosonix.de>
 
-[ Upstream commit 33189f0a94b9639c058781fcf82e4ea3803b1682 ]
+[ Upstream commit 7bcad0f0e6fbc1d613e49e0ee35c8e5f2e685bb0 ]
 
-When link speed is 10 Mbps and temperature is under -20°C, RTL8168H and
-RTL8107E may have rx crc error. Disable phy 10 Mbps pll off to fix this
-issue.
+Do not set the MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP bit on CPU or DSA ports.
 
-Fixes: 6e1d0b898818 ("r8169:add support for RTL8168H and RTL8107E")
-Signed-off-by: ChunHao Lin <hau@realtek.com>
-Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This allows the host CPU port to be a regular IGMP listener by sending out
+IGMP Membership Reports, which would otherwise not be forwarded by the
+mv88exxx chip, but directly looped back to the CPU port itself.
+
+Fixes: 54d792f257c6 ("net: dsa: Centralise global and port setup code into mv88e6xxx.")
+Signed-off-by: Steffen Bätz <steffen@innosonix.de>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20230329150140.701559-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_phy_config.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_phy_config.c b/drivers/net/ethernet/realtek/r8169_phy_config.c
-index 913d030d73eb4..e18a76f5049fd 100644
---- a/drivers/net/ethernet/realtek/r8169_phy_config.c
-+++ b/drivers/net/ethernet/realtek/r8169_phy_config.c
-@@ -970,6 +970,9 @@ static void rtl8168h_2_hw_phy_config(struct rtl8169_private *tp,
- 	/* disable phy pfm mode */
- 	phy_modify_paged(phydev, 0x0a44, 0x11, BIT(7), 0);
- 
-+	/* disable 10m pll off */
-+	phy_modify_paged(phydev, 0x0a43, 0x10, BIT(0), 0);
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index be064bcfd70a6..6b310f7235801 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2237,9 +2237,14 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
+ 	 * If this is the upstream port for this switch, enable
+ 	 * forwarding of unknown unicasts and multicasts.
+ 	 */
+-	reg = MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP |
+-		MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
++	reg = MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
+ 		MV88E6XXX_PORT_CTL0_STATE_FORWARDING;
++	/* Forward any IPv4 IGMP or IPv6 MLD frames received
++	 * by a USER port to the CPU port to allow snooping.
++	 */
++	if (dsa_is_user_port(ds, port))
++		reg |= MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP;
 +
- 	rtl8168g_disable_aldps(phydev);
- 	rtl8168g_config_eee_phy(phydev);
- }
+ 	err = mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_CTL0, reg);
+ 	if (err)
+ 		return err;
 -- 
 2.39.2
 
