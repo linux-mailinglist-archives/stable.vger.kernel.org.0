@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5546D4A23
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B316D4740
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233843AbjDCOoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:44:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59090 "EHLO
+        id S233013AbjDCOSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233955AbjDCOoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4DE16F1C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:52 -0700 (PDT)
+        with ESMTP id S233011AbjDCOSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D57932952D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D9661F0D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD35C433EF;
-        Mon,  3 Apr 2023 14:43:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7097261A2D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 852E0C4339B;
+        Mon,  3 Apr 2023 14:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533030;
-        bh=QHiqBaDd7TKi3Fgb4EqKzNbkcwRu76OmI/eB7btnxU4=;
+        s=korg; t=1680531517;
+        bh=VPNXqtJay/NDsyz6ETXPJ12aCdP/GFaBQ9c43DwefPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoZVOnGcy+J77E6lyVZDLSKqGkXkaO+PgvXJNSIMpY5kM/afW+8E7uQLs2NYvvCmr
-         O9vQQZ8bkRvva6F92bda5eAUy7GOjV6zfswqBD4thX8zVNke+Y7C1dCFuf96eGYVkh
-         zKVmwTJWVodHvV8Nioh3l2iMinEUr/lPcBbS2HXk=
+        b=xRu4quTs6mqrhLWWnIBDvePlTc2GlVayB/6N3yz6YVoOIJ9hQ6matCk40uxrzzS3f
+         NaSNsamlDUWURHVm+34DV/x3vNyaAteFfV/h0tgXdIGREYxiSYyDiu4uxkmPO3l4Yh
+         u0VfC2AFdcRqc9j2RmnPfaGa3IhWbeuzz3XZf+S8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Curtis Malainey <curtis@malainey.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Meena Shanmugam <meenashanmugam@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 028/187] ASoC: SOF: ipc3: Check for upper size limit for the received message
+Subject: [PATCH 5.4 001/104] net: tls: fix possible race condition between do_tls_getsockopt_conf() and do_tls_setsockopt_conf()
 Date:   Mon,  3 Apr 2023 16:07:53 +0200
-Message-Id: <20230403140416.932927084@linuxfoundation.org>
+Message-Id: <20230403140403.847323570@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,42 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 989a3e4479177d0f4afab8be1960731bc0ffbbd0 ]
+commit 49c47cc21b5b7a3d8deb18fc57b0aa2ab1286962 upstream.
 
-The sof_ipc3_rx_msg() checks for minimum size of a new rx message but it is
-missing the check for upper limit.
-Corrupted or compromised firmware might be able to take advantage of this
-to cause out of bounds reads outside of the message area.
+ctx->crypto_send.info is not protected by lock_sock in
+do_tls_getsockopt_conf(). A race condition between do_tls_getsockopt_conf()
+and error paths of do_tls_setsockopt_conf() may lead to a use-after-free
+or null-deref.
 
-Reported-by: Curtis Malainey <cujomalainey@chromium.org>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Curtis Malainey <curtis@malainey.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230307114917.5124-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+More discussion:  https://lore.kernel.org/all/Y/ht6gQL+u6fj3dG@hog/
+
+Fixes: 3c4d7559159b ("tls: kernel TLS support")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20230228023344.9623-1-hbh25y@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/ipc3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/tls/tls_main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/sof/ipc3.c b/sound/soc/sof/ipc3.c
-index 1fef4dcc09368..fde8af5a1f485 100644
---- a/sound/soc/sof/ipc3.c
-+++ b/sound/soc/sof/ipc3.c
-@@ -970,8 +970,9 @@ static void sof_ipc3_rx_msg(struct snd_sof_dev *sdev)
- 		return;
- 	}
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index 7aba4ee77aba3..cb51a2f46b11d 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -371,13 +371,11 @@ static int do_tls_getsockopt_tx(struct sock *sk, char __user *optval,
+ 			rc = -EINVAL;
+ 			goto out;
+ 		}
+-		lock_sock(sk);
+ 		memcpy(crypto_info_aes_gcm_128->iv,
+ 		       ctx->tx.iv + TLS_CIPHER_AES_GCM_128_SALT_SIZE,
+ 		       TLS_CIPHER_AES_GCM_128_IV_SIZE);
+ 		memcpy(crypto_info_aes_gcm_128->rec_seq, ctx->tx.rec_seq,
+ 		       TLS_CIPHER_AES_GCM_128_REC_SEQ_SIZE);
+-		release_sock(sk);
+ 		if (copy_to_user(optval,
+ 				 crypto_info_aes_gcm_128,
+ 				 sizeof(*crypto_info_aes_gcm_128)))
+@@ -395,13 +393,11 @@ static int do_tls_getsockopt_tx(struct sock *sk, char __user *optval,
+ 			rc = -EINVAL;
+ 			goto out;
+ 		}
+-		lock_sock(sk);
+ 		memcpy(crypto_info_aes_gcm_256->iv,
+ 		       ctx->tx.iv + TLS_CIPHER_AES_GCM_256_SALT_SIZE,
+ 		       TLS_CIPHER_AES_GCM_256_IV_SIZE);
+ 		memcpy(crypto_info_aes_gcm_256->rec_seq, ctx->tx.rec_seq,
+ 		       TLS_CIPHER_AES_GCM_256_REC_SEQ_SIZE);
+-		release_sock(sk);
+ 		if (copy_to_user(optval,
+ 				 crypto_info_aes_gcm_256,
+ 				 sizeof(*crypto_info_aes_gcm_256)))
+@@ -421,6 +417,8 @@ static int do_tls_getsockopt(struct sock *sk, int optname,
+ {
+ 	int rc = 0;
  
--	if (hdr.size < sizeof(hdr)) {
--		dev_err(sdev->dev, "The received message size is invalid\n");
-+	if (hdr.size < sizeof(hdr) || hdr.size > SOF_IPC_MSG_MAX_SIZE) {
-+		dev_err(sdev->dev, "The received message size is invalid: %u\n",
-+			hdr.size);
- 		return;
++	lock_sock(sk);
++
+ 	switch (optname) {
+ 	case TLS_TX:
+ 		rc = do_tls_getsockopt_tx(sk, optval, optlen);
+@@ -429,6 +427,9 @@ static int do_tls_getsockopt(struct sock *sk, int optname,
+ 		rc = -ENOPROTOOPT;
+ 		break;
  	}
++
++	release_sock(sk);
++
+ 	return rc;
+ }
  
 -- 
 2.39.2
