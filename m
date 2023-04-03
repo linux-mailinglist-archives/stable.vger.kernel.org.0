@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B746D47C9
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A153C6D48FC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbjDCOXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
+        id S233550AbjDCOdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233217AbjDCOXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:15 -0400
+        with ESMTP id S233553AbjDCOdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2622223E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:23:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B091767A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E15AB81BC6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:23:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06778C433EF;
-        Mon,  3 Apr 2023 14:23:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69D96B81C6F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B866CC433EF;
+        Mon,  3 Apr 2023 14:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531782;
-        bh=s5dncEOqtsN7KbnLlVkApV27CMa5Xix8/NG1uWOFjfo=;
+        s=korg; t=1680532401;
+        bh=blv3SW+RxsWGacT544sbFgefBCcLM8E7IYPNXmNLpPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKdHsyvL/T0NiwRH1C6YmodSneKzvRdcqTFZfOAYAb7KcuTVPTXhz4rcJusfEb/QS
-         H3GygjUWdGHEzq/6PHctbTxIYryyk6bmopDpy+QG0/OZbBbLQPU8LRD/1LIDNjnAjy
-         UYDOtraRJnJ7/8l1agKrismDLwL5Wif7jcgAyrc8=
+        b=ztyhDoDqvHwYwgCIy/e1SqBdKEKKBv6WEewbaduxjaDs3FgPfC/my10HcfCr4rYEA
+         Av3ozoubTGTbF/LKLUJwmnZ0wxRZIUu5Y0rmMuFm0H338PGHvOydSbDVlWDn0Bj6Co
+         9J7M8VOrIGCf0kCa3acq8HfvuNzuJWG0bsFdGZmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Yang <sherry.yang@oracle.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 099/104] btrfs: scan device in non-exclusive mode
+        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 68/99] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
 Date:   Mon,  3 Apr 2023 16:09:31 +0200
-Message-Id: <20230403140408.046335632@linuxfoundation.org>
+Message-Id: <20230403140406.044966453@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: David Disseldorp <ddiss@suse.de>
 
-commit 50d281fc434cb8e2497f5e70a309ccca6b1a09f0 upstream.
+commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
 
-This fixes mkfs/mount/check failures due to race with systemd-udevd
-scan.
+When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
+is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
+S_AUTOMOUNT and corresponding dentry flags is retained regardless of
+CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
+VFS follow_automount() when traversing a DFS referral link:
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  ...
+  Call Trace:
+   <TASK>
+   __traverse_mounts+0xb5/0x220
+   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
+   step_into+0x195/0x610
+   ? lookup_fast+0xe2/0xf0
+   path_lookupat+0x64/0x140
+   filename_lookup+0xc2/0x140
+   ? __create_object+0x299/0x380
+   ? kmem_cache_alloc+0x119/0x220
+   ? user_path_at_empty+0x31/0x50
+   user_path_at_empty+0x31/0x50
+   __x64_sys_chdir+0x2a/0xd0
+   ? exit_to_user_mode_prepare+0xca/0x100
+   do_syscall_64+0x42/0x90
+   entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-During the device scan initiated by systemd-udevd, other user space
-EXCL operations such as mkfs, mount, or check may get blocked and result
-in a "Device or resource busy" error. This is because the device
-scan process opens the device with the EXCL flag in the kernel.
+This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
+when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
+avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
+approach was chosen as it provides more control over the error path.
 
-Two reports were received:
-
- - btrfs/179 test case, where the fsck command failed with the -EBUSY
-   error
-
- - LTP pwritev03 test case, where mkfs.vfs failed with
-   the -EBUSY error, when mkfs.vfs tried to overwrite old btrfs filesystem
-   on the device.
-
-In both cases, fsck and mkfs (respectively) were racing with a
-systemd-udevd device scan, and systemd-udevd won, resulting in the
--EBUSY error for fsck and mkfs.
-
-Reproducing the problem has been difficult because there is a very
-small window during which these userspace threads can race to
-acquire the exclusive device open. Even on the system where the problem
-was observed, the problem occurrences were anywhere between 10 to 400
-iterations and chances of reproducing decreases with debug printk()s.
-
-However, an exclusive device open is unnecessary for the scan process,
-as there are no write operations on the device during scan. Furthermore,
-during the mount process, the superblock is re-read in the below
-function call chain:
-
-  btrfs_mount_root
-   btrfs_open_devices
-    open_fs_devices
-     btrfs_open_one_device
-       btrfs_get_bdev_and_sb
-
-So, to fix this issue, removes the FMODE_EXCL flag from the scan
-operation, and add a comment.
-
-The case where mkfs may still write to the device and a scan is running,
-the btrfs signature is not written at that time so scan will not
-recognize such device.
-
-Reported-by: Sherry Yang <sherry.yang@oracle.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/oe-lkp/202303170839.fdf23068-oliver.sang@intel.com
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Cc: stable@vger.kernel.org
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/cifs/cifsfs.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1579,8 +1579,17 @@ struct btrfs_device *btrfs_scan_one_devi
- 	 * later supers, using BTRFS_SUPER_MIRROR_MAX instead
- 	 */
- 	bytenr = btrfs_sb_offset(0);
--	flags |= FMODE_EXCL;
+--- a/fs/cifs/cifsfs.h
++++ b/fs/cifs/cifsfs.h
+@@ -118,7 +118,10 @@ extern const struct dentry_operations ci
+ #ifdef CONFIG_CIFS_DFS_UPCALL
+ extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
+ #else
+-#define cifs_dfs_d_automount NULL
++static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
++{
++	return ERR_PTR(-EREMOTE);
++}
+ #endif
  
-+	/*
-+	 * Avoid using flag |= FMODE_EXCL here, as the systemd-udev may
-+	 * initiate the device scan which may race with the user's mount
-+	 * or mkfs command, resulting in failure.
-+	 * Since the device scan is solely for reading purposes, there is
-+	 * no need for FMODE_EXCL. Additionally, the devices are read again
-+	 * during the mount process. It is ok to get some inconsistent
-+	 * values temporarily, as the device paths of the fsid are the only
-+	 * required information for assembling the volume.
-+	 */
- 	bdev = blkdev_get_by_path(path, flags, holder);
- 	if (IS_ERR(bdev))
- 		return ERR_CAST(bdev);
+ /* Functions related to symlinks */
 
 
