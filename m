@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCC26D3EAA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC206D3EAB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbjDCIJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:09:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33866 "EHLO
+        id S231675AbjDCIJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:09:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229890AbjDCIJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:09:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C391DE042
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:09:09 -0700 (PDT)
+        with ESMTP id S229890AbjDCIJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:09:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34AC644B7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:09:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3E2FCE0F81
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:09:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08CBCC433D2;
-        Mon,  3 Apr 2023 08:09:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7774B811FE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:09:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B9FC433D2;
+        Mon,  3 Apr 2023 08:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680509344;
-        bh=0an90iGEP1PKLqZNMO3Qmww5/Wyy6hEcT/pUQB7m2yc=;
+        s=korg; t=1680509352;
+        bh=KNVu0E9x0eiH7tKU7ms7GMyGTAzFIjbzH2BmbsQlg7M=;
         h=Subject:To:Cc:From:Date:From;
-        b=n0/45N2uQ8jaHPyNvE2AJ9wVPf0v9jYFWJXUlVdZtd63DhHIgDAQdn7eOhhj8qXFz
-         2brw5Vi0cAumfhaWjxL2/7rppve22yQ+8oBxbk5jb0hTW5HMz/A33nQLlSQrm0bRo5
-         26CQj3jFF4q5X5QLXREowzN1tl3xc6RyjoMZ9lWw=
-Subject: FAILED: patch "[PATCH] btrfs: fix deadlock when aborting transaction during" failed to apply to 5.10-stable tree
+        b=oVXjt+xhBeQtikQdtzPOIgJLBV8YqtJMKsoC7lLlylrHUGdheWEABnQs7sp7gj/3O
+         XnpEZMpnZqd2NeMXMB3gmvM0r0Y09uVb9nQnUbVmMieFu0NiYjAf1YEmCOC1cd4Vas
+         mHA5dXZdLMcVGTlqfGg6AgT1VoviSJpfSK69LRhU=
+Subject: FAILED: patch "[PATCH] btrfs: fix deadlock when aborting transaction during" failed to apply to 5.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:09:01 +0200
-Message-ID: <2023040301-lankiness-entrap-6df8@gregkh>
+Date:   Mon, 03 Apr 2023 10:09:09 +0200
+Message-ID: <2023040309-colt-saloon-c66e@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 2d82a40aa7d6fcae0250ec68b8566cdee7bfd44c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040301-lankiness-entrap-6df8@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040309-colt-saloon-c66e@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
