@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3336D488E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B276D48EE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbjDCO3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60602 "EHLO
+        id S233548AbjDCOdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233414AbjDCO3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A61B31985
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:37 -0700 (PDT)
+        with ESMTP id S233536AbjDCOdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27A52707
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2AEAB81C35
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302DBC433A0;
-        Mon,  3 Apr 2023 14:29:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B5B261B72
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 629FCC433D2;
+        Mon,  3 Apr 2023 14:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532174;
-        bh=q8bhXhQBVjJGjPd/SgUlpYFowjC+Tyl/84S5+1gBDEM=;
+        s=korg; t=1680532377;
+        bh=l+4mpfCWzP6k9cRkje+AxQpyYqqxzIFPOPM/y41iRMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwBbECP4QZkAmdHaio6d8R5Ia34+Trj7PosbG+YF6RbGdpZHacJF7la5/juj8rUBb
-         GqAb7uIMajgVz/DmlJgCvopsphWAWiBNxGbAKAnl6X2HioQApCwI2fVBVXFUpNvsjn
-         TUkZA46aHfJJF1YX34s5yDkxbAnpNkD9o52mmmsA=
+        b=u85dMiklt7vWr9td9bfqwIHDHq8EtST8eVQs0uVvSCDNEIHJy/LS/lUgRyvhITnvR
+         ToRD1gZCzKf5hUlJ6QC7zPBfGoB6qAYwtaw07es5jckG/H3trF015Hnd4S/fHeSDnb
+         OSrIZgjdhKoDpcR893EsyVr7N2pWjso9diMt+gZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 148/173] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
+        patches@lists.linux.dev, Michael Chan <michael.chan@broadcom.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 60/99] bnxt_en: Add missing 200G link speed reporting
 Date:   Mon,  3 Apr 2023 16:09:23 +0200
-Message-Id: <20230403140419.242312919@linuxfoundation.org>
+Message-Id: <20230403140405.676594740@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
+[ Upstream commit 581bce7bcb7e7f100908728e7b292e266c76895b ]
 
-When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
-is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
-S_AUTOMOUNT and corresponding dentry flags is retained regardless of
-CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
-VFS follow_automount() when traversing a DFS referral link:
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  ...
-  Call Trace:
-   <TASK>
-   __traverse_mounts+0xb5/0x220
-   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
-   step_into+0x195/0x610
-   ? lookup_fast+0xe2/0xf0
-   path_lookupat+0x64/0x140
-   filename_lookup+0xc2/0x140
-   ? __create_object+0x299/0x380
-   ? kmem_cache_alloc+0x119/0x220
-   ? user_path_at_empty+0x31/0x50
-   user_path_at_empty+0x31/0x50
-   __x64_sys_chdir+0x2a/0xd0
-   ? exit_to_user_mode_prepare+0xca/0x100
-   do_syscall_64+0x42/0x90
-   entry_SYSCALL_64_after_hwframe+0x72/0xdc
+bnxt_fw_to_ethtool_speed() is missing the case statement for 200G
+link speed reported by firmware.  As a result, ethtool will report
+unknown speed when the firmware reports 200G link speed.
 
-This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
-when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
-avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
-approach was chosen as it provides more control over the error path.
-
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 532262ba3b84 ("bnxt_en: ethtool: support PAM4 link speeds up to 200G")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/fs/cifs/cifsfs.h
-+++ b/fs/cifs/cifsfs.h
-@@ -126,7 +126,10 @@ extern const struct dentry_operations ci
- #ifdef CONFIG_CIFS_DFS_UPCALL
- extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
- #else
--#define cifs_dfs_d_automount NULL
-+static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
-+{
-+	return ERR_PTR(-EREMOTE);
-+}
- #endif
- 
- /* Functions related to symlinks */
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+index e5874c829226e..ae4695fc067d5 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1202,6 +1202,7 @@ struct bnxt_link_info {
+ #define BNXT_LINK_SPEED_40GB	PORT_PHY_QCFG_RESP_LINK_SPEED_40GB
+ #define BNXT_LINK_SPEED_50GB	PORT_PHY_QCFG_RESP_LINK_SPEED_50GB
+ #define BNXT_LINK_SPEED_100GB	PORT_PHY_QCFG_RESP_LINK_SPEED_100GB
++#define BNXT_LINK_SPEED_200GB	PORT_PHY_QCFG_RESP_LINK_SPEED_200GB
+ 	u16			support_speeds;
+ 	u16			support_pam4_speeds;
+ 	u16			auto_link_speeds;	/* fw adv setting */
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 9ac5f63784960..bc9812a0a91c3 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1670,6 +1670,8 @@ u32 bnxt_fw_to_ethtool_speed(u16 fw_link_speed)
+ 		return SPEED_50000;
+ 	case BNXT_LINK_SPEED_100GB:
+ 		return SPEED_100000;
++	case BNXT_LINK_SPEED_200GB:
++		return SPEED_200000;
+ 	default:
+ 		return SPEED_UNKNOWN;
+ 	}
+-- 
+2.39.2
+
 
 
