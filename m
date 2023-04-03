@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5CD46D4718
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8E56D4992
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbjDCORG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S233743AbjDCOjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232960AbjDCORF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A192BEC2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:04 -0700 (PDT)
+        with ESMTP id S233728AbjDCOjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 547272442D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 88B62CE12B2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79BEEC4339B;
-        Mon,  3 Apr 2023 14:17:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E33A761EB8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0367AC433EF;
+        Mon,  3 Apr 2023 14:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531420;
-        bh=UIRTW82BtS3G/f1+nUIbaYT/AsYjsGqRfpWtwN4GVXk=;
+        s=korg; t=1680532748;
+        bh=AXwhF+HH/zzsG6sL4+Uy5zNNdpxJ6HrfBtrTYhabhJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kc0awzFJua6CKvK0h//34vmAE9MO7zaXlXiVGtxWTlvlYwBqCX0CsyElwXJu/ufcO
-         sfhpyIErGciubon/jNohzwsLD2UiGZxGFO5he0ANzcKPnfP+Eh2gq64PY6LVrl5ozt
-         PLhZD4sEaQ+HziBecYHgA3eCOXFhsF0Fwp7207vI=
+        b=ztQq9bRooeqSXu54r7JRGQkAb7hX9hC0YPqeHSlhLNoEZxzcFLwfgZJ7ej74Ow1AD
+         745ZsTZRjHTNFaac9oxVn0I9cJoKd55qNHlDezhznQ6eBOhy/K+GcnccfR/P25u8gA
+         uA2L7l0lOxZFXLV8XBKJiN99/H7VVYz2zk1UBuwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev, Alyssa Ross <hi@alyssa.is>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/84] sched_getaffinity: dont assume cpumask_size() is fully initialized
+Subject: [PATCH 6.1 102/181] loop: LOOP_CONFIGURE: send uevents for partitions
 Date:   Mon,  3 Apr 2023 16:08:57 +0200
-Message-Id: <20230403140355.353153335@linuxfoundation.org>
+Message-Id: <20230403140418.422273309@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,80 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Alyssa Ross <hi@alyssa.is>
 
-[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
+[ Upstream commit bb430b69422640891b0b8db762885730579a4145 ]
 
-The getaffinity() system call uses 'cpumask_size()' to decide how big
-the CPU mask is - so far so good.  It is indeed the allocation size of a
-cpumask.
+LOOP_CONFIGURE is, as far as I understand it, supposed to be a way to
+combine LOOP_SET_FD and LOOP_SET_STATUS64 into a single syscall.  When
+using LOOP_SET_FD+LOOP_SET_STATUS64, a single uevent would be sent for
+each partition found on the loop device after the second ioctl(), but
+when using LOOP_CONFIGURE, no such uevent was being sent.
 
-But the code also assumes that the whole allocation is initialized
-without actually doing so itself.  That's wrong, because we might have
-fixed-size allocations (making copying and clearing more efficient), but
-not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
+In the old setup, uevents are disabled for LOOP_SET_FD, but not for
+LOOP_SET_STATUS64.  This makes sense, as it prevents uevents being
+sent for a partially configured device during LOOP_SET_FD - they're
+only sent at the end of LOOP_SET_STATUS64.  But for LOOP_CONFIGURE,
+uevents were disabled for the entire operation, so that final
+notification was never issued.  To fix this, reduce the critical
+section to exclude the loop_reread_partitions() call, which causes
+the uevents to be issued, to after uevents are re-enabled, matching
+the behaviour of the LOOP_SET_FD+LOOP_SET_STATUS64 combination.
 
-Having checked other users of 'cpumask_size()', they all seem to be ok,
-either using it purely for the allocation size, or explicitly zeroing
-the cpumask before using the size in bytes to copy it.
+I noticed this because Busybox's losetup program recently changed from
+using LOOP_SET_FD+LOOP_SET_STATUS64 to LOOP_CONFIGURE, and this broke
+my setup, for which I want a notification from the kernel any time a
+new partition becomes available.
 
-See for example the ublk_ctrl_get_queue_affinity() function that uses
-the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
-cleared, whether the storage is on the stack or if it was an external
-allocation.
-
-Fix this by just zeroing the allocation before using it.  Do the same
-for the compat version of sched_getaffinity(), which had the same logic.
-
-Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
-access the bits.  For a cpumask_var_t, it ends up being a pointer to the
-same data either way, but it's just a good idea to treat it like you
-would a 'cpumask_t'.  The compat case already did that.
-
-Reported-by: Ryan Roberts <ryan.roberts@arm.com>
-Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
-Cc: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+[hch: reduced the critical section]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
+Link: https://lore.kernel.org/r/20230320125430.55367-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/compat.c     | 2 +-
- kernel/sched/core.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/block/loop.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index e4548a9e9c52c..5f320b0db8d09 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -307,7 +307,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
- 	if (len & (sizeof(compat_ulong_t)-1))
- 		return -EINVAL;
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 793ae876918ce..426d0b42685a0 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1010,9 +1010,6 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	/* This is safe, since we have a reference from open(). */
+ 	__module_get(THIS_MODULE);
  
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
+-	/* suppress uevents while reconfiguring the device */
+-	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 1);
+-
+ 	/*
+ 	 * If we don't hold exclusive handle for the device, upgrade to it
+ 	 * here to avoid changing device under exclusive owner.
+@@ -1067,6 +1064,9 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 		}
+ 	}
  
- 	ret = sched_getaffinity(pid, mask);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 207cd446b9d36..8d5a9fa8a951c 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -4953,14 +4953,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
- 	if (len & (sizeof(unsigned long)-1))
- 		return -EINVAL;
++	/* suppress uevents while reconfiguring the device */
++	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 1);
++
+ 	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
+ 	set_disk_ro(lo->lo_disk, (lo->lo_flags & LO_FLAGS_READ_ONLY) != 0);
  
--	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 		return -ENOMEM;
+@@ -1109,17 +1109,17 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	if (partscan)
+ 		clear_bit(GD_SUPPRESS_PART_SCAN, &lo->lo_disk->state);
  
- 	ret = sched_getaffinity(pid, mask);
- 	if (ret == 0) {
- 		unsigned int retlen = min(len, cpumask_size());
++	/* enable and uncork uevent now that we are done */
++	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 0);
++
+ 	loop_global_unlock(lo, is_loop);
+ 	if (partscan)
+ 		loop_reread_partitions(lo);
++
+ 	if (!(mode & FMODE_EXCL))
+ 		bd_abort_claiming(bdev, loop_configure);
  
--		if (copy_to_user(user_mask_ptr, mask, retlen))
-+		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
- 			ret = -EFAULT;
- 		else
- 			ret = retlen;
+-	error = 0;
+-done:
+-	/* enable and uncork uevent now that we are done */
+-	dev_set_uevent_suppress(disk_to_dev(lo->lo_disk), 0);
+-	return error;
++	return 0;
+ 
+ out_unlock:
+ 	loop_global_unlock(lo, is_loop);
+@@ -1130,7 +1130,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	fput(file);
+ 	/* This is safe: open() is still holding a reference. */
+ 	module_put(THIS_MODULE);
+-	goto done;
++	return error;
+ }
+ 
+ static void __loop_clr_fd(struct loop_device *lo, bool release)
 -- 
 2.39.2
 
