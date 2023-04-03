@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5526D4A3B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6535F6D4831
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233896AbjDCOpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59418 "EHLO
+        id S233322AbjDCO0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233993AbjDCOpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:13 -0400
+        with ESMTP id S233310AbjDCO0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B9E280D6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427C42D7FF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BBEEB81D3D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5FEC433D2;
-        Mon,  3 Apr 2023 14:44:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E308BB81BF7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5EAC433EF;
+        Mon,  3 Apr 2023 14:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533090;
-        bh=PyIAoE5TE12w64lhX+6kgpBNu5MU7e5E2YpbPVOcYCs=;
+        s=korg; t=1680531982;
+        bh=tjm/U7i24MHyqPtM//YMujeXxw3SWUAK2We33sTj+m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVocEoLs//PYk4duJ+6Gk1zuYsGo8YHdHwyrava6xVVh49R68RRtIxe24XF+YGP0i
-         S3FqMxXuMqPP084t0EZHJex9dls1Yj+1kdaJ4F3CFBCPr+F/6bZt7NwCKBhnsC6aD0
-         XJ48eSctBm4V/PDyqTBtnzMibauX8a5O2Mcpmj+E=
+        b=XpHdh7IO2eCh6IPo4pyTFHnIn46/8SkQ1/t6vNjhj6kd5jWTzB4AI6VdYjAs9mO2K
+         34sa3LzAH+C6vuHWFE/C8D5rt8mnwr7b9dK6YPJgH7p9DSJGPB2ELc8x+kVUwuspYM
+         wyw+zT0nUd+x/FtC8u4rTmrQIXJA+z8DOI0dFz/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Joshua Washington <joshwash@google.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 020/187] ASoC: Intel: avs: ssm4567: Remove nau8825 bits
+Subject: [PATCH 5.10 050/173] gve: Cache link_speed value from device
 Date:   Mon,  3 Apr 2023 16:07:45 +0200
-Message-Id: <20230403140416.689040351@linuxfoundation.org>
+Message-Id: <20230403140416.057694864@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,75 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Joshua Washington <joshwash@google.com>
 
-[ Upstream commit 933de2d127281731166cf2880fa1e23c5a0f7faa ]
+[ Upstream commit 68c3e4fc8628b1487c965aabb29207249657eb5f ]
 
-Some of the nau8825 clock control got into the ssm4567, remove it.
+The link speed is never changed for the uptime of a VM, and the current
+implementation sends an admin queue command for each call. Admin queue
+command invocations have nontrivial overhead (e.g., VM exits), which can
+be disruptive to users if triggered frequently. Our telemetry data shows
+that there are VMs that make frequent calls to this admin queue command.
+Caching the result of the original admin queue command would eliminate
+the need to send multiple admin queue commands on subsequent calls to
+retrieve link speed.
 
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230303134854.2277146-5-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7e074d5a76ca ("gve: Enable Link Speed Reporting in the driver.")
+Signed-off-by: Joshua Washington <joshwash@google.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230321172332.91678-1-joshwash@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/ssm4567.c | 31 ----------------------------
- 1 file changed, 31 deletions(-)
+ drivers/net/ethernet/google/gve/gve_ethtool.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/avs/boards/ssm4567.c b/sound/soc/intel/avs/boards/ssm4567.c
-index c5db696127624..2b7f5ad92aca7 100644
---- a/sound/soc/intel/avs/boards/ssm4567.c
-+++ b/sound/soc/intel/avs/boards/ssm4567.c
-@@ -15,7 +15,6 @@
- #include <sound/soc-acpi.h>
- #include "../../../codecs/nau8825.h"
+diff --git a/drivers/net/ethernet/google/gve/gve_ethtool.c b/drivers/net/ethernet/google/gve/gve_ethtool.c
+index c53a043139446..e0449cc24fbdb 100644
+--- a/drivers/net/ethernet/google/gve/gve_ethtool.c
++++ b/drivers/net/ethernet/google/gve/gve_ethtool.c
+@@ -510,7 +510,10 @@ static int gve_get_link_ksettings(struct net_device *netdev,
+ 				  struct ethtool_link_ksettings *cmd)
+ {
+ 	struct gve_priv *priv = netdev_priv(netdev);
+-	int err = gve_adminq_report_link_speed(priv);
++	int err = 0;
++
++	if (priv->link_speed == 0)
++		err = gve_adminq_report_link_speed(priv);
  
--#define SKL_NUVOTON_CODEC_DAI	"nau8825-hifi"
- #define SKL_SSM_CODEC_DAI	"ssm4567-hifi"
- 
- static struct snd_soc_codec_conf card_codec_conf[] = {
-@@ -34,41 +33,11 @@ static const struct snd_kcontrol_new card_controls[] = {
- 	SOC_DAPM_PIN_SWITCH("Right Speaker"),
- };
- 
--static int
--platform_clock_control(struct snd_soc_dapm_widget *w, struct snd_kcontrol *control, int event)
--{
--	struct snd_soc_dapm_context *dapm = w->dapm;
--	struct snd_soc_card *card = dapm->card;
--	struct snd_soc_dai *codec_dai;
--	int ret;
--
--	codec_dai = snd_soc_card_get_codec_dai(card, SKL_NUVOTON_CODEC_DAI);
--	if (!codec_dai) {
--		dev_err(card->dev, "Codec dai not found\n");
--		return -EINVAL;
--	}
--
--	if (SND_SOC_DAPM_EVENT_ON(event)) {
--		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_MCLK, 24000000,
--					     SND_SOC_CLOCK_IN);
--		if (ret < 0)
--			dev_err(card->dev, "set sysclk err = %d\n", ret);
--	} else {
--		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_INTERNAL, 0, SND_SOC_CLOCK_IN);
--		if (ret < 0)
--			dev_err(card->dev, "set sysclk err = %d\n", ret);
--	}
--
--	return ret;
--}
--
- static const struct snd_soc_dapm_widget card_widgets[] = {
- 	SND_SOC_DAPM_SPK("Left Speaker", NULL),
- 	SND_SOC_DAPM_SPK("Right Speaker", NULL),
- 	SND_SOC_DAPM_SPK("DP1", NULL),
- 	SND_SOC_DAPM_SPK("DP2", NULL),
--	SND_SOC_DAPM_SUPPLY("Platform Clock", SND_SOC_NOPM, 0, 0, platform_clock_control,
--			    SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
- };
- 
- static const struct snd_soc_dapm_route card_base_routes[] = {
+ 	cmd->base.speed = priv->link_speed;
+ 	return err;
 -- 
 2.39.2
 
