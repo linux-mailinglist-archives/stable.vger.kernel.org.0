@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BD76D4714
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB0F6D46D9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbjDCOQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35228 "EHLO
+        id S232877AbjDCOOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232900AbjDCOQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:57 -0400
+        with ESMTP id S232870AbjDCOOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9986E22E90
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FB4A4C37
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F6A461CD1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43095C433EF;
-        Mon,  3 Apr 2023 14:16:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AF5C61CAC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 000CFC433D2;
+        Mon,  3 Apr 2023 14:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531415;
-        bh=2d7wGBrkNTLru+WOroZkrHtfsI3EP5FJyFrurt62Y9M=;
+        s=korg; t=1680531281;
+        bh=sCsDNYzSTG7AFZ+BVfOY2sgjHjNLAGu4CppjxGqG9l0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tN2HDtGchxeP9UQgKGjIMTRnqS6f1h+GMn2oo+AF1tRK0oVtLzzGztZx4knbwZGeD
-         XjlHGyp7UnWGGJDK2w9WL/JmzgfHt2Kzt9l9gcOk+W9U9SxCt6viaeY2va+RbMz5kM
-         Hgn5bLxHQrl+9D4Mxc9CqmfLhMVGjA3WhWyjSXYw=
+        b=maklXekQ5gIGFiobMBmEgnKsiBx+M7Ss1Ib31aW7Fj9O2stW7JLp1+cqHqBoL8ftY
+         2cty6fP08MArpX6xBsYPC2MYZFrW2RsZa/LvZFn4Akipii6dtBvhsU1gUG1Bdm8Klj
+         OZHU9CGxpYKHQjKSs1kM4+gWNrGlUjgd/gKOR41U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 54/84] ALSA: hda/ca0132: fixup buffer overrun at tuning_ctl_set()
+        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 47/66] sched_getaffinity: dont assume cpumask_size() is fully initialized
 Date:   Mon,  3 Apr 2023 16:08:55 +0200
-Message-Id: <20230403140355.281005845@linuxfoundation.org>
+Message-Id: <20230403140353.483565137@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 98e5eb110095ec77cb6d775051d181edbf9cd3cf ]
+[ Upstream commit 6015b1aca1a233379625385feb01dd014aca60b5 ]
 
-tuning_ctl_set() might have buffer overrun at (X) if it didn't break
-from loop by matching (A).
+The getaffinity() system call uses 'cpumask_size()' to decide how big
+the CPU mask is - so far so good.  It is indeed the allocation size of a
+cpumask.
 
-	static int tuning_ctl_set(...)
-	{
-		for (i = 0; i < TUNING_CTLS_COUNT; i++)
-(A)			if (nid == ca0132_tuning_ctls[i].nid)
-				break;
+But the code also assumes that the whole allocation is initialized
+without actually doing so itself.  That's wrong, because we might have
+fixed-size allocations (making copying and clearing more efficient), but
+not all of it is then necessarily used if 'nr_cpu_ids' is smaller.
 
-		snd_hda_power_up(...);
-(X)		dspio_set_param(..., ca0132_tuning_ctls[i].mid, ...);
-		snd_hda_power_down(...);                ^
+Having checked other users of 'cpumask_size()', they all seem to be ok,
+either using it purely for the allocation size, or explicitly zeroing
+the cpumask before using the size in bytes to copy it.
 
-		return 1;
-	}
+See for example the ublk_ctrl_get_queue_affinity() function that uses
+the proper 'zalloc_cpumask_var()' to make sure that the whole mask is
+cleared, whether the storage is on the stack or if it was an external
+allocation.
 
-We will get below error by cppcheck
+Fix this by just zeroing the allocation before using it.  Do the same
+for the compat version of sched_getaffinity(), which had the same logic.
 
-	sound/pci/hda/patch_ca0132.c:4229:2: note: After for loop, i has value 12
-	 for (i = 0; i < TUNING_CTLS_COUNT; i++)
-	 ^
-	sound/pci/hda/patch_ca0132.c:4234:43: note: Array index out of bounds
-	 dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
-	                                           ^
-This patch cares non match case.
+Also, for consistency, make sched_getaffinity() use 'cpumask_bits()' to
+access the bits.  For a cpumask_var_t, it ends up being a pointer to the
+same data either way, but it's just a good idea to treat it like you
+would a 'cpumask_t'.  The compat case already did that.
 
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87sfe9eap7.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Ryan Roberts <ryan.roberts@arm.com>
+Link: https://lore.kernel.org/lkml/7d026744-6bd6-6827-0471-b5e8eae0be3f@arm.com/
+Cc: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/compat.c     | 2 +-
+ kernel/sched/core.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index ca8a37388d565..9f0e6bbc523c3 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -3620,8 +3620,10 @@ static int tuning_ctl_set(struct hda_codec *codec, hda_nid_t nid,
+diff --git a/kernel/compat.c b/kernel/compat.c
+index 45ae3ace49c29..63d10b91f80fa 100644
+--- a/kernel/compat.c
++++ b/kernel/compat.c
+@@ -351,7 +351,7 @@ COMPAT_SYSCALL_DEFINE3(sched_getaffinity, compat_pid_t,  pid, unsigned int, len,
+ 	if (len & (sizeof(compat_ulong_t)-1))
+ 		return -EINVAL;
  
- 	for (i = 0; i < TUNING_CTLS_COUNT; i++)
- 		if (nid == ca0132_tuning_ctls[i].nid)
--			break;
-+			goto found;
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
  
-+	return -EINVAL;
-+found:
- 	snd_hda_power_up(codec);
- 	dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
- 			ca0132_tuning_ctls[i].req,
+ 	ret = sched_getaffinity(pid, mask);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 22a7a3435ad46..e3bda201f6396 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -4794,14 +4794,14 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
+ 	if (len & (sizeof(unsigned long)-1))
+ 		return -EINVAL;
+ 
+-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
++	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	ret = sched_getaffinity(pid, mask);
+ 	if (ret == 0) {
+ 		size_t retlen = min_t(size_t, len, cpumask_size());
+ 
+-		if (copy_to_user(user_mask_ptr, mask, retlen))
++		if (copy_to_user(user_mask_ptr, cpumask_bits(mask), retlen))
+ 			ret = -EFAULT;
+ 		else
+ 			ret = retlen;
 -- 
 2.39.2
 
