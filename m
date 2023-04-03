@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9FF6D473C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39AE6D4AA7
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233009AbjDCOSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38102 "EHLO
+        id S234046AbjDCOtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233005AbjDCOSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D5B82952D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:31 -0700 (PDT)
+        with ESMTP id S234106AbjDCOtC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F0FB2D4B2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0A6EDCE12B7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1259EC433D2;
-        Mon,  3 Apr 2023 14:18:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5CDEB81D64
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA42AC433D2;
+        Mon,  3 Apr 2023 14:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531507;
-        bh=8Pwj6AeMV46wNGCGpoLrwR2GMOr61qL/EjWdxw7+qj8=;
+        s=korg; t=1680533237;
+        bh=Y2i4hsHkNEO+l9DIkKNVBrIeO+hNy8N3Mnfvxx7tVjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNBhHjlQLshDViqbTc1kMbnlkEteFNKjPvOe5ab9RFvZhfEAs8SZOZDbCwnBxFHGw
-         owgKNlZ8Pn2XGCva8F5cdFBDsJc2Mi0ugt+1CUUIeiPeoGrTwpZ6m/T3CnHUsymDPI
-         Jvl2SCuvH9tnqybLzedKtSRTV9rfHHF+4cSfiZ6c=
+        b=X4hT+JOluFSe7xrIg8P2C2wWG0dotoWJNKLxrJvBOj9IW/iKqULXGDa4k/YlSFoIb
+         dnsWb+jkO13BwHgjTKf4vqKCkeHZPztW/f/dXbn6nQiNPpZ5NbOjoJtndV7QcwRxvZ
+         FXTZEMZtse/lgkzGOOhwlxw9Eb010jMqyFbydN/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 70/84] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
+        patches@lists.linux.dev, Junfeng Guo <junfeng.guo@intel.com>,
+        Rafal Romanowski <rafal.romanowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 106/187] ice: add profile conflict check for AVF FDIR
 Date:   Mon,  3 Apr 2023 16:09:11 +0200
-Message-Id: <20230403140355.850086402@linuxfoundation.org>
+Message-Id: <20230403140419.458180317@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Junfeng Guo <junfeng.guo@intel.com>
 
-commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
+[ Upstream commit 29486b6df3e6a63b57d1ed1dce06051267282ff4 ]
 
-When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
-is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
-S_AUTOMOUNT and corresponding dentry flags is retained regardless of
-CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
-VFS follow_automount() when traversing a DFS referral link:
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  ...
-  Call Trace:
-   <TASK>
-   __traverse_mounts+0xb5/0x220
-   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
-   step_into+0x195/0x610
-   ? lookup_fast+0xe2/0xf0
-   path_lookupat+0x64/0x140
-   filename_lookup+0xc2/0x140
-   ? __create_object+0x299/0x380
-   ? kmem_cache_alloc+0x119/0x220
-   ? user_path_at_empty+0x31/0x50
-   user_path_at_empty+0x31/0x50
-   __x64_sys_chdir+0x2a/0xd0
-   ? exit_to_user_mode_prepare+0xca/0x100
-   do_syscall_64+0x42/0x90
-   entry_SYSCALL_64_after_hwframe+0x72/0xdc
+Add profile conflict check while adding some FDIR rules to avoid
+unexpected flow behavior, rules may have conflict including:
+        IPv4 <---> {IPv4_UDP, IPv4_TCP, IPv4_SCTP}
+        IPv6 <---> {IPv6_UDP, IPv6_TCP, IPv6_SCTP}
 
-This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
-when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
-avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
-approach was chosen as it provides more control over the error path.
+For example, when we create an FDIR rule for IPv4, this rule will work
+on packets including IPv4, IPv4_UDP, IPv4_TCP and IPv4_SCTP. But if we
+then create an FDIR rule for IPv4_UDP and then destroy it, the first
+FDIR rule for IPv4 cannot work on pkt IPv4_UDP then.
 
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To prevent this unexpected behavior, we add restriction in software
+when creating FDIR rules by adding necessary profile conflict check.
+
+Fixes: 1f7ea1cd6a37 ("ice: Enable FDIR Configure for AVF")
+Signed-off-by: Junfeng Guo <junfeng.guo@intel.com>
+Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../ethernet/intel/ice/ice_virtchnl_fdir.c    | 73 +++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
---- a/fs/cifs/cifsfs.h
-+++ b/fs/cifs/cifsfs.h
-@@ -121,7 +121,10 @@ extern const struct dentry_operations ci
- #ifdef CONFIG_CIFS_DFS_UPCALL
- extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
- #else
--#define cifs_dfs_d_automount NULL
-+static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
-+{
-+	return ERR_PTR(-EREMOTE);
-+}
- #endif
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+index c6a58343d81d8..a2645ff3100e4 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
+@@ -541,6 +541,72 @@ static void ice_vc_fdir_rem_prof_all(struct ice_vf *vf)
+ 	}
+ }
  
- /* Functions related to symlinks */
++/**
++ * ice_vc_fdir_has_prof_conflict
++ * @vf: pointer to the VF structure
++ * @conf: FDIR configuration for each filter
++ *
++ * Check if @conf has conflicting profile with existing profiles
++ *
++ * Return: true on success, and false on error.
++ */
++static bool
++ice_vc_fdir_has_prof_conflict(struct ice_vf *vf,
++			      struct virtchnl_fdir_fltr_conf *conf)
++{
++	struct ice_fdir_fltr *desc;
++
++	list_for_each_entry(desc, &vf->fdir.fdir_rule_list, fltr_node) {
++		struct virtchnl_fdir_fltr_conf *existing_conf;
++		enum ice_fltr_ptype flow_type_a, flow_type_b;
++		struct ice_fdir_fltr *a, *b;
++
++		existing_conf = to_fltr_conf_from_desc(desc);
++		a = &existing_conf->input;
++		b = &conf->input;
++		flow_type_a = a->flow_type;
++		flow_type_b = b->flow_type;
++
++		/* No need to compare two rules with different tunnel types or
++		 * with the same protocol type.
++		 */
++		if (existing_conf->ttype != conf->ttype ||
++		    flow_type_a == flow_type_b)
++			continue;
++
++		switch (flow_type_a) {
++		case ICE_FLTR_PTYPE_NONF_IPV4_UDP:
++		case ICE_FLTR_PTYPE_NONF_IPV4_TCP:
++		case ICE_FLTR_PTYPE_NONF_IPV4_SCTP:
++			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_OTHER)
++				return true;
++			break;
++		case ICE_FLTR_PTYPE_NONF_IPV4_OTHER:
++			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_UDP ||
++			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_TCP ||
++			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_SCTP)
++				return true;
++			break;
++		case ICE_FLTR_PTYPE_NONF_IPV6_UDP:
++		case ICE_FLTR_PTYPE_NONF_IPV6_TCP:
++		case ICE_FLTR_PTYPE_NONF_IPV6_SCTP:
++			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_OTHER)
++				return true;
++			break;
++		case ICE_FLTR_PTYPE_NONF_IPV6_OTHER:
++			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_UDP ||
++			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_TCP ||
++			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_SCTP)
++				return true;
++			break;
++		default:
++			break;
++		}
++	}
++
++	return false;
++}
++
+ /**
+  * ice_vc_fdir_write_flow_prof
+  * @vf: pointer to the VF structure
+@@ -677,6 +743,13 @@ ice_vc_fdir_config_input_set(struct ice_vf *vf, struct virtchnl_fdir_add *fltr,
+ 	enum ice_fltr_ptype flow;
+ 	int ret;
+ 
++	ret = ice_vc_fdir_has_prof_conflict(vf, conf);
++	if (ret) {
++		dev_dbg(dev, "Found flow profile conflict for VF %d\n",
++			vf->vf_id);
++		return ret;
++	}
++
+ 	flow = input->flow_type;
+ 	ret = ice_vc_fdir_alloc_prof(vf, flow);
+ 	if (ret) {
+-- 
+2.39.2
+
 
 
