@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3DF6D4A2B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C186D4815
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233822AbjDCOor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59466 "EHLO
+        id S233276AbjDCOZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:25:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233993AbjDCOoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58167280E8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:10 -0700 (PDT)
+        with ESMTP id S233287AbjDCOZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346B09EF3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAC44B81D2A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EF09C433D2;
-        Mon,  3 Apr 2023 14:44:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C337661D99
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4281C433EF;
+        Mon,  3 Apr 2023 14:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533048;
-        bh=XrrhMWQnqt1ikQWLiMWwcVO1PUIEDtnXn1ngPJpkiys=;
+        s=korg; t=1680531941;
+        bh=6ZIG/AaYFRe4Ziajz/NcQxFcvyNcXM3LuH1cO7y+XfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiM8Id15Tg1tCzhtgWK16vrkuLQpcUyS1DCMYTAhBx2IhTGR8laaXVaLgj2M/zU84
-         DlNEM5DxjXjLMrqb9BiBph8KqyKQZSFiTeuI4o3N25/ygEPx6TzU/JWKk/WIYLd4nl
-         AywFic1GXPf+CW2iQhD3VESBlxYqquhxcPdxcDh4=
+        b=rxnW/KCKufRmtu+lrzikD6oJ1lqCGfeYWYRV1YNrHuMG24pFrCresb14dLE3gaIHH
+         9Tdq0Nj14cCzpPhkomc1kb0qkuBRguqI20PbZs90Nzz8gjgBfrT1jIVuIvTEgDIF8Z
+         iAHdnZLyOGQhjyvC1xDQbMdR8u9VlYNjsd7FSYN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 017/187] ASoC: Intel: avs: max98357a: Explicitly define codec format
-Date:   Mon,  3 Apr 2023 16:07:42 +0200
-Message-Id: <20230403140416.599607813@linuxfoundation.org>
+Subject: [PATCH 5.10 048/173] net/sonic: use dma_mapping_error() for error check
+Date:   Mon,  3 Apr 2023 16:07:43 +0200
+Message-Id: <20230403140415.989455919@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit d16c893425d07ada1fdd817ec06d322efcf69480 ]
+[ Upstream commit 4107b8746d93ace135b8c4da4f19bbae81db785f ]
 
-max98357a is speaker codec configured in 48000/2/S16_LE format
-regardless of front end format, so force it to be so.
+The DMA address returned by dma_map_single() should be checked with
+dma_mapping_error(). Fix it accordingly.
 
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230303134854.2277146-2-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@linux-m68k.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/6645a4b5c1e364312103f48b7b36783b94e197a2.1679370343.git.fthain@linux-m68k.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/max98357a.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/net/ethernet/natsemi/sonic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/avs/boards/max98357a.c b/sound/soc/intel/avs/boards/max98357a.c
-index 921f42caf7e09..183123d08c5a3 100644
---- a/sound/soc/intel/avs/boards/max98357a.c
-+++ b/sound/soc/intel/avs/boards/max98357a.c
-@@ -8,6 +8,7 @@
+diff --git a/drivers/net/ethernet/natsemi/sonic.c b/drivers/net/ethernet/natsemi/sonic.c
+index d17d1b4f2585f..825356ee3492e 100644
+--- a/drivers/net/ethernet/natsemi/sonic.c
++++ b/drivers/net/ethernet/natsemi/sonic.c
+@@ -292,7 +292,7 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
+ 	 */
  
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <sound/pcm_params.h>
- #include <sound/soc.h>
- #include <sound/soc-acpi.h>
- #include <sound/soc-dapm.h>
-@@ -24,6 +25,26 @@ static const struct snd_soc_dapm_route card_base_routes[] = {
- 	{ "Spk", NULL, "Speaker" },
- };
+ 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
+-	if (!laddr) {
++	if (dma_mapping_error(lp->device, laddr)) {
+ 		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
+ 		dev_kfree_skb_any(skb);
+ 		return NETDEV_TX_OK;
+@@ -509,7 +509,7 @@ static bool sonic_alloc_rb(struct net_device *dev, struct sonic_local *lp,
  
-+static int
-+avs_max98357a_be_fixup(struct snd_soc_pcm_runtime *runrime, struct snd_pcm_hw_params *params)
-+{
-+	struct snd_interval *rate, *channels;
-+	struct snd_mask *fmt;
-+
-+	rate = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
-+	channels = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
-+	fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-+
-+	/* The ADSP will convert the FE rate to 48k, stereo */
-+	rate->min = rate->max = 48000;
-+	channels->min = channels->max = 2;
-+
-+	/* set SSP0 to 16 bit */
-+	snd_mask_none(fmt);
-+	snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
-+	return 0;
-+}
-+
- static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
- 			       struct snd_soc_dai_link **dai_link)
- {
-@@ -55,6 +76,7 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
- 	dl->num_platforms = 1;
- 	dl->id = 0;
- 	dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
-+	dl->be_hw_params_fixup = avs_max98357a_be_fixup;
- 	dl->nonatomic = 1;
- 	dl->no_pcm = 1;
- 	dl->dpcm_playback = 1;
+ 	*new_addr = dma_map_single(lp->device, skb_put(*new_skb, SONIC_RBSIZE),
+ 				   SONIC_RBSIZE, DMA_FROM_DEVICE);
+-	if (!*new_addr) {
++	if (dma_mapping_error(lp->device, *new_addr)) {
+ 		dev_kfree_skb(*new_skb);
+ 		*new_skb = NULL;
+ 		return false;
 -- 
 2.39.2
 
