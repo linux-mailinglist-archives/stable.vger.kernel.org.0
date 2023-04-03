@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 453C06D4726
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 087106D484C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232963AbjDCORh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36258 "EHLO
+        id S233341AbjDCO11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232972AbjDCORg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 910D72951B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:34 -0700 (PDT)
+        with ESMTP id S233336AbjDCO10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95953128B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E125B81B94
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4FBC433D2;
-        Mon,  3 Apr 2023 14:17:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A77A9B81C1D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2194AC433D2;
+        Mon,  3 Apr 2023 14:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531452;
-        bh=Q/0sdqO0FiJ7V7rS205kadL9fntsC5T3cXvcgQCejSk=;
+        s=korg; t=1680532042;
+        bh=cuFszrW0mcZGvaoN6MMj2FTUJjBL5BTHu6an0b1zQt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vpkJ9GqpGroiqY6v0Dy6F4oUcaTYh1xqaLlqJISWfcYvYGWsw/AcDdAbuPIjYvG0t
-         Xi9QwFWwoluT+nTXNE6Irq+GfKhtcSdRLOJZZXtrqrI8UDMEqk/8j44UDyQtrXTSlU
-         jLLKnRX21LfURBQza/0MER2/nkOJsYEcm3Ic61SQ=
+        b=cfQfzgfmmvtPoDbg+myicrdAhFvH9rQrOElAD76zzzsVEPvEZfqwwzCBJQTlMMXGS
+         8yMiD5y3Y1U4fYVL1QwZhUomyDN+hA84J/v/yk8blPJa0cChtGMax/PTwv5Y6WPXm/
+         FodZBVQul04gYYoNTv4WZ26JOIggI3cRaTc0WbiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
-        John Keeping <john@metanate.com>
-Subject: [PATCH 4.19 38/84] usb: gadget: u_audio: dont let userspace block driver unbind
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 104/173] usb: dwc3: gadget: move cmd_endtransfer to extra function
 Date:   Mon,  3 Apr 2023 16:08:39 +0200
-Message-Id: <20230403140354.659989678@linuxfoundation.org>
+Message-Id: <20230403140417.812011796@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,69 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <alsi@bang-olufsen.dk>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-commit 6c67ed9ad9b83e453e808f9b31a931a20a25629b upstream.
+[ Upstream commit e192cc7b52399d1b073f88cd3ba128b74d3a57f1 ]
 
-In the unbind callback for f_uac1 and f_uac2, a call to snd_card_free()
-via g_audio_cleanup() will disconnect the card and then wait for all
-resources to be released, which happens when the refcount falls to zero.
-Since userspace can keep the refcount incremented by not closing the
-relevant file descriptor, the call to unbind may block indefinitely.
-This can cause a deadlock during reboot, as evidenced by the following
-blocked task observed on my machine:
+This patch adds the extra function __dwc3_stop_active_transfer to
+consolidate the same codepath.
 
-  task:reboot  state:D stack:0   pid:2827  ppid:569    flags:0x0000000c
-  Call trace:
-   __switch_to+0xc8/0x140
-   __schedule+0x2f0/0x7c0
-   schedule+0x60/0xd0
-   schedule_timeout+0x180/0x1d4
-   wait_for_completion+0x78/0x180
-   snd_card_free+0x90/0xa0
-   g_audio_cleanup+0x2c/0x64
-   afunc_unbind+0x28/0x60
-   ...
-   kernel_restart+0x4c/0xac
-   __do_sys_reboot+0xcc/0x1ec
-   __arm64_sys_reboot+0x28/0x30
-   invoke_syscall+0x4c/0x110
-   ...
-
-The issue can also be observed by opening the card with arecord and
-then stopping the process through the shell before unbinding:
-
-  # arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
-  Recording WAVE '/dev/null' : Signed 32 bit Little Endian, Rate 48000 Hz, Stereo
-  ^Z[1]+  Stopped                    arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
-  # echo gadget.0 > /sys/bus/gadget/drivers/configfs-gadget/unbind
-  (observe that the unbind command never finishes)
-
-Fix the problem by using snd_card_free_when_closed() instead, which will
-still disconnect the card as desired, but defer the task of freeing the
-resources to the core once userspace closes its file descriptor.
-
-Fixes: 132fcb460839 ("usb: gadget: Add Audio Class 2.0 Driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Reviewed-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20230302163648.3349669-1-alvin@pqrs.dk
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220306211251.2281335-3-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: d8a2bb4eb758 ("usb: dwc3: gadget: Add 1ms delay after end transfer command without IOC")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c | 69 +++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 32 deletions(-)
 
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -626,7 +626,7 @@ void g_audio_cleanup(struct g_audio *g_a
- 	uac = g_audio->uac;
- 	card = uac->card;
- 	if (card)
--		snd_card_free(card);
-+		snd_card_free_when_closed(card);
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 28a1194f849fc..ce5131ccd60a9 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1440,6 +1440,40 @@ static int __dwc3_gadget_get_frame(struct dwc3 *dwc)
+ 	return DWC3_DSTS_SOFFN(reg);
+ }
  
- 	kfree(uac->p_prm.ureq);
- 	kfree(uac->c_prm.ureq);
++/**
++ * __dwc3_stop_active_transfer - stop the current active transfer
++ * @dep: isoc endpoint
++ * @force: set forcerm bit in the command
++ * @interrupt: command complete interrupt after End Transfer command
++ *
++ * When setting force, the ForceRM bit will be set. In that case
++ * the controller won't update the TRB progress on command
++ * completion. It also won't clear the HWO bit in the TRB.
++ * The command will also not complete immediately in that case.
++ */
++static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool interrupt)
++{
++	struct dwc3_gadget_ep_cmd_params params;
++	u32 cmd;
++	int ret;
++
++	cmd = DWC3_DEPCMD_ENDTRANSFER;
++	cmd |= force ? DWC3_DEPCMD_HIPRI_FORCERM : 0;
++	cmd |= interrupt ? DWC3_DEPCMD_CMDIOC : 0;
++	cmd |= DWC3_DEPCMD_PARAM(dep->resource_index);
++	memset(&params, 0, sizeof(params));
++	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
++	WARN_ON_ONCE(ret);
++	dep->resource_index = 0;
++
++	if (!interrupt)
++		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
++	else if (!ret)
++		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
++
++	return ret;
++}
++
+ /**
+  * dwc3_gadget_start_isoc_quirk - workaround invalid frame number
+  * @dep: isoc endpoint
+@@ -1609,21 +1643,8 @@ static int __dwc3_gadget_start_isoc(struct dwc3_ep *dep)
+ 	 * status, issue END_TRANSFER command and retry on the next XferNotReady
+ 	 * event.
+ 	 */
+-	if (ret == -EAGAIN) {
+-		struct dwc3_gadget_ep_cmd_params params;
+-		u32 cmd;
+-
+-		cmd = DWC3_DEPCMD_ENDTRANSFER |
+-			DWC3_DEPCMD_CMDIOC |
+-			DWC3_DEPCMD_PARAM(dep->resource_index);
+-
+-		dep->resource_index = 0;
+-		memset(&params, 0, sizeof(params));
+-
+-		ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
+-		if (!ret)
+-			dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
+-	}
++	if (ret == -EAGAIN)
++		ret = __dwc3_stop_active_transfer(dep, false, true);
+ 
+ 	return ret;
+ }
+@@ -3250,10 +3271,6 @@ static void dwc3_reset_gadget(struct dwc3 *dwc)
+ static void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
+ 	bool interrupt)
+ {
+-	struct dwc3_gadget_ep_cmd_params params;
+-	u32 cmd;
+-	int ret;
+-
+ 	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED) ||
+ 	    (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
+ 		return;
+@@ -3285,19 +3302,7 @@ static void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
+ 	 * This mode is NOT available on the DWC_usb31 IP.
+ 	 */
+ 
+-	cmd = DWC3_DEPCMD_ENDTRANSFER;
+-	cmd |= force ? DWC3_DEPCMD_HIPRI_FORCERM : 0;
+-	cmd |= interrupt ? DWC3_DEPCMD_CMDIOC : 0;
+-	cmd |= DWC3_DEPCMD_PARAM(dep->resource_index);
+-	memset(&params, 0, sizeof(params));
+-	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
+-	WARN_ON_ONCE(ret);
+-	dep->resource_index = 0;
+-
+-	if (!interrupt)
+-		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+-	else
+-		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
++	__dwc3_stop_active_transfer(dep, force, interrupt);
+ }
+ 
+ static void dwc3_clear_stall_all_ep(struct dwc3 *dwc)
+-- 
+2.39.2
+
 
 
