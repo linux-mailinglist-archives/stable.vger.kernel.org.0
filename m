@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 988E06D499C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F27B6D4A93
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233753AbjDCOji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
+        id S234127AbjDCOsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233759AbjDCOjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA17535010
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:29 -0700 (PDT)
+        with ESMTP id S234145AbjDCOrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1968629BF0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3278ACE12EB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A2AFC433D2;
-        Mon,  3 Apr 2023 14:39:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C146B81D57
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B534EC433EF;
+        Mon,  3 Apr 2023 14:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532766;
-        bh=Y2i4hsHkNEO+l9DIkKNVBrIeO+hNy8N3Mnfvxx7tVjk=;
+        s=korg; t=1680533216;
+        bh=09FVz4SObmT4TnU5j7bDzRdZ2yySSnj8sptzbz39ojU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVni+YMuKu8gChgtWB3F9/fuOrhEigFwB4ouRFv7y/im+9PK080Go/lsLDrgqIzur
-         AVFtubJzNIntBCkMC4QXUgsgeZRw2FliSvrAwiSdH4NmyfVbJCWLSe/hLwDhOEwAm+
-         JVhVX9DIgTfwkxwC2iuw1UBRadJYIvrcs51yk9yM=
+        b=XgGDuTFxsp75u2uhfs6/i3JJCBiOsuELcV2hBS7f8ZMA/lZ2XWTuMT6D1mlRwOhN5
+         yAF1pSlClc7V7G5uq25isusxDSU31EaD8rohVcNGc6nUB4Bo2n64YyOfZRHOJTkCZd
+         DWqXyiO/PbgGhBzVfk5bGYPmhBC0JyZ7MylOSTCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Junfeng Guo <junfeng.guo@intel.com>,
-        Rafal Romanowski <rafal.romanowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Pierre Asselin <pa@panix.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 108/181] ice: add profile conflict check for AVF FDIR
-Date:   Mon,  3 Apr 2023 16:09:03 +0200
-Message-Id: <20230403140418.616762805@linuxfoundation.org>
+Subject: [PATCH 6.2 099/187] ACPI: bus: Rework system-level device notification handling
+Date:   Mon,  3 Apr 2023 16:09:04 +0200
+Message-Id: <20230403140419.229009502@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,123 +53,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junfeng Guo <junfeng.guo@intel.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 29486b6df3e6a63b57d1ed1dce06051267282ff4 ]
+[ Upstream commit c56610a869bce03490faf4f157076370c71b8ae3 ]
 
-Add profile conflict check while adding some FDIR rules to avoid
-unexpected flow behavior, rules may have conflict including:
-        IPv4 <---> {IPv4_UDP, IPv4_TCP, IPv4_SCTP}
-        IPv6 <---> {IPv6_UDP, IPv6_TCP, IPv6_SCTP}
+For ACPI drivers that provide a ->notify() callback and set
+ACPI_DRIVER_ALL_NOTIFY_EVENTS in their flags, that callback can be
+invoked while either the ->add() or the ->remove() callback is running
+without any synchronization at the bus type level which is counter to
+the common-sense expectation that notification handling should only be
+enabled when the driver is actually bound to the device.  As a result,
+if the driver is not careful enough, it's ->notify() callback may crash
+when it is invoked too early or too late [1].
 
-For example, when we create an FDIR rule for IPv4, this rule will work
-on packets including IPv4, IPv4_UDP, IPv4_TCP and IPv4_SCTP. But if we
-then create an FDIR rule for IPv4_UDP and then destroy it, the first
-FDIR rule for IPv4 cannot work on pkt IPv4_UDP then.
+This issue has been amplified by commit d6fb6ee1820c ("ACPI: bus: Drop
+driver member of struct acpi_device") that made acpi_bus_notify() check
+for the presence of the driver and its ->notify() callback directly
+instead of using an extra driver pointer that was only set and cleared
+by the bus type code, but it was present before that commit although
+it was harder to reproduce then.
 
-To prevent this unexpected behavior, we add restriction in software
-when creating FDIR rules by adding necessary profile conflict check.
+It can be addressed by using the observation that
+acpi_device_install_notify_handler() can be modified to install the
+handler for all types of events when ACPI_DRIVER_ALL_NOTIFY_EVENTS is
+set in the driver flags, in which case acpi_bus_notify() will not need
+to invoke the driver's ->notify() callback any more and that callback
+will only be invoked after acpi_device_install_notify_handler() has run
+and before acpi_device_remove_notify_handler() runs, which implies the
+correct ordering with respect to the other ACPI driver callbacks.
 
-Fixes: 1f7ea1cd6a37 ("ice: Enable FDIR Configure for AVF")
-Signed-off-by: Junfeng Guo <junfeng.guo@intel.com>
-Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Modify the code accordingly and while at it, drop two redundant local
+variables from acpi_bus_notify() and turn its description comment into
+a proper kerneldoc one.
+
+Fixes: d6fb6ee1820c ("ACPI: bus: Drop driver member of struct acpi_device")
+Link: https://lore.kernel.org/linux-acpi/9f6cba7a8a57e5a687c934e8e406e28c.squirrel@mail.panix.com # [1]
+Reported-by: Pierre Asselin <pa@panix.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Pierre Asselin <pa@panix.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/ice/ice_virtchnl_fdir.c    | 73 +++++++++++++++++++
- 1 file changed, 73 insertions(+)
+ drivers/acpi/bus.c | 83 +++++++++++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-index c6a58343d81d8..a2645ff3100e4 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_fdir.c
-@@ -541,6 +541,72 @@ static void ice_vc_fdir_rem_prof_all(struct ice_vf *vf)
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 0c05ccde1f7a6..7c16bc15e7a14 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -459,85 +459,67 @@ static void acpi_bus_osc_negotiate_usb_control(void)
+                              Notification Handling
+    -------------------------------------------------------------------------- */
+ 
+-/*
+- * acpi_bus_notify
+- * ---------------
+- * Callback for all 'system-level' device notifications (values 0x00-0x7F).
++/**
++ * acpi_bus_notify - Global system-level (0x00-0x7F) notifications handler
++ * @handle: Target ACPI object.
++ * @type: Notification type.
++ * @data: Ignored.
++ *
++ * This only handles notifications related to device hotplug.
+  */
+ static void acpi_bus_notify(acpi_handle handle, u32 type, void *data)
+ {
+ 	struct acpi_device *adev;
+-	u32 ost_code = ACPI_OST_SC_NON_SPECIFIC_FAILURE;
+-	bool hotplug_event = false;
+ 
+ 	switch (type) {
+ 	case ACPI_NOTIFY_BUS_CHECK:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_BUS_CHECK event\n");
+-		hotplug_event = true;
+ 		break;
+ 
+ 	case ACPI_NOTIFY_DEVICE_CHECK:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_CHECK event\n");
+-		hotplug_event = true;
+ 		break;
+ 
+ 	case ACPI_NOTIFY_DEVICE_WAKE:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_WAKE event\n");
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_EJECT_REQUEST:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_EJECT_REQUEST event\n");
+-		hotplug_event = true;
+ 		break;
+ 
+ 	case ACPI_NOTIFY_DEVICE_CHECK_LIGHT:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_CHECK_LIGHT event\n");
+ 		/* TBD: Exactly what does 'light' mean? */
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_FREQUENCY_MISMATCH:
+ 		acpi_handle_err(handle, "Device cannot be configured due "
+ 				"to a frequency mismatch\n");
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_BUS_MODE_MISMATCH:
+ 		acpi_handle_err(handle, "Device cannot be configured due "
+ 				"to a bus mode mismatch\n");
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_POWER_FAULT:
+ 		acpi_handle_err(handle, "Device has suffered a power fault\n");
+-		break;
++		return;
+ 
+ 	default:
+ 		acpi_handle_debug(handle, "Unknown event type 0x%x\n", type);
+-		break;
++		return;
  	}
+ 
+ 	adev = acpi_get_acpi_dev(handle);
+-	if (!adev)
+-		goto err;
+-
+-	if (adev->dev.driver) {
+-		struct acpi_driver *driver = to_acpi_driver(adev->dev.driver);
+-
+-		if (driver && driver->ops.notify &&
+-		    (driver->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS))
+-			driver->ops.notify(adev, type);
+-	}
+-
+-	if (!hotplug_event) {
+-		acpi_put_acpi_dev(adev);
+-		return;
+-	}
+ 
+-	if (ACPI_SUCCESS(acpi_hotplug_schedule(adev, type)))
++	if (adev && ACPI_SUCCESS(acpi_hotplug_schedule(adev, type)))
+ 		return;
+ 
+ 	acpi_put_acpi_dev(adev);
+ 
+- err:
+-	acpi_evaluate_ost(handle, type, ost_code, NULL);
++	acpi_evaluate_ost(handle, type, ACPI_OST_SC_NON_SPECIFIC_FAILURE, NULL);
  }
  
-+/**
-+ * ice_vc_fdir_has_prof_conflict
-+ * @vf: pointer to the VF structure
-+ * @conf: FDIR configuration for each filter
-+ *
-+ * Check if @conf has conflicting profile with existing profiles
-+ *
-+ * Return: true on success, and false on error.
-+ */
-+static bool
-+ice_vc_fdir_has_prof_conflict(struct ice_vf *vf,
-+			      struct virtchnl_fdir_fltr_conf *conf)
-+{
-+	struct ice_fdir_fltr *desc;
-+
-+	list_for_each_entry(desc, &vf->fdir.fdir_rule_list, fltr_node) {
-+		struct virtchnl_fdir_fltr_conf *existing_conf;
-+		enum ice_fltr_ptype flow_type_a, flow_type_b;
-+		struct ice_fdir_fltr *a, *b;
-+
-+		existing_conf = to_fltr_conf_from_desc(desc);
-+		a = &existing_conf->input;
-+		b = &conf->input;
-+		flow_type_a = a->flow_type;
-+		flow_type_b = b->flow_type;
-+
-+		/* No need to compare two rules with different tunnel types or
-+		 * with the same protocol type.
-+		 */
-+		if (existing_conf->ttype != conf->ttype ||
-+		    flow_type_a == flow_type_b)
-+			continue;
-+
-+		switch (flow_type_a) {
-+		case ICE_FLTR_PTYPE_NONF_IPV4_UDP:
-+		case ICE_FLTR_PTYPE_NONF_IPV4_TCP:
-+		case ICE_FLTR_PTYPE_NONF_IPV4_SCTP:
-+			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_OTHER)
-+				return true;
-+			break;
-+		case ICE_FLTR_PTYPE_NONF_IPV4_OTHER:
-+			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_UDP ||
-+			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_TCP ||
-+			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV4_SCTP)
-+				return true;
-+			break;
-+		case ICE_FLTR_PTYPE_NONF_IPV6_UDP:
-+		case ICE_FLTR_PTYPE_NONF_IPV6_TCP:
-+		case ICE_FLTR_PTYPE_NONF_IPV6_SCTP:
-+			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_OTHER)
-+				return true;
-+			break;
-+		case ICE_FLTR_PTYPE_NONF_IPV6_OTHER:
-+			if (flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_UDP ||
-+			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_TCP ||
-+			    flow_type_b == ICE_FLTR_PTYPE_NONF_IPV6_SCTP)
-+				return true;
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- /**
-  * ice_vc_fdir_write_flow_prof
-  * @vf: pointer to the VF structure
-@@ -677,6 +743,13 @@ ice_vc_fdir_config_input_set(struct ice_vf *vf, struct virtchnl_fdir_add *fltr,
- 	enum ice_fltr_ptype flow;
- 	int ret;
+ static void acpi_notify_device(acpi_handle handle, u32 event, void *data)
+@@ -562,42 +544,51 @@ static u32 acpi_device_fixed_event(void *data)
+ 	return ACPI_INTERRUPT_HANDLED;
+ }
  
-+	ret = ice_vc_fdir_has_prof_conflict(vf, conf);
-+	if (ret) {
-+		dev_dbg(dev, "Found flow profile conflict for VF %d\n",
-+			vf->vf_id);
-+		return ret;
-+	}
+-static int acpi_device_install_notify_handler(struct acpi_device *device)
++static int acpi_device_install_notify_handler(struct acpi_device *device,
++					      struct acpi_driver *acpi_drv)
+ {
+ 	acpi_status status;
+ 
+-	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON)
++	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON) {
+ 		status =
+ 		    acpi_install_fixed_event_handler(ACPI_EVENT_POWER_BUTTON,
+ 						     acpi_device_fixed_event,
+ 						     device);
+-	else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON)
++	} else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON) {
+ 		status =
+ 		    acpi_install_fixed_event_handler(ACPI_EVENT_SLEEP_BUTTON,
+ 						     acpi_device_fixed_event,
+ 						     device);
+-	else
+-		status = acpi_install_notify_handler(device->handle,
+-						     ACPI_DEVICE_NOTIFY,
++	} else {
++		u32 type = acpi_drv->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS ?
++				ACPI_ALL_NOTIFY : ACPI_DEVICE_NOTIFY;
 +
- 	flow = input->flow_type;
- 	ret = ice_vc_fdir_alloc_prof(vf, flow);
- 	if (ret) {
++		status = acpi_install_notify_handler(device->handle, type,
+ 						     acpi_notify_device,
+ 						     device);
++	}
+ 
+ 	if (ACPI_FAILURE(status))
+ 		return -EINVAL;
+ 	return 0;
+ }
+ 
+-static void acpi_device_remove_notify_handler(struct acpi_device *device)
++static void acpi_device_remove_notify_handler(struct acpi_device *device,
++					      struct acpi_driver *acpi_drv)
+ {
+-	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON)
++	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON) {
+ 		acpi_remove_fixed_event_handler(ACPI_EVENT_POWER_BUTTON,
+ 						acpi_device_fixed_event);
+-	else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON)
++	} else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON) {
+ 		acpi_remove_fixed_event_handler(ACPI_EVENT_SLEEP_BUTTON,
+ 						acpi_device_fixed_event);
+-	else
+-		acpi_remove_notify_handler(device->handle, ACPI_DEVICE_NOTIFY,
++	} else {
++		u32 type = acpi_drv->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS ?
++				ACPI_ALL_NOTIFY : ACPI_DEVICE_NOTIFY;
++
++		acpi_remove_notify_handler(device->handle, type,
+ 					   acpi_notify_device);
++	}
+ }
+ 
+ /* Handle events targeting \_SB device (at present only graceful shutdown) */
+@@ -1039,7 +1030,7 @@ static int acpi_device_probe(struct device *dev)
+ 		 acpi_drv->name, acpi_dev->pnp.bus_id);
+ 
+ 	if (acpi_drv->ops.notify) {
+-		ret = acpi_device_install_notify_handler(acpi_dev);
++		ret = acpi_device_install_notify_handler(acpi_dev, acpi_drv);
+ 		if (ret) {
+ 			if (acpi_drv->ops.remove)
+ 				acpi_drv->ops.remove(acpi_dev);
+@@ -1062,7 +1053,7 @@ static void acpi_device_remove(struct device *dev)
+ 	struct acpi_driver *acpi_drv = to_acpi_driver(dev->driver);
+ 
+ 	if (acpi_drv->ops.notify)
+-		acpi_device_remove_notify_handler(acpi_dev);
++		acpi_device_remove_notify_handler(acpi_dev, acpi_drv);
+ 
+ 	if (acpi_drv->ops.remove)
+ 		acpi_drv->ops.remove(acpi_dev);
 -- 
 2.39.2
 
