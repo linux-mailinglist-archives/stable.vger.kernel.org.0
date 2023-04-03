@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 179876D49C7
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69876D4917
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233739AbjDCOlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54798 "EHLO
+        id S233616AbjDCOfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233798AbjDCOlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:15 -0400
+        with ESMTP id S233658AbjDCOfB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6978A17AC5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFF14EE2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0260261ECF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A775C433D2;
-        Mon,  3 Apr 2023 14:41:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0C461B72
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C43C433D2;
+        Mon,  3 Apr 2023 14:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532873;
-        bh=yQpucFppg61iLd8+TE6u3745AlGx+fHxxxi4HMBtJ1c=;
+        s=korg; t=1680532479;
+        bh=1dQzuZPz+jnbnzOpl70GQpZ4Y71D3bu64CjXhtVCbsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7LmpHz2sbpiN8Ubn8RRQuqOj6K4cMnmhv56ruSNOXWZu2YNMgMX4wspV7WNQAYFN
-         OEHG/flY8KYJngbU3y7/mZhqd/DpmArqbuiPqFaDF2P40XAQCjm9DtajcYFNKC/+cU
-         B64abizXqQbzLe0gAamGnOl2vQHVR9o/p04/u2os=
+        b=ymmbk9FODVKtv6oLJc0kY60rN5DGL+fhmFu9biQB/k1scaqbkRbH4xfFbvlJHPJRo
+         WzjbdKjon36NV+J3k5btKOLopVI1EYaanGDbc9GCoCH3TMC/PbEaknZ6CdR5aGxTY7
+         982sTj1KTtjUc7uAy20E52I79VHYgiuXk1hIcDfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 6.1 148/181] powerpc: Dont try to copy PPR for task with NULL pt_regs
-Date:   Mon,  3 Apr 2023 16:09:43 +0200
-Message-Id: <20230403140419.864844485@linuxfoundation.org>
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 81/99] ALSA: usb-audio: Fix regression on detection of Roland VS-100
+Date:   Mon,  3 Apr 2023 16:09:44 +0200
+Message-Id: <20230403140406.470958714@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit fd7276189450110ed835eb0a334e62d2f1c4e3be upstream.
+commit fa4e7a6fa12b1132340785e14bd439cbe95b7a5a upstream.
 
-powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
-from my (arguably very short) checking is not commonly done for other
-archs. This is fine, except when PF_IO_WORKER's have been created and
-the task does something that causes a coredump to be generated. Then we
-get this crash:
+It's been reported that the recent kernel can't probe the PCM devices
+on Roland VS-100 properly, and it turned out to be a regression by the
+recent addition of the bit shift range check for the format bits.
+In the old code, we just did bit-shift and it resulted in zero, which
+is then corrected to the standard PCM format, while the new code
+explicitly returns an error in such a case.
 
-  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
-  BUG: Kernel NULL pointer dereference on read at 0x00000160
-  Faulting instruction address: 0xc0000000000c3a60
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
-  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
-  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
-  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
-  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
-  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
-  ...
-  NIP memcpy_power7+0x200/0x7d0
-  LR  ppr_get+0x64/0xb0
-  Call Trace:
-    ppr_get+0x40/0xb0 (unreliable)
-    __regset_get+0x180/0x1f0
-    regset_get_alloc+0x64/0x90
-    elf_core_dump+0xb98/0x1b60
-    do_coredump+0x1c34/0x24a0
-    get_signal+0x71c/0x1410
-    do_notify_resume+0x140/0x6f0
-    interrupt_exit_user_prepare_main+0x29c/0x320
-    interrupt_exit_user_prepare+0x6c/0xa0
-    interrupt_return_srr_user+0x8/0x138
+For addressing the regression, relax the check and fallback to the
+standard PCM type (with the info output).
 
-Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
-pt_regs.
-
-Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
-if not set. The actual error value doesn't seem to be important here, so
-just pick -EINVAL.
-
-Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[mpe: Trim oops in change log, add Fixes & Cc stable]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
+Fixes: 43d5ca88dfcd ("ALSA: usb-audio: Fix potential out-of-bounds shift")
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217084
+Link: https://lore.kernel.org/r/20230324075005.19403-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/ptrace/ptrace-view.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/usb/format.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/ptrace/ptrace-view.c
-+++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
-@@ -290,6 +290,9 @@ static int gpr_set(struct task_struct *t
- static int ppr_get(struct task_struct *target, const struct user_regset *regset,
- 		   struct membuf to)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
- }
- 
-@@ -297,6 +300,9 @@ static int ppr_set(struct task_struct *t
- 		   unsigned int pos, unsigned int count, const void *kbuf,
- 		   const void __user *ubuf)
- {
-+	if (!target->thread.regs)
-+		return -EINVAL;
-+
- 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
- 				  &target->thread.regs->ppr, 0, sizeof(u64));
- }
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -39,8 +39,12 @@ static u64 parse_audio_format_i_type(str
+ 	case UAC_VERSION_1:
+ 	default: {
+ 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
+-		if (format >= 64)
+-			return 0; /* invalid format */
++		if (format >= 64) {
++			usb_audio_info(chip,
++				       "%u:%d: invalid format type 0x%llx is detected, processed as PCM\n",
++				       fp->iface, fp->altsetting, format);
++			format = UAC_FORMAT_TYPE_I_PCM;
++		}
+ 		sample_width = fmt->bBitResolution;
+ 		sample_bytes = fmt->bSubframeSize;
+ 		format = 1ULL << format;
 
 
