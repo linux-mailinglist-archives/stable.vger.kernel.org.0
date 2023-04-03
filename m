@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A70CC6D46D8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DD06D4886
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232873AbjDCOOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
+        id S233404AbjDCO30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232870AbjDCOOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AE940E1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:41 -0700 (PDT)
+        with ESMTP id S233440AbjDCO3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108013500E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15343B81B36
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C834C4339C;
-        Mon,  3 Apr 2023 14:14:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C8C61DDB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6575C433EF;
+        Mon,  3 Apr 2023 14:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531278;
-        bh=0vnA3WU9n71Hksc/Fk2ECnvm3tBZSD5qLPZsrYMfSA0=;
+        s=korg; t=1680532159;
+        bh=L0ppsVkM3L1IhzDIY/wbSoHkSWthJizIcAiKa9RNvfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhGSDcH1HbESQKGr6r+oCrvkML1yz4ZqvoBUKtvOWfSPKRh1bEafJV+p/+4VaDQ5Q
-         7cRtMrucxOMSh1bCUfidQ4s8PEm2t7kuYS49buQofBWmGopF0ICLJOpnvUvfw9p6FS
-         rAOrDw1u+LDHRa7UewDGMJ17QMVTZ0kfYHyWQomc=
+        b=abTJ23rvtMrGr0cPXOAvfNwiJTa/Mk1Jg9/28KALi246Nym6KkZYgD1toaeMO0Fzm
+         XITe566pih3XtsH1hYIhWDkM/emAEKCGulKVVaKwnmXTJi06mqjCFntuDjUTsOtvlZ
+         ggexuj60gFQMOQFpilDG3t7b9hctheHiX0u9Eo3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 46/66] fbdev: tgafb: Fix potential divide by zero
+Subject: [PATCH 5.10 119/173] fbdev: nvidia: Fix potential divide by zero
 Date:   Mon,  3 Apr 2023 16:08:54 +0200
-Message-Id: <20230403140353.455603671@linuxfoundation.org>
+Message-Id: <20230403140418.315234213@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit f90bd245de82c095187d8c2cabb8b488a39eaecc ]
+[ Upstream commit 92e2a00f2987483e1f9253625828622edd442e61 ]
 
-fb_set_var would by called when user invokes ioctl with cmd
-FBIOPUT_VSCREENINFO. User-provided data would finally reach
-tgafb_check_var. In case var->pixclock is assigned to zero,
-divide by zero would occur when checking whether reciprocal
-of var->pixclock is too high.
+variable var->pixclock can be set by user. In case it
+equals to zero, divide by zero would occur in nvidiafb_set_par.
 
 Similar crashes have happened in other fbdev drivers. There
 is no check and modification on var->pixclock along the call
-chain to tgafb_check_var. We believe it could also be triggered
-in driver tgafb from user site.
+chain to nvidia_check_var and nvidiafb_set_par. We believe it
+could also be triggered in driver nvidia from user site.
 
 Signed-off-by: Wei Chen <harperchen1110@gmail.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/tgafb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/video/fbdev/nvidia/nvidia.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/tgafb.c b/drivers/video/fbdev/tgafb.c
-index 65ba9921506e2..9d2912947eef6 100644
---- a/drivers/video/fbdev/tgafb.c
-+++ b/drivers/video/fbdev/tgafb.c
-@@ -166,6 +166,9 @@ tgafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- {
- 	struct tga_par *par = (struct tga_par *)info->par;
+diff --git a/drivers/video/fbdev/nvidia/nvidia.c b/drivers/video/fbdev/nvidia/nvidia.c
+index a372a183c1f01..f9c388a8c10e3 100644
+--- a/drivers/video/fbdev/nvidia/nvidia.c
++++ b/drivers/video/fbdev/nvidia/nvidia.c
+@@ -763,6 +763,8 @@ static int nvidiafb_check_var(struct fb_var_screeninfo *var,
+ 	int pitch, err = 0;
  
+ 	NVTRACE_ENTER();
 +	if (!var->pixclock)
 +		return -EINVAL;
-+
- 	if (par->tga_type == TGA_TYPE_8PLANE) {
- 		if (var->bits_per_pixel != 8)
- 			return -EINVAL;
+ 
+ 	var->transp.offset = 0;
+ 	var->transp.length = 0;
 -- 
 2.39.2
 
