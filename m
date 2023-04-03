@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D7F6D496E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BB06D485F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233701AbjDCOiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48448 "EHLO
+        id S233356AbjDCO2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233710AbjDCOh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 197A3729C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:45 -0700 (PDT)
+        with ESMTP id S233357AbjDCO2G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 296117A98
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A869FB81CA9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 048EDC433EF;
-        Mon,  3 Apr 2023 14:37:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4C8E61138
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E37C433EF;
+        Mon,  3 Apr 2023 14:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532662;
-        bh=JcILdQd0OmJT9lXLLAMILCz+XMba2aucdyQ7Wd+IxDI=;
+        s=korg; t=1680532084;
+        bh=xDhUend4NH57BXHzmf5W3pjKljyH/lzEPZluTU+3IwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOFJakAsJvFsQVPNkKD+V9aLyj52EZtgtq1D3uVdZY+GGJmfFFAKwNkhQIYboKF+y
-         v7Zcpdtor5jxRiaWfDJ7hEaDwFcIjKHO4vpA7iC2kzVVALD44+6k2d8RY3Oa+GkARg
-         nFsxE60DoUQwgSjepbyZxFrxWI7djzFi1qSIiHiQ=
+        b=Y7Ukdlq583XSa9dTXjGj98A0o8LHi6q7h7hOxP6m+TC/GQtqUsYLsIWf4dtqgTN3n
+         mSo5vBae0AF52Vso0l1KGrTTJumZ7bzVX1UbhObeXhtREBHb76vb9pUBYZiysHVuIK
+         c34KRgokfadAN8/HrsyNA0YMDlgcsZCUSIJezP6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 069/181] ca8210: Fix unsigned mac_len comparison with zero in ca8210_skb_tx()
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+132fdd2f1e1805fdc591@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 089/173] nilfs2: fix kernel-infoleak in nilfs_ioctl_wrap_copy()
 Date:   Mon,  3 Apr 2023 16:08:24 +0200
-Message-Id: <20230403140417.376562167@linuxfoundation.org>
+Message-Id: <20230403140417.322881500@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 748b2f5e82d17480404b3e2895388fc2925f7caf ]
+commit 003587000276f81d0114b5ce773d80c119d8cb30 upstream.
 
-mac_len is of type unsigned, which can never be less than zero.
+The ioctl helper function nilfs_ioctl_wrap_copy(), which exchanges a
+metadata array to/from user space, may copy uninitialized buffer regions
+to user space memory for read-only ioctl commands NILFS_IOCTL_GET_SUINFO
+and NILFS_IOCTL_GET_CPINFO.
 
-	mac_len = ieee802154_hdr_peek_addrs(skb, &header);
-	if (mac_len < 0)
-		return mac_len;
+This can occur when the element size of the user space metadata given by
+the v_size member of the argument nilfs_argv structure is larger than the
+size of the metadata element (nilfs_suinfo structure or nilfs_cpinfo
+structure) on the file system side.
 
-Change this to type int as ieee802154_hdr_peek_addrs() can return negative
-integers, this is found by static analysis with smatch.
+KMSAN-enabled kernels detect this issue as follows:
 
-Fixes: 6c993779ea1d ("ca8210: fix mac_len negative array access")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230306191824.4115839-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ BUG: KMSAN: kernel-infoleak in instrument_copy_to_user
+ include/linux/instrumented.h:121 [inline]
+ BUG: KMSAN: kernel-infoleak in _copy_to_user+0xc0/0x100 lib/usercopy.c:33
+  instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+  _copy_to_user+0xc0/0x100 lib/usercopy.c:33
+  copy_to_user include/linux/uaccess.h:169 [inline]
+  nilfs_ioctl_wrap_copy+0x6fa/0xc10 fs/nilfs2/ioctl.c:99
+  nilfs_ioctl_get_info fs/nilfs2/ioctl.c:1173 [inline]
+  nilfs_ioctl+0x2402/0x4450 fs/nilfs2/ioctl.c:1290
+  nilfs_compat_ioctl+0x1b8/0x200 fs/nilfs2/ioctl.c:1343
+  __do_compat_sys_ioctl fs/ioctl.c:968 [inline]
+  __se_compat_sys_ioctl+0x7dd/0x1000 fs/ioctl.c:910
+  __ia32_compat_sys_ioctl+0x93/0xd0 fs/ioctl.c:910
+  do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+  __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+  do_fast_syscall_32+0x37/0x80 arch/x86/entry/common.c:203
+  do_SYSENTER_32+0x1f/0x30 arch/x86/entry/common.c:246
+  entry_SYSENTER_compat_after_hwframe+0x70/0x82
+
+ Uninit was created at:
+  __alloc_pages+0x9f6/0xe90 mm/page_alloc.c:5572
+  alloc_pages+0xab0/0xd80 mm/mempolicy.c:2287
+  __get_free_pages+0x34/0xc0 mm/page_alloc.c:5599
+  nilfs_ioctl_wrap_copy+0x223/0xc10 fs/nilfs2/ioctl.c:74
+  nilfs_ioctl_get_info fs/nilfs2/ioctl.c:1173 [inline]
+  nilfs_ioctl+0x2402/0x4450 fs/nilfs2/ioctl.c:1290
+  nilfs_compat_ioctl+0x1b8/0x200 fs/nilfs2/ioctl.c:1343
+  __do_compat_sys_ioctl fs/ioctl.c:968 [inline]
+  __se_compat_sys_ioctl+0x7dd/0x1000 fs/ioctl.c:910
+  __ia32_compat_sys_ioctl+0x93/0xd0 fs/ioctl.c:910
+  do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+  __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+  do_fast_syscall_32+0x37/0x80 arch/x86/entry/common.c:203
+  do_SYSENTER_32+0x1f/0x30 arch/x86/entry/common.c:246
+  entry_SYSENTER_compat_after_hwframe+0x70/0x82
+
+ Bytes 16-127 of 3968 are uninitialized
+ ...
+
+This eliminates the leak issue by initializing the page allocated as
+buffer using get_zeroed_page().
+
+Link: https://lkml.kernel.org/r/20230307085548.6290-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+132fdd2f1e1805fdc591@syzkaller.appspotmail.com
+  Link: https://lkml.kernel.org/r/000000000000a5bd2d05f63f04ae@google.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ieee802154/ca8210.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nilfs2/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
-index 0b0c6c0764fe9..d0b5129439ed6 100644
---- a/drivers/net/ieee802154/ca8210.c
-+++ b/drivers/net/ieee802154/ca8210.c
-@@ -1902,10 +1902,9 @@ static int ca8210_skb_tx(
- 	struct ca8210_priv  *priv
- )
- {
--	int status;
- 	struct ieee802154_hdr header = { };
- 	struct secspec secspec;
--	unsigned int mac_len;
-+	int mac_len, status;
+--- a/fs/nilfs2/ioctl.c
++++ b/fs/nilfs2/ioctl.c
+@@ -70,7 +70,7 @@ static int nilfs_ioctl_wrap_copy(struct
+ 	if (argv->v_index > ~(__u64)0 - argv->v_nmembs)
+ 		return -EINVAL;
  
- 	dev_dbg(&priv->spi->dev, "%s called\n", __func__);
- 
--- 
-2.39.2
-
+-	buf = (void *)__get_free_pages(GFP_NOFS, 0);
++	buf = (void *)get_zeroed_page(GFP_NOFS);
+ 	if (unlikely(!buf))
+ 		return -ENOMEM;
+ 	maxmembs = PAGE_SIZE / argv->v_size;
 
 
