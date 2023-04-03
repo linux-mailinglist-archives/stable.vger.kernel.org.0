@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524806D4705
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BF16D49A0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232942AbjDCOQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33968 "EHLO
+        id S233718AbjDCOjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232844AbjDCOQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB4827839
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:17 -0700 (PDT)
+        with ESMTP id S233758AbjDCOjn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC601236A4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36F9D61CAF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4121CC433D2;
-        Mon,  3 Apr 2023 14:16:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FA3EB81CDC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F23F7C4339B;
+        Mon,  3 Apr 2023 14:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531376;
-        bh=zOkYDjAQuRFrp1oxtGAWrnY29wRhNEqF6ieSs24r4zo=;
+        s=korg; t=1680532779;
+        bh=noVZb804vuPDQVTQr3X92/tFr/DAUTuTMhxnNHqblGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQOX3jP2aQJPU/bUy75oE6j6fDC6QJaoK8tnVGyq7zzTbPGTnuTJXBGdTLn5UQ8Wa
-         USyJYu17dggb4sIBjsc81tvCw48EWKJ9sULCsz8YRr0yyruSm65+o/wiITiie9i1VG
-         Yju5J5Xze7JxEOs5eEjp4PuP9d17OZqqOcFcMdz0=
+        b=0ieWcyMmy9s781Xb33mWbDMyqHjPC9SAXpaknIHbOAju8al9BqqbDm65ux1P3qbfR
+         cmSQ0e6Dp5wDNgiDt+AupwarCsEtFawS8FqTTz3mIoDDUYx3MPGY9+Z6BRwvmhbvx1
+         UldVcONk5gmMw31eT40dTbFpiiPecczdxTBtvRzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Coly Li <colyli@suse.de>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.19 40/84] dm thin: fix deadlock when swapping to thin device
+        patches@lists.linux.dev, SongJingyi <u201912584@hust.edu.cn>,
+        Dan Carpenter <error27@gmail.com>,
+        Dongliang Mu <dzm91@hust.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 086/181] ptp_qoriq: fix memory leak in probe()
 Date:   Mon,  3 Apr 2023 16:08:41 +0200
-Message-Id: <20230403140354.747407882@linuxfoundation.org>
+Message-Id: <20230403140417.920265012@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,70 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: SongJingyi <u201912584@hust.edu.cn>
 
-commit 9bbf5feecc7eab2c370496c1c161bbfe62084028 upstream.
+[ Upstream commit f33642224e38d7e0d59336e10e7b4e370b1c4506 ]
 
-This is an already known issue that dm-thin volume cannot be used as
-swap, otherwise a deadlock may happen when dm-thin internal memory
-demand triggers swap I/O on the dm-thin volume itself.
+Smatch complains that:
+drivers/ptp/ptp_qoriq.c ptp_qoriq_probe()
+warn: 'base' from ioremap() not released.
 
-But thanks to commit a666e5c05e7c ("dm: fix deadlock when swapping to
-encrypted device"), the limit_swap_bios target flag can also be used
-for dm-thin to avoid the recursive I/O when it is used as swap.
+Fix this by revising the parameter from 'ptp_qoriq->base' to 'base'.
+This is only a bug if ptp_qoriq_init() returns on the
+first -ENODEV error path.
+For other error paths ptp_qoriq->base and base are the same.
+And this change makes the code more readable.
 
-Fix is to simply set ti->limit_swap_bios to true in both pool_ctr()
-and thin_ctr().
-
-In my test, I create a dm-thin volume /dev/vg/swap and use it as swap
-device. Then I run fio on another dm-thin volume /dev/vg/main and use
-large --blocksize to trigger swap I/O onto /dev/vg/swap.
-
-The following fio command line is used in my test,
-  fio --name recursive-swap-io --lockmem 1 --iodepth 128 \
-     --ioengine libaio --filename /dev/vg/main --rw randrw \
-    --blocksize 1M --numjobs 32 --time_based --runtime=12h
-
-Without this fix, the whole system can be locked up within 15 seconds.
-
-With this fix, there is no any deadlock or hung task observed after
-2 hours of running fio.
-
-Furthermore, if blocksize is changed from 1M to 128M, after around 30
-seconds fio has no visible I/O, and the out-of-memory killer message
-shows up in kernel message. After around 20 minutes all fio processes
-are killed and the whole system is back to being alive.
-
-This is exactly what is expected when recursive I/O happens on dm-thin
-volume when it is used as swap.
-
-Depends-on: a666e5c05e7c ("dm: fix deadlock when swapping to encrypted device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Coly Li <colyli@suse.de>
-Acked-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7f4399ba405b ("ptp_qoriq: fix NULL access if ptp dt node missing")
+Signed-off-by: SongJingyi <u201912584@hust.edu.cn>
+Reviewed-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Dongliang Mu <dzm91@hust.edu.cn>
+Link: https://lore.kernel.org/r/20230324031406.1895159-1-u201912584@hust.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-thin.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/ptp/ptp_qoriq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -3365,6 +3365,7 @@ static int pool_ctr(struct dm_target *ti
- 	pt->low_water_blocks = low_water_blocks;
- 	pt->adjusted_pf = pt->requested_pf = pf;
- 	ti->num_flush_bios = 1;
-+	ti->limit_swap_bios = true;
+diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
+index 08f4cf0ad9e3c..8fa9772acf79b 100644
+--- a/drivers/ptp/ptp_qoriq.c
++++ b/drivers/ptp/ptp_qoriq.c
+@@ -601,7 +601,7 @@ static int ptp_qoriq_probe(struct platform_device *dev)
+ 	return 0;
  
- 	/*
- 	 * Only need to enable discards if the pool should pass
-@@ -4245,6 +4246,7 @@ static int thin_ctr(struct dm_target *ti
- 		goto bad;
- 
- 	ti->num_flush_bios = 1;
-+	ti->limit_swap_bios = true;
- 	ti->flush_supported = true;
- 	ti->per_io_data_size = sizeof(struct dm_thin_endio_hook);
- 
+ no_clock:
+-	iounmap(ptp_qoriq->base);
++	iounmap(base);
+ no_ioremap:
+ 	release_resource(ptp_qoriq->rsrc);
+ no_resource:
+-- 
+2.39.2
+
 
 
