@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 483E76D488D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 311B06D4AA0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233418AbjDCO3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60602 "EHLO
+        id S234155AbjDCOtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233417AbjDCO3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12E135005
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:32 -0700 (PDT)
+        with ESMTP id S234183AbjDCOsx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:48:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526122D4A4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D55061DE7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91262C433EF;
-        Mon,  3 Apr 2023 14:29:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B149961F3D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C735DC433EF;
+        Mon,  3 Apr 2023 14:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532171;
-        bh=lvQnkhV/8wk805PIcWa9w3sPtixMKH2N/WGyitj9tfc=;
+        s=korg; t=1680533224;
+        bh=cpdE50Xs+IYUZ2exad8CwEpEUz+guWEMvR5QSQLGsks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+25pmsYopdIW8O3i2+2TKwokDeeK0NmTts/jBx37WX+BiC5vv7Rlm5tSnIrxCPFi
-         7UQSZ1Tbb5V5qrQ5R4jUomTBx6awJAa2ShaKdjxhgv7CZqdwVWobxEpw6HqEXDI6OS
-         +66HVd/+aL8vE0ympOEFOOvHO/kJSy7n3yQ854c0=
+        b=Vvh7BSU4KoqB7DbFvcAA4+w3q2W6hI2Z1JYyhGkPFKgDm85MKqDFC3JgNkbuXxZ/G
+         r0uMbCKw85rTvQKBwAHPZCKQvfUVYpBfNmUUYtmvOEn/cz7wviZ0O1GsA3iEaSwJgy
+         KrZBw/LBFOjSXgJcAt1Wk011YK7akXU5u+8Ru75I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kristian Overskeid <koverskeid@gmail.com>,
+        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 114/173] net: hsr: Dont log netdev_err message on unknown prp dst node
+Subject: [PATCH 6.2 084/187] net: dsa: microchip: ksz8: fix ksz8_fdb_dump() to extract all 1024 entries
 Date:   Mon,  3 Apr 2023 16:08:49 +0200
-Message-Id: <20230403140418.134178924@linuxfoundation.org>
+Message-Id: <20230403140418.722598098@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,38 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Overskeid <koverskeid@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
+[ Upstream commit 5d90492dd4ff50ad65c582c76c345d0b90001728 ]
 
-If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
-node will be deleted from the node_db list. If a frame is sent to the node
-after it is deleted, a netdev_err message for each slave interface is
-produced. This should not happen with dan nodes because of supervision
-frames, but can happen often with san nodes, which clutters the kernel
-log. Since the hsr protocol does not support sans, this is only relevant
-for the prp protocol.
+Current ksz8_fdb_dump() is able to extract only max 249 entries on
+the ksz8863/ksz8873 series of switches. This happened due to wrong
+bit mask and offset calculation.
 
-Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
+This commit corrects the issue and allows for the complete extraction of
+all 1024 entries.
+
+Fixes: 4b20a07e103f ("net: dsa: microchip: ksz8795: add support for ksz88xx chips")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Acked-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_framereg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/microchip/ksz_common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
-index 20cb6b7dbc694..08627c8368848 100644
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -380,7 +380,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
- 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
- 				       eth_hdr(skb)->h_dest);
- 	if (!node_dst) {
--		if (net_ratelimit())
-+		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
- 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
- 		return;
- 	}
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 19cd05762ab77..725a868b76f7e 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -398,10 +398,10 @@ static const u32 ksz8863_masks[] = {
+ 	[STATIC_MAC_TABLE_FID]		= GENMASK(29, 26),
+ 	[STATIC_MAC_TABLE_OVERRIDE]	= BIT(20),
+ 	[STATIC_MAC_TABLE_FWD_PORTS]	= GENMASK(18, 16),
+-	[DYNAMIC_MAC_TABLE_ENTRIES_H]	= GENMASK(5, 0),
++	[DYNAMIC_MAC_TABLE_ENTRIES_H]	= GENMASK(1, 0),
+ 	[DYNAMIC_MAC_TABLE_MAC_EMPTY]	= BIT(7),
+ 	[DYNAMIC_MAC_TABLE_NOT_READY]	= BIT(7),
+-	[DYNAMIC_MAC_TABLE_ENTRIES]	= GENMASK(31, 28),
++	[DYNAMIC_MAC_TABLE_ENTRIES]	= GENMASK(31, 24),
+ 	[DYNAMIC_MAC_TABLE_FID]		= GENMASK(19, 16),
+ 	[DYNAMIC_MAC_TABLE_SRC_PORT]	= GENMASK(21, 20),
+ 	[DYNAMIC_MAC_TABLE_TIMESTAMP]	= GENMASK(23, 22),
+@@ -411,7 +411,7 @@ static u8 ksz8863_shifts[] = {
+ 	[VLAN_TABLE_MEMBERSHIP_S]	= 16,
+ 	[STATIC_MAC_FWD_PORTS]		= 16,
+ 	[STATIC_MAC_FID]		= 22,
+-	[DYNAMIC_MAC_ENTRIES_H]		= 3,
++	[DYNAMIC_MAC_ENTRIES_H]		= 8,
+ 	[DYNAMIC_MAC_ENTRIES]		= 24,
+ 	[DYNAMIC_MAC_FID]		= 16,
+ 	[DYNAMIC_MAC_TIMESTAMP]		= 24,
 -- 
 2.39.2
 
