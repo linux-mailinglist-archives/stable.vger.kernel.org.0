@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B51E96D4A34
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E116D4748
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233891AbjDCOpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:45:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59186 "EHLO
+        id S232167AbjDCOS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233940AbjDCOot (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:49 -0400
+        with ESMTP id S233022AbjDCOSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D4E1694D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E6A2CAE9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08A03B81D35
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8EFC433EF;
-        Mon,  3 Apr 2023 14:44:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15517B81BA4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A9C8C433D2;
+        Mon,  3 Apr 2023 14:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533066;
-        bh=T+y02KqbdinWzs5BHyJ64yYI5IzZszI6qc+B2eCbKfI=;
+        s=korg; t=1680531530;
+        bh=I3CygEvkAfk/GYomKRWwVNyKvkx3rG2+EFlJeLGmp+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tE1aTCX6leQ6oMJld73MvmIr4ZPFWL3eYjGLjtC3Z3dn7gqLqjqypZclgcQeMKzZ8
-         ROqeO3lQ/8Aww1hiROgqzkZSBI4Cu12sEcON1jqkd8dIyP58N57QaettOIR7mZb/4v
-         kGkba22eVu7NYSRJos+loIGW9QMbD7rddpZPhljM=
+        b=lOL/GPnhcYjlQqiZiJQb5hWrESGq1z8V7QTSUO0wGCB2+1cpjz6Ki/LsDJHyn4yQU
+         99qXO/9fzeej94HsAGxGT5/pbBle3PmA4qDMXMRA4OlHbECUEku5b2BIHdWLxn43FM
+         DMBIuVARKSsJ2WO66iABsxQvf3h01NNHjJJuN8SE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chia-I Wu <olvaffe@gmail.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Alexander Duyck <alexanderduyck@fb.com>,
+        Geoff Levand <geoff@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/187] drm/amdkfd: fix potential kgd_mem UAFs
+Subject: [PATCH 5.4 014/104] net/ps3_gelic_net: Use dma_mapping_error
 Date:   Mon,  3 Apr 2023 16:08:06 +0200
-Message-Id: <20230403140417.334061882@linuxfoundation.org>
+Message-Id: <20230403140404.737352242@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chia-I Wu <olvaffe@gmail.com>
+From: Geoff Levand <geoff@infradead.org>
 
-[ Upstream commit 9da050b0d9e04439d225a2ec3044af70cdfb3933 ]
+[ Upstream commit bebe933d35a63d4f042fbf4dce4f22e689ba0fcd ]
 
-kgd_mem pointers returned by kfd_process_device_translate_handle are
-only guaranteed to be valid while p->mutex is held. As soon as the mutex
-is unlocked, another thread can free the BO.
+The current Gelic Etherenet driver was checking the return value of its
+dma_map_single call, and not using the dma_mapping_error() routine.
 
-Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes runtime problems like these:
+
+  DMA-API: ps3_gelic_driver sb_05: device driver failed to check map error
+  WARNING: CPU: 0 PID: 0 at kernel/dma/debug.c:1027 .check_unmap+0x888/0x8dc
+
+Fixes: 02c1889166b4 ("ps3: gigabit ethernet driver for PS3, take3")
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/toshiba/ps3_gelic_net.c | 24 +++++++++++---------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index f79b8e964140e..e191d38f3da62 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -1298,14 +1298,14 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
- 		args->n_success = i+1;
- 	}
+diff --git a/drivers/net/ethernet/toshiba/ps3_gelic_net.c b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+index c3e3477081e48..4e6c71da9f21f 100644
+--- a/drivers/net/ethernet/toshiba/ps3_gelic_net.c
++++ b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+@@ -317,15 +317,17 @@ static int gelic_card_init_chain(struct gelic_card *card,
  
--	mutex_unlock(&p->mutex);
--
- 	err = amdgpu_amdkfd_gpuvm_sync_memory(dev->adev, (struct kgd_mem *) mem, true);
- 	if (err) {
- 		pr_debug("Sync memory failed, wait interrupted by user signal\n");
- 		goto sync_memory_failed;
- 	}
- 
-+	mutex_unlock(&p->mutex);
+ 	/* set up the hardware pointers in each descriptor */
+ 	for (i = 0; i < no; i++, descr++) {
++		dma_addr_t cpu_addr;
 +
- 	/* Flush TLBs after waiting for the page table updates to complete */
- 	for (i = 0; i < args->n_devices; i++) {
- 		peer_pdd = kfd_process_device_data_by_id(p, devices_arr[i]);
-@@ -1321,9 +1321,9 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
- bind_process_to_device_failed:
- get_mem_obj_from_handle_failed:
- map_memory_to_gpu_failed:
-+sync_memory_failed:
- 	mutex_unlock(&p->mutex);
- copy_from_user_failed:
--sync_memory_failed:
- 	kfree(devices_arr);
+ 		gelic_descr_set_status(descr, GELIC_DESCR_DMA_NOT_IN_USE);
+-		descr->bus_addr =
+-			dma_map_single(ctodev(card), descr,
+-				       GELIC_DESCR_SIZE,
+-				       DMA_BIDIRECTIONAL);
  
- 	return err;
-@@ -1337,6 +1337,7 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
- 	void *mem;
- 	long err = 0;
- 	uint32_t *devices_arr = NULL, i;
-+	bool flush_tlb;
+-		if (!descr->bus_addr)
++		cpu_addr = dma_map_single(ctodev(card), descr,
++					  GELIC_DESCR_SIZE, DMA_BIDIRECTIONAL);
++
++		if (dma_mapping_error(ctodev(card), cpu_addr))
+ 			goto iommu_error;
  
- 	if (!args->n_devices) {
- 		pr_debug("Device IDs array empty\n");
-@@ -1389,16 +1390,19 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
- 		}
- 		args->n_success = i+1;
++		descr->bus_addr = cpu_to_be32(cpu_addr);
+ 		descr->next = descr + 1;
+ 		descr->prev = descr - 1;
  	}
--	mutex_unlock(&p->mutex);
+@@ -375,6 +377,7 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
+ 	static const unsigned int rx_skb_size =
+ 		ALIGN(GELIC_NET_MAX_FRAME, GELIC_NET_RXBUF_ALIGN) +
+ 		GELIC_NET_RXBUF_ALIGN - 1;
++	dma_addr_t cpu_addr;
+ 	int offset;
  
--	if (kfd_flush_tlb_after_unmap(pdd->dev)) {
-+	flush_tlb = kfd_flush_tlb_after_unmap(pdd->dev);
-+	if (flush_tlb) {
- 		err = amdgpu_amdkfd_gpuvm_sync_memory(pdd->dev->adev,
- 				(struct kgd_mem *) mem, true);
- 		if (err) {
- 			pr_debug("Sync memory failed, wait interrupted by user signal\n");
- 			goto sync_memory_failed;
- 		}
-+	}
-+	mutex_unlock(&p->mutex);
+ 	if (gelic_descr_get_status(descr) !=  GELIC_DESCR_DMA_NOT_IN_USE)
+@@ -398,11 +401,10 @@ static int gelic_descr_prepare_rx(struct gelic_card *card,
+ 	if (offset)
+ 		skb_reserve(descr->skb, GELIC_NET_RXBUF_ALIGN - offset);
+ 	/* io-mmu-map the skb */
+-	descr->buf_addr = cpu_to_be32(dma_map_single(ctodev(card),
+-						     descr->skb->data,
+-						     GELIC_NET_MAX_FRAME,
+-						     DMA_FROM_DEVICE));
+-	if (!descr->buf_addr) {
++	cpu_addr = dma_map_single(ctodev(card), descr->skb->data,
++				  GELIC_NET_MAX_FRAME, DMA_FROM_DEVICE);
++	descr->buf_addr = cpu_to_be32(cpu_addr);
++	if (dma_mapping_error(ctodev(card), cpu_addr)) {
+ 		dev_kfree_skb_any(descr->skb);
+ 		descr->skb = NULL;
+ 		dev_info(ctodev(card),
+@@ -782,7 +784,7 @@ static int gelic_descr_prepare_tx(struct gelic_card *card,
  
-+	if (flush_tlb) {
- 		/* Flush TLBs after waiting for the page table updates to complete */
- 		for (i = 0; i < args->n_devices; i++) {
- 			peer_pdd = kfd_process_device_data_by_id(p, devices_arr[i]);
-@@ -1414,9 +1418,9 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
- bind_process_to_device_failed:
- get_mem_obj_from_handle_failed:
- unmap_memory_from_gpu_failed:
-+sync_memory_failed:
- 	mutex_unlock(&p->mutex);
- copy_from_user_failed:
--sync_memory_failed:
- 	kfree(devices_arr);
- 	return err;
- }
+ 	buf = dma_map_single(ctodev(card), skb->data, skb->len, DMA_TO_DEVICE);
+ 
+-	if (!buf) {
++	if (dma_mapping_error(ctodev(card), buf)) {
+ 		dev_err(ctodev(card),
+ 			"dma map 2 failed (%p, %i). Dropping packet\n",
+ 			skb->data, skb->len);
 -- 
 2.39.2
 
