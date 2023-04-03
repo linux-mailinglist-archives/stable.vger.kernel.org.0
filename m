@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F32E36D498B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE6F6D4793
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233735AbjDCOiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
+        id S233125AbjDCOVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233728AbjDCOiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2520C17668
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:51 -0700 (PDT)
+        with ESMTP id S233112AbjDCOV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8688E2D7C5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B582361EBA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94FCC433EF;
-        Mon,  3 Apr 2023 14:38:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0823CB80688
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62FD7C433EF;
+        Mon,  3 Apr 2023 14:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532730;
-        bh=Hff13wxe4iJb1MsIElHuHpeTMxzP9IJnWZF+4HaBnfA=;
+        s=korg; t=1680531651;
+        bh=RI4FPB1DKV/B/YpGWBOOOenfAVNZs71y7SH5hiC4Sno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GICY42J5zEEMrSEdZj6rQKdrwUB0FhNb0swbaYp96AJILrRgFBiGLsdNWcrn36Dh8
-         doSnsrCXdcWAf9Bu+T+b2+Y6cqvYq0CMg+dn0gzs3lw36HVoygZfiNsrQK/EpCIDYV
-         g13a98sxN72mtqXurJ4Otsg/VyH7a/hdVyqAAbXA=
+        b=s+W1MhRYH+Vn+/0TjVsz/0pXJoWb1jFryjZMKdnnzPrcicdB8pFji8RjxG4MaRe3M
+         na1WhS8VhsK7oi7Z0qtKEgxVceaczQbcT2cFtUNcwmEPDTFmxCQcOKTydkU9VOdHcL
+         TN+2bbpQkgbtD6YkjYO8MCoLfFxzXbubLhVl1Hio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Faicker Mo <faicker.mo@ucloud.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 095/181] net/net_failover: fix txq exceeding warning
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Dragos-Marian Panait <dragos.panait@windriver.com>
+Subject: [PATCH 5.4 058/104] tun: avoid double free in tun_free_netdev
 Date:   Mon,  3 Apr 2023 16:08:50 +0200
-Message-Id: <20230403140418.198657015@linuxfoundation.org>
+Message-Id: <20230403140406.563603661@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +54,237 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faicker Mo <faicker.mo@ucloud.cn>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit e3cbdcb0fbb61045ef3ce0e072927cc41737f787 ]
+commit 158b515f703e75e7d68289bf4d98c664e1d632df upstream.
 
-The failover txq is inited as 16 queues.
-when a packet is transmitted from the failover device firstly,
-the failover device will select the queue which is returned from
-the primary device if the primary device is UP and running.
-If the primary device txq is bigger than the default 16,
-it can lead to the following warning:
-eth0 selects TX queue 18, but real number of TX queues is 16
+Avoid double free in tun_free_netdev() by moving the
+dev->tstats and tun->security allocs to a new ndo_init routine
+(tun_net_init()) that will be called by register_netdevice().
+ndo_init is paired with the desctructor (tun_free_netdev()),
+so if there's an error in register_netdevice() the destructor
+will handle the frees.
 
-The warning backtrace is:
-[   32.146376] CPU: 18 PID: 9134 Comm: chronyd Tainted: G            E      6.2.8-1.el7.centos.x86_64 #1
-[   32.147175] Hardware name: Red Hat KVM, BIOS 1.10.2-3.el7_4.1 04/01/2014
-[   32.147730] Call Trace:
-[   32.147971]  <TASK>
-[   32.148183]  dump_stack_lvl+0x48/0x70
-[   32.148514]  dump_stack+0x10/0x20
-[   32.148820]  netdev_core_pick_tx+0xb1/0xe0
-[   32.149180]  __dev_queue_xmit+0x529/0xcf0
-[   32.149533]  ? __check_object_size.part.0+0x21c/0x2c0
-[   32.149967]  ip_finish_output2+0x278/0x560
-[   32.150327]  __ip_finish_output+0x1fe/0x2f0
-[   32.150690]  ip_finish_output+0x2a/0xd0
-[   32.151032]  ip_output+0x7a/0x110
-[   32.151337]  ? __pfx_ip_finish_output+0x10/0x10
-[   32.151733]  ip_local_out+0x5e/0x70
-[   32.152054]  ip_send_skb+0x19/0x50
-[   32.152366]  udp_send_skb.isra.0+0x163/0x3a0
-[   32.152736]  udp_sendmsg+0xba8/0xec0
-[   32.153060]  ? __folio_memcg_unlock+0x25/0x60
-[   32.153445]  ? __pfx_ip_generic_getfrag+0x10/0x10
-[   32.153854]  ? sock_has_perm+0x85/0xa0
-[   32.154190]  inet_sendmsg+0x6d/0x80
-[   32.154508]  ? inet_sendmsg+0x6d/0x80
-[   32.154838]  sock_sendmsg+0x62/0x70
-[   32.155152]  ____sys_sendmsg+0x134/0x290
-[   32.155499]  ___sys_sendmsg+0x81/0xc0
-[   32.155828]  ? _get_random_bytes.part.0+0x79/0x1a0
-[   32.156240]  ? ip4_datagram_release_cb+0x5f/0x1e0
-[   32.156649]  ? get_random_u16+0x69/0xf0
-[   32.156989]  ? __fget_light+0xcf/0x110
-[   32.157326]  __sys_sendmmsg+0xc4/0x210
-[   32.157657]  ? __sys_connect+0xb7/0xe0
-[   32.157995]  ? __audit_syscall_entry+0xce/0x140
-[   32.158388]  ? syscall_trace_enter.isra.0+0x12c/0x1a0
-[   32.158820]  __x64_sys_sendmmsg+0x24/0x30
-[   32.159171]  do_syscall_64+0x38/0x90
-[   32.159493]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+BUG: KASAN: double-free or invalid-free in selinux_tun_dev_free_security+0x1a/0x20 security/selinux/hooks.c:5605
 
-Fix that by reducing txq number as the non-existent primary-dev does.
+CPU: 0 PID: 25750 Comm: syz-executor416 Not tainted 5.16.0-rc2-syzk #1
+Hardware name: Red Hat KVM, BIOS
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:106
+print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:247
+kasan_report_invalid_free+0x55/0x80 mm/kasan/report.c:372
+____kasan_slab_free mm/kasan/common.c:346 [inline]
+__kasan_slab_free+0x107/0x120 mm/kasan/common.c:374
+kasan_slab_free include/linux/kasan.h:235 [inline]
+slab_free_hook mm/slub.c:1723 [inline]
+slab_free_freelist_hook mm/slub.c:1749 [inline]
+slab_free mm/slub.c:3513 [inline]
+kfree+0xac/0x2d0 mm/slub.c:4561
+selinux_tun_dev_free_security+0x1a/0x20 security/selinux/hooks.c:5605
+security_tun_dev_free_security+0x4f/0x90 security/security.c:2342
+tun_free_netdev+0xe6/0x150 drivers/net/tun.c:2215
+netdev_run_todo+0x4df/0x840 net/core/dev.c:10627
+rtnl_unlock+0x13/0x20 net/core/rtnetlink.c:112
+__tun_chr_ioctl+0x80c/0x2870 drivers/net/tun.c:3302
+tun_chr_ioctl+0x2f/0x40 drivers/net/tun.c:3311
+vfs_ioctl fs/ioctl.c:51 [inline]
+__do_sys_ioctl fs/ioctl.c:874 [inline]
+__se_sys_ioctl fs/ioctl.c:860 [inline]
+__x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:860
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: cfc80d9a1163 ("net: Introduce net_failover driver")
-Signed-off-by: Faicker Mo <faicker.mo@ucloud.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/1639679132-19884-1-git-send-email-george.kennedy@oracle.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[DP: adjusted context for 5.4 stable]
+Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/net_failover.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/tun.c |  109 +++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 59 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/net/net_failover.c b/drivers/net/net_failover.c
-index 7a28e082436e4..d0c916a53d7ce 100644
---- a/drivers/net/net_failover.c
-+++ b/drivers/net/net_failover.c
-@@ -130,14 +130,10 @@ static u16 net_failover_select_queue(struct net_device *dev,
- 			txq = ops->ndo_select_queue(primary_dev, skb, sb_dev);
- 		else
- 			txq = netdev_pick_tx(primary_dev, skb, NULL);
--
--		qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
--
--		return txq;
-+	} else {
-+		txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
- 	}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -250,6 +250,9 @@ struct tun_struct {
+ 	struct tun_prog __rcu *steering_prog;
+ 	struct tun_prog __rcu *filter_prog;
+ 	struct ethtool_link_ksettings link_ksettings;
++	/* init args */
++	struct file *file;
++	struct ifreq *ifr;
+ };
  
--	txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
--
- 	/* Save the original txq to restore before passing to the driver */
- 	qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
+ struct veth {
+@@ -275,6 +278,9 @@ void *tun_ptr_to_xdp(void *ptr)
+ }
+ EXPORT_SYMBOL(tun_ptr_to_xdp);
  
--- 
-2.39.2
-
++static void tun_flow_init(struct tun_struct *tun);
++static void tun_flow_uninit(struct tun_struct *tun);
++
+ static int tun_napi_receive(struct napi_struct *napi, int budget)
+ {
+ 	struct tun_file *tfile = container_of(napi, struct tun_file, napi);
+@@ -1027,6 +1033,49 @@ static int check_filter(struct tap_filte
+ 
+ static const struct ethtool_ops tun_ethtool_ops;
+ 
++static int tun_net_init(struct net_device *dev)
++{
++	struct tun_struct *tun = netdev_priv(dev);
++	struct ifreq *ifr = tun->ifr;
++	int err;
++
++	tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
++	if (!tun->pcpu_stats)
++		return -ENOMEM;
++
++	spin_lock_init(&tun->lock);
++
++	err = security_tun_dev_alloc_security(&tun->security);
++	if (err < 0) {
++		free_percpu(tun->pcpu_stats);
++		return err;
++	}
++
++	tun_flow_init(tun);
++
++	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
++			   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
++			   NETIF_F_HW_VLAN_STAG_TX;
++	dev->features = dev->hw_features | NETIF_F_LLTX;
++	dev->vlan_features = dev->features &
++			     ~(NETIF_F_HW_VLAN_CTAG_TX |
++			       NETIF_F_HW_VLAN_STAG_TX);
++
++	tun->flags = (tun->flags & ~TUN_FEATURES) |
++		      (ifr->ifr_flags & TUN_FEATURES);
++
++	INIT_LIST_HEAD(&tun->disabled);
++	err = tun_attach(tun, tun->file, false, ifr->ifr_flags & IFF_NAPI,
++			 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
++	if (err < 0) {
++		tun_flow_uninit(tun);
++		security_tun_dev_free_security(tun->security);
++		free_percpu(tun->pcpu_stats);
++		return err;
++	}
++	return 0;
++}
++
+ /* Net device detach from fd. */
+ static void tun_net_uninit(struct net_device *dev)
+ {
+@@ -1285,6 +1334,7 @@ static int tun_net_change_carrier(struct
+ }
+ 
+ static const struct net_device_ops tun_netdev_ops = {
++	.ndo_init		= tun_net_init,
+ 	.ndo_uninit		= tun_net_uninit,
+ 	.ndo_open		= tun_net_open,
+ 	.ndo_stop		= tun_net_close,
+@@ -1365,6 +1415,7 @@ static int tun_xdp_tx(struct net_device
+ }
+ 
+ static const struct net_device_ops tap_netdev_ops = {
++	.ndo_init		= tun_net_init,
+ 	.ndo_uninit		= tun_net_uninit,
+ 	.ndo_open		= tun_net_open,
+ 	.ndo_stop		= tun_net_close,
+@@ -1405,7 +1456,7 @@ static void tun_flow_uninit(struct tun_s
+ #define MAX_MTU 65535
+ 
+ /* Initialize net device. */
+-static void tun_net_init(struct net_device *dev)
++static void tun_net_initialize(struct net_device *dev)
+ {
+ 	struct tun_struct *tun = netdev_priv(dev);
+ 
+@@ -2839,9 +2890,6 @@ static int tun_set_iff(struct net *net,
+ 
+ 		if (!dev)
+ 			return -ENOMEM;
+-		err = dev_get_valid_name(net, dev, name);
+-		if (err < 0)
+-			goto err_free_dev;
+ 
+ 		dev_net_set(dev, net);
+ 		dev->rtnl_link_ops = &tun_link_ops;
+@@ -2860,41 +2908,16 @@ static int tun_set_iff(struct net *net,
+ 		tun->rx_batched = 0;
+ 		RCU_INIT_POINTER(tun->steering_prog, NULL);
+ 
+-		tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
+-		if (!tun->pcpu_stats) {
+-			err = -ENOMEM;
+-			goto err_free_dev;
+-		}
+-
+-		spin_lock_init(&tun->lock);
+-
+-		err = security_tun_dev_alloc_security(&tun->security);
+-		if (err < 0)
+-			goto err_free_stat;
+-
+-		tun_net_init(dev);
+-		tun_flow_init(tun);
++		tun->ifr = ifr;
++		tun->file = file;
+ 
+-		dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
+-				   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
+-				   NETIF_F_HW_VLAN_STAG_TX;
+-		dev->features = dev->hw_features | NETIF_F_LLTX;
+-		dev->vlan_features = dev->features &
+-				     ~(NETIF_F_HW_VLAN_CTAG_TX |
+-				       NETIF_F_HW_VLAN_STAG_TX);
+-
+-		tun->flags = (tun->flags & ~TUN_FEATURES) |
+-			      (ifr->ifr_flags & TUN_FEATURES);
+-
+-		INIT_LIST_HEAD(&tun->disabled);
+-		err = tun_attach(tun, file, false, ifr->ifr_flags & IFF_NAPI,
+-				 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
+-		if (err < 0)
+-			goto err_free_flow;
++		tun_net_initialize(dev);
+ 
+ 		err = register_netdevice(tun->dev);
+-		if (err < 0)
+-			goto err_detach;
++		if (err < 0) {
++			free_netdev(dev);
++			return err;
++		}
+ 		/* free_netdev() won't check refcnt, to aovid race
+ 		 * with dev_put() we need publish tun after registration.
+ 		 */
+@@ -2913,20 +2936,6 @@ static int tun_set_iff(struct net *net,
+ 
+ 	strcpy(ifr->ifr_name, tun->dev->name);
+ 	return 0;
+-
+-err_detach:
+-	tun_detach_all(dev);
+-	/* register_netdevice() already called tun_free_netdev() */
+-	goto err_free_dev;
+-
+-err_free_flow:
+-	tun_flow_uninit(tun);
+-	security_tun_dev_free_security(tun->security);
+-err_free_stat:
+-	free_percpu(tun->pcpu_stats);
+-err_free_dev:
+-	free_netdev(dev);
+-	return err;
+ }
+ 
+ static void tun_get_iff(struct tun_struct *tun, struct ifreq *ifr)
 
 
