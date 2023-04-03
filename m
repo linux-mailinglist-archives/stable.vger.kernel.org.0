@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C09C96D4ACC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B7BD6D4911
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234096AbjDCOu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:50:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
+        id S233587AbjDCOet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:34:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234088AbjDCOuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4382D4A1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:26 -0700 (PDT)
+        with ESMTP id S233032AbjDCOer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784D8E74
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D57AF6136F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEE7DC433EF;
-        Mon,  3 Apr 2023 14:49:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0C2AB81C8A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230B9C433D2;
+        Mon,  3 Apr 2023 14:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533365;
-        bh=VJ8fSE6cPSnFA9ct74l+U//TUQbG/ORxZtqTFAi4G1Y=;
+        s=korg; t=1680532455;
+        bh=xBhRxDw30CyeAR3Q/IQudnXtFrYi0fww3SCrH8UTsIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQKd5iaoZkUGAC31d0zIImZrRDcE2ZWLDXSHz99E4DA3EpEcn8e3KhND3s7H2sQap
-         R0IuABr7BE3U/ko1l9o7lYaudni+vMfqJiMnTJ7uJBHyztop/NiSY1kT1weQzFe+cy
-         Ig2M4KlxmNYtjIZgdniykBekMA2gpKuRcRiQ42I8=
+        b=AjmQE39GPFxX+TKOGH1T+oUZ0wtOmgJoPPmxyFis+/MKCk88iDeKWtLf1SEWAKtvf
+         Ld747deZp7qZVJsothUGfZo7LQSDv76yUDlFK2hWo7tfO18iPSvDnKkbvlqSKazIvd
+         eVFLlYK8V1r8AD9tKmPG39AFOziiJywbydjAx1qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yazan Shhady <yazan.shhady@solid-run.com>,
-        Josua Mayer <josua@solid-run.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.2 148/187] net: phy: dp83869: fix default value for tx-/rx-internal-delay
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        syzbot+b6a74be92b5063a0f1ff@syzkaller.appspotmail.com,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 5.15 90/99] KVM: VMX: Move preemption timer <=> hrtimer dance to common x86
 Date:   Mon,  3 Apr 2023 16:09:53 +0200
-Message-Id: <20230403140420.894519955@linuxfoundation.org>
+Message-Id: <20230403140406.748987144@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josua Mayer <josua@solid-run.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 82e2c39f9ef78896e9b634dfd82dc042e6956bb7 upstream.
+commit 98c25ead5eda5e9d41abe57839ad3e8caf19500c upstream.
 
-dp83869 internally uses a look-up table for mapping supported delays in
-nanoseconds to register values.
-When specific delays are defined in device-tree, phy_get_internal_delay
-does the lookup automatically returning an index.
+Handle the switch to/from the hypervisor/software timer when a vCPU is
+blocking in common x86 instead of in VMX.  Even though VMX is the only
+user of a hypervisor timer, the logic and all functions involved are
+generic x86 (unless future CPUs do something completely different and
+implement a hypervisor timer that runs regardless of mode).
 
-The default case wrongly assigns the nanoseconds value from the lookup
-table, resulting in numeric value 2000 applied to delay configuration
-register, rather than the expected index values 0-7 (7 for 2000).
-Ultimately this issue broke RX for 1Gbps links.
+Handling the switch in common x86 will allow for the elimination of the
+pre/post_blocks hooks, and also lets KVM switch back to the hypervisor
+timer if and only if it was in use (without additional params).  Add a
+comment explaining why the switch cannot be deferred to kvm_sched_out()
+or kvm_vcpu_block().
 
-Fix default delay configuration by assigning the intended index value
-directly.
-
-Cc: stable@vger.kernel.org
-Fixes: 736b25afe284 ("net: dp83869: Add RGMII internal delay configuration")
-Co-developed-by: Yazan Shhady <yazan.shhady@solid-run.com>
-Signed-off-by: Yazan Shhady <yazan.shhady@solid-run.com>
-Signed-off-by: Josua Mayer <josua@solid-run.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230323102536.31988-1-josua@solid-run.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20211208015236.1616697-8-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[ta: Fix conflicts in vmx_pre_block and vmx_post_block as per Paolo's
+suggestion. Add Reported-by and Link tags.]
+Reported-by: syzbot+b6a74be92b5063a0f1ff@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=489beb3d76ef14cc6cd18125782dc6f86051a605
+Tested-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/dp83869.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |    6 ------
+ arch/x86/kvm/x86.c     |   21 +++++++++++++++++++++
+ 2 files changed, 21 insertions(+), 6 deletions(-)
 
---- a/drivers/net/phy/dp83869.c
-+++ b/drivers/net/phy/dp83869.c
-@@ -588,15 +588,13 @@ static int dp83869_of_init(struct phy_de
- 						       &dp83869_internal_delay[0],
- 						       delay_size, true);
- 	if (dp83869->rx_int_delay < 0)
--		dp83869->rx_int_delay =
--				dp83869_internal_delay[DP83869_CLK_DELAY_DEF];
-+		dp83869->rx_int_delay = DP83869_CLK_DELAY_DEF;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7597,17 +7597,11 @@ static int vmx_pre_block(struct kvm_vcpu
+ 	if (pi_pre_block(vcpu))
+ 		return 1;
  
- 	dp83869->tx_int_delay = phy_get_internal_delay(phydev, dev,
- 						       &dp83869_internal_delay[0],
- 						       delay_size, false);
- 	if (dp83869->tx_int_delay < 0)
--		dp83869->tx_int_delay =
--				dp83869_internal_delay[DP83869_CLK_DELAY_DEF];
-+		dp83869->tx_int_delay = DP83869_CLK_DELAY_DEF;
- 
- 	return ret;
+-	if (kvm_lapic_hv_timer_in_use(vcpu))
+-		kvm_lapic_switch_to_sw_timer(vcpu);
+-
+ 	return 0;
  }
+ 
+ static void vmx_post_block(struct kvm_vcpu *vcpu)
+ {
+-	if (kvm_x86_ops.set_hv_timer)
+-		kvm_lapic_switch_to_hv_timer(vcpu);
+-
+ 	pi_post_block(vcpu);
+ }
+ 
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10043,12 +10043,28 @@ out:
+ 
+ static inline int vcpu_block(struct kvm *kvm, struct kvm_vcpu *vcpu)
+ {
++	bool hv_timer;
++
+ 	if (!kvm_arch_vcpu_runnable(vcpu) &&
+ 	    (!kvm_x86_ops.pre_block || static_call(kvm_x86_pre_block)(vcpu) == 0)) {
++		/*
++		 * Switch to the software timer before halt-polling/blocking as
++		 * the guest's timer may be a break event for the vCPU, and the
++		 * hypervisor timer runs only when the CPU is in guest mode.
++		 * Switch before halt-polling so that KVM recognizes an expired
++		 * timer before blocking.
++		 */
++		hv_timer = kvm_lapic_hv_timer_in_use(vcpu);
++		if (hv_timer)
++			kvm_lapic_switch_to_sw_timer(vcpu);
++
+ 		srcu_read_unlock(&kvm->srcu, vcpu->srcu_idx);
+ 		kvm_vcpu_block(vcpu);
+ 		vcpu->srcu_idx = srcu_read_lock(&kvm->srcu);
+ 
++		if (hv_timer)
++			kvm_lapic_switch_to_hv_timer(vcpu);
++
+ 		if (kvm_x86_ops.post_block)
+ 			static_call(kvm_x86_post_block)(vcpu);
+ 
+@@ -10287,6 +10303,11 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_v
+ 			r = -EINTR;
+ 			goto out;
+ 		}
++		/*
++		 * It should be impossible for the hypervisor timer to be in
++		 * use before KVM has ever run the vCPU.
++		 */
++		WARN_ON_ONCE(kvm_lapic_hv_timer_in_use(vcpu));
+ 		kvm_vcpu_block(vcpu);
+ 		if (kvm_apic_accept_events(vcpu) < 0) {
+ 			r = 0;
 
 
