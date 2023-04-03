@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7525D6D4810
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E57B86D4763
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233283AbjDCOZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
+        id S233067AbjDCOTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233278AbjDCOZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE0D2C9F1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:36 -0700 (PDT)
+        with ESMTP id S233059AbjDCOTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96C02CAF3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2D0FB81C02
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A82C433D2;
-        Mon,  3 Apr 2023 14:25:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4297961D14
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5996AC433EF;
+        Mon,  3 Apr 2023 14:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531933;
-        bh=A/YgkIZQQ3bPcVHXO/nMr0aaznJLscKiIXuvpsPOu2k=;
+        s=korg; t=1680531572;
+        bh=b4spq8Czsca3Uo/N+P+UUW1qaQeHQR9qXgPauPYZP2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DS+YPBUsSwUaHtKGB3aZkI5S4BlUVRkJgx2yObgH+vN6QxeOYt+oAaStPYj2jY+u+
-         ai+n/tBa8q+b/pwwJVpA9F/pS1voQcbLpbxb3BSEJ2HZHyGP4KVEeXOwD7xbRZi9KV
-         44YOMhBwxBkHIa1QNlXZpOvmD0hR3EMkpeLZ6IoY=
+        b=nK8E7xAJtV5xCv1Ei9qybUO/AnQrU6selbpDyId73qcvCP7ttCyRzFu+bvzv44jP9
+         3nVGfxcKLSOaWmPJB61ZFdCppNvDyhPUwqXLRKogbH9cf7a+vCjNMN6rKwuyGHbzFs
+         NyOEfiZ4BrP1ffON6JeqtgV5adL1n1IvkmwGPLpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.10 063/173] thunderbolt: Use const qualifier for `ring_interrupt_index`
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Marek Szlosek <marek.szlosek@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 006/104] igbvf: Regard vf reset nack as success
 Date:   Mon,  3 Apr 2023 16:07:58 +0200
-Message-Id: <20230403140416.499791738@linuxfoundation.org>
+Message-Id: <20230403140404.338048233@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-commit 1716efdb07938bd6510e1127d02012799112c433 upstream.
+[ Upstream commit 02c83791ef969c6a8a150b4927193d0d0e50fb23 ]
 
-`ring_interrupt_index` doesn't change the data for `ring` so mark it as
-const. This is needed by the following patch that disables interrupt
-auto clear for rings.
+vf reset nack actually represents the reset operation itself is
+performed but no address is assigned. Therefore, e1000_reset_hw_vf
+should fill the "perm_addr" with the zero address and return success on
+such an occasion. This prevents its callers in netdev.c from saying PF
+still resetting, and instead allows them to correctly report that no
+address is assigned.
 
-Cc: Sanju Mehta <Sanju.Mehta@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6ddbc4cf1f4d ("igb: Indicate failure on vf reset for empty mac address")
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/nhi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igbvf/vf.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/thunderbolt/nhi.c
-+++ b/drivers/thunderbolt/nhi.c
-@@ -36,7 +36,7 @@
+diff --git a/drivers/net/ethernet/intel/igbvf/vf.c b/drivers/net/ethernet/intel/igbvf/vf.c
+index b8ba3f94c3632..a47a2e3e548cf 100644
+--- a/drivers/net/ethernet/intel/igbvf/vf.c
++++ b/drivers/net/ethernet/intel/igbvf/vf.c
+@@ -1,6 +1,8 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /* Copyright(c) 2009 - 2018 Intel Corporation. */
  
- #define NHI_MAILBOX_TIMEOUT	500 /* ms */
++#include <linux/etherdevice.h>
++
+ #include "vf.h"
  
--static int ring_interrupt_index(struct tb_ring *ring)
-+static int ring_interrupt_index(const struct tb_ring *ring)
- {
- 	int bit = ring->hop;
- 	if (!ring->is_tx)
+ static s32 e1000_check_for_link_vf(struct e1000_hw *hw);
+@@ -131,11 +133,16 @@ static s32 e1000_reset_hw_vf(struct e1000_hw *hw)
+ 		/* set our "perm_addr" based on info provided by PF */
+ 		ret_val = mbx->ops.read_posted(hw, msgbuf, 3);
+ 		if (!ret_val) {
+-			if (msgbuf[0] == (E1000_VF_RESET |
+-					  E1000_VT_MSGTYPE_ACK))
++			switch (msgbuf[0]) {
++			case E1000_VF_RESET | E1000_VT_MSGTYPE_ACK:
+ 				memcpy(hw->mac.perm_addr, addr, ETH_ALEN);
+-			else
++				break;
++			case E1000_VF_RESET | E1000_VT_MSGTYPE_NACK:
++				eth_zero_addr(hw->mac.perm_addr);
++				break;
++			default:
+ 				ret_val = -E1000_ERR_MAC_INIT;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.39.2
+
 
 
