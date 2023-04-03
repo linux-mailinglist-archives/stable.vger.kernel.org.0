@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6535F6D4831
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D886D493F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233322AbjDCO0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
+        id S233651AbjDCOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:36:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbjDCO0b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427C42D7FF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:25 -0700 (PDT)
+        with ESMTP id S233676AbjDCOgO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFA717652
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E308BB81BF7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5EAC433EF;
-        Mon,  3 Apr 2023 14:26:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C23FBCE12E4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84CEC433EF;
+        Mon,  3 Apr 2023 14:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531982;
-        bh=tjm/U7i24MHyqPtM//YMujeXxw3SWUAK2We33sTj+m8=;
+        s=korg; t=1680532563;
+        bh=8km0x1vLwE9boiOOdqbni5fdBgKSZiQh0+IwayiLD28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpHdh7IO2eCh6IPo4pyTFHnIn46/8SkQ1/t6vNjhj6kd5jWTzB4AI6VdYjAs9mO2K
-         34sa3LzAH+C6vuHWFE/C8D5rt8mnwr7b9dK6YPJgH7p9DSJGPB2ELc8x+kVUwuspYM
-         wyw+zT0nUd+x/FtC8u4rTmrQIXJA+z8DOI0dFz/Q=
+        b=u5cWmaddl/2UXUkLp13/XrsfE5murbDg8zygktsuapuCln/nPxfukeukDLDQ0HtFl
+         0jygInd/3E3rCJXyq+ysj0meDNUitKH+T6Crtn/OkJd1EVN01gzUFYGR5mmna/DEDi
+         DsQ/UTdAPG6YZs16LSTqSWNV95AcT1Ki3yseFN5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joshua Washington <joshwash@google.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com,
+        Hyunwoo Kim <v4bel@theori.io>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/173] gve: Cache link_speed value from device
-Date:   Mon,  3 Apr 2023 16:07:45 +0200
-Message-Id: <20230403140416.057694864@linuxfoundation.org>
+Subject: [PATCH 6.1 031/181] xfrm: Zero padding when dumping algos and encap
+Date:   Mon,  3 Apr 2023 16:07:46 +0200
+Message-Id: <20230403140416.179580867@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,45 +57,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua Washington <joshwash@google.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 68c3e4fc8628b1487c965aabb29207249657eb5f ]
+[ Upstream commit 8222d5910dae08213b6d9d4bc9a7f8502855e624 ]
 
-The link speed is never changed for the uptime of a VM, and the current
-implementation sends an admin queue command for each call. Admin queue
-command invocations have nontrivial overhead (e.g., VM exits), which can
-be disruptive to users if triggered frequently. Our telemetry data shows
-that there are VMs that make frequent calls to this admin queue command.
-Caching the result of the original admin queue command would eliminate
-the need to send multiple admin queue commands on subsequent calls to
-retrieve link speed.
+When copying data to user-space we should ensure that only valid
+data is copied over.  Padding in structures may be filled with
+random (possibly sensitve) data and should never be given directly
+to user-space.
 
-Fixes: 7e074d5a76ca ("gve: Enable Link Speed Reporting in the driver.")
-Signed-off-by: Joshua Washington <joshwash@google.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230321172332.91678-1-joshwash@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This patch fixes the copying of xfrm algorithms and the encap
+template in xfrm_user so that padding is zeroed.
+
+Reported-by: syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com
+Reported-by: Hyunwoo Kim <v4bel@theori.io>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_ethtool.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/xfrm/xfrm_user.c | 45 ++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 41 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_ethtool.c b/drivers/net/ethernet/google/gve/gve_ethtool.c
-index c53a043139446..e0449cc24fbdb 100644
---- a/drivers/net/ethernet/google/gve/gve_ethtool.c
-+++ b/drivers/net/ethernet/google/gve/gve_ethtool.c
-@@ -510,7 +510,10 @@ static int gve_get_link_ksettings(struct net_device *netdev,
- 				  struct ethtool_link_ksettings *cmd)
- {
- 	struct gve_priv *priv = netdev_priv(netdev);
--	int err = gve_adminq_report_link_speed(priv);
-+	int err = 0;
-+
-+	if (priv->link_speed == 0)
-+		err = gve_adminq_report_link_speed(priv);
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index e73f9efc54c12..83f35ecacf24f 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -997,7 +997,9 @@ static int copy_to_user_aead(struct xfrm_algo_aead *aead, struct sk_buff *skb)
+ 		return -EMSGSIZE;
  
- 	cmd->base.speed = priv->link_speed;
- 	return err;
+ 	ap = nla_data(nla);
+-	memcpy(ap, aead, sizeof(*aead));
++	strscpy_pad(ap->alg_name, aead->alg_name, sizeof(ap->alg_name));
++	ap->alg_key_len = aead->alg_key_len;
++	ap->alg_icv_len = aead->alg_icv_len;
+ 
+ 	if (redact_secret && aead->alg_key_len)
+ 		memset(ap->alg_key, 0, (aead->alg_key_len + 7) / 8);
+@@ -1017,7 +1019,8 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
+ 		return -EMSGSIZE;
+ 
+ 	ap = nla_data(nla);
+-	memcpy(ap, ealg, sizeof(*ealg));
++	strscpy_pad(ap->alg_name, ealg->alg_name, sizeof(ap->alg_name));
++	ap->alg_key_len = ealg->alg_key_len;
+ 
+ 	if (redact_secret && ealg->alg_key_len)
+ 		memset(ap->alg_key, 0, (ealg->alg_key_len + 7) / 8);
+@@ -1028,6 +1031,40 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
+ 	return 0;
+ }
+ 
++static int copy_to_user_calg(struct xfrm_algo *calg, struct sk_buff *skb)
++{
++	struct nlattr *nla = nla_reserve(skb, XFRMA_ALG_COMP, sizeof(*calg));
++	struct xfrm_algo *ap;
++
++	if (!nla)
++		return -EMSGSIZE;
++
++	ap = nla_data(nla);
++	strscpy_pad(ap->alg_name, calg->alg_name, sizeof(ap->alg_name));
++	ap->alg_key_len = 0;
++
++	return 0;
++}
++
++static int copy_to_user_encap(struct xfrm_encap_tmpl *ep, struct sk_buff *skb)
++{
++	struct nlattr *nla = nla_reserve(skb, XFRMA_ENCAP, sizeof(*ep));
++	struct xfrm_encap_tmpl *uep;
++
++	if (!nla)
++		return -EMSGSIZE;
++
++	uep = nla_data(nla);
++	memset(uep, 0, sizeof(*uep));
++
++	uep->encap_type = ep->encap_type;
++	uep->encap_sport = ep->encap_sport;
++	uep->encap_dport = ep->encap_dport;
++	uep->encap_oa = ep->encap_oa;
++
++	return 0;
++}
++
+ static int xfrm_smark_put(struct sk_buff *skb, struct xfrm_mark *m)
+ {
+ 	int ret = 0;
+@@ -1083,12 +1120,12 @@ static int copy_to_user_state_extra(struct xfrm_state *x,
+ 			goto out;
+ 	}
+ 	if (x->calg) {
+-		ret = nla_put(skb, XFRMA_ALG_COMP, sizeof(*(x->calg)), x->calg);
++		ret = copy_to_user_calg(x->calg, skb);
+ 		if (ret)
+ 			goto out;
+ 	}
+ 	if (x->encap) {
+-		ret = nla_put(skb, XFRMA_ENCAP, sizeof(*x->encap), x->encap);
++		ret = copy_to_user_encap(x->encap, skb);
+ 		if (ret)
+ 			goto out;
+ 	}
 -- 
 2.39.2
 
