@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEFAD6D4837
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29F36D4A1B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233309AbjDCO0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55564 "EHLO
+        id S233901AbjDCOoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233315AbjDCO0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3732D7C8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:36 -0700 (PDT)
+        with ESMTP id S233905AbjDCOoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8101280C1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4833A61D41
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57D49C4339B;
-        Mon,  3 Apr 2023 14:26:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D2FFB81D19
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78AC3C433D2;
+        Mon,  3 Apr 2023 14:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531995;
-        bh=mhyK7Q9wpfWO0egESmSWpZAeIOs+OFJmRpTWkzEgMJY=;
+        s=korg; t=1680533022;
+        bh=/4Gnp6UZmcgEK0xo5Pv/G/WtbPtWC/wouYxDiNILz+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5BwanidWDDooY/q0MPBVrGYapA/BVOQCmarzoum7j0AP/vzz/Po60o4vqL30Queh
-         b3vCbpoMP4eEnOwY77TMK6DGi/RvJJQ+F9IRnyZzMPDjtUgNWPk4AV3rJNYPm7Wze5
-         hwsprvNvZ1ml1MT26y/nBpnN3EB5SgwqS0+cq4dk=
+        b=t2Si4YqOyyqD8eyVUTBjWJygT6F7ZGcDDSlt+o6MApt9SHIMPNgu573nGftv32LR1
+         zsOJ2ceCyg8TQAbVLWah67RgtX5vSo6XM5Ezr7GxKJXsRpVsh1h+DMHlp9GqcMxGZN
+         uC4pWgENuY6FaUbwDnL9VGZVQsmiNqRYj43/3Vkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/173] Bluetooth: L2CAP: Fix responding with wrong PDU type
+Subject: [PATCH 6.2 025/187] ACPI: x86: Introduce an acpi_quirk_skip_gpio_event_handlers() helper
 Date:   Mon,  3 Apr 2023 16:07:50 +0200
-Message-Id: <20230403140416.230510022@linuxfoundation.org>
+Message-Id: <20230403140416.845573442@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,224 +54,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9aa9d9473f1550d1936c31259720b3f1f4690576 ]
+[ Upstream commit 5adc409340b1fc82bc1175e602d14ac82ac685e3 ]
 
-L2CAP_ECRED_CONN_REQ shall be responded with L2CAP_ECRED_CONN_RSP not
-L2CAP_LE_CONN_RSP:
+x86 ACPI boards which ship with only Android as their factory image usually
+have pretty broken ACPI tables, relying on everything being hardcoded in
+the factory kernel image and often disabling parts of the ACPI enumeration
+kernel code to avoid the broken tables causing issues.
 
-L2CAP LE EATT Server - Reject - run
-  Listening for connections
-  New client connection with handle 0x002a
-  Sending L2CAP Request from client
-  Client received response code 0x15
-  Unexpected L2CAP response code (expected 0x18)
-L2CAP LE EATT Server - Reject - test failed
+Part of this broken ACPI code is that sometimes these boards have _AEI
+ACPI GPIO event handlers which are broken.
 
-> ACL Data RX: Handle 42 flags 0x02 dlen 26
-      LE L2CAP: Enhanced Credit Connection Request (0x17) ident 1 len 18
-        PSM: 39 (0x0027)
-        MTU: 64
-        MPS: 64
-        Credits: 5
-        Source CID: 65
-        Source CID: 66
-        Source CID: 67
-        Source CID: 68
-        Source CID: 69
-< ACL Data TX: Handle 42 flags 0x00 dlen 16
-      LE L2CAP: LE Connection Response (0x15) ident 1 len 8
-        invalid size
-        00 00 00 00 00 00 06 00
+So far this has been dealt with in the platform/x86/x86-android-tablets.c
+module, which contains various workarounds for these devices, by it calling
+acpi_gpiochip_free_interrupts() on gpiochip-s with troublesome handlers to
+disable the handlers.
 
-L2CAP LE EATT Server - Reject - run
-  Listening for connections
-  New client connection with handle 0x002a
-  Sending L2CAP Request from client
-  Client received response code 0x18
-L2CAP LE EATT Server - Reject - test passed
+But in some cases this is too late, if the handlers are of the edge type
+then gpiolib-acpi.c's code will already have run them at boot.
+This can cause issues such as GPIOs ending up as owned by "ACPI:OpRegion",
+making them unavailable for drivers which actually need them.
 
-Fixes: 15f02b910562 ("Bluetooth: L2CAP: Add initial code for Enhanced Credit Based Mode")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Boards with these broken ACPI tables are already listed in
+drivers/acpi/x86/utils.c for e.g. acpi_quirk_skip_i2c_client_enumeration().
+Extend the quirks mechanism for a new acpi_quirk_skip_gpio_event_handlers()
+helper, this re-uses the DMI-ids rather then having to duplicate the same
+DMI table in gpiolib-acpi.c .
+
+Also add the new ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS quirk to existing
+boards with troublesome ACPI gpio event handlers, so that the current
+acpi_gpiochip_free_interrupts() hack can be removed from
+x86-android-tablets.c .
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rjw@rjwysocki.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 117 +++++++++++++++++++++++++------------
- 1 file changed, 79 insertions(+), 38 deletions(-)
+ drivers/acpi/x86/utils.c    | 24 +++++++++++++++++++++---
+ drivers/gpio/gpiolib-acpi.c |  3 +++
+ include/acpi/acpi_bus.h     |  5 +++++
+ 3 files changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index b01677882e38c..367b1dec2e751 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -710,6 +710,17 @@ void l2cap_chan_del(struct l2cap_chan *chan, int err)
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index e45285d4e62a4..4bf57cce30bbf 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -251,6 +251,7 @@ bool force_storage_d3(void)
+ #define ACPI_QUIRK_UART1_TTY_UART2_SKIP				BIT(1)
+ #define ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY			BIT(2)
+ #define ACPI_QUIRK_USE_ACPI_AC_AND_BATTERY			BIT(3)
++#define ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS			BIT(4)
+ 
+ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 	/*
+@@ -286,7 +287,8 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 		},
+ 		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
+ 					ACPI_QUIRK_UART1_TTY_UART2_SKIP |
+-					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
++					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
+ 	},
+ 	{
+ 		.matches = {
+@@ -294,7 +296,8 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TF103C"),
+ 		},
+ 		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
+-					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
++					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
+ 	},
+ 	{
+ 		/* Lenovo Yoga Tablet 2 1050F/L */
+@@ -336,7 +339,8 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "M890BAP"),
+ 		},
+ 		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
+-					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
++					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
+ 	},
+ 	{
+ 		/* Whitelabel (sold as various brands) TM800A550L */
+@@ -413,6 +417,20 @@ int acpi_quirk_skip_serdev_enumeration(struct device *controller_parent, bool *s
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(l2cap_chan_del);
- 
-+static void __l2cap_chan_list_id(struct l2cap_conn *conn, u16 id,
-+				 l2cap_chan_func_t func, void *data)
+ EXPORT_SYMBOL_GPL(acpi_quirk_skip_serdev_enumeration);
++
++bool acpi_quirk_skip_gpio_event_handlers(void)
 +{
-+	struct l2cap_chan *chan, *l;
++	const struct dmi_system_id *dmi_id;
++	long quirks;
 +
-+	list_for_each_entry_safe(chan, l, &conn->chan_l, list) {
-+		if (chan->ident == id)
-+			func(chan, data);
-+	}
++	dmi_id = dmi_first_match(acpi_quirk_skip_dmi_ids);
++	if (!dmi_id)
++		return false;
++
++	quirks = (unsigned long)dmi_id->driver_data;
++	return (quirks & ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS);
 +}
-+
- static void __l2cap_chan_list(struct l2cap_conn *conn, l2cap_chan_func_t func,
- 			      void *data)
- {
-@@ -777,23 +788,9 @@ static void l2cap_chan_le_connect_reject(struct l2cap_chan *chan)
++EXPORT_SYMBOL_GPL(acpi_quirk_skip_gpio_event_handlers);
+ #endif
  
- static void l2cap_chan_ecred_connect_reject(struct l2cap_chan *chan)
- {
--	struct l2cap_conn *conn = chan->conn;
--	struct l2cap_ecred_conn_rsp rsp;
--	u16 result;
--
--	if (test_bit(FLAG_DEFER_SETUP, &chan->flags))
--		result = L2CAP_CR_LE_AUTHORIZATION;
--	else
--		result = L2CAP_CR_LE_BAD_PSM;
--
- 	l2cap_state_change(chan, BT_DISCONN);
- 
--	memset(&rsp, 0, sizeof(rsp));
--
--	rsp.result  = cpu_to_le16(result);
--
--	l2cap_send_cmd(conn, chan->ident, L2CAP_LE_CONN_RSP, sizeof(rsp),
--		       &rsp);
-+	__l2cap_ecred_conn_rsp_defer(chan);
- }
- 
- static void l2cap_chan_connect_reject(struct l2cap_chan *chan)
-@@ -848,7 +845,7 @@ void l2cap_chan_close(struct l2cap_chan *chan, int reason)
- 					break;
- 				case L2CAP_MODE_EXT_FLOWCTL:
- 					l2cap_chan_ecred_connect_reject(chan);
--					break;
-+					return;
- 				}
- 			}
- 		}
-@@ -3934,43 +3931,86 @@ void __l2cap_le_connect_rsp_defer(struct l2cap_chan *chan)
- 		       &rsp);
- }
- 
--void __l2cap_ecred_conn_rsp_defer(struct l2cap_chan *chan)
-+static void l2cap_ecred_list_defer(struct l2cap_chan *chan, void *data)
- {
-+	int *result = data;
-+
-+	if (*result || test_bit(FLAG_ECRED_CONN_REQ_SENT, &chan->flags))
-+		return;
-+
-+	switch (chan->state) {
-+	case BT_CONNECT2:
-+		/* If channel still pending accept add to result */
-+		(*result)++;
-+		return;
-+	case BT_CONNECTED:
-+		return;
-+	default:
-+		/* If not connected or pending accept it has been refused */
-+		*result = -ECONNREFUSED;
-+		return;
-+	}
-+}
-+
-+struct l2cap_ecred_rsp_data {
- 	struct {
- 		struct l2cap_ecred_conn_rsp rsp;
--		__le16 dcid[5];
-+		__le16 scid[L2CAP_ECRED_MAX_CID];
- 	} __packed pdu;
-+	int count;
-+};
-+
-+static void l2cap_ecred_rsp_defer(struct l2cap_chan *chan, void *data)
-+{
-+	struct l2cap_ecred_rsp_data *rsp = data;
-+
-+	if (test_bit(FLAG_ECRED_CONN_REQ_SENT, &chan->flags))
-+		return;
-+
-+	/* Reset ident so only one response is sent */
-+	chan->ident = 0;
-+
-+	/* Include all channels pending with the same ident */
-+	if (!rsp->pdu.rsp.result)
-+		rsp->pdu.rsp.dcid[rsp->count++] = cpu_to_le16(chan->scid);
-+	else
-+		l2cap_chan_del(chan, ECONNRESET);
-+}
-+
-+void __l2cap_ecred_conn_rsp_defer(struct l2cap_chan *chan)
-+{
- 	struct l2cap_conn *conn = chan->conn;
--	u16 ident = chan->ident;
--	int i = 0;
-+	struct l2cap_ecred_rsp_data data;
-+	u16 id = chan->ident;
-+	int result = 0;
- 
--	if (!ident)
-+	if (!id)
+ /* Lists of PMIC ACPI HIDs with an (often better) native charger driver */
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 34ff048e70d0e..7c9175619a1dc 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -536,6 +536,9 @@ void acpi_gpiochip_request_interrupts(struct gpio_chip *chip)
+ 	if (ACPI_FAILURE(status))
  		return;
  
--	BT_DBG("chan %p ident %d", chan, ident);
-+	BT_DBG("chan %p id %d", chan, id);
- 
--	pdu.rsp.mtu     = cpu_to_le16(chan->imtu);
--	pdu.rsp.mps     = cpu_to_le16(chan->mps);
--	pdu.rsp.credits = cpu_to_le16(chan->rx_credits);
--	pdu.rsp.result  = cpu_to_le16(L2CAP_CR_LE_SUCCESS);
-+	memset(&data, 0, sizeof(data));
- 
--	mutex_lock(&conn->chan_lock);
-+	data.pdu.rsp.mtu     = cpu_to_le16(chan->imtu);
-+	data.pdu.rsp.mps     = cpu_to_le16(chan->mps);
-+	data.pdu.rsp.credits = cpu_to_le16(chan->rx_credits);
-+	data.pdu.rsp.result  = cpu_to_le16(L2CAP_CR_LE_SUCCESS);
- 
--	list_for_each_entry(chan, &conn->chan_l, list) {
--		if (chan->ident != ident)
--			continue;
-+	/* Verify that all channels are ready */
-+	__l2cap_chan_list_id(conn, id, l2cap_ecred_list_defer, &result);
- 
--		/* Reset ident so only one response is sent */
--		chan->ident = 0;
-+	if (result > 0)
++	if (acpi_quirk_skip_gpio_event_handlers())
 +		return;
++
+ 	acpi_walk_resources(handle, METHOD_NAME__AEI,
+ 			    acpi_gpiochip_alloc_event, acpi_gpio);
  
--		/* Include all channels pending with the same ident */
--		pdu.dcid[i++] = cpu_to_le16(chan->scid);
--	}
-+	if (result < 0)
-+		data.pdu.rsp.result = cpu_to_le16(L2CAP_CR_LE_AUTHORIZATION);
- 
--	mutex_unlock(&conn->chan_lock);
-+	/* Build response */
-+	__l2cap_chan_list_id(conn, id, l2cap_ecred_rsp_defer, &data);
- 
--	l2cap_send_cmd(conn, ident, L2CAP_ECRED_CONN_RSP,
--			sizeof(pdu.rsp) + i * sizeof(__le16), &pdu);
-+	l2cap_send_cmd(conn, id, L2CAP_ECRED_CONN_RSP,
-+		       sizeof(data.pdu.rsp) + (data.count * sizeof(__le16)),
-+		       &data.pdu);
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 0584e9f6e3397..57acb895c0381 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -657,6 +657,7 @@ static inline bool acpi_quirk_skip_acpi_ac_and_battery(void)
+ #if IS_ENABLED(CONFIG_X86_ANDROID_TABLETS)
+ bool acpi_quirk_skip_i2c_client_enumeration(struct acpi_device *adev);
+ int acpi_quirk_skip_serdev_enumeration(struct device *controller_parent, bool *skip);
++bool acpi_quirk_skip_gpio_event_handlers(void);
+ #else
+ static inline bool acpi_quirk_skip_i2c_client_enumeration(struct acpi_device *adev)
+ {
+@@ -668,6 +669,10 @@ acpi_quirk_skip_serdev_enumeration(struct device *controller_parent, bool *skip)
+ 	*skip = false;
+ 	return 0;
  }
++static inline bool acpi_quirk_skip_gpio_event_handlers(void)
++{
++	return false;
++}
+ #endif
  
- void __l2cap_connect_rsp_defer(struct l2cap_chan *chan)
-@@ -6073,6 +6113,7 @@ static inline int l2cap_ecred_conn_req(struct l2cap_conn *conn,
- 		__set_chan_timer(chan, chan->ops->get_sndtimeo(chan));
- 
- 		chan->ident = cmd->ident;
-+		chan->mode = L2CAP_MODE_EXT_FLOWCTL;
- 
- 		if (test_bit(FLAG_DEFER_SETUP, &chan->flags)) {
- 			l2cap_state_change(chan, BT_CONNECT2);
+ #ifdef CONFIG_PM
 -- 
 2.39.2
 
