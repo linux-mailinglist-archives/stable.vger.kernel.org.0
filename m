@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E94B6D47C6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5889A6D49B3
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233214AbjDCOXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47794 "EHLO
+        id S233785AbjDCOkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:40:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233184AbjDCOXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB843199E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:54 -0700 (PDT)
+        with ESMTP id S233781AbjDCOkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A88817AC0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 143ECB81BDA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BBDFC433D2;
-        Mon,  3 Apr 2023 14:22:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D41A861EC7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E543CC433EF;
+        Mon,  3 Apr 2023 14:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531771;
-        bh=xdGYwNmhlpqCInwajrFt+0V7h8GxzpAJom1D2Eh7N7c=;
+        s=korg; t=1680532826;
+        bh=61XocL6k8AF3goXuYYjzvajlEAwx/ui6zuRbVHEVtxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HcGcOhwycIep6mkC+2qo5uSY2NssIQv2nuiqmO2xG0JUL6OqdJH76A7AQ/0OEjVlg
-         FZ1ALMDYlQWYGY3ixbTJBts7+HxgsGQByBDT0+tQI2UTwGR38YWTWp7XuHR8V+cH0b
-         pRWqQD3yyx1AiWjz4qtoSqHgGxZrriUVrlry3CNw=
+        b=PNJOOJGMfA+z72fL1u52n3dmaftVvl0wGwRE3LHUz8WQ6uH3nTiNCTpesKKQS2FKg
+         PtC3sov0WmDqxP380+/ryXhTMVVUfbBppu3y1rj64QmgectDYDoe56qBK3oXP35Aj/
+         Z3/mio8JwNzA37XHT0DxPzF30MTjJ0UcO0LuJhkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jetro Jormalainen <jje-lxkl@jetro.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 095/104] ALSA: hda/conexant: Partial revert of a quirk for Lenovo
+        patches@lists.linux.dev, Sherry Yang <sherry.yang@oracle.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 132/181] btrfs: scan device in non-exclusive mode
 Date:   Mon,  3 Apr 2023 16:09:27 +0200
-Message-Id: <20230403140407.896749082@linuxfoundation.org>
+Message-Id: <20230403140419.365266153@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit b871cb971c683f7f212e7ca3c9a6709a75785116 upstream.
+commit 50d281fc434cb8e2497f5e70a309ccca6b1a09f0 upstream.
 
-The recent commit f83bb2592482 ("ALSA: hda/conexant: Add quirk for
-LENOVO 20149 Notebook model") introduced a quirk for the device with
-17aa:3977, but this caused a regression on another model (Lenovo
-Ideadpad U31) with the very same PCI SSID.  And, through skimming over
-the net, it seems that this PCI SSID is used for multiple different
-models, so it's no good idea to apply the quirk with the SSID.
+This fixes mkfs/mount/check failures due to race with systemd-udevd
+scan.
 
-Although we may take a different ID check (e.g. the codec SSID instead
-of the PCI SSID), unfortunately, the original patch author couldn't
-identify the hardware details any longer as the machine was returned,
-and we can't develop the further proper fix.
+During the device scan initiated by systemd-udevd, other user space
+EXCL operations such as mkfs, mount, or check may get blocked and result
+in a "Device or resource busy" error. This is because the device
+scan process opens the device with the EXCL flag in the kernel.
 
-In this patch, instead, we partially revert the change so that the
-quirk won't be applied as default for addressing the regression.
-Meanwhile, the quirk function itself is kept, and it's now made to be
-applicable via the explicit model=lenovo-20149 option.
+Two reports were received:
 
-Fixes: f83bb2592482 ("ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model")
-Reported-by: Jetro Jormalainen <jje-lxkl@jetro.fi>
-Link: https://lore.kernel.org/r/20230308215009.4d3e58a6@mopti
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230320140954.31154-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ - btrfs/179 test case, where the fsck command failed with the -EBUSY
+   error
+
+ - LTP pwritev03 test case, where mkfs.vfs failed with
+   the -EBUSY error, when mkfs.vfs tried to overwrite old btrfs filesystem
+   on the device.
+
+In both cases, fsck and mkfs (respectively) were racing with a
+systemd-udevd device scan, and systemd-udevd won, resulting in the
+-EBUSY error for fsck and mkfs.
+
+Reproducing the problem has been difficult because there is a very
+small window during which these userspace threads can race to
+acquire the exclusive device open. Even on the system where the problem
+was observed, the problem occurrences were anywhere between 10 to 400
+iterations and chances of reproducing decreases with debug printk()s.
+
+However, an exclusive device open is unnecessary for the scan process,
+as there are no write operations on the device during scan. Furthermore,
+during the mount process, the superblock is re-read in the below
+function call chain:
+
+  btrfs_mount_root
+   btrfs_open_devices
+    open_fs_devices
+     btrfs_open_one_device
+       btrfs_get_bdev_and_sb
+
+So, to fix this issue, removes the FMODE_EXCL flag from the scan
+operation, and add a comment.
+
+The case where mkfs may still write to the device and a scan is running,
+the btrfs signature is not written at that time so scan will not
+recognize such device.
+
+Reported-by: Sherry Yang <sherry.yang@oracle.com>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/oe-lkp/202303170839.fdf23068-oliver.sang@intel.com
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_conexant.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/btrfs/volumes.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -939,7 +939,10 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x17aa, 0x3905, "Lenovo G50-30", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x390b, "Lenovo G50-80", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3975, "Lenovo U300s", CXT_FIXUP_STEREO_DMIC),
--	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_PINCFG_LENOVO_NOTEBOOK),
-+	/* NOTE: we'd need to extend the quirk for 17aa:3977 as the same
-+	 * PCI SSID is used on multiple Lenovo models
-+	 */
-+	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo G50-70", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x397b, "Lenovo S205", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad", CXT_FIXUP_THINKPAD_ACPI),
-@@ -961,6 +964,7 @@ static const struct hda_model_fixup cxt5
- 	{ .id = CXT_FIXUP_HP_DOCK, .name = "hp-dock" },
- 	{ .id = CXT_FIXUP_MUTE_LED_GPIO, .name = "mute-led-gpio" },
- 	{ .id = CXT_FIXUP_HP_MIC_NO_PRESENCE, .name = "hp-mic-fix" },
-+	{ .id = CXT_PINCFG_LENOVO_NOTEBOOK, .name = "lenovo-20149" },
- 	{}
- };
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1379,8 +1379,17 @@ struct btrfs_device *btrfs_scan_one_devi
+ 	 * So, we need to add a special mount option to scan for
+ 	 * later supers, using BTRFS_SUPER_MIRROR_MAX instead
+ 	 */
+-	flags |= FMODE_EXCL;
  
++	/*
++	 * Avoid using flag |= FMODE_EXCL here, as the systemd-udev may
++	 * initiate the device scan which may race with the user's mount
++	 * or mkfs command, resulting in failure.
++	 * Since the device scan is solely for reading purposes, there is
++	 * no need for FMODE_EXCL. Additionally, the devices are read again
++	 * during the mount process. It is ok to get some inconsistent
++	 * values temporarily, as the device paths of the fsid are the only
++	 * required information for assembling the volume.
++	 */
+ 	bdev = blkdev_get_by_path(path, flags, holder);
+ 	if (IS_ERR(bdev))
+ 		return ERR_CAST(bdev);
 
 
