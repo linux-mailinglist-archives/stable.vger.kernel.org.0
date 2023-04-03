@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FE96D47A6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 240D66D4908
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233059AbjDCOWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44474 "EHLO
+        id S233543AbjDCOeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:34:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233137AbjDCOWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3225F31993
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:48 -0700 (PDT)
+        with ESMTP id S233560AbjDCOeY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3426CE58
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FC8261D39
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81321C433D2;
-        Mon,  3 Apr 2023 14:21:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0252A61E2E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A24FC433EF;
+        Mon,  3 Apr 2023 14:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531706;
-        bh=/tZOGbJFwoQfwNLEapz7JLnCRAmUJ67IRCilGZldgtk=;
+        s=korg; t=1680532424;
+        bh=eIbs2gPg3C58QXDt3BxX3RfWhOV282cG4sJxTZaF/P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vB+3uayGQN6iDwfd7VqnRCrbpl5vfW6KDYeFLPEVcFHfpNKHlXp5YgfwF+l0vw7Tz
-         Wv4sdAxHpWRvvj+h3V4CuLqYaMMQjWOerlDJkw8LB149VWKZtcSEW0zWZLiKk7ixLg
-         uWELiQMSNaCu5i83tHT0SMgPB6tlPfHLFLVtYHaE=
+        b=qBKAyBm3Szp48f2NFOIn/x9UBAnhKO3NyyuN3ZHBLBygBB15mv+emC9FQKeYKxpG6
+         8B8+VKozqZJv3x/ytqkopR7qtpQnHiaIuiMZbF1KRXGy8HnQi5vN9v3o+yCECpgTyx
+         AXyFrENfxfk2JOQXxyMLfgQbHD6fTJ/47v2A/ZHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com,
-        Ivan Orlov <ivan.orlov0322@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Sven Auhagen <sven.auhagen@voleatech.de>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 080/104] can: bcm: bcm_tx_setup(): fix KMSAN uninit-value in vfs_write
-Date:   Mon,  3 Apr 2023 16:09:12 +0200
-Message-Id: <20230403140407.252575136@linuxfoundation.org>
+Subject: [PATCH 5.15 50/99] net: mvpp2: parser fix PPPoE
+Date:   Mon,  3 Apr 2023 16:09:13 +0200
+Message-Id: <20230403140405.199993480@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,116 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Orlov <ivan.orlov0322@gmail.com>
+From: Sven Auhagen <sven.auhagen@voleatech.de>
 
-[ Upstream commit 2b4c99f7d9a57ecd644eda9b1fb0a1072414959f ]
+[ Upstream commit 031a416c2170866be5132ae42e14453d669b0cb1 ]
 
-Syzkaller reported the following issue:
+In PPPoE add all IPv4 header option length to the parser
+and adjust the L3 and L4 offset accordingly.
+Currently the L4 match does not work with PPPoE and
+all packets are matched as L3 IP4 OPT.
 
-=====================================================
-BUG: KMSAN: uninit-value in aio_rw_done fs/aio.c:1520 [inline]
-BUG: KMSAN: uninit-value in aio_write+0x899/0x950 fs/aio.c:1600
- aio_rw_done fs/aio.c:1520 [inline]
- aio_write+0x899/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc+0x11d/0x3b0 mm/slab_common.c:981
- kmalloc_array include/linux/slab.h:636 [inline]
- bcm_tx_setup+0x80e/0x29d0 net/can/bcm.c:930
- bcm_sendmsg+0x3a2/0xce0 net/can/bcm.c:1351
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- sock_write_iter+0x495/0x5e0 net/socket.c:1108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-CPU: 1 PID: 5034 Comm: syz-executor350 Not tainted 6.2.0-rc6-syzkaller-80422-geda666ff2276 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
-=====================================================
-
-We can follow the call chain and find that 'bcm_tx_setup' function
-calls 'memcpy_from_msg' to copy some content to the newly allocated
-frame of 'op->frames'. After that the 'len' field of copied structure
-being compared with some constant value (64 or 8). However, if
-'memcpy_from_msg' returns an error, we will compare some uninitialized
-memory. This triggers 'uninit-value' issue.
-
-This patch will add 'memcpy_from_msg' possible errors processing to
-avoid uninit-value issue.
-
-Tested via syzkaller
-
-Reported-by: syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=47f897f8ad958bbde5790ebf389b5e7e0a345089
-Signed-off-by: Ivan Orlov <ivan.orlov0322@gmail.com>
-Fixes: 6f3b911d5f29b ("can: bcm: add support for CAN FD frames")
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230314120445.12407-1-ivan.orlov0322@gmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ .../net/ethernet/marvell/mvpp2/mvpp2_prs.c    | 82 ++++++++-----------
+ 1 file changed, 34 insertions(+), 48 deletions(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index fbf1143a56e13..23c7d5f896bd2 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -938,6 +938,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+index 34d2714205977..a8188b972ccbc 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+@@ -1607,59 +1607,45 @@ static int mvpp2_prs_vlan_init(struct platform_device *pdev, struct mvpp2 *priv)
+ static int mvpp2_prs_pppoe_init(struct mvpp2 *priv)
+ {
+ 	struct mvpp2_prs_entry pe;
+-	int tid;
+-
+-	/* IPv4 over PPPoE with options */
+-	tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
+-					MVPP2_PE_LAST_FREE_TID);
+-	if (tid < 0)
+-		return tid;
+-
+-	memset(&pe, 0, sizeof(pe));
+-	mvpp2_prs_tcam_lu_set(&pe, MVPP2_PRS_LU_PPPOE);
+-	pe.index = tid;
+-
+-	mvpp2_prs_match_etype(&pe, 0, PPP_IP);
+-
+-	mvpp2_prs_sram_next_lu_set(&pe, MVPP2_PRS_LU_IP4);
+-	mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP4_OPT,
+-				 MVPP2_PRS_RI_L3_PROTO_MASK);
+-	/* goto ipv4 dest-address (skip eth_type + IP-header-size - 4) */
+-	mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN +
+-				 sizeof(struct iphdr) - 4,
+-				 MVPP2_PRS_SRAM_OP_SEL_SHIFT_ADD);
+-	/* Set L3 offset */
+-	mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L3,
+-				  MVPP2_ETH_TYPE_LEN,
+-				  MVPP2_PRS_SRAM_OP_SEL_UDF_ADD);
+-
+-	/* Update shadow table and hw entry */
+-	mvpp2_prs_shadow_set(priv, pe.index, MVPP2_PRS_LU_PPPOE);
+-	mvpp2_prs_hw_write(priv, &pe);
++	int tid, ihl;
  
- 			cf = op->frames + op->cfsiz * i;
- 			err = memcpy_from_msg((u8 *)cf, msg, op->cfsiz);
-+			if (err < 0)
-+				goto free_op;
+-	/* IPv4 over PPPoE without options */
+-	tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
+-					MVPP2_PE_LAST_FREE_TID);
+-	if (tid < 0)
+-		return tid;
++	/* IPv4 over PPPoE with header length >= 5 */
++	for (ihl = MVPP2_PRS_IPV4_IHL_MIN; ihl <= MVPP2_PRS_IPV4_IHL_MAX; ihl++) {
++		tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
++						MVPP2_PE_LAST_FREE_TID);
++		if (tid < 0)
++			return tid;
  
- 			if (op->flags & CAN_FD_FRAME) {
- 				if (cf->len > 64)
-@@ -947,12 +949,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 					err = -EINVAL;
- 			}
+-	pe.index = tid;
++		memset(&pe, 0, sizeof(pe));
++		mvpp2_prs_tcam_lu_set(&pe, MVPP2_PRS_LU_PPPOE);
++		pe.index = tid;
  
--			if (err < 0) {
--				if (op->frames != &op->sframe)
--					kfree(op->frames);
--				kfree(op);
--				return err;
--			}
-+			if (err < 0)
-+				goto free_op;
+-	mvpp2_prs_tcam_data_byte_set(&pe, MVPP2_ETH_TYPE_LEN,
+-				     MVPP2_PRS_IPV4_HEAD |
+-				     MVPP2_PRS_IPV4_IHL_MIN,
+-				     MVPP2_PRS_IPV4_HEAD_MASK |
+-				     MVPP2_PRS_IPV4_IHL_MASK);
++		mvpp2_prs_match_etype(&pe, 0, PPP_IP);
++		mvpp2_prs_tcam_data_byte_set(&pe, MVPP2_ETH_TYPE_LEN,
++					     MVPP2_PRS_IPV4_HEAD | ihl,
++					     MVPP2_PRS_IPV4_HEAD_MASK |
++					     MVPP2_PRS_IPV4_IHL_MASK);
  
- 			if (msg_head->flags & TX_CP_CAN_ID) {
- 				/* copy can_id into frame */
-@@ -1023,6 +1021,12 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 		bcm_tx_start_timer(op);
+-	/* Clear ri before updating */
+-	pe.sram[MVPP2_PRS_SRAM_RI_WORD] = 0x0;
+-	pe.sram[MVPP2_PRS_SRAM_RI_CTRL_WORD] = 0x0;
+-	mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP4,
+-				 MVPP2_PRS_RI_L3_PROTO_MASK);
++		mvpp2_prs_sram_next_lu_set(&pe, MVPP2_PRS_LU_IP4);
++		mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP4,
++					 MVPP2_PRS_RI_L3_PROTO_MASK);
++		/* goto ipv4 dst-address (skip eth_type + IP-header-size - 4) */
++		mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN +
++					 sizeof(struct iphdr) - 4,
++					 MVPP2_PRS_SRAM_OP_SEL_SHIFT_ADD);
++		/* Set L3 offset */
++		mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L3,
++					  MVPP2_ETH_TYPE_LEN,
++					  MVPP2_PRS_SRAM_OP_SEL_UDF_ADD);
++		/* Set L4 offset */
++		mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L4,
++					  MVPP2_ETH_TYPE_LEN + (ihl * 4),
++					  MVPP2_PRS_SRAM_OP_SEL_UDF_ADD);
  
- 	return msg_head->nframes * op->cfsiz + MHSIZ;
-+
-+free_op:
-+	if (op->frames != &op->sframe)
-+		kfree(op->frames);
-+	kfree(op);
-+	return err;
- }
+-	/* Update shadow table and hw entry */
+-	mvpp2_prs_shadow_set(priv, pe.index, MVPP2_PRS_LU_PPPOE);
+-	mvpp2_prs_hw_write(priv, &pe);
++		/* Update shadow table and hw entry */
++		mvpp2_prs_shadow_set(priv, pe.index, MVPP2_PRS_LU_PPPOE);
++		mvpp2_prs_hw_write(priv, &pe);
++	}
  
- /*
+ 	/* IPv6 over PPPoE */
+ 	tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
 -- 
 2.39.2
 
