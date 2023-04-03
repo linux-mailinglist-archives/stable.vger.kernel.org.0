@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E8FF6D46FB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B51E96D4A34
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232909AbjDCOQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33550 "EHLO
+        id S233891AbjDCOpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232922AbjDCOQA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8185F4ECB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:59 -0700 (PDT)
+        with ESMTP id S233940AbjDCOot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D4E1694D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBE6F61CCA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14A4C4339C;
-        Mon,  3 Apr 2023 14:15:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08A03B81D35
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8EFC433EF;
+        Mon,  3 Apr 2023 14:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531358;
-        bh=92GICywkouLg2emm+HvUVT8CLvMrHOUz7WCID7Z+PRI=;
+        s=korg; t=1680533066;
+        bh=T+y02KqbdinWzs5BHyJ64yYI5IzZszI6qc+B2eCbKfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8Frwzvyrv4W11F16UcK6UXq9vJS+MihDwbtVCy4HuTerzknEw4GNoBzhXWFkMJSD
-         jqyhQvzpVCYCqkKMt76Uw32ivcEA0UtT8mnT4r43cwglUUzTmKOhskpeSypyMPVhuk
-         j/8PgzFLOk8NZ0FUjhVEystML/ULpx+YD1ZIEzeI=
+        b=tE1aTCX6leQ6oMJld73MvmIr4ZPFWL3eYjGLjtC3Z3dn7gqLqjqypZclgcQeMKzZ8
+         ROqeO3lQ/8Aww1hiROgqzkZSBI4Cu12sEcON1jqkd8dIyP58N57QaettOIR7mZb/4v
+         kGkba22eVu7NYSRJos+loIGW9QMbD7rddpZPhljM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Larysa Zaremba <larysa.zaremba@intel.com>,
-        Michal Kubiak <michal.kubiak@intel.com>,
-        Alexander Lobakin <aleksander.lobakin@intel.com>,
-        Rafal Romanowski <rafal.romanowski@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Chia-I Wu <olvaffe@gmail.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/84] iavf: fix inverted Rx hash condition leading to disabled hash
+Subject: [PATCH 6.2 041/187] drm/amdkfd: fix potential kgd_mem UAFs
 Date:   Mon,  3 Apr 2023 16:08:06 +0200
-Message-Id: <20230403140353.597405439@linuxfoundation.org>
+Message-Id: <20230403140417.334061882@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,42 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <aleksander.lobakin@intel.com>
+From: Chia-I Wu <olvaffe@gmail.com>
 
-[ Upstream commit 32d57f667f871bc5a8babbe27ea4c5e668ee0ea8 ]
+[ Upstream commit 9da050b0d9e04439d225a2ec3044af70cdfb3933 ]
 
-Condition, which checks whether the netdev has hashing enabled is
-inverted. Basically, the tagged commit effectively disabled passing flow
-hash from descriptor to skb, unless user *disables* it via Ethtool.
-Commit a876c3ba59a6 ("i40e/i40evf: properly report Rx packet hash")
-fixed this problem, but only for i40e.
-Invert the condition now in iavf and unblock passing hash to skbs again.
+kgd_mem pointers returned by kfd_process_device_translate_handle are
+only guaranteed to be valid while p->mutex is held. As soon as the mutex
+is unlocked, another thread can free the BO.
 
-Fixes: 857942fd1aa1 ("i40e: Fix Rx hash reported to the stack by our driver")
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Reviewed-by: Michal Kubiak <michal.kubiak@intel.com>
-Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
-Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/i40e_txrx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/i40e_txrx.c b/drivers/net/ethernet/intel/iavf/i40e_txrx.c
-index 1bf9734ae9cf0..d4bd06adc1453 100644
---- a/drivers/net/ethernet/intel/iavf/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/i40e_txrx.c
-@@ -1062,7 +1062,7 @@ static inline void i40e_rx_hash(struct i40e_ring *ring,
- 		cpu_to_le64((u64)I40E_RX_DESC_FLTSTAT_RSS_HASH <<
- 			    I40E_RX_DESC_STATUS_FLTSTAT_SHIFT);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+index f79b8e964140e..e191d38f3da62 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+@@ -1298,14 +1298,14 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
+ 		args->n_success = i+1;
+ 	}
  
--	if (ring->netdev->features & NETIF_F_RXHASH)
-+	if (!(ring->netdev->features & NETIF_F_RXHASH))
- 		return;
+-	mutex_unlock(&p->mutex);
+-
+ 	err = amdgpu_amdkfd_gpuvm_sync_memory(dev->adev, (struct kgd_mem *) mem, true);
+ 	if (err) {
+ 		pr_debug("Sync memory failed, wait interrupted by user signal\n");
+ 		goto sync_memory_failed;
+ 	}
  
- 	if ((rx_desc->wb.qword1.status_error_len & rss_mask) == rss_mask) {
++	mutex_unlock(&p->mutex);
++
+ 	/* Flush TLBs after waiting for the page table updates to complete */
+ 	for (i = 0; i < args->n_devices; i++) {
+ 		peer_pdd = kfd_process_device_data_by_id(p, devices_arr[i]);
+@@ -1321,9 +1321,9 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
+ bind_process_to_device_failed:
+ get_mem_obj_from_handle_failed:
+ map_memory_to_gpu_failed:
++sync_memory_failed:
+ 	mutex_unlock(&p->mutex);
+ copy_from_user_failed:
+-sync_memory_failed:
+ 	kfree(devices_arr);
+ 
+ 	return err;
+@@ -1337,6 +1337,7 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
+ 	void *mem;
+ 	long err = 0;
+ 	uint32_t *devices_arr = NULL, i;
++	bool flush_tlb;
+ 
+ 	if (!args->n_devices) {
+ 		pr_debug("Device IDs array empty\n");
+@@ -1389,16 +1390,19 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
+ 		}
+ 		args->n_success = i+1;
+ 	}
+-	mutex_unlock(&p->mutex);
+ 
+-	if (kfd_flush_tlb_after_unmap(pdd->dev)) {
++	flush_tlb = kfd_flush_tlb_after_unmap(pdd->dev);
++	if (flush_tlb) {
+ 		err = amdgpu_amdkfd_gpuvm_sync_memory(pdd->dev->adev,
+ 				(struct kgd_mem *) mem, true);
+ 		if (err) {
+ 			pr_debug("Sync memory failed, wait interrupted by user signal\n");
+ 			goto sync_memory_failed;
+ 		}
++	}
++	mutex_unlock(&p->mutex);
+ 
++	if (flush_tlb) {
+ 		/* Flush TLBs after waiting for the page table updates to complete */
+ 		for (i = 0; i < args->n_devices; i++) {
+ 			peer_pdd = kfd_process_device_data_by_id(p, devices_arr[i]);
+@@ -1414,9 +1418,9 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
+ bind_process_to_device_failed:
+ get_mem_obj_from_handle_failed:
+ unmap_memory_from_gpu_failed:
++sync_memory_failed:
+ 	mutex_unlock(&p->mutex);
+ copy_from_user_failed:
+-sync_memory_failed:
+ 	kfree(devices_arr);
+ 	return err;
+ }
 -- 
 2.39.2
 
