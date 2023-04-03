@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A95CE6D47C8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A70826D49B6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbjDCOXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:23:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
+        id S233786AbjDCOkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233163AbjDCOXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9F05275
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:23:00 -0700 (PDT)
+        with ESMTP id S233783AbjDCOki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D018217AD2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D70261D65
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C829C433D2;
-        Mon,  3 Apr 2023 14:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82935B81CDE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC60DC433EF;
+        Mon,  3 Apr 2023 14:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531779;
-        bh=Cs99oUpa9z7eVb4echWlvv/QYQMGoWYfLDwzNBgj2gE=;
+        s=korg; t=1680532834;
+        bh=o9EEU5vGc9NncwTA6ud1hmxZS7/nE4GGzCJQsCCPfIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BwhskhRAxz/Cncabcye7vKB93pwGLMoZ9/BnVC31EtaURMgYrVN7lfl/Lcq1FNZfD
-         jAMREsn4Ch3p6K5HQnCmF6qk6rs9kny1qxoPzv7TzfwCza8FU5TKHxLUE5d/fHCYKA
-         ItcZrydtNXlSvs3qfhSzPYvlPetKSNed1g9PquI8=
+        b=EkJkCQ55XyOLbVqSJW1ZvWd7XKdBUpoIAqJs5Q2fdfr20sW69DhvLggCHxAeUS2It
+         h1fNq1+UCx965nUiee/KdtLGhkX0wz8rfGNSO2QbvUhTzZIfnWjVvjbQBNl7TDE/Tr
+         wwy7ofTNqnha/hSlO0Vu7DjpNLzJIJHP9Axw6OSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 098/104] s390/uaccess: add missing earlyclobber annotations to __clear_user()
+        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 135/181] io_uring/poll: clear single/double poll flags on poll arming
 Date:   Mon,  3 Apr 2023 16:09:30 +0200
-Message-Id: <20230403140408.004909351@linuxfoundation.org>
+Message-Id: <20230403140419.463627909@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
+commit 005308f7bdacf5685ed1a431244a183dbbb9e0e8 upstream.
 
-Add missing earlyclobber annotation to size, to, and tmp2 operands of the
-__clear_user() inline assembly since they are modified or written to before
-the last usage of all input operands. This can lead to incorrect register
-allocation for the inline assembly.
+Unless we have at least one entry queued, then don't call into
+io_poll_remove_entries(). Normally this isn't possible, but if we
+retry poll then we can have ->nr_entries cleared again as we're
+setting it up. If this happens for a poll retry, then we'll still have
+at least REQ_F_SINGLE_POLL set. io_poll_remove_entries() then thinks
+it has entries to remove.
 
-Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
+Clear REQ_F_SINGLE_POLL and REQ_F_DOUBLE_POLL unconditionally when
+arming a poll request.
+
+Fixes: c16bda37594f ("io_uring/poll: allow some retries for poll triggering spuriously")
 Cc: stable@vger.kernel.org
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/lib/uaccess.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ io_uring/poll.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -339,7 +339,7 @@ static inline unsigned long clear_user_m
- 		"4: slgr  %0,%0\n"
- 		"5:\n"
- 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
--		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
-+		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
- 		: "a" (empty_zero_page), "d" (reg0) : "cc", "memory");
- 	return size;
- }
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -742,6 +742,7 @@ int io_arm_poll_handler(struct io_kiocb
+ 	apoll = io_req_alloc_apoll(req, issue_flags);
+ 	if (!apoll)
+ 		return IO_APOLL_ABORTED;
++	req->flags &= ~(REQ_F_SINGLE_POLL | REQ_F_DOUBLE_POLL);
+ 	req->flags |= REQ_F_POLLED;
+ 	ipt.pt._qproc = io_async_queue_proc;
+ 
 
 
