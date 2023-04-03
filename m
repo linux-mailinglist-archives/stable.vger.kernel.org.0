@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F11AB6D49A8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27886D470C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233762AbjDCOkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:40:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52590 "EHLO
+        id S232950AbjDCOQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233770AbjDCOkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BBE25456
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:02 -0700 (PDT)
+        with ESMTP id S232958AbjDCOQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C194ED5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A096B81CDE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4AD1C433EF;
-        Mon,  3 Apr 2023 14:39:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF12761710
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7B60C433D2;
+        Mon,  3 Apr 2023 14:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532800;
-        bh=T0mRvqBj3U61SUObyTaZgQzOmUaX/KIiRdzeDa618FI=;
+        s=korg; t=1680531392;
+        bh=zVTLlKMOrV1CvvOrw82Wu2DC/iAQmg5zIt19C0knmsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqNob9ncr3sYSwIU4KP1yloFp9lwKM0OC8RtrPgPHrTQrwM2mdA0Qf036PDPnm9je
-         v8ouA4iFzsXjvp2zBqM/UlDrWwG1X8IEYsOCd5Zo4VxTgSU6O/TkBlUSiVkoVBPeTs
-         p0DMmS1E//h9vPg4CBhnBlkoCZT4Y5+3qCSw3Jrs=
+        b=QS8CK7P24khdzZXXKWLMN8ZIfC9rosikvxn+sE5OluOTsKwY64f77rZZIBsthCRUP
+         k8sg4yMXrSKGN4mHFdstfoR1qB6iXZXOfBQwnLLG2UVDp71jaChDV0uiXH2XLG3fRf
+         tuPtjkaeVFsPax/4/LivyV42FHeD5O+o5Pv6yUcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 091/181] net: dsa: microchip: ksz8863_smi: fix bulk access
-Date:   Mon,  3 Apr 2023 16:08:46 +0200
-Message-Id: <20230403140418.078725540@linuxfoundation.org>
+        patches@lists.linux.dev, yangerkun <yangerkun@huawei.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.19 46/84] dm crypt: add cond_resched() to dmcrypt_write()
+Date:   Mon,  3 Apr 2023 16:08:47 +0200
+Message-Id: <20230403140354.972450783@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,90 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 392ff7a84cbca34118ca286dfbfe8aee24605897 ]
+commit fb294b1c0ba982144ca467a75e7d01ff26304e2b upstream.
 
-Current regmap bulk access is broken, resulting to wrong reads/writes
-if ksz_read64/ksz_write64 functions are used.
-Mostly this issue was visible by using ksz8_fdb_dump(), which returned
-corrupt MAC address.
+The loop in dmcrypt_write may be running for unbounded amount of time,
+thus we need cond_resched() in it.
 
-The reason is that regmap was configured to have max_raw_read/write,
-even if ksz8863_mdio_read/write functions are able to handle unlimited
-read/write accesses. On ksz_read64 function we are using multiple 32bit
-accesses by incrementing each access by 1 instead of 4. Resulting buffer
-had 01234567.12345678 instead of 01234567.89abcdef.
+This commit fixes the following warning:
 
-We have multiple ways to fix it:
-- enable 4 byte alignment for 32bit accesses. Since the HW do not have
-  this requirement. It will break driver.
-- disable max_raw_* limit.
+[ 3391.153255][   C12] watchdog: BUG: soft lockup - CPU#12 stuck for 23s! [dmcrypt_write/2:2897]
+...
+[ 3391.387210][   C12] Call trace:
+[ 3391.390338][   C12]  blk_attempt_bio_merge.part.6+0x38/0x158
+[ 3391.395970][   C12]  blk_attempt_plug_merge+0xc0/0x1b0
+[ 3391.401085][   C12]  blk_mq_submit_bio+0x398/0x550
+[ 3391.405856][   C12]  submit_bio_noacct+0x308/0x380
+[ 3391.410630][   C12]  dmcrypt_write+0x1e4/0x208 [dm_crypt]
+[ 3391.416005][   C12]  kthread+0x130/0x138
+[ 3391.419911][   C12]  ret_from_fork+0x10/0x18
 
-This patch is removing max_raw_* limit for regmap accesses in ksz8863_smi.
-
-Fixes: 60a364760002 ("net: dsa: microchip: Add Microchip KSZ8863 SMI based driver support")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: yangerkun <yangerkun@huawei.com>
+Fixes: dc2676210c42 ("dm crypt: offload writes to thread")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/microchip/ksz8863_smi.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/md/dm-crypt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/dsa/microchip/ksz8863_smi.c b/drivers/net/dsa/microchip/ksz8863_smi.c
-index ddb40838181ef..ed77ac2228951 100644
---- a/drivers/net/dsa/microchip/ksz8863_smi.c
-+++ b/drivers/net/dsa/microchip/ksz8863_smi.c
-@@ -82,22 +82,16 @@ static const struct regmap_bus regmap_smi[] = {
- 	{
- 		.read = ksz8863_mdio_read,
- 		.write = ksz8863_mdio_write,
--		.max_raw_read = 1,
--		.max_raw_write = 1,
- 	},
- 	{
- 		.read = ksz8863_mdio_read,
- 		.write = ksz8863_mdio_write,
- 		.val_format_endian_default = REGMAP_ENDIAN_BIG,
--		.max_raw_read = 2,
--		.max_raw_write = 2,
- 	},
- 	{
- 		.read = ksz8863_mdio_read,
- 		.write = ksz8863_mdio_write,
- 		.val_format_endian_default = REGMAP_ENDIAN_BIG,
--		.max_raw_read = 4,
--		.max_raw_write = 4,
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -1661,6 +1661,7 @@ pop_from_list:
+ 			io = crypt_io_from_node(rb_first(&write_tree));
+ 			rb_erase(&io->rb_node, &write_tree);
+ 			kcryptd_io_write(io);
++			cond_resched();
+ 		} while (!RB_EMPTY_ROOT(&write_tree));
+ 		blk_finish_plug(&plug);
  	}
- };
- 
-@@ -108,7 +102,6 @@ static const struct regmap_config ksz8863_regmap_config[] = {
- 		.pad_bits = 24,
- 		.val_bits = 8,
- 		.cache_type = REGCACHE_NONE,
--		.use_single_read = 1,
- 		.lock = ksz_regmap_lock,
- 		.unlock = ksz_regmap_unlock,
- 	},
-@@ -118,7 +111,6 @@ static const struct regmap_config ksz8863_regmap_config[] = {
- 		.pad_bits = 24,
- 		.val_bits = 16,
- 		.cache_type = REGCACHE_NONE,
--		.use_single_read = 1,
- 		.lock = ksz_regmap_lock,
- 		.unlock = ksz_regmap_unlock,
- 	},
-@@ -128,7 +120,6 @@ static const struct regmap_config ksz8863_regmap_config[] = {
- 		.pad_bits = 24,
- 		.val_bits = 32,
- 		.cache_type = REGCACHE_NONE,
--		.use_single_read = 1,
- 		.lock = ksz_regmap_lock,
- 		.unlock = ksz_regmap_unlock,
- 	}
--- 
-2.39.2
-
 
 
