@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F27B6D4A93
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36EBE6D499B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234127AbjDCOsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:48:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
+        id S233765AbjDCOjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234145AbjDCOrw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1968629BF0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:58 -0700 (PDT)
+        with ESMTP id S233756AbjDCOjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1825E29512
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C146B81D57
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B534EC433EF;
-        Mon,  3 Apr 2023 14:46:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7A5161EA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABF9C433D2;
+        Mon,  3 Apr 2023 14:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533216;
-        bh=09FVz4SObmT4TnU5j7bDzRdZ2yySSnj8sptzbz39ojU=;
+        s=korg; t=1680532769;
+        bh=QoDgpTPMnrfzSxVXMXXzSd+OwMlPZ2ishQ+D34FEtUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgGDuTFxsp75u2uhfs6/i3JJCBiOsuELcV2hBS7f8ZMA/lZ2XWTuMT6D1mlRwOhN5
-         yAF1pSlClc7V7G5uq25isusxDSU31EaD8rohVcNGc6nUB4Bo2n64YyOfZRHOJTkCZd
-         DWqXyiO/PbgGhBzVfk5bGYPmhBC0JyZ7MylOSTCk=
+        b=I2Cph97OYTs1WIZElxNHtLcEQWLvo+RALcPZJfhCyJ/ziXk7Ye7diDi3dNTtN+01N
+         6q9rNag9FgAC+TT7ssbyFyNJj/WBDt8obmEEgG/An7Bocf41I6agTq/uby6pjWhOip
+         7Kvrc3oHRggWfdWQiT0PZAqrEz8awPoyRWtknW+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pierre Asselin <pa@panix.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 099/187] ACPI: bus: Rework system-level device notification handling
+        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 6.1 109/181] ice: fix invalid check for empty list in ice_sched_assoc_vsi_to_agg()
 Date:   Mon,  3 Apr 2023 16:09:04 +0200
-Message-Id: <20230403140419.229009502@linuxfoundation.org>
+Message-Id: <20230403140418.650449160@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,235 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Jakob Koschel <jkl820.git@gmail.com>
 
-[ Upstream commit c56610a869bce03490faf4f157076370c71b8ae3 ]
+[ Upstream commit e9a1cc2e4c4ee7c7e60fb26345618c2522a2a10f ]
 
-For ACPI drivers that provide a ->notify() callback and set
-ACPI_DRIVER_ALL_NOTIFY_EVENTS in their flags, that callback can be
-invoked while either the ->add() or the ->remove() callback is running
-without any synchronization at the bus type level which is counter to
-the common-sense expectation that notification handling should only be
-enabled when the driver is actually bound to the device.  As a result,
-if the driver is not careful enough, it's ->notify() callback may crash
-when it is invoked too early or too late [1].
+The code implicitly assumes that the list iterator finds a correct
+handle. If 'vsi_handle' is not found the 'old_agg_vsi_info' was
+pointing to an bogus memory location. For safety a separate list
+iterator variable should be used to make the != NULL check on
+'old_agg_vsi_info' correct under any circumstances.
 
-This issue has been amplified by commit d6fb6ee1820c ("ACPI: bus: Drop
-driver member of struct acpi_device") that made acpi_bus_notify() check
-for the presence of the driver and its ->notify() callback directly
-instead of using an extra driver pointer that was only set and cleared
-by the bus type code, but it was present before that commit although
-it was harder to reproduce then.
+Additionally Linus proposed to avoid any use of the list iterator
+variable after the loop, in the attempt to move the list iterator
+variable declaration into the macro to avoid any potential misuse after
+the loop. Using it in a pointer comparison after the loop is undefined
+behavior and should be omitted if possible [1].
 
-It can be addressed by using the observation that
-acpi_device_install_notify_handler() can be modified to install the
-handler for all types of events when ACPI_DRIVER_ALL_NOTIFY_EVENTS is
-set in the driver flags, in which case acpi_bus_notify() will not need
-to invoke the driver's ->notify() callback any more and that callback
-will only be invoked after acpi_device_install_notify_handler() has run
-and before acpi_device_remove_notify_handler() runs, which implies the
-correct ordering with respect to the other ACPI driver callbacks.
-
-Modify the code accordingly and while at it, drop two redundant local
-variables from acpi_bus_notify() and turn its description comment into
-a proper kerneldoc one.
-
-Fixes: d6fb6ee1820c ("ACPI: bus: Drop driver member of struct acpi_device")
-Link: https://lore.kernel.org/linux-acpi/9f6cba7a8a57e5a687c934e8e406e28c.squirrel@mail.panix.com # [1]
-Reported-by: Pierre Asselin <pa@panix.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Pierre Asselin <pa@panix.com>
+Fixes: 37c592062b16 ("ice: remove the VSI info from previous agg")
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bus.c | 83 +++++++++++++++++++++-------------------------
- 1 file changed, 37 insertions(+), 46 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_sched.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index 0c05ccde1f7a6..7c16bc15e7a14 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -459,85 +459,67 @@ static void acpi_bus_osc_negotiate_usb_control(void)
-                              Notification Handling
-    -------------------------------------------------------------------------- */
- 
--/*
-- * acpi_bus_notify
-- * ---------------
-- * Callback for all 'system-level' device notifications (values 0x00-0x7F).
-+/**
-+ * acpi_bus_notify - Global system-level (0x00-0x7F) notifications handler
-+ * @handle: Target ACPI object.
-+ * @type: Notification type.
-+ * @data: Ignored.
-+ *
-+ * This only handles notifications related to device hotplug.
-  */
- static void acpi_bus_notify(acpi_handle handle, u32 type, void *data)
+diff --git a/drivers/net/ethernet/intel/ice/ice_sched.c b/drivers/net/ethernet/intel/ice/ice_sched.c
+index 118595763bba3..2c62c1763ee0d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_sched.c
++++ b/drivers/net/ethernet/intel/ice/ice_sched.c
+@@ -2756,7 +2756,7 @@ static int
+ ice_sched_assoc_vsi_to_agg(struct ice_port_info *pi, u32 agg_id,
+ 			   u16 vsi_handle, unsigned long *tc_bitmap)
  {
- 	struct acpi_device *adev;
--	u32 ost_code = ACPI_OST_SC_NON_SPECIFIC_FAILURE;
--	bool hotplug_event = false;
+-	struct ice_sched_agg_vsi_info *agg_vsi_info, *old_agg_vsi_info = NULL;
++	struct ice_sched_agg_vsi_info *agg_vsi_info, *iter, *old_agg_vsi_info = NULL;
+ 	struct ice_sched_agg_info *agg_info, *old_agg_info;
+ 	struct ice_hw *hw = pi->hw;
+ 	int status = 0;
+@@ -2774,11 +2774,13 @@ ice_sched_assoc_vsi_to_agg(struct ice_port_info *pi, u32 agg_id,
+ 	if (old_agg_info && old_agg_info != agg_info) {
+ 		struct ice_sched_agg_vsi_info *vtmp;
  
- 	switch (type) {
- 	case ACPI_NOTIFY_BUS_CHECK:
- 		acpi_handle_debug(handle, "ACPI_NOTIFY_BUS_CHECK event\n");
--		hotplug_event = true;
- 		break;
- 
- 	case ACPI_NOTIFY_DEVICE_CHECK:
- 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_CHECK event\n");
--		hotplug_event = true;
- 		break;
- 
- 	case ACPI_NOTIFY_DEVICE_WAKE:
- 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_WAKE event\n");
--		break;
-+		return;
- 
- 	case ACPI_NOTIFY_EJECT_REQUEST:
- 		acpi_handle_debug(handle, "ACPI_NOTIFY_EJECT_REQUEST event\n");
--		hotplug_event = true;
- 		break;
- 
- 	case ACPI_NOTIFY_DEVICE_CHECK_LIGHT:
- 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_CHECK_LIGHT event\n");
- 		/* TBD: Exactly what does 'light' mean? */
--		break;
-+		return;
- 
- 	case ACPI_NOTIFY_FREQUENCY_MISMATCH:
- 		acpi_handle_err(handle, "Device cannot be configured due "
- 				"to a frequency mismatch\n");
--		break;
-+		return;
- 
- 	case ACPI_NOTIFY_BUS_MODE_MISMATCH:
- 		acpi_handle_err(handle, "Device cannot be configured due "
- 				"to a bus mode mismatch\n");
--		break;
-+		return;
- 
- 	case ACPI_NOTIFY_POWER_FAULT:
- 		acpi_handle_err(handle, "Device has suffered a power fault\n");
--		break;
-+		return;
- 
- 	default:
- 		acpi_handle_debug(handle, "Unknown event type 0x%x\n", type);
--		break;
-+		return;
+-		list_for_each_entry_safe(old_agg_vsi_info, vtmp,
++		list_for_each_entry_safe(iter, vtmp,
+ 					 &old_agg_info->agg_vsi_list,
+ 					 list_entry)
+-			if (old_agg_vsi_info->vsi_handle == vsi_handle)
++			if (iter->vsi_handle == vsi_handle) {
++				old_agg_vsi_info = iter;
+ 				break;
++			}
  	}
  
- 	adev = acpi_get_acpi_dev(handle);
--	if (!adev)
--		goto err;
--
--	if (adev->dev.driver) {
--		struct acpi_driver *driver = to_acpi_driver(adev->dev.driver);
--
--		if (driver && driver->ops.notify &&
--		    (driver->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS))
--			driver->ops.notify(adev, type);
--	}
--
--	if (!hotplug_event) {
--		acpi_put_acpi_dev(adev);
--		return;
--	}
- 
--	if (ACPI_SUCCESS(acpi_hotplug_schedule(adev, type)))
-+	if (adev && ACPI_SUCCESS(acpi_hotplug_schedule(adev, type)))
- 		return;
- 
- 	acpi_put_acpi_dev(adev);
- 
-- err:
--	acpi_evaluate_ost(handle, type, ost_code, NULL);
-+	acpi_evaluate_ost(handle, type, ACPI_OST_SC_NON_SPECIFIC_FAILURE, NULL);
- }
- 
- static void acpi_notify_device(acpi_handle handle, u32 event, void *data)
-@@ -562,42 +544,51 @@ static u32 acpi_device_fixed_event(void *data)
- 	return ACPI_INTERRUPT_HANDLED;
- }
- 
--static int acpi_device_install_notify_handler(struct acpi_device *device)
-+static int acpi_device_install_notify_handler(struct acpi_device *device,
-+					      struct acpi_driver *acpi_drv)
- {
- 	acpi_status status;
- 
--	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON)
-+	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON) {
- 		status =
- 		    acpi_install_fixed_event_handler(ACPI_EVENT_POWER_BUTTON,
- 						     acpi_device_fixed_event,
- 						     device);
--	else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON)
-+	} else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON) {
- 		status =
- 		    acpi_install_fixed_event_handler(ACPI_EVENT_SLEEP_BUTTON,
- 						     acpi_device_fixed_event,
- 						     device);
--	else
--		status = acpi_install_notify_handler(device->handle,
--						     ACPI_DEVICE_NOTIFY,
-+	} else {
-+		u32 type = acpi_drv->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS ?
-+				ACPI_ALL_NOTIFY : ACPI_DEVICE_NOTIFY;
-+
-+		status = acpi_install_notify_handler(device->handle, type,
- 						     acpi_notify_device,
- 						     device);
-+	}
- 
- 	if (ACPI_FAILURE(status))
- 		return -EINVAL;
- 	return 0;
- }
- 
--static void acpi_device_remove_notify_handler(struct acpi_device *device)
-+static void acpi_device_remove_notify_handler(struct acpi_device *device,
-+					      struct acpi_driver *acpi_drv)
- {
--	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON)
-+	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON) {
- 		acpi_remove_fixed_event_handler(ACPI_EVENT_POWER_BUTTON,
- 						acpi_device_fixed_event);
--	else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON)
-+	} else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON) {
- 		acpi_remove_fixed_event_handler(ACPI_EVENT_SLEEP_BUTTON,
- 						acpi_device_fixed_event);
--	else
--		acpi_remove_notify_handler(device->handle, ACPI_DEVICE_NOTIFY,
-+	} else {
-+		u32 type = acpi_drv->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS ?
-+				ACPI_ALL_NOTIFY : ACPI_DEVICE_NOTIFY;
-+
-+		acpi_remove_notify_handler(device->handle, type,
- 					   acpi_notify_device);
-+	}
- }
- 
- /* Handle events targeting \_SB device (at present only graceful shutdown) */
-@@ -1039,7 +1030,7 @@ static int acpi_device_probe(struct device *dev)
- 		 acpi_drv->name, acpi_dev->pnp.bus_id);
- 
- 	if (acpi_drv->ops.notify) {
--		ret = acpi_device_install_notify_handler(acpi_dev);
-+		ret = acpi_device_install_notify_handler(acpi_dev, acpi_drv);
- 		if (ret) {
- 			if (acpi_drv->ops.remove)
- 				acpi_drv->ops.remove(acpi_dev);
-@@ -1062,7 +1053,7 @@ static void acpi_device_remove(struct device *dev)
- 	struct acpi_driver *acpi_drv = to_acpi_driver(dev->driver);
- 
- 	if (acpi_drv->ops.notify)
--		acpi_device_remove_notify_handler(acpi_dev);
-+		acpi_device_remove_notify_handler(acpi_dev, acpi_drv);
- 
- 	if (acpi_drv->ops.remove)
- 		acpi_drv->ops.remove(acpi_dev);
+ 	/* check if entry already exist */
 -- 
 2.39.2
 
