@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7A66D46F4
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520FA6D4A48
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232931AbjDCOPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:15:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
+        id S233922AbjDCOpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232911AbjDCOPs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED6B64ED5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:41 -0700 (PDT)
+        with ESMTP id S233914AbjDCOpw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A58F280E8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A419BB81B6B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1665C433D2;
-        Mon,  3 Apr 2023 14:15:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3016CCE12FE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5952C433EF;
+        Mon,  3 Apr 2023 14:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531339;
-        bh=lgZTDMT30Frdvpe4vETU0UvV89pHNQM/oabTMvup6s0=;
+        s=korg; t=1680533116;
+        bh=0wS+w36jWJx84STgq0Sz5pn2XKoslqTYnWAjIUioGs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkbhBaIx25nv+6EUaJ6CmkQzZhVPAigvpmCCCCFEjKx0RnkooB2DOCuHqu3jYhjY+
-         +0ihWSAYSfTS/WiFLrtAJ1/g8cnbCovlRFsu8DjsJczzfuwBvQOYc+jsTyqg0RVyeL
-         s8JbuXh/oXllMgNGVskdv5Ih2Fau+3Ojb+rAfnaQ=
+        b=0AEuWbBBd37m+GPqepk14TizBQ1BxzM+QoossQT2gMG3Lp1cKTf3ypsftd4R5ITPc
+         UUnFs6Fqn4AaImuSCbwAYeeykWAyjaD/Y97T9QmMxOmcBLWVQf0McMQ0+BCdPiz1LI
+         jA5TUynb34RYhrnqBwXHEhUxpKefGnIKWnuPH2Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Naohiro Aota <naohiro.aota@wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/84] hwmon (it87): Fix voltage scaling for chips with 10.9mV  ADCs
+Subject: [PATCH 6.2 061/187] btrfs: use temporary variable for space_info in btrfs_update_block_group
 Date:   Mon,  3 Apr 2023 16:08:26 +0200
-Message-Id: <20230403140354.220601792@linuxfoundation.org>
+Message-Id: <20230403140417.967972221@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Crawford <frank@crawford.emu.id.au>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 968b66ffeb7956acc72836a7797aeb7b2444ec51 ]
+[ Upstream commit df384da5a49cace5c5e3100803dfd563fd982f93 ]
 
-Fix voltage scaling for chips that have 10.9mV ADCs, where scaling was
-not performed.
+We do
 
-Fixes: ead8080351c9 ("hwmon: (it87) Add support for IT8732F")
-Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
-Link: https://lore.kernel.org/r/20230318080543.1226700-2-frank@crawford.emu.id.au
-[groeck: Update subject and description to focus on bug fix]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  cache->space_info->counter += num_bytes;
+
+everywhere in here.  This is makes the lines longer than they need to
+be, and will be especially noticeable when we add the active tracking in,
+so add a temp variable for the space_info so this is cleaner.
+
+Reviewed-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/it87.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/block-group.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
-index f8499cb95fec8..4e4e151760db2 100644
---- a/drivers/hwmon/it87.c
-+++ b/drivers/hwmon/it87.c
-@@ -495,6 +495,8 @@ static const struct it87_devices it87_devices[] = {
- #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
- #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
- #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
-+#define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
-+						     FEAT_10_9MV_ADC))
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index f40e56d44276d..c70a888bf8bf6 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -3336,6 +3336,7 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 	spin_unlock(&info->delalloc_root_lock);
  
- struct it87_sio_data {
- 	int sioaddr;
-@@ -3107,7 +3109,7 @@ static int it87_probe(struct platform_device *pdev)
- 			 "Detected broken BIOS defaults, disabling PWM interface\n");
+ 	while (total) {
++		struct btrfs_space_info *space_info;
+ 		bool reclaim = false;
  
- 	/* Starting with IT8721F, we handle scaling of internal voltages */
--	if (has_12mv_adc(data)) {
-+	if (has_scaling(data)) {
- 		if (sio_data->internal & BIT(0))
- 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
- 		if (sio_data->internal & BIT(1))
+ 		cache = btrfs_lookup_block_group(info, bytenr);
+@@ -3343,6 +3344,7 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 			ret = -ENOENT;
+ 			break;
+ 		}
++		space_info = cache->space_info;
+ 		factor = btrfs_bg_type_to_factor(cache->flags);
+ 
+ 		/*
+@@ -3357,7 +3359,7 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 		byte_in_group = bytenr - cache->start;
+ 		WARN_ON(byte_in_group > cache->length);
+ 
+-		spin_lock(&cache->space_info->lock);
++		spin_lock(&space_info->lock);
+ 		spin_lock(&cache->lock);
+ 
+ 		if (btrfs_test_opt(info, SPACE_CACHE) &&
+@@ -3370,23 +3372,23 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 			old_val += num_bytes;
+ 			cache->used = old_val;
+ 			cache->reserved -= num_bytes;
+-			cache->space_info->bytes_reserved -= num_bytes;
+-			cache->space_info->bytes_used += num_bytes;
+-			cache->space_info->disk_used += num_bytes * factor;
++			space_info->bytes_reserved -= num_bytes;
++			space_info->bytes_used += num_bytes;
++			space_info->disk_used += num_bytes * factor;
+ 			spin_unlock(&cache->lock);
+-			spin_unlock(&cache->space_info->lock);
++			spin_unlock(&space_info->lock);
+ 		} else {
+ 			old_val -= num_bytes;
+ 			cache->used = old_val;
+ 			cache->pinned += num_bytes;
+-			btrfs_space_info_update_bytes_pinned(info,
+-					cache->space_info, num_bytes);
+-			cache->space_info->bytes_used -= num_bytes;
+-			cache->space_info->disk_used -= num_bytes * factor;
++			btrfs_space_info_update_bytes_pinned(info, space_info,
++							     num_bytes);
++			space_info->bytes_used -= num_bytes;
++			space_info->disk_used -= num_bytes * factor;
+ 
+ 			reclaim = should_reclaim_block_group(cache, num_bytes);
+ 			spin_unlock(&cache->lock);
+-			spin_unlock(&cache->space_info->lock);
++			spin_unlock(&space_info->lock);
+ 
+ 			set_extent_dirty(&trans->transaction->pinned_extents,
+ 					 bytenr, bytenr + num_bytes - 1,
 -- 
 2.39.2
 
