@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9826D48AC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A04946D4710
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233449AbjDCOay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34072 "EHLO
+        id S232958AbjDCOQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:16:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233406AbjDCOax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90EDE35002
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:51 -0700 (PDT)
+        with ESMTP id S232947AbjDCOQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8E726256
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1EAA5CE12CC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D46C433EF;
-        Mon,  3 Apr 2023 14:30:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DCD561CAF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C3FC433EF;
+        Mon,  3 Apr 2023 14:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532247;
-        bh=p1R/Ad0he83YE2u1+oXwn0yoaMGKewX0nYOTQhn+ZNA=;
+        s=korg; t=1680531402;
+        bh=Yt/Y4InbJXB/dcW50V/+nvogfpabyCT8tsB0eJ+YHe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dnu8fr016LA2RwU9a7yQd3ql3pt1RtvmtEPTXogRt+5+yO1ecmeb3ets0C2ntSqh1
-         2O0v70yRaMnxtR3r69UEcTpuDWxbWV2RKrbxc2ZAW+Hf0lMdd2LRg1YBvcd+OJfWKg
-         IIu1KOSzsMYU/TnE9Z+Aq458u/INlLjA9p6tzYtk=
+        b=Wz8KEqpCrZwLWxwKaULN5/ozeSgJ/a7DTGkFMoWSj9QxIo8vBPCbLx7pZ9Nb9YOIO
+         UrDjSGLvp4RY307bx95YLZlyTWfFOAuYMjHg/Q3tFObNsU7cdIhiKtFLCiTrG5dHNS
+         JJKeewntIIOfRT3ai6meGCeBXMbAzCNQXvfbk9X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        NeilBrown <neilb@suse.de>, Song Liu <song@kernel.org>,
+        patches@lists.linux.dev, Adrien Thierry <athierry@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 10/99] md: avoid signed overflow in slot_store()
+Subject: [PATCH 4.19 32/84] scsi: ufs: core: Add soft dependency on governor_simpleondemand
 Date:   Mon,  3 Apr 2023 16:08:33 +0200
-Message-Id: <20230403140356.476215343@linuxfoundation.org>
+Message-Id: <20230403140354.458259565@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Adrien Thierry <athierry@redhat.com>
 
-[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
+[ Upstream commit 2ebe16155dc8bd4e602cad5b5f65458d2eaa1a75 ]
 
-slot_store() uses kstrtouint() to get a slot number, but stores the
-result in an "int" variable (by casting a pointer).
-This can result in a negative slot number if the unsigned int value is
-very large.
+The ufshcd driver uses simpleondemand governor for devfreq. Add it to the
+list of ufshcd softdeps to allow userspace initramfs tools like dracut to
+automatically pull the governor module into the initramfs together with UFS
+drivers.
 
-A negative number means that the slot is empty, but setting a negative
-slot number this way will not remove the device from the array.  I don't
-think this is a serious problem, but it could cause confusion and it is
-best to fix it.
-
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/20230220140740.14379-1-athierry@redhat.com
+Signed-off-by: Adrien Thierry <athierry@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 9e54b865f30da..bd0c9dfac9815 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -3189,6 +3189,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
- 		if (err < 0)
- 			return err;
-+		if (slot < 0)
-+			/* overflow */
-+			return -ENOSPC;
- 	}
- 	if (rdev->mddev->pers && slot == -1) {
- 		/* Setting 'slot' on an active array requires also
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index abc156cf05f60..b45cd6c98bad7 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8228,5 +8228,6 @@ EXPORT_SYMBOL_GPL(ufshcd_init);
+ MODULE_AUTHOR("Santosh Yaragnavi <santosh.sy@samsung.com>");
+ MODULE_AUTHOR("Vinayak Holikatti <h.vinayak@samsung.com>");
+ MODULE_DESCRIPTION("Generic UFS host controller driver Core");
++MODULE_SOFTDEP("pre: governor_simpleondemand");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(UFSHCD_DRIVER_VERSION);
 -- 
 2.39.2
 
