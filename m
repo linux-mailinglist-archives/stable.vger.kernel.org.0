@@ -2,49 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FAEF6D453C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 15:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10A666D4541
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 15:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231877AbjDCNFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 09:05:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60586 "EHLO
+        id S232386AbjDCNHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 09:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231553AbjDCNFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 09:05:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDECDA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 06:05:53 -0700 (PDT)
+        with ESMTP id S232201AbjDCNHm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 09:07:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619301C1D0;
+        Mon,  3 Apr 2023 06:07:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A0B61AA9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 13:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90DE9C433D2;
-        Mon,  3 Apr 2023 13:05:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16580B81A07;
+        Mon,  3 Apr 2023 13:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B1FC4339B;
+        Mon,  3 Apr 2023 13:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680527152;
-        bh=m7tPY6WtRqa646uDMPG+nXo+UxKMeCHqRbr0Dxcx+0k=;
+        s=korg; t=1680527258;
+        bh=HyvmVdwLecMO/5pUko/0/tVvzcisFGvSd1666M2+4IE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oPZKt0bTwwHb4VfVTWCpTdSzwEgYwh0s5U/HjyxG6/rZphMc6K+LpaCa2F7F6cBx6
-         h0NQSOk8S3QuVBT7uTu1P9dKXh6inN0nHyveNXsz0mav0rdQxfXCFP4OFGfy0XD4Gi
-         5p0RBJXNePuiKT7Nut7naoE8eJ31lPsqnE8PIybY=
-Date:   Mon, 3 Apr 2023 15:05:50 +0200
+        b=Q7nkhqhQZVhwhxxyFShS6DIWUj5uxvjgO4J2SWkzfBjgvXOn6Oz7P2n65rlSWXfWs
+         auIAcQ4KoXdq/8jmUs8vw5Ox94NIaIME2aejfKJYrI4a7aO8ERT1Iw9MVdjt7tqyvJ
+         cOqMMc4BXshX8D1CYwCSSHUeDnugPKpbPIuqimsY=
+Date:   Mon, 3 Apr 2023 15:07:36 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Reiji Watanabe <reijiw@google.com>,
-        Oliver Upton <oliver.upton@linux.dev>
-Subject: Re: stable-rc / queue : 5.15: arm64 build failed
-Message-ID: <2023040343-sift-phonebook-dead@gregkh>
-References: <CA+G9fYsF4D7o1iNW6fMNMdX9fKqqrvJw5GHcbW5yGr9PLSWcrw@mail.gmail.com>
+To:     Dexuan Cui <decui@microsoft.com>
+Cc:     Boqun Feng <boqun.feng@gmail.com>,
+        "quic_jhugo@quicinc.com" <quic_jhugo@quicinc.com>,
+        "quic_carlv@quicinc.com" <quic_carlv@quicinc.com>,
+        "wei.liu@kernel.org" <wei.liu@kernel.org>,
+        KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "sthemmin@microsoft.com" <sthemmin@microsoft.com>,
+        "lpieralisi@kernel.org" <lpieralisi@kernel.org>,
+        "bhelgaas@google.com" <bhelgaas@google.com>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "robh@kernel.org" <robh@kernel.org>, "kw@linux.com" <kw@linux.com>,
+        "helgaas@kernel.org" <helgaas@kernel.org>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH v2] PCI: hv: Fix the definition of vector in
+ hv_compose_msi_msg()
+Message-ID: <2023040305-evaluator-come-fcb8@gregkh>
+References: <20221027205256.17678-1-decui@microsoft.com>
+ <ZCTsPFb7dBj2IZmo@boqun-archlinux>
+ <ZCT6JEK/yGpKHVLn@boqun-archlinux>
+ <SA1PR21MB13354973735A5E727F94A169BF8E9@SA1PR21MB1335.namprd21.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYsF4D7o1iNW6fMNMdX9fKqqrvJw5GHcbW5yGr9PLSWcrw@mail.gmail.com>
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+In-Reply-To: <SA1PR21MB13354973735A5E727F94A169BF8E9@SA1PR21MB1335.namprd21.prod.outlook.com>
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,15 +69,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 03, 2023 at 03:47:11PM +0530, Naresh Kamboju wrote:
-> Following build warning noticed on arm64,
+On Thu, Mar 30, 2023 at 03:23:45AM +0000, Dexuan Cui wrote:
+> > From: Boqun Feng <boqun.feng@gmail.com>
+> > Sent: Wednesday, March 29, 2023 7:56 PM
+> > To: Dexuan Cui <decui@microsoft.com>
+> >  ...
+> > On Wed, Mar 29, 2023 at 06:56:12PM -0700, Boqun Feng wrote:
+> > > [Cc stable]
+> > >
+> > > On Thu, Oct 27, 2022 at 01:52:56PM -0700, Dexuan Cui wrote:
+> > > > The local variable 'vector' must be u32 rather than u8: see the
+> > > > struct hv_msi_desc3.
+> > > >
+> > > > 'vector_count' should be u16 rather than u8: see struct hv_msi_desc,
+> > > > hv_msi_desc2 and hv_msi_desc3.
+> > > >
+> > >
+> > > Dexuan, I think this patch should only be in 5.15, because...
+> > >
+> > 
+> > Sorry, I meant:
+> > 
+> > "this patch should also be backported in 5.15"
+> > 
+> > Regards,
+> > Boqun
+> > 
+> > > > Fixes: a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
+> > >
+> > > ^^^ this commit is already in 5.15.y (commit id 92dcb50f7f09).
+> > >
+> > > Upstream id e70af8d040d2b7904dca93d942ba23fb722e21b1
+> > > Cc: <stable@vger.kernel.org> # 5.15.x
 > 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> The faulty commit a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
+> is in all the stable branches, even including 4.14.y, so yes, the commit
+> e70af8d040d2 ("PCI: hv: Fix the definition of vector in hv_compose_msi_msg()")
+> should be backported to all the stable branches as well, including
+> v5.15.y, v5.10.y, v5.4.y, v4.19.y, v4.14.y.
 > 
-> suspecting commit:
-> KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the current value
-> commit 9228b26194d1cc00449f12f306f53ef2e234a55b upstream.
+> e70af8d040d2 has a Fixes tag. Not sure why it's not automatically backported.
 
-Now dropped, thanks!
+Also, the most obvious reason, it does NOT apply there!  If this needs
+to go to 5.15.y and older, please send working backports of it.
+
+thanks,
 
 greg k-h
