@@ -2,49 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D1976D48DE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5BC6D46AE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233527AbjDCOcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37536 "EHLO
+        id S232670AbjDCOMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233518AbjDCOck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF611E52
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:31 -0700 (PDT)
+        with ESMTP id S232869AbjDCOMa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AD842951B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EC87B81AD8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B66B1C433EF;
-        Mon,  3 Apr 2023 14:32:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2C71B8191A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A6DC433D2;
+        Mon,  3 Apr 2023 14:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532349;
-        bh=gwZeTobWjHLpgBTWbj4APQvG09DaIVkhU3OdBi/H7V4=;
+        s=korg; t=1680531137;
+        bh=5cs8/C3IXtgJM3XJKpYtfmfbVl2rk4cLtUoNaNt2S60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbsT/QBTKEVqy09EMwOt7R8oLCRXSreE2T0S9YphS9rBDaBUeO2TPhZoN9/XvYTJj
-         WjaMLc5qzmEo7JxT+ePpgXkEdDOYYjQM+wTRlzXDaKjUIdmiQtWbizrEPpZv5E/ySy
-         ATetIMmnM0YSDSLa8/+ONZk7DKuiaYbhofuS6amU=
+        b=VrGrA/2d6oxJsfvNnISw4GjboCKWzOj5M4m3GkPqNGCZSnnCIN7r5815H07DZ4LHK
+         CkDZt/51PdO33HGJfzdqmPtLfWL90MGzyK0iKPh6oKoSViOQvAjodHlRt7b+nccJ2g
+         qLvV0k2CZG/+uMx1dmH/KwMu8UuxTFG+CTZ+bSwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 18/99] fbdev: intelfb: Fix potential divide by zero
+        patches@lists.linux.dev, Corinna Vinschen <vinschen@redhat.com>,
+        Lin Ma <linma@zju.edu.cn>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Rafal Romanowski <rafal.romanowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 4.14 33/66] igb: revert rtnl_lock() that causes deadlock
 Date:   Mon,  3 Apr 2023 16:08:41 +0200
-Message-Id: <20230403140400.594604729@linuxfoundation.org>
+Message-Id: <20230403140353.064393410@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,39 +56,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit d823685486a3446d061fed7c7d2f80af984f119a ]
+commit 65f69851e44d71248b952a687e44759a7abb5016 upstream.
 
-Variable var->pixclock is controlled by user and can be assigned
-to zero. Without proper check, divide by zero would occur in
-intelfbhw_validate_mode and intelfbhw_mode_to_hw.
+The commit 6faee3d4ee8b ("igb: Add lock to avoid data race") adds
+rtnl_lock to eliminate a false data race shown below
 
-Error out if var->pixclock is zero.
+ (FREE from device detaching)      |   (USE from netdev core)
+igb_remove                         |  igb_ndo_get_vf_config
+ igb_disable_sriov                 |  vf >= adapter->vfs_allocated_count?
+  kfree(adapter->vf_data)          |
+  adapter->vfs_allocated_count = 0 |
+                                   |    memcpy(... adapter->vf_data[vf]
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The above race will never happen and the extra rtnl_lock causes deadlock
+below
+
+[  141.420169]  <TASK>
+[  141.420672]  __schedule+0x2dd/0x840
+[  141.421427]  schedule+0x50/0xc0
+[  141.422041]  schedule_preempt_disabled+0x11/0x20
+[  141.422678]  __mutex_lock.isra.13+0x431/0x6b0
+[  141.423324]  unregister_netdev+0xe/0x20
+[  141.423578]  igbvf_remove+0x45/0xe0 [igbvf]
+[  141.423791]  pci_device_remove+0x36/0xb0
+[  141.423990]  device_release_driver_internal+0xc1/0x160
+[  141.424270]  pci_stop_bus_device+0x6d/0x90
+[  141.424507]  pci_stop_and_remove_bus_device+0xe/0x20
+[  141.424789]  pci_iov_remove_virtfn+0xba/0x120
+[  141.425452]  sriov_disable+0x2f/0xf0
+[  141.425679]  igb_disable_sriov+0x4e/0x100 [igb]
+[  141.426353]  igb_remove+0xa0/0x130 [igb]
+[  141.426599]  pci_device_remove+0x36/0xb0
+[  141.426796]  device_release_driver_internal+0xc1/0x160
+[  141.427060]  driver_detach+0x44/0x90
+[  141.427253]  bus_remove_driver+0x55/0xe0
+[  141.427477]  pci_unregister_driver+0x2a/0xa0
+[  141.428296]  __x64_sys_delete_module+0x141/0x2b0
+[  141.429126]  ? mntput_no_expire+0x4a/0x240
+[  141.429363]  ? syscall_trace_enter.isra.19+0x126/0x1a0
+[  141.429653]  do_syscall_64+0x5b/0x80
+[  141.429847]  ? exit_to_user_mode_prepare+0x14d/0x1c0
+[  141.430109]  ? syscall_exit_to_user_mode+0x12/0x30
+[  141.430849]  ? do_syscall_64+0x67/0x80
+[  141.431083]  ? syscall_exit_to_user_mode_prepare+0x183/0x1b0
+[  141.431770]  ? syscall_exit_to_user_mode+0x12/0x30
+[  141.432482]  ? do_syscall_64+0x67/0x80
+[  141.432714]  ? exc_page_fault+0x64/0x140
+[  141.432911]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+
+Since the igb_disable_sriov() will call pci_disable_sriov() before
+releasing any resources, the netdev core will synchronize the cleanup to
+avoid any races. This patch removes the useless rtnl_(un)lock to guarantee
+correctness.
+
+CC: stable@vger.kernel.org
+Fixes: 6faee3d4ee8b ("igb: Add lock to avoid data race")
+Reported-by: Corinna Vinschen <vinschen@redhat.com>
+Link: https://lore.kernel.org/intel-wired-lan/ZAcJvkEPqWeJHO2r@calimero.vinschen.de/
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Tested-by: Corinna Vinschen <vinschen@redhat.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/intelfb/intelfbdrv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/igb/igb_main.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/intelfb/intelfbdrv.c b/drivers/video/fbdev/intelfb/intelfbdrv.c
-index a9579964eaba8..8a703adfa9360 100644
---- a/drivers/video/fbdev/intelfb/intelfbdrv.c
-+++ b/drivers/video/fbdev/intelfb/intelfbdrv.c
-@@ -1214,6 +1214,9 @@ static int intelfb_check_var(struct fb_var_screeninfo *var,
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -2990,9 +2990,7 @@ static void igb_remove(struct pci_dev *p
+ 	igb_release_hw_control(adapter);
  
- 	dinfo = GET_DINFO(info);
+ #ifdef CONFIG_PCI_IOV
+-	rtnl_lock();
+ 	igb_disable_sriov(pdev);
+-	rtnl_unlock();
+ #endif
  
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	/* update the pitch */
- 	if (intelfbhw_validate_mode(dinfo, var) != 0)
- 		return -EINVAL;
--- 
-2.39.2
-
+ 	unregister_netdev(netdev);
 
 
