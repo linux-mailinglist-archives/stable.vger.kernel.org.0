@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E846D4892
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B196D49BC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233431AbjDCO3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60650 "EHLO
+        id S233791AbjDCOkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:40:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233427AbjDCO3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:49 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC32335001
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:48 -0700 (PDT)
+        with ESMTP id S233787AbjDCOkv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078F717ADB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 90230CE0FCB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96ADCC433A1;
-        Mon,  3 Apr 2023 14:29:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EE1061ED1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9492DC433D2;
+        Mon,  3 Apr 2023 14:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532184;
-        bh=jHpfYkZgMnZVmtjaR/s+2UKOeQyOCn+wvBCBrkBHDm0=;
+        s=korg; t=1680532849;
+        bh=9B61s5Mn7Coxh2znaJ/yeCQhQpsRVazeYmJI4+5yXIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moriHL5xHqQPiezNMYKuIOLgaw7pf90b2NRjUq3kSmptFoXBhVQ5LcYcTjkvajH1o
-         NKUyCR4+IFcGB5fPO1MWPf7ADqZDvNdQHKXbsl4ZEoXCySlbw9l1TzR7sySH5WmGVp
-         HnnnIKC7zahykkemkIFLeJ1Eo0vlr5r+Zl+pDoko=
+        b=vLlIdZve5I9dOlooxalBzPkrtp6o/GIJldhyewoIRUsQo3yXWEU5DnZ4EPUTGtAOF
+         9q6JyXsEdYaFVCc5EOwNwefu5+PY0hPTg+JL39MYNMQ2tQldq0CqTBK2dfZ4494819
+         jItiRTG5HA4zELdhmKSjeqoPitzTeSX/C3EsN6PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.10 160/173] xtensa: fix KASAN report for show_stack
+        patches@lists.linux.dev, Orange Kao <orange@aiven.io>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.1 140/181] dm: fix __send_duplicate_bios() to always allow for splitting IO
 Date:   Mon,  3 Apr 2023 16:09:35 +0200
-Message-Id: <20230403140419.619285765@linuxfoundation.org>
+Message-Id: <20230403140419.611074632@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,53 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Mike Snitzer <snitzer@kernel.org>
 
-commit 1d3b7a788ca7435156809a6bd5b20c95b2370d45 upstream.
+commit 666eed46769d929c3e13636134ecfc67d75ef548 upstream.
 
-show_stack dumps raw stack contents which may trigger an unnecessary
-KASAN report. Fix it by copying stack contents to a temporary buffer
-with __memcpy and then printing that buffer instead of passing stack
-pointer directly to the print_hex_dump.
+Commit 7dd76d1feec70 ("dm: improve bio splitting and associated IO
+accounting") only called setup_split_accounting() from
+__send_duplicate_bios() if a single bio were being issued. But the case
+where duplicate bios are issued must call it too.
 
+Otherwise the bio won't be split and resubmitted (via recursion through
+block core back to DM) to submit the later portions of a bio (which may
+map to an entirely different target).
+
+For example, when discarding an entire DM striped device with the
+following DM table:
+ vg-lvol0: 0 159744 striped 2 128 7:0 2048 7:1 2048
+ vg-lvol0: 159744 45056 striped 2 128 7:2 2048 7:3 2048
+
+Before (broken, discards the first striped target's devices twice):
+ device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=79872
+ device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=79872
+ device-mapper: striped: target_stripe=0, bdev=7:0, start=2049 len=22528
+ device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=22528
+
+After (works as expected):
+ device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=79872
+ device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=79872
+ device-mapper: striped: target_stripe=0, bdev=7:2, start=2048 len=22528
+ device-mapper: striped: target_stripe=1, bdev=7:3, start=2048 len=22528
+
+Fixes: 7dd76d1feec70 ("dm: improve bio splitting and associated IO accounting")
 Cc: stable@vger.kernel.org
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Reported-by: Orange Kao <orange@aiven.io>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/kernel/traps.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/md/dm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/xtensa/kernel/traps.c
-+++ b/arch/xtensa/kernel/traps.c
-@@ -503,7 +503,7 @@ static size_t kstack_depth_to_print = CO
- 
- void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
- {
--	size_t len;
-+	size_t len, off = 0;
- 
- 	if (!sp)
- 		sp = stack_pointer(task);
-@@ -512,9 +512,17 @@ void show_stack(struct task_struct *task
- 		  kstack_depth_to_print * STACK_DUMP_ENTRY_SIZE);
- 
- 	printk("%sStack:\n", loglvl);
--	print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
--		       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
--		       sp, len, false);
-+	while (off < len) {
-+		u8 line[STACK_DUMP_LINE_SIZE];
-+		size_t line_len = len - off > STACK_DUMP_LINE_SIZE ?
-+			STACK_DUMP_LINE_SIZE : len - off;
-+
-+		__memcpy(line, (u8 *)sp + off, line_len);
-+		print_hex_dump(loglvl, " ", DUMP_PREFIX_NONE,
-+			       STACK_DUMP_LINE_SIZE, STACK_DUMP_ENTRY_SIZE,
-+			       line, line_len, false);
-+		off += STACK_DUMP_LINE_SIZE;
-+	}
- 	show_trace(task, sp, loglvl);
- }
- 
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1522,6 +1522,8 @@ static int __send_duplicate_bios(struct
+ 		ret = 1;
+ 		break;
+ 	default:
++		if (len)
++			setup_split_accounting(ci, *len);
+ 		/* dm_accept_partial_bio() is not supported with shared tio->len_ptr */
+ 		alloc_multiple_bios(&blist, ci, ti, num_bios);
+ 		while ((clone = bio_list_pop(&blist))) {
 
 
