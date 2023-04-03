@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAEFD6D3EC6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0146D3EC7
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbjDCITA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:19:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40654 "EHLO
+        id S229509AbjDCITI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:19:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbjDCIS7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:18:59 -0400
+        with ESMTP id S230052AbjDCITI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:19:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A5A55B6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:18:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F2A59D4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:19:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9276B81283
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:18:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A6CC433D2;
-        Mon,  3 Apr 2023 08:18:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C161B812A1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:19:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1784AC433EF;
+        Mon,  3 Apr 2023 08:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680509935;
-        bh=fI+OjITJcE0g/qxYy3oYDrm6Cxz4utYsKvjO3p4noM8=;
+        s=korg; t=1680509944;
+        bh=9/bGWhtAmWJl3Hhxi0bm0hVBhdylDV8dPGdXfjQrfwU=;
         h=Subject:To:Cc:From:Date:From;
-        b=QDLwKqP3jyQLDZBQNxo5Ml+SKQVgowqc0IlfVeA5w5qmrayI9UhlwUNrdncBNo9e/
-         iFac5Kv4UdpWsaw6qcrlTY1+ChFwHTOTLlvr5U/Lw3gOjxI/Q4b2N4+MfP8dqEKpET
-         5NJVgMl7XymKkq78JXnTz/t3RXQjUDuxuwt3vXbM=
-Subject: FAILED: patch "[PATCH] io_uring/poll: clear single/double poll flags on poll arming" failed to apply to 5.10-stable tree
+        b=lyYHsHhb4HsFocpOd7edRmnUiH+HYSyYvKiO1BO3jEiXfrXVYhfcGR1s28YwIkdIE
+         coBj6DYpVvwF0DdP/jm9QHxskRqki3gCNbFgujX9E7ZBvjGU0J6h6pwYDFIG7I13bR
+         Z/XKF1l9/F5+Kfo8trXgrEar+o5yOpeyBDANKJdc=
+Subject: FAILED: patch "[PATCH] io_uring/poll: clear single/double poll flags on poll arming" failed to apply to 5.15-stable tree
 To:     axboe@kernel.dk, pengfei.xu@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:18:52 +0200
-Message-ID: <2023040352-overbuilt-backshift-9c74@gregkh>
+Date:   Mon, 03 Apr 2023 10:18:54 +0200
+Message-ID: <2023040353-preview-jackknife-52f7@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x 005308f7bdacf5685ed1a431244a183dbbb9e0e8
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040352-overbuilt-backshift-9c74@gregkh' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040353-preview-jackknife-52f7@gregkh' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
