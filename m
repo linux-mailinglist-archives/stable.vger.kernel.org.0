@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B24E6D4957
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3F66D4A07
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233680AbjDCOhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:37:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47148 "EHLO
+        id S233877AbjDCOna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233683AbjDCOhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D717317647
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:52 -0700 (PDT)
+        with ESMTP id S233849AbjDCOn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95CB918259
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CAC3B81CB9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F83CC433EF;
-        Mon,  3 Apr 2023 14:36:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AF4061E8C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 436B9C433D2;
+        Mon,  3 Apr 2023 14:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532610;
-        bh=g8QyLYMMIeXc1zEYYHLrrxHHcSbIwYC+5um8tCfrfN0=;
+        s=korg; t=1680532985;
+        bh=BmqMEax4weicX1zhcxzuo9anZy4rDbHI8x69P/LmWqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUE8e+xBwcv6k//lQk8l6nL7oX1sOWCWMRxPCAv9BUbQ9cJSk59PPivBiaU0wBYno
-         8AcEfy3VK1EtoF7pAO6hjnqGz+bQe6fFRNOi7Y712F9pWEOTonKr7Fp6xHT0nBkDVM
-         j1kLMzm1TSlLFekNLoXX/2YE00QbbNG3PrAQ+nDI=
+        b=BQdaYmJ+dtuACIZcgGy8+dA1jJjNq2idHYtSQWfo+jXnyOj95TdiwX7soaerny2Vk
+         pRBN6OllfkEya6k0+I+CZSNW1Qv3e9heP9w73Ml0WNS+O5U2ABIiN6M4fh9m+5J1NF
+         gCa07X9LWt9MHeejSwp+oWhUIq7cH3nicOzNVMCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Ming Lei <ming.lei@redhat.com>,
-        Chao Leng <lengchao@huawei.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Hannes Reinecke <hare@suse.de>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 021/181] blk-mq: move the srcu_struct used for quiescing to the tagset
+        patches@lists.linux.dev, Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 011/187] btrfs: zoned: count fresh BG region as zone unusable
 Date:   Mon,  3 Apr 2023 16:07:36 +0200
-Message-Id: <20230403140415.825266522@linuxfoundation.org>
+Message-Id: <20230403140416.409010899@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,356 +53,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 80bd4a7aab4c9ce59bf5e35fdf52aa23d8a3c9f5 ]
+[ Upstream commit fa2068d7e922b434eba5bfb0131e6d39febfdb48 ]
 
-All I/O submissions have fairly similar latencies, and a tagset-wide
-quiesce is a fairly common operation.
+The naming of space_info->active_total_bytes is misleading. It counts
+not only active block groups but also full ones which are previously
+active but now inactive. That confusion results in a bug not counting
+the full BGs into active_total_bytes on mount time.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Chao Leng <lengchao@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20221101150050.3510-12-hch@lst.de
-[axboe: fix whitespace]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 00e885efcfbb ("blk-mq: fix "bad unlock balance detected" on q->srcu in __blk_mq_run_dispatch_ops")
+For a background, there are three kinds of block groups in terms of
+activation.
+
+  1. Block groups never activated
+  2. Block groups currently active
+  3. Block groups previously active and currently inactive (due to fully
+     written or zone finish)
+
+What we really wanted to exclude from "total_bytes" is the total size of
+BGs #1. They seem empty and allocatable but since they are not activated,
+we cannot rely on them to do the space reservation.
+
+And, since BGs #1 never get activated, they should have no "used",
+"reserved" and "pinned" bytes.
+
+OTOH, BGs #3 can be counted in the "total", since they are already full
+we cannot allocate from them anyway. For them, "total_bytes == used +
+reserved + pinned + zone_unusable" should hold.
+
+Tracking #2 and #3 as "active_total_bytes" (current implementation) is
+confusing. And, tracking #1 and subtract that properly from "total_bytes"
+every time you need space reservation is cumbersome.
+
+Instead, we can count the whole region of a newly allocated block group as
+zone_unusable. Then, once that block group is activated, release
+[0 ..  zone_capacity] from the zone_unusable counters. With this, we can
+eliminate the confusing ->active_total_bytes and the code will be common
+among regular and the zoned mode. Also, no additional counter is needed
+with this approach.
+
+Fixes: 6a921de58992 ("btrfs: zoned: introduce space_info->active_total_bytes")
+CC: stable@vger.kernel.org # 6.1+
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Stable-dep-of: e15acc25880c ("btrfs: zoned: drop space_info->active_total_bytes")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c       | 27 +++++----------------------
- block/blk-mq.c         | 33 +++++++++++++++++++++++++--------
- block/blk-mq.h         | 14 +++++++-------
- block/blk-sysfs.c      |  9 ++-------
- block/blk.h            |  9 +--------
- block/genhd.c          |  2 +-
- include/linux/blk-mq.h |  4 ++++
- include/linux/blkdev.h |  9 ---------
- 8 files changed, 45 insertions(+), 62 deletions(-)
+ fs/btrfs/free-space-cache.c |  8 +++++++-
+ fs/btrfs/zoned.c            | 24 +++++++++++++++++++-----
+ 2 files changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 24ee7785a5ad5..d5da62bb4bc06 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -65,7 +65,6 @@ DEFINE_IDA(blk_queue_ida);
-  * For queue allocation
-  */
- struct kmem_cache *blk_requestq_cachep;
--struct kmem_cache *blk_requestq_srcu_cachep;
+diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
+index 0d250d052487c..d84cef89cdff5 100644
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -2693,8 +2693,13 @@ static int __btrfs_add_free_space_zoned(struct btrfs_block_group *block_group,
+ 		bg_reclaim_threshold = READ_ONCE(sinfo->bg_reclaim_threshold);
  
- /*
-  * Controlling structure to kblockd
-@@ -373,26 +372,20 @@ static void blk_timeout_work(struct work_struct *work)
- {
- }
+ 	spin_lock(&ctl->tree_lock);
++	/* Count initial region as zone_unusable until it gets activated. */
+ 	if (!used)
+ 		to_free = size;
++	else if (initial &&
++		 test_bit(BTRFS_FS_ACTIVE_ZONE_TRACKING, &block_group->fs_info->flags) &&
++		 (block_group->flags & (BTRFS_BLOCK_GROUP_METADATA | BTRFS_BLOCK_GROUP_SYSTEM)))
++		to_free = 0;
+ 	else if (initial)
+ 		to_free = block_group->zone_capacity;
+ 	else if (offset >= block_group->alloc_offset)
+@@ -2722,7 +2727,8 @@ static int __btrfs_add_free_space_zoned(struct btrfs_block_group *block_group,
+ 	reclaimable_unusable = block_group->zone_unusable -
+ 			       (block_group->length - block_group->zone_capacity);
+ 	/* All the region is now unusable. Mark it as unused and reclaim */
+-	if (block_group->zone_unusable == block_group->length) {
++	if (block_group->zone_unusable == block_group->length &&
++	    block_group->alloc_offset) {
+ 		btrfs_mark_bg_unused(block_group);
+ 	} else if (bg_reclaim_threshold &&
+ 		   reclaimable_unusable >=
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index a6a8bc112fc42..c3c763cc06399 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1576,9 +1576,19 @@ void btrfs_calc_zone_unusable(struct btrfs_block_group *cache)
+ 		return;
  
--struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu)
-+struct request_queue *blk_alloc_queue(int node_id)
- {
- 	struct request_queue *q;
- 
--	q = kmem_cache_alloc_node(blk_get_queue_kmem_cache(alloc_srcu),
--			GFP_KERNEL | __GFP_ZERO, node_id);
-+	q = kmem_cache_alloc_node(blk_requestq_cachep, GFP_KERNEL | __GFP_ZERO,
-+				  node_id);
- 	if (!q)
- 		return NULL;
- 
--	if (alloc_srcu) {
--		blk_queue_flag_set(QUEUE_FLAG_HAS_SRCU, q);
--		if (init_srcu_struct(q->srcu) != 0)
--			goto fail_q;
--	}
--
- 	q->last_merge = NULL;
- 
- 	q->id = ida_alloc(&blk_queue_ida, GFP_KERNEL);
- 	if (q->id < 0)
--		goto fail_srcu;
-+		goto fail_q;
- 
- 	q->stats = blk_alloc_queue_stats();
- 	if (!q->stats)
-@@ -434,11 +427,8 @@ struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu)
- 	blk_free_queue_stats(q->stats);
- fail_id:
- 	ida_free(&blk_queue_ida, q->id);
--fail_srcu:
--	if (alloc_srcu)
--		cleanup_srcu_struct(q->srcu);
- fail_q:
--	kmem_cache_free(blk_get_queue_kmem_cache(alloc_srcu), q);
-+	kmem_cache_free(blk_requestq_cachep, q);
- 	return NULL;
- }
- 
-@@ -1190,9 +1180,6 @@ int __init blk_dev_init(void)
- 			sizeof_field(struct request, cmd_flags));
- 	BUILD_BUG_ON(REQ_OP_BITS + REQ_FLAG_BITS > 8 *
- 			sizeof_field(struct bio, bi_opf));
--	BUILD_BUG_ON(ALIGN(offsetof(struct request_queue, srcu),
--			   __alignof__(struct request_queue)) !=
--		     sizeof(struct request_queue));
- 
- 	/* used for unplugging and affects IO latency/throughput - HIGHPRI */
- 	kblockd_workqueue = alloc_workqueue("kblockd",
-@@ -1203,10 +1190,6 @@ int __init blk_dev_init(void)
- 	blk_requestq_cachep = kmem_cache_create("request_queue",
- 			sizeof(struct request_queue), 0, SLAB_PANIC, NULL);
- 
--	blk_requestq_srcu_cachep = kmem_cache_create("request_queue_srcu",
--			sizeof(struct request_queue) +
--			sizeof(struct srcu_struct), 0, SLAB_PANIC, NULL);
--
- 	blk_debugfs_root = debugfs_create_dir("block", NULL);
- 
- 	return 0;
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index aa67a52c5a069..f8c97d75b8d1a 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -261,8 +261,8 @@ EXPORT_SYMBOL_GPL(blk_mq_quiesce_queue_nowait);
-  */
- void blk_mq_wait_quiesce_done(struct request_queue *q)
- {
--	if (blk_queue_has_srcu(q))
--		synchronize_srcu(q->srcu);
-+	if (q->tag_set->flags & BLK_MQ_F_BLOCKING)
-+		synchronize_srcu(q->tag_set->srcu);
- 	else
- 		synchronize_rcu();
- }
-@@ -4022,7 +4022,7 @@ static struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
- 	struct request_queue *q;
- 	int ret;
- 
--	q = blk_alloc_queue(set->numa_node, set->flags & BLK_MQ_F_BLOCKING);
-+	q = blk_alloc_queue(set->numa_node);
- 	if (!q)
- 		return ERR_PTR(-ENOMEM);
- 	q->queuedata = queuedata;
-@@ -4194,9 +4194,6 @@ static void blk_mq_update_poll_flag(struct request_queue *q)
- int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
- 		struct request_queue *q)
- {
--	WARN_ON_ONCE(blk_queue_has_srcu(q) !=
--			!!(set->flags & BLK_MQ_F_BLOCKING));
--
- 	/* mark the queue as mq asap */
- 	q->mq_ops = set->ops;
- 
-@@ -4453,8 +4450,18 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
- 	if (set->nr_maps == 1 && set->nr_hw_queues > nr_cpu_ids)
- 		set->nr_hw_queues = nr_cpu_ids;
- 
--	if (blk_mq_alloc_tag_set_tags(set, set->nr_hw_queues) < 0)
--		return -ENOMEM;
-+	if (set->flags & BLK_MQ_F_BLOCKING) {
-+		set->srcu = kmalloc(sizeof(*set->srcu), GFP_KERNEL);
-+		if (!set->srcu)
-+			return -ENOMEM;
-+		ret = init_srcu_struct(set->srcu);
-+		if (ret)
-+			goto out_free_srcu;
-+	}
+ 	WARN_ON(cache->bytes_super != 0);
+-	unusable = (cache->alloc_offset - cache->used) +
+-		   (cache->length - cache->zone_capacity);
+-	free = cache->zone_capacity - cache->alloc_offset;
 +
-+	ret = blk_mq_alloc_tag_set_tags(set, set->nr_hw_queues);
-+	if (ret)
-+		goto out_cleanup_srcu;
- 
- 	ret = -ENOMEM;
- 	for (i = 0; i < set->nr_maps; i++) {
-@@ -4484,6 +4491,12 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
- 	}
- 	kfree(set->tags);
- 	set->tags = NULL;
-+out_cleanup_srcu:
-+	if (set->flags & BLK_MQ_F_BLOCKING)
-+		cleanup_srcu_struct(set->srcu);
-+out_free_srcu:
-+	if (set->flags & BLK_MQ_F_BLOCKING)
-+		kfree(set->srcu);
- 	return ret;
- }
- EXPORT_SYMBOL(blk_mq_alloc_tag_set);
-@@ -4523,6 +4536,10 @@ void blk_mq_free_tag_set(struct blk_mq_tag_set *set)
- 
- 	kfree(set->tags);
- 	set->tags = NULL;
-+	if (set->flags & BLK_MQ_F_BLOCKING) {
-+		cleanup_srcu_struct(set->srcu);
-+		kfree(set->srcu);
++	/* Check for block groups never get activated */
++	if (test_bit(BTRFS_FS_ACTIVE_ZONE_TRACKING, &cache->fs_info->flags) &&
++	    cache->flags & (BTRFS_BLOCK_GROUP_METADATA | BTRFS_BLOCK_GROUP_SYSTEM) &&
++	    !test_bit(BLOCK_GROUP_FLAG_ZONE_IS_ACTIVE, &cache->runtime_flags) &&
++	    cache->alloc_offset == 0) {
++		unusable = cache->length;
++		free = 0;
++	} else {
++		unusable = (cache->alloc_offset - cache->used) +
++			   (cache->length - cache->zone_capacity);
++		free = cache->zone_capacity - cache->alloc_offset;
 +	}
- }
- EXPORT_SYMBOL(blk_mq_free_tag_set);
  
-diff --git a/block/blk-mq.h b/block/blk-mq.h
-index 0b2870839cdd6..ef59fee62780d 100644
---- a/block/blk-mq.h
-+++ b/block/blk-mq.h
-@@ -377,17 +377,17 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
- /* run the code block in @dispatch_ops with rcu/srcu read lock held */
- #define __blk_mq_run_dispatch_ops(q, check_sleep, dispatch_ops)	\
- do {								\
--	if (!blk_queue_has_srcu(q)) {				\
--		rcu_read_lock();				\
--		(dispatch_ops);					\
--		rcu_read_unlock();				\
--	} else {						\
-+	if ((q)->tag_set->flags & BLK_MQ_F_BLOCKING) {		\
- 		int srcu_idx;					\
- 								\
- 		might_sleep_if(check_sleep);			\
--		srcu_idx = srcu_read_lock((q)->srcu);		\
-+		srcu_idx = srcu_read_lock((q)->tag_set->srcu);	\
- 		(dispatch_ops);					\
--		srcu_read_unlock((q)->srcu, srcu_idx);		\
-+		srcu_read_unlock((q)->tag_set->srcu, srcu_idx);	\
-+	} else {						\
-+		rcu_read_lock();				\
-+		(dispatch_ops);					\
-+		rcu_read_unlock();				\
- 	}							\
- } while (0)
+ 	/* We only need ->free_space in ALLOC_SEQ block groups */
+ 	cache->cached = BTRFS_CACHE_FINISHED;
+@@ -1915,7 +1925,11 @@ bool btrfs_zone_activate(struct btrfs_block_group *block_group)
  
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index e71b3b43927c0..e7871665825a3 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -739,10 +739,8 @@ queue_attr_store(struct kobject *kobj, struct attribute *attr,
+ 	/* Successfully activated all the zones */
+ 	set_bit(BLOCK_GROUP_FLAG_ZONE_IS_ACTIVE, &block_group->runtime_flags);
+-	space_info->active_total_bytes += block_group->length;
++	WARN_ON(block_group->alloc_offset != 0);
++	if (block_group->zone_unusable == block_group->length) {
++		block_group->zone_unusable = block_group->length - block_group->zone_capacity;
++		space_info->bytes_zone_unusable -= block_group->zone_capacity;
++	}
+ 	spin_unlock(&block_group->lock);
+ 	btrfs_try_granting_tickets(fs_info, space_info);
+ 	spin_unlock(&space_info->lock);
+@@ -2279,7 +2293,7 @@ int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
+ 		u64 avail;
  
- static void blk_free_queue_rcu(struct rcu_head *rcu_head)
- {
--	struct request_queue *q = container_of(rcu_head, struct request_queue,
--					       rcu_head);
--
--	kmem_cache_free(blk_get_queue_kmem_cache(blk_queue_has_srcu(q)), q);
-+	kmem_cache_free(blk_requestq_cachep,
-+			container_of(rcu_head, struct request_queue, rcu_head));
- }
- 
- /**
-@@ -779,9 +777,6 @@ static void blk_release_queue(struct kobject *kobj)
- 	if (queue_is_mq(q))
- 		blk_mq_release(q);
- 
--	if (blk_queue_has_srcu(q))
--		cleanup_srcu_struct(q->srcu);
--
- 	ida_free(&blk_queue_ida, q->id);
- 	call_rcu(&q->rcu_head, blk_free_queue_rcu);
- }
-diff --git a/block/blk.h b/block/blk.h
-index a186ea20f39d8..4849a2efa4c50 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -27,7 +27,6 @@ struct blk_flush_queue {
- };
- 
- extern struct kmem_cache *blk_requestq_cachep;
--extern struct kmem_cache *blk_requestq_srcu_cachep;
- extern struct kobj_type blk_queue_ktype;
- extern struct ida blk_queue_ida;
- 
-@@ -428,13 +427,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
- 		struct page *page, unsigned int len, unsigned int offset,
- 		unsigned int max_sectors, bool *same_page);
- 
--static inline struct kmem_cache *blk_get_queue_kmem_cache(bool srcu)
--{
--	if (srcu)
--		return blk_requestq_srcu_cachep;
--	return blk_requestq_cachep;
--}
--struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu);
-+struct request_queue *blk_alloc_queue(int node_id);
- 
- int disk_scan_partitions(struct gendisk *disk, fmode_t mode);
- 
-diff --git a/block/genhd.c b/block/genhd.c
-index 0b6928e948f31..4db1f905514c5 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -1436,7 +1436,7 @@ struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass)
- 	struct request_queue *q;
- 	struct gendisk *disk;
- 
--	q = blk_alloc_queue(node, false);
-+	q = blk_alloc_queue(node);
- 	if (!q)
- 		return NULL;
- 
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index a9764cbf7f8d2..8e942e36f1c48 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -7,6 +7,7 @@
- #include <linux/lockdep.h>
- #include <linux/scatterlist.h>
- #include <linux/prefetch.h>
-+#include <linux/srcu.h>
- 
- struct blk_mq_tags;
- struct blk_flush_queue;
-@@ -507,6 +508,8 @@ enum hctx_type {
-  * @tag_list_lock: Serializes tag_list accesses.
-  * @tag_list:	   List of the request queues that use this tag set. See also
-  *		   request_queue.tag_set_list.
-+ * @srcu:	   Use as lock when type of the request queue is blocking
-+ *		   (BLK_MQ_F_BLOCKING).
-  */
- struct blk_mq_tag_set {
- 	struct blk_mq_queue_map	map[HCTX_MAX_TYPES];
-@@ -527,6 +530,7 @@ struct blk_mq_tag_set {
- 
- 	struct mutex		tag_list_lock;
- 	struct list_head	tag_list;
-+	struct srcu_struct	*srcu;
- };
- 
- /**
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 891f8cbcd0436..36c286d22fb23 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -22,7 +22,6 @@
- #include <linux/blkzoned.h>
- #include <linux/sched.h>
- #include <linux/sbitmap.h>
--#include <linux/srcu.h>
- #include <linux/uuid.h>
- #include <linux/xarray.h>
- 
-@@ -544,18 +543,11 @@ struct request_queue {
- 	struct mutex		debugfs_mutex;
- 
- 	bool			mq_sysfs_init_done;
--
--	/**
--	 * @srcu: Sleepable RCU. Use as lock when type of the request queue
--	 * is blocking (BLK_MQ_F_BLOCKING). Must be the last member
--	 */
--	struct srcu_struct	srcu[];
- };
- 
- /* Keep blk_queue_flag_name[] in sync with the definitions below */
- #define QUEUE_FLAG_STOPPED	0	/* queue is stopped */
- #define QUEUE_FLAG_DYING	1	/* queue being torn down */
--#define QUEUE_FLAG_HAS_SRCU	2	/* SRCU is allocated */
- #define QUEUE_FLAG_NOMERGES     3	/* disable merge attempts */
- #define QUEUE_FLAG_SAME_COMP	4	/* complete on same CPU-group */
- #define QUEUE_FLAG_FAIL_IO	5	/* fake timeout */
-@@ -591,7 +583,6 @@ bool blk_queue_flag_test_and_set(unsigned int flag, struct request_queue *q);
- 
- #define blk_queue_stopped(q)	test_bit(QUEUE_FLAG_STOPPED, &(q)->queue_flags)
- #define blk_queue_dying(q)	test_bit(QUEUE_FLAG_DYING, &(q)->queue_flags)
--#define blk_queue_has_srcu(q)	test_bit(QUEUE_FLAG_HAS_SRCU, &(q)->queue_flags)
- #define blk_queue_init_done(q)	test_bit(QUEUE_FLAG_INIT_DONE, &(q)->queue_flags)
- #define blk_queue_nomerges(q)	test_bit(QUEUE_FLAG_NOMERGES, &(q)->queue_flags)
- #define blk_queue_noxmerges(q)	\
+ 		spin_lock(&block_group->lock);
+-		if (block_group->reserved ||
++		if (block_group->reserved || block_group->alloc_offset == 0 ||
+ 		    (block_group->flags & BTRFS_BLOCK_GROUP_SYSTEM)) {
+ 			spin_unlock(&block_group->lock);
+ 			continue;
 -- 
 2.39.2
 
