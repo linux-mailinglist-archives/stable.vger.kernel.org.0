@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8523D6D4897
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5466D49C1
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233427AbjDCOaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32922 "EHLO
+        id S233800AbjDCOlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:41:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233433AbjDCO37 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 027E035002
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:58 -0700 (PDT)
+        with ESMTP id S233730AbjDCOlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7FB417ACF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88A2E61D78
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0B29C433D2;
-        Mon,  3 Apr 2023 14:29:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63534B81CF6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCBA8C433D2;
+        Mon,  3 Apr 2023 14:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532198;
-        bh=Qfi4eHrjdSATmWD0oj6lm7702lH9JXnjr5d6Z08DaHE=;
+        s=korg; t=1680532863;
+        bh=2qD1tchNQGHnzuaiNCPCzxaT3c1+eZmS5FrYmbzT+vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3XNlcZU4RJbTMv1qiouYHhePj3Fh2wCXO6BfmT4+/WyO2DB00j7C9pwg7T9xZDVT
-         QdgGXzZ8K323R5Xz2Z8bDyHGkTZUyGSwYn1AO85W8fM5MWJ0RnSioGy1VNEoER2x3Z
-         IuJMIKAuWxvN4IsTKmd4Is0mxvqY1J521g9NwuC0=
+        b=2g9q+FdDn3nwZNPGh81dPZfRkRgDlfe5lllA69DkGvZrakG+omNWL2di6eg5PXYja
+         UyDG0p1/eyqrN64NPWsmgWfSGy1Aw27kIgX/5Z7PwxYv5CCrsgwsvQr+I8IhtCGITL
+         1z394MWpQq0ANt9iPbrEhs85HZsL6M4ztd/PJCxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Yang <sherry.yang@oracle.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 165/173] btrfs: scan device in non-exclusive mode
+        patches@lists.linux.dev,
+        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 6.1 145/181] pinctrl: amd: Disable and mask interrupts on resume
 Date:   Mon,  3 Apr 2023 16:09:40 +0200
-Message-Id: <20230403140419.787193536@linuxfoundation.org>
+Message-Id: <20230403140419.774177506@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,87 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Kornel Dulęba <korneld@chromium.org>
 
-commit 50d281fc434cb8e2497f5e70a309ccca6b1a09f0 upstream.
+commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 upstream.
 
-This fixes mkfs/mount/check failures due to race with systemd-udevd
-scan.
+This fixes a similar problem to the one observed in:
+commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
 
-During the device scan initiated by systemd-udevd, other user space
-EXCL operations such as mkfs, mount, or check may get blocked and result
-in a "Device or resource busy" error. This is because the device
-scan process opens the device with the EXCL flag in the kernel.
+On some systems, during suspend/resume cycle firmware leaves
+an interrupt enabled on a pin that is not used by the kernel.
+This confuses the AMD pinctrl driver and causes spurious interrupts.
 
-Two reports were received:
+The driver already has logic to detect if a pin is used by the kernel.
+Leverage it to re-initialize interrupt fields of a pin only if it's not
+used by us.
 
- - btrfs/179 test case, where the fsck command failed with the -EBUSY
-   error
-
- - LTP pwritev03 test case, where mkfs.vfs failed with
-   the -EBUSY error, when mkfs.vfs tried to overwrite old btrfs filesystem
-   on the device.
-
-In both cases, fsck and mkfs (respectively) were racing with a
-systemd-udevd device scan, and systemd-udevd won, resulting in the
--EBUSY error for fsck and mkfs.
-
-Reproducing the problem has been difficult because there is a very
-small window during which these userspace threads can race to
-acquire the exclusive device open. Even on the system where the problem
-was observed, the problem occurrences were anywhere between 10 to 400
-iterations and chances of reproducing decreases with debug printk()s.
-
-However, an exclusive device open is unnecessary for the scan process,
-as there are no write operations on the device during scan. Furthermore,
-during the mount process, the superblock is re-read in the below
-function call chain:
-
-  btrfs_mount_root
-   btrfs_open_devices
-    open_fs_devices
-     btrfs_open_one_device
-       btrfs_get_bdev_and_sb
-
-So, to fix this issue, removes the FMODE_EXCL flag from the scan
-operation, and add a comment.
-
-The case where mkfs may still write to the device and a scan is running,
-the btrfs signature is not written at that time so scan will not
-recognize such device.
-
-Reported-by: Sherry Yang <sherry.yang@oracle.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/oe-lkp/202303170839.fdf23068-oliver.sang@intel.com
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
+Signed-off-by: Kornel Dulęba <korneld@chromium.org>
+Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1411,8 +1411,17 @@ struct btrfs_device *btrfs_scan_one_devi
- 	 * later supers, using BTRFS_SUPER_MIRROR_MAX instead
- 	 */
- 	bytenr = btrfs_sb_offset(0);
--	flags |= FMODE_EXCL;
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -865,32 +865,34 @@ static const struct pinconf_ops amd_pinc
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
  
-+	/*
-+	 * Avoid using flag |= FMODE_EXCL here, as the systemd-udev may
-+	 * initiate the device scan which may race with the user's mount
-+	 * or mkfs command, resulting in failure.
-+	 * Since the device scan is solely for reading purposes, there is
-+	 * no need for FMODE_EXCL. Additionally, the devices are read again
-+	 * during the mount process. It is ok to get some inconsistent
-+	 * values temporarily, as the device paths of the fsid are the only
-+	 * required information for assembling the volume.
-+	 */
- 	bdev = blkdev_get_by_path(path, flags, holder);
- 	if (IS_ERR(bdev))
- 		return ERR_CAST(bdev);
+-static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
+ {
+-	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	const struct pin_desc *pd;
+ 	unsigned long flags;
+ 	u32 pin_reg, mask;
+-	int i;
+ 
+ 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
+ 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
+ 		BIT(WAKE_CNTRL_OFF_S4);
+ 
+-	for (i = 0; i < desc->npins; i++) {
+-		int pin = desc->pins[i].number;
+-		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
+-
+-		if (!pd)
+-			continue;
++	pd = pin_desc_get(gpio_dev->pctrl, pin);
++	if (!pd)
++		return;
+ 
+-		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	pin_reg = readl(gpio_dev->base + pin * 4);
++	pin_reg &= ~mask;
++	writel(pin_reg, gpio_dev->base + pin * 4);
++	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++}
+ 
+-		pin_reg = readl(gpio_dev->base + i * 4);
+-		pin_reg &= ~mask;
+-		writel(pin_reg, gpio_dev->base + i * 4);
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++{
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	int i;
+ 
+-		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+-	}
++	for (i = 0; i < desc->npins; i++)
++		amd_gpio_irq_init_pin(gpio_dev, i);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -943,8 +945,10 @@ static int amd_gpio_resume(struct device
+ 	for (i = 0; i < desc->npins; i++) {
+ 		int pin = desc->pins[i].number;
+ 
+-		if (!amd_gpio_should_save(gpio_dev, pin))
++		if (!amd_gpio_should_save(gpio_dev, pin)) {
++			amd_gpio_irq_init_pin(gpio_dev, pin);
+ 			continue;
++		}
+ 
+ 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+ 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
 
 
