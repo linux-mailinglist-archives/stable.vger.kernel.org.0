@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEB76D48BE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98A096D49A9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233479AbjDCOba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34772 "EHLO
+        id S233766AbjDCOkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233478AbjDCObZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:25 -0400
+        with ESMTP id S233768AbjDCOkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C842735031
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D213435024
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67B3F61E00
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B244C4339B;
-        Mon,  3 Apr 2023 14:31:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4514A61EBB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 579D6C433EF;
+        Mon,  3 Apr 2023 14:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532283;
-        bh=X7etHxlodcnC+Z9rSqNq8kuVmNyZreKh+MwC3cmJ+4E=;
+        s=korg; t=1680532802;
+        bh=S7OjGKte1pX1kY30gP8vsytyOjLYKxZapwy+x44o/wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fg9pccV4G/APSHYROrc1USpHrFQh6AA27yJcRuoSo8nHdMY22ZGbMV5uzr29d6PDQ
-         gZnJ2UqI82xdCsxpjMKfj3jWNaMXAYxJY2jlnIkevo1yGUkvaB0pQDOsbU81G+OBWT
-         /b9sSblybfDfVKHauwAy/IkT3T3vnddNzhWu8d/I=
+        b=W/vrJ5Dpm8iCAIdyBSEr54PqD0xWpSS1fjd20J34RdeUaTRa33+gH6z6hWViyz5h1
+         VQ+u2/KuR1/hzEzFjLv5UOSwhZjXm+vmH9RpxtzeY4aOFagxOEpNUiBO3zkPTBBG2M
+         qLJM/osk3jYiTd5fZoUAR3EdMzVwcLfC7JIbr7Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 24/99] ca8210: Fix unsigned mac_len comparison with zero in ca8210_skb_tx()
+Subject: [PATCH 6.1 092/181] net: dsa: microchip: ksz8: fix MDB configuration with non-zero VID
 Date:   Mon,  3 Apr 2023 16:08:47 +0200
-Message-Id: <20230403140403.261713364@linuxfoundation.org>
+Message-Id: <20230403140418.107057683@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 748b2f5e82d17480404b3e2895388fc2925f7caf ]
+[ Upstream commit 9aa5757e1f71d85facdc3c98028762cbab8d15c7 ]
 
-mac_len is of type unsigned, which can never be less than zero.
+FID is directly mapped to VID. However, configuring a MAC address with a
+VID != 0 resulted in incorrect configuration due to an incorrect bit
+mask. This kernel commit fixed the issue by correcting the bit mask and
+ensuring proper configuration of MAC addresses with non-zero VID.
 
-	mac_len = ieee802154_hdr_peek_addrs(skb, &header);
-	if (mac_len < 0)
-		return mac_len;
-
-Change this to type int as ieee802154_hdr_peek_addrs() can return negative
-integers, this is found by static analysis with smatch.
-
-Fixes: 6c993779ea1d ("ca8210: fix mac_len negative array access")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230306191824.4115839-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: 4b20a07e103f ("net: dsa: microchip: ksz8795: add support for ksz88xx chips")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Acked-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/ca8210.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/dsa/microchip/ksz_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
-index e2322bc3a4e9a..5834d3ed6dcf5 100644
---- a/drivers/net/ieee802154/ca8210.c
-+++ b/drivers/net/ieee802154/ca8210.c
-@@ -1945,10 +1945,9 @@ static int ca8210_skb_tx(
- 	struct ca8210_priv  *priv
- )
- {
--	int status;
- 	struct ieee802154_hdr header = { };
- 	struct secspec secspec;
--	unsigned int mac_len;
-+	int mac_len, status;
- 
- 	dev_dbg(&priv->spi->dev, "%s called\n", __func__);
- 
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 286e081830e7c..3d59298eaa5cf 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -357,7 +357,7 @@ static const u32 ksz8863_masks[] = {
+ 	[VLAN_TABLE_VALID]		= BIT(19),
+ 	[STATIC_MAC_TABLE_VALID]	= BIT(19),
+ 	[STATIC_MAC_TABLE_USE_FID]	= BIT(21),
+-	[STATIC_MAC_TABLE_FID]		= GENMASK(29, 26),
++	[STATIC_MAC_TABLE_FID]		= GENMASK(25, 22),
+ 	[STATIC_MAC_TABLE_OVERRIDE]	= BIT(20),
+ 	[STATIC_MAC_TABLE_FWD_PORTS]	= GENMASK(18, 16),
+ 	[DYNAMIC_MAC_TABLE_ENTRIES_H]	= GENMASK(1, 0),
 -- 
 2.39.2
 
