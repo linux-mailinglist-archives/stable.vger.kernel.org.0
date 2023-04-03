@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5633E6D4A5A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867696D497A
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbjDCOqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:46:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36842 "EHLO
+        id S233695AbjDCOiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233978AbjDCOq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:26 -0400
+        with ESMTP id S233637AbjDCOiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF39280ED
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F60D2701
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2931B61F33
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D042C433D2;
-        Mon,  3 Apr 2023 14:45:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE25761EB7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3664C433D2;
+        Mon,  3 Apr 2023 14:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533142;
-        bh=COH24gq4e/H+2ogqRFsA6K4mrQtdIvzicFL0cNodjR4=;
+        s=korg; t=1680532696;
+        bh=ABnhbDGWfBt8mGRuIKSsDNSpVJaBjaFkHFq+dTO2OC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ak131xBoMnRoyJentSKNY8Ucr4mQ6W/k77jz7dJ3+q+Cm98tXcA/mFJZYH04dC4bv
-         Tziu9jdY7xA9AjNMFyoZ9MsMfdmiCKAylgbD6CBJ3t9d7GkGg+wlZ/3FmX1MKgbGWG
-         zJdOmL3OIkPSk7f5bbMnEuu3o/eMzWW2CaXPAEG0=
+        b=xrKMpZF8SKQs3GcLfpHqC9i+QkVLCm7S2ALjjtREGy4/M+MCj/cUZ5qMLp5Jm+xxo
+         7d1617OCcWWdDcGPSaQlqzziI38Khn73JKNJdYDKxAlSdK92MiNyzgHqO9UnAI63Xr
+         Ofb3vUlmPfcPr30p8Vt6M/nUkIBjgYg52J9vqMnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Petr Tesarik <petr.tesarik.ext@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 070/187] swiotlb: fix slot alignment checks
+        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 080/181] mtd: rawnand: meson: invalidate cache on polling ECC bit
 Date:   Mon,  3 Apr 2023 16:08:35 +0200
-Message-Id: <20230403140418.250729553@linuxfoundation.org>
+Message-Id: <20230403140417.738415058@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Tesarik <petr.tesarik.ext@huawei.com>
+From: Arseniy Krasnov <avkrasnov@sberdevices.ru>
 
-[ Upstream commit 0eee5ae1025699ea93d44fdb6ef2365505082103 ]
+[ Upstream commit e732e39ed9929c05fd219035bc9653ba4100d4fa ]
 
-Explicit alignment and page alignment are used only to calculate
-the stride, not when checking actual slot physical address.
+'info_buf' memory is cached and driver polls ECC bit in it. This bit
+is set by the NAND controller. If 'usleep_range()' returns before device
+sets this bit, 'info_buf' will be cached and driver won't see update of
+this bit and will loop forever.
 
-Originally, only page alignment was implemented, and that worked,
-because the whole SWIOTLB is allocated on a page boundary, so
-aligning the start index was sufficient to ensure a page-aligned
-slot.
-
-When commit 1f221a0d0dbf ("swiotlb: respect min_align_mask") added
-support for min_align_mask, the index could be incremented in the
-search loop, potentially finding an unaligned slot if minimum device
-alignment is between IO_TLB_SIZE and PAGE_SIZE.  The bug could go
-unnoticed, because the slot size is 2 KiB, and the most common page
-size is 4 KiB, so there is no alignment value in between.
-
-IIUC the intention has been to find a slot that conforms to all
-alignment constraints: device minimum alignment, an explicit
-alignment (given as function parameter) and optionally page
-alignment (if allocation size is >= PAGE_SIZE). The most
-restrictive mask can be trivially computed with logical AND. The
-rest can stay.
-
-Fixes: 1f221a0d0dbf ("swiotlb: respect min_align_mask")
-Fixes: e81e99bacc9f ("swiotlb: Support aligned swiotlb buffers")
-Signed-off-by: Petr Tesarik <petr.tesarik.ext@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
+Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/d4ef0bd6-816e-f6fa-9385-f05f775f0ae2@sberdevices.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/swiotlb.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/mtd/nand/raw/meson_nand.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 869dd6667c464..312458506e6d5 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -642,22 +642,26 @@ static int swiotlb_do_find_slots(struct device *dev, int area_index,
- 	BUG_ON(!nslots);
- 	BUG_ON(area_index >= mem->nareas);
+diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
+index 30e326adabfc1..a28574c009003 100644
+--- a/drivers/mtd/nand/raw/meson_nand.c
++++ b/drivers/mtd/nand/raw/meson_nand.c
+@@ -176,6 +176,7 @@ struct meson_nfc {
  
-+	/*
-+	 * For allocations of PAGE_SIZE or larger only look for page aligned
-+	 * allocations.
-+	 */
-+	if (alloc_size >= PAGE_SIZE)
-+		iotlb_align_mask &= PAGE_MASK;
-+	iotlb_align_mask &= alloc_align_mask;
-+
- 	/*
- 	 * For mappings with an alignment requirement don't bother looping to
--	 * unaligned slots once we found an aligned one.  For allocations of
--	 * PAGE_SIZE or larger only look for page aligned allocations.
-+	 * unaligned slots once we found an aligned one.
- 	 */
- 	stride = (iotlb_align_mask >> IO_TLB_SHIFT) + 1;
--	if (alloc_size >= PAGE_SIZE)
--		stride = max(stride, stride << (PAGE_SHIFT - IO_TLB_SHIFT));
--	stride = max(stride, (alloc_align_mask >> IO_TLB_SHIFT) + 1);
+ 	dma_addr_t daddr;
+ 	dma_addr_t iaddr;
++	u32 info_bytes;
  
- 	spin_lock_irqsave(&area->lock, flags);
- 	if (unlikely(nslots > mem->area_nslabs - area->used))
- 		goto not_found;
+ 	unsigned long assigned_cs;
+ };
+@@ -503,6 +504,7 @@ static int meson_nfc_dma_buffer_setup(struct nand_chip *nand, void *databuf,
+ 					 nfc->daddr, datalen, dir);
+ 			return ret;
+ 		}
++		nfc->info_bytes = infolen;
+ 		cmd = GENCMDIADDRL(NFC_CMD_AIL, nfc->iaddr);
+ 		writel(cmd, nfc->reg_base + NFC_REG_CMD);
  
- 	slot_base = area_index * mem->area_nslabs;
--	index = wrap_area_index(mem, ALIGN(area->index, stride));
-+	index = area->index;
+@@ -520,8 +522,10 @@ static void meson_nfc_dma_buffer_release(struct nand_chip *nand,
+ 	struct meson_nfc *nfc = nand_get_controller_data(nand);
  
- 	for (slots_checked = 0; slots_checked < mem->area_nslabs; ) {
- 		slot_index = slot_base + index;
+ 	dma_unmap_single(nfc->dev, nfc->daddr, datalen, dir);
+-	if (infolen)
++	if (infolen) {
+ 		dma_unmap_single(nfc->dev, nfc->iaddr, infolen, dir);
++		nfc->info_bytes = 0;
++	}
+ }
+ 
+ static int meson_nfc_read_buf(struct nand_chip *nand, u8 *buf, int len)
+@@ -710,6 +714,8 @@ static void meson_nfc_check_ecc_pages_valid(struct meson_nfc *nfc,
+ 		usleep_range(10, 15);
+ 		/* info is updated by nfc dma engine*/
+ 		smp_rmb();
++		dma_sync_single_for_cpu(nfc->dev, nfc->iaddr, nfc->info_bytes,
++					DMA_FROM_DEVICE);
+ 		ret = *info & ECC_COMPLETE;
+ 	} while (!ret);
+ }
 -- 
 2.39.2
 
