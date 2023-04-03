@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CB06D480A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854226D4A22
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbjDCOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52922 "EHLO
+        id S233911AbjDCOob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233244AbjDCOZV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7F84EFF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:20 -0700 (PDT)
+        with ESMTP id S233941AbjDCOoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B994ED1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C480B81C00
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82010C433D2;
-        Mon,  3 Apr 2023 14:25:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74D6DB81D2D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64BFC433D2;
+        Mon,  3 Apr 2023 14:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531917;
-        bh=1oxUom6yZBsD5bhDWZ+GhCNF0prAnTjRbDDGMpAXb1Y=;
+        s=korg; t=1680533028;
+        bh=me7G3OT2TGrjVFbbnRhPeycgSljp4H5OILls7sQNoaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpxINuVtQI7iXb/fVEIo7blFIkqn0nvCQ3jaFszJvBX6XtHBddKU280++J8xojL37
-         RlhnlUfELM6oWye2RUB6GIB1SWhVEO1eaKaXrMV1m63DJBNVBQU80Z7GIRvGi2wHkB
-         W3c8NfvHMD7EOQojWlBBffGQIEmGKq1x5M9aF8Js=
+        b=nlBn3iMUWYk35BBSWMqGppeO/Ozds/c4X9Vn5nHLsx942l91sgEpR03ytxieWUjFF
+         ExycXeL2Us6GHHigtoZW7x8WR/qJJiG8LJ29FyXOn5J+5HF0j95S7l94DIA1grV2kl
+         z+shfLebocv9RG5NOLhjhI/YHsXq0SjKk7blx8Hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tzung-Bi Shih <tzungbi@kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/173] platform/chrome: cros_ec_chardev: fix kernel data leak from ioctl
+Subject: [PATCH 6.2 027/187] ACPI: x86: Add skip i2c clients quirk for Lenovo Yoga Book X90
 Date:   Mon,  3 Apr 2023 16:07:52 +0200
-Message-Id: <20230403140416.309318523@linuxfoundation.org>
+Message-Id: <20230403140416.904689471@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,39 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit b20cf3f89c56b5f6a38b7f76a8128bf9f291bbd3 ]
+[ Upstream commit 1a1e7540cf501dd5c8b57a577a155cdd13c7e202 ]
 
-It is possible to peep kernel page's data by providing larger `insize`
-in struct cros_ec_command[1] when invoking EC host commands.
+The Lenovo Yoga Book X90 is a x86 tablet which ships with Android x86
+as factory OS. The Android x86 kernel fork ignores I2C devices described
+in the DSDT, except for the PMIC and Audio codecs.
 
-Fix it by using zeroed memory.
+As usual the Lenovo Yoga Book X90's DSDT contains a bunch of extra I2C
+devices which are not actually there, causing various resource conflicts.
+Add an ACPI_QUIRK_SKIP_I2C_CLIENTS quirk for the Lenovo Yoga Book X90
+to the acpi_quirk_skip_dmi_ids table to woraround this.
 
-[1]: https://elixir.bootlin.com/linux/v6.2/source/include/linux/platform_data/cros_ec_proto.h#L74
+The DSDT also contains broken ACPI GPIO event handlers, disable those too.
 
-Fixes: eda2e30c6684 ("mfd / platform: cros_ec: Miscellaneous character device to talk with the EC")
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Link: https://lore.kernel.org/r/20230324010658.1082361-1-tzungbi@kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rjw@rjwysocki.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_chardev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/x86/utils.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/platform/chrome/cros_ec_chardev.c b/drivers/platform/chrome/cros_ec_chardev.c
-index 0de7c255254e0..d6de5a2941282 100644
---- a/drivers/platform/chrome/cros_ec_chardev.c
-+++ b/drivers/platform/chrome/cros_ec_chardev.c
-@@ -284,7 +284,7 @@ static long cros_ec_chardev_ioctl_xcmd(struct cros_ec_dev *ec, void __user *arg)
- 	    u_cmd.insize > EC_MAX_MSG_BYTES)
- 		return -EINVAL;
- 
--	s_cmd = kmalloc(sizeof(*s_cmd) + max(u_cmd.outsize, u_cmd.insize),
-+	s_cmd = kzalloc(sizeof(*s_cmd) + max(u_cmd.outsize, u_cmd.insize),
- 			GFP_KERNEL);
- 	if (!s_cmd)
- 		return -ENOMEM;
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index b2b0e2701333a..da5727069d851 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -300,6 +300,17 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
+ 					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
+ 	},
++	{
++		/* Lenovo Yoga Book X90F/L */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
++		},
++		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
++					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 -- 
 2.39.2
 
