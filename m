@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28F366D46B6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336756D4858
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbjDCOMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51244 "EHLO
+        id S233350AbjDCO1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:27:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232256AbjDCOMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 462852699
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:39 -0700 (PDT)
+        with ESMTP id S233349AbjDCO1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03E8031986
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C99AC61C11
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB301C4339B;
-        Mon,  3 Apr 2023 14:12:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5491B81C1C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AEAFC433D2;
+        Mon,  3 Apr 2023 14:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531158;
-        bh=WiyDNnzogZw7TUxAyEyj9rd19g/En/1BcpJUIPt4xE0=;
+        s=korg; t=1680532068;
+        bh=ADgOMX62IrR82V6veE+B2pFtCQ5XlrDFYKj5HOS6t58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B72KiFqZtfvlaekNpqjurU6CICnFFOhrKofQZBvKAXl7X04DAEeFKwlis3he326T5
-         HIrb4+44jQHIlNFR8+mtOxK6YSBl3U3JrP4iC5r9BM9rdZJQVPWQ/e2bxNy8WDZ/eT
-         uqGeAbc/jRgD1tDRlGXcAQxz4d3xADBgHYfOd/m8=
+        b=lwA6Gc8AR4d35KNBG2Vonj6zXMJgIeRumN6xcaYdg78vCRjZ5CJbhnUeK23qEu37S
+         /HFc0RyL+Cqc5NpoIjO8jt8cBJWLpezaqYMAZDf4LPB/NPeBOwMzAoFVkNUPVdobCG
+         KJlvHfMpc4loBTiNTLQoChMbnI8441Tspk2zoHCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qiao <zhangqiao22@huawei.com>,
-        Roman Kagan <rkagan@amazon.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.14 40/66] sched/fair: sanitize vruntime of entity being placed
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        NeilBrown <neilb@suse.de>, Song Liu <song@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 113/173] md: avoid signed overflow in slot_store()
 Date:   Mon,  3 Apr 2023 16:08:48 +0200
-Message-Id: <20230403140353.275227340@linuxfoundation.org>
+Message-Id: <20230403140418.100115401@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiao <zhangqiao22@huawei.com>
+From: NeilBrown <neilb@suse.de>
 
-commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc upstream.
+[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
 
-When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
-to the base level (around cfs_rq->min_vruntime), so that the entity
-doesn't gain extra boost when placed backwards.
+slot_store() uses kstrtouint() to get a slot number, but stores the
+result in an "int" variable (by casting a pointer).
+This can result in a negative slot number if the unsigned int value is
+very large.
 
-However, if the entity being placed wasn't executed for a long time, its
-vruntime may get too far behind (e.g. while cfs_rq was executing a
-low-weight hog), which can inverse the vruntime comparison due to s64
-overflow.  This results in the entity being placed with its original
-vruntime way forwards, so that it will effectively never get to the cpu.
+A negative number means that the slot is empty, but setting a negative
+slot number this way will not remove the device from the array.  I don't
+think this is a serious problem, but it could cause confusion and it is
+best to fix it.
 
-To prevent that, ignore the vruntime of the entity being placed if it
-didn't execute for much longer than the characteristic sheduler time
-scale.
-
-[rkagan: formatted, adjusted commit log, comments, cutoff value]
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Co-developed-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Roman Kagan <rkagan@amazon.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/md/md.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3615,6 +3615,7 @@ static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
- {
- 	u64 vruntime = cfs_rq->min_vruntime;
-+	u64 sleep_time;
- 
- 	/*
- 	 * The 'current' period is already promised to the current tasks,
-@@ -3639,8 +3640,18 @@ place_entity(struct cfs_rq *cfs_rq, stru
- 		vruntime -= thresh;
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index c0b34637bd667..1553c2495841b 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -3207,6 +3207,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
+ 		if (err < 0)
+ 			return err;
++		if (slot < 0)
++			/* overflow */
++			return -ENOSPC;
  	}
- 
--	/* ensure we never gain time by being placed backwards. */
--	se->vruntime = max_vruntime(se->vruntime, vruntime);
-+	/*
-+	 * Pull vruntime of the entity being placed to the base level of
-+	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
-+	 * slept for a long time, don't even try to compare its vruntime with
-+	 * the base as it may be too far off and the comparison may get
-+	 * inversed due to s64 overflow.
-+	 */
-+	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
-+	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-+		se->vruntime = vruntime;
-+	else
-+		se->vruntime = max_vruntime(se->vruntime, vruntime);
- }
- 
- static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
+ 	if (rdev->mddev->pers && slot == -1) {
+ 		/* Setting 'slot' on an active array requires also
+-- 
+2.39.2
+
 
 
