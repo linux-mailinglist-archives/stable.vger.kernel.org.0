@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 416726D48AE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E20196D4848
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233453AbjDCOaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34094 "EHLO
+        id S233324AbjDCO1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:27:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbjDCOay (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:54 -0400
+        with ESMTP id S233336AbjDCO1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B432D319AC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154802D7FF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 496B961DFE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B854C433EF;
-        Mon,  3 Apr 2023 14:30:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4EFC61DBE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BF4C433EF;
+        Mon,  3 Apr 2023 14:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532252;
-        bh=+RT9YDSEttzIAMfCnD12uEqbt4kxuriKcntVTxpdabg=;
+        s=korg; t=1680532032;
+        bh=U1B9SCUwyo+l2TBmiKv0wwTMcpUYbNihOL0RsfXLvLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLt43XAKzuDzcql+HWtcU7UMgHPoZO0cRyO8PJUd5EEzPenoIACJRAokgCN25lmXf
-         /tIVIgt557vpmuT2lbpiDakzFmV66Eybe6KNwb5XrUuxjFqXpVL5IPH5DVDK4pCF+K
-         l0ocAE6yBixS4g4iPdT29at9Pju3Fu2o4cxV83lQ=
+        b=JB7Z7/Tx3hB11++jQpk+kYvKZOYEwAEuP+e8q6nr5cA44wjrV76jCHxbU1NRQG0VB
+         J27XcUFGdhsUS91LclhvrJ5uKj55CA7HJFhEIL1YUdF7sXYkWM2MllpRlYYy6lO+I+
+         SyNFq1JQZYXEMTY4GjHAjVDVHWb3BB89UssHMn8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kristian Overskeid <koverskeid@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 12/99] net: hsr: Dont log netdev_err message on unknown prp dst node
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 100/173] xfs: shut down the filesystem if we screw up quota reservation
 Date:   Mon,  3 Apr 2023 16:08:35 +0200
-Message-Id: <20230403140356.838569161@linuxfoundation.org>
+Message-Id: <20230403140417.658551304@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Overskeid <koverskeid@gmail.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
+commit 2a4bdfa8558ca2904dc17b83497dc82aa7fc05e9 upstream.
 
-If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
-node will be deleted from the node_db list. If a frame is sent to the node
-after it is deleted, a netdev_err message for each slave interface is
-produced. This should not happen with dan nodes because of supervision
-frames, but can happen often with san nodes, which clutters the kernel
-log. Since the hsr protocol does not support sans, this is only relevant
-for the prp protocol.
+If we ever screw up the quota reservations enough to trip the
+assertions, something's wrong with the quota code.  Shut down the
+filesystem when this happens, because this is corruption.
 
-Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/hsr/hsr_framereg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_trans_dquot.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
-index 414bf4d3d3c92..44eb9c9f80ee9 100644
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -385,7 +385,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
- 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
- 				       eth_hdr(skb)->h_dest);
- 	if (!node_dst) {
--		if (net_ratelimit())
-+		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
- 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
- 		return;
+--- a/fs/xfs/xfs_trans_dquot.c
++++ b/fs/xfs/xfs_trans_dquot.c
+@@ -16,6 +16,7 @@
+ #include "xfs_quota.h"
+ #include "xfs_qm.h"
+ #include "xfs_trace.h"
++#include "xfs_error.h"
+ 
+ STATIC void	xfs_trans_alloc_dqinfo(xfs_trans_t *);
+ 
+@@ -708,9 +709,11 @@ xfs_trans_dqresv(
+ 					    XFS_TRANS_DQ_RES_INOS,
+ 					    ninos);
  	}
--- 
-2.39.2
-
+-	ASSERT(dqp->q_blk.reserved >= dqp->q_blk.count);
+-	ASSERT(dqp->q_rtb.reserved >= dqp->q_rtb.count);
+-	ASSERT(dqp->q_ino.reserved >= dqp->q_ino.count);
++
++	if (XFS_IS_CORRUPT(mp, dqp->q_blk.reserved < dqp->q_blk.count) ||
++	    XFS_IS_CORRUPT(mp, dqp->q_rtb.reserved < dqp->q_rtb.count) ||
++	    XFS_IS_CORRUPT(mp, dqp->q_ino.reserved < dqp->q_ino.count))
++		goto error_corrupt;
+ 
+ 	xfs_dqunlock(dqp);
+ 	return 0;
+@@ -720,6 +723,10 @@ error_return:
+ 	if (xfs_dquot_type(dqp) == XFS_DQTYPE_PROJ)
+ 		return -ENOSPC;
+ 	return -EDQUOT;
++error_corrupt:
++	xfs_dqunlock(dqp);
++	xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
++	return -EFSCORRUPTED;
+ }
+ 
+ 
 
 
