@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 813FE6D483C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7A66D46F4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbjDCO0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55796 "EHLO
+        id S232931AbjDCOPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233324AbjDCO0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36AB2D7C2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:48 -0700 (PDT)
+        with ESMTP id S232911AbjDCOPs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED6B64ED5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45E56B81C12
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B9CC433EF;
-        Mon,  3 Apr 2023 14:26:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A419BB81B6B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1665C433D2;
+        Mon,  3 Apr 2023 14:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532006;
-        bh=ycViADGvelMLm/JR/WGtcxaznIGuXSaenJ576f5cda0=;
+        s=korg; t=1680531339;
+        bh=lgZTDMT30Frdvpe4vETU0UvV89pHNQM/oabTMvup6s0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfzMnv0Nd7zWCCVRMuXNta4XcXws5EZCzPTegcOsIMFDu7jgnu/pQAfNj8mM8PgR+
-         +qkuFm5ScN3dLaYZs287ry7IAfD5kEjDPuBpjcUEU49HeIMoOQLePJpjA+a9WfqjZO
-         +4JraiIcLDn3VoDRGbEVsxdTmzr3wHs7wSCkAcE8=
+        b=lkbhBaIx25nv+6EUaJ6CmkQzZhVPAigvpmCCCCFEjKx0RnkooB2DOCuHqu3jYhjY+
+         +0ihWSAYSfTS/WiFLrtAJ1/g8cnbCovlRFsu8DjsJczzfuwBvQOYc+jsTyqg0RVyeL
+         s8JbuXh/oXllMgNGVskdv5Ih2Fau+3Ojb+rAfnaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lee Shawn C <shawn.c.lee@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Uma Shankar <uma.shankar@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.10 091/173] drm/i915: Preserve crtc_state->inherited during state clearing
+        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/84] hwmon (it87): Fix voltage scaling for chips with 10.9mV  ADCs
 Date:   Mon,  3 Apr 2023 16:08:26 +0200
-Message-Id: <20230403140417.381078395@linuxfoundation.org>
+Message-Id: <20230403140354.220601792@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,42 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Frank Crawford <frank@crawford.emu.id.au>
 
-commit 3a84f2c6c9558c554a90ec26ad25df92fc5e05b7 upstream.
+[ Upstream commit 968b66ffeb7956acc72836a7797aeb7b2444ec51 ]
 
-intel_crtc_prepare_cleared_state() is unintentionally losing
-the "inherited" flag. This will happen if intel_initial_commit()
-is forced to go through the full modeset calculations for
-whatever reason.
+Fix voltage scaling for chips that have 10.9mV ADCs, where scaling was
+not performed.
 
-Afterwards the first real commit from userspace will not get
-forced to the full modeset path, and thus eg. audio state may
-not get recomputed properly. So if the monitor was already
-enabled during boot audio will not work until userspace itself
-does an explicit full modeset.
-
-Cc: stable@vger.kernel.org
-Tested-by: Lee Shawn C <shawn.c.lee@intel.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230223152048.20878-1-ville.syrjala@linux.intel.com
-Reviewed-by: Uma Shankar <uma.shankar@intel.com>
-(cherry picked from commit 2553bacaf953b48c59357f5a622282bc0c45adae)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ead8080351c9 ("hwmon: (it87) Add support for IT8732F")
+Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
+Link: https://lore.kernel.org/r/20230318080543.1226700-2-frank@crawford.emu.id.au
+[groeck: Update subject and description to focus on bug fix]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_display.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/it87.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -13335,6 +13335,7 @@ intel_crtc_prepare_cleared_state(struct
- 	 * only fields that are know to not cause problems are preserved. */
+diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
+index f8499cb95fec8..4e4e151760db2 100644
+--- a/drivers/hwmon/it87.c
++++ b/drivers/hwmon/it87.c
+@@ -495,6 +495,8 @@ static const struct it87_devices it87_devices[] = {
+ #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
+ #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
+ #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
++#define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
++						     FEAT_10_9MV_ADC))
  
- 	saved_state->uapi = crtc_state->uapi;
-+	saved_state->inherited = crtc_state->inherited;
- 	saved_state->scaler_state = crtc_state->scaler_state;
- 	saved_state->shared_dpll = crtc_state->shared_dpll;
- 	saved_state->dpll_hw_state = crtc_state->dpll_hw_state;
+ struct it87_sio_data {
+ 	int sioaddr;
+@@ -3107,7 +3109,7 @@ static int it87_probe(struct platform_device *pdev)
+ 			 "Detected broken BIOS defaults, disabling PWM interface\n");
+ 
+ 	/* Starting with IT8721F, we handle scaling of internal voltages */
+-	if (has_12mv_adc(data)) {
++	if (has_scaling(data)) {
+ 		if (sio_data->internal & BIT(0))
+ 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
+ 		if (sio_data->internal & BIT(1))
+-- 
+2.39.2
+
 
 
