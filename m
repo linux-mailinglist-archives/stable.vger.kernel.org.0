@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A3326D4A03
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36866D494A
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbjDCOnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:43:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
+        id S233669AbjDCOgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:36:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233849AbjDCOnX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1163F17654
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:04 -0700 (PDT)
+        with ESMTP id S233680AbjDCOgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D45A16F2A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91FA96144D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A469BC433D2;
-        Mon,  3 Apr 2023 14:43:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 116C661E7B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2873CC433D2;
+        Mon,  3 Apr 2023 14:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532983;
-        bh=4dmOU6eOsaNii+aMTV8JVmAALGaTwDsW5D9DFERr/0k=;
+        s=korg; t=1680532581;
+        bh=p7t5WjlGxmjZyXhqjY8FYZhpEmcVPHJc12+qrkHIxjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/TG051Lk4IarYHNiD/6393nUfoNgk17Mhr1RBxX/VBMUUOPYgrjGzEW2h1hQMAza
-         thhJAPFea03A3Kz1uQc+3rYb/pIT96e5z4fc7GEY6Wljbfiizv0D3RKneLG20ERzRv
-         LAHGbw2hU0nJmzUIr+SEDfiUfVLgRqRAK5E+kz0I=
+        b=KjlCCLsWPKPW5w9ENxuGeYE3eLGCeXFP3eSoxrdnPEDokksC3h1qWHdUiAxcAL6FI
+         6S9Sbn32Rlc8et+daxXsVTSnGoY0Md2asPIvyXQGfOwQ03UJRbEGDJVf/TiAaCViDa
+         mhGzYiVF/cbjQ00diwMzojxYBkRaSkDZKpLPWUes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Naohiro Aota <naohiro.aota@wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 010/187] btrfs: rename BTRFS_FS_NO_OVERCOMMIT to BTRFS_FS_ACTIVE_ZONE_TRACKING
+Subject: [PATCH 6.1 020/181] drm/msm/disp/dpu: fix sc7280_pp base offset
 Date:   Mon,  3 Apr 2023 16:07:35 +0200
-Message-Id: <20230403140416.371692189@linuxfoundation.org>
+Message-Id: <20230403140415.796207663@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,74 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit bf1f1fec2724a33b67ec12032402ea75f2a83622 ]
+[ Upstream commit ce68153edb5b36ddf87a19ed5a85131498690bbf ]
 
-This flag only gets set when we're doing active zone tracking, and we're
-going to need to use this flag for things related to this behavior.
-Rename the flag to represent what it actually means for the file system
-so it can be used in other ways and still make sense.
+At sc7280, pingpong block is used to management the dither effects
+to reduce distortion at panel. Currently pingpong-0 base offset is
+wrongly set at 0x59000. This mistake will not cause system to crash.
+However it will make dither not work. This patch correct sc7280 ping
+pong-0 block base offset.
 
-Reviewed-by: Naohiro Aota <naohiro.aota@wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Stable-dep-of: e15acc25880c ("btrfs: zoned: drop space_info->active_total_bytes")
+Changes in v2:
+-- add more details info n regrading of pingpong block at commit text
+
+Fixes: 591e34a091d1 ("drm/msm/disp/dpu1: add support for display for SC7280 target")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/524332/
+Link: https://lore.kernel.org/r/1677533800-3125-1-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/fs.h         | 7 ++-----
- fs/btrfs/space-info.c | 2 +-
- fs/btrfs/zoned.c      | 3 +--
- 3 files changed, 4 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/fs.h b/fs/btrfs/fs.h
-index 3d8156fc8523f..f180ca061aef4 100644
---- a/fs/btrfs/fs.h
-+++ b/fs/btrfs/fs.h
-@@ -119,11 +119,8 @@ enum {
- 	/* Indicate that we want to commit the transaction. */
- 	BTRFS_FS_NEED_TRANS_COMMIT,
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index b1131860ada17..32a3c42ec45b1 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -1181,7 +1181,7 @@ static const struct dpu_pingpong_cfg sm8150_pp[] = {
+ };
  
--	/*
--	 * Indicate metadata over-commit is disabled. This is set when active
--	 * zone tracking is needed.
--	 */
--	BTRFS_FS_NO_OVERCOMMIT,
-+	/* This is set when active zone tracking is needed. */
-+	BTRFS_FS_ACTIVE_ZONE_TRACKING,
- 
- 	/*
- 	 * Indicate if we have some features changed, this is mostly for
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index 69c09508afb50..2237685d1ed0c 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -407,7 +407,7 @@ int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
- 		return 0;
- 
- 	used = btrfs_space_info_used(space_info, true);
--	if (test_bit(BTRFS_FS_NO_OVERCOMMIT, &fs_info->flags) &&
-+	if (test_bit(BTRFS_FS_ACTIVE_ZONE_TRACKING, &fs_info->flags) &&
- 	    (space_info->flags & BTRFS_BLOCK_GROUP_METADATA))
- 		avail = 0;
- 	else
-diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
-index f3b7d8ae93a9f..a6a8bc112fc42 100644
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -539,8 +539,7 @@ int btrfs_get_dev_zone_info(struct btrfs_device *device, bool populate_cache)
- 		}
- 		atomic_set(&zone_info->active_zones_left,
- 			   max_active_zones - nactive);
--		/* Overcommit does not work well with active zone tacking. */
--		set_bit(BTRFS_FS_NO_OVERCOMMIT, &fs_info->flags);
-+		set_bit(BTRFS_FS_ACTIVE_ZONE_TRACKING, &fs_info->flags);
- 	}
- 
- 	/* Validate superblock log */
+ static const struct dpu_pingpong_cfg sc7280_pp[] = {
+-	PP_BLK("pingpong_0", PINGPONG_0, 0x59000, 0, sc7280_pp_sblk, -1, -1),
++	PP_BLK("pingpong_0", PINGPONG_0, 0x69000, 0, sc7280_pp_sblk, -1, -1),
+ 	PP_BLK("pingpong_1", PINGPONG_1, 0x6a000, 0, sc7280_pp_sblk, -1, -1),
+ 	PP_BLK("pingpong_2", PINGPONG_2, 0x6b000, 0, sc7280_pp_sblk, -1, -1),
+ 	PP_BLK("pingpong_3", PINGPONG_3, 0x6c000, 0, sc7280_pp_sblk, -1, -1),
 -- 
 2.39.2
 
