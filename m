@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8C36D470B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3876B6D4A76
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232955AbjDCOQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
+        id S234097AbjDCOrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:47:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232844AbjDCOQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:31 -0400
+        with ESMTP id S233986AbjDCOrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97CA027839
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1298629BC1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C3AE61CCB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0D4C433EF;
-        Mon,  3 Apr 2023 14:16:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C238E61F47
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3363C433D2;
+        Mon,  3 Apr 2023 14:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531389;
-        bh=K7U3p9dxigxgiCWi0s0u9AxjdxF3i2JymFR1MdnCrVc=;
+        s=korg; t=1680533174;
+        bh=ybnf0WuouWU08KTr71yU7vBE+kVfFz4SW7MEMzkHpuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLgX6bksptNFRNQ9xUUa1bUin9OX6tXIsA4kz68khKfcqSeX9DzpgRO9r020WWMxy
-         mvHS3IDHIdSpngtrEcYy1RqErOrcSAQSjHRIwO8zerTmVSRjbiBZllWltMEriiCnsZ
-         tIGC+SpV9dU5x9kKgZeAR/K4blEImvTiEtKsJ/WA=
+        b=nDoGg9IkGdk0I7IqljMButsihzt4vfqSxIUnFyKN/r2Flph+OtH/uZNufPIk3lZt0
+         ZOxrItFblEbIECuUSbf5o7xDbwu3pmT26LPetPClHQCXBJpH1ARQ9iDXYisVexQVJP
+         0CkNFUkrIwmotHDbqHsvVSwkiKbHs3fx06EDSBSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.19 45/84] dm stats: check for and propagate alloc_percpu failure
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 081/187] net: dsa: realtek: fix out-of-bounds access
 Date:   Mon,  3 Apr 2023 16:08:46 +0200
-Message-Id: <20230403140354.938390879@linuxfoundation.org>
+Message-Id: <20230403140418.628007986@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,79 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit d3aa3e060c4a80827eb801fc448debc9daa7c46b upstream.
+[ Upstream commit b93eb564869321d0dffaf23fcc5c88112ed62466 ]
 
-Check alloc_precpu()'s return value and return an error from
-dm_stats_init() if it fails. Update alloc_dev() to fail if
-dm_stats_init() does.
+The probe function sets priv->chip_data to (void *)priv + sizeof(*priv)
+with the expectation that priv has enough trailing space.
 
-Otherwise, a NULL pointer dereference will occur in dm_stats_cleanup()
-even if dm-stats isn't being actively used.
+However, only realtek-smi actually allocated this chip_data space.
+Do likewise in realtek-mdio to fix out-of-bounds accesses.
 
-Fixes: fd2ed4d25270 ("dm: add statistics support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+These accesses likely went unnoticed so far, because of an (unused)
+buf[4096] member in struct realtek_priv, which caused kmalloc to
+round up the allocated buffer to a big enough size, so nothing of
+value was overwritten. With a different allocator (like in the barebox
+bootloader port of the driver) or with KASAN, the memory corruption
+becomes quickly apparent.
+
+Fixes: aac94001067d ("net: dsa: realtek: add new mdio interface for drivers")
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Link: https://lore.kernel.org/r/20230323103735.2331786-1-a.fatoum@pengutronix.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-stats.c |    7 ++++++-
- drivers/md/dm-stats.h |    2 +-
- drivers/md/dm.c       |    4 +++-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/dsa/realtek/realtek-mdio.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-stats.c
-+++ b/drivers/md/dm-stats.c
-@@ -188,7 +188,7 @@ static int dm_stat_in_flight(struct dm_s
- 	       atomic_read(&shared->in_flight[WRITE]);
- }
+diff --git a/drivers/net/dsa/realtek/realtek-mdio.c b/drivers/net/dsa/realtek/realtek-mdio.c
+index 3e54fac5f9027..5a8fe707ca25e 100644
+--- a/drivers/net/dsa/realtek/realtek-mdio.c
++++ b/drivers/net/dsa/realtek/realtek-mdio.c
+@@ -21,6 +21,7 @@
  
--void dm_stats_init(struct dm_stats *stats)
-+int dm_stats_init(struct dm_stats *stats)
- {
- 	int cpu;
- 	struct dm_stats_last_position *last;
-@@ -196,11 +196,16 @@ void dm_stats_init(struct dm_stats *stat
- 	mutex_init(&stats->mutex);
- 	INIT_LIST_HEAD(&stats->list);
- 	stats->last = alloc_percpu(struct dm_stats_last_position);
-+	if (!stats->last)
-+		return -ENOMEM;
-+
- 	for_each_possible_cpu(cpu) {
- 		last = per_cpu_ptr(stats->last, cpu);
- 		last->last_sector = (sector_t)ULLONG_MAX;
- 		last->last_rw = UINT_MAX;
- 	}
-+
-+	return 0;
- }
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/overflow.h>
+ #include <linux/regmap.h>
  
- void dm_stats_cleanup(struct dm_stats *stats)
---- a/drivers/md/dm-stats.h
-+++ b/drivers/md/dm-stats.h
-@@ -22,7 +22,7 @@ struct dm_stats_aux {
- 	unsigned long long duration_ns;
- };
+ #include "realtek.h"
+@@ -152,7 +153,9 @@ static int realtek_mdio_probe(struct mdio_device *mdiodev)
+ 	if (!var)
+ 		return -EINVAL;
  
--void dm_stats_init(struct dm_stats *st);
-+int dm_stats_init(struct dm_stats *st);
- void dm_stats_cleanup(struct dm_stats *st);
+-	priv = devm_kzalloc(&mdiodev->dev, sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(&mdiodev->dev,
++			    size_add(sizeof(*priv), var->chip_data_sz),
++			    GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
  
- struct mapped_device;
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -2021,7 +2021,9 @@ static struct mapped_device *alloc_dev(i
- 	bio_set_dev(&md->flush_bio, md->bdev);
- 	md->flush_bio.bi_opf = REQ_OP_WRITE | REQ_PREFLUSH | REQ_SYNC;
- 
--	dm_stats_init(&md->stats);
-+	r = dm_stats_init(&md->stats);
-+	if (r < 0)
-+		goto bad;
- 
- 	/* Populate the mapping, nobody knows we exist yet */
- 	spin_lock(&_minor_lock);
+-- 
+2.39.2
+
 
 
