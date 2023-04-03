@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 451546D48D5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F5E76D46C4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233497AbjDCOcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36372 "EHLO
+        id S232858AbjDCONQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:13:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbjDCOcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:19 -0400
+        with ESMTP id S232786AbjDCONP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:13:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8A3D4F89
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3CA172C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:13:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EFCCB81C6A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC278C433D2;
-        Mon,  3 Apr 2023 14:32:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39BE4B81B2F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95115C433EF;
+        Mon,  3 Apr 2023 14:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532328;
-        bh=ELeiXCVMPdRjA3invz0WBUYxq8YYD3cMBL8NWKRz04A=;
+        s=korg; t=1680531191;
+        bh=zjEk9E6e7qe1JmkTXMOwfLHd9Pot19JP8A+Cy+lz/Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZKomzsUw5bmWZOGvxz1huy0JGo/K9JCK3hHlX85xzhNzPC+CemZ7XHGFW5V1LKd6
-         UeikPm2uS+HEGe/JMy4S73VFEuH5Q4IaBnf9eGZcqITRMHB1Dl//xKrnZ54AmvGSET
-         ILNnuDH0dINRFdv+bOQNvJL4ET1+x11aBZ/eG+yA=
+        b=hwy4brekZgpA5mHKTP5wvT1OZ589LzBpHCMZ1Mtm1S8PhATHEqZ+uJRjUrMF4KbkM
+         ZmeAe7UUtikwLhp8ZQ1NvywQZMxPuThqbvRxPP24QUAhhW61iDPQQeau27SH6d8kRn
+         tJozYmDw1HWkzPmtZXIhua7HXB91q49OEm33v+KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Faicker Mo <faicker.mo@ucloud.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 40/99] net/net_failover: fix txq exceeding warning
+        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 55/66] Input: focaltech - use explicitly signed char type
 Date:   Mon,  3 Apr 2023 16:09:03 +0200
-Message-Id: <20230403140404.742063819@linuxfoundation.org>
+Message-Id: <20230403140353.728767819@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faicker Mo <faicker.mo@ucloud.cn>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit e3cbdcb0fbb61045ef3ce0e072927cc41737f787 ]
+commit 8980f190947ba29f23110408e712444884b74251 upstream.
 
-The failover txq is inited as 16 queues.
-when a packet is transmitted from the failover device firstly,
-the failover device will select the queue which is returned from
-the primary device if the primary device is UP and running.
-If the primary device txq is bigger than the default 16,
-it can lead to the following warning:
-eth0 selects TX queue 18, but real number of TX queues is 16
+The recent change of -funsigned-char causes additions of negative
+numbers to become additions of large positive numbers, leading to wrong
+calculations of mouse movement. Change these casts to be explicitly
+signed, to take into account negative offsets.
 
-The warning backtrace is:
-[   32.146376] CPU: 18 PID: 9134 Comm: chronyd Tainted: G            E      6.2.8-1.el7.centos.x86_64 #1
-[   32.147175] Hardware name: Red Hat KVM, BIOS 1.10.2-3.el7_4.1 04/01/2014
-[   32.147730] Call Trace:
-[   32.147971]  <TASK>
-[   32.148183]  dump_stack_lvl+0x48/0x70
-[   32.148514]  dump_stack+0x10/0x20
-[   32.148820]  netdev_core_pick_tx+0xb1/0xe0
-[   32.149180]  __dev_queue_xmit+0x529/0xcf0
-[   32.149533]  ? __check_object_size.part.0+0x21c/0x2c0
-[   32.149967]  ip_finish_output2+0x278/0x560
-[   32.150327]  __ip_finish_output+0x1fe/0x2f0
-[   32.150690]  ip_finish_output+0x2a/0xd0
-[   32.151032]  ip_output+0x7a/0x110
-[   32.151337]  ? __pfx_ip_finish_output+0x10/0x10
-[   32.151733]  ip_local_out+0x5e/0x70
-[   32.152054]  ip_send_skb+0x19/0x50
-[   32.152366]  udp_send_skb.isra.0+0x163/0x3a0
-[   32.152736]  udp_sendmsg+0xba8/0xec0
-[   32.153060]  ? __folio_memcg_unlock+0x25/0x60
-[   32.153445]  ? __pfx_ip_generic_getfrag+0x10/0x10
-[   32.153854]  ? sock_has_perm+0x85/0xa0
-[   32.154190]  inet_sendmsg+0x6d/0x80
-[   32.154508]  ? inet_sendmsg+0x6d/0x80
-[   32.154838]  sock_sendmsg+0x62/0x70
-[   32.155152]  ____sys_sendmsg+0x134/0x290
-[   32.155499]  ___sys_sendmsg+0x81/0xc0
-[   32.155828]  ? _get_random_bytes.part.0+0x79/0x1a0
-[   32.156240]  ? ip4_datagram_release_cb+0x5f/0x1e0
-[   32.156649]  ? get_random_u16+0x69/0xf0
-[   32.156989]  ? __fget_light+0xcf/0x110
-[   32.157326]  __sys_sendmmsg+0xc4/0x210
-[   32.157657]  ? __sys_connect+0xb7/0xe0
-[   32.157995]  ? __audit_syscall_entry+0xce/0x140
-[   32.158388]  ? syscall_trace_enter.isra.0+0x12c/0x1a0
-[   32.158820]  __x64_sys_sendmmsg+0x24/0x30
-[   32.159171]  do_syscall_64+0x38/0x90
-[   32.159493]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-
-Fix that by reducing txq number as the non-existent primary-dev does.
-
-Fixes: cfc80d9a1163 ("net: Introduce net_failover driver")
-Signed-off-by: Faicker Mo <faicker.mo@ucloud.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3bc753c06dd0 ("kbuild: treat char as always unsigned")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217211
+Link: https://lore.kernel.org/r/20230318133010.1285202-1-Jason@zx2c4.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/net_failover.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/input/mouse/focaltech.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/net_failover.c b/drivers/net/net_failover.c
-index 2a4892402ed8c..16b36e9563607 100644
---- a/drivers/net/net_failover.c
-+++ b/drivers/net/net_failover.c
-@@ -130,14 +130,10 @@ static u16 net_failover_select_queue(struct net_device *dev,
- 			txq = ops->ndo_select_queue(primary_dev, skb, sb_dev);
- 		else
- 			txq = netdev_pick_tx(primary_dev, skb, NULL);
--
--		qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
--
--		return txq;
-+	} else {
-+		txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -206,8 +206,8 @@ static void focaltech_process_rel_packet
+ 	state->pressed = packet[0] >> 7;
+ 	finger1 = ((packet[0] >> 4) & 0x7) - 1;
+ 	if (finger1 < FOC_MAX_FINGERS) {
+-		state->fingers[finger1].x += (char)packet[1];
+-		state->fingers[finger1].y += (char)packet[2];
++		state->fingers[finger1].x += (s8)packet[1];
++		state->fingers[finger1].y += (s8)packet[2];
+ 	} else {
+ 		psmouse_err(psmouse, "First finger in rel packet invalid: %d\n",
+ 			    finger1);
+@@ -222,8 +222,8 @@ static void focaltech_process_rel_packet
+ 	 */
+ 	finger2 = ((packet[3] >> 4) & 0x7) - 1;
+ 	if (finger2 < FOC_MAX_FINGERS) {
+-		state->fingers[finger2].x += (char)packet[4];
+-		state->fingers[finger2].y += (char)packet[5];
++		state->fingers[finger2].x += (s8)packet[4];
++		state->fingers[finger2].y += (s8)packet[5];
  	}
+ }
  
--	txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
--
- 	/* Save the original txq to restore before passing to the driver */
- 	qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
- 
--- 
-2.39.2
-
 
 
