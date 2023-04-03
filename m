@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A53E6D4869
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FAB6D46C6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233367AbjDCO21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58126 "EHLO
+        id S232861AbjDCONT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:13:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbjDCO20 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E163F31280
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:25 -0700 (PDT)
+        with ESMTP id S232774AbjDCONS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:13:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0032C40E1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:13:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D2D61DBF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D3C7C433EF;
-        Mon,  3 Apr 2023 14:28:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADDB7B81B22
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:13:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26E57C433D2;
+        Mon,  3 Apr 2023 14:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532104;
-        bh=9c5q+RRvk0Gpkk4KBxd4qoIs3IlyHdm46ev3J2FHPos=;
+        s=korg; t=1680531194;
+        bh=pR6dVImNUpI3i4tk65yAw4Wyr9DpfFAfNgJ0R0OcflE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0JheTuKW6EgVpclz8STG8Z2Ngh8qwqkTcIUd0FdxRtz4IIS5vQzoIX699j4M1xAt
-         b/mW1Fac4oM8Rs9FLk3kUeoCLJ3ntNqheFM7MknhmvlU/f/bflRNXquh18fptodBf4
-         yBEtssK2HcTKKFYNjOiTodujGMRmrFl6EPCR9zqI=
+        b=LXbjLYQ6AH6Agojud0ntIad0gZrhlpaXghd0Aft9Q9y5m0VbTngNzb3SQ5OPM5WNe
+         I4AuV0RU3V8A+tUNCtTNfWjibLIayFhmmxyjcnoUmPdh/tF9BE36sHKaG71QPuxwgj
+         X6U654h6EyMrUFdg0O9WJ9g00zlfOx5jh+sM9DaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/173] scsi: megaraid_sas: Fix crash after a double completion
+        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 56/66] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
 Date:   Mon,  3 Apr 2023 16:09:04 +0200
-Message-Id: <20230403140418.629719805@linuxfoundation.org>
+Message-Id: <20230403140353.757516420@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 2309df27111a51734cb9240b4d3c25f2f3c6ab06 ]
+commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
 
-When a physical disk is attached directly "without JBOD MAP support" (see
-megasas_get_tm_devhandle()) then there is no real error handling in the
-driver.  Return FAILED instead of SUCCESS.
+When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
+is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
+S_AUTOMOUNT and corresponding dentry flags is retained regardless of
+CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
+VFS follow_automount() when traversing a DFS referral link:
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  ...
+  Call Trace:
+   <TASK>
+   __traverse_mounts+0xb5/0x220
+   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
+   step_into+0x195/0x610
+   ? lookup_fast+0xe2/0xf0
+   path_lookupat+0x64/0x140
+   filename_lookup+0xc2/0x140
+   ? __create_object+0x299/0x380
+   ? kmem_cache_alloc+0x119/0x220
+   ? user_path_at_empty+0x31/0x50
+   user_path_at_empty+0x31/0x50
+   __x64_sys_chdir+0x2a/0xd0
+   ? exit_to_user_mode_prepare+0xca/0x100
+   do_syscall_64+0x42/0x90
+   entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-Fixes: 18365b138508 ("megaraid_sas: Task management support")
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230324150134.14696-1-thenzl@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
+when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
+avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
+approach was chosen as it provides more control over the error path.
+
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Cc: stable@vger.kernel.org
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_fusion.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/cifsfs.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index 7838c7911adde..8eb126d48462b 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -4656,7 +4656,7 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
- 	devhandle = megasas_get_tm_devhandle(scmd->device);
+--- a/fs/cifs/cifsfs.h
++++ b/fs/cifs/cifsfs.h
+@@ -122,7 +122,10 @@ extern const struct dentry_operations ci
+ #ifdef CONFIG_CIFS_DFS_UPCALL
+ extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
+ #else
+-#define cifs_dfs_d_automount NULL
++static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
++{
++	return ERR_PTR(-EREMOTE);
++}
+ #endif
  
- 	if (devhandle == (u16)ULONG_MAX) {
--		ret = SUCCESS;
-+		ret = FAILED;
- 		sdev_printk(KERN_INFO, scmd->device,
- 			"task abort issued for invalid devhandle\n");
- 		mutex_unlock(&instance->reset_mutex);
-@@ -4726,7 +4726,7 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
- 	devhandle = megasas_get_tm_devhandle(scmd->device);
- 
- 	if (devhandle == (u16)ULONG_MAX) {
--		ret = SUCCESS;
-+		ret = FAILED;
- 		sdev_printk(KERN_INFO, scmd->device,
- 			"target reset issued for invalid devhandle\n");
- 		mutex_unlock(&instance->reset_mutex);
--- 
-2.39.2
-
+ /* Functions related to symlinks */
 
 
