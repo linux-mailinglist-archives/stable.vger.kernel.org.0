@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A68086D48C2
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E161D6D46CF
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbjDCObo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34792 "EHLO
+        id S232874AbjDCOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233491AbjDCObk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73AAD35009
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:35 -0700 (PDT)
+        with ESMTP id S232870AbjDCOOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0B62952D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE72661DC8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F452C433D2;
-        Mon,  3 Apr 2023 14:31:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D9276CE12AC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9AF3C4339C;
+        Mon,  3 Apr 2023 14:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532294;
-        bh=610eYB4IEW3NrhHmH0fo76VOsyahLA/go6GJkQBsv+s=;
+        s=korg; t=1680531255;
+        bh=Q0MsNZi/NA6Tdci6HGEC0RMSXmpgIv60YUvRFdfoBBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wEf6zE2tEuDYfWIeMk4N1eWXcYzCCYsa73dJCX4Luik1220BSdavX5kHpi8bt1722
-         tnZwk2MDr+CWvTENoHYjjXu440ZjKmGddjfVRjyCt33v+GuwMQqj57BjcClgdQG0FN
-         HngqJvvLrdLgNWQo71FP5rrzDAQJNQApmnnyojHI=
+        b=l8/mhPjOl9ge+Uf8Qqbj+cEndYWE0CdYcXS++4QNDAwLtAJBtDH+exAeg682Uch/E
+         Q8q5nGXjIKkIMgwfUnzbm5oxh5wcuvL7hIw+AMwwezEJCh1qeaiIBgd/CjJtrUNRqB
+         BwQV78l+dZiQ1BHuo4FhRfSKjVU7yPhMO0h/+aw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Mark Pearson <mpearson-lenovo@squebb.ca>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        NeilBrown <neilb@suse.de>, Song Liu <song@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 28/99] platform/x86: think-lmi: use correct possible_values delimiters
+Subject: [PATCH 4.14 43/66] md: avoid signed overflow in slot_store()
 Date:   Mon,  3 Apr 2023 16:08:51 +0200
-Message-Id: <20230403140404.120824261@linuxfoundation.org>
+Message-Id: <20230403140353.367426421@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,53 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <mpearson-lenovo@squebb.ca>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 45e21289bfc6e257885514790a8a8887da822d40 ]
+[ Upstream commit 3bc57292278a0b6ac4656cad94c14f2453344b57 ]
 
-firmware-attributes class requires that possible values are delimited
-using ';' but the Lenovo firmware uses ',' instead.
-Parse string and replace where appropriate.
+slot_store() uses kstrtouint() to get a slot number, but stores the
+result in an "int" variable (by casting a pointer).
+This can result in a negative slot number if the unsigned int value is
+very large.
 
-Suggested-by: Thomas Weißschuh <linux@weissschuh.net>
-Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Link: https://lore.kernel.org/r/20230320003221.561750-2-mpearson-lenovo@squebb.ca
-Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+A negative number means that the slot is empty, but setting a negative
+slot number this way will not remove the device from the array.  I don't
+think this is a serious problem, but it could cause confusion and it is
+best to fix it.
+
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/think-lmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/md/md.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index 0c166b4fa7167..f10fe5ffe47df 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -538,7 +538,7 @@ static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
- 
- 	if (setting->possible_values) {
- 		/* Figure out what setting type is as BIOS does not return this */
--		if (strchr(setting->possible_values, ','))
-+		if (strchr(setting->possible_values, ';'))
- 			return sysfs_emit(buf, "enumeration\n");
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 880a0ebca8660..69d1501d9160e 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -2967,6 +2967,9 @@ slot_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		err = kstrtouint(buf, 10, (unsigned int *)&slot);
+ 		if (err < 0)
+ 			return err;
++		if (slot < 0)
++			/* overflow */
++			return -ENOSPC;
  	}
- 	/* Anything else is going to be a string */
-@@ -934,6 +934,13 @@ static int tlmi_analyze(void)
- 				pr_info("Error retrieving possible values for %d : %s\n",
- 						i, setting->display_name);
- 		}
-+		/*
-+		 * firmware-attributes requires that possible_values are separated by ';' but
-+		 * Lenovo FW uses ','. Replace appropriately.
-+		 */
-+		if (setting->possible_values)
-+			strreplace(setting->possible_values, ',', ';');
-+
- 		kobject_init(&setting->kobj, &tlmi_attr_setting_ktype);
- 		tlmi_priv.setting[i] = setting;
- 		kfree(item);
+ 	if (rdev->mddev->pers && slot == -1) {
+ 		/* Setting 'slot' on an active array requires also
 -- 
 2.39.2
 
