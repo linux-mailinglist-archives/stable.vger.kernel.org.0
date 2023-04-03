@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 134AF6D48CE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839226D46DC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbjDCOcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36288 "EHLO
+        id S232892AbjDCOO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233485AbjDCOcJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3EC0D4F89
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:57 -0700 (PDT)
+        with ESMTP id S232882AbjDCOOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5604C40FC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 763F6B81C67
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBCA7C433EF;
-        Mon,  3 Apr 2023 14:31:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD53561CAD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0A24C433D2;
+        Mon,  3 Apr 2023 14:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532315;
-        bh=n0/wxVzQGJULDVFbJTnwSpFclH48QvKKA9KgpkShm1o=;
+        s=korg; t=1680531289;
+        bh=osYd5k2tGDI708FtAvOzUUH/YD3JHeDpaPD+2tk6KTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHuR70iz27qmdQ1IJWyrtb1unrrXCHF1Q0ykZsDhhwdfXcwV+xwHU2z0yaykVtrVC
-         NU8etKqPrQncWLGtOsz6EuqjsTN9ZIP8ys0m3yvB8exfxQBVH2aH/VFy/VpRmIrKvn
-         t740ERKsZd0i+yyQda+LEKrsfIxf6JImHSl9JxoQ=
+        b=I0I8dx9EKJpw2qyghkAjKjrZoG6jAOTofoVDgbRJrLscKYKaNK4OZFOHxGzWYoQwN
+         02Dt/k7WLBABhCdfEcDcDIkEB3DfTOtnn3ywlvftfSjdbO3Ddh9JzCwmp8zzLCyngf
+         POLFvzNYNqL6qGvIu1w6chiDuCGV/iA8kM4AU+6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sathya Prakash <sathya.prakash@broadcom.com>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        Suganath Prabu Subramani 
-        <suganath-prabu.subramani@broadcom.com>,
-        MPT-FusionLinux.pdl@broadcom.com,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 35/99] scsi: mpt3sas: Dont print sense pool info twice
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 50/66] fbdev: lxfb: Fix potential divide by zero
 Date:   Mon,  3 Apr 2023 16:08:58 +0200
-Message-Id: <20230403140404.506137237@linuxfoundation.org>
+Message-Id: <20230403140353.572961497@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,48 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Snitselaar <jsnitsel@redhat.com>
+From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit d684a7a26f7d2c7122a4581ac966ed64e88fb29c ]
+[ Upstream commit 61ac4b86a4c047c20d5cb423ddd87496f14d9868 ]
 
-_base_allocate_sense_dma_pool() already prints out the sense pool
-information, so don't print it a second time after calling it in
-_base_allocate_memory_pools(). In addition the version in
-_base_allocate_memory_pools() was using the wrong size value, sz, which was
-last assigned when doing some nvme calculations instead of sense_sz to
-determine the pool size in kilobytes.
+var->pixclock can be assigned to zero by user. Without proper
+check, divide by zero would occur in lx_set_clock.
 
-Cc: Sathya Prakash <sathya.prakash@broadcom.com>
-Cc: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Cc: Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>
-Cc: MPT-FusionLinux.pdl@broadcom.com
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Fixes: 970ac2bb70e7 ("scsi: mpt3sas: Force sense buffer allocations to be within same 4 GB region")
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Link: https://lore.kernel.org/r/20230324193204.567932-1-jsnitsel@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Error out if var->pixclock is zero.
+
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/video/fbdev/geode/lxfb_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 90118204e21a7..5aa4ae0b06076 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -6456,11 +6456,6 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc)
- 	else if (rc == -EAGAIN)
- 		goto try_32bit_dma;
- 	total_sz += sense_sz;
--	ioc_info(ioc,
--	    "sense pool(0x%p)- dma(0x%llx): depth(%d),"
--	    "element_size(%d), pool_size(%d kB)\n",
--	    ioc->sense, (unsigned long long)ioc->sense_dma, ioc->scsiio_depth,
--	    SCSI_SENSE_BUFFERSIZE, sz / 1024);
- 	/* reply pool, 4 byte align */
- 	sz = ioc->reply_free_queue_depth * ioc->reply_sz;
- 	rc = _base_allocate_reply_pool(ioc, sz);
+diff --git a/drivers/video/fbdev/geode/lxfb_core.c b/drivers/video/fbdev/geode/lxfb_core.c
+index 138da6cb6cbcd..4345246b4c798 100644
+--- a/drivers/video/fbdev/geode/lxfb_core.c
++++ b/drivers/video/fbdev/geode/lxfb_core.c
+@@ -247,6 +247,9 @@ static void get_modedb(struct fb_videomode **modedb, unsigned int *size)
+ 
+ static int lxfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ {
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	if (var->xres > 1920 || var->yres > 1440)
+ 		return -EINVAL;
+ 
 -- 
 2.39.2
 
