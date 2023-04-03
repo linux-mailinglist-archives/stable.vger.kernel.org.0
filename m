@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF5B6D477F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1F36D484B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233152AbjDCOVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41822 "EHLO
+        id S233343AbjDCO1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:27:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233145AbjDCOUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:20:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62E32D7E5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:27 -0700 (PDT)
+        with ESMTP id S233341AbjDCO1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D29312BE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF054B81BA3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B8C3C4339C;
-        Mon,  3 Apr 2023 14:20:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E9E5B81C15
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88ADEC4339B;
+        Mon,  3 Apr 2023 14:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531617;
-        bh=F/EwB6z8OddU3I+npaVUBSF7DJJc/wQLqLE/xr4Yjhs=;
+        s=korg; t=1680532039;
+        bh=FbWs3/rnsgWgG4PG1OBE6yvXyVbm/3yff3q5d1C6b+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1J2UBVQZ6q7qRxW9zosBuzv1TyioGq1g/XcsRH0DLZ7mi8Y1j5a0UThKV/jp+4VZ
-         InDF4cM3dSd5DvrUiHIAC+4R1ZlRsmiSONMfTlHnleundOlPXlo3QBGUsNy224cZfr
-         JH2G/gilktXHq632VwRiPyJDCtXgYSVMEXjakxVo=
+        b=C9oFyz1oANotCrkVHnrrRaiu5/rbgQGnkcqgFrzTf4fL8XJwNdTi3P17FcMzCtb2j
+         F2LP1eKWvS1FS7A+cwv8gIyGaMokk0P+bZhGtQgXk93M1fXePZmpEdty4iKsSvXLPA
+         25+hYA55bdUqaAmmMzE5h8mtafyJPS1Ac1Sg4Fvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Corinna Vinschen <vinschen@redhat.com>,
-        Lin Ma <linma@zju.edu.cn>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Rafal Romanowski <rafal.romanowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 046/104] igb: revert rtnl_lock() that causes deadlock
+        patches@lists.linux.dev, Xingyuan Mo <hdthky0@gmail.com>,
+        Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 103/173] NFSD: fix use-after-free in __nfs42_ssc_open()
 Date:   Mon,  3 Apr 2023 16:08:38 +0200
-Message-Id: <20230403140406.190758041@linuxfoundation.org>
+Message-Id: <20230403140417.773920681@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,87 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-commit 65f69851e44d71248b952a687e44759a7abb5016 upstream.
+commit 75333d48f92256a0dec91dbf07835e804fc411c0 upstream.
 
-The commit 6faee3d4ee8b ("igb: Add lock to avoid data race") adds
-rtnl_lock to eliminate a false data race shown below
+Problem caused by source's vfsmount being unmounted but remains
+on the delayed unmount list. This happens when nfs42_ssc_open()
+return errors.
 
- (FREE from device detaching)      |   (USE from netdev core)
-igb_remove                         |  igb_ndo_get_vf_config
- igb_disable_sriov                 |  vf >= adapter->vfs_allocated_count?
-  kfree(adapter->vf_data)          |
-  adapter->vfs_allocated_count = 0 |
-                                   |    memcpy(... adapter->vf_data[vf]
+Fixed by removing nfsd4_interssc_connect(), leave the vfsmount
+for the laundromat to unmount when idle time expires.
 
-The above race will never happen and the extra rtnl_lock causes deadlock
-below
+We don't need to call nfs_do_sb_deactive when nfs42_ssc_open
+return errors since the file was not opened so nfs_server->active
+was not incremented. Same as in nfsd4_copy, if we fail to
+launch nfsd4_do_async_copy thread then there's no need to
+call nfs_do_sb_deactive
 
-[  141.420169]  <TASK>
-[  141.420672]  __schedule+0x2dd/0x840
-[  141.421427]  schedule+0x50/0xc0
-[  141.422041]  schedule_preempt_disabled+0x11/0x20
-[  141.422678]  __mutex_lock.isra.13+0x431/0x6b0
-[  141.423324]  unregister_netdev+0xe/0x20
-[  141.423578]  igbvf_remove+0x45/0xe0 [igbvf]
-[  141.423791]  pci_device_remove+0x36/0xb0
-[  141.423990]  device_release_driver_internal+0xc1/0x160
-[  141.424270]  pci_stop_bus_device+0x6d/0x90
-[  141.424507]  pci_stop_and_remove_bus_device+0xe/0x20
-[  141.424789]  pci_iov_remove_virtfn+0xba/0x120
-[  141.425452]  sriov_disable+0x2f/0xf0
-[  141.425679]  igb_disable_sriov+0x4e/0x100 [igb]
-[  141.426353]  igb_remove+0xa0/0x130 [igb]
-[  141.426599]  pci_device_remove+0x36/0xb0
-[  141.426796]  device_release_driver_internal+0xc1/0x160
-[  141.427060]  driver_detach+0x44/0x90
-[  141.427253]  bus_remove_driver+0x55/0xe0
-[  141.427477]  pci_unregister_driver+0x2a/0xa0
-[  141.428296]  __x64_sys_delete_module+0x141/0x2b0
-[  141.429126]  ? mntput_no_expire+0x4a/0x240
-[  141.429363]  ? syscall_trace_enter.isra.19+0x126/0x1a0
-[  141.429653]  do_syscall_64+0x5b/0x80
-[  141.429847]  ? exit_to_user_mode_prepare+0x14d/0x1c0
-[  141.430109]  ? syscall_exit_to_user_mode+0x12/0x30
-[  141.430849]  ? do_syscall_64+0x67/0x80
-[  141.431083]  ? syscall_exit_to_user_mode_prepare+0x183/0x1b0
-[  141.431770]  ? syscall_exit_to_user_mode+0x12/0x30
-[  141.432482]  ? do_syscall_64+0x67/0x80
-[  141.432714]  ? exc_page_fault+0x64/0x140
-[  141.432911]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-
-Since the igb_disable_sriov() will call pci_disable_sriov() before
-releasing any resources, the netdev core will synchronize the cleanup to
-avoid any races. This patch removes the useless rtnl_(un)lock to guarantee
-correctness.
-
-CC: stable@vger.kernel.org
-Fixes: 6faee3d4ee8b ("igb: Add lock to avoid data race")
-Reported-by: Corinna Vinschen <vinschen@redhat.com>
-Link: https://lore.kernel.org/intel-wired-lan/ZAcJvkEPqWeJHO2r@calimero.vinschen.de/
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Tested-by: Corinna Vinschen <vinschen@redhat.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Tested-by: Rafal Romanowski <rafal.romanowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Tested-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c |    2 --
- 1 file changed, 2 deletions(-)
+ fs/nfsd/nfs4proc.c |   22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -3674,9 +3674,7 @@ static void igb_remove(struct pci_dev *p
- 	igb_release_hw_control(adapter);
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1248,13 +1248,6 @@ out_err:
+ 	return status;
+ }
  
- #ifdef CONFIG_PCI_IOV
--	rtnl_lock();
- 	igb_disable_sriov(pdev);
--	rtnl_unlock();
- #endif
+-static void
+-nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
+-{
+-	nfs_do_sb_deactive(ss_mnt->mnt_sb);
+-	mntput(ss_mnt);
+-}
+-
+ /*
+  * Verify COPY destination stateid.
+  *
+@@ -1325,11 +1318,6 @@ nfsd4_cleanup_inter_ssc(struct vfsmount
+ {
+ }
  
- 	unregister_netdev(netdev);
+-static void
+-nfsd4_interssc_disconnect(struct vfsmount *ss_mnt)
+-{
+-}
+-
+ static struct file *nfs42_ssc_open(struct vfsmount *ss_mnt,
+ 				   struct nfs_fh *src_fh,
+ 				   nfs4_stateid *stateid)
+@@ -1471,14 +1459,14 @@ static int nfsd4_do_async_copy(void *dat
+ 		copy->nf_src = kzalloc(sizeof(struct nfsd_file), GFP_KERNEL);
+ 		if (!copy->nf_src) {
+ 			copy->nfserr = nfserr_serverfault;
+-			nfsd4_interssc_disconnect(copy->ss_mnt);
++			/* ss_mnt will be unmounted by the laundromat */
+ 			goto do_callback;
+ 		}
+ 		copy->nf_src->nf_file = nfs42_ssc_open(copy->ss_mnt, &copy->c_fh,
+ 					      &copy->stateid);
+ 		if (IS_ERR(copy->nf_src->nf_file)) {
+ 			copy->nfserr = nfserr_offload_denied;
+-			nfsd4_interssc_disconnect(copy->ss_mnt);
++			/* ss_mnt will be unmounted by the laundromat */
+ 			goto do_callback;
+ 		}
+ 	}
+@@ -1561,8 +1549,10 @@ out_err:
+ 	if (async_copy)
+ 		cleanup_async_copy(async_copy);
+ 	status = nfserrno(-ENOMEM);
+-	if (!copy->cp_intra)
+-		nfsd4_interssc_disconnect(copy->ss_mnt);
++	/*
++	 * source's vfsmount of inter-copy will be unmounted
++	 * by the laundromat
++	 */
+ 	goto out;
+ }
+ 
 
 
