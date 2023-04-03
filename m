@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C66C6D49C8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5CE76D4AAB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233799AbjDCOlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
+        id S234166AbjDCOt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233798AbjDCOlS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CAC717AE8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:17 -0700 (PDT)
+        with ESMTP id S233998AbjDCOtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76732D7C4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD6E861EDB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF1DC433EF;
-        Mon,  3 Apr 2023 14:41:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5A8B81D66
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FC64C4339B;
+        Mon,  3 Apr 2023 14:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532876;
-        bh=uhQ1Ign+mAVpQ+Qk1eZOn5h31+V7oD71ZIRBQa/hZQM=;
+        s=korg; t=1680533247;
+        bh=ei4NQIUuQMA0C5xUjvkRJJlFT/ErECz8O8zn/OE2ZEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfJ9FrPk0SF2zI2DQCdIOavHkcGFZkPnKbTUExcan19IIB3ak37ICMbpuvLkerbwq
-         wvfj3tzWZ0VjWgihMVwNa7evBG+/K2Xr0DDoD/hBT9y37utrBBG9FvK6P9QlHfngTF
-         svCG4g1cnq0sZiZXGUr2hu3sA8ikhKAkKADqWVeg=
+        b=Gbg51+X+U0gMLQn6TmXuuo7yaF6L7zsa3raulem3f6wYt3pm9cfb2hCX9WskVm60n
+         KabR50VIkA/rWo5gesxUG2mQzjcOpTsVf7FtDAiSTsy/aqWXln4ywBiSa+wrjAgNv/
+         a9Q9AQsxBK7LtiLAZ2K6wkY0PcosHxlttuM/jPCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 120/181] pinctrl: ocelot: Fix alt mode for ocelot
+        patches@lists.linux.dev, Tasos Sahanidis <tasos@tasossah.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 110/187] ALSA: ymfpci: Fix BUG_ON in probe function
 Date:   Mon,  3 Apr 2023 16:09:15 +0200
-Message-Id: <20230403140418.986386882@linuxfoundation.org>
+Message-Id: <20230403140419.601834126@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,38 +52,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit 657fd9da2d4b4aa0a384105b236baa22fa0233bf ]
+[ Upstream commit 6be2e7522eb529b41c16d459f33bbdbcddbf5c15 ]
 
-In case the driver was trying to set an alternate mode for gpio
-0 or 32 then the mode was not set correctly. The reason is that
-there is computation error inside the function ocelot_pinmux_set_mux
-because in this case it was trying to shift to left by -1.
-Fix this by actually shifting the function bits and not the position.
+The snd_dma_buffer.bytes field now contains the aligned size, which this
+snd_BUG_ON() did not account for, resulting in the following:
 
-Fixes: 4b36082e2e09 ("pinctrl: ocelot: fix pinmuxing for pins after 31")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20230206203720.1177718-1-horatiu.vultur@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+[    9.625915] ------------[ cut here ]------------
+[    9.633440] WARNING: CPU: 0 PID: 126 at sound/pci/ymfpci/ymfpci_main.c:2168 snd_ymfpci_create+0x681/0x698 [snd_ymfpci]
+[    9.648926] Modules linked in: snd_ymfpci(+) snd_intel_dspcfg kvm(+) snd_intel_sdw_acpi snd_ac97_codec snd_mpu401_uart snd_opl3_lib irqbypass snd_hda_codec gameport snd_rawmidi crct10dif_pclmul crc32_pclmul cfg80211 snd_hda_core polyval_clmulni polyval_generic gf128mul snd_seq_device ghash_clmulni_intel snd_hwdep ac97_bus sha512_ssse3 rfkill snd_pcm aesni_intel tg3 snd_timer crypto_simd snd mxm_wmi libphy cryptd k10temp fam15h_power pcspkr soundcore sp5100_tco wmi acpi_cpufreq mac_hid dm_multipath sg loop fuse dm_mod bpf_preload ip_tables x_tables ext4 crc32c_generic crc16 mbcache jbd2 sr_mod cdrom ata_generic pata_acpi firewire_ohci crc32c_intel firewire_core xhci_pci crc_itu_t pata_via xhci_pci_renesas floppy
+[    9.711849] CPU: 0 PID: 126 Comm: kworker/0:2 Not tainted 6.1.21-1-lts #1 08d2e5ece03136efa7c6aeea9a9c40916b1bd8da
+[    9.722200] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./990FX Extreme4, BIOS P2.70 06/05/2014
+[    9.732204] Workqueue: events work_for_cpu_fn
+[    9.736580] RIP: 0010:snd_ymfpci_create+0x681/0x698 [snd_ymfpci]
+[    9.742594] Code: 8c c0 4c 89 e2 48 89 df 48 c7 c6 92 c6 8c c0 e8 15 d0 e9 ff 48 83 c4 08 44 89 e8 5b 5d 41 5c 41 5d 41 5e 41 5f e9 d3 7a 33 e3 <0f> 0b e9 cb fd ff ff 41 bd fb ff ff ff eb db 41 bd f4 ff ff ff eb
+[    9.761358] RSP: 0018:ffffab64804e7da0 EFLAGS: 00010287
+[    9.766594] RAX: ffff8fa2df06c400 RBX: ffff8fa3073a8000 RCX: ffff8fa303fbc4a8
+[    9.773734] RDX: ffff8fa2df06d000 RSI: 0000000000000010 RDI: 0000000000000020
+[    9.780876] RBP: ffff8fa300b5d0d0 R08: ffff8fa3073a8e50 R09: 00000000df06bf00
+[    9.788018] R10: ffff8fa2df06bf00 R11: 00000000df068200 R12: ffff8fa3073a8918
+[    9.795159] R13: 0000000000000000 R14: 0000000000000080 R15: ffff8fa2df068200
+[    9.802317] FS:  0000000000000000(0000) GS:ffff8fa9fec00000(0000) knlGS:0000000000000000
+[    9.810414] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    9.816158] CR2: 000055febaf66500 CR3: 0000000101a2e000 CR4: 00000000000406f0
+[    9.823301] Call Trace:
+[    9.825747]  <TASK>
+[    9.827889]  snd_card_ymfpci_probe+0x194/0x950 [snd_ymfpci b78a5fe64b5663a6390a909c67808567e3e73615]
+[    9.837030]  ? finish_task_switch.isra.0+0x90/0x2d0
+[    9.841918]  local_pci_probe+0x45/0x80
+[    9.845680]  work_for_cpu_fn+0x1a/0x30
+[    9.849431]  process_one_work+0x1c7/0x380
+[    9.853464]  worker_thread+0x1af/0x390
+[    9.857225]  ? rescuer_thread+0x3b0/0x3b0
+[    9.861254]  kthread+0xde/0x110
+[    9.864414]  ? kthread_complete_and_exit+0x20/0x20
+[    9.869210]  ret_from_fork+0x22/0x30
+[    9.872792]  </TASK>
+[    9.874985] ---[ end trace 0000000000000000 ]---
+
+Fixes: 5c1733e33c88 ("ALSA: memalloc: Align buffer allocations in page size")
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Link: https://lore.kernel.org/r/20230329032808.170403-1-tasos@tasossah.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ocelot.c | 2 +-
+ sound/pci/ymfpci/ymfpci_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
-index 3d5995cbcb782..c1d58939dd89a 100644
---- a/drivers/pinctrl/pinctrl-ocelot.c
-+++ b/drivers/pinctrl/pinctrl-ocelot.c
-@@ -1202,7 +1202,7 @@ static int ocelot_pinmux_set_mux(struct pinctrl_dev *pctldev,
- 	regmap_update_bits(info->map, REG_ALT(0, info, pin->pin),
- 			   BIT(p), f << p);
- 	regmap_update_bits(info->map, REG_ALT(1, info, pin->pin),
--			   BIT(p), f << (p - 1));
-+			   BIT(p), (f >> 1) << p);
+diff --git a/sound/pci/ymfpci/ymfpci_main.c b/sound/pci/ymfpci/ymfpci_main.c
+index c80114c0ad7bf..b492c32ce0704 100644
+--- a/sound/pci/ymfpci/ymfpci_main.c
++++ b/sound/pci/ymfpci/ymfpci_main.c
+@@ -2165,7 +2165,7 @@ static int snd_ymfpci_memalloc(struct snd_ymfpci *chip)
+ 	chip->work_base = ptr;
+ 	chip->work_base_addr = ptr_addr;
+ 	
+-	snd_BUG_ON(ptr + chip->work_size !=
++	snd_BUG_ON(ptr + PAGE_ALIGN(chip->work_size) !=
+ 		   chip->work_ptr->area + chip->work_ptr->bytes);
  
- 	return 0;
- }
+ 	snd_ymfpci_writel(chip, YDSXGR_PLAYCTRLBASE, chip->bank_base_playback_addr);
 -- 
 2.39.2
 
