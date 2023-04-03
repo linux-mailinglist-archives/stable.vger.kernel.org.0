@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 103356D4818
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD236D4955
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233299AbjDCOZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53638 "EHLO
+        id S233676AbjDCOhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233290AbjDCOZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:49 -0400
+        with ESMTP id S233680AbjDCOhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662234EFF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B812BEE0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0051261D96
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16546C4339C;
-        Mon,  3 Apr 2023 14:25:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F045861E75
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D476C433D2;
+        Mon,  3 Apr 2023 14:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531946;
-        bh=VgMjAVeopcsSQqLNr5C05PNYh2ZPq8TLuphXfB81Puk=;
+        s=korg; t=1680532607;
+        bh=T+y02KqbdinWzs5BHyJ64yYI5IzZszI6qc+B2eCbKfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gJn5vdsBSmX7IDBMufeu6X0JiKGbhUv4GyN+2/O0VEhFMNQ2+I5IaNKFvTsHQD7t
-         KYlTEJHb1dP9eEdsCURjKxJIg/fO+AaicXRz8MyGmGKi33JByIZGSZphJlOMtXHa7f
-         S4MVX5c7SNQpf3bgGzzoGU6TDhogVgOWyIXM3etc=
+        b=Lj4nsdLt7j22J99gFXJ525hh7C3q/cyOBjaC3P5rala60L95p4Zs4wqqOKP6HWTM8
+         uVp4YoKCUKxeLcgb6YzwdMHXkKnJ/eeNcqT1fGpNFAFvhrQESFfUdCJyoAmUP5um/E
+         9Lrh0U9wKJsSNiV3WWrKAKvPT62WC6Ggl6Ss5lP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eero Tamminen <oak@helsinkinet.fi>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Chia-I Wu <olvaffe@gmail.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/173] m68k: Only force 030 bus error if PC not in exception table
+Subject: [PATCH 6.1 047/181] drm/amdkfd: fix potential kgd_mem UAFs
 Date:   Mon,  3 Apr 2023 16:08:02 +0200
-Message-Id: <20230403140416.616323897@linuxfoundation.org>
+Message-Id: <20230403140416.684058966@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Chia-I Wu <olvaffe@gmail.com>
 
-[ Upstream commit e36a82bebbf7da814530d5a179bef9df5934b717 ]
+[ Upstream commit 9da050b0d9e04439d225a2ec3044af70cdfb3933 ]
 
-__get_kernel_nofault() does copy data in supervisor mode when
-forcing a task backtrace log through /proc/sysrq_trigger.
-This is expected cause a bus error exception on e.g. NULL
-pointer dereferencing when logging a kernel task has no
-workqueue associated. This bus error ought to be ignored.
+kgd_mem pointers returned by kfd_process_device_translate_handle are
+only guaranteed to be valid while p->mutex is held. As soon as the mutex
+is unlocked, another thread can free the BO.
 
-Our 030 bus error handler is ill equipped to deal with this:
-
-Whenever ssw indicates a kernel mode access on a data fault,
-we don't even attempt to handle the fault and instead always
-send a SEGV signal (or panic). As a result, the check
-for exception handling at the fault PC (buried in
-send_sig_fault() which gets called from do_page_fault()
-eventually) is never used.
-
-In contrast, both 040 and 060 access error handlers do not
-care whether a fault happened on supervisor mode access,
-and will call do_page_fault() on those, ultimately honoring
-the exception table.
-
-Add a check in bus_error030 to call do_page_fault() in case
-we do have an entry for the fault PC in our exception table.
-
-I had attempted a fix for this earlier in 2019 that did rely
-on testing pagefault_disabled() (see link below) to achieve
-the same thing, but this patch should be more generic.
-
-Tested on 030 Atari Falcon.
-
-Reported-by: Eero Tamminen <oak@helsinkinet.fi>
-Link: https://lore.kernel.org/r/alpine.LNX.2.21.1904091023540.25@nippy.intranet
-Link: https://lore.kernel.org/r/63130691-1984-c423-c1f2-73bfd8d3dcd3@gmail.com
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230301021107.26307-1-schmitzmic@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/traps.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index b2a31afb998c2..7d42c84649ac2 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/ptrace.h>
- #include <linux/kallsyms.h>
-+#include <linux/extable.h>
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+index f79b8e964140e..e191d38f3da62 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+@@ -1298,14 +1298,14 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
+ 		args->n_success = i+1;
+ 	}
  
- #include <asm/setup.h>
- #include <asm/fpu.h>
-@@ -549,7 +550,8 @@ static inline void bus_error030 (struct frame *fp)
- 			errorcode |= 2;
+-	mutex_unlock(&p->mutex);
+-
+ 	err = amdgpu_amdkfd_gpuvm_sync_memory(dev->adev, (struct kgd_mem *) mem, true);
+ 	if (err) {
+ 		pr_debug("Sync memory failed, wait interrupted by user signal\n");
+ 		goto sync_memory_failed;
+ 	}
  
- 		if (mmusr & (MMU_I | MMU_WP)) {
--			if (ssw & 4) {
-+			/* We might have an exception table for this PC */
-+			if (ssw & 4 && !search_exception_tables(fp->ptregs.pc)) {
- 				pr_err("Data %s fault at %#010lx in %s (pc=%#lx)\n",
- 				       ssw & RW ? "read" : "write",
- 				       fp->un.fmtb.daddr,
++	mutex_unlock(&p->mutex);
++
+ 	/* Flush TLBs after waiting for the page table updates to complete */
+ 	for (i = 0; i < args->n_devices; i++) {
+ 		peer_pdd = kfd_process_device_data_by_id(p, devices_arr[i]);
+@@ -1321,9 +1321,9 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
+ bind_process_to_device_failed:
+ get_mem_obj_from_handle_failed:
+ map_memory_to_gpu_failed:
++sync_memory_failed:
+ 	mutex_unlock(&p->mutex);
+ copy_from_user_failed:
+-sync_memory_failed:
+ 	kfree(devices_arr);
+ 
+ 	return err;
+@@ -1337,6 +1337,7 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
+ 	void *mem;
+ 	long err = 0;
+ 	uint32_t *devices_arr = NULL, i;
++	bool flush_tlb;
+ 
+ 	if (!args->n_devices) {
+ 		pr_debug("Device IDs array empty\n");
+@@ -1389,16 +1390,19 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
+ 		}
+ 		args->n_success = i+1;
+ 	}
+-	mutex_unlock(&p->mutex);
+ 
+-	if (kfd_flush_tlb_after_unmap(pdd->dev)) {
++	flush_tlb = kfd_flush_tlb_after_unmap(pdd->dev);
++	if (flush_tlb) {
+ 		err = amdgpu_amdkfd_gpuvm_sync_memory(pdd->dev->adev,
+ 				(struct kgd_mem *) mem, true);
+ 		if (err) {
+ 			pr_debug("Sync memory failed, wait interrupted by user signal\n");
+ 			goto sync_memory_failed;
+ 		}
++	}
++	mutex_unlock(&p->mutex);
+ 
++	if (flush_tlb) {
+ 		/* Flush TLBs after waiting for the page table updates to complete */
+ 		for (i = 0; i < args->n_devices; i++) {
+ 			peer_pdd = kfd_process_device_data_by_id(p, devices_arr[i]);
+@@ -1414,9 +1418,9 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
+ bind_process_to_device_failed:
+ get_mem_obj_from_handle_failed:
+ unmap_memory_from_gpu_failed:
++sync_memory_failed:
+ 	mutex_unlock(&p->mutex);
+ copy_from_user_failed:
+-sync_memory_failed:
+ 	kfree(devices_arr);
+ 	return err;
+ }
 -- 
 2.39.2
 
