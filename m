@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 221EB6D499D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0336D486C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233754AbjDCOjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51804 "EHLO
+        id S233376AbjDCO2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233762AbjDCOjg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E1D2D7DE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:32 -0700 (PDT)
+        with ESMTP id S233372AbjDCO2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE3A2CACD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31D7261EAC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4906AC433EF;
-        Mon,  3 Apr 2023 14:39:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5F91DCE0FCB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B560C433A1;
+        Mon,  3 Apr 2023 14:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532771;
-        bh=yl2rk6VyLYTv1k3iTf9DXMBvKRXy+Vadx1an0oQ3kwQ=;
+        s=korg; t=1680532107;
+        bh=noVZb804vuPDQVTQr3X92/tFr/DAUTuTMhxnNHqblGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxFpM6VxMIYbFOgMvTySFzsdgnrGwwWpb/2KqJbk9xtIIFXie5ocmY5CtXVvY3z0N
-         CXAvDX5Se5SJbvLJ4wLlUhxEDk1yGC8O/PZW77bvqrUr2tMJzJ7fzrI7n7Alq68cvt
-         mTeyTvPnykmxw1HHraKD36Rygw7dFQkvYhd0mc8o=
+        b=oEDMHFMgm17kMyfmNKb5OStJSOgE8cfp+pAl1DZg/Hq3dItYwXXfl3rEP47hmzbJk
+         f1c/wQSkJ8TngKx7nzFGoF5qkiAbcVEJjcEJkvlrZE2ZWTIdG2owUBgJxzF3dBeWgY
+         Dpt8RMym+LdoZmWVTiOu38jqN9hCOcjwhiRy/6pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tasos Sahanidis <tasos@tasossah.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 110/181] ALSA: ymfpci: Create card with device-managed snd_devm_card_new()
+        patches@lists.linux.dev, SongJingyi <u201912584@hust.edu.cn>,
+        Dan Carpenter <error27@gmail.com>,
+        Dongliang Mu <dzm91@hust.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 130/173] ptp_qoriq: fix memory leak in probe()
 Date:   Mon,  3 Apr 2023 16:09:05 +0200
-Message-Id: <20230403140418.679274299@linuxfoundation.org>
+Message-Id: <20230403140418.668153087@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,87 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tasos Sahanidis <tasos@tasossah.com>
+From: SongJingyi <u201912584@hust.edu.cn>
 
-[ Upstream commit f33fc1576757741479452255132d6e3aaf558ffe ]
+[ Upstream commit f33642224e38d7e0d59336e10e7b4e370b1c4506 ]
 
-snd_card_ymfpci_remove() was removed in commit c6e6bb5eab74 ("ALSA:
-ymfpci: Allocate resources with device-managed APIs"), but the call to
-snd_card_new() was not replaced with snd_devm_card_new().
+Smatch complains that:
+drivers/ptp/ptp_qoriq.c ptp_qoriq_probe()
+warn: 'base' from ioremap() not released.
 
-Since there was no longer a call to snd_card_free, unloading the module
-would eventually result in Oops:
+Fix this by revising the parameter from 'ptp_qoriq->base' to 'base'.
+This is only a bug if ptp_qoriq_init() returns on the
+first -ENODEV error path.
+For other error paths ptp_qoriq->base and base are the same.
+And this change makes the code more readable.
 
-[697561.532887] BUG: unable to handle page fault for address: ffffffffc0924480
-[697561.532893] #PF: supervisor read access in kernel mode
-[697561.532896] #PF: error_code(0x0000) - not-present page
-[697561.532899] PGD ae1e15067 P4D ae1e15067 PUD ae1e17067 PMD 11a8f5067 PTE 0
-[697561.532905] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[697561.532909] CPU: 21 PID: 5080 Comm: wireplumber Tainted: G        W  OE      6.2.7 #1
-[697561.532914] Hardware name: System manufacturer System Product Name/TUF GAMING X570-PLUS, BIOS 4408 10/28/2022
-[697561.532916] RIP: 0010:try_module_get.part.0+0x1a/0xe0
-[697561.532924] Code: 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 55 41 54 49 89 fc bf 01 00 00 00 e8 56 3c f8 ff <41> 83 3c 24 02 0f 84 96 00 00 00 41 8b 84 24 30 03 00 00 85 c0 0f
-[697561.532927] RSP: 0018:ffffbe9b858c3bd8 EFLAGS: 00010246
-[697561.532930] RAX: ffff9815d14f1900 RBX: ffff9815c14e6000 RCX: 0000000000000000
-[697561.532933] RDX: 0000000000000000 RSI: ffffffffc055092c RDI: ffffffffb3778c1a
-[697561.532935] RBP: ffffbe9b858c3be8 R08: 0000000000000040 R09: ffff981a1a741380
-[697561.532937] R10: ffffbe9b858c3c80 R11: 00000009d56533a6 R12: ffffffffc0924480
-[697561.532939] R13: ffff9823439d8500 R14: 0000000000000025 R15: ffff9815cd109f80
-[697561.532942] FS:  00007f13084f1f80(0000) GS:ffff9824aef40000(0000) knlGS:0000000000000000
-[697561.532945] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[697561.532947] CR2: ffffffffc0924480 CR3: 0000000145344000 CR4: 0000000000350ee0
-[697561.532949] Call Trace:
-[697561.532951]  <TASK>
-[697561.532955]  try_module_get+0x13/0x30
-[697561.532960]  snd_ctl_open+0x61/0x1c0 [snd]
-[697561.532976]  snd_open+0xb4/0x1e0 [snd]
-[697561.532989]  chrdev_open+0xc7/0x240
-[697561.532995]  ? fsnotify_perm.part.0+0x6e/0x160
-[697561.533000]  ? __pfx_chrdev_open+0x10/0x10
-[697561.533005]  do_dentry_open+0x169/0x440
-[697561.533009]  vfs_open+0x2d/0x40
-[697561.533012]  path_openat+0xa9d/0x10d0
-[697561.533017]  ? debug_smp_processor_id+0x17/0x20
-[697561.533022]  ? trigger_load_balance+0x65/0x370
-[697561.533026]  do_filp_open+0xb2/0x160
-[697561.533032]  ? _raw_spin_unlock+0x19/0x40
-[697561.533036]  ? alloc_fd+0xa9/0x190
-[697561.533040]  do_sys_openat2+0x9f/0x160
-[697561.533044]  __x64_sys_openat+0x55/0x90
-[697561.533048]  do_syscall_64+0x3b/0x90
-[697561.533052]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-[697561.533056] RIP: 0033:0x7f1308a40db4
-[697561.533059] Code: 24 20 eb 8f 66 90 44 89 54 24 0c e8 46 68 f8 ff 44 8b 54 24 0c 44 89 e2 48 89 ee 41 89 c0 bf 9c ff ff ff b8 01 01 00 00 0f 05 <48> 3d 00 f0 ff ff 77 32 44 89 c7 89 44 24 0c e8 78 68 f8 ff 8b 44
-[697561.533062] RSP: 002b:00007ffcce664450 EFLAGS: 00000293 ORIG_RAX: 0000000000000101
-[697561.533066] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f1308a40db4
-[697561.533068] RDX: 0000000000080000 RSI: 00007ffcce664690 RDI: 00000000ffffff9c
-[697561.533070] RBP: 00007ffcce664690 R08: 0000000000000000 R09: 0000000000000012
-[697561.533072] R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000080000
-[697561.533074] R13: 00007f13054b069b R14: 0000565209f83200 R15: 0000000000000000
-[697561.533078]  </TASK>
-
-Fixes: c6e6bb5eab74 ("ALSA: ymfpci: Allocate resources with device-managed APIs")
-Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
-Link: https://lore.kernel.org/r/20230329032422.170024-1-tasos@tasossah.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 7f4399ba405b ("ptp_qoriq: fix NULL access if ptp dt node missing")
+Signed-off-by: SongJingyi <u201912584@hust.edu.cn>
+Reviewed-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Dongliang Mu <dzm91@hust.edu.cn>
+Link: https://lore.kernel.org/r/20230324031406.1895159-1-u201912584@hust.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ymfpci/ymfpci.c | 2 +-
+ drivers/ptp/ptp_qoriq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/ymfpci/ymfpci.c b/sound/pci/ymfpci/ymfpci.c
-index 1e198e4d57b8d..82d4e0fda91be 100644
---- a/sound/pci/ymfpci/ymfpci.c
-+++ b/sound/pci/ymfpci/ymfpci.c
-@@ -170,7 +170,7 @@ static int snd_card_ymfpci_probe(struct pci_dev *pci,
- 		return -ENOENT;
- 	}
+diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
+index 08f4cf0ad9e3c..8fa9772acf79b 100644
+--- a/drivers/ptp/ptp_qoriq.c
++++ b/drivers/ptp/ptp_qoriq.c
+@@ -601,7 +601,7 @@ static int ptp_qoriq_probe(struct platform_device *dev)
+ 	return 0;
  
--	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
-+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
- 			   sizeof(*chip), &card);
- 	if (err < 0)
- 		return err;
+ no_clock:
+-	iounmap(ptp_qoriq->base);
++	iounmap(base);
+ no_ioremap:
+ 	release_resource(ptp_qoriq->rsrc);
+ no_resource:
 -- 
 2.39.2
 
