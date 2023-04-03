@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D42206D4751
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D236D494B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbjDCOTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39088 "EHLO
+        id S233653AbjDCOgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:36:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbjDCOTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9552C9DF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:09 -0700 (PDT)
+        with ESMTP id S233681AbjDCOgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A75871765B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7CBDB81BA8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C55C433EF;
-        Mon,  3 Apr 2023 14:19:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 356E361E80
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E80EC4339E;
+        Mon,  3 Apr 2023 14:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531546;
-        bh=AYQK/nW9l4cl/DtggUNloxtu/0Ez46kxbDH+CvduZ00=;
+        s=korg; t=1680532586;
+        bh=k+hmGhSaD1+QaJ7ZakF1ukiTvaTebvpE8t6aMcJUf28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGu+2u0LtsRiPtDr8ceddhZ7W+giMYHnOVWAWfr9dhvun5+2RHwZQxosTgoBiPAZ6
-         VzCRIGFgZpSnUhQ6hZYWwxnyiktjxZ+Z5VOKfVtmBbnb22qXLKJzSuXqYkmbQ3RZcp
-         FxKfxl0CtXAaZT0W8vaG/O8ZVG8KviZYICD0K1Fk=
+        b=lTX0qo+EGcYmOqpKqNA2vO0VV5y/1d1NsyCdcL1Ek/yV4EARia2s4h/ig41M9lI1F
+         nsk3ybavzKt8lfR1UezQ4bYgQJjDJWLOoKSKTt96wFYMqpOS4MvfE6TdexHnmvZiHR
+         C3aFSAtnqqZglCHK/LJOeLIAYHmq5b8UPtoFlnRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Curtis Malainey <curtis@malainey.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 002/104] power: supply: da9150: Fix use after free bug in da9150_charger_remove due to race condition
+Subject: [PATCH 6.1 039/181] ASoC: SOF: ipc3: Check for upper size limit for the received message
 Date:   Mon,  3 Apr 2023 16:07:54 +0200
-Message-Id: <20230403140404.035056916@linuxfoundation.org>
+Message-Id: <20230403140416.427934308@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit 06615d11cc78162dfd5116efb71f29eb29502d37 ]
+[ Upstream commit 989a3e4479177d0f4afab8be1960731bc0ffbbd0 ]
 
-In da9150_charger_probe, &charger->otg_work is bound with
-da9150_charger_otg_work. da9150_charger_otg_ncb may be
-called to start the work.
+The sof_ipc3_rx_msg() checks for minimum size of a new rx message but it is
+missing the check for upper limit.
+Corrupted or compromised firmware might be able to take advantage of this
+to cause out of bounds reads outside of the message area.
 
-If we remove the module which will call da9150_charger_remove
-to make cleanup, there may be a unfinished work. The possible
-sequence is as follows:
-
-Fix it by canceling the work before cleanup in the da9150_charger_remove
-
-CPU0                  CPUc1
-
-                    |da9150_charger_otg_work
-da9150_charger_remove      |
-power_supply_unregister  |
-device_unregister   |
-power_supply_dev_release|
-kfree(psy)          |
-                    |
-                    | 	power_supply_changed(charger->usb);
-                    |   //use
-
-Fixes: c1a281e34dae ("power: Add support for DA9150 Charger")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reported-by: Curtis Malainey <cujomalainey@chromium.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Curtis Malainey <curtis@malainey.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230307114917.5124-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/da9150-charger.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/sof/ipc3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/da9150-charger.c b/drivers/power/supply/da9150-charger.c
-index f9314cc0cd75f..6b987da586556 100644
---- a/drivers/power/supply/da9150-charger.c
-+++ b/drivers/power/supply/da9150-charger.c
-@@ -662,6 +662,7 @@ static int da9150_charger_remove(struct platform_device *pdev)
+diff --git a/sound/soc/sof/ipc3.c b/sound/soc/sof/ipc3.c
+index b28af3a48b707..60b96b0c2412f 100644
+--- a/sound/soc/sof/ipc3.c
++++ b/sound/soc/sof/ipc3.c
+@@ -970,8 +970,9 @@ static void sof_ipc3_rx_msg(struct snd_sof_dev *sdev)
+ 		return;
+ 	}
  
- 	if (!IS_ERR_OR_NULL(charger->usb_phy))
- 		usb_unregister_notifier(charger->usb_phy, &charger->otg_nb);
-+	cancel_work_sync(&charger->otg_work);
+-	if (hdr.size < sizeof(hdr)) {
+-		dev_err(sdev->dev, "The received message size is invalid\n");
++	if (hdr.size < sizeof(hdr) || hdr.size > SOF_IPC_MSG_MAX_SIZE) {
++		dev_err(sdev->dev, "The received message size is invalid: %u\n",
++			hdr.size);
+ 		return;
+ 	}
  
- 	power_supply_unregister(charger->battery);
- 	power_supply_unregister(charger->usb);
 -- 
 2.39.2
 
