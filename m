@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB346D4974
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C696D46F8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233733AbjDCOiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S232918AbjDCOPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233705AbjDCOiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC2B10DA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:59 -0700 (PDT)
+        with ESMTP id S232933AbjDCOPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEC1B4C37
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91DCE6146A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A411CC433D2;
-        Mon,  3 Apr 2023 14:37:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6418FB81B6E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E52C433D2;
+        Mon,  3 Apr 2023 14:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532678;
-        bh=08OWbfiWPJSbxDnAwXss/74HZV+xVfgvzDUcsYqfuCA=;
+        s=korg; t=1680531347;
+        bh=mjOBt0hwl4VEkVOuBgR29W11lOITYRPWxwYwBi1U/4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmFOkz6SqoO3S7Ka+CR0GEtITBc9y7P6YjtckuNQazUT51O4Fs9e9TXKv5McH8CPG
-         ez066i1vu/+SXzDCg5Yw7kvSiAb3ZonC61O8pKEBh1Sw6ztydWN2R8tQuAVZMmj4GA
-         OEUEwODrKVOfC6ulurswZdB+l7YkYTe9p4O2CdHY=
+        b=WmGjzw+/a6CCR7uNP8H0zyuVxVrxp9af+s2RWpNvcE3ehtPYVNut8Yn8sDx30eYMY
+         KXJW7E+OQdGDyyrlXuZWxx6KFV7isFGpAf1VTCdCJmAab8A/r7nN/hA9/6e1S3Pl7n
+         FaC/xq/g1UL/Hu6MyxYYyu9A5LUWCGQ0cistMte8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Petr Tesarik <petr.tesarik.ext@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 074/181] swiotlb: fix slot alignment checks
+        patches@lists.linux.dev, Dmitry Vyukov <dvyukov@google.com>,
+        Alexandre Ghiti <alex@ghiti.fr>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/84] riscv: Bump COMMAND_LINE_SIZE value to 1024
 Date:   Mon,  3 Apr 2023 16:08:29 +0200
-Message-Id: <20230403140417.540659835@linuxfoundation.org>
+Message-Id: <20230403140354.333191002@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,78 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Tesarik <petr.tesarik.ext@huawei.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
 
-[ Upstream commit 0eee5ae1025699ea93d44fdb6ef2365505082103 ]
+[ Upstream commit 61fc1ee8be26bc192d691932b0a67eabee45d12f ]
 
-Explicit alignment and page alignment are used only to calculate
-the stride, not when checking actual slot physical address.
+Increase COMMAND_LINE_SIZE as the current default value is too low
+for syzbot kernel command line.
 
-Originally, only page alignment was implemented, and that worked,
-because the whole SWIOTLB is allocated on a page boundary, so
-aligning the start index was sufficient to ensure a page-aligned
-slot.
+There has been considerable discussion on this patch that has led to a
+larger patch set removing COMMAND_LINE_SIZE from the uapi headers on all
+ports.  That's not quite done yet, but it's gotten far enough we're
+confident this is not a uABI change so this is safe.
 
-When commit 1f221a0d0dbf ("swiotlb: respect min_align_mask") added
-support for min_align_mask, the index could be incremented in the
-search loop, potentially finding an unaligned slot if minimum device
-alignment is between IO_TLB_SIZE and PAGE_SIZE.  The bug could go
-unnoticed, because the slot size is 2 KiB, and the most common page
-size is 4 KiB, so there is no alignment value in between.
-
-IIUC the intention has been to find a slot that conforms to all
-alignment constraints: device minimum alignment, an explicit
-alignment (given as function parameter) and optionally page
-alignment (if allocation size is >= PAGE_SIZE). The most
-restrictive mask can be trivially computed with logical AND. The
-rest can stay.
-
-Fixes: 1f221a0d0dbf ("swiotlb: respect min_align_mask")
-Fixes: e81e99bacc9f ("swiotlb: Support aligned swiotlb buffers")
-Signed-off-by: Petr Tesarik <petr.tesarik.ext@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Link: https://lore.kernel.org/r/20210316193420.904-1-alex@ghiti.fr
+[Palmer: it's not uabi]
+Link: https://lore.kernel.org/linux-riscv/874b8076-b0d1-4aaa-bcd8-05d523060152@app.fastmail.com/#t
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/swiotlb.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/riscv/include/uapi/asm/setup.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100644 arch/riscv/include/uapi/asm/setup.h
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 1ecd0d1f7231a..eeb5695c3f286 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -626,22 +626,26 @@ static int swiotlb_do_find_slots(struct device *dev, int area_index,
- 	BUG_ON(!nslots);
- 	BUG_ON(area_index >= mem->nareas);
- 
-+	/*
-+	 * For allocations of PAGE_SIZE or larger only look for page aligned
-+	 * allocations.
-+	 */
-+	if (alloc_size >= PAGE_SIZE)
-+		iotlb_align_mask &= PAGE_MASK;
-+	iotlb_align_mask &= alloc_align_mask;
+diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uapi/asm/setup.h
+new file mode 100644
+index 0000000000000..66b13a5228808
+--- /dev/null
++++ b/arch/riscv/include/uapi/asm/setup.h
+@@ -0,0 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
 +
- 	/*
- 	 * For mappings with an alignment requirement don't bother looping to
--	 * unaligned slots once we found an aligned one.  For allocations of
--	 * PAGE_SIZE or larger only look for page aligned allocations.
-+	 * unaligned slots once we found an aligned one.
- 	 */
- 	stride = (iotlb_align_mask >> IO_TLB_SHIFT) + 1;
--	if (alloc_size >= PAGE_SIZE)
--		stride = max(stride, stride << (PAGE_SHIFT - IO_TLB_SHIFT));
--	stride = max(stride, (alloc_align_mask >> IO_TLB_SHIFT) + 1);
- 
- 	spin_lock_irqsave(&area->lock, flags);
- 	if (unlikely(nslots > mem->area_nslabs - area->used))
- 		goto not_found;
- 
- 	slot_base = area_index * mem->area_nslabs;
--	index = wrap_area_index(mem, ALIGN(area->index, stride));
-+	index = area->index;
- 
- 	for (slots_checked = 0; slots_checked < mem->area_nslabs; ) {
- 		slot_index = slot_base + index;
++#ifndef _UAPI_ASM_RISCV_SETUP_H
++#define _UAPI_ASM_RISCV_SETUP_H
++
++#define COMMAND_LINE_SIZE	1024
++
++#endif /* _UAPI_ASM_RISCV_SETUP_H */
 -- 
 2.39.2
 
