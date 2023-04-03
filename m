@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CB26D49D8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564026D4AF3
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233808AbjDCOlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55442 "EHLO
+        id S234237AbjDCOv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbjDCOlt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8347C17AEC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:48 -0700 (PDT)
+        with ESMTP id S234198AbjDCOvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E238E29073
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B45461EE0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D181C4339B;
-        Mon,  3 Apr 2023 14:41:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14B7AB81D77
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860BCC433D2;
+        Mon,  3 Apr 2023 14:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532907;
-        bh=j0Jeu4RnpYJiX8Pp4sc66dpNEQtfQUwKb286o999eRI=;
+        s=korg; t=1680533435;
+        bh=K93TzVUGAbICEv8kzntBpyla6FXHDXRk6cf3zxbtReY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3Pfg0v0OwHnbyCYApvCK35Wb1R4CqnwykJIIwKXTsrjlHpLwEvLpsl3Ca1uw3aYK
-         ZVIkgCsZ9cXnfbYMeVRvaupuxyjxvYvkNaep2Z1u5G/bDPypg/0yjXdjg8Xtxwr9Tw
-         FKTjhXN7W4RhiHQ0Alx2tR3LOORJRdWR3jobNwUM=
+        b=mX6hkagah542xA+01uY4UTSWaxI+mHuvEbw5A+nFOiuTAwREXWx8T8kV93jWpTYfR
+         3cYGpWk0pqR2sOky7PC5PnWn10ajt3CDukNobqTrt12byA7brGICOqRJQVHM2g12U5
+         T2zOMMU7u7W8wv5uik1oL4Ej+rc0AyYdVvEFIveg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hersen Wu <hersenxs.wu@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Fangzhi Zuo <Jerry.Zuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 163/181] drm/amd/display: Add DSC Support for Synaptics Cascaded MST Hub
+        patches@lists.linux.dev,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.2 153/187] thermal: intel: int340x: processor_thermal: Fix additional deadlock
 Date:   Mon,  3 Apr 2023 16:09:58 +0200
-Message-Id: <20230403140420.384258199@linuxfoundation.org>
+Message-Id: <20230403140421.096958325@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangzhi Zuo <Jerry.Zuo@amd.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit f4f3b7dedbe849e780c779ba67365bb1db0d8637 upstream.
+commit a57cc2dbb3738930d9cb361b9b473f90c8ede0b8 upstream.
 
-Traditional synaptics hub has one MST branch device without virtual dpcd.
-Synaptics cascaded hub has two chained MST branch devices. DSC decoding
-is performed via root MST branch device, instead of the second MST branch
-device.
+Commit 52f04f10b900 ("thermal: intel: int340x: processor_thermal: Fix
+deadlock") addressed deadlock issue during user space trip update. But it
+missed a case when thermal zone device is disabled when user writes 0.
 
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Fangzhi Zuo <Jerry.Zuo@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Call to thermal_zone_device_disable() also causes deadlock as it also
+tries to lock tz->lock, which is already claimed by trip_point_temp_store()
+in the thermal core code.
+
+Remove call to thermal_zone_device_disable() in the function
+sys_set_trip_temp(), which is called from trip_point_temp_store().
+
+Fixes: 52f04f10b900 ("thermal: intel: int340x: processor_thermal: Fix deadlock")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 6.2+ <stable@vger.kernel.org> # 6.2+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c |   19 ++++++++++++
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h |   12 +++++++
- 2 files changed, 31 insertions(+)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-@@ -208,6 +208,21 @@ bool needs_dsc_aux_workaround(struct dc_
- 	return false;
- }
- 
-+bool is_synaptics_cascaded_panamera(struct dc_link *link, struct drm_dp_mst_port *port)
-+{
-+	u8 branch_vendor_data[4] = { 0 }; // Vendor data 0x50C ~ 0x50F
-+
-+	if (drm_dp_dpcd_read(port->mgr->aux, DP_BRANCH_VENDOR_SPECIFIC_START, &branch_vendor_data, 4) == 4) {
-+		if (link->dpcd_caps.branch_dev_id == DP_BRANCH_DEVICE_ID_90CC24 &&
-+				IS_SYNAPTICS_CASCADED_PANAMERA(link->dpcd_caps.branch_dev_name, branch_vendor_data)) {
-+			DRM_INFO("Synaptics Cascaded MST hub\n");
-+			return true;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- static bool validate_dsc_caps_on_connector(struct amdgpu_dm_connector *aconnector)
- {
- 	struct dc_sink *dc_sink = aconnector->dc_sink;
-@@ -231,6 +246,10 @@ static bool validate_dsc_caps_on_connect
- 	    needs_dsc_aux_workaround(aconnector->dc_link))
- 		aconnector->dsc_aux = &aconnector->mst_port->dm_dp_aux.aux;
- 
-+	/* synaptics cascaded MST hub case */
-+	if (!aconnector->dsc_aux && is_synaptics_cascaded_panamera(aconnector->dc_link, port))
-+		aconnector->dsc_aux = port->mgr->aux;
-+
- 	if (!aconnector->dsc_aux)
- 		return false;
- 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h
-@@ -34,6 +34,18 @@
- #define SYNAPTICS_RC_OFFSET        0x4BC
- #define SYNAPTICS_RC_DATA          0x4C0
- 
-+#define DP_BRANCH_VENDOR_SPECIFIC_START 0x50C
-+
-+/**
-+ * Panamera MST Hub detection
-+ * Offset DPCD 050Eh == 0x5A indicates cascaded MST hub case
-+ * Check from beginning of branch device vendor specific field (050Ch)
-+ */
-+#define IS_SYNAPTICS_PANAMERA(branchDevName) (((int)branchDevName[4] & 0xF0) == 0x50 ? 1 : 0)
-+#define BRANCH_HW_REVISION_PANAMERA_A2 0x10
-+#define SYNAPTICS_CASCADED_HUB_ID  0x5A
-+#define IS_SYNAPTICS_CASCADED_PANAMERA(devName, data) ((IS_SYNAPTICS_PANAMERA(devName) && ((int)data[2] == SYNAPTICS_CASCADED_HUB_ID)) ? 1 : 0)
-+
- struct amdgpu_display_manager;
- struct amdgpu_dm_connector;
- 
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
+@@ -181,7 +181,6 @@ static int sys_set_trip_temp(struct ther
+ 		cancel_delayed_work_sync(&pci_info->work);
+ 		proc_thermal_mmio_write(pci_info, PROC_THERMAL_MMIO_INT_ENABLE_0, 0);
+ 		proc_thermal_mmio_write(pci_info, PROC_THERMAL_MMIO_THRES_0, 0);
+-		thermal_zone_device_disable(tzd);
+ 		pci_info->stored_thres = 0;
+ 		return 0;
+ 	}
 
 
