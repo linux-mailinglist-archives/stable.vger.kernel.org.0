@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B20CF6D485D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7AB6D4A72
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233361AbjDCO2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:28:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57652 "EHLO
+        id S234109AbjDCOra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:47:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233357AbjDCO2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D188C3AA9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:59 -0700 (PDT)
+        with ESMTP id S234088AbjDCOqv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979311697F;
+        Mon,  3 Apr 2023 07:46:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D4F961DC8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF96C433EF;
-        Mon,  3 Apr 2023 14:27:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10DF9B81D5A;
+        Mon,  3 Apr 2023 14:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77376C433D2;
+        Mon,  3 Apr 2023 14:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532078;
-        bh=7ZLqVzlEr7pzg5uhbRwxwwPiQrohEYhGkZAaRG98K8w=;
+        s=korg; t=1680533189;
+        bh=UMk1yWcwvsggJJjnaJ9yTLb2WQw1KXCFuCFy3Q+rgHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D42RGmIuhrSRBlpgxiZGg39cVProqUhi/EMfPlaWiQBMg6ZCf/l4qLDcxRriRGLNp
-         3NhkQD0pUJ/nFX1e9NjN1v9w9x6TfYBO5pnhe41ZRmJjwH6SQQQBa/U0VGE9D1UTLx
-         1EX3nN0y0zHKrH2vREwvbYCaclXejuOqBR9Oxox8=
+        b=O16ATLFyfIMw7c+EyTL6enJ4jOwImHQq7HxRKxfR/7THplyDW8GvRibyfgwhWkaLb
+         ZtmuM5DH8rgyVazX4mdVwfY1ZpeqdNufkcrmVyk9j1vzZ4CjeqB5MPMLvqy3YE1Z2u
+         LudPJoQ1e6PMZ2DZELhJebdxcCkklavMYg3MbkA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.10 087/173] usb: ucsi: Fix NULL pointer deref in ucsi_connector_change()
+        patches@lists.linux.dev, Prarit Bhargava <prarit@redhat.com>,
+        linux-pm@vger.kernel.org, Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 057/187] tools/power turbostat: Fix /dev/cpu_dma_latency warnings
 Date:   Mon,  3 Apr 2023 16:08:22 +0200
-Message-Id: <20230403140417.251956634@linuxfoundation.org>
+Message-Id: <20230403140417.838998267@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,67 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Prarit Bhargava <prarit@redhat.com>
 
-commit f87fb985452ab2083967103ac00bfd68fb182764 upstream.
+[ Upstream commit 40aafc7d58d3544f152a863a0e9863014b6d5d8c ]
 
-When ucsi_init() fails, ucsi->connector is NULL, yet in case of
-ucsi_acpi we may still get events which cause the ucs_acpi code to call
-ucsi_connector_change(), which then derefs the NULL ucsi->connector
-pointer.
+When running as non-root the following error is seen in turbostat:
 
-Fix this by not setting ucsi->ntfy inside ucsi_init() until ucsi_init()
-has succeeded, so that ucsi_connector_change() ignores the events
-because UCSI_ENABLE_NTFY_CONNECTOR_CHANGE is not set in the ntfy mask.
+turbostat: fopen /dev/cpu_dma_latency
+: Permission denied
 
-Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217106
-Cc: stable@vger.kernel.org
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230308154244.722337-2-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+turbostat and the man page have information on how to avoid other
+permission errors, so these can be fixed the same way.
+
+Provide better /dev/cpu_dma_latency warnings that provide instructions on
+how to avoid the error, and update the man page.
+
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Cc: linux-pm@vger.kernel.org
+Signed-off-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ tools/power/x86/turbostat/turbostat.8 | 2 ++
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -1152,7 +1152,7 @@ out_unlock:
- static int ucsi_init(struct ucsi *ucsi)
- {
- 	struct ucsi_connector *con;
--	u64 command;
-+	u64 command, ntfy;
- 	int ret;
- 	int i;
+diff --git a/tools/power/x86/turbostat/turbostat.8 b/tools/power/x86/turbostat/turbostat.8
+index c7b26a3603afe..3e1a4c4be001a 100644
+--- a/tools/power/x86/turbostat/turbostat.8
++++ b/tools/power/x86/turbostat/turbostat.8
+@@ -344,6 +344,8 @@ Alternatively, non-root users can be enabled to run turbostat this way:
  
-@@ -1164,8 +1164,8 @@ static int ucsi_init(struct ucsi *ucsi)
+ # chmod +r /dev/cpu/*/msr
+ 
++# chmod +r /dev/cpu_dma_latency
++
+ .B "turbostat "
+ reads hardware counters, but doesn't write them.
+ So it will not interfere with the OS or other programs, including
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index aba460410dbd1..c24054e3ef7ad 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -5482,7 +5482,7 @@ void print_dev_latency(void)
+ 
+ 	retval = read(fd, (void *)&value, sizeof(int));
+ 	if (retval != sizeof(int)) {
+-		warn("read %s\n", path);
++		warn("read failed %s\n", path);
+ 		close(fd);
+ 		return;
  	}
- 
- 	/* Enable basic notifications */
--	ucsi->ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
--	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
-+	ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
-+	command = UCSI_SET_NOTIFICATION_ENABLE | ntfy;
- 	ret = ucsi_send_command(ucsi, command, NULL, 0);
- 	if (ret < 0)
- 		goto err_reset;
-@@ -1197,12 +1197,13 @@ static int ucsi_init(struct ucsi *ucsi)
- 	}
- 
- 	/* Enable all notifications */
--	ucsi->ntfy = UCSI_ENABLE_NTFY_ALL;
--	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
-+	ntfy = UCSI_ENABLE_NTFY_ALL;
-+	command = UCSI_SET_NOTIFICATION_ENABLE | ntfy;
- 	ret = ucsi_send_command(ucsi, command, NULL, 0);
- 	if (ret < 0)
- 		goto err_unregister;
- 
-+	ucsi->ntfy = ntfy;
- 	return 0;
- 
- err_unregister:
+-- 
+2.39.2
+
 
 
