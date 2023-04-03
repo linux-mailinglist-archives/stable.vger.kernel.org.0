@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86ECA6D5366
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 23:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C83ED6D536C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 23:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233208AbjDCVWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 17:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39364 "EHLO
+        id S233442AbjDCVWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 17:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232711AbjDCVWq (ORCPT
+        with ESMTP id S232923AbjDCVWq (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 17:22:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB623AA0;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9B63AAB;
         Mon,  3 Apr 2023 14:22:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB94B62C05;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F41D062C14;
         Mon,  3 Apr 2023 21:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36ACCC433EF;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64733C433A1;
         Mon,  3 Apr 2023 21:22:43 +0000 (UTC)
 Received: from rostedt by gandalf with local (Exim 4.96)
         (envelope-from <rostedt@goodmis.org>)
-        id 1pjRdS-000FOp-0R;
+        id 1pjRdS-000FPO-16;
         Mon, 03 Apr 2023 17:22:42 -0400
-Message-ID: <20230403212241.951576680@goodmis.org>
+Message-ID: <20230403212242.155778891@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Mon, 03 Apr 2023 17:21:26 -0400
+Date:   Mon, 03 Apr 2023 17:21:27 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        "Tom Zanussi" <zanussi@kernel.org>,
-        Tze-nan Wu <Tze-nan.Wu@mediatek.com>
-Subject: [for-linus][PATCH 1/6] tracing/synthetic: Fix races on freeing last_cmd
+        stable@vger.kernel.org, Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [for-linus][PATCH 2/6] ring-buffer: Fix race while reader and writer are on the same page
 References: <20230403212125.244064799@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Spam-Status: No, score=-4.8 required=5.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-2.0 required=5.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,183 +47,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-Currently, the "last_cmd" variable can be accessed by multiple processes
-asynchronously when multiple users manipulate synthetic_events node
-at the same time, it could lead to use-after-free or double-free.
+When user reads file 'trace_pipe', kernel keeps printing following logs
+that warn at "cpu_buffer->reader_page->read > rb_page_size(reader)" in
+rb_get_reader_page(). It just looks like there's an infinite loop in
+tracing_read_pipe(). This problem occurs several times on arm64 platform
+when testing v5.10 and below.
 
-This patch add "lastcmd_mutex" to prevent "last_cmd" from being accessed
-asynchronously.
+  Call trace:
+   rb_get_reader_page+0x248/0x1300
+   rb_buffer_peek+0x34/0x160
+   ring_buffer_peek+0xbc/0x224
+   peek_next_entry+0x98/0xbc
+   __find_next_entry+0xc4/0x1c0
+   trace_find_next_entry_inc+0x30/0x94
+   tracing_read_pipe+0x198/0x304
+   vfs_read+0xb4/0x1e0
+   ksys_read+0x74/0x100
+   __arm64_sys_read+0x24/0x30
+   el0_svc_common.constprop.0+0x7c/0x1bc
+   do_el0_svc+0x2c/0x94
+   el0_svc+0x20/0x30
+   el0_sync_handler+0xb0/0xb4
+   el0_sync+0x160/0x180
 
-================================================================
+Then I dump the vmcore and look into the problematic per_cpu ring_buffer,
+I found that tail_page/commit_page/reader_page are on the same page while
+reader_page->read is obviously abnormal:
+  tail_page == commit_page == reader_page == {
+    .write = 0x100d20,
+    .read = 0x8f9f4805,  // Far greater than 0xd20, obviously abnormal!!!
+    .entries = 0x10004c,
+    .real_end = 0x0,
+    .page = {
+      .time_stamp = 0x857257416af0,
+      .commit = 0xd20,  // This page hasn't been full filled.
+      // .data[0...0xd20] seems normal.
+    }
+ }
 
-It's easy to reproduce in the KASAN environment by running the two
-scripts below in different shells.
+The root cause is most likely the race that reader and writer are on the
+same page while reader saw an event that not fully committed by writer.
 
-script 1:
-        while :
-        do
-                echo -n -e '\x88' > /sys/kernel/tracing/synthetic_events
-        done
+To fix this, add memory barriers to make sure the reader can see the
+content of what is committed. Since commit a0fcaaed0c46 ("ring-buffer: Fix
+race between reset page and reading page") has added the read barrier in
+rb_get_reader_page(), here we just need to add the write barrier.
 
-script 2:
-        while :
-        do
-                echo -n -e '\xb0' > /sys/kernel/tracing/synthetic_events
-        done
+Link: https://lore.kernel.org/linux-trace-kernel/20230325021247.2923907-1-zhengyejian1@huawei.com
 
-================================================================
-double-free scenario:
-
-    process A                       process B
--------------------               ---------------
-1.kstrdup last_cmd
-                                  2.free last_cmd
-3.free last_cmd(double-free)
-
-================================================================
-use-after-free scenario:
-
-    process A                       process B
--------------------               ---------------
-1.kstrdup last_cmd
-                                  2.free last_cmd
-3.tracing_log_err(use-after-free)
-
-================================================================
-
-Appendix 1. KASAN report double-free:
-
-BUG: KASAN: double-free in kfree+0xdc/0x1d4
-Free of addr ***** by task sh/4879
-Call trace:
-        ...
-        kfree+0xdc/0x1d4
-        create_or_delete_synth_event+0x60/0x1e8
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Allocated by task 4879:
-        ...
-        kstrdup+0x5c/0x98
-        create_or_delete_synth_event+0x6c/0x1e8
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Freed by task 5464:
-        ...
-        kfree+0xdc/0x1d4
-        create_or_delete_synth_event+0x60/0x1e8
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-================================================================
-Appendix 2. KASAN report use-after-free:
-
-BUG: KASAN: use-after-free in strlen+0x5c/0x7c
-Read of size 1 at addr ***** by task sh/5483
-sh: CPU: 7 PID: 5483 Comm: sh
-        ...
-        __asan_report_load1_noabort+0x34/0x44
-        strlen+0x5c/0x7c
-        tracing_log_err+0x60/0x444
-        create_or_delete_synth_event+0xc4/0x204
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Allocated by task 5483:
-        ...
-        kstrdup+0x5c/0x98
-        create_or_delete_synth_event+0x80/0x204
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Freed by task 5480:
-        ...
-        kfree+0xdc/0x1d4
-        create_or_delete_synth_event+0x74/0x204
-        trace_parse_run_command+0x2bc/0x4b8
-        synth_events_write+0x20/0x30
-        vfs_write+0x200/0x830
-        ...
-
-Link: https://lore.kernel.org/linux-trace-kernel/20230321110444.1587-1-Tze-nan.Wu@mediatek.com
-
-Fixes: 27c888da9867 ("tracing: Remove size restriction on synthetic event cmd error logging")
 Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: "Tom Zanussi" <zanussi@kernel.org>
-Signed-off-by: Tze-nan Wu <Tze-nan.Wu@mediatek.com>
+Fixes: 77ae365eca89 ("ring-buffer: make lockless")
+Suggested-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- kernel/trace/trace_events_synth.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ kernel/trace/ring_buffer.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_events_synth.c b/kernel/trace/trace_events_synth.c
-index 46d0abb32d0f..f0ff730125bf 100644
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -44,14 +44,21 @@ enum { ERRORS };
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index c6f47b6cfd5f..76a2d91eecad 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -3098,6 +3098,10 @@ rb_set_commit_to_write(struct ring_buffer_per_cpu *cpu_buffer)
+ 		if (RB_WARN_ON(cpu_buffer,
+ 			       rb_is_reader_page(cpu_buffer->tail_page)))
+ 			return;
++		/*
++		 * No need for a memory barrier here, as the update
++		 * of the tail_page did it for this page.
++		 */
+ 		local_set(&cpu_buffer->commit_page->page->commit,
+ 			  rb_page_write(cpu_buffer->commit_page));
+ 		rb_inc_page(&cpu_buffer->commit_page);
+@@ -3107,6 +3111,8 @@ rb_set_commit_to_write(struct ring_buffer_per_cpu *cpu_buffer)
+ 	while (rb_commit_index(cpu_buffer) !=
+ 	       rb_page_write(cpu_buffer->commit_page)) {
  
- static const char *err_text[] = { ERRORS };
++		/* Make sure the readers see the content of what is committed. */
++		smp_wmb();
+ 		local_set(&cpu_buffer->commit_page->page->commit,
+ 			  rb_page_write(cpu_buffer->commit_page));
+ 		RB_WARN_ON(cpu_buffer,
+@@ -4684,7 +4690,12 @@ rb_get_reader_page(struct ring_buffer_per_cpu *cpu_buffer)
  
-+DEFINE_MUTEX(lastcmd_mutex);
- static char *last_cmd;
+ 	/*
+ 	 * Make sure we see any padding after the write update
+-	 * (see rb_reset_tail())
++	 * (see rb_reset_tail()).
++	 *
++	 * In addition, a writer may be writing on the reader page
++	 * if the page has not been fully filled, so the read barrier
++	 * is also needed to make sure we see the content of what is
++	 * committed by the writer (see rb_set_commit_to_write()).
+ 	 */
+ 	smp_rmb();
  
- static int errpos(const char *str)
- {
-+	int ret = 0;
-+
-+	mutex_lock(&lastcmd_mutex);
- 	if (!str || !last_cmd)
--		return 0;
-+		goto out;
- 
--	return err_pos(last_cmd, str);
-+	ret = err_pos(last_cmd, str);
-+ out:
-+	mutex_unlock(&lastcmd_mutex);
-+	return ret;
- }
- 
- static void last_cmd_set(const char *str)
-@@ -59,18 +66,22 @@ static void last_cmd_set(const char *str)
- 	if (!str)
- 		return;
- 
-+	mutex_lock(&lastcmd_mutex);
- 	kfree(last_cmd);
--
- 	last_cmd = kstrdup(str, GFP_KERNEL);
-+	mutex_unlock(&lastcmd_mutex);
- }
- 
- static void synth_err(u8 err_type, u16 err_pos)
- {
-+	mutex_lock(&lastcmd_mutex);
- 	if (!last_cmd)
--		return;
-+		goto out;
- 
- 	tracing_log_err(NULL, "synthetic_events", last_cmd, err_text,
- 			err_type, err_pos);
-+ out:
-+	mutex_unlock(&lastcmd_mutex);
- }
- 
- static int create_synth_event(const char *raw_command);
 -- 
 2.39.2
