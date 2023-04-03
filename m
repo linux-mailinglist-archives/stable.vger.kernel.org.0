@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CAF16D3E95
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D03A6D3E96
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbjDCIGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:06:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58696 "EHLO
+        id S231558AbjDCIGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231309AbjDCIGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:06:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B99C10E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:06:42 -0700 (PDT)
+        with ESMTP id S231683AbjDCIGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:06:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C3344BE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:06:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC8F360303
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42FBC433EF;
-        Mon,  3 Apr 2023 08:06:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47635B81253
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:06:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75FEC4339B;
+        Mon,  3 Apr 2023 08:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680509201;
-        bh=a0DoI4ceTsVfBBF3Am4y/Ugdd9cgJ6AzlChy9AB/uls=;
+        s=korg; t=1680509204;
+        bh=PvnADqWTAhYfhw23mdTZ7JBG8sc+LAbZUJQJ3eUW8DE=;
         h=Subject:To:Cc:From:Date:From;
-        b=HWgA7byc8yV35jPes20Ii2a2CLd5kAe/juM/CkBHidUcsi0a+RIZzzfe1skeht4qo
-         bGr12FufW6zlK4d/2DYTIZmDoFDEUffAAQH0SzepzOVleASoJeVlX7YfXQxe+5VeXY
-         724iYI3VMhzKHOEurYU6qrWxrKj1EMeszkQVQhOQ=
-Subject: FAILED: patch "[PATCH] btrfs: scan device in non-exclusive mode" failed to apply to 5.20-stable tree
+        b=iYzmsuIDyf06WXaLHMe58707zNDhUuIosZGdKwiwIw6LYWfGAOYpuZDL1fpNobGFd
+         FnQGPp2vOf2GILcndoXKFoosr8dYacdrsh6AjFaGuuX/QopqJ8iZourfFcOsoaNS8t
+         wYM5m+LZlewtLFMQ5DH0xtcO2Y9sw+5CuAV2VqdQ=
+Subject: FAILED: patch "[PATCH] btrfs: scan device in non-exclusive mode" failed to apply to 5.4-stable tree
 To:     anand.jain@oracle.com, dsterba@suse.com, oliver.sang@intel.com,
         sherry.yang@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:06:35 +0200
-Message-ID: <2023040334-reproduce-granola-78a1@gregkh>
+Date:   Mon, 03 Apr 2023 10:06:38 +0200
+Message-ID: <2023040338-carving-ripping-8786@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,23 +48,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.20-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.20.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 50d281fc434cb8e2497f5e70a309ccca6b1a09f0
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040334-reproduce-granola-78a1@gregkh' --subject-prefix 'PATCH 5.20.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040338-carving-ripping-8786@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
-
+50d281fc434c ("btrfs: scan device in non-exclusive mode")
+12659251ca5d ("btrfs: implement log-structured superblock for ZONED mode")
+5d1ab66c56fe ("btrfs: disallow space_cache in ZONED mode")
+b70f509774ad ("btrfs: check and enable ZONED mode")
+5b316468983d ("btrfs: get zone information of zoned block devices")
+bacce86ae8a7 ("btrfs: drop unused argument step from btrfs_free_extra_devids")
+96c2e067ed3e ("btrfs: skip devices without magic signature when mounting")
+c3e1f96c37d0 ("btrfs: enumerate the type of exclusive operation in progress")
+944d3f9fac61 ("btrfs: switch seed device to list api")
+c4989c2fd0eb ("btrfs: simplify setting/clearing fs_info to btrfs_fs_devices")
+54eed6ae8d8e ("btrfs: make close_fs_devices return void")
+3712ccb7f1cc ("btrfs: factor out loop logic from btrfs_free_extra_devids")
+dc0ab488d2cb ("btrfs: factor out reada loop in __reada_start_machine")
+adca4d945c8d ("btrfs: qgroup: remove ASYNC_COMMIT mechanism in favor of reserve retry-after-EDQUOT")
+3092c68fc58c ("btrfs: sysfs: add bdi link to the fsid directory")
+998a0671961f ("btrfs: include non-missing as a qualifier for the latest_bdev")
+1ed802c972c6 ("btrfs: drop useless goto in open_fs_devices")
+b335eab890ed ("btrfs: make btrfs_read_disk_super return struct btrfs_disk_super")
+c4a816c67c39 ("btrfs: introduce chunk allocation policy")
+9a8658e33d8f ("btrfs: open code trivial helper btrfs_header_fsid")
 
 thanks,
 
