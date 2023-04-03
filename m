@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB616D4A21
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 424256D4A0B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233995AbjDCOoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:44:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59408 "EHLO
+        id S233863AbjDCOnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233908AbjDCOoJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF10AD01
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:49 -0700 (PDT)
+        with ESMTP id S233900AbjDCOne (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BC51827D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A27361EF9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B3CAC4339C;
-        Mon,  3 Apr 2023 14:43:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0DC8B81D09
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B41FC433D2;
+        Mon,  3 Apr 2023 14:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532990;
-        bh=Z25A45hnW1pYtquAgyaMm9SFLRjubVarjBXy2rGnPdM=;
+        s=korg; t=1680532993;
+        bh=mKTZqnASsqMLyV1yPuox+NTgyD0BIxwgbfujYSuC8K0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLuL1C3zPpwzSoWHhlFZ3P3MIrgr2AN/fahg6ke3UeEvaXBJ02xzf45QUw8ePXPdM
-         4lRXfsxXCgwow4rsnFSlmXkSbBmqp8KHGAlEkRQZvwatDmLI1VqAsSM6EQVuVIMLrK
-         oBgeVBn7YmlKFN5degd+sIWtFzdgdadtgFy6gw/k=
+        b=10igI5pc2Z6ZYF6dR6sixBjsi/7SYmbPC06A3+p3R/hh/LffWEljJQKVWUqs9P3vn
+         jIaRbrNz2g0wUGh5z+YctkMleAeoEgxb0S86NXyzkvZm9efDblIIVMQvEV6RxWAyhv
+         IAbmsW0F/vqgcmxpBgng1QR75/YnsPr21hmSARCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Victor Hsieh <victorhsieh@google.com>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 013/187] fsverity: dont drop pagecache at end of FS_IOC_ENABLE_VERITY
-Date:   Mon,  3 Apr 2023 16:07:38 +0200
-Message-Id: <20230403140416.474247986@linuxfoundation.org>
+Subject: [PATCH 6.2 014/187] cifs: fix missing unload_nls() in smb2_reconnect()
+Date:   Mon,  3 Apr 2023 16:07:39 +0200
+Message-Id: <20230403140416.503750611@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -53,71 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-[ Upstream commit a075bacde257f755bea0e53400c9f1cdd1b8e8e6 ]
+[ Upstream commit c24bb1a87dc3f2d77d410eaac2c6a295961bf50e ]
 
-The full pagecache drop at the end of FS_IOC_ENABLE_VERITY is causing
-performance problems and is hindering adoption of fsverity.  It was
-intended to solve a race condition where unverified pages might be left
-in the pagecache.  But actually it doesn't solve it fully.
+Make sure to unload_nls() @nls_codepage if we no longer need it.
 
-Since the incomplete solution for this race condition has too much
-performance impact for it to be worth it, let's remove it for now.
-
-Fixes: 3fda4c617e84 ("fs-verity: implement FS_IOC_ENABLE_VERITY ioctl")
-Cc: stable@vger.kernel.org
-Reviewed-by: Victor Hsieh <victorhsieh@google.com>
-Link: https://lore.kernel.org/r/20230314235332.50270-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: bc962159e8e3 ("cifs: avoid race conditions with parallel reconnects")
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Cc: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/verity/enable.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ fs/cifs/smb2pdu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/verity/enable.c b/fs/verity/enable.c
-index df6b499bf6a14..400c264bf8930 100644
---- a/fs/verity/enable.c
-+++ b/fs/verity/enable.c
-@@ -390,25 +390,27 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
- 		goto out_drop_write;
- 
- 	err = enable_verity(filp, &arg);
--	if (err)
--		goto out_allow_write_access;
- 
- 	/*
--	 * Some pages of the file may have been evicted from pagecache after
--	 * being used in the Merkle tree construction, then read into pagecache
--	 * again by another process reading from the file concurrently.  Since
--	 * these pages didn't undergo verification against the file digest which
--	 * fs-verity now claims to be enforcing, we have to wipe the pagecache
--	 * to ensure that all future reads are verified.
-+	 * We no longer drop the inode's pagecache after enabling verity.  This
-+	 * used to be done to try to avoid a race condition where pages could be
-+	 * evicted after being used in the Merkle tree construction, then
-+	 * re-instantiated by a concurrent read.  Such pages are unverified, and
-+	 * the backing storage could have filled them with different content, so
-+	 * they shouldn't be used to fulfill reads once verity is enabled.
-+	 *
-+	 * But, dropping the pagecache has a big performance impact, and it
-+	 * doesn't fully solve the race condition anyway.  So for those reasons,
-+	 * and also because this race condition isn't very important relatively
-+	 * speaking (especially for small-ish files, where the chance of a page
-+	 * being used, evicted, *and* re-instantiated all while enabling verity
-+	 * is quite small), we no longer drop the inode's pagecache.
- 	 */
--	filemap_write_and_wait(inode->i_mapping);
--	invalidate_inode_pages2(inode->i_mapping);
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index f0b1ae0835d71..b37379b62cc77 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -144,7 +144,7 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	       struct TCP_Server_Info *server)
+ {
+ 	int rc = 0;
+-	struct nls_table *nls_codepage;
++	struct nls_table *nls_codepage = NULL;
+ 	struct cifs_ses *ses;
  
  	/*
- 	 * allow_write_access() is needed to pair with deny_write_access().
- 	 * Regardless, the filesystem won't allow writing to verity files.
- 	 */
--out_allow_write_access:
- 	allow_write_access(filp);
- out_drop_write:
- 	mnt_drop_write_file(filp);
+@@ -216,8 +216,6 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 		 tcon->ses->chans_need_reconnect,
+ 		 tcon->need_reconnect);
+ 
+-	nls_codepage = load_nls_default();
+-
+ 	mutex_lock(&ses->session_mutex);
+ 	/*
+ 	 * Recheck after acquire mutex. If another thread is negotiating
+@@ -237,6 +235,8 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	}
+ 	spin_unlock(&server->srv_lock);
+ 
++	nls_codepage = load_nls_default();
++
+ 	/*
+ 	 * need to prevent multiple threads trying to simultaneously
+ 	 * reconnect the same SMB session
 -- 
 2.39.2
 
