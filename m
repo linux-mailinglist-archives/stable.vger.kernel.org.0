@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 845B86D4AED
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFA36D4AEC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234213AbjDCOvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
+        id S234164AbjDCOvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234229AbjDCOvJ (ORCPT
+        with ESMTP id S234219AbjDCOvJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B746F29054
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818B12904D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C931BB81D72
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27779C433D2;
-        Mon,  3 Apr 2023 14:50:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80329B81D78
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96E3C433D2;
+        Mon,  3 Apr 2023 14:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533417;
-        bh=falNg0Dvc1ulElg6acVOUYX9K0AxNPNv6ZGvapuJOOI=;
+        s=korg; t=1680533420;
+        bh=IcaCh37xgB7rDjvOgeQTE9eJE4wJ0tSAn0RaXPK6uEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmqjscS4hkUhxdkfGMQWQDbm5oIIJY+hpjFjBV1TuIu4D3lurRbejDF7lh4Q9wgSu
-         iYinlRGmNCKwOkRYV5lzQgnRtJ+paFZNuaYxOG9b0D3FXjq0OlzlrgWD+FNi8wHLgI
-         v7Jqa4BTvUxFX1tqWxP8HOMMiYwOPib34IG4sChY=
+        b=p0gx1suLzyhyhApKEbf0f8PE3Dty9yap7+ds/qwVruv2LGi1jsSR2FzScX6wBPgcA
+         dDMb39aXtJnu5UcoFSwg03lcAoTBqRk5ZOf18+VyzpeFjIZ4nYR0wDKiOVavoU4Il+
+         0rOAMSA1kgc/GC8ROqxvohwegvfE6XXmUso56WAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Manasi Navare <navaremanasi@google.com>,
-        Drew Davenport <ddavenport@chromium.org>,
-        Imre Deak <imre.deak@intel.com>,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.2 175/187] drm/i915: Move CSC load back into .color_commit_arm() when PSR is enabled on skl/glk
-Date:   Mon,  3 Apr 2023 16:10:20 +0200
-Message-Id: <20230403140422.019873757@linuxfoundation.org>
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Reiji Watanabe <reijiw@google.com>,
+        Oliver Upton <oliver.upton@linux.dev>
+Subject: [PATCH 6.2 176/187] KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the current value
+Date:   Mon,  3 Apr 2023 16:10:21 +0200
+Message-Id: <20230403140422.060923721@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -57,97 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Reiji Watanabe <reijiw@google.com>
 
-commit a8e03e00b62073b494886dbff32f8b5338066c8b upstream.
+commit 9228b26194d1cc00449f12f306f53ef2e234a55b upstream.
 
-SKL/GLK CSC unit suffers from a nasty issue where a CSC
-coeff/offset register read or write between DC5 exit and
-PSR exit will undo the CSC arming performed by DMC, and
-then during PSR exit the hardware will latch zeroes into
-the active CSC registers. This causes any plane going
-through the CSC to output all black.
+Have KVM_GET_ONE_REG for vPMU counter (vPMC) registers (PMCCNTR_EL0
+and PMEVCNTR<n>_EL0) return the sum of the register value in the sysreg
+file and the current perf event counter value.
 
-We can sidestep the issue by making sure the PSR exit has
-already actually happened before we touch the CSC coeff/offset
-registers. Easiest way to guarantee that is to just move the
-CSC programming back into the .color_commir_arm() as we force
-a PSR exit (and crucially wait for it to actually happen)
-prior to touching the arming registers.
+Values of vPMC registers are saved in sysreg files on certain occasions.
+These saved values don't represent the current values of the vPMC
+registers if the perf events for the vPMCs count events after the save.
+The current values of those registers are the sum of the sysreg file
+value and the current perf event counter value.  But, when userspace
+reads those registers (using KVM_GET_ONE_REG), KVM returns the sysreg
+file value to userspace (not the sum value).
 
-When PSR (and thus also DC states) are disabled we don't
-have anything to worry about, so we can keep using the
-more optional _noarm() hook for writing the CSC registers.
+Fix this to return the sum value for KVM_GET_ONE_REG.
 
-Cc: <stable@vger.kernel.org> #v5.19+
-Cc: Manasi Navare <navaremanasi@google.com>
-Cc: Drew Davenport <ddavenport@chromium.org>
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Jouni Högander <jouni.hogander@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8283
-Fixes: d13dde449580 ("drm/i915: Split pipe+output CSC programming to noarm+arm pair")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230320095438.17328-3-ville.syrjala@linux.intel.com
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-(cherry picked from commit 80a892a4c2428b65366721599fc5fe50eaed35fd)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 051ff581ce70 ("arm64: KVM: Add access handler for event counter register")
+Cc: stable@vger.kernel.org
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Reiji Watanabe <reijiw@google.com>
+Link: https://lore.kernel.org/r/20230313033208.1475499-1-reijiw@google.com
+Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_color.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/sys_regs.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_color.c
-+++ b/drivers/gpu/drm/i915/display/intel_color.c
-@@ -514,6 +514,22 @@ static void icl_color_commit_noarm(const
- 	icl_load_csc_matrix(crtc_state);
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -765,6 +765,22 @@ static bool pmu_counter_idx_valid(struct
+ 	return true;
  }
  
-+static void skl_color_commit_noarm(const struct intel_crtc_state *crtc_state)
++static int get_pmu_evcntr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r,
++			  u64 *val)
 +{
-+	/*
-+	 * Possibly related to display WA #1184, SKL CSC loses the latched
-+	 * CSC coeff/offset register values if the CSC registers are disarmed
-+	 * between DC5 exit and PSR exit. This will cause the plane(s) to
-+	 * output all black (until CSC_MODE is rearmed and properly latched).
-+	 * Once PSR exit (and proper register latching) has occurred the
-+	 * danger is over. Thus when PSR is enabled the CSC coeff/offset
-+	 * register programming will be peformed from skl_color_commit_arm()
-+	 * which is called after PSR exit.
-+	 */
-+	if (!crtc_state->has_psr)
-+		ilk_load_csc_matrix(crtc_state);
++	u64 idx;
++
++	if (r->CRn == 9 && r->CRm == 13 && r->Op2 == 0)
++		/* PMCCNTR_EL0 */
++		idx = ARMV8_PMU_CYCLE_IDX;
++	else
++		/* PMEVCNTRn_EL0 */
++		idx = ((r->CRm & 3) << 3) | (r->Op2 & 7);
++
++	*val = kvm_pmu_get_counter_value(vcpu, idx);
++	return 0;
 +}
 +
- static void ilk_color_commit_noarm(const struct intel_crtc_state *crtc_state)
- {
- 	ilk_load_csc_matrix(crtc_state);
-@@ -556,6 +572,9 @@ static void skl_color_commit_arm(const s
- 	enum pipe pipe = crtc->pipe;
- 	u32 val = 0;
+ static bool access_pmu_evcntr(struct kvm_vcpu *vcpu,
+ 			      struct sys_reg_params *p,
+ 			      const struct sys_reg_desc *r)
+@@ -981,7 +997,7 @@ static bool access_pmuserenr(struct kvm_
+ /* Macro to expand the PMEVCNTRn_EL0 register */
+ #define PMU_PMEVCNTR_EL0(n)						\
+ 	{ PMU_SYS_REG(SYS_PMEVCNTRn_EL0(n)),				\
+-	  .reset = reset_pmevcntr,					\
++	  .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,		\
+ 	  .access = access_pmu_evcntr, .reg = (PMEVCNTR0_EL0 + n), }
  
-+	if (crtc_state->has_psr)
-+		ilk_load_csc_matrix(crtc_state);
-+
- 	/*
- 	 * We don't (yet) allow userspace to control the pipe background color,
- 	 * so force it to black, but apply pipe gamma and CSC appropriately
-@@ -2313,7 +2332,7 @@ static const struct intel_color_funcs ic
- 
- static const struct intel_color_funcs glk_color_funcs = {
- 	.color_check = glk_color_check,
--	.color_commit_noarm = ilk_color_commit_noarm,
-+	.color_commit_noarm = skl_color_commit_noarm,
- 	.color_commit_arm = skl_color_commit_arm,
- 	.load_luts = glk_load_luts,
- 	.read_luts = glk_read_luts,
-@@ -2321,7 +2340,7 @@ static const struct intel_color_funcs gl
- 
- static const struct intel_color_funcs skl_color_funcs = {
- 	.color_check = ivb_color_check,
--	.color_commit_noarm = ilk_color_commit_noarm,
-+	.color_commit_noarm = skl_color_commit_noarm,
- 	.color_commit_arm = skl_color_commit_arm,
- 	.load_luts = bdw_load_luts,
- 	.read_luts = NULL,
+ /* Macro to expand the PMEVTYPERn_EL0 register */
+@@ -1745,7 +1761,8 @@ static const struct sys_reg_desc sys_reg
+ 	{ PMU_SYS_REG(SYS_PMCEID1_EL0),
+ 	  .access = access_pmceid, .reset = NULL },
+ 	{ PMU_SYS_REG(SYS_PMCCNTR_EL0),
+-	  .access = access_pmu_evcntr, .reset = reset_unknown, .reg = PMCCNTR_EL0 },
++	  .access = access_pmu_evcntr, .reset = reset_unknown,
++	  .reg = PMCCNTR_EL0, .get_user = get_pmu_evcntr},
+ 	{ PMU_SYS_REG(SYS_PMXEVTYPER_EL0),
+ 	  .access = access_pmu_evtyper, .reset = NULL },
+ 	{ PMU_SYS_REG(SYS_PMXEVCNTR_EL0),
 
 
