@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0926D4839
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 459F56D4968
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233315AbjDCO0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:26:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55564 "EHLO
+        id S233721AbjDCOhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233324AbjDCO0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE0A2D7CC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:41 -0700 (PDT)
+        with ESMTP id S233689AbjDCOhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF2635032;
+        Mon,  3 Apr 2023 07:37:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F74C61D94
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8472CC433D2;
-        Mon,  3 Apr 2023 14:26:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F5D3B81CB5;
+        Mon,  3 Apr 2023 14:37:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59A1C433EF;
+        Mon,  3 Apr 2023 14:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532000;
-        bh=NBPZGQ942ws4fxaQ3ieQb0lyvmMVEn7kAkRYh8pGsSk=;
+        s=korg; t=1680532641;
+        bh=UMk1yWcwvsggJJjnaJ9yTLb2WQw1KXCFuCFy3Q+rgHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIz0BMm42MPH9+Rcal7GETAE+/LxL7DqGA5lVNL20IF3e5UFfAx2LfY6pO7zqIKET
-         W9hZpdNSA7xm54rOfsdRvtsF5m73Uak1EaIeVkexFG0kUQ89P3eu5SbtQVlmQ2YVQt
-         8w8XF9yR2NGlGq8bpOAbl/MrWqAZtY9U0D9uHN8s=
+        b=HepWkbxpu2tCemP1r99PRIjNkH5QLOTAcs6xZl3EVfVOLjE0iS53T6XfGvAB38lgk
+         un7JPD72Vyh7PBWjnNbxwf5MFACGIyUe0CUzQ6Ze8HAkPL7N8VZutIUgAi4jS4gBvW
+         uAiYQJff8KlDm1SaGgsoQa7/uiPtjRb26Pfw/IP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 081/173] fsverity: Remove WQ_UNBOUND from fsverity read workqueue
+        patches@lists.linux.dev, Prarit Bhargava <prarit@redhat.com>,
+        linux-pm@vger.kernel.org, Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 061/181] tools/power turbostat: Fix /dev/cpu_dma_latency warnings
 Date:   Mon,  3 Apr 2023 16:08:16 +0200
-Message-Id: <20230403140417.044912385@linuxfoundation.org>
+Message-Id: <20230403140417.120319370@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,62 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Prarit Bhargava <prarit@redhat.com>
 
-commit f959325e6ac3f499450088b8d9c626d1177be160 upstream.
+[ Upstream commit 40aafc7d58d3544f152a863a0e9863014b6d5d8c ]
 
-WQ_UNBOUND causes significant scheduler latency on ARM64/Android.  This
-is problematic for latency sensitive workloads, like I/O
-post-processing.
+When running as non-root the following error is seen in turbostat:
 
-Removing WQ_UNBOUND gives a 96% reduction in fsverity workqueue related
-scheduler latency and improves app cold startup times by ~30ms.
-WQ_UNBOUND was also removed from the dm-verity workqueue for the same
-reason [1].
+turbostat: fopen /dev/cpu_dma_latency
+: Permission denied
 
-This code was tested by running Android app startup benchmarks and
-measuring how long the fsverity workqueue spent in the runnable state.
+turbostat and the man page have information on how to avoid other
+permission errors, so these can be fixed the same way.
 
-Before
-Total workqueue scheduler latency: 553800us
-After
-Total workqueue scheduler latency: 18962us
+Provide better /dev/cpu_dma_latency warnings that provide instructions on
+how to avoid the error, and update the man page.
 
-[1]: https://lore.kernel.org/all/20230202012348.885402-1-nhuck@google.com/
-
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Fixes: 8a1d0f9cacc9 ("fs-verity: add data verification hooks for ->readpages()")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230310193325.620493-1-nhuck@google.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Cc: linux-pm@vger.kernel.org
+Signed-off-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/verity/verify.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/power/x86/turbostat/turbostat.8 | 2 ++
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/verity/verify.c
-+++ b/fs/verity/verify.c
-@@ -279,15 +279,15 @@ EXPORT_SYMBOL_GPL(fsverity_enqueue_verif
- int __init fsverity_init_workqueue(void)
- {
- 	/*
--	 * Use an unbound workqueue to allow bios to be verified in parallel
--	 * even when they happen to complete on the same CPU.  This sacrifices
--	 * locality, but it's worthwhile since hashing is CPU-intensive.
-+	 * Use a high-priority workqueue to prioritize verification work, which
-+	 * blocks reads from completing, over regular application tasks.
- 	 *
--	 * Also use a high-priority workqueue to prioritize verification work,
--	 * which blocks reads from completing, over regular application tasks.
-+	 * For performance reasons, don't use an unbound workqueue.  Using an
-+	 * unbound workqueue for crypto operations causes excessive scheduler
-+	 * latency on ARM64.
- 	 */
- 	fsverity_read_workqueue = alloc_workqueue("fsverity_read_queue",
--						  WQ_UNBOUND | WQ_HIGHPRI,
-+						  WQ_HIGHPRI,
- 						  num_online_cpus());
- 	if (!fsverity_read_workqueue)
- 		return -ENOMEM;
+diff --git a/tools/power/x86/turbostat/turbostat.8 b/tools/power/x86/turbostat/turbostat.8
+index c7b26a3603afe..3e1a4c4be001a 100644
+--- a/tools/power/x86/turbostat/turbostat.8
++++ b/tools/power/x86/turbostat/turbostat.8
+@@ -344,6 +344,8 @@ Alternatively, non-root users can be enabled to run turbostat this way:
+ 
+ # chmod +r /dev/cpu/*/msr
+ 
++# chmod +r /dev/cpu_dma_latency
++
+ .B "turbostat "
+ reads hardware counters, but doesn't write them.
+ So it will not interfere with the OS or other programs, including
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index aba460410dbd1..c24054e3ef7ad 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -5482,7 +5482,7 @@ void print_dev_latency(void)
+ 
+ 	retval = read(fd, (void *)&value, sizeof(int));
+ 	if (retval != sizeof(int)) {
+-		warn("read %s\n", path);
++		warn("read failed %s\n", path);
+ 		close(fd);
+ 		return;
+ 	}
+-- 
+2.39.2
+
 
 
