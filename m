@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D356D49B0
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB626D48EF
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233773AbjDCOkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:40:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53218 "EHLO
+        id S233591AbjDCOdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233789AbjDCOkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:23 -0400
+        with ESMTP id S233563AbjDCOdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3FA17ACB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 270AB35002
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D92C9B81CDE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365FBC43443;
-        Mon,  3 Apr 2023 14:40:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98DF0B81C82
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01FF5C433EF;
+        Mon,  3 Apr 2023 14:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532818;
-        bh=7fxM8GdmJz4XU1Wmwks4WKlLAcEvkTVClq+ihHPbwk0=;
+        s=korg; t=1680532380;
+        bh=1uwUJhUCoaNMzhfqPPFtqrupiM6OX4o+zK6d1+ejq2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN3s+rFOM0N4dJH06clG7zZZvT25EwZV9zbQkyGryoFrbxf7QQRCBfMcv8Rth0mFX
-         bijiuAu38K0J4diYT55C//+YT8tpogUMMVbcnSWoG/TMWDobmAH5LhFRtFVkRIiCpq
-         WWzY8BIkgBIlcoxMhwJHz6rkOuepV3MYKTsIgbvs=
+        b=K2r08RItvuely3nYXn7oAZzU57PtBIpiGLt/ZpUVbQNU36jW55RnJQ0SJqR1cNXi4
+         lPTDA9yHyg3VLVYG2lhgNglFzkDT2KEC6UY2PZD5NDrJ7oYLPQU8YDn+lL8IwFLYAs
+         ybwklfvIe4/QplBlXHn1eJKprMNTy4vnSm3S+7vM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6.1 129/181] Input: goodix - add Lenovo Yoga Book X90F to nine_bytes_report DMI table
+        patches@lists.linux.dev,
+        =?UTF-8?q?Steffen=20B=C3=A4tz?= <steffen@innosonix.de>,
+        Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 61/99] net: dsa: mv88e6xxx: Enable IGMP snooping on user ports only
 Date:   Mon,  3 Apr 2023 16:09:24 +0200
-Message-Id: <20230403140419.265919605@linuxfoundation.org>
+Message-Id: <20230403140405.717743165@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Steffen Bätz <steffen@innosonix.de>
 
-commit 8a0432bab6ea3203d220785da7ab3c7677f70ecb upstream.
+[ Upstream commit 7bcad0f0e6fbc1d613e49e0ee35c8e5f2e685bb0 ]
 
-The Android Lenovo Yoga Book X90F / X90L uses the same goodix touchscreen
-with 9 bytes touch reports for its touch keyboard as the already supported
-Windows Lenovo Yoga Book X91F/L, add a DMI match for this to
-the nine_bytes_report DMI table.
+Do not set the MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP bit on CPU or DSA ports.
 
-When the quirk for the X91F/L was initially added it was written to
-also apply to the X90F/L but this does not work because the Android
-version of the Yoga Book uses completely different DMI strings.
-Also adjust the X91F/L quirk to reflect that it only applies to
-the X91F/L models.
+This allows the host CPU port to be a regular IGMP listener by sending out
+IGMP Membership Reports, which would otherwise not be forwarded by the
+mv88exxx chip, but directly looped back to the CPU port itself.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Link: https://lore.kernel.org/r/20230315134442.71787-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 54d792f257c6 ("net: dsa: Centralise global and port setup code into mv88e6xxx.")
+Signed-off-by: Steffen Bätz <steffen@innosonix.de>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20230329150140.701559-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/goodix.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -124,10 +124,18 @@ static const unsigned long goodix_irq_fl
- static const struct dmi_system_id nine_bytes_report[] = {
- #if defined(CONFIG_DMI) && defined(CONFIG_X86)
- 	{
--		.ident = "Lenovo YogaBook",
--		/* YB1-X91L/F and YB1-X90L/F */
-+		/* Lenovo Yoga Book X90F / X90L */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9")
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "YETI-11"),
-+		}
-+	},
-+	{
-+		/* Lenovo Yoga Book X91F / X91L */
-+		.matches = {
-+			/* Non exact match to match F + L versions */
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X91"),
- 		}
- 	},
- #endif
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 99c4e45c62e33..8a030dc0b8a36 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2912,9 +2912,14 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
+ 	 * If this is the upstream port for this switch, enable
+ 	 * forwarding of unknown unicasts and multicasts.
+ 	 */
+-	reg = MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP |
+-		MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
++	reg = MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
+ 		MV88E6XXX_PORT_CTL0_STATE_FORWARDING;
++	/* Forward any IPv4 IGMP or IPv6 MLD frames received
++	 * by a USER port to the CPU port to allow snooping.
++	 */
++	if (dsa_is_user_port(ds, port))
++		reg |= MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP;
++
+ 	err = mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_CTL0, reg);
+ 	if (err)
+ 		return err;
+-- 
+2.39.2
+
 
 
