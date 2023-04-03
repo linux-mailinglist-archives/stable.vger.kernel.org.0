@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3D96D4AC5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A1616D49FC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234125AbjDCOuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
+        id S233088AbjDCOnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234043AbjDCOuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E7F16979
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:10 -0700 (PDT)
+        with ESMTP id S233852AbjDCOnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E18F18274
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09CFFB81D75
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78804C433D2;
-        Mon,  3 Apr 2023 14:48:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D56EC61583
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8703C433EF;
+        Mon,  3 Apr 2023 14:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533333;
-        bh=KBfox2g9YW2SB/t/K3p4p2tza976T6QzWywv6Vl+qWU=;
+        s=korg; t=1680532962;
+        bh=1dQzuZPz+jnbnzOpl70GQpZ4Y71D3bu64CjXhtVCbsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjOIhWCdt8cwWrG3Olo9KHiDxS7X0UNt16U47zxBRO29uWk3l9RSSJle2j14CUSbg
-         lSPgsoet2yZH7TJzoc7ZspN+RC1eRTto/P26KRrH7Dm8ASzMzqW2QtJPvy8y5DoF1k
-         H14e3CXXqzQhE1LMgN4An0gDHllTpPiUY6p/NfYI=
+        b=WWQR57bX+F8xyKtnJrA821OWOdxQfulIVIi7M4SBhJDWIT0W2QfdYyErdTOHjKNsq
+         Rg2dfjxELIQarwMo21kUnDh2nrxV/86cm2kbUPe13pfvVnbzXPQrQywyl8UzCZ3xHP
+         37VYuhZtZgl9XNMyfGUS6uQXiHqFGTLy9Cv8a+f0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.2 143/187] vmxnet3: use gro callback when UPT is enabled
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.1 153/181] ALSA: usb-audio: Fix regression on detection of Roland VS-100
 Date:   Mon,  3 Apr 2023 16:09:48 +0200
-Message-Id: <20230403140420.715359883@linuxfoundation.org>
+Message-Id: <20230403140420.039436920@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronak Doshi <doshir@vmware.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3bced313b9a5a237c347e0f079c8c2fe4b3935aa upstream.
+commit fa4e7a6fa12b1132340785e14bd439cbe95b7a5a upstream.
 
-Currently, vmxnet3 uses GRO callback only if LRO is disabled. However,
-on smartNic based setups where UPT is supported, LRO can be enabled
-from guest VM but UPT devicve does not support LRO as of now. In such
-cases, there can be performance degradation as GRO is not being done.
+It's been reported that the recent kernel can't probe the PCM devices
+on Roland VS-100 properly, and it turned out to be a regression by the
+recent addition of the bit shift range check for the format bits.
+In the old code, we just did bit-shift and it resulted in zero, which
+is then corrected to the standard PCM format, while the new code
+explicitly returns an error in such a case.
 
-This patch fixes this issue by calling GRO API when UPT is enabled. We
-use updateRxProd to determine if UPT mode is active or not.
+For addressing the regression, relax the check and fallback to the
+standard PCM type (with the info output).
 
-To clarify few things discussed over the thread:
-The patch is not neglecting any feature bits nor disabling GRO. It uses
-GRO callback when UPT is active as LRO is not available in UPT.
-GRO callback cannot be used as default for all cases as it degrades
-performance for non-UPT cases or for cases when LRO is already done in
-ESXi.
-
-Cc: stable@vger.kernel.org
-Fixes: 6f91f4ba046e ("vmxnet3: add support for capability registers")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230323200721.27622-1-doshir@vmware.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 43d5ca88dfcd ("ALSA: usb-audio: Fix potential out-of-bounds shift")
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217084
+Link: https://lore.kernel.org/r/20230324075005.19403-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/usb/format.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -1688,7 +1688,9 @@ not_lro:
- 			if (unlikely(rcd->ts))
- 				__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), rcd->tci);
- 
--			if (adapter->netdev->features & NETIF_F_LRO)
-+			/* Use GRO callback if UPT is enabled */
-+			if ((adapter->netdev->features & NETIF_F_LRO) &&
-+			    !rq->shared->updateRxProd)
- 				netif_receive_skb(skb);
- 			else
- 				napi_gro_receive(&rq->napi, skb);
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -39,8 +39,12 @@ static u64 parse_audio_format_i_type(str
+ 	case UAC_VERSION_1:
+ 	default: {
+ 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
+-		if (format >= 64)
+-			return 0; /* invalid format */
++		if (format >= 64) {
++			usb_audio_info(chip,
++				       "%u:%d: invalid format type 0x%llx is detected, processed as PCM\n",
++				       fp->iface, fp->altsetting, format);
++			format = UAC_FORMAT_TYPE_I_PCM;
++		}
+ 		sample_width = fmt->bBitResolution;
+ 		sample_bytes = fmt->bSubframeSize;
+ 		format = 1ULL << format;
 
 
