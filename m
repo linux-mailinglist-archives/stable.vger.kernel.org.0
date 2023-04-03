@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3F36D4744
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F326D495B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233016AbjDCOSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38334 "EHLO
+        id S233684AbjDCOha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233015AbjDCOSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:46 -0400
+        with ESMTP id S233683AbjDCOha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E17D2C9DC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0072F49F9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5591DB81BA4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B37C3C4339B;
-        Mon,  3 Apr 2023 14:18:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDB6EB81CBC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407EFC433D2;
+        Mon,  3 Apr 2023 14:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531523;
-        bh=pc7sVLMlxUUPLoMc579jDkeXM0xm02GMOsv3uokjTMA=;
+        s=korg; t=1680532612;
+        bh=UtvyU1VPULJfHGE7tj71Th9NyoTr9/mvl41hW6uaj+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6XnaKKEDnz1SqOxJKuOV1obP/iuMbFlk2YYdMbfVxsmMjkXEL+lCbj9iq8o3J0Hu
-         3r4T5tOoT1V7zyAAIABs7PeCGRAc/zrHY3k6PD2EjNdI5V3K3BTdqwFyOEfJpA8X67
-         Z8QyKhcOCazOnh6GFUoWyIoCp2eNkmffAbtsAWlk=
+        b=EbVk+tFP2cxSNUlPYoHEVpLLmje0UA9Us7Zce97tp7kBHFzdQgynAIs6XtSpPQ4M5
+         Wb4dwazb1g+nc6/1vgxDJl3e8cMFFTZYb5BLTQ4z66uwKvL5re8DgViorzdFH7WJB4
+         XeUjn8ixW6G+CiwD0Av0+C1P46m0s7mMS3rBtScg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        patches@lists.linux.dev, Kristian Overskeid <koverskeid@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/104] xirc2ps_cs: Fix use after free bug in xirc2ps_detach
+Subject: [PATCH 6.1 048/181] net: hsr: Dont log netdev_err message on unknown prp dst node
 Date:   Mon,  3 Apr 2023 16:08:03 +0200
-Message-Id: <20230403140404.590762419@linuxfoundation.org>
+Message-Id: <20230403140416.714164746@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Kristian Overskeid <koverskeid@gmail.com>
 
-[ Upstream commit e8d20c3ded59a092532513c9bd030d1ea66f5f44 ]
+[ Upstream commit 28e8cabe80f3e6e3c98121576eda898eeb20f1b1 ]
 
-In xirc2ps_probe, the local->tx_timeout_task was bounded
-with xirc2ps_tx_timeout_task. When timeout occurs,
-it will call xirc_tx_timeout->schedule_work to start the
-work.
+If no frames has been exchanged with a node for HSR_NODE_FORGET_TIME, the
+node will be deleted from the node_db list. If a frame is sent to the node
+after it is deleted, a netdev_err message for each slave interface is
+produced. This should not happen with dan nodes because of supervision
+frames, but can happen often with san nodes, which clutters the kernel
+log. Since the hsr protocol does not support sans, this is only relevant
+for the prp protocol.
 
-When we call xirc2ps_detach to remove the driver, there
-may be a sequence as follows:
-
-Stop responding to timeout tasks and complete scheduled
-tasks before cleanup in xirc2ps_detach, which will fix
-the problem.
-
-CPU0                  CPU1
-
-                    |xirc2ps_tx_timeout_task
-xirc2ps_detach      |
-  free_netdev       |
-    kfree(dev);     |
-                    |
-                    | do_reset
-                    |   //use dev
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: Kristian Overskeid <koverskeid@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xircom/xirc2ps_cs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/hsr/hsr_framereg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xircom/xirc2ps_cs.c b/drivers/net/ethernet/xircom/xirc2ps_cs.c
-index fd5288ff53b53..e3438cef5f9c6 100644
---- a/drivers/net/ethernet/xircom/xirc2ps_cs.c
-+++ b/drivers/net/ethernet/xircom/xirc2ps_cs.c
-@@ -503,6 +503,11 @@ static void
- xirc2ps_detach(struct pcmcia_device *link)
- {
-     struct net_device *dev = link->priv;
-+    struct local_info *local = netdev_priv(dev);
-+
-+    netif_carrier_off(dev);
-+    netif_tx_disable(dev);
-+    cancel_work_sync(&local->tx_timeout_task);
- 
-     dev_dbg(&link->dev, "detach\n");
- 
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 39a6088080e93..bd0afb8991174 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -422,7 +422,7 @@ void hsr_addr_subst_dest(struct hsr_node *node_src, struct sk_buff *skb,
+ 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
+ 				       eth_hdr(skb)->h_dest);
+ 	if (!node_dst) {
+-		if (net_ratelimit())
++		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
+ 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
+ 		return;
+ 	}
 -- 
 2.39.2
 
