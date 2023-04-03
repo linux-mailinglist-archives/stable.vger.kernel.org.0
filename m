@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 946FA6D46CE
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF5D6D48DC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232803AbjDCOOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58640 "EHLO
+        id S233546AbjDCOcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232869AbjDCOOU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:20 -0400
+        with ESMTP id S233523AbjDCOca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08D77EDC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFC7E4C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3330B61C83
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EC4C433D2;
-        Mon,  3 Apr 2023 14:14:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F9F861E20
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 863A0C4339B;
+        Mon,  3 Apr 2023 14:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531252;
-        bh=KrCemDSviaurH5X2KKAMxXgAU295oNfxhX0URfX7UKQ=;
+        s=korg; t=1680532343;
+        bh=qVv16XJlJUdUh86UNWrHUdVERYqczPcQGgUz3nmoEFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMD6SXBi2XEr2eIoiTb+NR9PO2vxvUKYnsMltbBkytS3R0HxZTOLlMHxb4Gn8uv1n
-         oIhiGHIMlsyb8RlpaTQXSOZ0KT3OlbOB0K55eUM+GX0OJOvjfL0HTs16P0C6YssfUM
-         j2NrjNe2HkJd1XJJ3cY7GveskAWXuOP094neZUlc=
+        b=z2uByiXsAVhQAgmPsQFKqVJnnpw0/Oqglg5idrlQr7JNhG7DwqHb40JrSccWyeeBK
+         TXcFocCFAjWJ2Z6rgS+Zkr48aLhmhtxYKj7kuzk0KSlIJYzpU/tyiKMq4CsvXZJykj
+         jbQRTTmqghs74PNmKPZdzrI/l5mAk179K07sY6Ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 60/66] ALSA: usb-audio: Fix regression on detection of Roland VS-100
+        patches@lists.linux.dev, Tony Krowiak <akrowiak@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 45/99] s390/vfio-ap: fix memory leak in vfio_ap device driver
 Date:   Mon,  3 Apr 2023 16:09:08 +0200
-Message-Id: <20230403140353.879569084@linuxfoundation.org>
+Message-Id: <20230403140404.968838785@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,46 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-commit fa4e7a6fa12b1132340785e14bd439cbe95b7a5a upstream.
+[ Upstream commit 8f8cf767589f2131ae5d40f3758429095c701c84 ]
 
-It's been reported that the recent kernel can't probe the PCM devices
-on Roland VS-100 properly, and it turned out to be a regression by the
-recent addition of the bit shift range check for the format bits.
-In the old code, we just did bit-shift and it resulted in zero, which
-is then corrected to the standard PCM format, while the new code
-explicitly returns an error in such a case.
+The device release callback function invoked to release the matrix device
+uses the dev_get_drvdata(device *dev) function to retrieve the
+pointer to the vfio_matrix_dev object in order to free its storage. The
+problem is, this object is not stored as drvdata with the device; since the
+kfree function will accept a NULL pointer, the memory for the
+vfio_matrix_dev object is never freed.
 
-For addressing the regression, relax the check and fallback to the
-standard PCM type (with the info output).
+Since the device being released is contained within the vfio_matrix_dev
+object, the container_of macro will be used to retrieve its pointer.
 
-Fixes: 43d5ca88dfcd ("ALSA: usb-audio: Fix potential out-of-bounds shift")
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217084
-Link: https://lore.kernel.org/r/20230324075005.19403-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1fde573413b5 ("s390: vfio-ap: base implementation of VFIO AP device driver")
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230320150447.34557-1-akrowiak@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/format.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/vfio_ap_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -52,8 +52,12 @@ static u64 parse_audio_format_i_type(str
- 	case UAC_VERSION_1:
- 	default: {
- 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
--		if (format >= 64)
--			return 0; /* invalid format */
-+		if (format >= 64) {
-+			usb_audio_info(chip,
-+				       "%u:%d: invalid format type %#x is detected, processed as PCM\n",
-+				       fp->iface, fp->altsetting, format);
-+			format = UAC_FORMAT_TYPE_I_PCM;
-+		}
- 		sample_width = fmt->bBitResolution;
- 		sample_bytes = fmt->bSubframeSize;
- 		format = 1 << format;
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 4d2556bc7fe58..5196c9ac5a81f 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -86,8 +86,9 @@ static struct ap_driver vfio_ap_drv = {
+ 
+ static void vfio_ap_matrix_dev_release(struct device *dev)
+ {
+-	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
++	struct ap_matrix_dev *matrix_dev;
+ 
++	matrix_dev = container_of(dev, struct ap_matrix_dev, device);
+ 	kfree(matrix_dev);
+ }
+ 
+-- 
+2.39.2
+
 
 
