@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AAEB6D4A3F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D6A6D4834
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233900AbjDCOp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
+        id S233285AbjDCO0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233897AbjDCOpT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0751216959
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:44:55 -0700 (PDT)
+        with ESMTP id S233331AbjDCO0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8185631299
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6054361F1E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75D43C4339B;
-        Mon,  3 Apr 2023 14:44:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31060B81C07
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978A2C433EF;
+        Mon,  3 Apr 2023 14:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533092;
-        bh=9hA8GOSLTaZsVHBMX+sww97sJaQFGvNAehI835JPCIY=;
+        s=korg; t=1680531987;
+        bh=upTXbOOZyD5jfy1RwA+Q/zsGtT9gImRRhm1yjOvbTFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vB240l3gMO3DS9VaWFIUaDPhKIBosFnAs21WKPTQllUI/xIGXkkS+KyiZWMzm7D20
-         SWxHzsTj3ZO5FsYKdKpizJ/WgVJuioR82VY+Rlfy8L7o9syMRJ/loM3R9MvYzdDdyq
-         AbqKuuZ62ki0hy+AEdpdkDMIW95VUwRGGkAhpIMc=
+        b=U/GMTbX0kOd8oFbCZ9KjVAsIRgIlM9LTrKRg/Cn2xUwlxzP7E08S+LQ87z9SQdUDn
+         4uPerHVCiI1tK7OKzi4UCtfniyAUTBu1ygsL+LccUxF+HYeUe28TKDtDLQh+6C3FFW
+         mvUk4UblOAw0ry4wbHeNDkBI4O8DZdJXdycH3LPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 021/187] ASoC: Intel: avs: nau8825: Adjust clock control
-Date:   Mon,  3 Apr 2023 16:07:46 +0200
-Message-Id: <20230403140416.728439697@linuxfoundation.org>
+Subject: [PATCH 5.10 052/173] net: mdio: thunder: Add missing fwnode_handle_put()
+Date:   Mon,  3 Apr 2023 16:07:47 +0200
+Message-Id: <20230403140416.134125793@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 6206b2e787da2ed567922c37bb588a44f6fb6705 ]
+[ Upstream commit b1de5c78ebe9858ccec9d49af2f76724f1d47e3e ]
 
-Internal clock shall be adjusted also in cases when DAPM event other
-than 'ON' is triggered.
+In device_for_each_child_node(), we should add fwnode_handle_put()
+when break out of the iteration device_for_each_child_node()
+as it will automatically increase and decrease the refcounter.
 
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230303134854.2277146-6-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/nau8825.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/mdio/mdio-thunder.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/avs/boards/nau8825.c b/sound/soc/intel/avs/boards/nau8825.c
-index 6731d8a490767..49438a67a77c6 100644
---- a/sound/soc/intel/avs/boards/nau8825.c
-+++ b/sound/soc/intel/avs/boards/nau8825.c
-@@ -33,15 +33,15 @@ avs_nau8825_clock_control(struct snd_soc_dapm_widget *w, struct snd_kcontrol *co
- 		return -EINVAL;
+diff --git a/drivers/net/mdio/mdio-thunder.c b/drivers/net/mdio/mdio-thunder.c
+index 822d2cdd2f359..394b864aaa372 100644
+--- a/drivers/net/mdio/mdio-thunder.c
++++ b/drivers/net/mdio/mdio-thunder.c
+@@ -104,6 +104,7 @@ static int thunder_mdiobus_pci_probe(struct pci_dev *pdev,
+ 		if (i >= ARRAY_SIZE(nexus->buses))
+ 			break;
  	}
++	fwnode_handle_put(fwn);
+ 	return 0;
  
--	if (!SND_SOC_DAPM_EVENT_ON(event)) {
-+	if (SND_SOC_DAPM_EVENT_ON(event))
-+		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_MCLK, 24000000,
-+					     SND_SOC_CLOCK_IN);
-+	else
- 		ret = snd_soc_dai_set_sysclk(codec_dai, NAU8825_CLK_INTERNAL, 0, SND_SOC_CLOCK_IN);
--		if (ret < 0) {
--			dev_err(card->dev, "set sysclk err = %d\n", ret);
--			return ret;
--		}
--	}
-+	if (ret < 0)
-+		dev_err(card->dev, "Set sysclk failed: %d\n", ret);
- 
--	return 0;
-+	return ret;
- }
- 
- static const struct snd_kcontrol_new card_controls[] = {
+ err_release_regions:
 -- 
 2.39.2
 
