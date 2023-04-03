@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 601C16D48B0
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956A16D4A45
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbjDCObC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
+        id S233899AbjDCOpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233455AbjDCObB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FEC31999
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:00 -0700 (PDT)
+        with ESMTP id S233902AbjDCOpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCE918253
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32F8AB81C5E
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CA42C4339B;
-        Mon,  3 Apr 2023 14:30:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7649B81D45
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224BFC433D2;
+        Mon,  3 Apr 2023 14:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532257;
-        bh=lxeAhdouSg4Kf/eDdcDG5KNcYTMuUWkUK1LN+kqgtOo=;
+        s=korg; t=1680533113;
+        bh=DV0cOeSX8PNOFn5ooCFW/+sKVpj7bKAX1Y/CH1juOtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TYLyJFgXs5dMENm67e5Ifmzjda1N4QfyRryw0PzAUxI3daOt1TBCzg6WmX/Wo56BP
-         nWMT9HLXxP4Cxa2SZvt7gGPlKMLGUpL5/+V4kkBQ2Yqz2DOrcBWmmG7yruLzq0FUyr
-         hhH67nPZ1Q9MxApjVh4V4gkGWmrSwUpSXu2tmfzI=
+        b=xSQ439UuOqvdvKQQUG97Ex0MbN0qJwQ8V6jjZeyVxq9ehpwuD1LDvFa+ykeM1bgc+
+         /nnpQFDbCLprOq2VsgZ+Rd46chxsxkrxvkZ4T1qBk1iKxJQl2oN2YMxW7aUR3ikmNb
+         aWYW1QF0i8ZNoyERKoWE2HOWPV5lNTtp8ZuNtMc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        patches@lists.linux.dev, Qu Wenruo <wqu@suse.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 02/99] usb: dwc3: gadget: move cmd_endtransfer to extra function
+Subject: [PATCH 6.2 060/187] btrfs: fix uninitialized variable warning in btrfs_update_block_group
 Date:   Mon,  3 Apr 2023 16:08:25 +0200
-Message-Id: <20230403140356.156533529@linuxfoundation.org>
+Message-Id: <20230403140417.935627566@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,123 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e192cc7b52399d1b073f88cd3ba128b74d3a57f1 ]
+[ Upstream commit efbf35a102b20246cfe4409c6ae92e72ecb67ab8 ]
 
-This patch adds the extra function __dwc3_stop_active_transfer to
-consolidate the same codepath.
+reclaim isn't set in the alloc case, however we only care about
+reclaim in the !alloc case.  This isn't an actual problem, however
+-Wmaybe-uninitialized will complain, so initialize reclaim to quiet the
+compiler.
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220306211251.2281335-3-m.grzeschik@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: d8a2bb4eb758 ("usb: dwc3: gadget: Add 1ms delay after end transfer command without IOC")
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Stable-dep-of: df384da5a49c ("btrfs: use temporary variable for space_info in btrfs_update_block_group")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 69 +++++++++++++++++++++------------------
- 1 file changed, 37 insertions(+), 32 deletions(-)
+ fs/btrfs/block-group.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index a0100d26de8e1..1689c09b937ae 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1639,6 +1639,40 @@ static int __dwc3_gadget_get_frame(struct dwc3 *dwc)
- 	return DWC3_DSTS_SOFFN(reg);
- }
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 8eb625318e785..f40e56d44276d 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -3336,7 +3336,7 @@ int btrfs_update_block_group(struct btrfs_trans_handle *trans,
+ 	spin_unlock(&info->delalloc_root_lock);
  
-+/**
-+ * __dwc3_stop_active_transfer - stop the current active transfer
-+ * @dep: isoc endpoint
-+ * @force: set forcerm bit in the command
-+ * @interrupt: command complete interrupt after End Transfer command
-+ *
-+ * When setting force, the ForceRM bit will be set. In that case
-+ * the controller won't update the TRB progress on command
-+ * completion. It also won't clear the HWO bit in the TRB.
-+ * The command will also not complete immediately in that case.
-+ */
-+static int __dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force, bool interrupt)
-+{
-+	struct dwc3_gadget_ep_cmd_params params;
-+	u32 cmd;
-+	int ret;
-+
-+	cmd = DWC3_DEPCMD_ENDTRANSFER;
-+	cmd |= force ? DWC3_DEPCMD_HIPRI_FORCERM : 0;
-+	cmd |= interrupt ? DWC3_DEPCMD_CMDIOC : 0;
-+	cmd |= DWC3_DEPCMD_PARAM(dep->resource_index);
-+	memset(&params, 0, sizeof(params));
-+	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
-+	WARN_ON_ONCE(ret);
-+	dep->resource_index = 0;
-+
-+	if (!interrupt)
-+		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
-+	else if (!ret)
-+		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
-+
-+	return ret;
-+}
-+
- /**
-  * dwc3_gadget_start_isoc_quirk - workaround invalid frame number
-  * @dep: isoc endpoint
-@@ -1808,21 +1842,8 @@ static int __dwc3_gadget_start_isoc(struct dwc3_ep *dep)
- 	 * status, issue END_TRANSFER command and retry on the next XferNotReady
- 	 * event.
- 	 */
--	if (ret == -EAGAIN) {
--		struct dwc3_gadget_ep_cmd_params params;
--		u32 cmd;
--
--		cmd = DWC3_DEPCMD_ENDTRANSFER |
--			DWC3_DEPCMD_CMDIOC |
--			DWC3_DEPCMD_PARAM(dep->resource_index);
--
--		dep->resource_index = 0;
--		memset(&params, 0, sizeof(params));
--
--		ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
--		if (!ret)
--			dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
--	}
-+	if (ret == -EAGAIN)
-+		ret = __dwc3_stop_active_transfer(dep, false, true);
+ 	while (total) {
+-		bool reclaim;
++		bool reclaim = false;
  
- 	return ret;
- }
-@@ -3605,10 +3626,6 @@ static void dwc3_reset_gadget(struct dwc3 *dwc)
- static void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
- 	bool interrupt)
- {
--	struct dwc3_gadget_ep_cmd_params params;
--	u32 cmd;
--	int ret;
--
- 	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED) ||
- 	    (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
- 		return;
-@@ -3640,19 +3657,7 @@ static void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
- 	 * This mode is NOT available on the DWC_usb31 IP.
- 	 */
- 
--	cmd = DWC3_DEPCMD_ENDTRANSFER;
--	cmd |= force ? DWC3_DEPCMD_HIPRI_FORCERM : 0;
--	cmd |= interrupt ? DWC3_DEPCMD_CMDIOC : 0;
--	cmd |= DWC3_DEPCMD_PARAM(dep->resource_index);
--	memset(&params, 0, sizeof(params));
--	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
--	WARN_ON_ONCE(ret);
--	dep->resource_index = 0;
--
--	if (!interrupt)
--		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
--	else
--		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
-+	__dwc3_stop_active_transfer(dep, force, interrupt);
- }
- 
- static void dwc3_clear_stall_all_ep(struct dwc3 *dwc)
+ 		cache = btrfs_lookup_block_group(info, bytenr);
+ 		if (!cache) {
 -- 
 2.39.2
 
