@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4686D4941
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3058C6D4A40
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233639AbjDCOgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:36:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S233864AbjDCOpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:45:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233653AbjDCOgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:19 -0400
+        with ESMTP id S233897AbjDCOpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:45:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4163316F36
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 660AF16971
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C056FB81CA9
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CCAFC433D2;
-        Mon,  3 Apr 2023 14:36:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4800BB81D35
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFB2C433D2;
+        Mon,  3 Apr 2023 14:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532568;
-        bh=XrrhMWQnqt1ikQWLiMWwcVO1PUIEDtnXn1ngPJpkiys=;
+        s=korg; t=1680533098;
+        bh=vuW0vUuDsrbF6EdZBmyISlMkpcKD10t+InuXT0eDUMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6aSbm/9AbIQzny2DOlmzgfnYUcoDfl61XHD9qoLmdirP5NrnCx5oaVl9Kn1tqV4S
-         /UyiuVycnzH4rqcTby8+2lRR2t2usntUGanXXyOy2Xu+IQFf+up2Xb69QhXTqvq8DA
-         vLlBBs+3m0ajv7gRrRuewaOG9BprT25V86Wcm93A=
+        b=HWsjHtjzPp2si+3l1kmEFy+DgEJobwJl+LUG74SlJ7pUG4d4xbkemt14n6rIecDyD
+         QgLLDbB5xTnzEDFYG672hlFYGxxeQuUkOTPlio8R2BS8hFeTz01xwB34b8W+Epi+rC
+         ivZ/MtvST6e8JEQMelFgfi1G5LMNzsG+3ASIUr5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 033/181] ASoC: Intel: avs: max98357a: Explicitly define codec format
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Nick Terrell <terrelln@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 023/187] zstd: Fix definition of assert()
 Date:   Mon,  3 Apr 2023 16:07:48 +0200
-Message-Id: <20230403140416.237978580@linuxfoundation.org>
+Message-Id: <20230403140416.787278477@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit d16c893425d07ada1fdd817ec06d322efcf69480 ]
+[ Upstream commit 6906598f1ce93761716d780b6e3f171e13f0f4ce ]
 
-max98357a is speaker codec configured in 48000/2/S16_LE format
-regardless of front end format, so force it to be so.
+assert(x) should emit a warning if x is false. WARN_ON(x) emits a
+warning if x is true. Thus, assert(x) should be defined as WARN_ON(!x)
+rather than WARN_ON(x).
 
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230303134854.2277146-2-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Signed-off-by: Nick Terrell <terrelln@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/avs/boards/max98357a.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ lib/zstd/common/zstd_deps.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/avs/boards/max98357a.c b/sound/soc/intel/avs/boards/max98357a.c
-index 921f42caf7e09..183123d08c5a3 100644
---- a/sound/soc/intel/avs/boards/max98357a.c
-+++ b/sound/soc/intel/avs/boards/max98357a.c
-@@ -8,6 +8,7 @@
+diff --git a/lib/zstd/common/zstd_deps.h b/lib/zstd/common/zstd_deps.h
+index 7a5bf44839c9c..f06df065dec01 100644
+--- a/lib/zstd/common/zstd_deps.h
++++ b/lib/zstd/common/zstd_deps.h
+@@ -84,7 +84,7 @@ static uint64_t ZSTD_div64(uint64_t dividend, uint32_t divisor) {
  
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <sound/pcm_params.h>
- #include <sound/soc.h>
- #include <sound/soc-acpi.h>
- #include <sound/soc-dapm.h>
-@@ -24,6 +25,26 @@ static const struct snd_soc_dapm_route card_base_routes[] = {
- 	{ "Spk", NULL, "Speaker" },
- };
+ #include <linux/kernel.h>
  
-+static int
-+avs_max98357a_be_fixup(struct snd_soc_pcm_runtime *runrime, struct snd_pcm_hw_params *params)
-+{
-+	struct snd_interval *rate, *channels;
-+	struct snd_mask *fmt;
-+
-+	rate = hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
-+	channels = hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
-+	fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-+
-+	/* The ADSP will convert the FE rate to 48k, stereo */
-+	rate->min = rate->max = 48000;
-+	channels->min = channels->max = 2;
-+
-+	/* set SSP0 to 16 bit */
-+	snd_mask_none(fmt);
-+	snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
-+	return 0;
-+}
-+
- static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
- 			       struct snd_soc_dai_link **dai_link)
- {
-@@ -55,6 +76,7 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
- 	dl->num_platforms = 1;
- 	dl->id = 0;
- 	dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
-+	dl->be_hw_params_fixup = avs_max98357a_be_fixup;
- 	dl->nonatomic = 1;
- 	dl->no_pcm = 1;
- 	dl->dpcm_playback = 1;
+-#define assert(x) WARN_ON((x))
++#define assert(x) WARN_ON(!(x))
+ 
+ #endif /* ZSTD_DEPS_ASSERT */
+ #endif /* ZSTD_DEPS_NEED_ASSERT */
 -- 
 2.39.2
 
