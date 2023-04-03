@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4366D4840
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA016D4777
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233321AbjDCO1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:27:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56132 "EHLO
+        id S233176AbjDCOUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233318AbjDCO1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155792D7E5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:59 -0700 (PDT)
+        with ESMTP id S233132AbjDCOUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:20:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F48F312B1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8026B81C16
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2830BC433EF;
-        Mon,  3 Apr 2023 14:26:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5B461D16
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C63C433EF;
+        Mon,  3 Apr 2023 14:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532016;
-        bh=34n+cXp49tbYAU59cnctTH0ra9rUePd5v/DdFPvOZnI=;
+        s=korg; t=1680531594;
+        bh=75h4lD0mk5zmLz+UDOKXhH8iMe3itMJ/s4s7lr3PM7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaqU8mlv7O8F1aq/UOxml8yjtCPaILNFjpfpYhsn4tT9b6k0In+9e9/xr22BJ4t/R
-         PotLhJZZfFG0qI/X2iF84SZAbABlIqKxYAS70SD8yC6k9qE9tj0F+B4JOFeonseC1u
-         ug8d75914L/3K++sanKg/qytP3egVZkMvp62B8Ug=
+        b=UIG8EPpKOetaDltcyOqaxA9+ly2QugSHXBprHkTpTWS9ldrX5tiFeMvC0E2vzfwam
+         umQej31+wx5n4xmLCfj7D2TeR5fPE88Imhhw5uLh+UM2jjExm3/VR99H2I/bEVSzfc
+         uBc4zBpkdhoKudcVb2hy+ho6Lr0vhAiSx3Of/Udc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.10 095/173] dm stats: check for and propagate alloc_percpu failure
+        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 038/104] scsi: lpfc: Avoid usage of list iterator variable after loop
 Date:   Mon,  3 Apr 2023 16:08:30 +0200
-Message-Id: <20230403140417.499406811@linuxfoundation.org>
+Message-Id: <20230403140405.860636053@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,79 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Jakob Koschel <jkl820.git@gmail.com>
 
-commit d3aa3e060c4a80827eb801fc448debc9daa7c46b upstream.
+[ Upstream commit 2850b23e9f9ae3696e472d2883ea1b43aafa884e ]
 
-Check alloc_precpu()'s return value and return an error from
-dm_stats_init() if it fails. Update alloc_dev() to fail if
-dm_stats_init() does.
+If the &epd_pool->list is empty when executing
+lpfc_get_io_buf_from_expedite_pool() the function would return an invalid
+pointer. Even in the case if the list is guaranteed to be populated, the
+iterator variable should not be used after the loop to be more robust for
+future changes.
 
-Otherwise, a NULL pointer dereference will occur in dm_stats_cleanup()
-even if dm-stats isn't being actively used.
+Linus proposed to avoid any use of the list iterator variable after the
+loop, in the attempt to move the list iterator variable declaration into
+the macro to avoid any potential misuse after the loop [1].
 
-Fixes: fd2ed4d25270 ("dm: add statistics support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
+Link: https://lore.kernel.org/r/20230301-scsi-lpfc-avoid-list-iterator-after-loop-v1-1-325578ae7561@gmail.com
+Reviewed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-stats.c |    7 ++++++-
- drivers/md/dm-stats.h |    2 +-
- drivers/md/dm.c       |    4 +++-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-stats.c
-+++ b/drivers/md/dm-stats.c
-@@ -188,7 +188,7 @@ static int dm_stat_in_flight(struct dm_s
- 	       atomic_read(&shared->in_flight[WRITE]);
- }
- 
--void dm_stats_init(struct dm_stats *stats)
-+int dm_stats_init(struct dm_stats *stats)
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index bd908dd273078..e489c68cfb631 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -20407,20 +20407,20 @@ lpfc_get_io_buf_from_private_pool(struct lpfc_hba *phba,
+ static struct lpfc_io_buf *
+ lpfc_get_io_buf_from_expedite_pool(struct lpfc_hba *phba)
  {
- 	int cpu;
- 	struct dm_stats_last_position *last;
-@@ -196,11 +196,16 @@ void dm_stats_init(struct dm_stats *stat
- 	mutex_init(&stats->mutex);
- 	INIT_LIST_HEAD(&stats->list);
- 	stats->last = alloc_percpu(struct dm_stats_last_position);
-+	if (!stats->last)
-+		return -ENOMEM;
-+
- 	for_each_possible_cpu(cpu) {
- 		last = per_cpu_ptr(stats->last, cpu);
- 		last->last_sector = (sector_t)ULLONG_MAX;
- 		last->last_rw = UINT_MAX;
+-	struct lpfc_io_buf *lpfc_ncmd;
++	struct lpfc_io_buf *lpfc_ncmd = NULL, *iter;
+ 	struct lpfc_io_buf *lpfc_ncmd_next;
+ 	unsigned long iflag;
+ 	struct lpfc_epd_pool *epd_pool;
+ 
+ 	epd_pool = &phba->epd_pool;
+-	lpfc_ncmd = NULL;
+ 
+ 	spin_lock_irqsave(&epd_pool->lock, iflag);
+ 	if (epd_pool->count > 0) {
+-		list_for_each_entry_safe(lpfc_ncmd, lpfc_ncmd_next,
++		list_for_each_entry_safe(iter, lpfc_ncmd_next,
+ 					 &epd_pool->list, list) {
+-			list_del(&lpfc_ncmd->list);
++			list_del(&iter->list);
+ 			epd_pool->count--;
++			lpfc_ncmd = iter;
+ 			break;
+ 		}
  	}
-+
-+	return 0;
- }
- 
- void dm_stats_cleanup(struct dm_stats *stats)
---- a/drivers/md/dm-stats.h
-+++ b/drivers/md/dm-stats.h
-@@ -22,7 +22,7 @@ struct dm_stats_aux {
- 	unsigned long long duration_ns;
- };
- 
--void dm_stats_init(struct dm_stats *st);
-+int dm_stats_init(struct dm_stats *st);
- void dm_stats_cleanup(struct dm_stats *st);
- 
- struct mapped_device;
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1910,7 +1910,9 @@ static struct mapped_device *alloc_dev(i
- 	if (!md->bdev)
- 		goto bad;
- 
--	dm_stats_init(&md->stats);
-+	r = dm_stats_init(&md->stats);
-+	if (r < 0)
-+		goto bad;
- 
- 	/* Populate the mapping, nobody knows we exist yet */
- 	spin_lock(&_minor_lock);
+-- 
+2.39.2
+
 
 
