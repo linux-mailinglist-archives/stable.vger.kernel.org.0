@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA256D4AA5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A70CC6D46D8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234095AbjDCOtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:49:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38382 "EHLO
+        id S232873AbjDCOOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234100AbjDCOtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B54B30C1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:53 -0700 (PDT)
+        with ESMTP id S232870AbjDCOOm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AE940E1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2A36FCE1308
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37EE4C433D2;
-        Mon,  3 Apr 2023 14:47:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15343B81B36
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C834C4339C;
+        Mon,  3 Apr 2023 14:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533268;
-        bh=Xt076set2fXWBWhyvV31TnJjJ+gh4g293OObPxQNfUo=;
+        s=korg; t=1680531278;
+        bh=0vnA3WU9n71Hksc/Fk2ECnvm3tBZSD5qLPZsrYMfSA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4hyVvFoi6gg5HapkVWFUK3aHRZuSHIfLVGLnNqMlwMUID6fvbZBEtO+tbtOB4bHv
-         LUr52N9pK2WVkrQQumISKzNbfNuSX1AeAismuXdYeMlgh4CkLi/f8N8VrYzg5nKOwI
-         387H1SnT3gMgI6DapMD4tBy90tJsZ9i3q2tKJJD0=
+        b=lhGSDcH1HbESQKGr6r+oCrvkML1yz4ZqvoBUKtvOWfSPKRh1bEafJV+p/+4VaDQ5Q
+         7cRtMrucxOMSh1bCUfidQ4s8PEm2t7kuYS49buQofBWmGopF0ICLJOpnvUvfw9p6FS
+         rAOrDw1u+LDHRa7UewDGMJ17QMVTZ0kfYHyWQomc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChunHao Lin <hau@realtek.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 089/187] r8169: fix RTL8168H and RTL8107E rx crc error
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 46/66] fbdev: tgafb: Fix potential divide by zero
 Date:   Mon,  3 Apr 2023 16:08:54 +0200
-Message-Id: <20230403140418.893901905@linuxfoundation.org>
+Message-Id: <20230403140353.455603671@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChunHao Lin <hau@realtek.com>
+From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit 33189f0a94b9639c058781fcf82e4ea3803b1682 ]
+[ Upstream commit f90bd245de82c095187d8c2cabb8b488a39eaecc ]
 
-When link speed is 10 Mbps and temperature is under -20°C, RTL8168H and
-RTL8107E may have rx crc error. Disable phy 10 Mbps pll off to fix this
-issue.
+fb_set_var would by called when user invokes ioctl with cmd
+FBIOPUT_VSCREENINFO. User-provided data would finally reach
+tgafb_check_var. In case var->pixclock is assigned to zero,
+divide by zero would occur when checking whether reciprocal
+of var->pixclock is too high.
 
-Fixes: 6e1d0b898818 ("r8169:add support for RTL8168H and RTL8107E")
-Signed-off-by: ChunHao Lin <hau@realtek.com>
-Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Similar crashes have happened in other fbdev drivers. There
+is no check and modification on var->pixclock along the call
+chain to tgafb_check_var. We believe it could also be triggered
+in driver tgafb from user site.
+
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_phy_config.c | 3 +++
+ drivers/video/fbdev/tgafb.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_phy_config.c b/drivers/net/ethernet/realtek/r8169_phy_config.c
-index 930496cd34ed0..b50f16786c246 100644
---- a/drivers/net/ethernet/realtek/r8169_phy_config.c
-+++ b/drivers/net/ethernet/realtek/r8169_phy_config.c
-@@ -826,6 +826,9 @@ static void rtl8168h_2_hw_phy_config(struct rtl8169_private *tp,
- 	/* disable phy pfm mode */
- 	phy_modify_paged(phydev, 0x0a44, 0x11, BIT(7), 0);
+diff --git a/drivers/video/fbdev/tgafb.c b/drivers/video/fbdev/tgafb.c
+index 65ba9921506e2..9d2912947eef6 100644
+--- a/drivers/video/fbdev/tgafb.c
++++ b/drivers/video/fbdev/tgafb.c
+@@ -166,6 +166,9 @@ tgafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ {
+ 	struct tga_par *par = (struct tga_par *)info->par;
  
-+	/* disable 10m pll off */
-+	phy_modify_paged(phydev, 0x0a43, 0x10, BIT(0), 0);
++	if (!var->pixclock)
++		return -EINVAL;
 +
- 	rtl8168g_disable_aldps(phydev);
- 	rtl8168g_config_eee_phy(phydev);
- }
+ 	if (par->tga_type == TGA_TYPE_8PLANE) {
+ 		if (var->bits_per_pixel != 8)
+ 			return -EINVAL;
 -- 
 2.39.2
 
