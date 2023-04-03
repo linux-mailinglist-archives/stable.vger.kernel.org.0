@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAB46D4701
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 362616D482D
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232824AbjDCOQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33820 "EHLO
+        id S233329AbjDCO0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232934AbjDCOQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B267D4EFD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:09 -0700 (PDT)
+        with ESMTP id S233332AbjDCO01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEACC319B0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D0FD61CC4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6483FC433EF;
-        Mon,  3 Apr 2023 14:16:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A481EB81C0B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF902C433EF;
+        Mon,  3 Apr 2023 14:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531368;
-        bh=KTW5qMXntZFuTO6YrqYXUdEWf8r8SmJgFMJCb5mcpDM=;
+        s=korg; t=1680531972;
+        bh=P6vD6BAEdEhDdhlgw4psgjaRokQKZmpTxdO+jiaYJFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEFg70q+TVqa8yA/aF/XN4OUNB18RVGzYueY0d7Z64c2Kk80zYL35L+E/Pf2L9Gov
-         Le+jDKDXC2PHHyOvEIx0S5nM5cmfMDd1tVRetba7SYFuEYVRS2TKgfyTKYXdWHPZpq
-         ykeHOxBuN1vF5gRJP5RrYX6VT+zzVz05MBJM0/C4=
+        b=Ow0JX6YoUsPGmYa0eIw0ycsDq1SDADc5bZ+BPpUVpoyzB3UvegYTm39u/oa0bs0cV
+         DELoQ7iGQ+gM0iZ/VOp7CEPDLuI3J9GfJMajwUYXTtB1CENEQ2p2HB1rTiD5St7i9n
+         aWWc1ndk5ITLOiXPtGSpYBISepQ10EQCoflQpnDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
+        Rich Felker <dalias@libc.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/84] scsi: scsi_dh_alua: Fix memleak for qdata in alua_activate()
-Date:   Mon,  3 Apr 2023 16:08:10 +0200
-Message-Id: <20230403140353.717880424@linuxfoundation.org>
+Subject: [PATCH 5.10 076/173] sh: sanitize the flags on sigreturn
+Date:   Mon,  3 Apr 2023 16:08:11 +0200
+Message-Id: <20230403140416.887428711@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,59 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit a13faca032acbf2699293587085293bdfaafc8ae ]
+[ Upstream commit 573b22ccb7ce9ab7f0539a2e11a9d3609a8783f5 ]
 
-If alua_rtpg_queue() failed from alua_activate(), then 'qdata' is not
-freed, which will cause following memleak:
+We fetch %SR value from sigframe; it might have been modified by signal
+handler, so we can't trust it with any bits that are not modifiable in
+user mode.
 
-unreferenced object 0xffff88810b2c6980 (size 32):
-  comm "kworker/u16:2", pid 635322, jiffies 4355801099 (age 1216426.076s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    40 39 24 c1 ff ff ff ff 00 f8 ea 0a 81 88 ff ff  @9$.............
-  backtrace:
-    [<0000000098f3a26d>] alua_activate+0xb0/0x320
-    [<000000003b529641>] scsi_dh_activate+0xb2/0x140
-    [<000000007b296db3>] activate_path_work+0xc6/0xe0 [dm_multipath]
-    [<000000007adc9ace>] process_one_work+0x3c5/0x730
-    [<00000000c457a985>] worker_thread+0x93/0x650
-    [<00000000cb80e628>] kthread+0x1ba/0x210
-    [<00000000a1e61077>] ret_from_fork+0x22/0x30
-
-Fix the problem by freeing 'qdata' in error path.
-
-Fixes: 625fe857e4fa ("scsi: scsi_dh_alua: Check scsi_device_get() return value")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20230315062154.668812-1-yukuai1@huaweicloud.com
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/sh/include/asm/processor_32.h | 1 +
+ arch/sh/kernel/signal_32.c         | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index 4cf7c3348bffe..9be913c19a6e0 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -1050,10 +1050,12 @@ static int alua_activate(struct scsi_device *sdev,
- 	rcu_read_unlock();
- 	mutex_unlock(&h->init_mutex);
+diff --git a/arch/sh/include/asm/processor_32.h b/arch/sh/include/asm/processor_32.h
+index aa92cc933889d..6c7966e627758 100644
+--- a/arch/sh/include/asm/processor_32.h
++++ b/arch/sh/include/asm/processor_32.h
+@@ -50,6 +50,7 @@
+ #define SR_FD		0x00008000
+ #define SR_MD		0x40000000
  
--	if (alua_rtpg_queue(pg, sdev, qdata, true))
-+	if (alua_rtpg_queue(pg, sdev, qdata, true)) {
- 		fn = NULL;
--	else
-+	} else {
-+		kfree(qdata);
- 		err = SCSI_DH_DEV_OFFLINED;
-+	}
- 	kref_put(&pg->kref, release_port_group);
- out:
- 	if (fn)
++#define SR_USER_MASK	0x00000303	// M, Q, S, T bits
+ /*
+  * DSP structure and data
+  */
+diff --git a/arch/sh/kernel/signal_32.c b/arch/sh/kernel/signal_32.c
+index dd3092911efad..dc13702003f0f 100644
+--- a/arch/sh/kernel/signal_32.c
++++ b/arch/sh/kernel/signal_32.c
+@@ -115,6 +115,7 @@ static int
+ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p)
+ {
+ 	unsigned int err = 0;
++	unsigned int sr = regs->sr & ~SR_USER_MASK;
+ 
+ #define COPY(x)		err |= __get_user(regs->x, &sc->sc_##x)
+ 			COPY(regs[1]);
+@@ -130,6 +131,8 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc, int *r0_p
+ 	COPY(sr);	COPY(pc);
+ #undef COPY
+ 
++	regs->sr = (regs->sr & SR_USER_MASK) | sr;
++
+ #ifdef CONFIG_SH_FPU
+ 	if (boot_cpu_data.flags & CPU_HAS_FPU) {
+ 		int owned_fp;
 -- 
 2.39.2
 
