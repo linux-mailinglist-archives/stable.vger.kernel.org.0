@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8EBA6D4742
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 672186D46DE
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233018AbjDCOSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38298 "EHLO
+        id S232406AbjDCOO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233019AbjDCOSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:44 -0400
+        with ESMTP id S232929AbjDCOO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E592C9DB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C344C37
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DD5661CE8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21F36C433EF;
-        Mon,  3 Apr 2023 14:18:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2717B61C9C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A643C433EF;
+        Mon,  3 Apr 2023 14:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531520;
-        bh=Q9x5Kde58VKF6BpxpNMbI4yLxu0G7kji2W/H/sd1o8w=;
+        s=korg; t=1680531294;
+        bh=5RJSKIK5ew6Sg+i0x6krCE1POLGK0hC9xrp4doolEGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+hUgUYLLj0xyxGsNxSFkC6jhi9vThUjRgeu2BtCJ/cyBp6mKNVCNEdDjtQzSnUuk
-         R3ldN2hmhLdS53mr4T1MAqRoISsvn41xLjPnpWp9aZiGX4SAJn4yv++sGDVQuSIh7b
-         In2j3yXMCCASXg+QjWhOvS8u2++wfhn3SOwLKwH4=
+        b=0NZxBzZEQVFcJ+Ob0LxsEje5o20gqbLkJvjQva/o66qHsRuzy7VYnu1ae3FDOCABC
+         gRJNtdEOdrBQLbdYQDqzPoxHltAIdxomWgI3moNvDvX/JaHw/oLcRpg3FrTM8kKFq8
+         qPWtMvrPomi8tzu/kHHKdmmYMugJLkgVldd/Lvhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/104] qed/qed_sriov: guard against NULL derefs from qed_iov_get_vf_info
+Subject: [PATCH 4.19 01/84] power: supply: da9150: Fix use after free bug in da9150_charger_remove due to race condition
 Date:   Mon,  3 Apr 2023 16:08:02 +0200
-Message-Id: <20230403140404.539136588@linuxfoundation.org>
+Message-Id: <20230403140353.464636868@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,49 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 25143b6a01d0cc5319edd3de22ffa2578b045550 ]
+[ Upstream commit 06615d11cc78162dfd5116efb71f29eb29502d37 ]
 
-We have to make sure that the info returned by the helper is valid
-before using it.
+In da9150_charger_probe, &charger->otg_work is bound with
+da9150_charger_otg_work. da9150_charger_otg_ncb may be
+called to start the work.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+If we remove the module which will call da9150_charger_remove
+to make cleanup, there may be a unfinished work. The possible
+sequence is as follows:
 
-Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
-Fixes: 733def6a04bf ("qed*: IOV link control")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix it by canceling the work before cleanup in the da9150_charger_remove
+
+CPU0                  CPUc1
+
+                    |da9150_charger_otg_work
+da9150_charger_remove      |
+power_supply_unregister  |
+device_unregister   |
+power_supply_dev_release|
+kfree(psy)          |
+                    |
+                    | 	power_supply_changed(charger->usb);
+                    |   //use
+
+Fixes: c1a281e34dae ("power: Add support for DA9150 Charger")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/power/supply/da9150-charger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-index 20f840ea05030..caa0468df4b53 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -4404,6 +4404,9 @@ qed_iov_configure_min_tx_rate(struct qed_dev *cdev, int vfid, u32 rate)
- 	}
+diff --git a/drivers/power/supply/da9150-charger.c b/drivers/power/supply/da9150-charger.c
+index 60099815296e7..b2d38eb32288a 100644
+--- a/drivers/power/supply/da9150-charger.c
++++ b/drivers/power/supply/da9150-charger.c
+@@ -666,6 +666,7 @@ static int da9150_charger_remove(struct platform_device *pdev)
  
- 	vf = qed_iov_get_vf_info(QED_LEADING_HWFN(cdev), (u16)vfid, true);
-+	if (!vf)
-+		return -EINVAL;
-+
- 	vport_id = vf->vport_id;
+ 	if (!IS_ERR_OR_NULL(charger->usb_phy))
+ 		usb_unregister_notifier(charger->usb_phy, &charger->otg_nb);
++	cancel_work_sync(&charger->otg_work);
  
- 	return qed_configure_vport_wfq(cdev, vport_id, rate);
-@@ -5150,7 +5153,7 @@ static void qed_iov_handle_trust_change(struct qed_hwfn *hwfn)
- 
- 		/* Validate that the VF has a configured vport */
- 		vf = qed_iov_get_vf_info(hwfn, i, true);
--		if (!vf->vport_instance)
-+		if (!vf || !vf->vport_instance)
- 			continue;
- 
- 		memset(&params, 0, sizeof(params));
+ 	power_supply_unregister(charger->battery);
+ 	power_supply_unregister(charger->usb);
 -- 
 2.39.2
 
