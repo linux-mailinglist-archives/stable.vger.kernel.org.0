@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BF16D49A0
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A436D4780
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233718AbjDCOjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
+        id S233044AbjDCOVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233758AbjDCOjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC601236A4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:41 -0700 (PDT)
+        with ESMTP id S233048AbjDCOUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:20:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6144F2D7DD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FA3EB81CDC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F23F7C4339B;
-        Mon,  3 Apr 2023 14:39:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F281ACE12BD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D04C433D2;
+        Mon,  3 Apr 2023 14:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532779;
-        bh=noVZb804vuPDQVTQr3X92/tFr/DAUTuTMhxnNHqblGA=;
+        s=korg; t=1680531625;
+        bh=jfqSmcs6eeBcUxR3Hcw8u6iVG/WGCLmO5QOcJrJ/Txk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ieWcyMmy9s781Xb33mWbDMyqHjPC9SAXpaknIHbOAju8al9BqqbDm65ux1P3qbfR
-         cmSQ0e6Dp5wDNgiDt+AupwarCsEtFawS8FqTTz3mIoDDUYx3MPGY9+Z6BRwvmhbvx1
-         UldVcONk5gmMw31eT40dTbFpiiPecczdxTBtvRzY=
+        b=kqXYE1f7UU2r44cEBEzy6d1EPMgVz2Lx6XTUwrV9Enl6LoyYLCp1dQBB+nItGOmM/
+         tYQSMfLZk81mA+Fz/7bawUxRStKW0UqvsUmGEab1m6ZRsHz0jCY2wyVJrTUW9Juu1v
+         UY6wi9J8GfcrBRWAYfc66YXGqog+m17FzAzSUqkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, SongJingyi <u201912584@hust.edu.cn>,
-        Dan Carpenter <error27@gmail.com>,
-        Dongliang Mu <dzm91@hust.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 086/181] ptp_qoriq: fix memory leak in probe()
+        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH 5.4 049/104] usb: chipdea: core: fix return -EINVAL if request role is the same with current role
 Date:   Mon,  3 Apr 2023 16:08:41 +0200
-Message-Id: <20230403140417.920265012@linuxfoundation.org>
+Message-Id: <20230403140406.283567926@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SongJingyi <u201912584@hust.edu.cn>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-[ Upstream commit f33642224e38d7e0d59336e10e7b4e370b1c4506 ]
+commit 3670de80678961eda7fa2220883fc77c16868951 upstream.
 
-Smatch complains that:
-drivers/ptp/ptp_qoriq.c ptp_qoriq_probe()
-warn: 'base' from ioremap() not released.
+It should not return -EINVAL if the request role is the same with current
+role, return non-error and without do anything instead.
 
-Fix this by revising the parameter from 'ptp_qoriq->base' to 'base'.
-This is only a bug if ptp_qoriq_init() returns on the
-first -ENODEV error path.
-For other error paths ptp_qoriq->base and base are the same.
-And this change makes the code more readable.
-
-Fixes: 7f4399ba405b ("ptp_qoriq: fix NULL access if ptp dt node missing")
-Signed-off-by: SongJingyi <u201912584@hust.edu.cn>
-Reviewed-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Dongliang Mu <dzm91@hust.edu.cn>
-Link: https://lore.kernel.org/r/20230324031406.1895159-1-u201912584@hust.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a932a8041ff9 ("usb: chipidea: core: add sysfs group")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20230317061516.2451728-1-xu.yang_2@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ptp/ptp_qoriq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/chipidea/core.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
-index 08f4cf0ad9e3c..8fa9772acf79b 100644
---- a/drivers/ptp/ptp_qoriq.c
-+++ b/drivers/ptp/ptp_qoriq.c
-@@ -601,7 +601,7 @@ static int ptp_qoriq_probe(struct platform_device *dev)
- 	return 0;
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -960,9 +960,12 @@ static ssize_t role_store(struct device
+ 			     strlen(ci->roles[role]->name)))
+ 			break;
  
- no_clock:
--	iounmap(ptp_qoriq->base);
-+	iounmap(base);
- no_ioremap:
- 	release_resource(ptp_qoriq->rsrc);
- no_resource:
--- 
-2.39.2
-
+-	if (role == CI_ROLE_END || role == ci->role)
++	if (role == CI_ROLE_END)
+ 		return -EINVAL;
+ 
++	if (role == ci->role)
++		return n;
++
+ 	pm_runtime_get_sync(dev);
+ 	disable_irq(ci->irq);
+ 	ci_role_stop(ci);
 
 
