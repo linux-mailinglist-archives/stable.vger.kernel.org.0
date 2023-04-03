@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6C46D4801
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBEF36D4802
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233277AbjDCOZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52190 "EHLO
+        id S233270AbjDCOZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:25:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233258AbjDCOY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:24:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1251BD3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:24:57 -0700 (PDT)
+        with ESMTP id S233268AbjDCOZC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A298D2C9EC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90B4A61827
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4352C433D2;
-        Mon,  3 Apr 2023 14:24:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3988661D41
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBD4C433EF;
+        Mon,  3 Apr 2023 14:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531897;
-        bh=BTMCMEVqRz3T5D5t5nq7osiLEzZMgPkd+l1ou38yPew=;
+        s=korg; t=1680531899;
+        bh=v/DrmL6x3dQouPDLvPT1zGKXr7GRxXgJyK/11jyi5xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcyHxWQyuivavPXGyfPYq8nbDxepF5gxE0SbkDquISMEPTa5l7O9Eik85XZ71ivDC
-         6ZOL1QE68fHJi9rrQ8VAiY/FovPsq6k7wa4DurS3anR0bTlRG2oUdPEIChy7Yzl5hh
-         BebKBJth+4BMkuennAbDMdwZeeYp3ydXFgczJXu0=
+        b=rrPE9RLbszJwRBJ+lU+0LNNXQic6k3cadETKO0MYsRo42kT6LWRq8w1QIGUCwwM9s
+         3dU/VEQ3d/jimwOtqdRr5HPo0ahmpufDbxaFnmnncOa7bWxO0XGzPgMw3czWOa9brG
+         fVet+dUFJ8ZKHoXsKSGjsKebREH5yKjnS9SrDNY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Meena Shanmugam <meenashanmugam@google.com>,
+        patches@lists.linux.dev, Zeal Robot <zealci@zte.com.cn>,
+        Minghao Chi <chi.minghao@zte.com.cn>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/173] net: tls: fix possible race condition between do_tls_getsockopt_conf() and do_tls_setsockopt_conf()
-Date:   Mon,  3 Apr 2023 16:07:13 +0200
-Message-Id: <20230403140414.901883515@linuxfoundation.org>
+Subject: [PATCH 5.10 019/173] power: supply: bq24190_charger: using pm_runtime_resume_and_get instead of pm_runtime_get_sync
+Date:   Mon,  3 Apr 2023 16:07:14 +0200
+Message-Id: <20230403140414.937400538@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
 References: <20230403140414.174516815@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,78 +54,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Minghao Chi <chi.minghao@zte.com.cn>
 
-commit 49c47cc21b5b7a3d8deb18fc57b0aa2ab1286962 upstream.
+[ Upstream commit d96a89407e5f682d1cb22569d91784506c784863 ]
 
-ctx->crypto_send.info is not protected by lock_sock in
-do_tls_getsockopt_conf(). A race condition between do_tls_getsockopt_conf()
-and error paths of do_tls_setsockopt_conf() may lead to a use-after-free
-or null-deref.
+Using pm_runtime_resume_and_get is more appropriate
+for simplifing code
 
-More discussion:  https://lore.kernel.org/all/Y/ht6gQL+u6fj3dG@hog/
-
-Fixes: 3c4d7559159b ("tls: kernel TLS support")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20230228023344.9623-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Stable-dep-of: 47c29d692129 ("power: supply: bq24190: Fix use after free bug in bq24190_remove due to race condition")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/power/supply/bq24190_charger.c | 63 +++++++++-----------------
+ 1 file changed, 21 insertions(+), 42 deletions(-)
 
-diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
-index e537085b184fe..54863e68f3040 100644
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -386,13 +386,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(crypto_info_aes_gcm_128->iv,
- 		       cctx->iv + TLS_CIPHER_AES_GCM_128_SALT_SIZE,
- 		       TLS_CIPHER_AES_GCM_128_IV_SIZE);
- 		memcpy(crypto_info_aes_gcm_128->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_AES_GCM_128_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval,
- 				 crypto_info_aes_gcm_128,
- 				 sizeof(*crypto_info_aes_gcm_128)))
-@@ -410,13 +408,11 @@ static int do_tls_getsockopt_conf(struct sock *sk, char __user *optval,
- 			rc = -EINVAL;
- 			goto out;
- 		}
--		lock_sock(sk);
- 		memcpy(crypto_info_aes_gcm_256->iv,
- 		       cctx->iv + TLS_CIPHER_AES_GCM_256_SALT_SIZE,
- 		       TLS_CIPHER_AES_GCM_256_IV_SIZE);
- 		memcpy(crypto_info_aes_gcm_256->rec_seq, cctx->rec_seq,
- 		       TLS_CIPHER_AES_GCM_256_REC_SEQ_SIZE);
--		release_sock(sk);
- 		if (copy_to_user(optval,
- 				 crypto_info_aes_gcm_256,
- 				 sizeof(*crypto_info_aes_gcm_256)))
-@@ -436,6 +432,8 @@ static int do_tls_getsockopt(struct sock *sk, int optname,
- {
- 	int rc = 0;
+diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
+index 8c3c378dce0d5..81389fcc73e14 100644
+--- a/drivers/power/supply/bq24190_charger.c
++++ b/drivers/power/supply/bq24190_charger.c
+@@ -448,11 +448,9 @@ static ssize_t bq24190_sysfs_show(struct device *dev,
+ 	if (!info)
+ 		return -EINVAL;
  
-+	lock_sock(sk);
-+
- 	switch (optname) {
- 	case TLS_TX:
- 	case TLS_RX:
-@@ -446,6 +444,9 @@ static int do_tls_getsockopt(struct sock *sk, int optname,
- 		rc = -ENOPROTOOPT;
- 		break;
+-	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0) {
+-		pm_runtime_put_noidle(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	ret = bq24190_read_mask(bdi, info->reg, info->mask, info->shift, &v);
+ 	if (ret)
+@@ -483,11 +481,9 @@ static ssize_t bq24190_sysfs_store(struct device *dev,
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0) {
+-		pm_runtime_put_noidle(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	ret = bq24190_write_mask(bdi, info->reg, info->mask, info->shift, v);
+ 	if (ret)
+@@ -506,10 +502,9 @@ static int bq24190_set_charge_mode(struct regulator_dev *dev, u8 val)
+ 	struct bq24190_dev_info *bdi = rdev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
+ 	if (ret < 0) {
+ 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", ret);
+-		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
  	}
-+
-+	release_sock(sk);
-+
- 	return rc;
- }
  
+@@ -539,10 +534,9 @@ static int bq24190_vbus_is_enabled(struct regulator_dev *dev)
+ 	int ret;
+ 	u8 val;
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
+ 	if (ret < 0) {
+ 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", ret);
+-		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
+ 	}
+ 
+@@ -1083,11 +1077,9 @@ static int bq24190_charger_get_property(struct power_supply *psy,
+ 
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0) {
+-		pm_runtime_put_noidle(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
+@@ -1157,11 +1149,9 @@ static int bq24190_charger_set_property(struct power_supply *psy,
+ 
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0) {
+-		pm_runtime_put_noidle(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_ONLINE:
+@@ -1420,11 +1410,9 @@ static int bq24190_battery_get_property(struct power_supply *psy,
+ 	dev_warn(bdi->dev, "warning: /sys/class/power_supply/bq24190-battery is deprecated\n");
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0) {
+-		pm_runtime_put_noidle(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_STATUS:
+@@ -1468,11 +1456,9 @@ static int bq24190_battery_set_property(struct power_supply *psy,
+ 	dev_warn(bdi->dev, "warning: /sys/class/power_supply/bq24190-battery is deprecated\n");
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+-	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0) {
+-		pm_runtime_put_noidle(bdi->dev);
++	ret = pm_runtime_resume_and_get(bdi->dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_ONLINE:
+@@ -1626,10 +1612,9 @@ static irqreturn_t bq24190_irq_handler_thread(int irq, void *data)
+ 	int error;
+ 
+ 	bdi->irq_event = true;
+-	error = pm_runtime_get_sync(bdi->dev);
++	error = pm_runtime_resume_and_get(bdi->dev);
+ 	if (error < 0) {
+ 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
+-		pm_runtime_put_noidle(bdi->dev);
+ 		return IRQ_NONE;
+ 	}
+ 	bq24190_check_status(bdi);
+@@ -1849,11 +1834,9 @@ static int bq24190_remove(struct i2c_client *client)
+ 	struct bq24190_dev_info *bdi = i2c_get_clientdata(client);
+ 	int error;
+ 
+-	error = pm_runtime_get_sync(bdi->dev);
+-	if (error < 0) {
++	error = pm_runtime_resume_and_get(bdi->dev);
++	if (error < 0)
+ 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
+-		pm_runtime_put_noidle(bdi->dev);
+-	}
+ 
+ 	bq24190_register_reset(bdi);
+ 	if (bdi->battery)
+@@ -1902,11 +1885,9 @@ static __maybe_unused int bq24190_pm_suspend(struct device *dev)
+ 	struct bq24190_dev_info *bdi = i2c_get_clientdata(client);
+ 	int error;
+ 
+-	error = pm_runtime_get_sync(bdi->dev);
+-	if (error < 0) {
++	error = pm_runtime_resume_and_get(bdi->dev);
++	if (error < 0)
+ 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
+-		pm_runtime_put_noidle(bdi->dev);
+-	}
+ 
+ 	bq24190_register_reset(bdi);
+ 
+@@ -1927,11 +1908,9 @@ static __maybe_unused int bq24190_pm_resume(struct device *dev)
+ 	bdi->f_reg = 0;
+ 	bdi->ss_reg = BQ24190_REG_SS_VBUS_STAT_MASK; /* impossible state */
+ 
+-	error = pm_runtime_get_sync(bdi->dev);
+-	if (error < 0) {
++	error = pm_runtime_resume_and_get(bdi->dev);
++	if (error < 0)
+ 		dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
+-		pm_runtime_put_noidle(bdi->dev);
+-	}
+ 
+ 	bq24190_register_reset(bdi);
+ 	bq24190_set_config(bdi);
 -- 
 2.39.2
 
