@@ -2,170 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F20B46D48E9
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9FF6D473C
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbjDCOcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37804 "EHLO
+        id S233009AbjDCOSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:18:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233553AbjDCOct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0DBE4A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:48 -0700 (PDT)
+        with ESMTP id S233005AbjDCOSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:32 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D5B82952D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA01061E30
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF90BC433D2;
-        Mon,  3 Apr 2023 14:32:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0A6EDCE12B7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1259EC433D2;
+        Mon,  3 Apr 2023 14:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532367;
-        bh=a6mG5FKb02q1bL/eeUGR4r4kXmqIN29jjEwlBJPRBmQ=;
+        s=korg; t=1680531507;
+        bh=8Pwj6AeMV46wNGCGpoLrwR2GMOr61qL/EjWdxw7+qj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwedNXKjBhDL06vocUJyIPSy1/oXGUXLZv9hulK1i9PwXScJOFRPC5DLolSr1pg+o
-         EJWOpFUkBUR8zvcHEQIeq//cwdHwi+rbhJgGqbk8JFvmsSv/R1qHvAzBPM9C93co/t
-         3iwNIyOEN0k5q9hyJ3FHPSdj0lLenqBEX/yFWSPI=
+        b=PNBhHjlQLshDViqbTc1kMbnlkEteFNKjPvOe5ab9RFvZhfEAs8SZOZDbCwnBxFHGw
+         owgKNlZ8Pn2XGCva8F5cdFBDsJc2Mi0ugt+1CUUIeiPeoGrTwpZ6m/T3CnHUsymDPI
+         Jvl2SCuvH9tnqybLzedKtSRTV9rfHHF+4cSfiZ6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 48/99] net: mvpp2: classifier flow fix fragmentation flags
+        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 70/84] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
 Date:   Mon,  3 Apr 2023 16:09:11 +0200
-Message-Id: <20230403140405.112009160@linuxfoundation.org>
+Message-Id: <20230403140355.850086402@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,UPPERCASE_50_75 autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 9a251cae51d57289908222e6c322ca61fccc25fd ]
+commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
 
-Add missing IP Fragmentation Flag.
+When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
+is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
+S_AUTOMOUNT and corresponding dentry flags is retained regardless of
+CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
+VFS follow_automount() when traversing a DFS referral link:
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  ...
+  Call Trace:
+   <TASK>
+   __traverse_mounts+0xb5/0x220
+   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
+   step_into+0x195/0x610
+   ? lookup_fast+0xe2/0xf0
+   path_lookupat+0x64/0x140
+   filename_lookup+0xc2/0x140
+   ? __create_object+0x299/0x380
+   ? kmem_cache_alloc+0x119/0x220
+   ? user_path_at_empty+0x31/0x50
+   user_path_at_empty+0x31/0x50
+   __x64_sys_chdir+0x2a/0xd0
+   ? exit_to_user_mode_prepare+0xca/0x100
+   do_syscall_64+0x42/0x90
+   entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-Fixes: f9358e12a0af ("net: mvpp2: split ingress traffic into multiple flows")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
+when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
+avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
+approach was chosen as it provides more control over the error path.
+
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Cc: stable@vger.kernel.org
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/marvell/mvpp2/mvpp2_cls.c    | 30 +++++++++++--------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ fs/cifs/cifsfs.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-index 41d935d1aaf6f..40aeaa7bd739f 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-@@ -62,35 +62,38 @@ static const struct mvpp2_cls_flow cls_flows[MVPP2_N_PRS_FLOWS] = {
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4 |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+--- a/fs/cifs/cifsfs.h
++++ b/fs/cifs/cifsfs.h
+@@ -121,7 +121,10 @@ extern const struct dentry_operations ci
+ #ifdef CONFIG_CIFS_DFS_UPCALL
+ extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
+ #else
+-#define cifs_dfs_d_automount NULL
++static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
++{
++	return ERR_PTR(-EREMOTE);
++}
+ #endif
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OPT |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OTHER |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	/* TCP over IPv4 flows, fragmented, with vlan tag */
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	/* UDP over IPv4 flows, Not fragmented, no vlan tag */
-@@ -132,35 +135,38 @@ static const struct mvpp2_cls_flow cls_flows[MVPP2_N_PRS_FLOWS] = {
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4 |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OPT |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OTHER |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	/* UDP over IPv4 flows, fragmented, with vlan tag */
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	/* TCP over IPv6 flows, not fragmented, no vlan tag */
--- 
-2.39.2
-
+ /* Functions related to symlinks */
 
 
