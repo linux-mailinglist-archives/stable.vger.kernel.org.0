@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3B956D3F28
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF09C6D3F31
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230105AbjDCIid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
+        id S230269AbjDCIkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:40:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231678AbjDCIic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:38:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56766195
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:38:29 -0700 (PDT)
+        with ESMTP id S230052AbjDCIkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:40:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2AE2D61
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:40:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96E1EB815B1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:38:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A5EC4339C;
-        Mon,  3 Apr 2023 08:38:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4846761150
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:40:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F329C433D2;
+        Mon,  3 Apr 2023 08:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680511107;
-        bh=cWxTsIsl0k2aJG7C3QEYSWlO8FLmmvLvp8/jydrmJFc=;
+        s=korg; t=1680511205;
+        bh=klU67i5UnPxeU/bPML0EbFAKm3tvowmehv61Es+kcno=;
         h=Subject:To:Cc:From:Date:From;
-        b=Sq782ZgLakAAypnQt+Vw0hODM9/kH2K7jL6UcP5ny67BbER7Sej9/81NQypHvCiaK
-         nKqbiP3YSd+eUNYrEWj6teevJf//JF+QAfo67f8yL/kHkR7Rq8pNiaQ18OTSEHW3Ap
-         hta2h8sjgBdtp7DQSFxrhtvi434CQaXP/RrSR2cI=
-Subject: FAILED: patch "[PATCH] pinctrl: amd: Disable and mask interrupts on resume" failed to apply to 4.14-stable tree
-To:     korneld@chromium.org, linus.walleij@linaro.org
+        b=D4tPYe4lLVrrRseU6XdRQ2F8W3lPpxhPWooN6Fz+DODWgZ+x00EMQk5qBhCLdPYc5
+         rolbUHaWSWwUuxi8T3KIcV9KXMCQwPGX9k4R/Yv3v7bSiOPGTuW40kEj/mKoKoXljr
+         ZXGQXTUYGOmw5MPDpub+ABUv7yRN3T4UfFgZi6Jw=
+Subject: FAILED: patch "[PATCH] powerpc: Don't try to copy PPR for task with NULL pt_regs" failed to apply to 5.4-stable tree
+To:     axboe@kernel.dk, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:38:15 +0200
-Message-ID: <2023040315-prodigal-chief-ace2@gregkh>
+Date:   Mon, 03 Apr 2023 10:40:03 +0200
+Message-ID: <2023040302-flakily-define-371e@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
@@ -47,26 +47,39 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
-git cherry-pick -x b26cd9325be4c1fcd331b77f10acb627c560d4d7
+git cherry-pick -x fd7276189450110ed835eb0a334e62d2f1c4e3be
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040315-prodigal-chief-ace2@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040302-flakily-define-371e@gregkh' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
-b26cd9325be4 ("pinctrl: amd: Disable and mask interrupts on resume")
-4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe")
-e81376ebbafc ("pinctrl: amd: Use irqchip template")
-279ffafaf39d ("pinctrl: Added IRQF_SHARED flag for amd-pinctrl driver")
+fd7276189450 ("powerpc: Don't try to copy PPR for task with NULL pt_regs")
+47e12855a91d ("powerpc: switch to ->regset_get()")
+6e0b79750ce2 ("powerpc/ptrace: move register viewing functions out of ptrace.c")
+7c1f8db019f8 ("powerpc/ptrace: split out TRANSACTIONAL_MEM related functions.")
+60ef9dbd9d2a ("powerpc/ptrace: split out SPE related functions.")
+1b20773b00b7 ("powerpc/ptrace: split out ALTIVEC related functions.")
+7b99ed4e8e3a ("powerpc/ptrace: split out VSX related functions.")
+963ae6b2ff1c ("powerpc/ptrace: drop PARAMETER_SAVE_AREA_OFFSET")
+f1763e623c69 ("powerpc/ptrace: drop unnecessary #ifdefs CONFIG_PPC64")
+b3138536c837 ("powerpc/ptrace: remove unused header includes")
+da9a1c10e2c7 ("powerpc: Move ptrace into a subdirectory.")
+68b34588e202 ("powerpc/64/sycall: Implement syscall entry/exit logic in C")
+965dd3ad3076 ("powerpc/64/syscall: Remove non-volatile GPR save optimisation")
+fddb5d430ad9 ("open: introduce openat2(2) syscall")
+793b08e2efff ("powerpc/kexec: Move kexec files into a dedicated subdir.")
+9f7bd9201521 ("powerpc/32: Split kexec low level code out of misc_32.S")
+b020aa9d1e87 ("powerpc: cleanup hw_irq.h")
 
 thanks,
 
@@ -74,95 +87,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b26cd9325be4c1fcd331b77f10acb627c560d4d7 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>
-Date: Mon, 20 Mar 2023 09:32:59 +0000
-Subject: [PATCH] pinctrl: amd: Disable and mask interrupts on resume
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From fd7276189450110ed835eb0a334e62d2f1c4e3be Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Sun, 26 Mar 2023 16:15:57 -0600
+Subject: [PATCH] powerpc: Don't try to copy PPR for task with NULL pt_regs
 
-This fixes a similar problem to the one observed in:
-commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
+powerpc sets up PF_KTHREAD and PF_IO_WORKER with a NULL pt_regs, which
+from my (arguably very short) checking is not commonly done for other
+archs. This is fine, except when PF_IO_WORKER's have been created and
+the task does something that causes a coredump to be generated. Then we
+get this crash:
 
-On some systems, during suspend/resume cycle firmware leaves
-an interrupt enabled on a pin that is not used by the kernel.
-This confuses the AMD pinctrl driver and causes spurious interrupts.
+  Kernel attempted to read user page (160) - exploit attempt? (uid: 1000)
+  BUG: Kernel NULL pointer dereference on read at 0x00000160
+  Faulting instruction address: 0xc0000000000c3a60
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
+  Modules linked in: bochs drm_vram_helper drm_kms_helper xts binfmt_misc ecb ctr syscopyarea sysfillrect cbc sysimgblt drm_ttm_helper aes_generic ttm sg libaes evdev joydev virtio_balloon vmx_crypto gf128mul drm dm_mod fuse loop configfs drm_panel_orientation_quirks ip_tables x_tables autofs4 hid_generic usbhid hid xhci_pci xhci_hcd usbcore usb_common sd_mod
+  CPU: 1 PID: 1982 Comm: ppc-crash Not tainted 6.3.0-rc2+ #88
+  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,HEAD hv:linux,kvm pSeries
+  NIP:  c0000000000c3a60 LR: c000000000039944 CTR: c0000000000398e0
+  REGS: c0000000041833b0 TRAP: 0300   Not tainted  (6.3.0-rc2+)
+  MSR:  800000000280b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 88082828  XER: 200400f8
+  ...
+  NIP memcpy_power7+0x200/0x7d0
+  LR  ppr_get+0x64/0xb0
+  Call Trace:
+    ppr_get+0x40/0xb0 (unreliable)
+    __regset_get+0x180/0x1f0
+    regset_get_alloc+0x64/0x90
+    elf_core_dump+0xb98/0x1b60
+    do_coredump+0x1c34/0x24a0
+    get_signal+0x71c/0x1410
+    do_notify_resume+0x140/0x6f0
+    interrupt_exit_user_prepare_main+0x29c/0x320
+    interrupt_exit_user_prepare+0x6c/0xa0
+    interrupt_return_srr_user+0x8/0x138
 
-The driver already has logic to detect if a pin is used by the kernel.
-Leverage it to re-initialize interrupt fields of a pin only if it's not
-used by us.
+Because ppr_get() is trying to copy from a PF_IO_WORKER with a NULL
+pt_regs.
 
-Cc: stable@vger.kernel.org
-Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Check for a valid pt_regs in both ppc_get/ppr_set, and return an error
+if not set. The actual error value doesn't seem to be important here, so
+just pick -EINVAL.
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 9236a132c7ba..609821b756c2 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -872,32 +872,34 @@ static const struct pinconf_ops amd_pinconf_ops = {
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
- 
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
+Fixes: fa439810cc1b ("powerpc/ptrace: Enable support for NT_PPPC_TAR, NT_PPC_PPR, NT_PPC_DSCR")
+Cc: stable@vger.kernel.org # v4.8+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[mpe: Trim oops in change log, add Fixes & Cc stable]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://msgid.link/d9f63344-fe7c-56ae-b420-4a1a04a2ae4c@kernel.dk
+
+diff --git a/arch/powerpc/kernel/ptrace/ptrace-view.c b/arch/powerpc/kernel/ptrace/ptrace-view.c
+index 2087a785f05f..5fff0d04b23f 100644
+--- a/arch/powerpc/kernel/ptrace/ptrace-view.c
++++ b/arch/powerpc/kernel/ptrace/ptrace-view.c
+@@ -290,6 +290,9 @@ static int gpr_set(struct task_struct *target, const struct user_regset *regset,
+ static int ppr_get(struct task_struct *target, const struct user_regset *regset,
+ 		   struct membuf to)
  {
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	const struct pin_desc *pd;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
--	int i;
- 
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
- 
--	for (i = 0; i < desc->npins; i++) {
--		int pin = desc->pins[i].number;
--		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
--
--		if (!pd)
--			continue;
-+	pd = pin_desc_get(gpio_dev->pctrl, pin);
-+	if (!pd)
-+		return;
- 
--		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	pin_reg = readl(gpio_dev->base + pin * 4);
-+	pin_reg &= ~mask;
-+	writel(pin_reg, gpio_dev->base + pin * 4);
-+	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+}
- 
--		pin_reg = readl(gpio_dev->base + i * 4);
--		pin_reg &= ~mask;
--		writel(pin_reg, gpio_dev->base + i * 4);
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+{
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	int i;
- 
--		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--	}
-+	for (i = 0; i < desc->npins; i++)
-+		amd_gpio_irq_init_pin(gpio_dev, i);
++	if (!target->thread.regs)
++		return -EINVAL;
++
+ 	return membuf_write(&to, &target->thread.regs->ppr, sizeof(u64));
  }
  
- #ifdef CONFIG_PM_SLEEP
-@@ -950,8 +952,10 @@ static int amd_gpio_resume(struct device *dev)
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin))
-+		if (!amd_gpio_should_save(gpio_dev, pin)) {
-+			amd_gpio_irq_init_pin(gpio_dev, pin);
- 			continue;
-+		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
+@@ -297,6 +300,9 @@ static int ppr_set(struct task_struct *target, const struct user_regset *regset,
+ 		   unsigned int pos, unsigned int count, const void *kbuf,
+ 		   const void __user *ubuf)
+ {
++	if (!target->thread.regs)
++		return -EINVAL;
++
+ 	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+ 				  &target->thread.regs->ppr, 0, sizeof(u64));
+ }
 
