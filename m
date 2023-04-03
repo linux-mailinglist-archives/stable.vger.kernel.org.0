@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7C26D4733
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B8F6D48AA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232983AbjDCOSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37614 "EHLO
+        id S233452AbjDCOap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbjDCOSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF8F2C9DB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:06 -0700 (PDT)
+        with ESMTP id S233449AbjDCOao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47CF231996
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D41D8B81B92
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F7B1C433EF;
-        Mon,  3 Apr 2023 14:18:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D96F561E00
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE31C433EF;
+        Mon,  3 Apr 2023 14:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531483;
-        bh=bRpzjpdLKer8zuXcMgodwmlIVyfKR2UFssVqcMyAImY=;
+        s=korg; t=1680532242;
+        bh=5z3BT5YdvD8H1nZXhn2GHI5/AZRK/zqwo4rKywAzgow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA28sGZYATr6g2Bf9kLGIjWzbcrUecM1Uj7xRYoWLI6mzIBPfru1xq5UQMl0wOYUW
-         9NV4sZlLH/C0B5wpEXzchdYJ0DkX4zl6a6SestGG4i5O9KwkSN7y99pKjo6mCZrc68
-         e5S69THBL8wxJcmNcd/eeYfWE1Tf9apfqi0h9qu4=
+        b=vGD9zpd5CkXCWjiuf4SSYOLofliTspSVc7nJeoxnXTGhto8ElzsVKe7f+p5Q6xGkS
+         1EFX9qEkRLHt1UQI92NzqXEfMxjoioa5KRmdwNtkbHCYYuyT3J/Qk06Mv8XMLCF54g
+         69smk3yQdRBwuOaQ2ds7bJBZz0/qcMFKhFimbnxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 4.19 81/84] net: sched: cbq: dont intepret cls results when asked to drop
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 147/173] cifs: prevent infinite recursion in CIFSGetDFSRefer()
 Date:   Mon,  3 Apr 2023 16:09:22 +0200
-Message-Id: <20230403140356.198646877@linuxfoundation.org>
+Message-Id: <20230403140419.213210622@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,143 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-commit caa4b35b4317d5147b3ab0fbdc9c075c7d2e9c12 upstream.
+commit 09ba47b44d26b475bbdf9c80db9e0193d2b58956 upstream.
 
-If asked to drop a packet via TC_ACT_SHOT it is unsafe to assume that
-res.class contains a valid pointer
+We can't call smb_init() in CIFSGetDFSRefer() as cifs_reconnect_tcon()
+may end up calling CIFSGetDFSRefer() again to get new DFS referrals
+and thus causing an infinite recursion.
 
-Sample splat reported by Kyle Zeng
-
-[    5.405624] 0: reclassify loop, rule prio 0, protocol 800
-[    5.406326] ==================================================================
-[    5.407240] BUG: KASAN: slab-out-of-bounds in cbq_enqueue+0x54b/0xea0
-[    5.407987] Read of size 1 at addr ffff88800e3122aa by task poc/299
-[    5.408731]
-[    5.408897] CPU: 0 PID: 299 Comm: poc Not tainted 5.10.155+ #15
-[    5.409516] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS 1.15.0-1 04/01/2014
-[    5.410439] Call Trace:
-[    5.410764]  dump_stack+0x87/0xcd
-[    5.411153]  print_address_description+0x7a/0x6b0
-[    5.411687]  ? vprintk_func+0xb9/0xc0
-[    5.411905]  ? printk+0x76/0x96
-[    5.412110]  ? cbq_enqueue+0x54b/0xea0
-[    5.412323]  kasan_report+0x17d/0x220
-[    5.412591]  ? cbq_enqueue+0x54b/0xea0
-[    5.412803]  __asan_report_load1_noabort+0x10/0x20
-[    5.413119]  cbq_enqueue+0x54b/0xea0
-[    5.413400]  ? __kasan_check_write+0x10/0x20
-[    5.413679]  __dev_queue_xmit+0x9c0/0x1db0
-[    5.413922]  dev_queue_xmit+0xc/0x10
-[    5.414136]  ip_finish_output2+0x8bc/0xcd0
-[    5.414436]  __ip_finish_output+0x472/0x7a0
-[    5.414692]  ip_finish_output+0x5c/0x190
-[    5.414940]  ip_output+0x2d8/0x3c0
-[    5.415150]  ? ip_mc_finish_output+0x320/0x320
-[    5.415429]  __ip_queue_xmit+0x753/0x1760
-[    5.415664]  ip_queue_xmit+0x47/0x60
-[    5.415874]  __tcp_transmit_skb+0x1ef9/0x34c0
-[    5.416129]  tcp_connect+0x1f5e/0x4cb0
-[    5.416347]  tcp_v4_connect+0xc8d/0x18c0
-[    5.416577]  __inet_stream_connect+0x1ae/0xb40
-[    5.416836]  ? local_bh_enable+0x11/0x20
-[    5.417066]  ? lock_sock_nested+0x175/0x1d0
-[    5.417309]  inet_stream_connect+0x5d/0x90
-[    5.417548]  ? __inet_stream_connect+0xb40/0xb40
-[    5.417817]  __sys_connect+0x260/0x2b0
-[    5.418037]  __x64_sys_connect+0x76/0x80
-[    5.418267]  do_syscall_64+0x31/0x50
-[    5.418477]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-[    5.418770] RIP: 0033:0x473bb7
-[    5.418952] Code: 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00
-00 00 90 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2a 00 00
-00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 18 89 54 24 0c 48 89 34
-24 89
-[    5.420046] RSP: 002b:00007fffd20eb0f8 EFLAGS: 00000246 ORIG_RAX:
-000000000000002a
-[    5.420472] RAX: ffffffffffffffda RBX: 00007fffd20eb578 RCX: 0000000000473bb7
-[    5.420872] RDX: 0000000000000010 RSI: 00007fffd20eb110 RDI: 0000000000000007
-[    5.421271] RBP: 00007fffd20eb150 R08: 0000000000000001 R09: 0000000000000004
-[    5.421671] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
-[    5.422071] R13: 00007fffd20eb568 R14: 00000000004fc740 R15: 0000000000000002
-[    5.422471]
-[    5.422562] Allocated by task 299:
-[    5.422782]  __kasan_kmalloc+0x12d/0x160
-[    5.423007]  kasan_kmalloc+0x5/0x10
-[    5.423208]  kmem_cache_alloc_trace+0x201/0x2e0
-[    5.423492]  tcf_proto_create+0x65/0x290
-[    5.423721]  tc_new_tfilter+0x137e/0x1830
-[    5.423957]  rtnetlink_rcv_msg+0x730/0x9f0
-[    5.424197]  netlink_rcv_skb+0x166/0x300
-[    5.424428]  rtnetlink_rcv+0x11/0x20
-[    5.424639]  netlink_unicast+0x673/0x860
-[    5.424870]  netlink_sendmsg+0x6af/0x9f0
-[    5.425100]  __sys_sendto+0x58d/0x5a0
-[    5.425315]  __x64_sys_sendto+0xda/0xf0
-[    5.425539]  do_syscall_64+0x31/0x50
-[    5.425764]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-[    5.426065]
-[    5.426157] The buggy address belongs to the object at ffff88800e312200
-[    5.426157]  which belongs to the cache kmalloc-128 of size 128
-[    5.426955] The buggy address is located 42 bytes to the right of
-[    5.426955]  128-byte region [ffff88800e312200, ffff88800e312280)
-[    5.427688] The buggy address belongs to the page:
-[    5.427992] page:000000009875fabc refcount:1 mapcount:0
-mapping:0000000000000000 index:0x0 pfn:0xe312
-[    5.428562] flags: 0x100000000000200(slab)
-[    5.428812] raw: 0100000000000200 dead000000000100 dead000000000122
-ffff888007843680
-[    5.429325] raw: 0000000000000000 0000000000100010 00000001ffffffff
-ffff88800e312401
-[    5.429875] page dumped because: kasan: bad access detected
-[    5.430214] page->mem_cgroup:ffff88800e312401
-[    5.430471]
-[    5.430564] Memory state around the buggy address:
-[    5.430846]  ffff88800e312180: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.431267]  ffff88800e312200: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 fc
-[    5.431705] >ffff88800e312280: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.432123]                                   ^
-[    5.432391]  ffff88800e312300: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 fc
-[    5.432810]  ffff88800e312380: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.433229] ==================================================================
-[    5.433648] Disabling lock debugging due to kernel taint
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Cc: stable@vger.kernel.org # 6.2
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cbq.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/cifssmb.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/sched/sch_cbq.c
-+++ b/net/sched/sch_cbq.c
-@@ -236,6 +236,8 @@ cbq_classify(struct sk_buff *skb, struct
- 		result = tcf_classify(skb, fl, &res, true);
- 		if (!fl || result < 0)
- 			goto fallback;
-+		if (result == TC_ACT_SHOT)
-+			return NULL;
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -4859,8 +4859,13 @@ CIFSGetDFSRefer(const unsigned int xid,
+ 		return -ENODEV;
  
- 		cl = (void *)res.class;
- 		if (!cl) {
-@@ -256,8 +258,6 @@ cbq_classify(struct sk_buff *skb, struct
- 		case TC_ACT_TRAP:
- 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
- 			/* fall through */
--		case TC_ACT_SHOT:
--			return NULL;
- 		case TC_ACT_RECLASSIFY:
- 			return cbq_reclassify(skb, cl);
- 		}
+ getDFSRetry:
+-	rc = smb_init(SMB_COM_TRANSACTION2, 15, ses->tcon_ipc, (void **) &pSMB,
+-		      (void **) &pSMBr);
++	/*
++	 * Use smb_init_no_reconnect() instead of smb_init() as
++	 * CIFSGetDFSRefer() may be called from cifs_reconnect_tcon() and thus
++	 * causing an infinite recursion.
++	 */
++	rc = smb_init_no_reconnect(SMB_COM_TRANSACTION2, 15, ses->tcon_ipc,
++				   (void **)&pSMB, (void **)&pSMBr);
+ 	if (rc)
+ 		return rc;
+ 
 
 
