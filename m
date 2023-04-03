@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 345BA6D4975
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 444C26D46A2
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233691AbjDCOiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:38:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48196 "EHLO
+        id S232859AbjDCOMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233710AbjDCOiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74BE46587
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:03 -0700 (PDT)
+        with ESMTP id S232861AbjDCOMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593522C9D6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6C73B81CBC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413EBC4339B;
-        Mon,  3 Apr 2023 14:38:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13AE3B81B08
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C928C4339C;
+        Mon,  3 Apr 2023 14:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532680;
-        bh=POaTkwwZJ7tL37prY/CVFCDc2KaYpGRV4p3VkAw6wsU=;
+        s=korg; t=1680531105;
+        bh=GQR2bvBPZnKqchUhO59T3agd+BxjrN7CbYwQ7RCqAiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouZuS6c1LfZ9tQU6V1w0BQO5OroQjQY5JLcTj7LGxqWy0+Av4C9X1RkHV2sJcqy17
-         n2nkR1dvYIyD3RfNXgbEsUm48yIf8kVcrGi80n0UYJnUpYnX3V125oW/+isbOcmhnw
-         m5KxdBLYP3iCoFmdxe10niIdKMA+Eo2l957s9vZU=
+        b=VVFj1bkWlplM9auClW+EROPKtb5bO8JX7ONvEbeczRi+Uof0vjtmhuRJG+3Ah99Td
+         4LzHhiZ/yJHhoCB8gaG10I608ImLP5TIrjVMDuKlBiTfZC33Npd5NPZmIH/umxtxLc
+         c/7nd9nVwo2SrfK33WN+6z+IyX333ca2P0k34sTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 075/181] platform/x86: think-lmi: add missing type attribute
+        patches@lists.linux.dev, Sanju Mehta <Sanju.Mehta@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 4.14 22/66] thunderbolt: Use const qualifier for `ring_interrupt_index`
 Date:   Mon,  3 Apr 2023 16:08:30 +0200
-Message-Id: <20230403140417.573705385@linuxfoundation.org>
+Message-Id: <20230403140352.710019844@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,69 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <mpearson-lenovo@squebb.ca>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 583329dcf22e568a328a944f20427ccfc95dce01 ]
+commit 1716efdb07938bd6510e1127d02012799112c433 upstream.
 
-This driver was missing the mandatory type attribute...oops.
+`ring_interrupt_index` doesn't change the data for `ring` so mark it as
+const. This is needed by the following patch that disables interrupt
+auto clear for rings.
 
-Add it in along with logic to determine whether the attribute is an
-enumeration type or a string by parsing the possible_values attribute.
-
-Upstream bug https://bugzilla.kernel.org/show_bug.cgi?id=216460
-
-Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Link: https://lore.kernel.org/r/20230320003221.561750-1-mpearson-lenovo@squebb.ca
-Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Sanju Mehta <Sanju.Mehta@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/think-lmi.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/thunderbolt/nhi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index a01a92769c1a3..07c9dc21eff52 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -947,6 +947,20 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
- 	return sysfs_emit(buf, "%s\n", setting->possible_values);
- }
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -30,7 +30,7 @@
  
-+static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
-+		char *buf)
-+{
-+	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
-+
-+	if (setting->possible_values) {
-+		/* Figure out what setting type is as BIOS does not return this */
-+		if (strchr(setting->possible_values, ','))
-+			return sysfs_emit(buf, "enumeration\n");
-+	}
-+	/* Anything else is going to be a string */
-+	return sysfs_emit(buf, "string\n");
-+}
-+
- static ssize_t current_value_store(struct kobject *kobj,
- 		struct kobj_attribute *attr,
- 		const char *buf, size_t count)
-@@ -1036,10 +1050,13 @@ static struct kobj_attribute attr_possible_values = __ATTR_RO(possible_values);
+ #define NHI_MAILBOX_TIMEOUT	500 /* ms */
  
- static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 0600);
- 
-+static struct kobj_attribute attr_type = __ATTR_RO(type);
-+
- static struct attribute *tlmi_attrs[] = {
- 	&attr_displ_name.attr,
- 	&attr_current_val.attr,
- 	&attr_possible_values.attr,
-+	&attr_type.attr,
- 	NULL
- };
- 
--- 
-2.39.2
-
+-static int ring_interrupt_index(struct tb_ring *ring)
++static int ring_interrupt_index(const struct tb_ring *ring)
+ {
+ 	int bit = ring->hop;
+ 	if (!ring->is_tx)
 
 
