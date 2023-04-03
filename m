@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B196D49BC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 200BF6D4901
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233791AbjDCOkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54056 "EHLO
+        id S233518AbjDCOd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233787AbjDCOkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:40:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078F717ADB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:40:50 -0700 (PDT)
+        with ESMTP id S233472AbjDCOd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D28BEF88
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EE1061ED1
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:40:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9492DC433D2;
-        Mon,  3 Apr 2023 14:40:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D749B81C83
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A68C433EF;
+        Mon,  3 Apr 2023 14:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532849;
-        bh=9B61s5Mn7Coxh2znaJ/yeCQhQpsRVazeYmJI4+5yXIc=;
+        s=korg; t=1680532414;
+        bh=lqCj2IrxJRiHvfJNpW0pIk9HAiPYPcQsC53d06/2DPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLlIdZve5I9dOlooxalBzPkrtp6o/GIJldhyewoIRUsQo3yXWEU5DnZ4EPUTGtAOF
-         9q6JyXsEdYaFVCc5EOwNwefu5+PY0hPTg+JL39MYNMQ2tQldq0CqTBK2dfZ4494819
-         jItiRTG5HA4zELdhmKSjeqoPitzTeSX/C3EsN6PQ=
+        b=DVbXvNPkwDsjWosOjoeMmrBRXUUiapDGSJEsRbMVY2MKXt4CWFPwLuK/UcW9bnB8p
+         A75wOMJv3/Z5j1hb5LEWHui4F+HS4WrSns1nvP8jUtFi+g1K+ArD7NyC76QAt9CUsa
+         lNpvEB19+73bs4PlsvmwHJsblx4Y8cdEuRil4Hgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Orange Kao <orange@aiven.io>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.1 140/181] dm: fix __send_duplicate_bios() to always allow for splitting IO
-Date:   Mon,  3 Apr 2023 16:09:35 +0200
-Message-Id: <20230403140419.611074632@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+ee1cd780f69483a8616b@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 73/99] can: j1939: prevent deadlock by moving j1939_sk_errqueue()
+Date:   Mon,  3 Apr 2023 16:09:36 +0200
+Message-Id: <20230403140406.228764166@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit 666eed46769d929c3e13636134ecfc67d75ef548 upstream.
+commit d1366b283d94ac4537a4b3a1e8668da4df7ce7e9 upstream.
 
-Commit 7dd76d1feec70 ("dm: improve bio splitting and associated IO
-accounting") only called setup_split_accounting() from
-__send_duplicate_bios() if a single bio were being issued. But the case
-where duplicate bios are issued must call it too.
+This commit addresses a deadlock situation that can occur in certain
+scenarios, such as when running data TP/ETP transfer and subscribing to
+the error queue while receiving a net down event. The deadlock involves
+locks in the following order:
 
-Otherwise the bio won't be split and resubmitted (via recursion through
-block core back to DM) to submit the later portions of a bio (which may
-map to an entirely different target).
+3
+  j1939_session_list_lock ->  active_session_list_lock
+  j1939_session_activate
+  ...
+  j1939_sk_queue_activate_next -> sk_session_queue_lock
+  ...
+  j1939_xtp_rx_eoma_one
 
-For example, when discarding an entire DM striped device with the
-following DM table:
- vg-lvol0: 0 159744 striped 2 128 7:0 2048 7:1 2048
- vg-lvol0: 159744 45056 striped 2 128 7:2 2048 7:3 2048
+2
+  j1939_sk_queue_drop_all  ->  sk_session_queue_lock
+  ...
+  j1939_sk_netdev_event_netdown -> j1939_socks_lock
+  j1939_netdev_notify
 
-Before (broken, discards the first striped target's devices twice):
- device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=79872
- device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=79872
- device-mapper: striped: target_stripe=0, bdev=7:0, start=2049 len=22528
- device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=22528
+1
+  j1939_sk_errqueue -> j1939_socks_lock
+  __j1939_session_cancel -> active_session_list_lock
+  j1939_tp_rxtimer
 
-After (works as expected):
- device-mapper: striped: target_stripe=0, bdev=7:0, start=2048 len=79872
- device-mapper: striped: target_stripe=1, bdev=7:1, start=2048 len=79872
- device-mapper: striped: target_stripe=0, bdev=7:2, start=2048 len=22528
- device-mapper: striped: target_stripe=1, bdev=7:3, start=2048 len=22528
+       CPU0                    CPU1
+       ----                    ----
+  lock(&priv->active_session_list_lock);
+                               lock(&jsk->sk_session_queue_lock);
+                               lock(&priv->active_session_list_lock);
+  lock(&priv->j1939_socks_lock);
 
-Fixes: 7dd76d1feec70 ("dm: improve bio splitting and associated IO accounting")
+The solution implemented in this commit is to move the
+j1939_sk_errqueue() call out of the active_session_list_lock context,
+thus preventing the deadlock situation.
+
+Reported-by: syzbot+ee1cd780f69483a8616b@syzkaller.appspotmail.com
+Fixes: 5b9272e93f2e ("can: j1939: extend UAPI to notify about RX status")
+Co-developed-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/all/20230324130141.2132787-1-o.rempel@pengutronix.de
 Cc: stable@vger.kernel.org
-Reported-by: Orange Kao <orange@aiven.io>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/can/j1939/transport.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1522,6 +1522,8 @@ static int __send_duplicate_bios(struct
- 		ret = 1;
- 		break;
- 	default:
-+		if (len)
-+			setup_split_accounting(ci, *len);
- 		/* dm_accept_partial_bio() is not supported with shared tio->len_ptr */
- 		alloc_multiple_bios(&blist, ci, ti, num_bios);
- 		while ((clone = bio_list_pop(&blist))) {
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1124,8 +1124,6 @@ static void __j1939_session_cancel(struc
+ 
+ 	if (session->sk)
+ 		j1939_sk_send_loop_abort(session->sk, session->err);
+-	else
+-		j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
+ }
+ 
+ static void j1939_session_cancel(struct j1939_session *session,
+@@ -1140,6 +1138,9 @@ static void j1939_session_cancel(struct
+ 	}
+ 
+ 	j1939_session_list_unlock(session->priv);
++
++	if (!session->sk)
++		j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
+ }
+ 
+ static enum hrtimer_restart j1939_tp_txtimer(struct hrtimer *hrtimer)
+@@ -1253,6 +1254,9 @@ static enum hrtimer_restart j1939_tp_rxt
+ 			__j1939_session_cancel(session, J1939_XTP_ABORT_TIMEOUT);
+ 		}
+ 		j1939_session_list_unlock(session->priv);
++
++		if (!session->sk)
++			j1939_sk_errqueue(session, J1939_ERRQUEUE_RX_ABORT);
+ 	}
+ 
+ 	j1939_session_put(session);
 
 
