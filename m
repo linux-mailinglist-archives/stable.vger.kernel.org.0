@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7676D46A1
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D876D48B3
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232816AbjDCOMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:12:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52494 "EHLO
+        id S233459AbjDCObI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:31:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232824AbjDCOMD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7912CACE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:11:43 -0700 (PDT)
+        with ESMTP id S233460AbjDCObH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AD935020
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6583B81AF2
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:11:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40A00C433D2;
-        Mon,  3 Apr 2023 14:11:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4092C61E05
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DFDC433EF;
+        Mon,  3 Apr 2023 14:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531100;
-        bh=lgZTDMT30Frdvpe4vETU0UvV89pHNQM/oabTMvup6s0=;
+        s=korg; t=1680532265;
+        bh=N7oIYTYSX41R1e4ayN5+sCIljqt4QsteV2O2OTwmmlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9Ad7MKISYcMz5ASga13AnzEJItUJN6fuC5mLwgjBjfZsiYVh6tnn4iSlELs2hk6r
-         8I1w5I06jmH2BQQiWF3h8vfx5nUZDVGsW8v5r/wrLk4DPAZaLggS7VqMh0RWLB5EVy
-         W6I9o1ei2YF3OLzZok+k2CBpUjKWrlqEOstDcWhE=
+        b=VxKu6lCVlTo44OBkOuqGL6aXx9VCur2sH0MdA9dYTK/dBj1zcVLw/9Wj/LNGYf0n2
+         gnnL6DbcPURjzpElSlPj0+kGJzAXz7FtUCl+kT4al/kmRzJsWRGRyNTHXAE46WXq1Y
+         eWJGXnDTRvFFaS+pMDHzRaWRLrGh7VYPV2HSt4Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Crawford <frank@crawford.emu.id.au>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/66] hwmon (it87): Fix voltage scaling for chips with 10.9mV  ADCs
+Subject: [PATCH 5.15 05/99] kcsan: avoid passing -g for test
 Date:   Mon,  3 Apr 2023 16:08:28 +0200
-Message-Id: <20230403140352.634264769@linuxfoundation.org>
+Message-Id: <20230403140356.266222209@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,45 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Crawford <frank@crawford.emu.id.au>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 968b66ffeb7956acc72836a7797aeb7b2444ec51 ]
+[ Upstream commit 5eb39cde1e2487ba5ec1802dc5e58a77e700d99e ]
 
-Fix voltage scaling for chips that have 10.9mV ADCs, where scaling was
-not performed.
+Nathan reported that when building with GNU as and a version of clang that
+defaults to DWARF5, the assembler will complain with:
 
-Fixes: ead8080351c9 ("hwmon: (it87) Add support for IT8732F")
-Signed-off-by: Frank Crawford <frank@crawford.emu.id.au>
-Link: https://lore.kernel.org/r/20230318080543.1226700-2-frank@crawford.emu.id.au
-[groeck: Update subject and description to focus on bug fix]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  Error: non-constant .uleb128 is not supported
+
+This is because `-g` defaults to the compiler debug info default. If the
+assembler does not support some of the directives used, the above errors
+occur. To fix, remove the explicit passing of `-g`.
+
+All the test wants is that stack traces print valid function names, and
+debug info is not required for that. (I currently cannot recall why I
+added the explicit `-g`.)
+
+Link: https://lkml.kernel.org/r/20230316224705.709984-2-elver@google.com
+Fixes: 1fe84fd4a402 ("kcsan: Add test suite")
+Signed-off-by: Marco Elver <elver@google.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/it87.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/kcsan/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
-index f8499cb95fec8..4e4e151760db2 100644
---- a/drivers/hwmon/it87.c
-+++ b/drivers/hwmon/it87.c
-@@ -495,6 +495,8 @@ static const struct it87_devices it87_devices[] = {
- #define has_pwm_freq2(data)	((data)->features & FEAT_PWM_FREQ2)
- #define has_six_temp(data)	((data)->features & FEAT_SIX_TEMP)
- #define has_vin3_5v(data)	((data)->features & FEAT_VIN3_5V)
-+#define has_scaling(data)	((data)->features & (FEAT_12MV_ADC | \
-+						     FEAT_10_9MV_ADC))
+diff --git a/kernel/kcsan/Makefile b/kernel/kcsan/Makefile
+index 5936288ee938b..c4ddd189f3e07 100644
+--- a/kernel/kcsan/Makefile
++++ b/kernel/kcsan/Makefile
+@@ -13,6 +13,6 @@ CFLAGS_core.o := $(call cc-option,-fno-conserve-stack) \
+ obj-y := core.o debugfs.o report.o
+ obj-$(CONFIG_KCSAN_SELFTEST) += selftest.o
  
- struct it87_sio_data {
- 	int sioaddr;
-@@ -3107,7 +3109,7 @@ static int it87_probe(struct platform_device *pdev)
- 			 "Detected broken BIOS defaults, disabling PWM interface\n");
- 
- 	/* Starting with IT8721F, we handle scaling of internal voltages */
--	if (has_12mv_adc(data)) {
-+	if (has_scaling(data)) {
- 		if (sio_data->internal & BIT(0))
- 			data->in_scaled |= BIT(3);	/* in3 is AVCC */
- 		if (sio_data->internal & BIT(1))
+-CFLAGS_kcsan_test.o := $(CFLAGS_KCSAN) -g -fno-omit-frame-pointer
++CFLAGS_kcsan_test.o := $(CFLAGS_KCSAN) -fno-omit-frame-pointer
+ CFLAGS_kcsan_test.o += $(DISABLE_STRUCTLEAK_PLUGIN)
+ obj-$(CONFIG_KCSAN_KUNIT_TEST) += kcsan_test.o
 -- 
 2.39.2
 
