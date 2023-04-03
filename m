@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E758D6D49E6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F926D489F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233846AbjDCOmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:42:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56056 "EHLO
+        id S233442AbjDCOaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233831AbjDCOmG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:42:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B47317AFF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:04 -0700 (PDT)
+        with ESMTP id S233373AbjDCOaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E475331996
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94E5061ED6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC52C433D2;
-        Mon,  3 Apr 2023 14:42:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 853F4B81C52
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF0C5C433EF;
+        Mon,  3 Apr 2023 14:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532923;
-        bh=jyRttOi/+1GUQiXflH/H+fTtTJy0fN3XLyD5v4JQOY8=;
+        s=korg; t=1680532216;
+        bh=cAinXQfD0Vw5BRfj5arzTjPZwtf7l1jo3ovuwhRRiqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0B6xouZGyBtWYNyB127MZsw/f+a6NbuZV9e9tfk2lh40N2hkPuZgqP9FCGquDjpu
-         SGiwh3XT7fQ4K7VfvSeGomLKa0QdvfYXHgGG25sigrwRuEym0UkpAiZ5vKbqumXMIY
-         UN8z6tvQPNBUbVTXSvdN0hIWtc9GXRyHNTgMbC+U=
+        b=P6MCxgGKRaTUnQA3ZuiJ+SiuHC87XG7GvmgjGHVlsLJ6H/qv4Ov9CzabseEBSgcoH
+         GmGdWa7o1E7yq99pGQrjzhoflTi9ooM3GaLmAJvHztcSjRtG3hk3Q7zTNLJY8tkAc2
+         ddQIYNK8FU6oMWBUhh5mPQG0ArVBbahW8G6F8NXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 6.1 151/181] NFSv4: Fix hangs when recovering open state after a server reboot
+        syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com,
+        Jun Nie <jun.nie@linaro.org>, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 5.10 171/173] ext4: fix kernel BUG in ext4_write_inline_data_end()
 Date:   Mon,  3 Apr 2023 16:09:46 +0200
-Message-Id: <20230403140419.967494531@linuxfoundation.org>
+Message-Id: <20230403140419.992930324@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 6165a16a5ad9b237bb3131cff4d3c601ccb8f9a3 upstream.
+commit 5c099c4fdc438014d5893629e70a8ba934433ee8 upstream.
 
-When we're using a cached open stateid or a delegation in order to avoid
-sending a CLAIM_PREVIOUS open RPC call to the server, we don't have a
-new open stateid to present to update_open_stateid().
-Instead rely on nfs4_try_open_cached(), just as if we were doing a
-normal open.
+Syzbot report follow issue:
+------------[ cut here ]------------
+kernel BUG at fs/ext4/inline.c:227!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 3629 Comm: syz-executor212 Not tainted 6.1.0-rc5-syzkaller-00018-g59d0d52c30d4 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:ext4_write_inline_data+0x344/0x3e0 fs/ext4/inline.c:227
+RSP: 0018:ffffc90003b3f368 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff8880704e16c0 RCX: 0000000000000000
+RDX: ffff888021763a80 RSI: ffffffff821e31a4 RDI: 0000000000000006
+RBP: 000000000006818e R08: 0000000000000006 R09: 0000000000068199
+R10: 0000000000000079 R11: 0000000000000000 R12: 000000000000000b
+R13: 0000000000068199 R14: ffffc90003b3f408 R15: ffff8880704e1c82
+FS:  000055555723e3c0(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fffe8ac9080 CR3: 0000000079f81000 CR4: 0000000000350ee0
+Call Trace:
+ <TASK>
+ ext4_write_inline_data_end+0x2a3/0x12f0 fs/ext4/inline.c:768
+ ext4_write_end+0x242/0xdd0 fs/ext4/inode.c:1313
+ ext4_da_write_end+0x3ed/0xa30 fs/ext4/inode.c:3063
+ generic_perform_write+0x316/0x570 mm/filemap.c:3764
+ ext4_buffered_write_iter+0x15b/0x460 fs/ext4/file.c:285
+ ext4_file_write_iter+0x8bc/0x16e0 fs/ext4/file.c:700
+ call_write_iter include/linux/fs.h:2191 [inline]
+ do_iter_readv_writev+0x20b/0x3b0 fs/read_write.c:735
+ do_iter_write+0x182/0x700 fs/read_write.c:861
+ vfs_iter_write+0x74/0xa0 fs/read_write.c:902
+ iter_file_splice_write+0x745/0xc90 fs/splice.c:686
+ do_splice_from fs/splice.c:764 [inline]
+ direct_splice_actor+0x114/0x180 fs/splice.c:931
+ splice_direct_to_actor+0x335/0x8a0 fs/splice.c:886
+ do_splice_direct+0x1ab/0x280 fs/splice.c:974
+ do_sendfile+0xb19/0x1270 fs/read_write.c:1255
+ __do_sys_sendfile64 fs/read_write.c:1323 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1309 [inline]
+ __x64_sys_sendfile64+0x1d0/0x210 fs/read_write.c:1309
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+---[ end trace 0000000000000000 ]---
 
-Fixes: d2bfda2e7aa0 ("NFSv4: don't reprocess cached open CLAIM_PREVIOUS")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Above issue may happens as follows:
+ext4_da_write_begin
+  ext4_da_write_inline_data_begin
+    ext4_da_convert_inline_data_to_extent
+      ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ext4_da_write_end
+
+ext4_run_li_request
+  ext4_mb_prefetch
+    ext4_read_block_bitmap_nowait
+      ext4_validate_block_bitmap
+        ext4_mark_group_bitmap_corrupted(sb, block_group, EXT4_GROUP_INFO_BBITMAP_CORRUPT)
+	 percpu_counter_sub(&sbi->s_freeclusters_counter,grp->bb_free);
+	  -> sbi->s_freeclusters_counter become zero
+ext4_da_write_begin
+  if (ext4_nonda_switch(inode->i_sb)) -> As freeclusters_counter is zero will return true
+    *fsdata = (void *)FALL_BACK_TO_NONDELALLOC;
+    ext4_write_begin
+ext4_da_write_end
+  if (write_mode == FALL_BACK_TO_NONDELALLOC)
+    ext4_write_end
+      if (inline_data)
+        ext4_write_inline_data_end
+	  ext4_write_inline_data
+	    BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
+           -> As inode is already convert to extent, so 'pos + len' > inline_size
+	   -> then trigger BUG.
+
+To solve this issue, instead of checking ext4_has_inline_data() which
+is only cleared after data has been written back, check the
+EXT4_STATE_MAY_INLINE_DATA flag in ext4_write_end().
+
+Fixes: f19d5870cbf7 ("ext4: add normal write support for inline data")
+Reported-by: syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com
+Reported-by: Jun Nie <jun.nie@linaro.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20221206144134.1919987-1-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+[ta: Fix conflict in if expression and use the local variable inline_data
+as it is initialized with ext4_has_inline_data(inode) anyway.]
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1980,8 +1980,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
- 	if (!data->rpc_done) {
- 		if (data->rpc_status)
- 			return ERR_PTR(data->rpc_status);
--		/* cached opens have already been processed */
--		goto update;
-+		return nfs4_try_open_cached(data);
- 	}
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1303,7 +1303,8 @@ static int ext4_write_end(struct file *f
+ 	bool verity = ext4_verity_in_progress(inode);
  
- 	ret = nfs_refresh_inode(inode, &data->f_attr);
-@@ -1990,7 +1989,7 @@ _nfs4_opendata_reclaim_to_nfs4_state(str
- 
- 	if (data->o_res.delegation_type != 0)
- 		nfs4_opendata_check_deleg(data, state);
--update:
-+
- 	if (!update_open_stateid(state, &data->o_res.stateid,
- 				NULL, data->o_arg.fmode))
- 		return ERR_PTR(-EAGAIN);
+ 	trace_ext4_write_end(inode, pos, len, copied);
+-	if (inline_data) {
++	if (inline_data &&
++	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)) {
+ 		ret = ext4_write_inline_data_end(inode, pos, len,
+ 						 copied, page);
+ 		if (ret < 0) {
 
 
