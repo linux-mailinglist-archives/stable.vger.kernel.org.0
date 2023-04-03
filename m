@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 485BF6D4873
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D2F6D4A9A
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233386AbjDCO2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:28:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58856 "EHLO
+        id S234177AbjDCOsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:48:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233384AbjDCO2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F420835000
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:45 -0700 (PDT)
+        with ESMTP id S234099AbjDCOs2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:48:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66D71766B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 555C9B81C39
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA3FBC433D2;
-        Mon,  3 Apr 2023 14:28:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E0F661F50
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D0EC4339B;
+        Mon,  3 Apr 2023 14:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532123;
-        bh=rNO1L1lzSQ0OWbCfaGSYqMwoPulE/s/dEmOA7KFayY0=;
+        s=korg; t=1680533234;
+        bh=CMj4c/ZIUVRCCzFUFSz9++mPH9R/HYaVVlufubWf4wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+8a02FQMAnsIwXLgteQ/0IS5RnrT7VCPgz4KFm98rIeBlcQkuUUQKaIIhPNCc7Vy
-         LLnWZPSt1XEDxj3PyVjTVCO1Mlm/s5fmHBkQcXrRaezGEnITocPw8bMU8SjL4rGC6E
-         0Ed156Bukd5YpGVAw5uv7Qj4X7ZlYEVNFa53kV6E=
+        b=qV3l7/5c5j1rcFdL8IY3QtOPqkmwlxpJyZZlw82WVyKZYea5MAoKpb70XWXzLueH1
+         Rn1CAOo/GvfWCfmihFiYF+QtTixGMJ5WG/oBBSHPaS6cy0zaDaOx5NEYi6nwKel67P
+         gwPMWammosW4z0pMahO8aP7Iso1ajxGDNZtRsukg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com,
-        Ivan Orlov <ivan.orlov0322@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Robert Malz <robertx.malz@intel.com>,
+        Brett Creeley <brett.creeley@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Piotr Raczynski <piotr.raczynski@intel.com>,
+        Jakub Andrysiak <jakub.andrysiak@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 135/173] can: bcm: bcm_tx_setup(): fix KMSAN uninit-value in vfs_write
+Subject: [PATCH 6.2 105/187] ice: Fix ice_cfg_rdma_fltr() to only update relevant fields
 Date:   Mon,  3 Apr 2023 16:09:10 +0200
-Message-Id: <20230403140418.843726145@linuxfoundation.org>
+Message-Id: <20230403140419.429179529@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,116 +57,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Orlov <ivan.orlov0322@gmail.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 2b4c99f7d9a57ecd644eda9b1fb0a1072414959f ]
+[ Upstream commit d94dbdc4e0209b5e7d736ab696f8d635b034e3ee ]
 
-Syzkaller reported the following issue:
+The current implementation causes ice_vsi_update() to update all VSI
+fields based on the cached VSI context. This also assumes that the
+ICE_AQ_VSI_PROP_Q_OPT_VALID bit is set. This can cause problems if the
+VSI context is not correctly synced by the driver. Fix this by only
+updating the fields that correspond to ICE_AQ_VSI_PROP_Q_OPT_VALID.
+Also, make sure to save the updated result in the cached VSI context
+on success.
 
-=====================================================
-BUG: KMSAN: uninit-value in aio_rw_done fs/aio.c:1520 [inline]
-BUG: KMSAN: uninit-value in aio_write+0x899/0x950 fs/aio.c:1600
- aio_rw_done fs/aio.c:1520 [inline]
- aio_write+0x899/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc+0x11d/0x3b0 mm/slab_common.c:981
- kmalloc_array include/linux/slab.h:636 [inline]
- bcm_tx_setup+0x80e/0x29d0 net/can/bcm.c:930
- bcm_sendmsg+0x3a2/0xce0 net/can/bcm.c:1351
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- sock_write_iter+0x495/0x5e0 net/socket.c:1108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-CPU: 1 PID: 5034 Comm: syz-executor350 Not tainted 6.2.0-rc6-syzkaller-80422-geda666ff2276 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
-=====================================================
-
-We can follow the call chain and find that 'bcm_tx_setup' function
-calls 'memcpy_from_msg' to copy some content to the newly allocated
-frame of 'op->frames'. After that the 'len' field of copied structure
-being compared with some constant value (64 or 8). However, if
-'memcpy_from_msg' returns an error, we will compare some uninitialized
-memory. This triggers 'uninit-value' issue.
-
-This patch will add 'memcpy_from_msg' possible errors processing to
-avoid uninit-value issue.
-
-Tested via syzkaller
-
-Reported-by: syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=47f897f8ad958bbde5790ebf389b5e7e0a345089
-Signed-off-by: Ivan Orlov <ivan.orlov0322@gmail.com>
-Fixes: 6f3b911d5f29b ("can: bcm: add support for CAN FD frames")
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230314120445.12407-1-ivan.orlov0322@gmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 348048e724a0 ("ice: Implement iidc operations")
+Co-developed-by: Robert Malz <robertx.malz@intel.com>
+Signed-off-by: Robert Malz <robertx.malz@intel.com>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
+Tested-by: Jakub Andrysiak <jakub.andrysiak@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_switch.c | 26 +++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index afa82adaf6cd5..ddba4e12da783 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -936,6 +936,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 
- 			cf = op->frames + op->cfsiz * i;
- 			err = memcpy_from_msg((u8 *)cf, msg, op->cfsiz);
-+			if (err < 0)
-+				goto free_op;
- 
- 			if (op->flags & CAN_FD_FRAME) {
- 				if (cf->len > 64)
-@@ -945,12 +947,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 					err = -EINVAL;
- 			}
- 
--			if (err < 0) {
--				if (op->frames != &op->sframe)
--					kfree(op->frames);
--				kfree(op);
--				return err;
--			}
-+			if (err < 0)
-+				goto free_op;
- 
- 			if (msg_head->flags & TX_CP_CAN_ID) {
- 				/* copy can_id into frame */
-@@ -1021,6 +1019,12 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 		bcm_tx_start_timer(op);
- 
- 	return msg_head->nframes * op->cfsiz + MHSIZ;
+diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
+index 61f844d225123..46b36851af460 100644
+--- a/drivers/net/ethernet/intel/ice/ice_switch.c
++++ b/drivers/net/ethernet/intel/ice/ice_switch.c
+@@ -1780,18 +1780,36 @@ ice_update_vsi(struct ice_hw *hw, u16 vsi_handle, struct ice_vsi_ctx *vsi_ctx,
+ int
+ ice_cfg_rdma_fltr(struct ice_hw *hw, u16 vsi_handle, bool enable)
+ {
+-	struct ice_vsi_ctx *ctx;
++	struct ice_vsi_ctx *ctx, *cached_ctx;
++	int status;
 +
-+free_op:
-+	if (op->frames != &op->sframe)
-+		kfree(op->frames);
-+	kfree(op);
-+	return err;
++	cached_ctx = ice_get_vsi_ctx(hw, vsi_handle);
++	if (!cached_ctx)
++		return -ENOENT;
+ 
+-	ctx = ice_get_vsi_ctx(hw, vsi_handle);
++	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+-		return -EIO;
++		return -ENOMEM;
++
++	ctx->info.q_opt_rss = cached_ctx->info.q_opt_rss;
++	ctx->info.q_opt_tc = cached_ctx->info.q_opt_tc;
++	ctx->info.q_opt_flags = cached_ctx->info.q_opt_flags;
++
++	ctx->info.valid_sections = cpu_to_le16(ICE_AQ_VSI_PROP_Q_OPT_VALID);
+ 
+ 	if (enable)
+ 		ctx->info.q_opt_flags |= ICE_AQ_VSI_Q_OPT_PE_FLTR_EN;
+ 	else
+ 		ctx->info.q_opt_flags &= ~ICE_AQ_VSI_Q_OPT_PE_FLTR_EN;
+ 
+-	return ice_update_vsi(hw, vsi_handle, ctx, NULL);
++	status = ice_update_vsi(hw, vsi_handle, ctx, NULL);
++	if (!status) {
++		cached_ctx->info.q_opt_flags = ctx->info.q_opt_flags;
++		cached_ctx->info.valid_sections |= ctx->info.valid_sections;
++	}
++
++	kfree(ctx);
++	return status;
  }
  
- /*
+ /**
 -- 
 2.39.2
 
