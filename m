@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D2B6D4737
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC056D48F2
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233006AbjDCOST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37886 "EHLO
+        id S233513AbjDCOdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233002AbjDCOSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:18 -0400
+        with ESMTP id S233555AbjDCOdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B9F24AE4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD60A17640
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90D1FB81B92
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5E1DC433D2;
-        Mon,  3 Apr 2023 14:18:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D997B81C6C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93982C433EF;
+        Mon,  3 Apr 2023 14:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531494;
-        bh=oh7bUmYU8BvxO0wWyyaYbmFA3o0shhnjHA/vDXs+hfY=;
+        s=korg; t=1680532382;
+        bh=U0Lvgd9jdtUD7FHxAcKp+Ug2og//UYTe0EmF84LG+Rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQQPPBFV19eBabzv9ad1X2WtsjjkllUa7kRGYC2wpXUWs+KApHNdjUVYI2WuJVJji
-         iWdkv5Y9YH6f/g3p/LStxYnEj3b8k7kdMelY8ByjvgbUG4YUKf17JNjjkCrMsdsAO+
-         0LlkXGbsUefrsujZaXOUWPcN8UUMSOnbsLxGYg8U=
+        b=asAAimoUm7FEFk1xFx8iMimyl10c2pZ6yunf+x9lKHhK4kNBgXbc9E2X3gVZao5eq
+         Ga72dSpn8ry1aUI07kIq6A2tVn05n8z7f4wF8REHHDmFjgl8hGymDbFgme+XjkzErB
+         mzha8IqDb0osXdWoBlT9i8PuIRzmkd2cF2ZxcEHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Tejun Heo <tj@kernel.org>, Cai Xinchen <caixinchen1@huawei.com>
-Subject: [PATCH 4.19 84/84] cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
+        patches@lists.linux.dev, Simon Horman <simon.horman@corigine.com>,
+        Felix Fietkau <nbd@nbd.name>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 62/99] net: ethernet: mtk_eth_soc: fix flow block refcounting logic
 Date:   Mon,  3 Apr 2023 16:09:25 +0200
-Message-Id: <20230403140356.288473954@linuxfoundation.org>
+Message-Id: <20230403140405.763621366@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 43626dade36fa74d3329046f4ae2d7fdefe401c6 upstream.
+[ Upstream commit 8c1cb87c2a5c29da416848451a687473f379611c ]
 
-syzbot is hitting percpu_rwsem_assert_held(&cpu_hotplug_lock) warning at
-cpuset_attach() [1], for commit 4f7e7236435ca0ab ("cgroup: Fix
-threadgroup_rwsem <-> cpus_read_lock() deadlock") missed that
-cpuset_attach() is also called from cgroup_attach_task_all().
-Add cpus_read_lock() like what cgroup_procs_write_start() does.
+Since we call flow_block_cb_decref on FLOW_BLOCK_UNBIND, we also need to
+call flow_block_cb_incref for a newly allocated cb.
+Also fix the accidentally inverted refcount check on unbind.
 
-Link: https://syzkaller.appspot.com/bug?extid=29d3a3b4d86c8136ad9e [1]
-Reported-by: syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 4f7e7236435ca0ab ("cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 502e84e2382d ("net: ethernet: mtk_eth_soc: add flow offloading support")
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230330120840.52079-1-nbd@nbd.name
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mediatek/mtk_ppe_offload.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -13,6 +13,7 @@
- #include <linux/delayacct.h>
- #include <linux/pid_namespace.h>
- #include <linux/cgroupstats.h>
-+#include <linux/cpu.h>
+diff --git a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
+index 7bb1f20002b58..7c5403c010715 100644
+--- a/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe_offload.c
+@@ -462,6 +462,7 @@ mtk_eth_setup_tc_block(struct net_device *dev, struct flow_block_offload *f)
+ 		if (IS_ERR(block_cb))
+ 			return PTR_ERR(block_cb);
  
- #include <trace/events/cgroup.h>
++		flow_block_cb_incref(block_cb);
+ 		flow_block_cb_add(block_cb, f);
+ 		list_add_tail(&block_cb->driver_list, &block_cb_list);
+ 		return 0;
+@@ -470,7 +471,7 @@ mtk_eth_setup_tc_block(struct net_device *dev, struct flow_block_offload *f)
+ 		if (!block_cb)
+ 			return -ENOENT;
  
-@@ -55,6 +56,7 @@ int cgroup_attach_task_all(struct task_s
- 	int retval = 0;
- 
- 	mutex_lock(&cgroup_mutex);
-+	get_online_cpus();
- 	percpu_down_write(&cgroup_threadgroup_rwsem);
- 	for_each_root(root) {
- 		struct cgroup *from_cgrp;
-@@ -71,6 +73,7 @@ int cgroup_attach_task_all(struct task_s
- 			break;
- 	}
- 	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	put_online_cpus();
- 	mutex_unlock(&cgroup_mutex);
- 
- 	return retval;
+-		if (flow_block_cb_decref(block_cb)) {
++		if (!flow_block_cb_decref(block_cb)) {
+ 			flow_block_cb_remove(block_cb, f);
+ 			list_del(&block_cb->driver_list);
+ 		}
+-- 
+2.39.2
+
 
 
