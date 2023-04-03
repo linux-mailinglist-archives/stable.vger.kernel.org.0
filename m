@@ -2,126 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCE996D4028
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 11:21:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C856D40D9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 11:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231996AbjDCJU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 05:20:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46060 "EHLO
+        id S232180AbjDCJlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 05:41:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231935AbjDCJUr (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 3 Apr 2023 05:20:47 -0400
-Received: from domac.alu.hr (domac.alu.unizg.hr [IPv6:2001:b68:2:2800::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2843E44AC;
-        Mon,  3 Apr 2023 02:20:26 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by domac.alu.hr (Postfix) with ESMTP id A7F68604FA;
-        Mon,  3 Apr 2023 11:20:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
-        t=1680513624; bh=YwMDWlermRYUB+ohGE2pB+S5andxsxN1vsjRKD2AOZU=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=az7mOw17rlc+H7p/rz6e0IM2E28pveY3nRjdMz9SS8eQmo/8+l0/+OH3NBZw/GvIB
-         522cIK/o+OoYAAURQ4YDYP0Uq6+McAUVwPlS3697bYNY0G3QSY8SHCh3ycK4mFJuRC
-         ZxQuRw7FT7av/SAW3mGUpvnH/unex8UwzawXc4E4sxOAYEQ5NOgEEt+CjkVA8q2DVR
-         4TtTblwc9LHGU3KNzWl/UyTmqCGSu/axtm0nByb4QDxFSiCROPfvlfqj51i0szqw8m
-         Oa5iscPY+Ha5b1+RwEvMkCwr5mcdYudtc7g/t60MbMfbGwxliMtoiZ58+JSdKpaOkS
-         2MCXrWaUNMbQg==
-X-Virus-Scanned: Debian amavisd-new at domac.alu.hr
-Received: from domac.alu.hr ([127.0.0.1])
-        by localhost (domac.alu.hr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id LSp7U_GhOtvV; Mon,  3 Apr 2023 11:20:22 +0200 (CEST)
-Received: from [10.0.1.57] (grf-nat.grf.hr [161.53.83.23])
-        by domac.alu.hr (Postfix) with ESMTPSA id D3D15604F7;
-        Mon,  3 Apr 2023 11:20:21 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
-        t=1680513622; bh=YwMDWlermRYUB+ohGE2pB+S5andxsxN1vsjRKD2AOZU=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=0jvVvtRxGyCkvVqYoPM2xkLrLeqlW0UQNELz4K5xlw0lq+uKuWjoidCwveCYsh5Na
-         N84HG7zO+gzeAl4BCvjR8sssEEIddgJU57PffcJ/8gKltSy3HoWEUb1tGm2AoCTU/Y
-         ArxMsUXhAmVDE5RWTwL5Esd/nlngYG6Doz4kba+DKdqrD87KDV1SGiW2aJ9jXxE9sI
-         sND5DsuTE0raZe310NyP6KvfrgI5AvZa3ojFkFt45fFbN4Gd8LEejQJxv5j/vQoqvp
-         d3Uc2VhmJrbWuXjtwYZPPy0FfF6V6K7pIx5U/T1MSk/CB0BMfgPFaCEVf7VqY3Nbti
-         L5g8PeMeqOvAA==
-Message-ID: <155279c4-3d44-1419-2b8d-a189a2177f0e@alu.unizg.hr>
-Date:   Mon, 3 Apr 2023 11:20:21 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: [PATCH] xhci: Free the command allocated for setting LPM if we
- return early
-Content-Language: en-US, hr
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, ubuntu-devel-discuss@lists.ubuntu.com,
-        stern@rowland.harvard.edu, arnd@arndb.de, Stable@vger.kernel.org
-References: <b86fcdbd-f1c6-846f-838f-b7679ec4e2b4@linux.intel.com>
- <20230327095019.1017159-1-mathias.nyman@linux.intel.com>
- <d84fe574-e6cc-ad77-a44c-1eb8df3f2b6b@alu.unizg.hr>
- <46a9abc1-6121-032f-4416-261af73ac05c@linux.intel.com>
-From:   Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-In-Reply-To: <46a9abc1-6121-032f-4416-261af73ac05c@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        with ESMTP id S232112AbjDCJkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 05:40:46 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9A3D1FC2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 02:40:28 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3339O49a014321;
+        Mon, 3 Apr 2023 09:40:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=KQ+wd8tz6GGOGaS730RY6tVGBUq5krTUnMhnHN2VusA=;
+ b=G5j9Rc45taTPDhgV/+Lox0aDuOhRtPSpWzT/FEsKJ82WGBCArM/sklP62GIX1opVro24
+ 5UpqqvF2VRNFnEeZqSFLx+T3wj1HR9viVGJU0yzvnx7YyARE5WnpVZ9b2Uh6g1nr83Mr
+ 4Pys/Ra21gprGH4rEc9+rCDXbWyrV26mOriWF7p5d288i4G/t0UtkWgS1UaOcnN4lKsI
+ I/1jcoqCV9f0LsFOFYb2hbSeB2NH9Qi5oYELtKiOItYHw2Kbi4HWX0TVVEuPAEtJbyvW
+ cai4PCwJPFPOZGjVuG0LzkMQqsdMe52IQhMscvOSpUZRIfNPeV9MKxyF9qV+ZXi59M3/ LA== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ppxerb1yu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 03 Apr 2023 09:40:25 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 332NlPcb004036;
+        Mon, 3 Apr 2023 09:40:23 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3ppbvg1gap-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 03 Apr 2023 09:40:21 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3339eHgB14352898
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 3 Apr 2023 09:40:17 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 76ECE2004F;
+        Mon,  3 Apr 2023 09:40:17 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4DC8420043;
+        Mon,  3 Apr 2023 09:40:17 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  3 Apr 2023 09:40:17 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.15.y] s390/uaccess: add missing earlyclobber annotations to __clear_user()
+Date:   Mon,  3 Apr 2023 11:40:13 +0200
+Message-Id: <20230403094013.1324168-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <2023040335-unlisted-supernova-a6b9@gregkh>
+References: <2023040335-unlisted-supernova-a6b9@gregkh>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: fS0UgbK3O1-gtbT8-sh6vF4umfmBNGEf
+X-Proofpoint-GUID: fS0UgbK3O1-gtbT8-sh6vF4umfmBNGEf
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-03_06,2023-04-03_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=647 phishscore=0
+ clxscore=1011 suspectscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ mlxscore=0 adultscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2304030073
+X-Spam-Status: No, score=-0.1 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28.3.2023. 9:57, Mathias Nyman wrote:
-> On 28.3.2023 1.25, Mirsad Goran Todorovac wrote:
->> On 27. 03. 2023. 11:50, Mathias Nyman wrote:
->>> The command allocated to set exit latency LPM values need to be freed in
->>> case the command is never queued. This would be the case if there is no
->>> change in exit latency values, or device is missing.
->>>
->>> Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
->>> Cc: <Stable@vger.kernel.org>
->>> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
->>> ---
->>>   drivers/usb/host/xhci.c | 1 +
->>>   1 file changed, 1 insertion(+)
->>>
->>> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
->>> index bdb6dd819a3b..6307bae9cddf 100644
->>> --- a/drivers/usb/host/xhci.c
->>> +++ b/drivers/usb/host/xhci.c
->>> @@ -4442,6 +4442,7 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
->>>       if (!virt_dev || max_exit_latency == virt_dev->current_mel) {
->>>           spin_unlock_irqrestore(&xhci->lock, flags);
->>> +        xhci_free_command(xhci, command);
->>>           return 0;
->>>       }
->>
->> After more testing, I can confirm that your patch fixes the leak in the original
->> environment.
-> 
-> Thanks for testing.
-> Can I add the tags below to the patch?
-> 
-> Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-> Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-> 
-> Thanks
-> Mathias
+commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
 
-Sure, thanks for the thought. Sorry, my Thunderbird has hidden your message,
-I saw it only on Lore and accidentally.
+Add missing earlyclobber annotation to size, to, and tmp2 operands of the
+__clear_user() inline assembly since they are modified or written to before
+the last usage of all input operands. This can lead to incorrect register
+allocation for the inline assembly.
 
-Regards,
-Mirsad
+Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
+Cc: stable@vger.kernel.org
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/lib/uaccess.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
+index 0b012ce0921c..25be1424d393 100644
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -227,7 +227,7 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
+ 		"4: slgr  %0,%0\n"
+ 		"5:\n"
+ 		EX_TABLE(0b,2b) EX_TABLE(6b,2b) EX_TABLE(3b,5b) EX_TABLE(7b,5b)
+-		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
++		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
+ 		: "a" (empty_zero_page), [spec] "K" (0x81UL)
+ 		: "cc", "memory", "0");
+ 	return size;
 -- 
-Mirsad Todorovac
-System engineer
-Faculty of Graphic Arts | Academy of Fine Arts
-University of Zagreb
-Republic of Croatia, the European Union
-
-Sistem inženjer
-Grafički fakultet | Akademija likovnih umjetnosti
-Sveučilište u Zagrebu
+2.37.2
 
