@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 368EE6D49C5
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256746D4AB9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbjDCOlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        id S234190AbjDCOtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233739AbjDCOlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C9A117ADF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:13 -0700 (PDT)
+        with ESMTP id S234032AbjDCOt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8ED62A5A3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D23EB81CF8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C64EC433D2;
-        Mon,  3 Apr 2023 14:41:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ABFA6136F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 930E0C433D2;
+        Mon,  3 Apr 2023 14:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532870;
-        bh=U6Ud4KNDfFwYq9OBSKOa+y7C4WX9Ec8TOUJEu5Robco=;
+        s=korg; t=1680533317;
+        bh=XKz394flnZQ9FgSh1lKMDSVEksEC90bjsQLLab34Ub0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rik/oiI05T6BuWQ0/V0DgPV0bxeIQIaOC/K2HfkVabuJc+yQi0+23JSV5ZpHiKzXQ
-         gHWhTOI8Yge0BF+aN2MWRUEwM+PyQKckOr/37K5Lv81GCcg9xix9ipsN9OAQlxFgFW
-         dd8Kdb/Pl6uZwWS9925hcIIDU6fxqHZcbrTj09mg=
+        b=0NKnuyKZwkd4XfzW+GboBoi4zDCHGKvrYnNwY6iXUy97QUMDEXRKDGtnq15lliGkt
+         YE8AxF3Hjdyajag8d9RfrGdMuvxzQGhpgOG+ZI/j58HzHwSblO7KjQrGw1ORGVTSJX
+         8DiojYQwR8z2by1jC1ZmH+umVUlW7xwiaQNGnYDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6.1 147/181] platform/x86: ideapad-laptop: Stop sending KEY_TOUCHPAD_TOGGLE
+        patches@lists.linux.dev, Sherry Yang <sherry.yang@oracle.com>,
+        kernel test robot <oliver.sang@intel.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.2 137/187] btrfs: scan device in non-exclusive mode
 Date:   Mon,  3 Apr 2023 16:09:42 +0200
-Message-Id: <20230403140419.836167485@linuxfoundation.org>
+Message-Id: <20230403140420.519716465@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,87 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit e3271a5917d1501089b1a224d702aa053e2877f4 upstream.
+commit 50d281fc434cb8e2497f5e70a309ccca6b1a09f0 upstream.
 
-Commit 5829f8a897e4 ("platform/x86: ideapad-laptop: Send
-KEY_TOUCHPAD_TOGGLE on some models") made ideapad-laptop send
-KEY_TOUCHPAD_TOGGLE when we receive an ACPI notify with VPC event bit 5 set
-and the touchpad-state has not been changed by the EC itself already.
+This fixes mkfs/mount/check failures due to race with systemd-udevd
+scan.
 
-This was done under the assumption that this would be good to do to make
-the touchpad-toggle hotkey work on newer models where the EC does not
-toggle the touchpad on/off itself (because it is not routed through
-the PS/2 controller, but uses I2C).
+During the device scan initiated by systemd-udevd, other user space
+EXCL operations such as mkfs, mount, or check may get blocked and result
+in a "Device or resource busy" error. This is because the device
+scan process opens the device with the EXCL flag in the kernel.
 
-But it turns out that at least some models, e.g. the Yoga 7-15ITL5 the EC
-triggers an ACPI notify with VPC event bit 5 set on resume, which would
-now cause a spurious KEY_TOUCHPAD_TOGGLE on resume to which the desktop
-environment responds by disabling the touchpad in software, breaking
-the touchpad (until manually re-enabled) on resume.
+Two reports were received:
 
-It was never confirmed that sending KEY_TOUCHPAD_TOGGLE actually improves
-things on new models and at least some new models like the Yoga 7-15ITL5
-don't have a touchpad on/off toggle hotkey at all, while still sending
-ACPI notify events with VPC event bit 5 set.
+ - btrfs/179 test case, where the fsck command failed with the -EBUSY
+   error
 
-So it seems best to revert the change to send KEY_TOUCHPAD_TOGGLE when
-receiving an ACPI notify events with VPC event bit 5 and the touchpad
-state as reported by the EC has not changed.
+ - LTP pwritev03 test case, where mkfs.vfs failed with
+   the -EBUSY error, when mkfs.vfs tried to overwrite old btrfs filesystem
+   on the device.
 
-Note this is not a full revert the code to cache the last EC touchpad
-state is kept to avoid sending spurious KEY_TOUCHPAD_ON / _OFF events
-on resume.
+In both cases, fsck and mkfs (respectively) were racing with a
+systemd-udevd device scan, and systemd-udevd won, resulting in the
+-EBUSY error for fsck and mkfs.
 
-Fixes: 5829f8a897e4 ("platform/x86: ideapad-laptop: Send KEY_TOUCHPAD_TOGGLE on some models")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217234
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230330194644.64628-1-hdegoede@redhat.com
+Reproducing the problem has been difficult because there is a very
+small window during which these userspace threads can race to
+acquire the exclusive device open. Even on the system where the problem
+was observed, the problem occurrences were anywhere between 10 to 400
+iterations and chances of reproducing decreases with debug printk()s.
+
+However, an exclusive device open is unnecessary for the scan process,
+as there are no write operations on the device during scan. Furthermore,
+during the mount process, the superblock is re-read in the below
+function call chain:
+
+  btrfs_mount_root
+   btrfs_open_devices
+    open_fs_devices
+     btrfs_open_one_device
+       btrfs_get_bdev_and_sb
+
+So, to fix this issue, removes the FMODE_EXCL flag from the scan
+operation, and add a comment.
+
+The case where mkfs may still write to the device and a scan is running,
+the btrfs signature is not written at that time so scan will not
+recognize such device.
+
+Reported-by: Sherry Yang <sherry.yang@oracle.com>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/oe-lkp/202303170839.fdf23068-oliver.sang@intel.com
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/ideapad-laptop.c |   23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ fs/btrfs/volumes.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -1164,7 +1164,6 @@ static const struct key_entry ideapad_ke
- 	{ KE_KEY,  65, { KEY_PROG4 } },
- 	{ KE_KEY,  66, { KEY_TOUCHPAD_OFF } },
- 	{ KE_KEY,  67, { KEY_TOUCHPAD_ON } },
--	{ KE_KEY,  68, { KEY_TOUCHPAD_TOGGLE } },
- 	{ KE_KEY, 128, { KEY_ESC } },
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1366,8 +1366,17 @@ struct btrfs_device *btrfs_scan_one_devi
+ 	 * So, we need to add a special mount option to scan for
+ 	 * later supers, using BTRFS_SUPER_MIRROR_MAX instead
+ 	 */
+-	flags |= FMODE_EXCL;
  
- 	/*
-@@ -1520,18 +1519,16 @@ static void ideapad_sync_touchpad_state(
- 	if (priv->features.ctrl_ps2_aux_port)
- 		i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
- 
--	if (send_events) {
--		/*
--		 * On older models the EC controls the touchpad and toggles it
--		 * on/off itself, in this case we report KEY_TOUCHPAD_ON/_OFF.
--		 * If the EC did not toggle, report KEY_TOUCHPAD_TOGGLE.
--		 */
--		if (value != priv->r_touchpad_val) {
--			ideapad_input_report(priv, value ? 67 : 66);
--			sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
--		} else {
--			ideapad_input_report(priv, 68);
--		}
 +	/*
-+	 * On older models the EC controls the touchpad and toggles it on/off
-+	 * itself, in this case we report KEY_TOUCHPAD_ON/_OFF. Some models do
-+	 * an acpi-notify with VPC bit 5 set on resume, so this function get
-+	 * called with send_events=true on every resume. Therefor if the EC did
-+	 * not toggle, do nothing to avoid sending spurious KEY_TOUCHPAD_TOGGLE.
++	 * Avoid using flag |= FMODE_EXCL here, as the systemd-udev may
++	 * initiate the device scan which may race with the user's mount
++	 * or mkfs command, resulting in failure.
++	 * Since the device scan is solely for reading purposes, there is
++	 * no need for FMODE_EXCL. Additionally, the devices are read again
++	 * during the mount process. It is ok to get some inconsistent
++	 * values temporarily, as the device paths of the fsid are the only
++	 * required information for assembling the volume.
 +	 */
-+	if (send_events && value != priv->r_touchpad_val) {
-+		ideapad_input_report(priv, value ? 67 : 66);
-+		sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
- 	}
- 
- 	priv->r_touchpad_val = value;
+ 	bdev = blkdev_get_by_path(path, flags, holder);
+ 	if (IS_ERR(bdev))
+ 		return ERR_CAST(bdev);
 
 
