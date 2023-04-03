@@ -2,66 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A666D4541
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 15:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C33EC6D4547
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 15:08:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232386AbjDCNHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 09:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32872 "EHLO
+        id S232434AbjDCNIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 09:08:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232201AbjDCNHm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 09:07:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619301C1D0;
-        Mon,  3 Apr 2023 06:07:41 -0700 (PDT)
+        with ESMTP id S231553AbjDCNIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 09:08:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEAA110D7;
+        Mon,  3 Apr 2023 06:08:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16580B81A07;
-        Mon,  3 Apr 2023 13:07:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B1FC4339B;
-        Mon,  3 Apr 2023 13:07:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4965660A71;
+        Mon,  3 Apr 2023 13:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33109C433D2;
+        Mon,  3 Apr 2023 13:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680527258;
-        bh=HyvmVdwLecMO/5pUko/0/tVvzcisFGvSd1666M2+4IE=;
+        s=korg; t=1680527326;
+        bh=LAV//JPbB9QVvq/VUV4Ckfl5qCzolGCOQod4gC5PLk4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q7nkhqhQZVhwhxxyFShS6DIWUj5uxvjgO4J2SWkzfBjgvXOn6Oz7P2n65rlSWXfWs
-         auIAcQ4KoXdq/8jmUs8vw5Ox94NIaIME2aejfKJYrI4a7aO8ERT1Iw9MVdjt7tqyvJ
-         cOqMMc4BXshX8D1CYwCSSHUeDnugPKpbPIuqimsY=
-Date:   Mon, 3 Apr 2023 15:07:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     Boqun Feng <boqun.feng@gmail.com>,
-        "quic_jhugo@quicinc.com" <quic_jhugo@quicinc.com>,
-        "quic_carlv@quicinc.com" <quic_carlv@quicinc.com>,
-        "wei.liu@kernel.org" <wei.liu@kernel.org>,
-        KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        "sthemmin@microsoft.com" <sthemmin@microsoft.com>,
-        "lpieralisi@kernel.org" <lpieralisi@kernel.org>,
-        "bhelgaas@google.com" <bhelgaas@google.com>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
-        "robh@kernel.org" <robh@kernel.org>, "kw@linux.com" <kw@linux.com>,
-        "helgaas@kernel.org" <helgaas@kernel.org>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v2] PCI: hv: Fix the definition of vector in
- hv_compose_msi_msg()
-Message-ID: <2023040305-evaluator-come-fcb8@gregkh>
-References: <20221027205256.17678-1-decui@microsoft.com>
- <ZCTsPFb7dBj2IZmo@boqun-archlinux>
- <ZCT6JEK/yGpKHVLn@boqun-archlinux>
- <SA1PR21MB13354973735A5E727F94A169BF8E9@SA1PR21MB1335.namprd21.prod.outlook.com>
+        b=i13zJ0watYt53sX+Fy1N0c16JMQAbdjExUC21m9z/Srw+VNTZbw+j5VeMdka59AZQ
+         u23bWaMKgVaW3VQqECqfzuTv5hL/evKC1UITFmO7XM5q0JsZcZjg9y6l2p9Ic4hL2t
+         SPtKDuNoNs4pb02/dL5eEcWBAhb+e9U6QPYnukjU=
+Date:   Mon, 3 Apr 2023 15:08:44 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Tudor Ambarus <tudor.ambarus@linaro.org>
+Cc:     pbonzini@redhat.com, stable@vger.kernel.org, seanjc@google.com,
+        joro@8bytes.org, vkuznets@redhat.com, wanpengli@tencent.com,
+        jmattson@google.com, suravee.suthikulpanit@amd.com,
+        kvm@vger.kernel.org, iommu@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, mlevitsk@redhat.com,
+        joneslee@google.com,
+        syzbot+b6a74be92b5063a0f1ff@syzkaller.appspotmail.com
+Subject: Re: [PATCH][for stable/linux-5.15.y] KVM: VMX: Move preemption timer
+ <=> hrtimer dance to common x86
+Message-ID: <2023040335-backlash-tubeless-7d21@gregkh>
+References: <20230329151747.2938509-1-tudor.ambarus@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <SA1PR21MB13354973735A5E727F94A169BF8E9@SA1PR21MB1335.namprd21.prod.outlook.com>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+In-Reply-To: <20230329151747.2938509-1-tudor.ambarus@linaro.org>
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,50 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 30, 2023 at 03:23:45AM +0000, Dexuan Cui wrote:
-> > From: Boqun Feng <boqun.feng@gmail.com>
-> > Sent: Wednesday, March 29, 2023 7:56 PM
-> > To: Dexuan Cui <decui@microsoft.com>
-> >  ...
-> > On Wed, Mar 29, 2023 at 06:56:12PM -0700, Boqun Feng wrote:
-> > > [Cc stable]
-> > >
-> > > On Thu, Oct 27, 2022 at 01:52:56PM -0700, Dexuan Cui wrote:
-> > > > The local variable 'vector' must be u32 rather than u8: see the
-> > > > struct hv_msi_desc3.
-> > > >
-> > > > 'vector_count' should be u16 rather than u8: see struct hv_msi_desc,
-> > > > hv_msi_desc2 and hv_msi_desc3.
-> > > >
-> > >
-> > > Dexuan, I think this patch should only be in 5.15, because...
-> > >
-> > 
-> > Sorry, I meant:
-> > 
-> > "this patch should also be backported in 5.15"
-> > 
-> > Regards,
-> > Boqun
-> > 
-> > > > Fixes: a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
-> > >
-> > > ^^^ this commit is already in 5.15.y (commit id 92dcb50f7f09).
-> > >
-> > > Upstream id e70af8d040d2b7904dca93d942ba23fb722e21b1
-> > > Cc: <stable@vger.kernel.org> # 5.15.x
+On Wed, Mar 29, 2023 at 03:17:47PM +0000, Tudor Ambarus wrote:
+> From: Sean Christopherson <seanjc@google.com>
 > 
-> The faulty commit a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
-> is in all the stable branches, even including 4.14.y, so yes, the commit
-> e70af8d040d2 ("PCI: hv: Fix the definition of vector in hv_compose_msi_msg()")
-> should be backported to all the stable branches as well, including
-> v5.15.y, v5.10.y, v5.4.y, v4.19.y, v4.14.y.
+> commit 98c25ead5eda5e9d41abe57839ad3e8caf19500c upstream.
 > 
-> e70af8d040d2 has a Fixes tag. Not sure why it's not automatically backported.
+> Handle the switch to/from the hypervisor/software timer when a vCPU is
+> blocking in common x86 instead of in VMX.  Even though VMX is the only
+> user of a hypervisor timer, the logic and all functions involved are
+> generic x86 (unless future CPUs do something completely different and
+> implement a hypervisor timer that runs regardless of mode).
+> 
+> Handling the switch in common x86 will allow for the elimination of the
+> pre/post_blocks hooks, and also lets KVM switch back to the hypervisor
+> timer if and only if it was in use (without additional params).  Add a
+> comment explaining why the switch cannot be deferred to kvm_sched_out()
+> or kvm_vcpu_block().
+> 
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+> Message-Id: <20211208015236.1616697-8-seanjc@google.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> [ta: Fix conflicts in vmx_pre_block and vmx_post_block as per Paolo's
+> suggestion. Add Reported-by and Link tags.]
+> Reported-by: syzbot+b6a74be92b5063a0f1ff@syzkaller.appspotmail.com
+> Link: https://syzkaller.appspot.com/bug?id=489beb3d76ef14cc6cd18125782dc6f86051a605
+> Tested-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+> ---
+>  arch/x86/kvm/vmx/vmx.c |  6 ------
+>  arch/x86/kvm/x86.c     | 21 +++++++++++++++++++++
+>  2 files changed, 21 insertions(+), 6 deletions(-)
 
-Also, the most obvious reason, it does NOT apply there!  If this needs
-to go to 5.15.y and older, please send working backports of it.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
