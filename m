@@ -2,49 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCBA6D480E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C0D6D4A26
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbjDCOZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53090 "EHLO
+        id S233876AbjDCOoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233279AbjDCOZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BFC72C9EC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:29 -0700 (PDT)
+        with ESMTP id S233952AbjDCOoQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AFBD1766B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC88761D97
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01D40C433D2;
-        Mon,  3 Apr 2023 14:25:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 394C561EF1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C2AC433EF;
+        Mon,  3 Apr 2023 14:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531928;
-        bh=yo/GowJspS9xIPJZdpuPQJlHVyI1uHUr04sRIKrsvcY=;
+        s=korg; t=1680533038;
+        bh=O/mOkDZ/o5RV/YSv+1yrLgRr2ghtm1kQQ5uzPclGIAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivZfQVD84+eDnPuqSg3+h/K44al763fpu+74xX1SaGYKD17nSvHcZT89IxErEFelB
-         pVOW9PZzWqWYE6M2THPEb6nDatfV7vLnAxjGv4bY7qKsz4N2B0ZgmbWjDxi5eyq1J+
-         8m06GLIbYUsolFM6XZ2Z/lkiSoCwJC3ecqPKDeXw=
+        b=Bn+sAiQrj0lq07vXE2baMXr7ibghKiO1+2JgKbGLpYN5htZgpI9E5MuWRk5TVpNVR
+         pcKv5OSD09vgXM+9WQ1yl65CDYMfXtgwHFM0zNyaVTviJTJ5d//1+ukbI8LScoibi6
+         2vUd+riZJqohdfvEu2NIAfSoAV5XfRZ6SXLbhyBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yaroslav Furman <yaro330@gmail.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.10 061/173] uas: Add US_FL_NO_REPORT_OPCODES for JMicron JMS583Gen 2
+        patches@lists.linux.dev, Rander Wang <rander.wang@intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 031/187] ASoC: SOF: Intel: hda-dsp: harden D0i3 programming sequence
 Date:   Mon,  3 Apr 2023 16:07:56 +0200
-Message-Id: <20230403140416.432738854@linuxfoundation.org>
+Message-Id: <20230403140417.021687766@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,36 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yaroslav Furman <yaro330@gmail.com>
+From: Rander Wang <rander.wang@intel.com>
 
-commit a37eb61b6ec064ac794b8a1e89fd33eb582fe51d upstream.
+[ Upstream commit 52a55779ed14792a150421339664193d6eb8e036 ]
 
-Just like other JMicron JMS5xx enclosures, it chokes on report-opcodes,
-let's avoid them.
+Add delay between set and wait command according to hardware programming
+sequence. Also add debug log to detect error.
 
-Signed-off-by: Yaroslav Furman <yaro330@gmail.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20230312090745.47962-1-yaro330@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230307095453.3719-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/sof/intel/hda-dsp.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -111,6 +111,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_BROKEN_FUA),
+diff --git a/sound/soc/sof/intel/hda-dsp.c b/sound/soc/sof/intel/hda-dsp.c
+index b4eacae8564c8..6b2094f74c9c0 100644
+--- a/sound/soc/sof/intel/hda-dsp.c
++++ b/sound/soc/sof/intel/hda-dsp.c
+@@ -399,6 +399,12 @@ static int hda_dsp_update_d0i3c_register(struct snd_sof_dev *sdev, u8 value)
+ 	snd_sof_dsp_update8(sdev, HDA_DSP_HDA_BAR, chip->d0i3_offset,
+ 			    SOF_HDA_VS_D0I3C_I3, value);
  
-+/* Reported by: Yaroslav Furman <yaro330@gmail.com> */
-+UNUSUAL_DEV(0x152d, 0x0583, 0x0000, 0x9999,
-+		"JMicron",
-+		"JMS583Gen 2",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_NO_REPORT_OPCODES),
++	/*
++	 * The value written to the D0I3C::I3 bit may not be taken into account immediately.
++	 * A delay is recommended before checking if D0I3C::CIP is cleared
++	 */
++	usleep_range(30, 40);
 +
- /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
- UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
- 		"PNY",
+ 	/* Wait for cmd in progress to be cleared before exiting the function */
+ 	ret = hda_dsp_wait_d0i3c_done(sdev);
+ 	if (ret < 0) {
+@@ -407,6 +413,12 @@ static int hda_dsp_update_d0i3c_register(struct snd_sof_dev *sdev, u8 value)
+ 	}
+ 
+ 	reg = snd_sof_dsp_read8(sdev, HDA_DSP_HDA_BAR, chip->d0i3_offset);
++	/* Confirm d0i3 state changed with paranoia check */
++	if ((reg ^ value) & SOF_HDA_VS_D0I3C_I3) {
++		dev_err(sdev->dev, "failed to update D0I3C!\n");
++		return -EIO;
++	}
++
+ 	trace_sof_intel_D0I3C_updated(sdev, reg);
+ 
+ 	return 0;
+-- 
+2.39.2
+
 
 
