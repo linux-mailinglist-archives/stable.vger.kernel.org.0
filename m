@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D886D493F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8A86D4833
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233651AbjDCOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:36:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
+        id S233168AbjDCO0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233676AbjDCOgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:36:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFA717652
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:08 -0700 (PDT)
+        with ESMTP id S233337AbjDCO0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:26:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 014823128B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:26:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C23FBCE12E4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84CEC433EF;
-        Mon,  3 Apr 2023 14:36:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BD28B81C0E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F193CC433D2;
+        Mon,  3 Apr 2023 14:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532563;
-        bh=8km0x1vLwE9boiOOdqbni5fdBgKSZiQh0+IwayiLD28=;
+        s=korg; t=1680531985;
+        bh=61t6bE5gI67tV0D83BcwIxzshoLdbE60Pp1Rxvkib1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5cWmaddl/2UXUkLp13/XrsfE5murbDg8zygktsuapuCln/nPxfukeukDLDQ0HtFl
-         0jygInd/3E3rCJXyq+ysj0meDNUitKH+T6Crtn/OkJd1EVN01gzUFYGR5mmna/DEDi
-         DsQ/UTdAPG6YZs16LSTqSWNV95AcT1Ki3yseFN5g=
+        b=y81leJ7cstgQWV8b8LBCuqpi/MaY2+Vd5+e0uFvKeAmdcflKKKWBU9I6s0xhvNFKA
+         5iOe0hc9xeQcGkHqOnb8Nz4nZ8AhsCWG8DnciQ9uvAyZDRZ575XsNCdxBhswF4sxgh
+         KrJgucgNb/CGBaICh7PCXGXqGKt7YbLY36DPhszk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com,
-        Hyunwoo Kim <v4bel@theori.io>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 031/181] xfrm: Zero padding when dumping algos and encap
+Subject: [PATCH 5.10 051/173] net: dsa: mt7530: move setting ssc_delta to PHY_INTERFACE_MODE_TRGMII case
 Date:   Mon,  3 Apr 2023 16:07:46 +0200
-Message-Id: <20230403140416.179580867@linuxfoundation.org>
+Message-Id: <20230403140416.096716862@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,109 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-[ Upstream commit 8222d5910dae08213b6d9d4bc9a7f8502855e624 ]
+[ Upstream commit 407b508bdd70b6848993843d96ed49ac4108fb52 ]
 
-When copying data to user-space we should ensure that only valid
-data is copied over.  Padding in structures may be filled with
-random (possibly sensitve) data and should never be given directly
-to user-space.
+Move setting the ssc_delta variable to under the PHY_INTERFACE_MODE_TRGMII
+case as it's only needed when trgmii is used.
 
-This patch fixes the copying of xfrm algorithms and the encap
-template in xfrm_user so that padding is zeroed.
-
-Reported-by: syzbot+fa5414772d5c445dac3c@syzkaller.appspotmail.com
-Reported-by: Hyunwoo Kim <v4bel@theori.io>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Link: https://lore.kernel.org/r/20230320190520.124513-3-arinc.unal@arinc9.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 45 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 41 insertions(+), 4 deletions(-)
+ drivers/net/dsa/mt7530.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index e73f9efc54c12..83f35ecacf24f 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -997,7 +997,9 @@ static int copy_to_user_aead(struct xfrm_algo_aead *aead, struct sk_buff *skb)
- 		return -EMSGSIZE;
- 
- 	ap = nla_data(nla);
--	memcpy(ap, aead, sizeof(*aead));
-+	strscpy_pad(ap->alg_name, aead->alg_name, sizeof(ap->alg_name));
-+	ap->alg_key_len = aead->alg_key_len;
-+	ap->alg_icv_len = aead->alg_icv_len;
- 
- 	if (redact_secret && aead->alg_key_len)
- 		memset(ap->alg_key, 0, (aead->alg_key_len + 7) / 8);
-@@ -1017,7 +1019,8 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
- 		return -EMSGSIZE;
- 
- 	ap = nla_data(nla);
--	memcpy(ap, ealg, sizeof(*ealg));
-+	strscpy_pad(ap->alg_name, ealg->alg_name, sizeof(ap->alg_name));
-+	ap->alg_key_len = ealg->alg_key_len;
- 
- 	if (redact_secret && ealg->alg_key_len)
- 		memset(ap->alg_key, 0, (ealg->alg_key_len + 7) / 8);
-@@ -1028,6 +1031,40 @@ static int copy_to_user_ealg(struct xfrm_algo *ealg, struct sk_buff *skb)
- 	return 0;
- }
- 
-+static int copy_to_user_calg(struct xfrm_algo *calg, struct sk_buff *skb)
-+{
-+	struct nlattr *nla = nla_reserve(skb, XFRMA_ALG_COMP, sizeof(*calg));
-+	struct xfrm_algo *ap;
-+
-+	if (!nla)
-+		return -EMSGSIZE;
-+
-+	ap = nla_data(nla);
-+	strscpy_pad(ap->alg_name, calg->alg_name, sizeof(ap->alg_name));
-+	ap->alg_key_len = 0;
-+
-+	return 0;
-+}
-+
-+static int copy_to_user_encap(struct xfrm_encap_tmpl *ep, struct sk_buff *skb)
-+{
-+	struct nlattr *nla = nla_reserve(skb, XFRMA_ENCAP, sizeof(*ep));
-+	struct xfrm_encap_tmpl *uep;
-+
-+	if (!nla)
-+		return -EMSGSIZE;
-+
-+	uep = nla_data(nla);
-+	memset(uep, 0, sizeof(*uep));
-+
-+	uep->encap_type = ep->encap_type;
-+	uep->encap_sport = ep->encap_sport;
-+	uep->encap_dport = ep->encap_dport;
-+	uep->encap_oa = ep->encap_oa;
-+
-+	return 0;
-+}
-+
- static int xfrm_smark_put(struct sk_buff *skb, struct xfrm_mark *m)
- {
- 	int ret = 0;
-@@ -1083,12 +1120,12 @@ static int copy_to_user_state_extra(struct xfrm_state *x,
- 			goto out;
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 70155e996f7d7..821ac2984282b 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -403,6 +403,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
+ 		break;
+ 	case PHY_INTERFACE_MODE_TRGMII:
+ 		trgint = 1;
++		if (xtal == HWTRAP_XTAL_25MHZ)
++			ssc_delta = 0x57;
++		else
++			ssc_delta = 0x87;
+ 		if (priv->id == ID_MT7621) {
+ 			/* PLL frequency: 150MHz: 1.2GBit */
+ 			if (xtal == HWTRAP_XTAL_40MHZ)
+@@ -422,11 +426,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, phy_interface_t interface)
+ 		return -EINVAL;
  	}
- 	if (x->calg) {
--		ret = nla_put(skb, XFRMA_ALG_COMP, sizeof(*(x->calg)), x->calg);
-+		ret = copy_to_user_calg(x->calg, skb);
- 		if (ret)
- 			goto out;
- 	}
- 	if (x->encap) {
--		ret = nla_put(skb, XFRMA_ENCAP, sizeof(*x->encap), x->encap);
-+		ret = copy_to_user_encap(x->encap, skb);
- 		if (ret)
- 			goto out;
- 	}
+ 
+-	if (xtal == HWTRAP_XTAL_25MHZ)
+-		ssc_delta = 0x57;
+-	else
+-		ssc_delta = 0x87;
+-
+ 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
+ 		   P6_INTF_MODE(trgint));
+ 
 -- 
 2.39.2
 
