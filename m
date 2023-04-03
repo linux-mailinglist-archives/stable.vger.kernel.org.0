@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD1D6D47FF
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28E16D4961
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbjDCOY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
+        id S233686AbjDCOhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233285AbjDCOYx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:24:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE95EFBF
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:24:52 -0700 (PDT)
+        with ESMTP id S233690AbjDCOhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9554A16F3B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40E5061D82
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:24:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51614C433EF;
-        Mon,  3 Apr 2023 14:24:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60E00B81CC0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B80D1C4339B;
+        Mon,  3 Apr 2023 14:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531891;
-        bh=O6kBbclWBIbFMmH4X6cdPiSengHukRzl3KZe7FhOpFI=;
+        s=korg; t=1680532628;
+        bh=Jb490tCizwjgMEDnhB4AhjdZi8ljgpZONOn25AMTCfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2UcNFE/O9eYKR4etV2D/7ifFfwI/s8GheK9Oho96h2ATxraGbeUgxYr8FWcaSXuq
-         pKWlWIqrCY+sTc/7s0NOTUsRzlnTXBMPeBTbWI1NlOXBVI4LfaH8iOh0ijp+dr4K9v
-         707vCZbI+0zOx7QOucWCOp0u3uT4YLm6aJsr7Ro8=
+        b=DdYEgmKI6pPxll0D2gtM0vwm227XexvyKTOy/P8wM+6pMz8bYXeBG+SW29EvKWT85
+         efHj41jxUSuUcb5CIjIrFKFuQ6Y09OHfugl5W7dKpn3gFYtpPPQfznEI1RmIJ6Z27B
+         BaBhZsrJkpamlxCE8fnZBA2K5QcAAfDbFaAZ5Y5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/173] net/mlx5: E-Switch, Fix an Oops in error handling code
-Date:   Mon,  3 Apr 2023 16:07:40 +0200
-Message-Id: <20230403140415.872410474@linuxfoundation.org>
+Subject: [PATCH 6.1 026/181] tracing: Add .graph suffix option to histogram value
+Date:   Mon,  3 Apr 2023 16:07:41 +0200
+Message-Id: <20230403140415.998942244@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,238 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit 640fcdbcf27fc62de9223f958ceb4e897a00e791 ]
+[ Upstream commit a2c54256dec7510477e2b4f4db187e638f7cac37 ]
 
-The error handling dereferences "vport".  There is nothing we can do if
-it is an error pointer except returning the error code.
+Add the .graph suffix which shows the bar graph of the histogram value.
 
-Fixes: 133dcfc577ea ("net/mlx5: E-Switch, Alloc and free unique metadata for match")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+For example, the below example shows that the bar graph
+of the histogram of the runtime for each tasks.
+
+------
+  # cd /sys/kernel/debug/tracing/
+  # echo hist:keys=pid:vals=runtime.graph:sort=pid > \
+   events/sched/sched_stat_runtime/trigger
+  # sleep 10
+  # cat events/sched/sched_stat_runtime/hist
+ # event histogram
+ #
+ # trigger info: hist:keys=pid:vals=hitcount,runtime.graph:sort=pid:size=2048 [active]
+ #
+
+ { pid:         14 } hitcount:          2  runtime:
+ { pid:         16 } hitcount:          8  runtime:
+ { pid:         26 } hitcount:          1  runtime:
+ { pid:         57 } hitcount:          3  runtime:
+ { pid:         61 } hitcount:         20  runtime: ###
+ { pid:         66 } hitcount:          2  runtime:
+ { pid:         70 } hitcount:          3  runtime:
+ { pid:         72 } hitcount:          2  runtime:
+ { pid:        145 } hitcount:         14  runtime: ####################
+ { pid:        152 } hitcount:          5  runtime: #######
+ { pid:        153 } hitcount:          2  runtime: ####
+
+ Totals:
+     Hits: 62
+     Entries: 11
+     Dropped: 0
+-------
+
+Link: https://lore.kernel.org/linux-trace-kernel/166610813953.56030.10944148382315789485.stgit@devnote2
+
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Tested-by: Tom Zanussi <zanussi@kernel.org>
+Stable-dep-of: e0213434fe3e ("tracing: Do not let histogram values have some modifiers")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/trace/trace.c             |  3 +-
+ kernel/trace/trace_events_hist.c | 77 +++++++++++++++++++++++++-------
+ 2 files changed, 63 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-index 548c005ea6335..90a10230bf0cd 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_ofld.c
-@@ -301,8 +301,7 @@ int mlx5_esw_acl_ingress_vport_bond_update(struct mlx5_eswitch *esw, u16 vport_n
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index f714ed1f1c673..78d69b9488e45 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5728,7 +5728,8 @@ static const char readme_msg[] =
+ 	"\t            .log2       display log2 value rather than raw number\n"
+ 	"\t            .buckets=size  display values in groups of size rather than raw number\n"
+ 	"\t            .usecs      display a common_timestamp in microseconds\n"
+-	"\t            .percent    display a number of percentage value\n\n"
++	"\t            .percent    display a number of percentage value\n"
++	"\t            .graph      display a bar-graph of a value\n\n"
+ 	"\t    The 'pause' parameter can be used to pause an existing hist\n"
+ 	"\t    trigger or to start a hist trigger but not log any events\n"
+ 	"\t    until told to do so.  'continue' can be used to start or\n"
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 1c207fbf5634f..8e0acf8009bde 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -507,6 +507,7 @@ enum hist_field_flags {
+ 	HIST_FIELD_FL_BUCKET		= 1 << 17,
+ 	HIST_FIELD_FL_CONST		= 1 << 18,
+ 	HIST_FIELD_FL_PERCENT		= 1 << 19,
++	HIST_FIELD_FL_GRAPH		= 1 << 20,
+ };
  
- 	if (WARN_ON_ONCE(IS_ERR(vport))) {
- 		esw_warn(esw->dev, "vport(%d) invalid!\n", vport_num);
--		err = PTR_ERR(vport);
--		goto out;
-+		return PTR_ERR(vport);
+ struct var_defs {
+@@ -1711,6 +1712,8 @@ static const char *get_hist_field_flags(struct hist_field *hist_field)
+ 		flags_str = "usecs";
+ 	else if (hist_field->flags & HIST_FIELD_FL_PERCENT)
+ 		flags_str = "percent";
++	else if (hist_field->flags & HIST_FIELD_FL_GRAPH)
++		flags_str = "graph";
+ 
+ 	return flags_str;
+ }
+@@ -2327,6 +2330,10 @@ parse_field(struct hist_trigger_data *hist_data, struct trace_event_file *file,
+ 			if (*flags & (HIST_FIELD_FL_VAR | HIST_FIELD_FL_KEY))
+ 				goto error;
+ 			*flags |= HIST_FIELD_FL_PERCENT;
++		} else if (strncmp(modifier, "graph", 5) == 0) {
++			if (*flags & (HIST_FIELD_FL_VAR | HIST_FIELD_FL_KEY))
++				goto error;
++			*flags |= HIST_FIELD_FL_GRAPH;
+ 		} else {
+  error:
+ 			hist_err(tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(modifier));
+@@ -5322,20 +5329,52 @@ static inline unsigned int __get_percentage(u64 val, u64 total)
+ 	return val ? UINT_MAX : 0;
+ }
+ 
++#define BAR_CHAR '#'
++
++static inline const char *__fill_bar_str(char *buf, int size, u64 val, u64 max)
++{
++	unsigned int len = __get_percentage(val, max);
++	int i;
++
++	if (len == UINT_MAX) {
++		snprintf(buf, size, "[ERROR]");
++		return buf;
++	}
++
++	len = len * size / 10000;
++	for (i = 0; i < len && i < size; i++)
++		buf[i] = BAR_CHAR;
++	while (i < size)
++		buf[i++] = ' ';
++	buf[size] = '\0';
++
++	return buf;
++}
++
++struct hist_val_stat {
++	u64 max;
++	u64 total;
++};
++
+ static void hist_trigger_print_val(struct seq_file *m, unsigned int idx,
+ 				   const char *field_name, unsigned long flags,
+-				   u64 *totals, struct tracing_map_elt *elt)
++				   struct hist_val_stat *stats,
++				   struct tracing_map_elt *elt)
+ {
+ 	u64 val = tracing_map_read_sum(elt, idx);
+ 	unsigned int pc;
++	char bar[21];
+ 
+ 	if (flags & HIST_FIELD_FL_PERCENT) {
+-		pc = __get_percentage(val, totals[idx]);
++		pc = __get_percentage(val, stats[idx].total);
+ 		if (pc == UINT_MAX)
+ 			seq_printf(m, " %s (%%):[ERROR]", field_name);
+ 		else
+ 			seq_printf(m, " %s (%%): %3u.%02u", field_name,
+ 					pc / 100, pc % 100);
++	} else if (flags & HIST_FIELD_FL_GRAPH) {
++		seq_printf(m, " %s: %20s", field_name,
++			   __fill_bar_str(bar, 20, val, stats[idx].max));
+ 	} else if (flags & HIST_FIELD_FL_HEX) {
+ 		seq_printf(m, " %s: %10llx", field_name, val);
+ 	} else {
+@@ -5345,7 +5384,7 @@ static void hist_trigger_print_val(struct seq_file *m, unsigned int idx,
+ 
+ static void hist_trigger_entry_print(struct seq_file *m,
+ 				     struct hist_trigger_data *hist_data,
+-				     u64 *totals,
++				     struct hist_val_stat *stats,
+ 				     void *key,
+ 				     struct tracing_map_elt *elt)
+ {
+@@ -5356,7 +5395,7 @@ static void hist_trigger_entry_print(struct seq_file *m,
+ 	hist_trigger_print_key(m, hist_data, key, elt);
+ 
+ 	/* At first, show the raw hitcount always */
+-	hist_trigger_print_val(m, i, "hitcount", 0, totals, elt);
++	hist_trigger_print_val(m, i, "hitcount", 0, stats, elt);
+ 
+ 	for (i = 1; i < hist_data->n_vals; i++) {
+ 		field_name = hist_field_name(hist_data->fields[i], 0);
+@@ -5366,7 +5405,7 @@ static void hist_trigger_entry_print(struct seq_file *m,
+ 			continue;
+ 
+ 		seq_puts(m, " ");
+-		hist_trigger_print_val(m, i, field_name, flags, totals, elt);
++		hist_trigger_print_val(m, i, field_name, flags, stats, elt);
  	}
  
- 	esw_acl_ingress_ofld_rules_destroy(esw, vport);
+ 	print_actions(m, hist_data, elt);
+@@ -5380,7 +5419,8 @@ static int print_entries(struct seq_file *m,
+ 	struct tracing_map_sort_entry **sort_entries = NULL;
+ 	struct tracing_map *map = hist_data->map;
+ 	int i, j, n_entries;
+-	u64 *totals = NULL;
++	struct hist_val_stat *stats = NULL;
++	u64 val;
+ 
+ 	n_entries = tracing_map_sort_entries(map, hist_data->sort_keys,
+ 					     hist_data->n_sort_keys,
+@@ -5388,28 +5428,33 @@ static int print_entries(struct seq_file *m,
+ 	if (n_entries < 0)
+ 		return n_entries;
+ 
++	/* Calculate the max and the total for each field if needed. */
+ 	for (j = 0; j < hist_data->n_vals; j++) {
+-		if (!(hist_data->fields[j]->flags & HIST_FIELD_FL_PERCENT))
++		if (!(hist_data->fields[j]->flags &
++			(HIST_FIELD_FL_PERCENT | HIST_FIELD_FL_GRAPH)))
+ 			continue;
+-		if (!totals) {
+-			totals = kcalloc(hist_data->n_vals, sizeof(u64),
+-					 GFP_KERNEL);
+-			if (!totals) {
++		if (!stats) {
++			stats = kcalloc(hist_data->n_vals, sizeof(*stats),
++				       GFP_KERNEL);
++			if (!stats) {
+ 				n_entries = -ENOMEM;
+ 				goto out;
+ 			}
+ 		}
+-		for (i = 0; i < n_entries; i++)
+-			totals[j] += tracing_map_read_sum(
+-					sort_entries[i]->elt, j);
++		for (i = 0; i < n_entries; i++) {
++			val = tracing_map_read_sum(sort_entries[i]->elt, j);
++			stats[j].total += val;
++			if (stats[j].max < val)
++				stats[j].max = val;
++		}
+ 	}
+ 
+ 	for (i = 0; i < n_entries; i++)
+-		hist_trigger_entry_print(m, hist_data, totals,
++		hist_trigger_entry_print(m, hist_data, stats,
+ 					 sort_entries[i]->key,
+ 					 sort_entries[i]->elt);
+ 
+-	kfree(totals);
++	kfree(stats);
+ out:
+ 	tracing_map_destroy_sort_entries(sort_entries, n_entries);
+ 
 -- 
 2.39.2
 
