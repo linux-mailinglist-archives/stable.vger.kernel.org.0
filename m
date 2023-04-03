@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6BB6D491B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB526D49FA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233600AbjDCOfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
+        id S233851AbjDCOnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233612AbjDCOfD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9116CE47
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:47 -0700 (PDT)
+        with ESMTP id S233852AbjDCOnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BD018275
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E0F061E64
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 824B9C433EF;
-        Mon,  3 Apr 2023 14:34:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1170BB81D16
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C328C433EF;
+        Mon,  3 Apr 2023 14:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532486;
-        bh=78MDaKVa6fl3R2GhVwVNkKrjOXBnd943gK41h6oEQtI=;
+        s=korg; t=1680532951;
+        bh=C4eCLZ8Ae9m6I4MZapff2h/VH3WAMMzfAwFxs6YuczQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfASKx6TnADbdJp8MJLNdpRfpo139Qdcy1raVzhCfh504IMCh57ODg7q719lC1Hn2
-         KHOWFyViKivlhVrFkg8vI3cZdyKpTZvxntDcyKMouX+Uwyz236T6JYnVFoHX+JDUhW
-         yj/kPcL5wGcYWgF94ilvHWMJZKAs6SgThum3NNrA=
+        b=e+2+DLLyQmxN3Spm/fCxA8cbAEu/O1/XJbBo1q/qDy0RCYG+Eg4gnQ/PxabYMJ+ey
+         qqqtQf6kzCxcDFn2IfN3CQxprDJ93ODVDjzXw1an7RHpg5Kfm/T+Lvcmh2Ple1o6wP
+         MH9im7T9h3JvMKdLnw1nFRA718yLiG1Cxe8xT4DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, huangwenhui <huangwenhuia@uniontech.com>,
+        patches@lists.linux.dev, Jetro Jormalainen <jje-lxkl@jetro.fi>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 83/99] ALSA: hda/realtek: Add quirk for Lenovo ZhaoYang CF4620Z
-Date:   Mon,  3 Apr 2023 16:09:46 +0200
-Message-Id: <20230403140406.528130427@linuxfoundation.org>
+Subject: [PATCH 6.1 152/181] ALSA: hda/conexant: Partial revert of a quirk for Lenovo
+Date:   Mon,  3 Apr 2023 16:09:47 +0200
+Message-Id: <20230403140420.010450221@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huangwenhui <huangwenhuia@uniontech.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 52aad39385e1bfdb34a1b405f699a8ef302c58b0 upstream.
+commit b871cb971c683f7f212e7ca3c9a6709a75785116 upstream.
 
-Fix headset microphone detection on Lenovo ZhaoYang CF4620Z.
+The recent commit f83bb2592482 ("ALSA: hda/conexant: Add quirk for
+LENOVO 20149 Notebook model") introduced a quirk for the device with
+17aa:3977, but this caused a regression on another model (Lenovo
+Ideadpad U31) with the very same PCI SSID.  And, through skimming over
+the net, it seems that this PCI SSID is used for multiple different
+models, so it's no good idea to apply the quirk with the SSID.
 
-[ adjusted to be applicable to the latest tree -- tiwai ]
+Although we may take a different ID check (e.g. the codec SSID instead
+of the PCI SSID), unfortunately, the original patch author couldn't
+identify the hardware details any longer as the machine was returned,
+and we can't develop the further proper fix.
 
-Signed-off-by: huangwenhui <huangwenhuia@uniontech.com>
+In this patch, instead, we partially revert the change so that the
+quirk won't be applied as default for addressing the regression.
+Meanwhile, the quirk function itself is kept, and it's now made to be
+applicable via the explicit model=lenovo-20149 option.
+
+Fixes: f83bb2592482 ("ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model")
+Reported-by: Jetro Jormalainen <jje-lxkl@jetro.fi>
+Link: https://lore.kernel.org/r/20230308215009.4d3e58a6@mopti
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230328074644.30142-1-huangwenhuia@uniontech.com
+Link: https://lore.kernel.org/r/20230320140954.31154-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_conexant.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9332,6 +9332,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x511e, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
- 	SND_PCI_QUIRK(0x17aa, 0x511f, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
- 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
-+	SND_PCI_QUIRK(0x17aa, 0x9e56, "Lenovo ZhaoYang CF4620Z", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1849, 0x1233, "ASRock NUC Box 1100", ALC233_FIXUP_NO_AUDIO_JACK),
- 	SND_PCI_QUIRK(0x1849, 0xa233, "Positivo Master C6300", ALC269_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -980,7 +980,10 @@ static const struct snd_pci_quirk cxt506
+ 	SND_PCI_QUIRK(0x17aa, 0x3905, "Lenovo G50-30", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x390b, "Lenovo G50-80", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3975, "Lenovo U300s", CXT_FIXUP_STEREO_DMIC),
+-	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_PINCFG_LENOVO_NOTEBOOK),
++	/* NOTE: we'd need to extend the quirk for 17aa:3977 as the same
++	 * PCI SSID is used on multiple Lenovo models
++	 */
++	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo G50-70", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x397b, "Lenovo S205", CXT_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad", CXT_FIXUP_THINKPAD_ACPI),
+@@ -1003,6 +1006,7 @@ static const struct hda_model_fixup cxt5
+ 	{ .id = CXT_FIXUP_MUTE_LED_GPIO, .name = "mute-led-gpio" },
+ 	{ .id = CXT_FIXUP_HP_ZBOOK_MUTE_LED, .name = "hp-zbook-mute-led" },
+ 	{ .id = CXT_FIXUP_HP_MIC_NO_PRESENCE, .name = "hp-mic-fix" },
++	{ .id = CXT_PINCFG_LENOVO_NOTEBOOK, .name = "lenovo-20149" },
+ 	{}
+ };
+ 
 
 
