@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04E6E6D472A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A1A6D4878
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232975AbjDCORp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
+        id S233363AbjDCO3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232974AbjDCORo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:44 -0400
+        with ESMTP id S233384AbjDCO3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1CE62BEF5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B6C131980
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BE7461CBD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52BE9C4339B;
-        Mon,  3 Apr 2023 14:17:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAE1E61DDB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED7D8C4339B;
+        Mon,  3 Apr 2023 14:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531462;
-        bh=KtJ0VQeQNAYoKsagb/LIaOW4p3iN/MIgF6EHF9gQb5k=;
+        s=korg; t=1680532133;
+        bh=9PijvkHIQR/yALhDbI/rDe7aUW99n6nJ/iPMYgpW6NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUDiSsZEiUZw4Xb8x08I051JjKG/PdWWnYjDiVZNpDp7qcgBGbG9iEEYPLNwj4r00
-         ZO5M6NYqfhupgHOYJsZQAHCmR/G4fzacJGXbHP1Cp9+LJ5Qd/Gai2loV0zkJQjy7rz
-         aK15Lga9Bps0cEGr5xc+mp+DZavln1zavK6vRTZU=
+        b=EapRPu4h6N2RbH56pDTuptHzsl7Zpkr4Nrab2IxCB+NH2HvVOudtRlGUNiaysaU+I
+         Fj3tJ5B0LzkIqf6y68t7gqklKdJPIegqJjt5q8v6f7bMpkPwWVwZymk4rAJ2+10tdF
+         CXfjJJ31MRPs5IypWnt4XZuxLNE604VNmciL2pY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jetro Jormalainen <jje-lxkl@jetro.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 73/84] ALSA: hda/conexant: Partial revert of a quirk for Lenovo
+        patches@lists.linux.dev,
+        Bjorn Andersson <quic_bjorande@quicinc.com>,
+        Mark Bloch <mbloch@nvidia.com>, Alex Elder <elder@linaro.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 139/173] net: ipa: compute DMA pool size properly
 Date:   Mon,  3 Apr 2023 16:09:14 +0200
-Message-Id: <20230403140355.941521139@linuxfoundation.org>
+Message-Id: <20230403140418.969279841@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alex Elder <elder@linaro.org>
 
-commit b871cb971c683f7f212e7ca3c9a6709a75785116 upstream.
+[ Upstream commit 6c75dc94f2b27fff57b305af9236eea181a00b6c ]
 
-The recent commit f83bb2592482 ("ALSA: hda/conexant: Add quirk for
-LENOVO 20149 Notebook model") introduced a quirk for the device with
-17aa:3977, but this caused a regression on another model (Lenovo
-Ideadpad U31) with the very same PCI SSID.  And, through skimming over
-the net, it seems that this PCI SSID is used for multiple different
-models, so it's no good idea to apply the quirk with the SSID.
+In gsi_trans_pool_init_dma(), the total size of a pool of memory
+used for DMA transactions is calculated.  However the calculation is
+done incorrectly.
 
-Although we may take a different ID check (e.g. the codec SSID instead
-of the PCI SSID), unfortunately, the original patch author couldn't
-identify the hardware details any longer as the machine was returned,
-and we can't develop the further proper fix.
+For 4KB pages, this total size is currently always more than one
+page, and as a result, the calculation produces a positive (though
+incorrect) total size.  The code still works in this case; we just
+end up with fewer DMA pool entries than we intended.
 
-In this patch, instead, we partially revert the change so that the
-quirk won't be applied as default for addressing the regression.
-Meanwhile, the quirk function itself is kept, and it's now made to be
-applicable via the explicit model=lenovo-20149 option.
+Bjorn Andersson tested booting a kernel with 16KB pages, and hit a
+null pointer derereference in sg_alloc_append_table_from_pages(),
+descending from gsi_trans_pool_init_dma().  The cause of this was
+that a 16KB total size was going to be allocated, and with 16KB
+pages the order of that allocation is 0.  The total_size calculation
+yielded 0, which eventually led to the crash.
 
-Fixes: f83bb2592482 ("ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model")
-Reported-by: Jetro Jormalainen <jje-lxkl@jetro.fi>
-Link: https://lore.kernel.org/r/20230308215009.4d3e58a6@mopti
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230320140954.31154-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Correcting the total_size calculation fixes the problem.
+
+Reported-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+Tested-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+Fixes: 9dd441e4ed57 ("soc: qcom: ipa: GSI transactions")
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230328162751.2861791-1-elder@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_conexant.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ipa/gsi_trans.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -952,7 +952,10 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x17aa, 0x3905, "Lenovo G50-30", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x390b, "Lenovo G50-80", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3975, "Lenovo U300s", CXT_FIXUP_STEREO_DMIC),
--	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_PINCFG_LENOVO_NOTEBOOK),
-+	/* NOTE: we'd need to extend the quirk for 17aa:3977 as the same
-+	 * PCI SSID is used on multiple Lenovo models
-+	 */
-+	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo G50-70", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x397b, "Lenovo S205", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad", CXT_FIXUP_THINKPAD_ACPI),
-@@ -974,6 +977,7 @@ static const struct hda_model_fixup cxt5
- 	{ .id = CXT_FIXUP_HP_DOCK, .name = "hp-dock" },
- 	{ .id = CXT_FIXUP_MUTE_LED_GPIO, .name = "mute-led-gpio" },
- 	{ .id = CXT_FIXUP_HP_MIC_NO_PRESENCE, .name = "hp-mic-fix" },
-+	{ .id = CXT_PINCFG_LENOVO_NOTEBOOK, .name = "lenovo-20149" },
- 	{}
- };
+diff --git a/drivers/net/ipa/gsi_trans.c b/drivers/net/ipa/gsi_trans.c
+index 70c2b585f98d6..1e0d626393012 100644
+--- a/drivers/net/ipa/gsi_trans.c
++++ b/drivers/net/ipa/gsi_trans.c
+@@ -159,7 +159,7 @@ int gsi_trans_pool_init_dma(struct device *dev, struct gsi_trans_pool *pool,
+ 	 * gsi_trans_pool_exit_dma() can assume the total allocated
+ 	 * size is exactly (count * size).
+ 	 */
+-	total_size = get_order(total_size) << PAGE_SHIFT;
++	total_size = PAGE_SIZE << get_order(total_size);
  
+ 	virt = dma_alloc_coherent(dev, total_size, &addr, GFP_KERNEL);
+ 	if (!virt)
+-- 
+2.39.2
+
 
 
