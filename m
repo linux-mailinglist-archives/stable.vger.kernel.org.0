@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEEBE6D46EC
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D62F6D4A6F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232906AbjDCOPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:15:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
+        id S234101AbjDCOrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232889AbjDCOP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:15:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE8544ECB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:15:20 -0700 (PDT)
+        with ESMTP id S234040AbjDCOqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A07ED4FA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F776B81B4F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:15:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2CB3C433EF;
-        Mon,  3 Apr 2023 14:15:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9651E61F3E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5494C433D2;
+        Mon,  3 Apr 2023 14:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531318;
-        bh=6dt7vG+0XfgAqvg4V5nPT83NkdixZ0PQLO199Lgp2LM=;
+        s=korg; t=1680533182;
+        bh=QcfqzscAf9dPC2v2aEj1NR0Q/YM5YoN6MttM5Qqh1MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATXNHWL4lguZgR2G8vH2Vg3jQFCanbPhRESu2rFcxpDvxSURyMmNNKMVV/SQsTaFT
-         bMLapQnfq1PNvqGFyaTLVPchXXWd+UAHqf/4Bf3tY6l2DOMozKYbW0+1N+IoRJi5vf
-         PSMlqFgzoaVVme1K3YTBvsiZWTNjN0KbU7k6fJhM=
+        b=hxWR6woDd/HZnOC7KZty/9aMY9T6G4flbRiY4P9rzN9QngPsMaQZ7B/jIuM8y8Nrh
+         7//ZKH7+AqBsDC45NEXr9X9zhdl2gfI0AJ8mY3rpMHSYq2uwGnsXC0U+096ldPcfl7
+         R8V0bd2FNJ4m0at3MqLwhp5C1AdE84UG/Txj/0hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Francois Romieu <romieu@fr.zoreil.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/84] atm: idt77252: fix kmemleak when rmmod idt77252
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 054/187] fbdev: intelfb: Fix potential divide by zero
 Date:   Mon,  3 Apr 2023 16:08:19 +0200
-Message-Id: <20230403140353.994164970@linuxfoundation.org>
+Message-Id: <20230403140417.753675802@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,90 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Wei Chen <harperchen1110@gmail.com>
 
-[ Upstream commit 4fe3c88552a3fbe1944426a4506a18cdeb457b5a ]
+[ Upstream commit d823685486a3446d061fed7c7d2f80af984f119a ]
 
-There are memory leaks reported by kmemleak:
+Variable var->pixclock is controlled by user and can be assigned
+to zero. Without proper check, divide by zero would occur in
+intelfbhw_validate_mode and intelfbhw_mode_to_hw.
 
-  unreferenced object 0xffff888106500800 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<000000000e947e2a>] idt77252_init_one+0x2847/0x3c90 [idt77252]
-      [<000000006efb048e>] local_pci_probe+0xeb/0x1a0
-    ...
+Error out if var->pixclock is zero.
 
-  unreferenced object 0xffff888106500b00 (size 128):
-    comm "modprobe", pid 1017, jiffies 4297787785 (age 67.152s)
-    hex dump (first 32 bytes):
-      00 20 3d 01 80 88 ff ff 00 20 3d 01 80 88 ff ff  . =...... =.....
-      f0 23 3d 01 80 88 ff ff 00 20 3d 01 00 00 00 00  .#=...... =.....
-    backtrace:
-      [<00000000970ce626>] __kmem_cache_alloc_node+0x20c/0x380
-      [<00000000fb5f78d9>] kmalloc_trace+0x2f/0xb0
-      [<00000000f451c5be>] alloc_scq.constprop.0+0x4a/0x400 [idt77252]
-      [<00000000e6313849>] idt77252_init_one+0x28cf/0x3c90 [idt77252]
-
-The root cause is traced to the vc_maps which alloced in open_card_oam()
-are not freed in close_card_oam(). The vc_maps are used to record
-open connections, so when close a vc_map in close_card_oam(), the memory
-should be freed. Moreover, the ubr0 is not closed when close a idt77252
-device, leading to the memory leak of vc_map and scq_info.
-
-Fix them by adding kfree in close_card_oam() and implementing new
-close_card_ubr0() to close ubr0.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Francois Romieu <romieu@fr.zoreil.com>
-Link: https://lore.kernel.org/r/20230320143318.2644630-1-lizetao1@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/idt77252.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/video/fbdev/intelfb/intelfbdrv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
-index bc06f5919839c..3380322df98e0 100644
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -2915,6 +2915,7 @@ close_card_oam(struct idt77252_dev *card)
+diff --git a/drivers/video/fbdev/intelfb/intelfbdrv.c b/drivers/video/fbdev/intelfb/intelfbdrv.c
+index 0a9e5067b2010..a81095b2b1ea5 100644
+--- a/drivers/video/fbdev/intelfb/intelfbdrv.c
++++ b/drivers/video/fbdev/intelfb/intelfbdrv.c
+@@ -1222,6 +1222,9 @@ static int intelfb_check_var(struct fb_var_screeninfo *var,
  
- 				recycle_rx_pool_skb(card, &vc->rcv.rx_pool);
- 			}
-+			kfree(vc);
- 		}
- 	}
- }
-@@ -2958,6 +2959,15 @@ open_card_ubr0(struct idt77252_dev *card)
- 	return 0;
- }
+ 	dinfo = GET_DINFO(info);
  
-+static void
-+close_card_ubr0(struct idt77252_dev *card)
-+{
-+	struct vc_map *vc = card->vcs[0];
++	if (!var->pixclock)
++		return -EINVAL;
 +
-+	free_scq(card, vc->scq);
-+	kfree(vc);
-+}
-+
- static int
- idt77252_dev_open(struct idt77252_dev *card)
- {
-@@ -3007,6 +3017,7 @@ static void idt77252_dev_close(struct atm_dev *dev)
- 	struct idt77252_dev *card = dev->dev_data;
- 	u32 conf;
- 
-+	close_card_ubr0(card);
- 	close_card_oam(card);
- 
- 	conf = SAR_CFG_RXPTH |	/* enable receive path           */
+ 	/* update the pitch */
+ 	if (intelfbhw_validate_mode(dinfo, var) != 0)
+ 		return -EINVAL;
 -- 
 2.39.2
 
