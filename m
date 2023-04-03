@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 010EC6D491A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5676D49D1
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233571AbjDCOfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42588 "EHLO
+        id S233802AbjDCOlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233565AbjDCOfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 996E716F2C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:44 -0700 (PDT)
+        with ESMTP id S233807AbjDCOli (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7FCC17AF1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC91B61E52
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD8CC433D2;
-        Mon,  3 Apr 2023 14:34:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83EEB61ED7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE58C433EF;
+        Mon,  3 Apr 2023 14:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532458;
-        bh=tZgnvcGJbNLHeW0x2kbUNHiYwG547kNTzcdD1A7Wj6s=;
+        s=korg; t=1680532897;
+        bh=/ixys3Xf4gbqCSmx2bAR/cwuDorgFfxJOlFvU5ERZsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zM/30+zxdmILdldM/46tKQAQI/CRFl5Ik9o0srYG4leD60BwD/Ow6JO1DRLWzi1pi
-         mK3+xhT7zeKzg/w3x5XqeVCl0YlSfYLhwAUfkSMUIQSgyn7IrV+sHN5J/MOu/Wdv4z
-         50WUTIMeiEroDE0XC+MKUmUGKfbRSML+G2O1k/h0=
+        b=eomNsJ+ne2p3/tzu+GFLXh/II+WAmNY7rJjWWHhVJA+87bSk4OMT3x3O/CqbOpcWE
+         bLOth+C9+QYjgbtPGe+bXX60YacmgnOL10F/0bD2yaNO5LvC3iLu/An4kulolk613J
+         0hDPQK8QsnwovN152qvo+1CsCoXPA8QWkIosDMhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Orr <marcorr@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
-Subject: [PATCH 5.15 91/99] KVM: x86: Inject #GP on x2APIC WRMSR that sets reserved bits 63:32
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 6.1 159/181] s390/uaccess: add missing earlyclobber annotations to __clear_user()
 Date:   Mon,  3 Apr 2023 16:09:54 +0200
-Message-Id: <20230403140406.783567564@linuxfoundation.org>
+Message-Id: <20230403140420.251850311@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,52 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit ab52be1b310bcb39e6745d34a8f0e8475d67381a upstream.
+commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
 
-Reject attempts to set bits 63:32 for 32-bit x2APIC registers, i.e. all
-x2APIC registers except ICR.  Per Intel's SDM:
+Add missing earlyclobber annotation to size, to, and tmp2 operands of the
+__clear_user() inline assembly since they are modified or written to before
+the last usage of all input operands. This can lead to incorrect register
+allocation for the inline assembly.
 
-  Non-zero writes (by WRMSR instruction) to reserved bits to these
-  registers will raise a general protection fault exception
-
-Opportunistically fix a typo in a nearby comment.
-
-Reported-by: Marc Orr <marcorr@google.com>
+Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
 Cc: stable@vger.kernel.org
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20230107011025.565472-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/s390/lib/uaccess.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2802,6 +2802,10 @@ int kvm_x2apic_msr_write(struct kvm_vcpu
- 	/* if this is ICR write vector before command */
- 	if (reg == APIC_ICR)
- 		kvm_lapic_reg_write(apic, APIC_ICR2, (u32)(data >> 32));
-+	else if (data >> 32)
-+		/* Bits 63:32 are reserved in all other registers. */
-+		return 1;
-+
- 	return kvm_lapic_reg_write(apic, reg, (u32)data);
- }
- 
-@@ -2836,6 +2840,10 @@ int kvm_hv_vapic_msr_write(struct kvm_vc
- 	/* if this is ICR write vector before command */
- 	if (reg == APIC_ICR)
- 		kvm_lapic_reg_write(apic, APIC_ICR2, (u32)(data >> 32));
-+	else if (data >> 32)
-+		/* Bits 63:32 are reserved in all other registers. */
-+		return 1;
-+
- 	return kvm_lapic_reg_write(apic, reg, (u32)data);
- }
- 
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -172,7 +172,7 @@ unsigned long __clear_user(void __user *
+ 		"4: slgr  %0,%0\n"
+ 		"5:\n"
+ 		EX_TABLE(0b,2b) EX_TABLE(6b,2b) EX_TABLE(3b,5b) EX_TABLE(7b,5b)
+-		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
++		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
+ 		: "a" (empty_zero_page), [spec] "d" (spec.val)
+ 		: "cc", "memory", "0");
+ 	return size;
 
 
