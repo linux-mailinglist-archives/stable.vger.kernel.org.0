@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 698966D48B2
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB1416D4792
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233461AbjDCObG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34370 "EHLO
+        id S233130AbjDCOVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233459AbjDCObF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:05 -0400
+        with ESMTP id S233134AbjDCOV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F0435018
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 174512B0D6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B253961E00
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41FAC433D2;
-        Mon,  3 Apr 2023 14:31:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD57E61D2F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F341DC433A7;
+        Mon,  3 Apr 2023 14:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532263;
-        bh=I5/WfdnKzCy45BOFiV4mpB+xjs2KfZpOiKWwAIh0uq0=;
+        s=korg; t=1680531667;
+        bh=gbU0/p+naJTF87VAq0Y+j/X26qPrBHaLhiOF58Btm+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PiARqa+1TvdQnTmxwZGQ1ELtJ4ZKpScY3Q7S+/qQTEGjZlCwXn1xKTiHnBBPZbHiW
-         miBQpWy02NX9F0IyxxtRs4IeTx2SKOxtA91QlWwRpGRu7HGlUOtv3MVYb5Qys3US0k
-         W0qoZ6WJrsPvncpAtRwnjgQi8GcQimWG/uR1sKFQ=
+        b=ecxRtYHwA0q+7MZUSK3X9RtAv8xw1hVEbIhc2KmethaurmTu1fJQqwhqm//nVqqr+
+         i9O0fG8GCoNNffX3ux6N45rLa38nYvgevrT0GA1GzEiJF5QuXNvdmXJ8pmB38XH6Au
+         oV1oS5l41kiiTpWpuGY3Iw1mmaQCrqdt+LPYD6fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anders Roxell <anders.roxell@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Marco Elver <elver@google.com>,
-        David Gow <davidgow@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Lorenz Bauer <lmb@isovalent.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 04/99] kernel: kcsan: kcsan_test: build without structleak plugin
+Subject: [PATCH 5.4 035/104] selftests/bpf: check that modifier resolves after pointer
 Date:   Mon,  3 Apr 2023 16:08:27 +0200
-Message-Id: <20230403140356.233238646@linuxfoundation.org>
+Message-Id: <20230403140405.723893492@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,42 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Lorenz Bauer <lorenz.bauer@isovalent.com>
 
-[ Upstream commit 6fcd4267a840d0536b8e5334ad5f31e4105fce85 ]
+[ Upstream commit dfdd608c3b365f0fd49d7e13911ebcde06b9865b ]
 
-Building kcsan_test with structleak plugin enabled makes the stack frame
-size to grow.
+Add a regression test that ensures that a VAR pointing at a
+modifier which follows a PTR (or STRUCT or ARRAY) is resolved
+correctly by the datasec validator.
 
-kernel/kcsan/kcsan_test.c:704:1: error: the frame size of 3296 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
-
-Turn off the structleak plugin checks for kcsan_test.
-
-Link: https://lkml.kernel.org/r/20221128104358.2660634-1-anders.roxell@linaro.org
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Marco Elver <elver@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David Gow <davidgow@google.com>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Stable-dep-of: 5eb39cde1e24 ("kcsan: avoid passing -g for test")
+Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+Link: https://lore.kernel.org/r/20230306112138.155352-3-lmb@isovalent.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/test_btf.c | 28 ++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/kernel/kcsan/Makefile b/kernel/kcsan/Makefile
-index c2bb07f5bcc72..5936288ee938b 100644
---- a/kernel/kcsan/Makefile
-+++ b/kernel/kcsan/Makefile
-@@ -14,4 +14,5 @@ obj-y := core.o debugfs.o report.o
- obj-$(CONFIG_KCSAN_SELFTEST) += selftest.o
- 
- CFLAGS_kcsan_test.o := $(CFLAGS_KCSAN) -g -fno-omit-frame-pointer
-+CFLAGS_kcsan_test.o += $(DISABLE_STRUCTLEAK_PLUGIN)
- obj-$(CONFIG_KCSAN_KUNIT_TEST) += kcsan_test.o
+diff --git a/tools/testing/selftests/bpf/test_btf.c b/tools/testing/selftests/bpf/test_btf.c
+index 996eca57bc977..f641eb292a885 100644
+--- a/tools/testing/selftests/bpf/test_btf.c
++++ b/tools/testing/selftests/bpf/test_btf.c
+@@ -920,6 +920,34 @@ static struct btf_raw_test raw_tests[] = {
+ 	.btf_load_err = true,
+ 	.err_str = "Invalid elem",
+ },
++{
++	.descr = "var after datasec, ptr followed by modifier",
++	.raw_types = {
++		/* .bss section */				/* [1] */
++		BTF_TYPE_ENC(NAME_TBD, BTF_INFO_ENC(BTF_KIND_DATASEC, 0, 2),
++			sizeof(void*)+4),
++		BTF_VAR_SECINFO_ENC(4, 0, sizeof(void*)),
++		BTF_VAR_SECINFO_ENC(6, sizeof(void*), 4),
++		/* int */					/* [2] */
++		BTF_TYPE_INT_ENC(0, BTF_INT_SIGNED, 0, 32, 4),
++		/* int* */					/* [3] */
++		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_PTR, 0, 0), 2),
++		BTF_VAR_ENC(NAME_TBD, 3, 0),			/* [4] */
++		/* const int */					/* [5] */
++		BTF_TYPE_ENC(0, BTF_INFO_ENC(BTF_KIND_CONST, 0, 0), 2),
++		BTF_VAR_ENC(NAME_TBD, 5, 0),			/* [6] */
++		BTF_END_RAW,
++	},
++	.str_sec = "\0a\0b\0c\0",
++	.str_sec_size = sizeof("\0a\0b\0c\0"),
++	.map_type = BPF_MAP_TYPE_ARRAY,
++	.map_name = ".bss",
++	.key_size = sizeof(int),
++	.value_size = sizeof(void*)+4,
++	.key_type_id = 0,
++	.value_type_id = 1,
++	.max_entries = 1,
++},
+ /* Test member exceeds the size of struct.
+  *
+  * struct A {
 -- 
 2.39.2
 
