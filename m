@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5057D6D4791
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C706D46B8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233101AbjDCOVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
+        id S232658AbjDCOMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:12:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233079AbjDCOV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDDC2D7DD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:06 -0700 (PDT)
+        with ESMTP id S232774AbjDCOMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:12:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD501FF1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:12:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43F9361D3C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CDEFC433EF;
-        Mon,  3 Apr 2023 14:20:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C8E160B68
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:12:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22306C433D2;
+        Mon,  3 Apr 2023 14:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531643;
-        bh=v9t4ZPFPKj+zh/iatTmM84GOhvXIbbZekGkbHi3HKM4=;
+        s=korg; t=1680531163;
+        bh=w98C8uP6tCGDs9QMuLfejUCwkf1JUDuDkKbJdsAlxTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qd0H9MtwpC6lcTbyXMhKbUpWht5/X17q5d4/DRDn6H3pUC1eR71Pfqzl+5Eh/FyfI
-         GR7aoq9+2VLwveyg/ey6IjL82nadkRpr8kx9bDQuTTZODmCUT+99HreFnc+Id0fKcJ
-         8r65uK1cWH4zp3wSSmxvOlr6ZJunHFtGVCa/PvQM=
+        b=TnhE17foshtduZ2vhlQ2EdHUmOx0yCF161clrJ9rSSeL+f0PtkV5CFygPVhJo+YXt
+         yUPppNfUJd9Au/jXH6eLtPg4c3SHxabtGSSfE3jvdyHGwnYQSUVRYeI55HhvFdRSgP
+         isvj/xVgtVyiXQDAFibK5pzU0rmQmOIGJFQNdkmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Li <lilin@redhat.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 029/104] scsi: qla2xxx: Perform lockless command completion in abort path
+        patches@lists.linux.dev, Stephen Haynes <sh@synk.net>,
+        Lefteris Alexakis <lefteris.alexakis@kpn.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/66] bpf: Adjust insufficient default bpf_jit_limit
 Date:   Mon,  3 Apr 2023 16:08:21 +0200
-Message-Id: <20230403140405.437688589@linuxfoundation.org>
+Message-Id: <20230403140352.318140448@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,78 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 0367076b0817d5c75dfb83001ce7ce5c64d803a9 upstream.
+[ Upstream commit 10ec8ca8ec1a2f04c4ed90897225231c58c124a7 ]
 
-While adding and removing the controller, the following call trace was
-observed:
+We've seen recent AWS EKS (Kubernetes) user reports like the following:
 
-WARNING: CPU: 3 PID: 623596 at kernel/dma/mapping.c:532 dma_free_attrs+0x33/0x50
-CPU: 3 PID: 623596 Comm: sh Kdump: loaded Not tainted 5.14.0-96.el9.x86_64 #1
-RIP: 0010:dma_free_attrs+0x33/0x50
+  After upgrading EKS nodes from v20230203 to v20230217 on our 1.24 EKS
+  clusters after a few days a number of the nodes have containers stuck
+  in ContainerCreating state or liveness/readiness probes reporting the
+  following error:
 
-Call Trace:
-   qla2x00_async_sns_sp_done+0x107/0x1b0 [qla2xxx]
-   qla2x00_abort_srb+0x8e/0x250 [qla2xxx]
-   ? ql_dbg+0x70/0x100 [qla2xxx]
-   __qla2x00_abort_all_cmds+0x108/0x190 [qla2xxx]
-   qla2x00_abort_all_cmds+0x24/0x70 [qla2xxx]
-   qla2x00_abort_isp_cleanup+0x305/0x3e0 [qla2xxx]
-   qla2x00_remove_one+0x364/0x400 [qla2xxx]
-   pci_device_remove+0x36/0xa0
-   __device_release_driver+0x17a/0x230
-   device_release_driver+0x24/0x30
-   pci_stop_bus_device+0x68/0x90
-   pci_stop_and_remove_bus_device_locked+0x16/0x30
-   remove_store+0x75/0x90
-   kernfs_fop_write_iter+0x11c/0x1b0
-   new_sync_write+0x11f/0x1b0
-   vfs_write+0x1eb/0x280
-   ksys_write+0x5f/0xe0
-   do_syscall_64+0x5c/0x80
-   ? do_user_addr_fault+0x1d8/0x680
-   ? do_syscall_64+0x69/0x80
-   ? exc_page_fault+0x62/0x140
-   ? asm_exc_page_fault+0x8/0x30
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+    Readiness probe errored: rpc error: code = Unknown desc = failed to
+    exec in container: failed to start exec "4a11039f730203ffc003b7[...]":
+    OCI runtime exec failed: exec failed: unable to start container process:
+    unable to init seccomp: error loading seccomp filter into kernel:
+    error loading seccomp filter: errno 524: unknown
 
-The command was completed in the abort path during driver unload with a
-lock held, causing the warning in abort path. Hence complete the command
-without any lock held.
+  However, we had not been seeing this issue on previous AMIs and it only
+  started to occur on v20230217 (following the upgrade from kernel 5.4 to
+  5.10) with no other changes to the underlying cluster or workloads.
 
-Reported-by: Lin Li <lilin@redhat.com>
-Tested-by: Lin Li <lilin@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Link: https://lore.kernel.org/r/20230313043711.13500-2-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  We tried the suggestions from that issue (sysctl net.core.bpf_jit_limit=452534528)
+  which helped to immediately allow containers to be created and probes to
+  execute but after approximately a day the issue returned and the value
+  returned by cat /proc/vmallocinfo | grep bpf_jit | awk '{s+=$2} END {print s}'
+  was steadily increasing.
+
+I tested bpf tree to observe bpf_jit_charge_modmem, bpf_jit_uncharge_modmem
+their sizes passed in as well as bpf_jit_current under tcpdump BPF filter,
+seccomp BPF and native (e)BPF programs, and the behavior all looks sane
+and expected, that is nothing "leaking" from an upstream perspective.
+
+The bpf_jit_limit knob was originally added in order to avoid a situation
+where unprivileged applications loading BPF programs (e.g. seccomp BPF
+policies) consuming all the module memory space via BPF JIT such that loading
+of kernel modules would be prevented. The default limit was defined back in
+2018 and while good enough back then, we are generally seeing far more BPF
+consumers today.
+
+Adjust the limit for the BPF JIT pool from originally 1/4 to now 1/2 of the
+module memory space to better reflect today's needs and avoid more users
+running into potentially hard to debug issues.
+
+Fixes: fdadd04931c2 ("bpf: fix bpf_jit_limit knob for PAGE_SIZE >= 64K")
+Reported-by: Stephen Haynes <sh@synk.net>
+Reported-by: Lefteris Alexakis <lefteris.alexakis@kpn.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://github.com/awslabs/amazon-eks-ami/issues/1179
+Link: https://github.com/awslabs/amazon-eks-ami/issues/1219
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20230320143725.8394-1-daniel@iogearbox.net
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/bpf/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -1738,6 +1738,17 @@ __qla2x00_abort_all_cmds(struct qla_qpai
- 	for (cnt = 1; cnt < req->num_outstanding_cmds; cnt++) {
- 		sp = req->outstanding_cmds[cnt];
- 		if (sp) {
-+			/*
-+			 * perform lockless completion during driver unload
-+			 */
-+			if (qla2x00_chip_is_down(vha)) {
-+				req->outstanding_cmds[cnt] = NULL;
-+				spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
-+				sp->done(sp, res);
-+				spin_lock_irqsave(qp->qp_lock_ptr, flags);
-+				continue;
-+			}
-+
- 			switch (sp->cmd_type) {
- 			case TYPE_SRB:
- 				qla2x00_abort_srb(qp, sp, res, &flags);
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 2ca36bb440ded..1f586204673d5 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -555,7 +555,7 @@ static int __init bpf_jit_charge_init(void)
+ {
+ 	/* Only used as heuristic here to derive limit. */
+ 	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
+-	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
++	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 1,
+ 					    PAGE_SIZE), LONG_MAX);
+ 	return 0;
+ }
+-- 
+2.39.2
+
 
 
