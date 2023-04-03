@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2650B6D492C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E03B86D47F0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233577AbjDCOf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42358 "EHLO
+        id S233213AbjDCOYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:24:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233582AbjDCOfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4006E2701
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:23 -0700 (PDT)
+        with ESMTP id S233208AbjDCOYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:24:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB040319B1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED977B81C96
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA51C433D2;
-        Mon,  3 Apr 2023 14:35:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F725B81BE7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A96C433EF;
+        Mon,  3 Apr 2023 14:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532520;
-        bh=UJvwCMbuQins9OiCsCCL7DT2Adm/PW8+hpqKzU0gX1g=;
+        s=korg; t=1680531863;
+        bh=j4yYjAt0pd60UiRT0z8Ma+P4EWMtWEJB0saM2dcyiIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnSJQyBM76pewgrdULa1xwcI/DL/5ZEk3pQHWo26cvQ39nh7tTTjnl8OqIADKXHlt
-         VCmDNVMcTWSFR160SLdiDALd46c1I6W0sL0vzBrWORus/GzOu5d5rY9ZSTaS5SZbcO
-         eccHiXE30ZUKcGnTTxSFFl+3GcwBx2cYY6t3Dmxc=
+        b=GEqAX7VuulzQc1VllrkKofeG7xwAAnly+psEqTstuJgXpBwiQ+MsGm9amS5LH/JSc
+         yNUwvl7plZrFx4UQ3KECprB1x8qKUoYTUs+1nEGrXxq7xNsZGVB25HZu3d/VYwEdaw
+         zBG54gFDqz4S186FZqIJeAZRjIN15Fz/v/2YyYoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siddharth Vadapalli <s-vadapalli@ti.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Roger Quadros <rogerq@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 015/181] net: ethernet: ti: am65-cpsw/cpts: Fix CPTS release action
+Subject: [PATCH 5.10 035/173] net: phy: Ensure state transitions are processed from phy_stop()
 Date:   Mon,  3 Apr 2023 16:07:30 +0200
-Message-Id: <20230403140415.613916322@linuxfoundation.org>
+Message-Id: <20230403140415.522665717@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,132 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Vadapalli <s-vadapalli@ti.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 4ad8766cd3982744e53f107f378d2c65b76ff9a8 ]
+[ Upstream commit 4203d84032e28f893594a453bd8bc9c3b15c7334 ]
 
-The am65_cpts_release() function is registered as a devm_action in the
-am65_cpts_create() function in am65-cpts driver. When the am65-cpsw driver
-invokes am65_cpts_create(), am65_cpts_release() is added in the set of devm
-actions associated with the am65-cpsw driver's device.
+In the phy_disconnect() -> phy_stop() path, we will be forcibly setting
+the PHY state machine to PHY_HALTED. This invalidates the old_state !=
+phydev->state condition in phy_state_machine() such that we will neither
+display the state change for debugging, nor will we invoke the
+link_change_notify() callback.
 
-In the event of probe failure or probe deferral, the platform_drv_probe()
-function invokes dev_pm_domain_detach() which powers off the CPSW and the
-CPSW's CPTS hardware, both of which share the same power domain. Since the
-am65_cpts_disable() function invoked by the am65_cpts_release() function
-attempts to reset the CPTS hardware by writing to its registers, the CPTS
-hardware is assumed to be powered on at this point. However, the hardware
-is powered off before the devm actions are executed.
+Factor the code by introducing phy_process_state_change(), and ensure
+that we process the state change from phy_stop() as well.
 
-Fix this by getting rid of the devm action for am65_cpts_release() and
-invoking it directly on the cleanup and exit paths.
-
-Fixes: f6bd59526ca5 ("net: ethernet: ti: introduce am654 common platform time sync driver")
-Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Roger Quadros <rogerq@kernel.org>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 5c5f626bcace ("net: phy: improve handling link_change_notify callback")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c |  2 ++
- drivers/net/ethernet/ti/am65-cpts.c      | 15 +++++----------
- drivers/net/ethernet/ti/am65-cpts.h      |  5 +++++
- 3 files changed, 12 insertions(+), 10 deletions(-)
+ drivers/net/phy/phy.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 00911e9360525..8ff1c84a23ce7 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -2817,6 +2817,7 @@ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
- 
- err_free_phylink:
- 	am65_cpsw_nuss_phylink_cleanup(common);
-+	am65_cpts_release(common->cpts);
- err_of_clear:
- 	of_platform_device_destroy(common->mdio_dev, NULL);
- err_pm_clear:
-@@ -2845,6 +2846,7 @@ static int am65_cpsw_nuss_remove(struct platform_device *pdev)
- 	 */
- 	am65_cpsw_nuss_cleanup_ndev(common);
- 	am65_cpsw_nuss_phylink_cleanup(common);
-+	am65_cpts_release(common->cpts);
- 
- 	of_platform_device_destroy(common->mdio_dev, NULL);
- 
-diff --git a/drivers/net/ethernet/ti/am65-cpts.c b/drivers/net/ethernet/ti/am65-cpts.c
-index e2f0fb286143b..9948ac14e68db 100644
---- a/drivers/net/ethernet/ti/am65-cpts.c
-+++ b/drivers/net/ethernet/ti/am65-cpts.c
-@@ -918,14 +918,13 @@ static int am65_cpts_of_parse(struct am65_cpts *cpts, struct device_node *node)
- 	return cpts_of_mux_clk_setup(cpts, node);
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index 18e67eb6d8b4f..f3e606b6617e9 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -56,6 +56,18 @@ static const char *phy_state_to_str(enum phy_state st)
+ 	return NULL;
  }
  
--static void am65_cpts_release(void *data)
-+void am65_cpts_release(struct am65_cpts *cpts)
- {
--	struct am65_cpts *cpts = data;
--
- 	ptp_clock_unregister(cpts->ptp_clock);
- 	am65_cpts_disable(cpts);
- 	clk_disable_unprepare(cpts->refclk);
- }
-+EXPORT_SYMBOL_GPL(am65_cpts_release);
- 
- struct am65_cpts *am65_cpts_create(struct device *dev, void __iomem *regs,
- 				   struct device_node *node)
-@@ -1003,18 +1002,12 @@ struct am65_cpts *am65_cpts_create(struct device *dev, void __iomem *regs,
- 	}
- 	cpts->phc_index = ptp_clock_index(cpts->ptp_clock);
- 
--	ret = devm_add_action_or_reset(dev, am65_cpts_release, cpts);
--	if (ret) {
--		dev_err(dev, "failed to add ptpclk reset action %d", ret);
--		return ERR_PTR(ret);
--	}
--
- 	ret = devm_request_threaded_irq(dev, cpts->irq, NULL,
- 					am65_cpts_interrupt,
- 					IRQF_ONESHOT, dev_name(dev), cpts);
- 	if (ret < 0) {
- 		dev_err(cpts->dev, "error attaching irq %d\n", ret);
--		return ERR_PTR(ret);
-+		goto reset_ptpclk;
- 	}
- 
- 	dev_info(dev, "CPTS ver 0x%08x, freq:%u, add_val:%u\n",
-@@ -1023,6 +1016,8 @@ struct am65_cpts *am65_cpts_create(struct device *dev, void __iomem *regs,
- 
- 	return cpts;
- 
-+reset_ptpclk:
-+	am65_cpts_release(cpts);
- refclk_disable:
- 	clk_disable_unprepare(cpts->refclk);
- 	return ERR_PTR(ret);
-diff --git a/drivers/net/ethernet/ti/am65-cpts.h b/drivers/net/ethernet/ti/am65-cpts.h
-index cf9fbc28fd032..c0ae0117e5737 100644
---- a/drivers/net/ethernet/ti/am65-cpts.h
-+++ b/drivers/net/ethernet/ti/am65-cpts.h
-@@ -18,6 +18,7 @@ struct am65_cpts_estf_cfg {
- };
- 
- #if IS_ENABLED(CONFIG_TI_K3_AM65_CPTS)
-+void am65_cpts_release(struct am65_cpts *cpts);
- struct am65_cpts *am65_cpts_create(struct device *dev, void __iomem *regs,
- 				   struct device_node *node);
- int am65_cpts_phc_index(struct am65_cpts *cpts);
-@@ -29,6 +30,10 @@ int am65_cpts_estf_enable(struct am65_cpts *cpts, int idx,
- 			  struct am65_cpts_estf_cfg *cfg);
- void am65_cpts_estf_disable(struct am65_cpts *cpts, int idx);
- #else
-+static inline void am65_cpts_release(struct am65_cpts *cpts)
++static void phy_process_state_change(struct phy_device *phydev,
++				     enum phy_state old_state)
 +{
++	if (old_state != phydev->state) {
++		phydev_dbg(phydev, "PHY state change %s -> %s\n",
++			   phy_state_to_str(old_state),
++			   phy_state_to_str(phydev->state));
++		if (phydev->drv && phydev->drv->link_change_notify)
++			phydev->drv->link_change_notify(phydev);
++	}
 +}
 +
- static inline struct am65_cpts *am65_cpts_create(struct device *dev,
- 						 void __iomem *regs,
- 						 struct device_node *node)
+ static void phy_link_up(struct phy_device *phydev)
+ {
+ 	phydev->phy_link_change(phydev, true);
+@@ -1110,6 +1122,7 @@ EXPORT_SYMBOL(phy_free_interrupt);
+ void phy_stop(struct phy_device *phydev)
+ {
+ 	struct net_device *dev = phydev->attached_dev;
++	enum phy_state old_state;
+ 
+ 	if (!phy_is_started(phydev) && phydev->state != PHY_DOWN) {
+ 		WARN(1, "called from state %s\n",
+@@ -1118,6 +1131,7 @@ void phy_stop(struct phy_device *phydev)
+ 	}
+ 
+ 	mutex_lock(&phydev->lock);
++	old_state = phydev->state;
+ 
+ 	if (phydev->state == PHY_CABLETEST) {
+ 		phy_abort_cable_test(phydev);
+@@ -1128,6 +1142,7 @@ void phy_stop(struct phy_device *phydev)
+ 		sfp_upstream_stop(phydev->sfp_bus);
+ 
+ 	phydev->state = PHY_HALTED;
++	phy_process_state_change(phydev, old_state);
+ 
+ 	mutex_unlock(&phydev->lock);
+ 
+@@ -1242,13 +1257,7 @@ void phy_state_machine(struct work_struct *work)
+ 	if (err < 0)
+ 		phy_error(phydev);
+ 
+-	if (old_state != phydev->state) {
+-		phydev_dbg(phydev, "PHY state change %s -> %s\n",
+-			   phy_state_to_str(old_state),
+-			   phy_state_to_str(phydev->state));
+-		if (phydev->drv && phydev->drv->link_change_notify)
+-			phydev->drv->link_change_notify(phydev);
+-	}
++	phy_process_state_change(phydev, old_state);
+ 
+ 	/* Only re-schedule a PHY state machine change if we are polling the
+ 	 * PHY, if PHY_IGNORE_INTERRUPT is set, then we will be moving
 -- 
 2.39.2
 
