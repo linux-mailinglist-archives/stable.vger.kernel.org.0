@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECEFA6D4745
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A67E6D4986
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbjDCOSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:18:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38386 "EHLO
+        id S233724AbjDCOip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233022AbjDCOSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:18:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9981F2C9EE
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:18:46 -0700 (PDT)
+        with ESMTP id S233657AbjDCOin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63195527A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 303ED61CEB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:18:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46834C433EF;
-        Mon,  3 Apr 2023 14:18:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08873B81CD0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711D3C433EF;
+        Mon,  3 Apr 2023 14:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531525;
-        bh=7yTdyPEdt1T6TU/RdjcpX5ybfC60Dmwad/+yB0Qvgsk=;
+        s=korg; t=1680532719;
+        bh=CFwtfCdZMp1Q7KUyl+NWYHlyWJeMW6k/3fiBLWkeoz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VK7wbb1A0sEejQCCzc/JzUKilJ9D1ELgRmBsZF/52eXb/bms2n69XZtFrnJ/KmGvD
-         /qMCAONi3dnvMw2EJaf6x30RzOywReXI9NuMDIGYnzdn8HjEZ0kPhmEQQgHarI7jVa
-         b291qAwcWgyeqCiIsIDN4fUGL8q4VCze6O5iWI3w=
+        b=pOIgwQlVSh+h5UjNs9oHcEDTMiIu/GbwNw/ZdQxdty0PU/dXdxu6Pnpk6vRDHq+O9
+         80yUvM7/x77Yv2lcEpaIP4iV3eiUPDxKwzRCrVjrya5gH4aPOpnrhq1SaWxZZrSyIG
+         fZx7SWaspvAsf4hvd/5U5oIKbJYoJOLXKcZj0RTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 012/104] net: qcom/emac: Fix use after free bug in emac_remove due to race condition
-Date:   Mon,  3 Apr 2023 16:08:04 +0200
-Message-Id: <20230403140404.641902364@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 050/181] ALSA: hda/ca0132: fixup buffer overrun at tuning_ctl_set()
+Date:   Mon,  3 Apr 2023 16:08:05 +0200
+Message-Id: <20230403140416.781983685@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,60 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 6b6bc5b8bd2d4ca9e1efa9ae0f98a0b0687ace75 ]
+[ Upstream commit 98e5eb110095ec77cb6d775051d181edbf9cd3cf ]
 
-In emac_probe, &adpt->work_thread is bound with
-emac_work_thread. Then it will be started by timeout
-handler emac_tx_timeout or a IRQ handler emac_isr.
+tuning_ctl_set() might have buffer overrun at (X) if it didn't break
+from loop by matching (A).
 
-If we remove the driver which will call emac_remove
-  to make cleanup, there may be a unfinished work.
+	static int tuning_ctl_set(...)
+	{
+		for (i = 0; i < TUNING_CTLS_COUNT; i++)
+(A)			if (nid == ca0132_tuning_ctls[i].nid)
+				break;
 
-The possible sequence is as follows:
+		snd_hda_power_up(...);
+(X)		dspio_set_param(..., ca0132_tuning_ctls[i].mid, ...);
+		snd_hda_power_down(...);                ^
 
-Fix it by finishing the work before cleanup in the emac_remove
-and disable timeout response.
+		return 1;
+	}
 
-CPU0                  CPU1
+We will get below error by cppcheck
 
-                    |emac_work_thread
-emac_remove         |
-free_netdev         |
-kfree(netdev);      |
-                    |emac_reinit_locked
-                    |emac_mac_down
-                    |//use netdev
-Fixes: b9b17debc69d ("net: emac: emac gigabit ethernet controller driver")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+	sound/pci/hda/patch_ca0132.c:4229:2: note: After for loop, i has value 12
+	 for (i = 0; i < TUNING_CTLS_COUNT; i++)
+	 ^
+	sound/pci/hda/patch_ca0132.c:4234:43: note: Array index out of bounds
+	 dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
+	                                           ^
+This patch cares non match case.
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87sfe9eap7.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/emac/emac.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/pci/hda/patch_ca0132.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qualcomm/emac/emac.c b/drivers/net/ethernet/qualcomm/emac/emac.c
-index 5c199d2516d47..5fe28dec60c1d 100644
---- a/drivers/net/ethernet/qualcomm/emac/emac.c
-+++ b/drivers/net/ethernet/qualcomm/emac/emac.c
-@@ -738,9 +738,15 @@ static int emac_remove(struct platform_device *pdev)
- 	struct net_device *netdev = dev_get_drvdata(&pdev->dev);
- 	struct emac_adapter *adpt = netdev_priv(netdev);
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index acde4cd58785e..099722ebaed83 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -4228,8 +4228,10 @@ static int tuning_ctl_set(struct hda_codec *codec, hda_nid_t nid,
  
-+	netif_carrier_off(netdev);
-+	netif_tx_disable(netdev);
-+
- 	unregister_netdev(netdev);
- 	netif_napi_del(&adpt->rx_q.napi);
+ 	for (i = 0; i < TUNING_CTLS_COUNT; i++)
+ 		if (nid == ca0132_tuning_ctls[i].nid)
+-			break;
++			goto found;
  
-+	free_irq(adpt->irq.irq, &adpt->irq);
-+	cancel_work_sync(&adpt->work_thread);
-+
- 	emac_clks_teardown(adpt);
- 
- 	put_device(&adpt->phydev->mdio.dev);
++	return -EINVAL;
++found:
+ 	snd_hda_power_up(codec);
+ 	dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
+ 			ca0132_tuning_ctls[i].req,
 -- 
 2.39.2
 
