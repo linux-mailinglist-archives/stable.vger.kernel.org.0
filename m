@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B44756D491D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE7A6D4A04
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233589AbjDCOfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42606 "EHLO
+        id S233858AbjDCOn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:43:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233590AbjDCOfI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7438317650
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:34:55 -0700 (PDT)
+        with ESMTP id S233829AbjDCOn0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012BF17AFE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F99461E62
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551E1C433EF;
-        Mon,  3 Apr 2023 14:34:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21DE7B81D0F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 876C7C433D2;
+        Mon,  3 Apr 2023 14:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532494;
-        bh=BVclvr4EGedUuGLmRzihaQUqZTZ46qI3OJEKv0FvIxU=;
+        s=korg; t=1680532964;
+        bh=NFvca2I+CmKu++YgO5M6PqzUvILGc1MC6GQas1ekfOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncVXJwnThnwCmMlRlQHAVLtj08/pHP3Wx1BTHGXIAg5WvZ2iH3qWXZsHfnnbTfIOg
-         FMoyFUtQbjcv0tdaFeh5MoclemzABrtQV9LluzLfEfwRG7+T8fIK0xrGQjpS21fKZK
-         rroiXvy4+K6KAj6WztL+n7+gQLCkoTpak2iKLOJc=
+        b=LBsaRcpF0kp1T3B5TkcLSIKZqmPUmj4ZQHRQ2y/2k2gFOjU2pdVdO+oP4rOndIcIu
+         8POY+VVKQbEVKKrexKvNQi7Qe5DI9OJrdiKdZJNE7HLl2198AAmdJ0/qtvh7VYoK5w
+         F0wETjIC7fjcE2aDp3Rjbt1hv7otyvsQk6vXkA5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 5.15 86/99] drm/etnaviv: fix reference leak when mmaping imported buffer
+        patches@lists.linux.dev, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Jeremy Soller <jeremy@system76.com>
+Subject: [PATCH 6.1 154/181] ALSA: hda/realtek: Add quirks for some Clevo laptops
 Date:   Mon,  3 Apr 2023 16:09:49 +0200
-Message-Id: <20230403140406.626488994@linuxfoundation.org>
+Message-Id: <20230403140420.078230679@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit 963b2e8c428f79489ceeb058e8314554ec9cbe6f upstream.
+commit b7a5822810c4398515300d614d988cf638adecad upstream.
 
-drm_gem_prime_mmap() takes a reference on the GEM object, but before that
-drm_gem_mmap_obj() already takes a reference, which will be leaked as only
-one reference is dropped when the mapping is closed. Drop the extra
-reference when dma_buf_mmap() succeeds.
+Add the audio quirk for some of Clevo's latest RPL laptops:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+- NP50RNJS (ALC256)
+- NP70SNE (ALC256)
+- PD50SNE (ALC1220)
+- PE60RNE (ALC1220)
+
+Co-authored-by: Jeremy Soller <jeremy@system76.com>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230317141825.11807-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-@@ -88,7 +88,15 @@ static void *etnaviv_gem_prime_vmap_impl
- static int etnaviv_gem_prime_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
- 		struct vm_area_struct *vma)
- {
--	return dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	int ret;
-+
-+	ret = dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	if (!ret) {
-+		/* Drop the reference acquired by drm_gem_mmap_obj(). */
-+		drm_gem_object_put(&etnaviv_obj->base);
-+	}
-+
-+	return ret;
- }
- 
- static const struct etnaviv_gem_ops etnaviv_gem_prime_ops = {
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2631,6 +2631,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65f1, "Clevo PC50HS", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65f5, "Clevo PD50PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x66a2, "Clevo PE60RNE", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+@@ -2651,6 +2652,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x96e1, "Clevo P960[ER][CDFN]-K", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x97e1, "Clevo P970[ER][CDFN]", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x97e2, "Clevo P970RC-M", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1558, 0xd502, "Clevo PD50SNE", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x161f, 0x2054, "Medion laptop", ALC883_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Y530", ALC882_FIXUP_LENOVO_Y530),
+@@ -9574,6 +9576,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x5101, "Clevo S510WU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x5157, "Clevo W517GU1", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x51a1, "Clevo NS50MU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x5630, "Clevo NP50RNJS", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x70a1, "Clevo NB70T[HJK]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x70b3, "Clevo NK70SB", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x70f2, "Clevo NH79EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+@@ -9608,6 +9611,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x971d, "Clevo N970T[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0xa500, "Clevo NL5[03]RU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0xa600, "Clevo NL50NU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0xa671, "Clevo NP70SN[CDE]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0xb018, "Clevo NP50D[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0xb019, "Clevo NH77D[BE]Q", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0xb022, "Clevo NH77D[DC][QW]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
 
 
