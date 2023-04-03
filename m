@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5017C6D4996
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4B876D4864
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233748AbjDCOjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51370 "EHLO
+        id S233362AbjDCO2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233739AbjDCOjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:20 -0400
+        with ESMTP id S233363AbjDCO2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF59617667
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD761EFC2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F95C61EC0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57BDEC433D2;
-        Mon,  3 Apr 2023 14:39:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29AD061DD2
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 366A9C4339B;
+        Mon,  3 Apr 2023 14:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532758;
-        bh=cnK+bSlq/AFLy6JLlVpQzwyByrm0HpUiKc7cUGMa7iU=;
+        s=korg; t=1680532094;
+        bh=kgrOCrY7zLaXwqT8YFulyREFHlVIFjbtep6vu7csO18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZJWAUAacdd29FGNWHQkBy+S5cpOUwfbw/URYHR/TeCbVRN4du27x3Vt65jedbFtV
-         5jwfDCJNHubaRiGySsPn5JE+B92IGB3qceuHVvyGPE/CKHzOxPqZ47U68ugRH6hOAE
-         +C5weRM3JQHehSQ1O+xVvrOIuw0ZgP+KRQKUQUb8=
+        b=J5WM2MXZbp1SGvKTEkv39JpTKz989ziUbz4wXso5kgwsfdTHFFPXUIq/AyYZFKAuH
+         1v7xmE9QizLJ1HCi0thk63FxC1tQ3HmB3UyMY79H54sVGyXgQZoQesdHMvvnmLyJu7
+         L8rN2zFSxzoIYL2C7DzSLwkFc4mOsUeTQuatn7dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 105/181] net: mvpp2: parser fix PPPoE
+Subject: [PATCH 5.10 125/173] ca8210: Fix unsigned mac_len comparison with zero in ca8210_skb_tx()
 Date:   Mon,  3 Apr 2023 16:09:00 +0200
-Message-Id: <20230403140418.512764849@linuxfoundation.org>
+Message-Id: <20230403140418.501589566@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,121 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 031a416c2170866be5132ae42e14453d669b0cb1 ]
+[ Upstream commit 748b2f5e82d17480404b3e2895388fc2925f7caf ]
 
-In PPPoE add all IPv4 header option length to the parser
-and adjust the L3 and L4 offset accordingly.
-Currently the L4 match does not work with PPPoE and
-all packets are matched as L3 IP4 OPT.
+mac_len is of type unsigned, which can never be less than zero.
 
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+	mac_len = ieee802154_hdr_peek_addrs(skb, &header);
+	if (mac_len < 0)
+		return mac_len;
+
+Change this to type int as ieee802154_hdr_peek_addrs() can return negative
+integers, this is found by static analysis with smatch.
+
+Fixes: 6c993779ea1d ("ca8210: fix mac_len negative array access")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230306191824.4115839-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/mvpp2/mvpp2_prs.c    | 82 ++++++++-----------
- 1 file changed, 34 insertions(+), 48 deletions(-)
+ drivers/net/ieee802154/ca8210.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-index ed8be396428b9..9af22f497a40f 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-@@ -1607,59 +1607,45 @@ static int mvpp2_prs_vlan_init(struct platform_device *pdev, struct mvpp2 *priv)
- static int mvpp2_prs_pppoe_init(struct mvpp2 *priv)
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index 5beb447529f9e..1c5d70c60354b 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -1945,10 +1945,9 @@ static int ca8210_skb_tx(
+ 	struct ca8210_priv  *priv
+ )
  {
- 	struct mvpp2_prs_entry pe;
--	int tid;
--
--	/* IPv4 over PPPoE with options */
--	tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
--					MVPP2_PE_LAST_FREE_TID);
--	if (tid < 0)
--		return tid;
--
--	memset(&pe, 0, sizeof(pe));
--	mvpp2_prs_tcam_lu_set(&pe, MVPP2_PRS_LU_PPPOE);
--	pe.index = tid;
--
--	mvpp2_prs_match_etype(&pe, 0, PPP_IP);
--
--	mvpp2_prs_sram_next_lu_set(&pe, MVPP2_PRS_LU_IP4);
--	mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP4_OPT,
--				 MVPP2_PRS_RI_L3_PROTO_MASK);
--	/* goto ipv4 dest-address (skip eth_type + IP-header-size - 4) */
--	mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN +
--				 sizeof(struct iphdr) - 4,
--				 MVPP2_PRS_SRAM_OP_SEL_SHIFT_ADD);
--	/* Set L3 offset */
--	mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L3,
--				  MVPP2_ETH_TYPE_LEN,
--				  MVPP2_PRS_SRAM_OP_SEL_UDF_ADD);
--
--	/* Update shadow table and hw entry */
--	mvpp2_prs_shadow_set(priv, pe.index, MVPP2_PRS_LU_PPPOE);
--	mvpp2_prs_hw_write(priv, &pe);
-+	int tid, ihl;
+-	int status;
+ 	struct ieee802154_hdr header = { };
+ 	struct secspec secspec;
+-	unsigned int mac_len;
++	int mac_len, status;
  
--	/* IPv4 over PPPoE without options */
--	tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
--					MVPP2_PE_LAST_FREE_TID);
--	if (tid < 0)
--		return tid;
-+	/* IPv4 over PPPoE with header length >= 5 */
-+	for (ihl = MVPP2_PRS_IPV4_IHL_MIN; ihl <= MVPP2_PRS_IPV4_IHL_MAX; ihl++) {
-+		tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
-+						MVPP2_PE_LAST_FREE_TID);
-+		if (tid < 0)
-+			return tid;
+ 	dev_dbg(&priv->spi->dev, "%s called\n", __func__);
  
--	pe.index = tid;
-+		memset(&pe, 0, sizeof(pe));
-+		mvpp2_prs_tcam_lu_set(&pe, MVPP2_PRS_LU_PPPOE);
-+		pe.index = tid;
- 
--	mvpp2_prs_tcam_data_byte_set(&pe, MVPP2_ETH_TYPE_LEN,
--				     MVPP2_PRS_IPV4_HEAD |
--				     MVPP2_PRS_IPV4_IHL_MIN,
--				     MVPP2_PRS_IPV4_HEAD_MASK |
--				     MVPP2_PRS_IPV4_IHL_MASK);
-+		mvpp2_prs_match_etype(&pe, 0, PPP_IP);
-+		mvpp2_prs_tcam_data_byte_set(&pe, MVPP2_ETH_TYPE_LEN,
-+					     MVPP2_PRS_IPV4_HEAD | ihl,
-+					     MVPP2_PRS_IPV4_HEAD_MASK |
-+					     MVPP2_PRS_IPV4_IHL_MASK);
- 
--	/* Clear ri before updating */
--	pe.sram[MVPP2_PRS_SRAM_RI_WORD] = 0x0;
--	pe.sram[MVPP2_PRS_SRAM_RI_CTRL_WORD] = 0x0;
--	mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP4,
--				 MVPP2_PRS_RI_L3_PROTO_MASK);
-+		mvpp2_prs_sram_next_lu_set(&pe, MVPP2_PRS_LU_IP4);
-+		mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP4,
-+					 MVPP2_PRS_RI_L3_PROTO_MASK);
-+		/* goto ipv4 dst-address (skip eth_type + IP-header-size - 4) */
-+		mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN +
-+					 sizeof(struct iphdr) - 4,
-+					 MVPP2_PRS_SRAM_OP_SEL_SHIFT_ADD);
-+		/* Set L3 offset */
-+		mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L3,
-+					  MVPP2_ETH_TYPE_LEN,
-+					  MVPP2_PRS_SRAM_OP_SEL_UDF_ADD);
-+		/* Set L4 offset */
-+		mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L4,
-+					  MVPP2_ETH_TYPE_LEN + (ihl * 4),
-+					  MVPP2_PRS_SRAM_OP_SEL_UDF_ADD);
- 
--	/* Update shadow table and hw entry */
--	mvpp2_prs_shadow_set(priv, pe.index, MVPP2_PRS_LU_PPPOE);
--	mvpp2_prs_hw_write(priv, &pe);
-+		/* Update shadow table and hw entry */
-+		mvpp2_prs_shadow_set(priv, pe.index, MVPP2_PRS_LU_PPPOE);
-+		mvpp2_prs_hw_write(priv, &pe);
-+	}
- 
- 	/* IPv6 over PPPoE */
- 	tid = mvpp2_prs_tcam_first_free(priv, MVPP2_PE_FIRST_FREE_TID,
 -- 
 2.39.2
 
