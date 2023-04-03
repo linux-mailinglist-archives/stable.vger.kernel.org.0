@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F4A6D48C8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA256D4AA5
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233478AbjDCOb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
+        id S234095AbjDCOtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233483AbjDCOb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5B63500B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:45 -0700 (PDT)
+        with ESMTP id S234100AbjDCOtC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B54B30C1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92AA4B81C5F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD03C433D2;
-        Mon,  3 Apr 2023 14:31:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2A36FCE1308
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37EE4C433D2;
+        Mon,  3 Apr 2023 14:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532302;
-        bh=nKoXT/pN5cODU1vXtSyc7ofqfc/dOK1eSqnxjpQSMh0=;
+        s=korg; t=1680533268;
+        bh=Xt076set2fXWBWhyvV31TnJjJ+gh4g293OObPxQNfUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vM6NBnu+OiyN9xcR/kjqChf+bpm7+/fGlq5Add5Rg9eidBYjbIh8qJjf1BVa8wzxX
-         FyoZgEn/9D+uTzPrq3Fx/Y7tWYOqrav+BHHQBbf50bTrnUiXeV2OeFfM2JIXX+uMvE
-         CKOGlc7eIyYjB0FuSzUl4Bu+b3KVKTL4/v73bSMI=
+        b=X4hyVvFoi6gg5HapkVWFUK3aHRZuSHIfLVGLnNqMlwMUID6fvbZBEtO+tbtOB4bHv
+         LUr52N9pK2WVkrQQumISKzNbfNuSX1AeAismuXdYeMlgh4CkLi/f8N8VrYzg5nKOwI
+         387H1SnT3gMgI6DapMD4tBy90tJsZ9i3q2tKJJD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, ChunHao Lin <hau@realtek.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 31/99] mtd: rawnand: meson: invalidate cache on polling ECC bit
+Subject: [PATCH 6.2 089/187] r8169: fix RTL8168H and RTL8107E rx crc error
 Date:   Mon,  3 Apr 2023 16:08:54 +0200
-Message-Id: <20230403140404.310210926@linuxfoundation.org>
+Message-Id: <20230403140418.893901905@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+From: ChunHao Lin <hau@realtek.com>
 
-[ Upstream commit e732e39ed9929c05fd219035bc9653ba4100d4fa ]
+[ Upstream commit 33189f0a94b9639c058781fcf82e4ea3803b1682 ]
 
-'info_buf' memory is cached and driver polls ECC bit in it. This bit
-is set by the NAND controller. If 'usleep_range()' returns before device
-sets this bit, 'info_buf' will be cached and driver won't see update of
-this bit and will loop forever.
+When link speed is 10 Mbps and temperature is under -20°C, RTL8168H and
+RTL8107E may have rx crc error. Disable phy 10 Mbps pll off to fix this
+issue.
 
-Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
-Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/d4ef0bd6-816e-f6fa-9385-f05f775f0ae2@sberdevices.ru
+Fixes: 6e1d0b898818 ("r8169:add support for RTL8168H and RTL8107E")
+Signed-off-by: ChunHao Lin <hau@realtek.com>
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/meson_nand.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_phy_config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
-index b97adeee4cc14..4fd20e70aabd4 100644
---- a/drivers/mtd/nand/raw/meson_nand.c
-+++ b/drivers/mtd/nand/raw/meson_nand.c
-@@ -172,6 +172,7 @@ struct meson_nfc {
+diff --git a/drivers/net/ethernet/realtek/r8169_phy_config.c b/drivers/net/ethernet/realtek/r8169_phy_config.c
+index 930496cd34ed0..b50f16786c246 100644
+--- a/drivers/net/ethernet/realtek/r8169_phy_config.c
++++ b/drivers/net/ethernet/realtek/r8169_phy_config.c
+@@ -826,6 +826,9 @@ static void rtl8168h_2_hw_phy_config(struct rtl8169_private *tp,
+ 	/* disable phy pfm mode */
+ 	phy_modify_paged(phydev, 0x0a44, 0x11, BIT(7), 0);
  
- 	dma_addr_t daddr;
- 	dma_addr_t iaddr;
-+	u32 info_bytes;
- 
- 	unsigned long assigned_cs;
- };
-@@ -499,6 +500,7 @@ static int meson_nfc_dma_buffer_setup(struct nand_chip *nand, void *databuf,
- 					 nfc->daddr, datalen, dir);
- 			return ret;
- 		}
-+		nfc->info_bytes = infolen;
- 		cmd = GENCMDIADDRL(NFC_CMD_AIL, nfc->iaddr);
- 		writel(cmd, nfc->reg_base + NFC_REG_CMD);
- 
-@@ -516,8 +518,10 @@ static void meson_nfc_dma_buffer_release(struct nand_chip *nand,
- 	struct meson_nfc *nfc = nand_get_controller_data(nand);
- 
- 	dma_unmap_single(nfc->dev, nfc->daddr, datalen, dir);
--	if (infolen)
-+	if (infolen) {
- 		dma_unmap_single(nfc->dev, nfc->iaddr, infolen, dir);
-+		nfc->info_bytes = 0;
-+	}
- }
- 
- static int meson_nfc_read_buf(struct nand_chip *nand, u8 *buf, int len)
-@@ -706,6 +710,8 @@ static void meson_nfc_check_ecc_pages_valid(struct meson_nfc *nfc,
- 		usleep_range(10, 15);
- 		/* info is updated by nfc dma engine*/
- 		smp_rmb();
-+		dma_sync_single_for_cpu(nfc->dev, nfc->iaddr, nfc->info_bytes,
-+					DMA_FROM_DEVICE);
- 		ret = *info & ECC_COMPLETE;
- 	} while (!ret);
++	/* disable 10m pll off */
++	phy_modify_paged(phydev, 0x0a43, 0x10, BIT(0), 0);
++
+ 	rtl8168g_disable_aldps(phydev);
+ 	rtl8168g_config_eee_phy(phydev);
  }
 -- 
 2.39.2
