@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93AA06D4757
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6726A6D4964
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbjDCOT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39554 "EHLO
+        id S233694AbjDCOhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233035AbjDCOTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91E32C9FA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:24 -0700 (PDT)
+        with ESMTP id S233697AbjDCOht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED20F16F36
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7018DB81BAB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D08D6C433D2;
-        Mon,  3 Apr 2023 14:19:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 695C861E8C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D899C433D2;
+        Mon,  3 Apr 2023 14:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531562;
-        bh=i2GGW3Zzb33Agi4Dth8sraYtXMV8E2zOCVJOmTcxFCI=;
+        s=korg; t=1680532643;
+        bh=jiBHGv/Qc37ebIMDLVhnDSbtaYWP9xZ76vBBWTmM94I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2XnrImn0KnAavQovVXdMGTN37vBLfpD5Ubtwad80oIsb8Lg7OHZvCB22DDr5X9RO
-         k1vm7lyME6mtCfy0zv5QKGLSC61OstDDrM6LdqnkVHzhm4rkiOsgngdekYcouW7PV4
-         aDi6l+DoziWGdLfMJCqPjfB0/OhwZ8tELlDmLpeI=
+        b=umfEOryzu1VTgS6qiG2mIbwRXd8BenovkI2IBEOP2yDY5m0XCEMv1Mn8HDzSxlsSs
+         cqyWoFHUfo2eljk6GrcKx8U854OPc+b7CINSK8TzIritKyG6hPF1mlaeYC3zqiy7zE
+         VWt6QkJNM1z7ccP1So3yAr9Zr5eb8DNITsgDpBo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Antti Laakso <antti.laakso@intel.com>,
+        Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 025/104] Bluetooth: btqcomsmd: Fix command timeout after setting BD address
+Subject: [PATCH 6.1 062/181] tools/power turbostat: fix decoding of HWP_STATUS
 Date:   Mon,  3 Apr 2023 16:08:17 +0200
-Message-Id: <20230403140405.250997865@linuxfoundation.org>
+Message-Id: <20230403140417.152678965@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,72 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Antti Laakso <antti.laakso@intel.com>
 
-[ Upstream commit 5d44ab9e204200a78ad55cdf185aa2bb109b5950 ]
+[ Upstream commit 92c25393586ac799b9b7d9e50434f3c44a7622c4 ]
 
-On most devices using the btqcomsmd driver (e.g. the DragonBoard 410c
-and other devices based on the Qualcomm MSM8916/MSM8909/... SoCs)
-the Bluetooth firmware seems to become unresponsive for a while after
-setting the BD address. On recent kernel versions (at least 5.17+)
-this often causes timeouts for subsequent commands, e.g. the HCI reset
-sent by the Bluetooth core during initialization:
+The "excursion to minimum" information is in bit2
+in HWP_STATUS MSR. Fix the bitmask used for
+decoding the register.
 
-    Bluetooth: hci0: Opcode 0x c03 failed: -110
-
-Unfortunately this behavior does not seem to be documented anywhere.
-Experimentation suggests that the minimum necessary delay to avoid
-the problem is ~150us. However, to be sure add a sleep for > 1ms
-in case it is a bit longer on other firmware versions.
-
-Older kernel versions are likely also affected, although perhaps with
-slightly different errors or less probability. Side effects can easily
-hide the issue in most cases, e.g. unrelated incoming interrupts that
-cause the necessary delay.
-
-Fixes: 1511cc750c3d ("Bluetooth: Introduce Qualcomm WCNSS SMD based HCI driver")
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Antti Laakso <antti.laakso@intel.com>
+Reviewed-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btqcomsmd.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ tools/power/x86/turbostat/turbostat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btqcomsmd.c b/drivers/bluetooth/btqcomsmd.c
-index 2acb719e596f5..11c7e04bf3947 100644
---- a/drivers/bluetooth/btqcomsmd.c
-+++ b/drivers/bluetooth/btqcomsmd.c
-@@ -122,6 +122,21 @@ static int btqcomsmd_setup(struct hci_dev *hdev)
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index c24054e3ef7ad..c61c6c704fbe6 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4426,7 +4426,7 @@ int print_hwp(struct thread_data *t, struct core_data *c, struct pkg_data *p)
+ 
+ 	fprintf(outf, "cpu%d: MSR_HWP_STATUS: 0x%08llx "
+ 		"(%sGuaranteed_Perf_Change, %sExcursion_Min)\n",
+-		cpu, msr, ((msr) & 0x1) ? "" : "No-", ((msr) & 0x2) ? "" : "No-");
++		cpu, msr, ((msr) & 0x1) ? "" : "No-", ((msr) & 0x4) ? "" : "No-");
+ 
  	return 0;
  }
- 
-+static int btqcomsmd_set_bdaddr(struct hci_dev *hdev, const bdaddr_t *bdaddr)
-+{
-+	int ret;
-+
-+	ret = qca_set_bdaddr_rome(hdev, bdaddr);
-+	if (ret)
-+		return ret;
-+
-+	/* The firmware stops responding for a while after setting the bdaddr,
-+	 * causing timeouts for subsequent commands. Sleep a bit to avoid this.
-+	 */
-+	usleep_range(1000, 10000);
-+	return 0;
-+}
-+
- static int btqcomsmd_probe(struct platform_device *pdev)
- {
- 	struct btqcomsmd *btq;
-@@ -162,7 +177,7 @@ static int btqcomsmd_probe(struct platform_device *pdev)
- 	hdev->close = btqcomsmd_close;
- 	hdev->send = btqcomsmd_send;
- 	hdev->setup = btqcomsmd_setup;
--	hdev->set_bdaddr = qca_set_bdaddr_rome;
-+	hdev->set_bdaddr = btqcomsmd_set_bdaddr;
- 
- 	ret = hci_register_dev(hdev);
- 	if (ret < 0)
 -- 
 2.39.2
 
