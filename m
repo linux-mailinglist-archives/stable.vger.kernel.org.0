@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13CCA6D49CF
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB5C6D46D2
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233805AbjDCOle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55124 "EHLO
+        id S232868AbjDCOO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:14:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233804AbjDCOld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C697217AEC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:32 -0700 (PDT)
+        with ESMTP id S232871AbjDCOO0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7624ECB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 593BF61ED8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DD37C4339C;
-        Mon,  3 Apr 2023 14:41:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52DE1B81B38
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABBA3C433D2;
+        Mon,  3 Apr 2023 14:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532891;
-        bh=V6PvJt+e/NDgDW3OtoxNnENGlwdjX7qdvNUe4+/Vzgc=;
+        s=korg; t=1680531263;
+        bh=N9CUN0PygrK7ljgrPQ4Jem6IAB6ahT7pNwV1E4Mzm3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ac+8Hf9AluMBU3r4AyJbyeGkKU6Ic36Q0I0mU5Dsz+0cuWZ4IkJsLZdyMq2BGfWX6
-         p2e6rrNEbP/EPRxACo1H2Ham+zM9VXRrPlrpgZE39ZTPgug4an72PUpZoJ9mL3B0dg
-         ayOd7pxuHQlYQo7VZdxQ09+5GwiIfKgdPGFKGjfc=
+        b=JcYPBj5YThJUF60s3iToUWfJNGDr6ijpKaEi4TU9tIFm6d49QzQIoldBvWihw4MTx
+         K/1WsabclYhFZN+VVc/TvJBKg6KASpj1O9ecqdDi4oRp+yzPieef3E4snpSIZL4qA8
+         YSF1wOgyEljPs5zXMfcWZZ4pEeqH9qoxke7yWVFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Chan <michael.chan@broadcom.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 116/181] bnxt_en: Add missing 200G link speed reporting
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.14 63/66] usb: host: ohci-pxa27x: Fix and & vs | typo
 Date:   Mon,  3 Apr 2023 16:09:11 +0200
-Message-Id: <20230403140418.863292159@linuxfoundation.org>
+Message-Id: <20230403140353.973996550@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
+References: <20230403140351.636471867@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,51 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 581bce7bcb7e7f100908728e7b292e266c76895b ]
+commit 0709831a50d31b3caf2237e8d7fe89e15b0d919d upstream.
 
-bnxt_fw_to_ethtool_speed() is missing the case statement for 200G
-link speed reported by firmware.  As a result, ethtool will report
-unknown speed when the firmware reports 200G link speed.
+The code is supposed to clear the RH_A_NPS and RH_A_PSM bits, but it's
+a no-op because of the & vs | typo.  This bug predates git and it was
+only discovered using static analysis so it must not affect too many
+people in real life.
 
-Fixes: 532262ba3b84 ("bnxt_en: ethtool: support PAM4 link speeds up to 200G")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20190817065520.GA29951@mwanda
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         | 1 +
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/usb/host/ohci-pxa27x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index 02741d499bf4a..1d2588c92977e 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1225,6 +1225,7 @@ struct bnxt_link_info {
- #define BNXT_LINK_SPEED_40GB	PORT_PHY_QCFG_RESP_LINK_SPEED_40GB
- #define BNXT_LINK_SPEED_50GB	PORT_PHY_QCFG_RESP_LINK_SPEED_50GB
- #define BNXT_LINK_SPEED_100GB	PORT_PHY_QCFG_RESP_LINK_SPEED_100GB
-+#define BNXT_LINK_SPEED_200GB	PORT_PHY_QCFG_RESP_LINK_SPEED_200GB
- 	u16			support_speeds;
- 	u16			support_pam4_speeds;
- 	u16			auto_link_speeds;	/* fw adv setting */
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index cdbc62ad659cb..01b973bc509f5 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1712,6 +1712,8 @@ u32 bnxt_fw_to_ethtool_speed(u16 fw_link_speed)
- 		return SPEED_50000;
- 	case BNXT_LINK_SPEED_100GB:
- 		return SPEED_100000;
-+	case BNXT_LINK_SPEED_200GB:
-+		return SPEED_200000;
- 	default:
- 		return SPEED_UNKNOWN;
- 	}
--- 
-2.39.2
-
+--- a/drivers/usb/host/ohci-pxa27x.c
++++ b/drivers/usb/host/ohci-pxa27x.c
+@@ -147,7 +147,7 @@ static int pxa27x_ohci_select_pmm(struct
+ 		uhcrhda |= RH_A_NPS;
+ 		break;
+ 	case PMM_GLOBAL_MODE:
+-		uhcrhda &= ~(RH_A_NPS & RH_A_PSM);
++		uhcrhda &= ~(RH_A_NPS | RH_A_PSM);
+ 		break;
+ 	case PMM_PERPORT_MODE:
+ 		uhcrhda &= ~(RH_A_NPS);
 
 
