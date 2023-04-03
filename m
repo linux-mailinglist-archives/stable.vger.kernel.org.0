@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1376D48A1
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A2F96D4AD0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbjDCOa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:30:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33700 "EHLO
+        id S234052AbjDCOuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233433AbjDCOa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:26 -0400
+        with ESMTP id S233987AbjDCOuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A264319BB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9C5328EB8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D759DB81C55
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333CCC433EF;
-        Mon,  3 Apr 2023 14:30:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E09CB81D78
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD813C433EF;
+        Mon,  3 Apr 2023 14:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532221;
-        bh=KIZU/RK/8jNPdhrgtKZa+jBC7AZUhvu8qZL1RruvLgc=;
+        s=korg; t=1680533339;
+        bh=qAyAT3Te9onZUsww9VPY0vLWsDiE3qYQbgYPKPQkrGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjuYfDVhq98Swd++cjHB1F9R25EhvJ+pTqp2CEt4mPK1u3F/1/Ts44cebLCTh7FND
-         ns/rLzVniYb1EDYG7SfjfN+GNeLAjDorzntriH41cH0ZTN5uiuZ5b/foS4rBVGvsFA
-         dEWpEvU4XtqMixvmwMSDOe/vKry9Wbk/RJlT7iHU=
+        b=msUarF/oAm157jLnPch9zX+7GAJ6bJp7ViON530kFnE6z6aHsqZyjSKjmobR9BfaO
+         P/rqJN0eYuPsj4KFGGBbDdXpSE3RKzxX172y+xqVB3+C84XWpGEv+BJ0/lQSicm/NW
+         SyQA7FCOOoLx+2yAzCjGmkHWZn/ciPXSS62FovSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 173/173] hsr: ratelimit only when errors are printed
-Date:   Mon,  3 Apr 2023 16:09:48 +0200
-Message-Id: <20230403140420.051272657@linuxfoundation.org>
+        patches@lists.linux.dev, Hans Holmberg <Hans.Holmberg@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Hans Holmberg <hans.holmberg@wdc.com>
+Subject: [PATCH 6.2 144/187] zonefs: Always invalidate last cached page on append write
+Date:   Mon,  3 Apr 2023 16:09:49 +0200
+Message-Id: <20230403140420.749811062@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 1b0120e4db0bf2838d1ce741195ce4b7cc100b91 upstream.
+commit c1976bd8f23016d8706973908f2bb0ac0d852a8f upstream.
 
-Recently, when automatically merging -net and net-next in MPTCP devel
-tree, our CI reported [1] a conflict in hsr, the same as the one
-reported by Stephen in netdev [2].
+When a direct append write is executed, the append offset may correspond
+to the last page of a sequential file inode which might have been cached
+already by buffered reads, page faults with mmap-read or non-direct
+readahead. To ensure that the on-disk and cached data is consistant for
+such last cached page, make sure to always invalidate it in
+zonefs_file_dio_append(). If the invalidation fails, return -EBUSY to
+userspace to differentiate from IO errors.
 
-When looking at the conflict, I noticed it is in fact the v1 [3] that
-has been applied in -net and the v2 [4] in net-next. Maybe the v1 was
-applied by accident.
+This invalidation will always be a no-op when the FS block size (device
+zone write granularity) is equal to the page size (e.g. 4K).
 
-As mentioned by Jakub Kicinski [5], the new condition makes more sense
-before the net_ratelimit(), not to update net_ratelimit's state which is
-unnecessary if we're not going to print either way.
-
-Here, this modification applies the v2 but in -net.
-
-Link: https://github.com/multipath-tcp/mptcp_net-next/actions/runs/4423171069 [1]
-Link: https://lore.kernel.org/netdev/20230315100914.53fc1760@canb.auug.org.au/ [2]
-Link: https://lore.kernel.org/netdev/20230307133229.127442-1-koverskeid@gmail.com/ [3]
-Link: https://lore.kernel.org/netdev/20230309092302.179586-1-koverskeid@gmail.com/ [4]
-Link: https://lore.kernel.org/netdev/20230308232001.2fb62013@kernel.org/ [5]
-Fixes: 28e8cabe80f3 ("net: hsr: Don't log netdev_err message on unknown prp dst node")
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Reviewed-by: Steen Hegelund <Steen.Hegelund@microchip.com>
-Link: https://lore.kernel.org/r/20230315-net-20230315-hsr_framereg-ratelimit-v1-1-61d2ef176d11@tessares.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Hans Holmberg <Hans.Holmberg@wdc.com>
+Fixes: 02ef12a663c7 ("zonefs: use REQ_OP_ZONE_APPEND for sync DIO")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Tested-by: Hans Holmberg <hans.holmberg@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/hsr/hsr_framereg.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/zonefs/file.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -380,7 +380,7 @@ void hsr_addr_subst_dest(struct hsr_node
- 	node_dst = find_node_by_addr_A(&port->hsr->node_db,
- 				       eth_hdr(skb)->h_dest);
- 	if (!node_dst) {
--		if (net_ratelimit() && port->hsr->prot_version != PRP_V1)
-+		if (port->hsr->prot_version != PRP_V1 && net_ratelimit())
- 			netdev_err(skb->dev, "%s: Unknown node\n", __func__);
- 		return;
- 	}
+--- a/fs/zonefs/file.c
++++ b/fs/zonefs/file.c
+@@ -382,6 +382,7 @@ static ssize_t zonefs_file_dio_append(st
+ 	struct zonefs_zone *z = zonefs_inode_zone(inode);
+ 	struct block_device *bdev = inode->i_sb->s_bdev;
+ 	unsigned int max = bdev_max_zone_append_sectors(bdev);
++	pgoff_t start, end;
+ 	struct bio *bio;
+ 	ssize_t size;
+ 	int nr_pages;
+@@ -390,6 +391,19 @@ static ssize_t zonefs_file_dio_append(st
+ 	max = ALIGN_DOWN(max << SECTOR_SHIFT, inode->i_sb->s_blocksize);
+ 	iov_iter_truncate(from, max);
+ 
++	/*
++	 * If the inode block size (zone write granularity) is smaller than the
++	 * page size, we may be appending data belonging to the last page of the
++	 * inode straddling inode->i_size, with that page already cached due to
++	 * a buffered read or readahead. So make sure to invalidate that page.
++	 * This will always be a no-op for the case where the block size is
++	 * equal to the page size.
++	 */
++	start = iocb->ki_pos >> PAGE_SHIFT;
++	end = (iocb->ki_pos + iov_iter_count(from) - 1) >> PAGE_SHIFT;
++	if (invalidate_inode_pages2_range(inode->i_mapping, start, end))
++		return -EBUSY;
++
+ 	nr_pages = iov_iter_npages(from, BIO_MAX_VECS);
+ 	if (!nr_pages)
+ 		return 0;
 
 
