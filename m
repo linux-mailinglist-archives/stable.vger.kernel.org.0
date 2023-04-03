@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 105626D4AA2
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D566D47AB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234168AbjDCOtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:49:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
+        id S233054AbjDCOWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:22:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234194AbjDCOsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:48:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9A12D4A3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:37 -0700 (PDT)
+        with ESMTP id S233112AbjDCOWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D57231297
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:22:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32BED6136F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48FCFC433D2;
-        Mon,  3 Apr 2023 14:47:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79C0E61D60
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:22:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C663C4339B;
+        Mon,  3 Apr 2023 14:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533255;
-        bh=YrDgFLmFfvH+WFEX1x8mTzwDYf59WvtcW9Lgu6zuxVw=;
+        s=korg; t=1680531719;
+        bh=bkYkUBQq9L+2XTJs4SGMNKZf8XHThfh2of+zZKyLF0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1/dz1EczJHqNIZZO3/uyumrMebjMh+nmDluiCekx7ZkbEJDaE97lHMgD8EHK4Tpv
-         5dED041wcZymnFgIZi8Y9D1me47EIu/QqnjYSPmQrntgwjhmREWAmWmDbUyNWyJjbw
-         TL1k4XsQwkYfFmAGKNwhjiIhrnijS9MC7ZqwmZmY=
+        b=P1wHwQRfkFpMWywmmpKtYiXe2Pb+FT/Z77dzdbLq278GWafhI/qnvlztEYWNXCMXx
+         W8ElFVDhpFDj8R1s+1KLnZ3eH4I50e6F1hbofkjh2kjtLXfX0OVZhQt3qb6DYyaBVr
+         No032BadCwO6y2z2F7v90Om+uV5/BbpmjZQHzYY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 112/187] drm/nouveau/kms: Fix backlight registration
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 085/104] net: mvneta: make tx buffer array agnostic
 Date:   Mon,  3 Apr 2023 16:09:17 +0200
-Message-Id: <20230403140419.658683061@linuxfoundation.org>
+Message-Id: <20230403140407.465688356@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,62 +53,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 30fb97ba4a8e082ba0a5432479d6995472edbd7b ]
+[ Upstream commit 9e58c8b410650b5a6eb5b8fad8474bd8425a4023 ]
 
-The nouveau code used to call drm_fb_helper_initial_config() from
-nouveau_fbcon_init() before calling drm_dev_register(). This would
-probe all connectors so that drm_connector->status could be used during
-backlight registration which runs from nouveau_connector_late_register().
+Allow tx buffer array to contain both skb and xdp buffers in order to
+enable xdp frame recycling adding XDP_TX verdict support
 
-After commit 4a16dd9d18a0 ("drm/nouveau/kms: switch to drm fbdev helpers")
-the fbdev emulation code, which now is a drm-client, can only run after
-drm_dev_register(). So during backlight registration the connectors are
-not probed yet and the drm_connector->status == connected check in
-nv50_backlight_init() would now always fail.
-
-Replace the drm_connector->status == connected check with
-a drm_helper_probe_detect() == connected check to fix nv_backlight
-no longer getting registered because of this.
-
-Fixes: 4a16dd9d18a0 ("drm/nouveau/kms: switch to drm fbdev helpers")
-Link: https://gitlab.freedesktop.org/drm/nouveau/-/issues/202
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2181941
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230326205433.36485-1-hdegoede@redhat.com
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 2960a2d33b02 ("net: mvneta: fix potential double-frees in mvneta_txq_sw_deinit()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_backlight.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvneta.c | 66 +++++++++++++++++----------
+ 1 file changed, 43 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_backlight.c b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-index 40409a29f5b69..91b5ecc575380 100644
---- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-@@ -33,6 +33,7 @@
- #include <linux/apple-gmux.h>
- #include <linux/backlight.h>
- #include <linux/idr.h>
-+#include <drm/drm_probe_helper.h>
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 2c1ee32684988..977c2961aa2c2 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -549,6 +549,20 @@ struct mvneta_rx_desc {
+ };
+ #endif
  
- #include "nouveau_drv.h"
- #include "nouveau_reg.h"
-@@ -299,8 +300,12 @@ nv50_backlight_init(struct nouveau_backlight *bl,
- 	struct nouveau_drm *drm = nouveau_drm(nv_encoder->base.base.dev);
- 	struct nvif_object *device = &drm->client.device.object;
++enum mvneta_tx_buf_type {
++	MVNETA_TYPE_SKB,
++	MVNETA_TYPE_XDP_TX,
++	MVNETA_TYPE_XDP_NDO,
++};
++
++struct mvneta_tx_buf {
++	enum mvneta_tx_buf_type type;
++	union {
++		struct xdp_frame *xdpf;
++		struct sk_buff *skb;
++	};
++};
++
+ struct mvneta_tx_queue {
+ 	/* Number of this TX queue, in the range 0-7 */
+ 	u8 id;
+@@ -564,8 +578,8 @@ struct mvneta_tx_queue {
+ 	int tx_stop_threshold;
+ 	int tx_wake_threshold;
  
-+	/*
-+	 * Note when this runs the connectors have not been probed yet,
-+	 * so nv_conn->base.status is not set yet.
-+	 */
- 	if (!nvif_rd32(device, NV50_PDISP_SOR_PWM_CTL(ffs(nv_encoder->dcb->or) - 1)) ||
--	    nv_conn->base.status != connector_status_connected)
-+	    drm_helper_probe_detect(&nv_conn->base, NULL, false) != connector_status_connected)
- 		return -ENODEV;
+-	/* Array of transmitted skb */
+-	struct sk_buff **tx_skb;
++	/* Array of transmitted buffers */
++	struct mvneta_tx_buf *buf;
  
- 	if (nv_conn->type == DCB_CONNECTOR_eDP) {
+ 	/* Index of last TX DMA descriptor that was inserted */
+ 	int txq_put_index;
+@@ -1774,14 +1788,9 @@ static void mvneta_txq_bufs_free(struct mvneta_port *pp,
+ 	int i;
+ 
+ 	for (i = 0; i < num; i++) {
++		struct mvneta_tx_buf *buf = &txq->buf[txq->txq_get_index];
+ 		struct mvneta_tx_desc *tx_desc = txq->descs +
+ 			txq->txq_get_index;
+-		struct sk_buff *skb = txq->tx_skb[txq->txq_get_index];
+-
+-		if (skb) {
+-			bytes_compl += skb->len;
+-			pkts_compl++;
+-		}
+ 
+ 		mvneta_txq_inc_get(txq);
+ 
+@@ -1789,9 +1798,12 @@ static void mvneta_txq_bufs_free(struct mvneta_port *pp,
+ 			dma_unmap_single(pp->dev->dev.parent,
+ 					 tx_desc->buf_phys_addr,
+ 					 tx_desc->data_size, DMA_TO_DEVICE);
+-		if (!skb)
++		if (!buf->skb)
+ 			continue;
+-		dev_kfree_skb_any(skb);
++
++		bytes_compl += buf->skb->len;
++		pkts_compl++;
++		dev_kfree_skb_any(buf->skb);
+ 	}
+ 
+ 	netdev_tx_completed_queue(nq, pkts_compl, bytes_compl);
+@@ -2242,16 +2254,19 @@ static inline void
+ mvneta_tso_put_hdr(struct sk_buff *skb,
+ 		   struct mvneta_port *pp, struct mvneta_tx_queue *txq)
+ {
+-	struct mvneta_tx_desc *tx_desc;
+ 	int hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
++	struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
++	struct mvneta_tx_desc *tx_desc;
+ 
+-	txq->tx_skb[txq->txq_put_index] = NULL;
+ 	tx_desc = mvneta_txq_next_desc_get(txq);
+ 	tx_desc->data_size = hdr_len;
+ 	tx_desc->command = mvneta_skb_tx_csum(pp, skb);
+ 	tx_desc->command |= MVNETA_TXD_F_DESC;
+ 	tx_desc->buf_phys_addr = txq->tso_hdrs_phys +
+ 				 txq->txq_put_index * TSO_HEADER_SIZE;
++	buf->type = MVNETA_TYPE_SKB;
++	buf->skb = NULL;
++
+ 	mvneta_txq_inc_put(txq);
+ }
+ 
+@@ -2260,6 +2275,7 @@ mvneta_tso_put_data(struct net_device *dev, struct mvneta_tx_queue *txq,
+ 		    struct sk_buff *skb, char *data, int size,
+ 		    bool last_tcp, bool is_last)
+ {
++	struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
+ 	struct mvneta_tx_desc *tx_desc;
+ 
+ 	tx_desc = mvneta_txq_next_desc_get(txq);
+@@ -2273,7 +2289,8 @@ mvneta_tso_put_data(struct net_device *dev, struct mvneta_tx_queue *txq,
+ 	}
+ 
+ 	tx_desc->command = 0;
+-	txq->tx_skb[txq->txq_put_index] = NULL;
++	buf->type = MVNETA_TYPE_SKB;
++	buf->skb = NULL;
+ 
+ 	if (last_tcp) {
+ 		/* last descriptor in the TCP packet */
+@@ -2281,7 +2298,7 @@ mvneta_tso_put_data(struct net_device *dev, struct mvneta_tx_queue *txq,
+ 
+ 		/* last descriptor in SKB */
+ 		if (is_last)
+-			txq->tx_skb[txq->txq_put_index] = skb;
++			buf->skb = skb;
+ 	}
+ 	mvneta_txq_inc_put(txq);
+ 	return 0;
+@@ -2366,6 +2383,7 @@ static int mvneta_tx_frag_process(struct mvneta_port *pp, struct sk_buff *skb,
+ 	int i, nr_frags = skb_shinfo(skb)->nr_frags;
+ 
+ 	for (i = 0; i < nr_frags; i++) {
++		struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
+ 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+ 		void *addr = skb_frag_address(frag);
+ 
+@@ -2385,12 +2403,13 @@ static int mvneta_tx_frag_process(struct mvneta_port *pp, struct sk_buff *skb,
+ 		if (i == nr_frags - 1) {
+ 			/* Last descriptor */
+ 			tx_desc->command = MVNETA_TXD_L_DESC | MVNETA_TXD_Z_PAD;
+-			txq->tx_skb[txq->txq_put_index] = skb;
++			buf->skb = skb;
+ 		} else {
+ 			/* Descriptor in the middle: Not First, Not Last */
+ 			tx_desc->command = 0;
+-			txq->tx_skb[txq->txq_put_index] = NULL;
++			buf->skb = NULL;
+ 		}
++		buf->type = MVNETA_TYPE_SKB;
+ 		mvneta_txq_inc_put(txq);
+ 	}
+ 
+@@ -2418,6 +2437,7 @@ static netdev_tx_t mvneta_tx(struct sk_buff *skb, struct net_device *dev)
+ 	struct mvneta_port *pp = netdev_priv(dev);
+ 	u16 txq_id = skb_get_queue_mapping(skb);
+ 	struct mvneta_tx_queue *txq = &pp->txqs[txq_id];
++	struct mvneta_tx_buf *buf = &txq->buf[txq->txq_put_index];
+ 	struct mvneta_tx_desc *tx_desc;
+ 	int len = skb->len;
+ 	int frags = 0;
+@@ -2450,16 +2470,17 @@ static netdev_tx_t mvneta_tx(struct sk_buff *skb, struct net_device *dev)
+ 		goto out;
+ 	}
+ 
++	buf->type = MVNETA_TYPE_SKB;
+ 	if (frags == 1) {
+ 		/* First and Last descriptor */
+ 		tx_cmd |= MVNETA_TXD_FLZ_DESC;
+ 		tx_desc->command = tx_cmd;
+-		txq->tx_skb[txq->txq_put_index] = skb;
++		buf->skb = skb;
+ 		mvneta_txq_inc_put(txq);
+ 	} else {
+ 		/* First but not Last */
+ 		tx_cmd |= MVNETA_TXD_F_DESC;
+-		txq->tx_skb[txq->txq_put_index] = NULL;
++		buf->skb = NULL;
+ 		mvneta_txq_inc_put(txq);
+ 		tx_desc->command = tx_cmd;
+ 		/* Continue with other skb fragments */
+@@ -3005,9 +3026,8 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
+ 
+ 	txq->last_desc = txq->size - 1;
+ 
+-	txq->tx_skb = kmalloc_array(txq->size, sizeof(*txq->tx_skb),
+-				    GFP_KERNEL);
+-	if (!txq->tx_skb) {
++	txq->buf = kmalloc_array(txq->size, sizeof(*txq->buf), GFP_KERNEL);
++	if (!txq->buf) {
+ 		dma_free_coherent(pp->dev->dev.parent,
+ 				  txq->size * MVNETA_DESC_ALIGNED_SIZE,
+ 				  txq->descs, txq->descs_phys);
+@@ -3019,7 +3039,7 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
+ 					   txq->size * TSO_HEADER_SIZE,
+ 					   &txq->tso_hdrs_phys, GFP_KERNEL);
+ 	if (!txq->tso_hdrs) {
+-		kfree(txq->tx_skb);
++		kfree(txq->buf);
+ 		dma_free_coherent(pp->dev->dev.parent,
+ 				  txq->size * MVNETA_DESC_ALIGNED_SIZE,
+ 				  txq->descs, txq->descs_phys);
+@@ -3074,7 +3094,7 @@ static void mvneta_txq_sw_deinit(struct mvneta_port *pp,
+ {
+ 	struct netdev_queue *nq = netdev_get_tx_queue(pp->dev, txq->id);
+ 
+-	kfree(txq->tx_skb);
++	kfree(txq->buf);
+ 
+ 	if (txq->tso_hdrs)
+ 		dma_free_coherent(pp->dev->dev.parent,
 -- 
 2.39.2
 
