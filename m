@@ -2,151 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B50A16D3D95
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 08:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC516D3DF6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 09:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231267AbjDCGva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 02:51:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
+        id S229843AbjDCHRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 03:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229945AbjDCGv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 02:51:29 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C93B7AD04
-        for <stable@vger.kernel.org>; Sun,  2 Apr 2023 23:51:27 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id j1-20020a05600c1c0100b003f04da00d07so1058251wms.1
-        for <stable@vger.kernel.org>; Sun, 02 Apr 2023 23:51:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=grsecurity.net; s=grsec; t=1680504686;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Nb8hMsZoL157aXIKNcdvRKkRTkh4KKenB7HdAyviWGg=;
-        b=j5AvQ7aw+jfuQe9QA7St0TuvqSBCPp3SnGq5ZywrBk1Xcejx1HVtTDsGZRexrOrSMy
-         7WSkFVMaTcR/do1t6ddTgjkM/z3nQXfsw0Yy/4Wy0DZZJn3GLXZvcWFjTawKu8BozO7d
-         jCTC+4gnhIvm4bigQ4dXItyldz5BP8U9gF0aVvaxEP/7NJIMal9YxQxsqGZikECJJiKd
-         j/iWZ8NKdAiuckoum79E5lu0W7DNqyEFY9pAq/GV/m6V4X6LzJGLo8bYr+kywDVwxUN8
-         ZgEZktYCmqvKm1BALhIgOpzLyZS476ypdvla3syyKxnkOBacDOB98zfEsT3jRUIT4sct
-         dKwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680504686;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Nb8hMsZoL157aXIKNcdvRKkRTkh4KKenB7HdAyviWGg=;
-        b=Wemi09ozE9JlKzP4ELKSpn2eBgLyUeuPCZ6kIYtFs9/218PnSkI837WYwmjE1BlAQt
-         RcM2vx2PSMuapxdb3YP69FVeoB8NXsoj+PBPMmOBN1HqV/4KsTEUuvBOE0czdm4Nu1Zd
-         CSuSiNDavg2yY3iN86FaxZOg3RkgUj/JeMr8qSMUo5jsRrhlIfqxXTqglmidzHDkCyvo
-         BrmULYPJuTZffuTKJiBHyCY/UtQSnDsD/2J5a62eKfU7EMeJsLdrM/WCGjNPeA6vRaaZ
-         TdiYTB7ncYU84nNoLucJ+SkJhxjCRMrtTDVR27PDIEErYTMaUe3UBtq7KUIDEHbHkoZy
-         t8lQ==
-X-Gm-Message-State: AO0yUKUNh8ECN4pZ3bQGTi1KRpbiwOBS+KXG/H7TaYquhRzZfjUnqzVR
-        G88tYWPUqkZFgNaQd0yZdHXA0g==
-X-Google-Smtp-Source: AK7set/7UhL6zASSvYckJ/LnYFdfFtsSyRAbQKxDmgfTrSMFkgMEUJ+qxFQgvS+Th4E/+wmKblZ6kw==
-X-Received: by 2002:a7b:cd85:0:b0:3ee:96f0:ea3c with SMTP id y5-20020a7bcd85000000b003ee96f0ea3cmr25721582wmj.7.1680504686213;
-        Sun, 02 Apr 2023 23:51:26 -0700 (PDT)
-Received: from ?IPV6:2003:f6:af22:1600:2f4c:bf50:182f:1b04? (p200300f6af2216002f4cbf50182f1b04.dip0.t-ipconnect.de. [2003:f6:af22:1600:2f4c:bf50:182f:1b04])
-        by smtp.gmail.com with ESMTPSA id b39-20020a05600c4aa700b003ed29189777sm17946698wmp.47.2023.04.02.23.51.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 02 Apr 2023 23:51:25 -0700 (PDT)
-Message-ID: <3ee86615-e8ee-801b-7a12-2f007ffbceea@grsecurity.net>
-Date:   Mon, 3 Apr 2023 08:51:24 +0200
+        with ESMTP id S231310AbjDCHRg (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 3 Apr 2023 03:17:36 -0400
+Received: from domac.alu.hr (domac.alu.unizg.hr [IPv6:2001:b68:2:2800::3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB8A769D;
+        Mon,  3 Apr 2023 00:17:31 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by domac.alu.hr (Postfix) with ESMTP id BA20D604F2;
+        Mon,  3 Apr 2023 09:17:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
+        t=1680506248; bh=L7SfYHB8iJJltASqIKVWzJ2Stt1m9QGN2wUwuHaZLFQ=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=c5ejcpUMXlYbgS/sLlwcHhCno06yeMflabALrg5mai4pMu//VPC8vQVptYGgzTHIF
+         RSwVkGLhtYAGBVAII7gAnX/m1nYoZwNKCkZky2zwrhDUz1lWcr8T9Eh9TfLqgxmEaZ
+         yJHIU3Jr2SYejjWRElnhI2e+Tfemd54Mbpsd+GeimkkAMQ8CCwuEEfWn9jtFTgZufW
+         18tdnLr+ij0I+ffyHAJfE1q2r80c7FHX5u6mVPAlo2MaEJoNQW4dvOaSyDSq7RqUWJ
+         dmjnNedyN3ULys5KlBDYWC3NstulQYsM6m3W53WCgXrGfLtvlbySLt7NXq8h2THnoV
+         BYS4vRkn4Dz/g==
+X-Virus-Scanned: Debian amavisd-new at domac.alu.hr
+Received: from domac.alu.hr ([127.0.0.1])
+        by localhost (domac.alu.hr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id SBow1MjoW8Tg; Mon,  3 Apr 2023 09:17:26 +0200 (CEST)
+Received: from [10.0.1.57] (grf-nat.grf.hr [161.53.83.23])
+        by domac.alu.hr (Postfix) with ESMTPSA id B5D8B604F0;
+        Mon,  3 Apr 2023 09:17:25 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=alu.unizg.hr; s=mail;
+        t=1680506246; bh=L7SfYHB8iJJltASqIKVWzJ2Stt1m9QGN2wUwuHaZLFQ=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=Gb84Oge+MVTcvDSIi8j1OmVuXU12LEaUxe1n7kPZFe65gicY7uzMDF+Gd97l6t+FV
+         +bsBivmtjK6tEw4TGgngRl8gD+3x+HBKYxC7C7yMqyxi+V2lNRk/Otzdjgt4Naz+Ja
+         M6+XLpxAiAl87ZO6qkp4T9/sXv9GpZ8plxEFKYG46un7sRzHo85w+yttgUAdhiJ/+6
+         NRaCj8nARWdYN5JRhNZa7J2td1wAeWR/cJpLoS/pcCXkSrLhq0QmwxdynsyC+lE7Ww
+         I2ADxG++QfXbVllgzm9Jq6UuKBVHATWoTSFacsfAJK116uxFMOHlVXDFX4vHEBQxuu
+         XARmeyT3lVy7Q==
+Message-ID: <2219a894-eb79-70a4-2b92-2b7ee7e1e966@alu.unizg.hr>
+Date:   Mon, 3 Apr 2023 09:17:21 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: Linux 5.15.103
-Content-Language: en-US, de-DE
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, torvalds@linux-foundation.org,
-        lwn@lwn.net, jslaby@suse.cz,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-References: <1679040264214179@kroah.com>
- <c359c777-c3af-b4a6-791d-d51916160bf5@grsecurity.net>
- <ZCLaLWJiIsDV5yGr@kroah.com>
- <f86cb36e-b331-8b8d-f087-5e2e8a5ae962@grsecurity.net>
- <ZCgwaWSgnUWAPyiv@sashalap>
-From:   Mathias Krause <minipli@grsecurity.net>
-In-Reply-To: <ZCgwaWSgnUWAPyiv@sashalap>
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [PATCH 3/3] xhci: Free the command allocated for setting LPM if
+ we return early
+Content-Language: en-US, hr
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, Stable@vger.kernel.org
+References: <20230330143056.1390020-1-mathias.nyman@linux.intel.com>
+ <20230330143056.1390020-4-mathias.nyman@linux.intel.com>
+From:   Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+In-Reply-To: <20230330143056.1390020-4-mathias.nyman@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
-        DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIM_SIGNED,DKIM_VALID,
+        DKIM_VALID_AU,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01.04.23 15:23, Sasha Levin wrote:
-> On Tue, Mar 28, 2023 at 02:29:11PM +0200, Mathias Krause wrote:
->> On 28.03.23 14:14, Greg Kroah-Hartman wrote:
->>> On Tue, Mar 28, 2023 at 02:02:03PM +0200, Mathias Krause wrote:
->>>> On 17.03.23 09:04, Greg Kroah-Hartman wrote:
->>>>> I'm announcing the release of the 5.15.103 kernel.
->>>>>
->>>>> [...]
->>>>>
->>>>> Vitaly Kuznetsov (4):
->>>>>       KVM: Optimize kvm_make_vcpus_request_mask() a bit
->>>>>       KVM: Pre-allocate cpumasks for
->>>>> kvm_make_all_cpus_request_except()
->>>>>       KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
->>>>>       KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
->>>>>
->>>>
->>>> That list is missing commit 6470accc7ba9 ("KVM: x86: hyper-v: Avoid
->>>> calling kvm_make_vcpus_request_mask() with vcpu_mask==NULL") to fulfill
->>>> the prerequisite of "KVM: Optimize kvm_make_vcpus_request_mask() a
->>>> bit".
->>>>
->>>> Right now the kvm selftests trigger a kernel NULL deref for the hyperv
->>>> test, making the system hang.
->>>>
->>>> Please consider applying commit 6470accc7ba9 for the next v5.15.x
->>>> release.
->>>
->>> It wasn't tagged for the stable kernels, so we didn't pick it up :(
->>
->> Neither were any of the above commits. o.O
->>
->> Commit 3e48a6349d29 ("KVM: Optimize kvm_make_vcpus_request_mask() a
->> bit") has this tag, though:
->>
->> Stable-dep-of: 2b0128127373 ("KVM: Register /dev/kvm as the _very_ last
->> thing during initialization")
->>
->> I don't know why, though. These two commits have little in common.
->> Maybe Sasha knows why?
+Hi, Mathias!
+
+On 30.3.2023. 16:30, Mathias Nyman wrote:
+> The command allocated to set exit latency LPM values need to be freed in
+> case the command is never queued. This would be the case if there is no
+> change in exit latency values, or device is missing.
 > 
-> Because you've skipped the commit in the middle of the two you've
-> pointed out :)
+> Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+> Link: https://lore.kernel.org/linux-usb/24263902-c9b3-ce29-237b-1c3d6918f4fe@alu.unizg.hr
+> Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+> Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
+> Cc: <Stable@vger.kernel.org>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> ---
+>   drivers/usb/host/xhci.c | 1 +
+>   1 file changed, 1 insertion(+)
 > 
-> 3e48a6349d29 is needed by 0a0ecaf0988b ("KVM: Pre-allocate cpumasks for
-> kvm_make_all_cpus_request_except()"), which in turn is needed by
-> 2b0128127373.
+> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> index bdb6dd819a3b..6307bae9cddf 100644
+> --- a/drivers/usb/host/xhci.c
+> +++ b/drivers/usb/host/xhci.c
+> @@ -4442,6 +4442,7 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
+>   
+>   	if (!virt_dev || max_exit_latency == virt_dev->current_mel) {
+>   		spin_unlock_irqrestore(&xhci->lock, flags);
+> +		xhci_free_command(xhci, command);
+>   		return 0;
+>   	}
 
-I see, 0a0ecaf0988b is "needed" by 2b0128127373 to make it apply clean.
-However, there is no functional dependency for 2b0128127373, as it
-simply moves device registration around. By picking all the "required"
-commits to make it apply clean, still functional required commits were
-missed. :(
+There seems to be a problem with applying this patch with "git am", as it
+gives the following:
 
-A simple backport would probably had been the better solution to the
-failed cherry-pick, but I see the original author didn't provide one, so
-some kind off fall-back process kicked in to pick up dependent commits.
-If these would have been announced more visible than by simply adding
-them to the queue, it might had been noticed earlier that a commit is
-missing still.
+commit ff9de97baa02cb9362b7cb81e95bc9be424cab89
+Author: @ <@>
+Date:   Mon Apr 3 08:42:33 2023 +0200
 
-This is probably just another example of maintainer's time being such a
-scarce resource problem, but the fallback process isn't working flawless
-either :/
+     The command allocated to set exit latency LPM values need to be freed in
+     case the command is never queued. This would be the case if there is no
+     change in exit latency values, or device is missing.
 
-Thanks,
-Mathias
+     Fixes: 5c2a380a5aa8 ("xhci: Allocate separate command structures for each LPM command")
+     Cc: <Stable@vger.kernel.org>
+     Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+
+Thank you.
+
+Best regards,
+Mirsad
+
+-- 
+Mirsad Todorovac
+System engineer
+Faculty of Graphic Arts | Academy of Fine Arts
+University of Zagreb
+Republic of Croatia, the European Union
+
+Sistem inženjer
+Grafički fakultet | Akademija likovnih umjetnosti
+Sveučilište u Zagrebu
+
