@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8D26D4A71
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2443B6D4850
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234077AbjDCOrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36950 "EHLO
+        id S233345AbjDCO1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234076AbjDCOqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5448C28E94
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:31 -0700 (PDT)
+        with ESMTP id S233344AbjDCO1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CC7731984
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EC75ECE1302
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5657C4339C;
-        Mon,  3 Apr 2023 14:46:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40D7AB81C1C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D22DC4339B;
+        Mon,  3 Apr 2023 14:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533166;
-        bh=nWhptAhs2rCbBbIHGH5KVb/MaC+1nBXY2k0uT4Aj6o8=;
+        s=korg; t=1680532052;
+        bh=bxh4Im4MNB+kYEPjhoLdRJTOVRxeKJsCl/GzbTaFKCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yo3fcpYudP0JKugHJ5MyUD0JBSsGNA8W5yqgh41W9eCYiTWa42onQRCzmWUInQmiz
-         cOFpu5Vfs71fA+F/vu/PkvGtshLCoq1r3rLZCu7Z3nuWIED6Ew9mjAAUtRJ/0wF1Pn
-         s1bdvFQoxrPj116fETDWZZA+M5+yygw+XovfrHl8=
+        b=SN1M/eeYQv4Z/dOIiEgFQDn1fnwqD8k5yxlWLPlsIUb34ScdspF/lH7GIZy/Mt8Hb
+         gVt/yHlZX3Ay8uVCucxkDLeQJ+bjjpLzXmeK1ry65UTh3LMrKPRUTcPr57Li1dZyOP
+         tF7wMimyyT/iFW1eXQscasQ9xQi9zxAY4RDOWW64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tianhao Zhao <tizhao@redhat.com>,
-        Jonathan Cooper <jonathan.s.cooper@amd.com>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Edward Cree <ecree.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 078/187] sfc: ef10: dont overwrite offload features at NIC reset
+Subject: [PATCH 5.10 108/173] drm/meson: Fix error handling when afbcd.ops->init fails
 Date:   Mon,  3 Apr 2023 16:08:43 +0200
-Message-Id: <20230403140418.521172010@linuxfoundation.org>
+Message-Id: <20230403140417.938459326@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,142 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit ca4a80e4bb7e87daf33b27d2ab9e4f5311018a89 ]
+[ Upstream commit fa747d75f65d1b1cbc3f4691fa67b695e8a399c8 ]
 
-At NIC reset, some offload features related to encapsulated traffic
-might have changed (this mainly happens if the firmware-variant is
-changed with the sfboot userspace tool). Because of this, features are
-checked and set again at reset time.
+When afbcd.ops->init fails we need to free the struct drm_device. Also
+all errors which come after afbcd.ops->init was successful need to exit
+the AFBCD, just like meson_drv_unbind() does.
 
-However, this was not done right, and some features were improperly
-overwritten at NIC reset:
-- Tunneled IPv6 segmentation was always disabled
-- Features disabled with ethtool were reenabled
-- Features that becomes unsupported after the reset were not disabled
-
-Also, checking if the device supports IPV6_CSUM to enable TSO6 is no
-longer necessary because all currently supported devices support it.
-Additionally, move the assignment of some other features to the
-EF10_OFFLOAD_FEATURES macro, like it is done in ef100, leaving the
-selection of features in efx_pci_probe_post_io a bit cleaner.
-
-Fixes: ffffd2454a7a ("sfc: correctly advertise tunneled IPv6 segmentation")
-Fixes: 24b2c3751aa3 ("sfc: advertise encapsulated offloads on EF10")
-Reported-by: Tianhao Zhao <tizhao@redhat.com>
-Suggested-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
-Tested-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Acked-by: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20230323083417.7345-1-ihuguet@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d1b5e41e13a7e9 ("drm/meson: Add AFBCD module driver")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211230235515.1627522-3-martin.blumenstingl@googlemail.com
+Stable-dep-of: ba98413bf45e ("drm/meson: fix missing component unbind on bind errors")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 38 ++++++++++++++++++++++-----------
- drivers/net/ethernet/sfc/efx.c  | 17 ++++++---------
- 2 files changed, 33 insertions(+), 22 deletions(-)
+ drivers/gpu/drm/meson/meson_drv.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index 7022fb2005a2f..d30459dbfe8f8 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -1304,7 +1304,8 @@ static void efx_ef10_fini_nic(struct efx_nic *efx)
- static int efx_ef10_init_nic(struct efx_nic *efx)
- {
- 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
--	netdev_features_t hw_enc_features = 0;
-+	struct net_device *net_dev = efx->net_dev;
-+	netdev_features_t tun_feats, tso_feats;
- 	int rc;
- 
- 	if (nic_data->must_check_datapath_caps) {
-@@ -1349,20 +1350,30 @@ static int efx_ef10_init_nic(struct efx_nic *efx)
- 		nic_data->must_restore_piobufs = false;
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index b0bfe85f5f6a8..090878bd74f6a 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -320,38 +320,38 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 	if (priv->afbcd.ops) {
+ 		ret = priv->afbcd.ops->init(priv);
+ 		if (ret)
+-			return ret;
++			goto free_drm;
  	}
  
--	/* add encapsulated checksum offload features */
-+	/* encap features might change during reset if fw variant changed */
- 	if (efx_has_cap(efx, VXLAN_NVGRE) && !efx_ef10_is_vf(efx))
--		hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
--	/* add encapsulated TSO features */
--	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
--		netdev_features_t encap_tso_features;
-+		net_dev->hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
-+	else
-+		net_dev->hw_enc_features &= ~(NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
+ 	/* Encoder Initialization */
  
--		encap_tso_features = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
--			NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
-+	tun_feats = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
-+		    NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
-+	tso_feats = NETIF_F_TSO | NETIF_F_TSO6;
+ 	ret = meson_venc_cvbs_create(priv);
+ 	if (ret)
+-		goto free_drm;
++		goto exit_afbcd;
  
--		hw_enc_features |= encap_tso_features | NETIF_F_TSO;
--		efx->net_dev->features |= encap_tso_features;
-+	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
-+		/* If this is first nic_init, or if it is a reset and a new fw
-+		 * variant has added new features, enable them by default.
-+		 * If the features are not new, maintain their current value.
-+		 */
-+		if (!(net_dev->hw_features & tun_feats))
-+			net_dev->features |= tun_feats;
-+		net_dev->hw_enc_features |= tun_feats | tso_feats;
-+		net_dev->hw_features |= tun_feats;
-+	} else {
-+		net_dev->hw_enc_features &= ~(tun_feats | tso_feats);
-+		net_dev->hw_features &= ~tun_feats;
-+		net_dev->features &= ~tun_feats;
- 	}
--	efx->net_dev->hw_enc_features = hw_enc_features;
- 
- 	/* don't fail init if RSS setup doesn't work */
- 	rc = efx->type->rx_push_rss_config(efx, false,
-@@ -4021,7 +4032,10 @@ static unsigned int efx_ef10_recycle_ring_size(const struct efx_nic *efx)
- 	 NETIF_F_HW_VLAN_CTAG_FILTER |	\
- 	 NETIF_F_IPV6_CSUM |		\
- 	 NETIF_F_RXHASH |		\
--	 NETIF_F_NTUPLE)
-+	 NETIF_F_NTUPLE |		\
-+	 NETIF_F_SG |			\
-+	 NETIF_F_RXCSUM |		\
-+	 NETIF_F_RXALL)
- 
- const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
- 	.is_vf = true,
-diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
-index 3a86f1213a051..6a1bff54bc6c3 100644
---- a/drivers/net/ethernet/sfc/efx.c
-+++ b/drivers/net/ethernet/sfc/efx.c
-@@ -1001,21 +1001,18 @@ static int efx_pci_probe_post_io(struct efx_nic *efx)
+ 	if (has_components) {
+ 		ret = component_bind_all(drm->dev, drm);
+ 		if (ret) {
+ 			dev_err(drm->dev, "Couldn't bind all components\n");
+-			goto free_drm;
++			goto exit_afbcd;
+ 		}
  	}
  
- 	/* Determine netdevice features */
--	net_dev->features |= (efx->type->offload_features | NETIF_F_SG |
--			      NETIF_F_TSO | NETIF_F_RXCSUM | NETIF_F_RXALL);
--	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM)) {
--		net_dev->features |= NETIF_F_TSO6;
--		if (efx_has_cap(efx, TX_TSO_V2_ENCAP))
--			net_dev->hw_enc_features |= NETIF_F_TSO6;
--	}
--	/* Check whether device supports TSO */
--	if (!efx->type->tso_versions || !efx->type->tso_versions(efx))
--		net_dev->features &= ~NETIF_F_ALL_TSO;
-+	net_dev->features |= efx->type->offload_features;
-+
-+	/* Add TSO features */
-+	if (efx->type->tso_versions && efx->type->tso_versions(efx))
-+		net_dev->features |= NETIF_F_TSO | NETIF_F_TSO6;
-+
- 	/* Mask for features that also apply to VLAN devices */
- 	net_dev->vlan_features |= (NETIF_F_HW_CSUM | NETIF_F_SG |
- 				   NETIF_F_HIGHDMA | NETIF_F_ALL_TSO |
- 				   NETIF_F_RXCSUM);
+ 	ret = meson_plane_create(priv);
+ 	if (ret)
+-		goto free_drm;
++		goto exit_afbcd;
  
-+	/* Determine user configurable features */
- 	net_dev->hw_features |= net_dev->features & ~efx->fixed_features;
+ 	ret = meson_overlay_create(priv);
+ 	if (ret)
+-		goto free_drm;
++		goto exit_afbcd;
  
- 	/* Disable receiving frames with bad FCS, by default. */
+ 	ret = meson_crtc_create(priv);
+ 	if (ret)
+-		goto free_drm;
++		goto exit_afbcd;
+ 
+ 	ret = drm_irq_install(drm, priv->vsync_irq);
+ 	if (ret)
+-		goto free_drm;
++		goto exit_afbcd;
+ 
+ 	drm_mode_config_reset(drm);
+ 
+@@ -369,6 +369,9 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 
+ uninstall_irq:
+ 	drm_irq_uninstall(drm);
++exit_afbcd:
++	if (priv->afbcd.ops)
++		priv->afbcd.ops->exit(priv);
+ free_drm:
+ 	drm_dev_put(drm);
+ 
 -- 
 2.39.2
 
