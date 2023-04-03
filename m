@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 029526D48F1
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79EEE6D48A4
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233569AbjDCOdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
+        id S233433AbjDCOac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233571AbjDCOdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDE5E78
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:06 -0700 (PDT)
+        with ESMTP id S233444AbjDCOab (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E082319BA
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CC7861B72
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F95C433D2;
-        Mon,  3 Apr 2023 14:33:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CD53B81C55
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6067DC433EF;
+        Mon,  3 Apr 2023 14:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532385;
-        bh=7mSKqYYkPEGWqVbb6AWBoCjN4l4k7XzbuK3iv6ICfos=;
+        s=korg; t=1680532226;
+        bh=rvDxnpxMCENmFryhKk66DKvKmEFYKucWaQbQmY1G3wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYhBQoJFXkwpzToCRON2hO1VM9tN2U5yvvFDSWgoXkgq10Z8nmgUU//zU1QjfhkJi
-         YaDjhNd7weIR+BNpYSZA33kU2yXjGGXJaD6uOSG9igwn0veUep/RtyxTviewaIP7dy
-         d5Fq7Pb614PqlXcjgNHUeNNSXGZ+kpLKXfkRLMoU=
+        b=PCQqJxIQEPrMFrGmwuMnpBpDuvCPOFyS7WCYJzR72fKUiK8ibVPBlZUMuZ7ReqJ48
+         9et/WctweHwd87GwiqsfxvO/YiqZ6rddwsgOCCxrzDMeaRb+0xzsYySg2X0SgTClnE
+         PsghNeuW96OPf3ZyYtxi4gtLJyqfdlwVjnpwxavg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 63/99] pinctrl: ocelot: Fix alt mode for ocelot
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Paul Durrant <paul@xen.org>, Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.10 151/173] xen/netback: dont do grant copy across page boundary
 Date:   Mon,  3 Apr 2023 16:09:26 +0200
-Message-Id: <20230403140405.810898798@linuxfoundation.org>
+Message-Id: <20230403140419.340479996@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +52,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 657fd9da2d4b4aa0a384105b236baa22fa0233bf ]
+commit 05310f31ca74673a96567fb14637b7d5d6c82ea5 upstream.
 
-In case the driver was trying to set an alternate mode for gpio
-0 or 32 then the mode was not set correctly. The reason is that
-there is computation error inside the function ocelot_pinmux_set_mux
-because in this case it was trying to shift to left by -1.
-Fix this by actually shifting the function bits and not the position.
+Fix xenvif_get_requests() not to do grant copy operations across local
+page boundaries. This requires to double the maximum number of copy
+operations per queue, as each copy could now be split into 2.
 
-Fixes: 4b36082e2e09 ("pinctrl: ocelot: fix pinmuxing for pins after 31")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20230206203720.1177718-1-horatiu.vultur@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Make sure that struct xenvif_tx_cb doesn't grow too large.
+
+Cc: stable@vger.kernel.org
+Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-ocelot.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/xen-netback/common.h  |    2 +-
+ drivers/net/xen-netback/netback.c |   25 +++++++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
-index 0a36ec8775a38..b14f1b7a625ec 100644
---- a/drivers/pinctrl/pinctrl-ocelot.c
-+++ b/drivers/pinctrl/pinctrl-ocelot.c
-@@ -739,7 +739,7 @@ static int ocelot_pinmux_set_mux(struct pinctrl_dev *pctldev,
- 	regmap_update_bits(info->map, REG_ALT(0, info, pin->pin),
- 			   BIT(p), f << p);
- 	regmap_update_bits(info->map, REG_ALT(1, info, pin->pin),
--			   BIT(p), f << (p - 1));
-+			   BIT(p), (f >> 1) << p);
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data
+ 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
+ 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
  
- 	return 0;
- }
--- 
-2.39.2
-
+-	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
++	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
+ 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
+ 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
+ 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -334,6 +334,7 @@ static int xenvif_count_requests(struct
+ struct xenvif_tx_cb {
+ 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
+ 	u8 copy_count;
++	u32 split_mask;
+ };
+ 
+ #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
+@@ -361,6 +362,8 @@ static inline struct sk_buff *xenvif_all
+ 	struct sk_buff *skb =
+ 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
+ 			  GFP_ATOMIC | __GFP_NOWARN);
++
++	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
+ 	if (unlikely(skb == NULL))
+ 		return NULL;
+ 
+@@ -396,11 +399,13 @@ static void xenvif_get_requests(struct x
+ 	nr_slots = shinfo->nr_frags + 1;
+ 
+ 	copy_count(skb) = 0;
++	XENVIF_TX_CB(skb)->split_mask = 0;
+ 
+ 	/* Create copy ops for exactly data_len bytes into the skb head. */
+ 	__skb_put(skb, data_len);
+ 	while (data_len > 0) {
+ 		int amount = data_len > txp->size ? txp->size : data_len;
++		bool split = false;
+ 
+ 		cop->source.u.ref = txp->gref;
+ 		cop->source.domid = queue->vif->domid;
+@@ -413,6 +418,13 @@ static void xenvif_get_requests(struct x
+ 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
+ 				               - data_len);
+ 
++		/* Don't cross local page boundary! */
++		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
++			amount = XEN_PAGE_SIZE - cop->dest.offset;
++			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
++			split = true;
++		}
++
+ 		cop->len = amount;
+ 		cop->flags = GNTCOPY_source_gref;
+ 
+@@ -420,7 +432,8 @@ static void xenvif_get_requests(struct x
+ 		pending_idx = queue->pending_ring[index];
+ 		callback_param(queue, pending_idx).ctx = NULL;
+ 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
+-		copy_count(skb)++;
++		if (!split)
++			copy_count(skb)++;
+ 
+ 		cop++;
+ 		data_len -= amount;
+@@ -441,7 +454,8 @@ static void xenvif_get_requests(struct x
+ 			nr_slots--;
+ 		} else {
+ 			/* The copy op partially covered the tx_request.
+-			 * The remainder will be mapped.
++			 * The remainder will be mapped or copied in the next
++			 * iteration.
+ 			 */
+ 			txp->offset += amount;
+ 			txp->size -= amount;
+@@ -539,6 +553,13 @@ static int xenvif_tx_check_gop(struct xe
+ 		pending_idx = copy_pending_idx(skb, i);
+ 
+ 		newerr = (*gopp_copy)->status;
++
++		/* Split copies need to be handled together. */
++		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
++			(*gopp_copy)++;
++			if (!newerr)
++				newerr = (*gopp_copy)->status;
++		}
+ 		if (likely(!newerr)) {
+ 			/* The first frag might still have this slot mapped */
+ 			if (i < copy_count(skb) - 1 || !sharedslot)
 
 
