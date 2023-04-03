@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4714F6D48D8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A5A6D486A
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233516AbjDCOcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36858 "EHLO
+        id S233370AbjDCO2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233502AbjDCOcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25273503D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:16 -0700 (PDT)
+        with ESMTP id S233363AbjDCO2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065582CACD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8EA861E17
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCDCC433D2;
-        Mon,  3 Apr 2023 14:32:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97C9561DD3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FB5C4339E;
+        Mon,  3 Apr 2023 14:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532336;
-        bh=HICpSA6MTCmiJ0VxU8bcIRw11a4Uxiau3ADESV67siI=;
+        s=korg; t=1680532110;
+        bh=V7R50GzPEh0LA6RroHUD3MkOHCM67gpVWZSpW7uxhKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaWyP0c6NMcKnW+QeNax3jEFNaouij8QFYSFscVnZXdGm8Y75+Ww5IH6zMVR58vdP
-         3H6dEPYTYkZFemgZmsPC6sJyKN/tZUr8N6+uT7FJF2wL2jB45eF37aNxutBDDs4k2P
-         A2Vv5aTVOJymkbBOpmX12HMYp79KiVS65uYgulGM=
+        b=VuJdGGihNBF9kKi9FMuUymRSQLyLwhGlXA6qOSKaPVx4wFfPcH4w59hUAr75Xuhny
+         9cYjzB/IDO+WNqCUKQMth26mSaDOQn72Ss30nA+L339aj/9u6uwA8+dFrnot+L8Q/D
+         7oHQj1Co2Uj8RSbRlQFyAtk18+pcx3POm3qoRT/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rajvi Jingar <rajvi.jingar@linux.intel.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, ChunHao Lin <hau@realtek.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 43/99] platform/x86/intel/pmc: Alder Lake PCH slp_s0_residency fix
+Subject: [PATCH 5.10 131/173] r8169: fix RTL8168H and RTL8107E rx crc error
 Date:   Mon,  3 Apr 2023 16:09:06 +0200
-Message-Id: <20230403140404.877853376@linuxfoundation.org>
+Message-Id: <20230403140418.706912277@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,57 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajvi Jingar <rajvi.jingar@linux.intel.com>
+From: ChunHao Lin <hau@realtek.com>
 
-[ Upstream commit fb5755100a0a5aa5957bdb204fd1e249684557fc ]
+[ Upstream commit 33189f0a94b9639c058781fcf82e4ea3803b1682 ]
 
-For platforms with Alder Lake PCH (Alder Lake S and Raptor Lake S) the
-slp_s0_residency attribute has been reporting the wrong value. Unlike other
-platforms, ADL PCH does not have a counter for the time that the SLP_S0
-signal was asserted. Instead, firmware uses the aggregate of the Low Power
-Mode (LPM) substate counters as the S0ix value.  Since the LPM counters run
-at a different frequency, this lead to misreporting of the S0ix time.
+When link speed is 10 Mbps and temperature is under -20°C, RTL8168H and
+RTL8107E may have rx crc error. Disable phy 10 Mbps pll off to fix this
+issue.
 
-Add a check for Alder Lake PCH and adjust the frequency accordingly when
-display slp_s0_residency.
-
-Fixes: bbab31101f44 ("platform/x86/intel: pmc/core: Add Alderlake support to pmc core driver")
-Signed-off-by: Rajvi Jingar <rajvi.jingar@linux.intel.com>
-Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20230320212029.3154407-1-david.e.box@linux.intel.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 6e1d0b898818 ("r8169:add support for RTL8168H and RTL8107E")
+Signed-off-by: ChunHao Lin <hau@realtek.com>
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/pmc/core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_phy_config.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
-index ac19fcc9abbf5..b8d67bc4acb0a 100644
---- a/drivers/platform/x86/intel/pmc/core.c
-+++ b/drivers/platform/x86/intel/pmc/core.c
-@@ -958,7 +958,18 @@ static inline void pmc_core_reg_write(struct pmc_dev *pmcdev, int reg_offset,
+diff --git a/drivers/net/ethernet/realtek/r8169_phy_config.c b/drivers/net/ethernet/realtek/r8169_phy_config.c
+index 913d030d73eb4..e18a76f5049fd 100644
+--- a/drivers/net/ethernet/realtek/r8169_phy_config.c
++++ b/drivers/net/ethernet/realtek/r8169_phy_config.c
+@@ -970,6 +970,9 @@ static void rtl8168h_2_hw_phy_config(struct rtl8169_private *tp,
+ 	/* disable phy pfm mode */
+ 	phy_modify_paged(phydev, 0x0a44, 0x11, BIT(7), 0);
  
- static inline u64 pmc_core_adjust_slp_s0_step(struct pmc_dev *pmcdev, u32 value)
- {
--	return (u64)value * pmcdev->map->slp_s0_res_counter_step;
-+	/*
-+	 * ADL PCH does not have the SLP_S0 counter and LPM Residency counters are
-+	 * used as a workaround which uses 30.5 usec tick. All other client
-+	 * programs have the legacy SLP_S0 residency counter that is using the 122
-+	 * usec tick.
-+	 */
-+	const int lpm_adj_x2 = pmcdev->map->lpm_res_counter_step_x2;
++	/* disable 10m pll off */
++	phy_modify_paged(phydev, 0x0a43, 0x10, BIT(0), 0);
 +
-+	if (pmcdev->map == &adl_reg_map)
-+		return (u64)value * GET_X2_COUNTER((u64)lpm_adj_x2);
-+	else
-+		return (u64)value * pmcdev->map->slp_s0_res_counter_step;
+ 	rtl8168g_disable_aldps(phydev);
+ 	rtl8168g_config_eee_phy(phydev);
  }
- 
- static int set_etr3(struct pmc_dev *pmcdev)
 -- 
 2.39.2
 
