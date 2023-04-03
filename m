@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 419796D498F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 179C26D4715
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233741AbjDCOjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50984 "EHLO
+        id S232900AbjDCOQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:16:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233736AbjDCOjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6588E1BF50
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:03 -0700 (PDT)
+        with ESMTP id S232956AbjDCOQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F4F727825
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEFAAB81CA8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D48BC433EF;
-        Mon,  3 Apr 2023 14:39:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A3E89CE12B3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C7EC433D2;
+        Mon,  3 Apr 2023 14:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532740;
-        bh=8xbVRTF9ZztDD4+eufl19RlMg14b2/KeL98vGIONwmY=;
+        s=korg; t=1680531413;
+        bh=elbZTfnoO9XGtb/v16KA9+EzqGYnj10HocvDxBVSs5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3s2Fg4iupiFVaxK2NOwq/5nfc3XK2qSP0klRTsf6Zu+8dW40+ykW4/U09wZ0Mf/M
-         xSRTcvl0xxE/V283bEK7F23qL2NNGShoFpcbXCL/7e0fKcG2rxivVp9NtHGvFqLV7T
-         WybcyHbzv33MiUxNZD1noAGUiYX1W7wglTx0COOo=
+        b=Uk5o+q+gc3m9MXEfkEuN7iQDqEcGka64Dx+fUXHIfsuIuERTHPbvfHsBpJpGTnHHa
+         d3a7G4SKrvgCY2b/e2+XU7S9BqTXgi+VHs5ugHJqK3BdvBf57W6t/PZA9I2M0waSf3
+         Q4dZNRvQeV7WKqCXewK9CPGmkWttQGMXlZR8/TfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com,
-        Ivan Orlov <ivan.orlov0322@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 099/181] can: bcm: bcm_tx_setup(): fix KMSAN uninit-value in vfs_write
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 53/84] ALSA: asihpi: check pao in control_message()
 Date:   Mon,  3 Apr 2023 16:08:54 +0200
-Message-Id: <20230403140418.324801817@linuxfoundation.org>
+Message-Id: <20230403140355.240909283@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,116 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Orlov <ivan.orlov0322@gmail.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 2b4c99f7d9a57ecd644eda9b1fb0a1072414959f ]
+[ Upstream commit 9026c0bf233db53b86f74f4c620715e94eb32a09 ]
 
-Syzkaller reported the following issue:
+control_message() might be called with pao = NULL.
+Here indicates control_message() as sample.
 
-=====================================================
-BUG: KMSAN: uninit-value in aio_rw_done fs/aio.c:1520 [inline]
-BUG: KMSAN: uninit-value in aio_write+0x899/0x950 fs/aio.c:1600
- aio_rw_done fs/aio.c:1520 [inline]
- aio_write+0x899/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+(B)	static void control_message(struct hpi_adapter_obj *pao, ...)
+	{                                                   ^^^
+		struct hpi_hw_obj *phw = pao->priv;
+		...                      ^^^
+	}
 
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:766 [inline]
- slab_alloc_node mm/slub.c:3452 [inline]
- __kmem_cache_alloc_node+0x71f/0xce0 mm/slub.c:3491
- __do_kmalloc_node mm/slab_common.c:967 [inline]
- __kmalloc+0x11d/0x3b0 mm/slab_common.c:981
- kmalloc_array include/linux/slab.h:636 [inline]
- bcm_tx_setup+0x80e/0x29d0 net/can/bcm.c:930
- bcm_sendmsg+0x3a2/0xce0 net/can/bcm.c:1351
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- sock_write_iter+0x495/0x5e0 net/socket.c:1108
- call_write_iter include/linux/fs.h:2189 [inline]
- aio_write+0x63a/0x950 fs/aio.c:1600
- io_submit_one+0x1d1c/0x3bf0 fs/aio.c:2019
- __do_sys_io_submit fs/aio.c:2078 [inline]
- __se_sys_io_submit+0x293/0x770 fs/aio.c:2048
- __x64_sys_io_submit+0x92/0xd0 fs/aio.c:2048
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+(A)	void _HPI_6205(struct hpi_adapter_obj *pao, ...)
+	{                                      ^^^
+		...
+		case HPI_OBJ_CONTROL:
+(B)			control_message(pao, phm, phr);
+			break;          ^^^
+		...
+	}
 
-CPU: 1 PID: 5034 Comm: syz-executor350 Not tainted 6.2.0-rc6-syzkaller-80422-geda666ff2276 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
-=====================================================
+	void HPI_6205(...)
+	{
+		...
+(A)		_HPI_6205(NULL, phm, phr);
+		...       ^^^^
+	}
 
-We can follow the call chain and find that 'bcm_tx_setup' function
-calls 'memcpy_from_msg' to copy some content to the newly allocated
-frame of 'op->frames'. After that the 'len' field of copied structure
-being compared with some constant value (64 or 8). However, if
-'memcpy_from_msg' returns an error, we will compare some uninitialized
-memory. This triggers 'uninit-value' issue.
+Therefore, We will get too many warning via cppcheck, like below
 
-This patch will add 'memcpy_from_msg' possible errors processing to
-avoid uninit-value issue.
+	sound/pci/asihpi/hpi6205.c:238:27: warning: Possible null pointer dereference: pao [nullPointer]
+		 struct hpi_hw_obj *phw = pao->priv;
+		                          ^
+	sound/pci/asihpi/hpi6205.c:433:13: note: Calling function '_HPI_6205', 1st argument 'NULL' value is 0
+		  _HPI_6205(NULL, phm, phr);
+		            ^
+	sound/pci/asihpi/hpi6205.c:401:20: note: Calling function 'control_message', 1st argument 'pao' value is 0
+	   control_message(pao, phm, phr);
+	                   ^
+Set phr->error like many functions doing, and don't call _HPI_6205()
+with NULL.
 
-Tested via syzkaller
-
-Reported-by: syzbot+c9bfd85eca611ebf5db1@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=47f897f8ad958bbde5790ebf389b5e7e0a345089
-Signed-off-by: Ivan Orlov <ivan.orlov0322@gmail.com>
-Fixes: 6f3b911d5f29b ("can: bcm: add support for CAN FD frames")
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230314120445.12407-1-ivan.orlov0322@gmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87ttypeaqz.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ sound/pci/asihpi/hpi6205.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index 27706f6ace34a..a962ec2b8ba5b 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -941,6 +941,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
+diff --git a/sound/pci/asihpi/hpi6205.c b/sound/pci/asihpi/hpi6205.c
+index 2864698436a5f..6a49f897c4d91 100644
+--- a/sound/pci/asihpi/hpi6205.c
++++ b/sound/pci/asihpi/hpi6205.c
+@@ -441,7 +441,7 @@ void HPI_6205(struct hpi_message *phm, struct hpi_response *phr)
+ 		pao = hpi_find_adapter(phm->adapter_index);
+ 	} else {
+ 		/* subsys messages don't address an adapter */
+-		_HPI_6205(NULL, phm, phr);
++		phr->error = HPI_ERROR_INVALID_OBJ_INDEX;
+ 		return;
+ 	}
  
- 			cf = op->frames + op->cfsiz * i;
- 			err = memcpy_from_msg((u8 *)cf, msg, op->cfsiz);
-+			if (err < 0)
-+				goto free_op;
- 
- 			if (op->flags & CAN_FD_FRAME) {
- 				if (cf->len > 64)
-@@ -950,12 +952,8 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 					err = -EINVAL;
- 			}
- 
--			if (err < 0) {
--				if (op->frames != &op->sframe)
--					kfree(op->frames);
--				kfree(op);
--				return err;
--			}
-+			if (err < 0)
-+				goto free_op;
- 
- 			if (msg_head->flags & TX_CP_CAN_ID) {
- 				/* copy can_id into frame */
-@@ -1026,6 +1024,12 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
- 		bcm_tx_start_timer(op);
- 
- 	return msg_head->nframes * op->cfsiz + MHSIZ;
-+
-+free_op:
-+	if (op->frames != &op->sframe)
-+		kfree(op->frames);
-+	kfree(op);
-+	return err;
- }
- 
- /*
 -- 
 2.39.2
 
