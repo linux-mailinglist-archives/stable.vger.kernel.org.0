@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E76E6D4883
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417296D48EB
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbjDCO3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59562 "EHLO
+        id S233538AbjDCOdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:33:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233395AbjDCO3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B3331986
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:13 -0700 (PDT)
+        with ESMTP id S233549AbjDCOdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:33:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04EE35039
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90632B81C35
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03850C433EF;
-        Mon,  3 Apr 2023 14:29:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34CF5B81AD8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940E8C433EF;
+        Mon,  3 Apr 2023 14:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532151;
-        bh=5TLepZfTZcVzGwlNZ9AnecpuYx2zr+cY2SAA8r2FtMA=;
+        s=korg; t=1680532369;
+        bh=7ndKNZWViU2f84b78ppPFmwaLXby3ksYxtK1B8Y+UM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRK117ZGDuI0OJqpdHG952xzQOVOwwhBKZ4jVxZiNz+xsPx+1Um0qPlFi1bwYs9WP
-         k6FPR2ajKMlxSyXwIhDHFPzAbDaxs0SZJG/O+xcJLl3y4BDMr4SDgUjX4Qf0nQMkIR
-         KOLU8OI8rinMolNc1xpZlspRHBk62hiMT5p12wUY=
+        b=VSwMgem81QCOLyRzbGdHh3Z6sziv3TXCXRjnR1avTYBsSeOItKUs1KklbT3O/Avdz
+         3r0AUXacvJ0vtT02sPbiCHwMpHOhtEkxBsA/1ccg4xiH8R6Jrxfl/xPcS762v0GxXT
+         R6Mr7shNSV77BbSm4n2awrDF5/DbTVCm/r48qPEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, msizanoen <msizanoen@qtmlabs.xyz>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 145/173] Input: alps - fix compatibility with -funsigned-char
+        patches@lists.linux.dev, Radoslaw Tyl <radoslawx.tyl@intel.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Arpana Arland <arpanax.arland@intel.com>
+Subject: [PATCH 5.15 57/99] i40e: fix registers dump after run ethtool adapter self test
 Date:   Mon,  3 Apr 2023 16:09:20 +0200
-Message-Id: <20230403140419.154656880@linuxfoundation.org>
+Message-Id: <20230403140405.539108725@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,77 +57,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: msizanoen <msizanoen@qtmlabs.xyz>
+From: Radoslaw Tyl <radoslawx.tyl@intel.com>
 
-commit 754ff5060daf5a1cf4474eff9b4edeb6c17ef7ab upstream.
+[ Upstream commit c5cff16f461a4a434a9915a7be7ac9ced861a8a4 ]
 
-The AlpsPS/2 code previously relied on the assumption that `char` is a
-signed type, which was true on x86 platforms (the only place where this
-driver is used) before kernel 6.2. However, on 6.2 and later, this
-assumption is broken due to the introduction of -funsigned-char as a new
-global compiler flag.
+Fix invalid registers dump from ethtool -d ethX after adapter self test
+by ethtool -t ethY. It causes invalid data display.
 
-Fix this by explicitly specifying the signedness of `char` when sign
-extending the values received from the device.
+The problem was caused by overwriting i40e_reg_list[].elements
+which is common for ethtool self test and dump.
 
-Fixes: f3f33c677699 ("Input: alps - Rushmore and v7 resolution support")
-Signed-off-by: msizanoen <msizanoen@qtmlabs.xyz>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230320045228.182259-1-msizanoen@qtmlabs.xyz
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 22dd9ae8afcc ("i40e: Rework register diagnostic")
+Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20230328172659.3906413-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/alps.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_diag.c | 11 ++++++-----
+ drivers/net/ethernet/intel/i40e/i40e_diag.h |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -852,8 +852,8 @@ static void alps_process_packet_v6(struc
- 			x = y = z = 0;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.c b/drivers/net/ethernet/intel/i40e/i40e_diag.c
+index ef4d3762bf371..ca229b0efeb65 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_diag.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_diag.c
+@@ -44,7 +44,7 @@ static i40e_status i40e_diag_reg_pattern_test(struct i40e_hw *hw,
+ 	return 0;
+ }
  
- 		/* Divide 4 since trackpoint's speed is too fast */
--		input_report_rel(dev2, REL_X, (char)x / 4);
--		input_report_rel(dev2, REL_Y, -((char)y / 4));
-+		input_report_rel(dev2, REL_X, (s8)x / 4);
-+		input_report_rel(dev2, REL_Y, -((s8)y / 4));
+-struct i40e_diag_reg_test_info i40e_reg_list[] = {
++const struct i40e_diag_reg_test_info i40e_reg_list[] = {
+ 	/* offset               mask         elements   stride */
+ 	{I40E_QTX_CTL(0),       0x0000FFBF, 1,
+ 		I40E_QTX_CTL(1) - I40E_QTX_CTL(0)},
+@@ -78,27 +78,28 @@ i40e_status i40e_diag_reg_test(struct i40e_hw *hw)
+ {
+ 	i40e_status ret_code = 0;
+ 	u32 reg, mask;
++	u32 elements;
+ 	u32 i, j;
  
- 		psmouse_report_standard_buttons(dev2, packet[3]);
+ 	for (i = 0; i40e_reg_list[i].offset != 0 &&
+ 					     !ret_code; i++) {
  
-@@ -1104,8 +1104,8 @@ static void alps_process_trackstick_pack
- 	    ((packet[3] & 0x20) << 1);
- 	z = (packet[5] & 0x3f) | ((packet[3] & 0x80) >> 1);
++		elements = i40e_reg_list[i].elements;
+ 		/* set actual reg range for dynamically allocated resources */
+ 		if (i40e_reg_list[i].offset == I40E_QTX_CTL(0) &&
+ 		    hw->func_caps.num_tx_qp != 0)
+-			i40e_reg_list[i].elements = hw->func_caps.num_tx_qp;
++			elements = hw->func_caps.num_tx_qp;
+ 		if ((i40e_reg_list[i].offset == I40E_PFINT_ITRN(0, 0) ||
+ 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(1, 0) ||
+ 		     i40e_reg_list[i].offset == I40E_PFINT_ITRN(2, 0) ||
+ 		     i40e_reg_list[i].offset == I40E_QINT_TQCTL(0) ||
+ 		     i40e_reg_list[i].offset == I40E_QINT_RQCTL(0)) &&
+ 		    hw->func_caps.num_msix_vectors != 0)
+-			i40e_reg_list[i].elements =
+-				hw->func_caps.num_msix_vectors - 1;
++			elements = hw->func_caps.num_msix_vectors - 1;
  
--	input_report_rel(dev2, REL_X, (char)x);
--	input_report_rel(dev2, REL_Y, -((char)y));
-+	input_report_rel(dev2, REL_X, (s8)x);
-+	input_report_rel(dev2, REL_Y, -((s8)y));
- 	input_report_abs(dev2, ABS_PRESSURE, z);
+ 		/* test register access */
+ 		mask = i40e_reg_list[i].mask;
+-		for (j = 0; j < i40e_reg_list[i].elements && !ret_code; j++) {
++		for (j = 0; j < elements && !ret_code; j++) {
+ 			reg = i40e_reg_list[i].offset +
+ 			      (j * i40e_reg_list[i].stride);
+ 			ret_code = i40e_diag_reg_pattern_test(hw, reg, mask);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_diag.h b/drivers/net/ethernet/intel/i40e/i40e_diag.h
+index c3340f320a18c..1db7c6d572311 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_diag.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_diag.h
+@@ -20,7 +20,7 @@ struct i40e_diag_reg_test_info {
+ 	u32 stride;	/* bytes between each element */
+ };
  
- 	psmouse_report_standard_buttons(dev2, packet[1]);
-@@ -2294,20 +2294,20 @@ static int alps_get_v3_v7_resolution(str
- 	if (reg < 0)
- 		return reg;
+-extern struct i40e_diag_reg_test_info i40e_reg_list[];
++extern const struct i40e_diag_reg_test_info i40e_reg_list[];
  
--	x_pitch = (char)(reg << 4) >> 4; /* sign extend lower 4 bits */
-+	x_pitch = (s8)(reg << 4) >> 4; /* sign extend lower 4 bits */
- 	x_pitch = 50 + 2 * x_pitch; /* In 0.1 mm units */
- 
--	y_pitch = (char)reg >> 4; /* sign extend upper 4 bits */
-+	y_pitch = (s8)reg >> 4; /* sign extend upper 4 bits */
- 	y_pitch = 36 + 2 * y_pitch; /* In 0.1 mm units */
- 
- 	reg = alps_command_mode_read_reg(psmouse, reg_pitch + 1);
- 	if (reg < 0)
- 		return reg;
- 
--	x_electrode = (char)(reg << 4) >> 4; /* sign extend lower 4 bits */
-+	x_electrode = (s8)(reg << 4) >> 4; /* sign extend lower 4 bits */
- 	x_electrode = 17 + x_electrode;
- 
--	y_electrode = (char)reg >> 4; /* sign extend upper 4 bits */
-+	y_electrode = (s8)reg >> 4; /* sign extend upper 4 bits */
- 	y_electrode = 13 + y_electrode;
- 
- 	x_phys = x_pitch * (x_electrode - 1); /* In 0.1 mm units */
+ i40e_status i40e_diag_reg_test(struct i40e_hw *hw);
+ i40e_status i40e_diag_eeprom_test(struct i40e_hw *hw);
+-- 
+2.39.2
+
 
 
