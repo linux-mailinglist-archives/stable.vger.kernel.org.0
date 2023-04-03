@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8436D4A70
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2DF76D496B
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234067AbjDCOrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:47:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38398 "EHLO
+        id S233696AbjDCOh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbjDCOqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:47 -0400
+        with ESMTP id S233715AbjDCOhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C39F28E8D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5037A1765B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:37:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7709EB81D57
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E51A9C4339E;
-        Mon,  3 Apr 2023 14:46:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB608B81CC3
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:37:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D22FC433D2;
+        Mon,  3 Apr 2023 14:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533187;
-        bh=eMWDS+3wZyH867vHh4eJhuV+Y41uSSa2FKh5pK+WX4w=;
+        s=korg; t=1680532654;
+        bh=11A643II97k5BJwesN/mhwYq8mIX6gHm7xWFgzm2iaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MS918r4eGCLDg7SN95v4jEcmsASUkGwbHA2aSmt7trFBKIjBkQulcdp2nSUvdehpD
-         C2gTN5CcMNciVMijt7eF/vzX4KrDRZnF8RjnN0376TgW2ZnuZCii6d6yFMCKKZCWoP
-         qUmcG8LjkSefJqF3noDpktcPmk0Dr+Vlv/L3VuDw=
+        b=K27CayfRUaRoCMhl8eiG8AtFyItBGRqooIEL45qHbt/MpbYfBtMvau+YiZeaPyLfN
+         8jgQTpq+DuXT3nvqMgTknASDZxNd5Soc5SQrigfSUsiTKbSVazKqLn6++TQAjpw1VG
+         UbYnXKs78Qc2Fi1OE4C8RnPm2jFaaxX9GtSMASTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 056/187] fbdev: au1200fb: Fix potential divide by zero
+        patches@lists.linux.dev,
+        Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 066/181] mtd: rawnand: meson: initialize struct with zeroes
 Date:   Mon,  3 Apr 2023 16:08:21 +0200
-Message-Id: <20230403140417.810661385@linuxfoundation.org>
+Message-Id: <20230403140417.280242717@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 
-[ Upstream commit 44a3b36b42acfc433aaaf526191dd12fbb919fdb ]
+[ Upstream commit 4ce341de6c02d02aba7c78a6447ccfcaa9eeb328 ]
 
-var->pixclock can be assigned to zero by user. Without
-proper check, divide by zero would occur when invoking
-macro PICOS2KHZ in au1200fb_fb_check_var.
+This structure must be zeroed, because it's field 'hw->core' is used as
+'parent' in 'clk_core_fill_parent_index()', but it will be uninitialized.
+This happens, because when this struct is not zeroed, pointer 'hw' is
+"initialized" by garbage, which is valid pointer, but points to some
+garbage. So 'hw' will be dereferenced, but 'core' contains some random
+data which will be interpreted as a pointer. The following backtrace is
+result of dereference of such pointer:
 
-Error out if var->pixclock is zero.
+[    1.081319]  __clk_register+0x414/0x820
+[    1.085113]  devm_clk_register+0x64/0xd0
+[    1.088995]  meson_nfc_probe+0x258/0x6ec
+[    1.092875]  platform_probe+0x70/0xf0
+[    1.096498]  really_probe+0xc8/0x3e0
+[    1.100034]  __driver_probe_device+0x84/0x190
+[    1.104346]  driver_probe_device+0x44/0x120
+[    1.108487]  __driver_attach+0xb4/0x220
+[    1.112282]  bus_for_each_dev+0x78/0xd0
+[    1.116077]  driver_attach+0x2c/0x40
+[    1.119613]  bus_add_driver+0x184/0x240
+[    1.123408]  driver_register+0x80/0x140
+[    1.127203]  __platform_driver_register+0x30/0x40
+[    1.131860]  meson_nfc_driver_init+0x24/0x30
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 1e4d3ba66888 ("mtd: rawnand: meson: fix the clock")
+Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20230227102425.793841-1-AVKrasnov@sberdevices.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/au1200fb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/nand/raw/meson_nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/au1200fb.c b/drivers/video/fbdev/au1200fb.c
-index 81c3154544287..b6b22fa4a8a01 100644
---- a/drivers/video/fbdev/au1200fb.c
-+++ b/drivers/video/fbdev/au1200fb.c
-@@ -1040,6 +1040,9 @@ static int au1200fb_fb_check_var(struct fb_var_screeninfo *var,
- 	u32 pixclock;
- 	int screen_size, plane;
+diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
+index 5ee01231ac4cd..30e326adabfc1 100644
+--- a/drivers/mtd/nand/raw/meson_nand.c
++++ b/drivers/mtd/nand/raw/meson_nand.c
+@@ -991,7 +991,7 @@ static const struct mtd_ooblayout_ops meson_ooblayout_ops = {
  
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	plane = fbdev->plane;
+ static int meson_nfc_clk_init(struct meson_nfc *nfc)
+ {
+-	struct clk_parent_data nfc_divider_parent_data[1];
++	struct clk_parent_data nfc_divider_parent_data[1] = {0};
+ 	struct clk_init_data init = {0};
+ 	int ret;
  
- 	/* Make sure that the mode respect all LCD controller and
 -- 
 2.39.2
 
