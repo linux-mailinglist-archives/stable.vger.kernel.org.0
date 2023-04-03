@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 479F46D4721
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA24F6D4A8F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbjDCORX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:17:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
+        id S233928AbjDCOsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:48:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232895AbjDCORW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:17:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A50BC22E90
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:17:21 -0700 (PDT)
+        with ESMTP id S234005AbjDCOrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286C52A58F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 656E7B81B8D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:17:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8080C433EF;
-        Mon,  3 Apr 2023 14:17:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 065F461F4C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DB7FC433D2;
+        Mon,  3 Apr 2023 14:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531439;
-        bh=9qh1pJz0WQ3jG4cRKFgGtm8M/BEAgnGZ8Zz5cpBLCfE=;
+        s=korg; t=1680533213;
+        bh=rYBoY2aDj1j0CzjfG4YME3QQP00YvvM18oA8N4jCl7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fO/BxnjzOXTHHJPhY/FY/IvfqkQqnYjFrm4tcE4ZyzMy4/A8xCBg5foDR1tf5JfPK
-         5DH8DsQ031rEdrCbdRmfC1XyUV61m5uo4RgNDpt5cuiQbaWKqlCBBwPcDBZnBDtDfV
-         udtWZ6neGuhDFidTqd2XIT02qcwgWrXoczL72pCA=
+        b=Rg77gk2eIt4lmPr18RamYJiItRqfMfv30Yodyk28OfYge9k7+B5I1cGe2JpKGPpTL
+         GXwi72/4mzA/T3W+Sd20r06Hk5FMCrz/58f4jSqhRAdg+BuDK2aFFiRYHNO+GUWJLH
+         mH/39SXRZeo23FKuqHg7Mm8RnsMqyho3JpWACnNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Tony Krowiak <akrowiak@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 62/84] scsi: megaraid_sas: Fix crash after a double completion
+Subject: [PATCH 6.2 098/187] s390/vfio-ap: fix memory leak in vfio_ap device driver
 Date:   Mon,  3 Apr 2023 16:09:03 +0200
-Message-Id: <20230403140355.568045696@linuxfoundation.org>
+Message-Id: <20230403140419.200210833@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-[ Upstream commit 2309df27111a51734cb9240b4d3c25f2f3c6ab06 ]
+[ Upstream commit 8f8cf767589f2131ae5d40f3758429095c701c84 ]
 
-When a physical disk is attached directly "without JBOD MAP support" (see
-megasas_get_tm_devhandle()) then there is no real error handling in the
-driver.  Return FAILED instead of SUCCESS.
+The device release callback function invoked to release the matrix device
+uses the dev_get_drvdata(device *dev) function to retrieve the
+pointer to the vfio_matrix_dev object in order to free its storage. The
+problem is, this object is not stored as drvdata with the device; since the
+kfree function will accept a NULL pointer, the memory for the
+vfio_matrix_dev object is never freed.
 
-Fixes: 18365b138508 ("megaraid_sas: Task management support")
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Link: https://lore.kernel.org/r/20230324150134.14696-1-thenzl@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Since the device being released is contained within the vfio_matrix_dev
+object, the container_of macro will be used to retrieve its pointer.
+
+Fixes: 1fde573413b5 ("s390: vfio-ap: base implementation of VFIO AP device driver")
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230320150447.34557-1-akrowiak@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_fusion.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/vfio_ap_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index bdb12bf0d5c75..b400167f9ad42 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -4367,7 +4367,7 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
- 	devhandle = megasas_get_tm_devhandle(scmd->device);
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 997b524bdd2b5..a48c6938ae68f 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -54,8 +54,9 @@ static struct ap_driver vfio_ap_drv = {
  
- 	if (devhandle == (u16)ULONG_MAX) {
--		ret = SUCCESS;
-+		ret = FAILED;
- 		sdev_printk(KERN_INFO, scmd->device,
- 			"task abort issued for invalid devhandle\n");
- 		mutex_unlock(&instance->reset_mutex);
-@@ -4440,7 +4440,7 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
- 	devhandle = megasas_get_tm_devhandle(scmd->device);
+ static void vfio_ap_matrix_dev_release(struct device *dev)
+ {
+-	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
++	struct ap_matrix_dev *matrix_dev;
  
- 	if (devhandle == (u16)ULONG_MAX) {
--		ret = SUCCESS;
-+		ret = FAILED;
- 		sdev_printk(KERN_INFO, scmd->device,
- 			"target reset issued for invalid devhandle\n");
- 		mutex_unlock(&instance->reset_mutex);
++	matrix_dev = container_of(dev, struct ap_matrix_dev, device);
+ 	kfree(matrix_dev);
+ }
+ 
 -- 
 2.39.2
 
