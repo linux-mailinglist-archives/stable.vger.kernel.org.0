@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 113386D4A4F
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A336D497F
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233181AbjDCOqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:46:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36426 "EHLO
+        id S233637AbjDCOi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233917AbjDCOqJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:46:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7633A280CD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:45:48 -0700 (PDT)
+        with ESMTP id S233710AbjDCOiZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 261EE2123
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5697E61EFC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:45:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F6DC4339C;
-        Mon,  3 Apr 2023 14:45:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2064B81CCC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30574C433D2;
+        Mon,  3 Apr 2023 14:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533147;
-        bh=91f3rYXBheiyoSvrK9v8HR8nVGsHmUGeWKN+axlOpJ8=;
+        s=korg; t=1680532701;
+        bh=nWhptAhs2rCbBbIHGH5KVb/MaC+1nBXY2k0uT4Aj6o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3on3yM3jeW+ENBgS4VqkOQuHMqd3nbi5Yzk5T8ez5j/8rndiRswtnOjOKf4o173r
-         4F4yI3Nl/Cw1zqonohfhtHPlOw6UG7WAcpPEXy3FwOjMXERNAq9/2LgegTUM/HLvvd
-         nkvyIx62gr6yZ7ww8fF3C9qM95IdWBYAQOJxyavw=
+        b=MuuGkiyPiduzeupV5FDktvsYexSoNJ9PB4rIh8MTVSF+jjX+jluH/GBlrJJWSni7L
+         g0vUK8RHv/HHCIPKDgC+xvuXKwxFS0NOysQ3455wMQUmAbHk75aX8BaugmaqN/11j0
+         34mtcxUEVtv0QzBfa3bTZ4wPhkiSSqzqmTPUbsuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Mark Pearson <mpearson-lenovo@squebb.ca>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Tianhao Zhao <tizhao@redhat.com>,
+        Jonathan Cooper <jonathan.s.cooper@amd.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 072/187] platform/x86: think-lmi: use correct possible_values delimiters
+Subject: [PATCH 6.1 082/181] sfc: ef10: dont overwrite offload features at NIC reset
 Date:   Mon,  3 Apr 2023 16:08:37 +0200
-Message-Id: <20230403140418.313569005@linuxfoundation.org>
+Message-Id: <20230403140417.806007698@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +56,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <mpearson-lenovo@squebb.ca>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 45e21289bfc6e257885514790a8a8887da822d40 ]
+[ Upstream commit ca4a80e4bb7e87daf33b27d2ab9e4f5311018a89 ]
 
-firmware-attributes class requires that possible values are delimited
-using ';' but the Lenovo firmware uses ',' instead.
-Parse string and replace where appropriate.
+At NIC reset, some offload features related to encapsulated traffic
+might have changed (this mainly happens if the firmware-variant is
+changed with the sfboot userspace tool). Because of this, features are
+checked and set again at reset time.
 
-Suggested-by: Thomas Weißschuh <linux@weissschuh.net>
-Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Link: https://lore.kernel.org/r/20230320003221.561750-2-mpearson-lenovo@squebb.ca
-Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+However, this was not done right, and some features were improperly
+overwritten at NIC reset:
+- Tunneled IPv6 segmentation was always disabled
+- Features disabled with ethtool were reenabled
+- Features that becomes unsupported after the reset were not disabled
+
+Also, checking if the device supports IPV6_CSUM to enable TSO6 is no
+longer necessary because all currently supported devices support it.
+Additionally, move the assignment of some other features to the
+EF10_OFFLOAD_FEATURES macro, like it is done in ef100, leaving the
+selection of features in efx_pci_probe_post_io a bit cleaner.
+
+Fixes: ffffd2454a7a ("sfc: correctly advertise tunneled IPv6 segmentation")
+Fixes: 24b2c3751aa3 ("sfc: advertise encapsulated offloads on EF10")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Suggested-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
+Tested-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20230323083417.7345-1-ihuguet@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/think-lmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/sfc/ef10.c | 38 ++++++++++++++++++++++-----------
+ drivers/net/ethernet/sfc/efx.c  | 17 ++++++---------
+ 2 files changed, 33 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index 07c9dc21eff52..62241680c8a90 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -954,7 +954,7 @@ static ssize_t type_show(struct kobject *kobj, struct kobj_attribute *attr,
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index 7022fb2005a2f..d30459dbfe8f8 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -1304,7 +1304,8 @@ static void efx_ef10_fini_nic(struct efx_nic *efx)
+ static int efx_ef10_init_nic(struct efx_nic *efx)
+ {
+ 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+-	netdev_features_t hw_enc_features = 0;
++	struct net_device *net_dev = efx->net_dev;
++	netdev_features_t tun_feats, tso_feats;
+ 	int rc;
  
- 	if (setting->possible_values) {
- 		/* Figure out what setting type is as BIOS does not return this */
--		if (strchr(setting->possible_values, ','))
-+		if (strchr(setting->possible_values, ';'))
- 			return sysfs_emit(buf, "enumeration\n");
+ 	if (nic_data->must_check_datapath_caps) {
+@@ -1349,20 +1350,30 @@ static int efx_ef10_init_nic(struct efx_nic *efx)
+ 		nic_data->must_restore_piobufs = false;
  	}
- 	/* Anything else is going to be a string */
-@@ -1441,6 +1441,13 @@ static int tlmi_analyze(void)
- 				pr_info("Error retrieving possible values for %d : %s\n",
- 						i, setting->display_name);
- 		}
-+		/*
-+		 * firmware-attributes requires that possible_values are separated by ';' but
-+		 * Lenovo FW uses ','. Replace appropriately.
+ 
+-	/* add encapsulated checksum offload features */
++	/* encap features might change during reset if fw variant changed */
+ 	if (efx_has_cap(efx, VXLAN_NVGRE) && !efx_ef10_is_vf(efx))
+-		hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+-	/* add encapsulated TSO features */
+-	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
+-		netdev_features_t encap_tso_features;
++		net_dev->hw_enc_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
++	else
++		net_dev->hw_enc_features &= ~(NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
+ 
+-		encap_tso_features = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
+-			NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
++	tun_feats = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_GSO_GRE |
++		    NETIF_F_GSO_UDP_TUNNEL_CSUM | NETIF_F_GSO_GRE_CSUM;
++	tso_feats = NETIF_F_TSO | NETIF_F_TSO6;
+ 
+-		hw_enc_features |= encap_tso_features | NETIF_F_TSO;
+-		efx->net_dev->features |= encap_tso_features;
++	if (efx_has_cap(efx, TX_TSO_V2_ENCAP)) {
++		/* If this is first nic_init, or if it is a reset and a new fw
++		 * variant has added new features, enable them by default.
++		 * If the features are not new, maintain their current value.
 +		 */
-+		if (setting->possible_values)
-+			strreplace(setting->possible_values, ',', ';');
++		if (!(net_dev->hw_features & tun_feats))
++			net_dev->features |= tun_feats;
++		net_dev->hw_enc_features |= tun_feats | tso_feats;
++		net_dev->hw_features |= tun_feats;
++	} else {
++		net_dev->hw_enc_features &= ~(tun_feats | tso_feats);
++		net_dev->hw_features &= ~tun_feats;
++		net_dev->features &= ~tun_feats;
+ 	}
+-	efx->net_dev->hw_enc_features = hw_enc_features;
+ 
+ 	/* don't fail init if RSS setup doesn't work */
+ 	rc = efx->type->rx_push_rss_config(efx, false,
+@@ -4021,7 +4032,10 @@ static unsigned int efx_ef10_recycle_ring_size(const struct efx_nic *efx)
+ 	 NETIF_F_HW_VLAN_CTAG_FILTER |	\
+ 	 NETIF_F_IPV6_CSUM |		\
+ 	 NETIF_F_RXHASH |		\
+-	 NETIF_F_NTUPLE)
++	 NETIF_F_NTUPLE |		\
++	 NETIF_F_SG |			\
++	 NETIF_F_RXCSUM |		\
++	 NETIF_F_RXALL)
+ 
+ const struct efx_nic_type efx_hunt_a0_vf_nic_type = {
+ 	.is_vf = true,
+diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
+index 3a86f1213a051..6a1bff54bc6c3 100644
+--- a/drivers/net/ethernet/sfc/efx.c
++++ b/drivers/net/ethernet/sfc/efx.c
+@@ -1001,21 +1001,18 @@ static int efx_pci_probe_post_io(struct efx_nic *efx)
+ 	}
+ 
+ 	/* Determine netdevice features */
+-	net_dev->features |= (efx->type->offload_features | NETIF_F_SG |
+-			      NETIF_F_TSO | NETIF_F_RXCSUM | NETIF_F_RXALL);
+-	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM)) {
+-		net_dev->features |= NETIF_F_TSO6;
+-		if (efx_has_cap(efx, TX_TSO_V2_ENCAP))
+-			net_dev->hw_enc_features |= NETIF_F_TSO6;
+-	}
+-	/* Check whether device supports TSO */
+-	if (!efx->type->tso_versions || !efx->type->tso_versions(efx))
+-		net_dev->features &= ~NETIF_F_ALL_TSO;
++	net_dev->features |= efx->type->offload_features;
 +
- 		kobject_init(&setting->kobj, &tlmi_attr_setting_ktype);
- 		tlmi_priv.setting[i] = setting;
- 		kfree(item);
++	/* Add TSO features */
++	if (efx->type->tso_versions && efx->type->tso_versions(efx))
++		net_dev->features |= NETIF_F_TSO | NETIF_F_TSO6;
++
+ 	/* Mask for features that also apply to VLAN devices */
+ 	net_dev->vlan_features |= (NETIF_F_HW_CSUM | NETIF_F_SG |
+ 				   NETIF_F_HIGHDMA | NETIF_F_ALL_TSO |
+ 				   NETIF_F_RXCSUM);
+ 
++	/* Determine user configurable features */
+ 	net_dev->hw_features |= net_dev->features & ~efx->fixed_features;
+ 
+ 	/* Disable receiving frames with bad FCS, by default. */
 -- 
 2.39.2
 
