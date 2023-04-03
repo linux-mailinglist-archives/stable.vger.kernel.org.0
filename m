@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2526C6D4905
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 468DD6D4896
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233533AbjDCOeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41136 "EHLO
+        id S233426AbjDCO37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233571AbjDCOeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDE416F14
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:44 -0700 (PDT)
+        with ESMTP id S233436AbjDCO35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CCE3500B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6446061E5A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D19CC4339C;
-        Mon,  3 Apr 2023 14:33:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0E0C61DE0
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DCE6C433D2;
+        Mon,  3 Apr 2023 14:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532421;
-        bh=ztiuKPta5K4XqEf6JPO6r2QEIBwJDgEmXHyE7luSg98=;
+        s=korg; t=1680532195;
+        bh=Cs99oUpa9z7eVb4echWlvv/QYQMGoWYfLDwzNBgj2gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxxU0XXWKnPI3faMRWyWXKhyCF8LmvV2mjaXhGukuPe40LOlzS4LhIBa4aqOIgfoG
-         KeJuUjDXKC5RRUXTv+rxmTjqEW0iVSsvKiPqW4mRbZilpVwxnILn3IV9QazR7e2rCQ
-         2R3H4ypkEORGequB3PbNubNNVfeSn6nCF9WFctlg=
+        b=vxgB4QRioDtiFJk86GE7VQqe7040+NN/HwD+vtiU2POKBDC8sG2pVohglCHoo1oze
+         dpcRVUsxYIrYylfYlXa1t66fZsnImQvxOmPZVq8QErM1LJy3+QQGW+aGfJVmY4cGJd
+         TyUT/Mnz5OuO4g2fW2GJxOc/7v/2R2wTDhXoUVTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Kornel=20Dul=C4=99ba?= <korneld@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.15 76/99] pinctrl: amd: Disable and mask interrupts on resume
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.10 164/173] s390/uaccess: add missing earlyclobber annotations to __clear_user()
 Date:   Mon,  3 Apr 2023 16:09:39 +0200
-Message-Id: <20230403140406.319667705@linuxfoundation.org>
+Message-Id: <20230403140419.758196198@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,94 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kornel Dulęba <korneld@chromium.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit b26cd9325be4c1fcd331b77f10acb627c560d4d7 upstream.
+commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
 
-This fixes a similar problem to the one observed in:
-commit 4e5a04be88fe ("pinctrl: amd: disable and mask interrupts on probe").
+Add missing earlyclobber annotation to size, to, and tmp2 operands of the
+__clear_user() inline assembly since they are modified or written to before
+the last usage of all input operands. This can lead to incorrect register
+allocation for the inline assembly.
 
-On some systems, during suspend/resume cycle firmware leaves
-an interrupt enabled on a pin that is not used by the kernel.
-This confuses the AMD pinctrl driver and causes spurious interrupts.
-
-The driver already has logic to detect if a pin is used by the kernel.
-Leverage it to re-initialize interrupt fields of a pin only if it's not
-used by us.
-
+Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
 Cc: stable@vger.kernel.org
-Fixes: dbad75dd1f25 ("pinctrl: add AMD GPIO driver support.")
-Signed-off-by: Kornel Dulęba <korneld@chromium.org>
-Link: https://lore.kernel.org/r/20230320093259.845178-1-korneld@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |   36 ++++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ arch/s390/lib/uaccess.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -863,32 +863,34 @@ static const struct pinconf_ops amd_pinc
- 	.pin_config_group_set = amd_pinconf_group_set,
- };
- 
--static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+static void amd_gpio_irq_init_pin(struct amd_gpio *gpio_dev, int pin)
- {
--	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	const struct pin_desc *pd;
- 	unsigned long flags;
- 	u32 pin_reg, mask;
--	int i;
- 
- 	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
- 		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
- 		BIT(WAKE_CNTRL_OFF_S4);
- 
--	for (i = 0; i < desc->npins; i++) {
--		int pin = desc->pins[i].number;
--		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
--
--		if (!pd)
--			continue;
-+	pd = pin_desc_get(gpio_dev->pctrl, pin);
-+	if (!pd)
-+		return;
- 
--		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-+	pin_reg = readl(gpio_dev->base + pin * 4);
-+	pin_reg &= ~mask;
-+	writel(pin_reg, gpio_dev->base + pin * 4);
-+	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-+}
- 
--		pin_reg = readl(gpio_dev->base + i * 4);
--		pin_reg &= ~mask;
--		writel(pin_reg, gpio_dev->base + i * 4);
-+static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
-+{
-+	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
-+	int i;
- 
--		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
--	}
-+	for (i = 0; i < desc->npins; i++)
-+		amd_gpio_irq_init_pin(gpio_dev, i);
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -339,7 +339,7 @@ static inline unsigned long clear_user_m
+ 		"4: slgr  %0,%0\n"
+ 		"5:\n"
+ 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
+-		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
++		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
+ 		: "a" (empty_zero_page), "d" (reg0) : "cc", "memory");
+ 	return size;
  }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -941,8 +943,10 @@ static int amd_gpio_resume(struct device
- 	for (i = 0; i < desc->npins; i++) {
- 		int pin = desc->pins[i].number;
- 
--		if (!amd_gpio_should_save(gpio_dev, pin))
-+		if (!amd_gpio_should_save(gpio_dev, pin)) {
-+			amd_gpio_irq_init_pin(gpio_dev, pin);
- 			continue;
-+		}
- 
- 		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 		gpio_dev->saved_regs[i] |= readl(gpio_dev->base + pin * 4) & PIN_IRQ_PENDING;
 
 
