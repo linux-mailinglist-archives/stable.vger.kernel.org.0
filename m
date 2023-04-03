@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AB526D49FA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5F26D48A0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbjDCOnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:43:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58084 "EHLO
+        id S233373AbjDCOaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:30:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233852AbjDCOnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BD018275
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:34 -0700 (PDT)
+        with ESMTP id S233441AbjDCOaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:30:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E306635002
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:30:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1170BB81D16
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C328C433EF;
-        Mon,  3 Apr 2023 14:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7718861DF6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C0B8C433EF;
+        Mon,  3 Apr 2023 14:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532951;
-        bh=C4eCLZ8Ae9m6I4MZapff2h/VH3WAMMzfAwFxs6YuczQ=;
+        s=korg; t=1680532218;
+        bh=4MLDfjtmhqMJnSHxnehmbopmFve10hnYqhVKCSGQUtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+2+DLLyQmxN3Spm/fCxA8cbAEu/O1/XJbBo1q/qDy0RCYG+Eg4gnQ/PxabYMJ+ey
-         qqqtQf6kzCxcDFn2IfN3CQxprDJ93ODVDjzXw1an7RHpg5Kfm/T+Lvcmh2Ple1o6wP
-         MH9im7T9h3JvMKdLnw1nFRA718yLiG1Cxe8xT4DQ=
+        b=ZgyGnfV7eOSOWsOAA3iB3/7QI6AX2BBXVZs0kfTcgv8sNmf7HPeZHokbwVUb2YNvw
+         126WVroHhZeXiVx3/K901tKs9PZgpfdFm6zbUJv59RQeSGfkt1D/gBc2JZ4/rgBS13
+         OaymqMmaOuLe2TToQFZPX7cS0HLDpPi3e2sK4Ks8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jetro Jormalainen <jje-lxkl@jetro.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 152/181] ALSA: hda/conexant: Partial revert of a quirk for Lenovo
+        patches@lists.linux.dev,
+        syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Fedor Pchelkin <pchelkin@ispras.ru>
+Subject: [PATCH 5.10 172/173] gfs2: Always check inode size of inline inodes
 Date:   Mon,  3 Apr 2023 16:09:47 +0200
-Message-Id: <20230403140420.010450221@linuxfoundation.org>
+Message-Id: <20230403140420.021888302@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,59 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit b871cb971c683f7f212e7ca3c9a6709a75785116 upstream.
+commit 70376c7ff31221f1d21db5611d8209e677781d3a upstream.
 
-The recent commit f83bb2592482 ("ALSA: hda/conexant: Add quirk for
-LENOVO 20149 Notebook model") introduced a quirk for the device with
-17aa:3977, but this caused a regression on another model (Lenovo
-Ideadpad U31) with the very same PCI SSID.  And, through skimming over
-the net, it seems that this PCI SSID is used for multiple different
-models, so it's no good idea to apply the quirk with the SSID.
+Check if the inode size of stuffed (inline) inodes is within the allowed
+range when reading inodes from disk (gfs2_dinode_in()).  This prevents
+us from on-disk corruption.
 
-Although we may take a different ID check (e.g. the codec SSID instead
-of the PCI SSID), unfortunately, the original patch author couldn't
-identify the hardware details any longer as the machine was returned,
-and we can't develop the further proper fix.
+The two checks in stuffed_readpage() and gfs2_unstuffer_page() that just
+truncate inline data to the maximum allowed size don't actually make
+sense, and they can be removed now as well.
 
-In this patch, instead, we partially revert the change so that the
-quirk won't be applied as default for addressing the regression.
-Meanwhile, the quirk function itself is kept, and it's now made to be
-applicable via the explicit model=lenovo-20149 option.
-
-Fixes: f83bb2592482 ("ALSA: hda/conexant: Add quirk for LENOVO 20149 Notebook model")
-Reported-by: Jetro Jormalainen <jje-lxkl@jetro.fi>
-Link: https://lore.kernel.org/r/20230308215009.4d3e58a6@mopti
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230320140954.31154-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+[pchelkin@ispras.ru: adjust the inode variable inside gfs2_dinode_in with
+the format used before upstream commit 7db354444ad8 ("gfs2: Cosmetic
+gfs2_dinode_{in,out} cleanup")]
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_conexant.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/gfs2/aops.c  |    2 --
+ fs/gfs2/bmap.c  |    3 ---
+ fs/gfs2/glops.c |    3 +++
+ 3 files changed, 3 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -980,7 +980,10 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x17aa, 0x3905, "Lenovo G50-30", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x390b, "Lenovo G50-80", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3975, "Lenovo U300s", CXT_FIXUP_STEREO_DMIC),
--	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_PINCFG_LENOVO_NOTEBOOK),
-+	/* NOTE: we'd need to extend the quirk for 17aa:3977 as the same
-+	 * PCI SSID is used on multiple Lenovo models
-+	 */
-+	SND_PCI_QUIRK(0x17aa, 0x3977, "Lenovo IdeaPad U310", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo G50-70", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x17aa, 0x397b, "Lenovo S205", CXT_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK_VENDOR(0x17aa, "Thinkpad", CXT_FIXUP_THINKPAD_ACPI),
-@@ -1003,6 +1006,7 @@ static const struct hda_model_fixup cxt5
- 	{ .id = CXT_FIXUP_MUTE_LED_GPIO, .name = "mute-led-gpio" },
- 	{ .id = CXT_FIXUP_HP_ZBOOK_MUTE_LED, .name = "hp-zbook-mute-led" },
- 	{ .id = CXT_FIXUP_HP_MIC_NO_PRESENCE, .name = "hp-mic-fix" },
-+	{ .id = CXT_PINCFG_LENOVO_NOTEBOOK, .name = "lenovo-20149" },
- 	{}
- };
+--- a/fs/gfs2/aops.c
++++ b/fs/gfs2/aops.c
+@@ -451,8 +451,6 @@ static int stuffed_readpage(struct gfs2_
+ 		return error;
+ 
+ 	kaddr = kmap_atomic(page);
+-	if (dsize > gfs2_max_stuffed_size(ip))
+-		dsize = gfs2_max_stuffed_size(ip);
+ 	memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
+ 	memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
+ 	kunmap_atomic(kaddr);
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -69,9 +69,6 @@ static int gfs2_unstuffer_page(struct gf
+ 		void *kaddr = kmap(page);
+ 		u64 dsize = i_size_read(inode);
+  
+-		if (dsize > gfs2_max_stuffed_size(ip))
+-			dsize = gfs2_max_stuffed_size(ip);
+-
+ 		memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
+ 		memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
+ 		kunmap(page);
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -454,6 +454,9 @@ static int gfs2_dinode_in(struct gfs2_in
+ 	ip->i_depth = (u8)depth;
+ 	ip->i_entries = be32_to_cpu(str->di_entries);
+ 
++	if (gfs2_is_stuffed(ip) && ip->i_inode.i_size > gfs2_max_stuffed_size(ip))
++		goto corrupt;
++
+ 	if (S_ISREG(ip->i_inode.i_mode))
+ 		gfs2_set_aops(&ip->i_inode);
  
 
 
