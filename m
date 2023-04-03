@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5016D476E
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A2D6D4951
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233056AbjDCOT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:19:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40696 "EHLO
+        id S233674AbjDCOhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233101AbjDCOTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:49 -0400
+        with ESMTP id S233677AbjDCOhD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:37:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B972D7CD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C4F1767A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:36:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AA53B80315
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC673C433A4;
-        Mon,  3 Apr 2023 14:19:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2B7DB81CA9
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:36:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31645C433D2;
+        Mon,  3 Apr 2023 14:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531575;
-        bh=xlUyzh/F61W24kZbGAUNhuT5gpxt5v1aBWAEw9XlWKw=;
+        s=korg; t=1680532599;
+        bh=cxVfjDcJ3o4/9WbrsHYV+z94c00ix0JIOKFcYYwCllg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICXMcqM4y3TxixDJ47N8Z0U/MTugZLY7WISEDdeb1+qUQOQbIhIvnpwJgcr42sHSw
-         aOriFPXVEIWtcp4RuUQ+9nFU4NZ9ngf1LOu1l5nfz2yAJpsqneJuTLhhj3qttCS7+f
-         GzQrgqEa9+SqTKJrafOXY74ontRiVace+k2EGt/Y=
+        b=gZNmDJHNv8PrYeSXZrmYFmeS2wpMBrds3xUqmsh0vtDWyI7Ex++9a1Tod13m8tk3n
+         F/elkAzcmxXwCgyxE7Gm6yY0UNo9Ot5Cp7NvEMl/PXsa/qBVSRNW9lC7YEgJBpLRoS
+         Kk7BjjBvXVmdTA8+2we/h7Zq1roAKJoQoTWEtOoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 007/104] i2c: imx-lpi2c: check only for enabled interrupt flags
+        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 044/181] x86/PVH: obtain VGA console info in Dom0
 Date:   Mon,  3 Apr 2023 16:07:59 +0200
-Message-Id: <20230403140404.387607329@linuxfoundation.org>
+Message-Id: <20230403140416.587299979@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
-References: <20230403140403.549815164@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 1c7885004567e8951d65a983be095f254dd20bef ]
+[ Upstream commit 934ef33ee75c3846f605f18b65048acd147e3918 ]
 
-When reading from I2C, the Tx watermark is set to 0. Unfortunately the
-TDF (transmit data flag) is enabled when Tx FIFO entries is equal or less
-than watermark. So it is set in every case, hence the reset default of 1.
-This results in the MSR_RDF _and_ MSR_TDF flags to be set thus trying
-to send Tx data on a read message.
-Mask the IRQ status to filter for wanted flags only.
+A new platform-op was added to Xen to allow obtaining the same VGA
+console information PV Dom0 is handed. Invoke the new function and have
+the output data processed by xen_init_vga().
 
-Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Tested-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+
+Link: https://lore.kernel.org/r/8f315e92-7bda-c124-71cc-478ab9c5e610@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/xen/Makefile            |  2 +-
+ arch/x86/xen/enlighten_pv.c      |  3 ++-
+ arch/x86/xen/enlighten_pvh.c     | 13 +++++++++++++
+ arch/x86/xen/vga.c               |  5 ++---
+ arch/x86/xen/xen-ops.h           |  7 ++++---
+ include/xen/interface/platform.h |  3 +++
+ 6 files changed, 25 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index a0d045c1bc9e6..13c17afe7102e 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -508,10 +508,14 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
- static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
- {
- 	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
-+	unsigned int enabled;
- 	unsigned int temp;
+diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
+index 3c5b52fbe4a7f..a9ec8c9f5c5dd 100644
+--- a/arch/x86/xen/Makefile
++++ b/arch/x86/xen/Makefile
+@@ -45,6 +45,6 @@ obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= spinlock.o
  
-+	enabled = readl(lpi2c_imx->base + LPI2C_MIER);
+ obj-$(CONFIG_XEN_DEBUG_FS)	+= debugfs.o
+ 
+-obj-$(CONFIG_XEN_PV_DOM0)	+= vga.o
++obj-$(CONFIG_XEN_DOM0)		+= vga.o
+ 
+ obj-$(CONFIG_XEN_EFI)		+= efi.o
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 8944726255c9c..333539bdbdaae 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1389,7 +1389,8 @@ asmlinkage __visible void __init xen_start_kernel(struct start_info *si)
+ 
+ 		x86_platform.set_legacy_features =
+ 				xen_dom0_set_legacy_features;
+-		xen_init_vga(info, xen_start_info->console.dom0.info_size);
++		xen_init_vga(info, xen_start_info->console.dom0.info_size,
++			     &boot_params.screen_info);
+ 		xen_start_info->console.domU.mfn = 0;
+ 		xen_start_info->console.domU.evtchn = 0;
+ 
+diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
+index bcae606bbc5cf..1da44aca896c6 100644
+--- a/arch/x86/xen/enlighten_pvh.c
++++ b/arch/x86/xen/enlighten_pvh.c
+@@ -43,6 +43,19 @@ void __init xen_pvh_init(struct boot_params *boot_params)
+ 	x86_init.oem.banner = xen_banner;
+ 
+ 	xen_efi_init(boot_params);
 +
- 	lpi2c_imx_intctrl(lpi2c_imx, 0);
- 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+	temp &= enabled;
++	if (xen_initial_domain()) {
++		struct xen_platform_op op = {
++			.cmd = XENPF_get_dom0_console,
++		};
++		long ret = HYPERVISOR_platform_op(&op);
++
++		if (ret > 0)
++			xen_init_vga(&op.u.dom0_console,
++				     min(ret * sizeof(char),
++					 sizeof(op.u.dom0_console)),
++				     &boot_params->screen_info);
++	}
+ }
  
- 	if (temp & MSR_RDF)
- 		lpi2c_imx_read_rxfifo(lpi2c_imx);
+ void __init mem_map_via_hcall(struct boot_params *boot_params_p)
+diff --git a/arch/x86/xen/vga.c b/arch/x86/xen/vga.c
+index 14ea32e734d59..d97adab8420f4 100644
+--- a/arch/x86/xen/vga.c
++++ b/arch/x86/xen/vga.c
+@@ -9,10 +9,9 @@
+ 
+ #include "xen-ops.h"
+ 
+-void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size)
++void __init xen_init_vga(const struct dom0_vga_console_info *info, size_t size,
++			 struct screen_info *screen_info)
+ {
+-	struct screen_info *screen_info = &boot_params.screen_info;
+-
+ 	/* This is drawn from a dump from vgacon:startup in
+ 	 * standard Linux. */
+ 	screen_info->orig_video_mode = 3;
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index 9a8bb972193d8..a10903785a338 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -108,11 +108,12 @@ static inline void xen_uninit_lock_cpu(int cpu)
+ 
+ struct dom0_vga_console_info;
+ 
+-#ifdef CONFIG_XEN_PV_DOM0
+-void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size);
++#ifdef CONFIG_XEN_DOM0
++void __init xen_init_vga(const struct dom0_vga_console_info *, size_t size,
++			 struct screen_info *);
+ #else
+ static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
+-				       size_t size)
++				       size_t size, struct screen_info *si)
+ {
+ }
+ #endif
+diff --git a/include/xen/interface/platform.h b/include/xen/interface/platform.h
+index 655d92e803e14..79a443c65ea93 100644
+--- a/include/xen/interface/platform.h
++++ b/include/xen/interface/platform.h
+@@ -483,6 +483,8 @@ struct xenpf_symdata {
+ };
+ DEFINE_GUEST_HANDLE_STRUCT(xenpf_symdata);
+ 
++#define XENPF_get_dom0_console 64
++
+ struct xen_platform_op {
+ 	uint32_t cmd;
+ 	uint32_t interface_version; /* XENPF_INTERFACE_VERSION */
+@@ -506,6 +508,7 @@ struct xen_platform_op {
+ 		struct xenpf_mem_hotadd        mem_add;
+ 		struct xenpf_core_parking      core_parking;
+ 		struct xenpf_symdata           symdata;
++		struct dom0_vga_console_info   dom0_console;
+ 		uint8_t                        pad[128];
+ 	} u;
+ };
 -- 
 2.39.2
 
