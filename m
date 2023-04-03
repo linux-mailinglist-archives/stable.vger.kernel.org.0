@@ -2,168 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB066D4AA6
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4714F6D48D8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234100AbjDCOtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:49:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37494 "EHLO
+        id S233516AbjDCOcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:32:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234105AbjDCOtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEAF5280FB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:54 -0700 (PDT)
+        with ESMTP id S233502AbjDCOcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25273503D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C864FB81D5F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF7CC4339C;
-        Mon,  3 Apr 2023 14:47:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8EA861E17
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCDCC433D2;
+        Mon,  3 Apr 2023 14:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533221;
-        bh=a6mG5FKb02q1bL/eeUGR4r4kXmqIN29jjEwlBJPRBmQ=;
+        s=korg; t=1680532336;
+        bh=HICpSA6MTCmiJ0VxU8bcIRw11a4Uxiau3ADESV67siI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LbpUFvVFs1JDMFCT9QbYJ39qvUYggvwJtZBXqp6K4zxnR6ary+p0WRRGT8NvVLw7y
-         WaDhWJKQE0ixpWp6ORdEoyDWUC4qn9anqrzug3ooOHoJdSm8X+q8cJQ5KaHS9/OehQ
-         GWZe+aytK3dkEkvX1JKGFyT02etohnCCXPI+KHMc=
+        b=IaWyP0c6NMcKnW+QeNax3jEFNaouij8QFYSFscVnZXdGm8Y75+Ww5IH6zMVR58vdP
+         3H6dEPYTYkZFemgZmsPC6sJyKN/tZUr8N6+uT7FJF2wL2jB45eF37aNxutBDDs4k2P
+         A2Vv5aTVOJymkbBOpmX12HMYp79KiVS65uYgulGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Rajvi Jingar <rajvi.jingar@linux.intel.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 101/187] net: mvpp2: classifier flow fix fragmentation flags
+Subject: [PATCH 5.15 43/99] platform/x86/intel/pmc: Alder Lake PCH slp_s0_residency fix
 Date:   Mon,  3 Apr 2023 16:09:06 +0200
-Message-Id: <20230403140419.296188594@linuxfoundation.org>
+Message-Id: <20230403140404.877853376@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,UPPERCASE_50_75 autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Rajvi Jingar <rajvi.jingar@linux.intel.com>
 
-[ Upstream commit 9a251cae51d57289908222e6c322ca61fccc25fd ]
+[ Upstream commit fb5755100a0a5aa5957bdb204fd1e249684557fc ]
 
-Add missing IP Fragmentation Flag.
+For platforms with Alder Lake PCH (Alder Lake S and Raptor Lake S) the
+slp_s0_residency attribute has been reporting the wrong value. Unlike other
+platforms, ADL PCH does not have a counter for the time that the SLP_S0
+signal was asserted. Instead, firmware uses the aggregate of the Low Power
+Mode (LPM) substate counters as the S0ix value.  Since the LPM counters run
+at a different frequency, this lead to misreporting of the S0ix time.
 
-Fixes: f9358e12a0af ("net: mvpp2: split ingress traffic into multiple flows")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Add a check for Alder Lake PCH and adjust the frequency accordingly when
+display slp_s0_residency.
+
+Fixes: bbab31101f44 ("platform/x86/intel: pmc/core: Add Alderlake support to pmc core driver")
+Signed-off-by: Rajvi Jingar <rajvi.jingar@linux.intel.com>
+Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20230320212029.3154407-1-david.e.box@linux.intel.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/mvpp2/mvpp2_cls.c    | 30 +++++++++++--------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/platform/x86/intel/pmc/core.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-index 41d935d1aaf6f..40aeaa7bd739f 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-@@ -62,35 +62,38 @@ static const struct mvpp2_cls_flow cls_flows[MVPP2_N_PRS_FLOWS] = {
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4 |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+diff --git a/drivers/platform/x86/intel/pmc/core.c b/drivers/platform/x86/intel/pmc/core.c
+index ac19fcc9abbf5..b8d67bc4acb0a 100644
+--- a/drivers/platform/x86/intel/pmc/core.c
++++ b/drivers/platform/x86/intel/pmc/core.c
+@@ -958,7 +958,18 @@ static inline void pmc_core_reg_write(struct pmc_dev *pmcdev, int reg_offset,
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OPT |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
+ static inline u64 pmc_core_adjust_slp_s0_step(struct pmc_dev *pmcdev, u32 value)
+ {
+-	return (u64)value * pmcdev->map->slp_s0_res_counter_step;
++	/*
++	 * ADL PCH does not have the SLP_S0 counter and LPM Residency counters are
++	 * used as a workaround which uses 30.5 usec tick. All other client
++	 * programs have the legacy SLP_S0 residency counter that is using the 122
++	 * usec tick.
++	 */
++	const int lpm_adj_x2 = pmcdev->map->lpm_res_counter_step_x2;
++
++	if (pmcdev->map == &adl_reg_map)
++		return (u64)value * GET_X2_COUNTER((u64)lpm_adj_x2);
++	else
++		return (u64)value * pmcdev->map->slp_s0_res_counter_step;
+ }
  
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OTHER |
--		       MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	/* TCP over IPv4 flows, fragmented, with vlan tag */
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_TCP4, MVPP2_FL_IP4_TCP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_L4_TCP,
-+		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_TCP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	/* UDP over IPv4 flows, Not fragmented, no vlan tag */
-@@ -132,35 +135,38 @@ static const struct mvpp2_cls_flow cls_flows[MVPP2_N_PRS_FLOWS] = {
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4 |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OPT |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_UNTAG,
- 		       MVPP22_CLS_HEK_IP4_2T,
- 		       MVPP2_PRS_RI_VLAN_NONE | MVPP2_PRS_RI_L3_IP4_OTHER |
--		       MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_IP_FRAG_TRUE | MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK | MVPP2_PRS_RI_VLAN_MASK),
- 
- 	/* UDP over IPv4 flows, fragmented, with vlan tag */
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4 | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4_OPT | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	MVPP2_DEF_FLOW(MVPP22_FLOW_UDP4, MVPP2_FL_IP4_UDP_FRAG_TAG,
- 		       MVPP22_CLS_HEK_IP4_2T | MVPP22_CLS_HEK_TAGGED,
--		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_L4_UDP,
-+		       MVPP2_PRS_RI_L3_IP4_OTHER | MVPP2_PRS_RI_IP_FRAG_TRUE |
-+			   MVPP2_PRS_RI_L4_UDP,
- 		       MVPP2_PRS_IP_MASK),
- 
- 	/* TCP over IPv6 flows, not fragmented, no vlan tag */
+ static int set_etr3(struct pmc_dev *pmcdev)
 -- 
 2.39.2
 
