@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4236D4887
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:29:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5BA6D4AA9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233412AbjDCO31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:29:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59498 "EHLO
+        id S234179AbjDCOtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:49:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233401AbjDCO3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:29:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D66C35002
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:29:22 -0700 (PDT)
+        with ESMTP id S234125AbjDCOtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427F930D7
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A21A61DD5
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:29:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4291FC433D2;
-        Mon,  3 Apr 2023 14:29:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E08EB81D6F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C442EC433D2;
+        Mon,  3 Apr 2023 14:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532161;
-        bh=gwZeTobWjHLpgBTWbj4APQvG09DaIVkhU3OdBi/H7V4=;
+        s=korg; t=1680533271;
+        bh=O61t+1YL3XxxO/y3OMHk0ny13zEfWQt8Tnh5ByxMsXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsn8LqvVUREHhrFzIugeEmuLkHdCZdx4iiY47FD/eydKxLshKHLssNa1ClGQON2xz
-         WUHWXSQQDTk3YGxQeT6j242Q4wM6DpPdRIZkyj+FfZ7mz5/ZcxqTtQ8g2+/TnZTpfr
-         R/TRroI6tUE7Yy9p6XnlocC/BTeTcJSgItZhJL7c=
+        b=kJGyv7KPtM/LBq1r0EueihUwJ67enr8gFQ9ezY1IpPWtrE9FeEqjDMdwTJvjX+OGt
+         3BVSaQAVhZjI6sRH0YcmV8OG8Hgu/8V3MDjVCbYdQpUhPcgB9N2VyrviH80ZLtKpaE
+         7Cfgx1R8sez/vUUNyZvYE9rNqwYBVHMkpFTFa0KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 120/173] fbdev: intelfb: Fix potential divide by zero
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 090/187] regulator: Handle deferred clk
 Date:   Mon,  3 Apr 2023 16:08:55 +0200
-Message-Id: <20230403140418.344225562@linuxfoundation.org>
+Message-Id: <20230403140418.922380237@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d823685486a3446d061fed7c7d2f80af984f119a ]
+[ Upstream commit 02bcba0b9f9da706d5bd1e8cbeb83493863e17b5 ]
 
-Variable var->pixclock is controlled by user and can be assigned
-to zero. Without proper check, divide by zero would occur in
-intelfbhw_validate_mode and intelfbhw_mode_to_hw.
+devm_clk_get() can return -EPROBE_DEFER. So it is better to return the
+error code from devm_clk_get(), instead of a hard coded -ENOENT.
 
-Error out if var->pixclock is zero.
+This gives more opportunities to successfully probe the driver.
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 8959e5324485 ("regulator: fixed: add possibility to enable by clock")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/18459fae3d017a66313699c7c8456b28158b2dd0.1679819354.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/intelfb/intelfbdrv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/regulator/fixed.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/intelfb/intelfbdrv.c b/drivers/video/fbdev/intelfb/intelfbdrv.c
-index a9579964eaba8..8a703adfa9360 100644
---- a/drivers/video/fbdev/intelfb/intelfbdrv.c
-+++ b/drivers/video/fbdev/intelfb/intelfbdrv.c
-@@ -1214,6 +1214,9 @@ static int intelfb_check_var(struct fb_var_screeninfo *var,
- 
- 	dinfo = GET_DINFO(info);
- 
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	/* update the pitch */
- 	if (intelfbhw_validate_mode(dinfo, var) != 0)
- 		return -EINVAL;
+diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
+index 2a9867abba20c..e6724a229d237 100644
+--- a/drivers/regulator/fixed.c
++++ b/drivers/regulator/fixed.c
+@@ -215,7 +215,7 @@ static int reg_fixed_voltage_probe(struct platform_device *pdev)
+ 		drvdata->enable_clock = devm_clk_get(dev, NULL);
+ 		if (IS_ERR(drvdata->enable_clock)) {
+ 			dev_err(dev, "Can't get enable-clock from devicetree\n");
+-			return -ENOENT;
++			return PTR_ERR(drvdata->enable_clock);
+ 		}
+ 	} else if (drvtype && drvtype->has_performance_state) {
+ 		drvdata->desc.ops = &fixed_voltage_domain_ops;
 -- 
 2.39.2
 
