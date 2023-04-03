@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4216D48CA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D426D4990
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233495AbjDCOb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
+        id S233736AbjDCOjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233485AbjDCOb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D4B3502A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:46 -0700 (PDT)
+        with ESMTP id S233740AbjDCOjK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B358216F0A
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D3D61E05
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83139C433D2;
-        Mon,  3 Apr 2023 14:31:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5916AB81CD8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8645C433D2;
+        Mon,  3 Apr 2023 14:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532304;
-        bh=b0Z+ywrKJho9+/HDEm9stgcTAQDDhzWEQhXEGSKcnJU=;
+        s=korg; t=1680532743;
+        bh=CvI2cRHi5U0ZseVS4v+bVBVc12ZkIelqoTGsUNRvZns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sV6u06WWib/6z7CVNEc5yB1exSVx2SwYLSnOnADYixA07Nb5mMPc/zg5TAKHvwrq1
-         +CmcYPxVkrVgJJ0PZS6tDsMKpwzuNRoTemADSywDs5dqVcUbdOGDeQ41/Gy0fnhJDm
-         ixie5WEwTSQNxPxCpNd0tar3RK7AcBNQNqgcuKjU=
+        b=om2gWt/ub1GFPSJ4Q7r09iHCLWHLzKU2svTcioQ/6k9ws35jHGphRmKhf1hIA/hjW
+         SffMrJcNj5i/rOdwQGC3R84aALy24XmfGrXyz3X1rUa630seHddNzoA/7hSRDuy13V
+         +wAO//IsO7N9Ui+2nVzjrCxWdiVdGp9/8ZpO+kEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Siddharth Rajendra Kawar <sikawar@microsoft.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Tony Krowiak <akrowiak@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 32/99] SUNRPC: fix shutdown of NFS TCP client socket
+Subject: [PATCH 6.1 100/181] s390/vfio-ap: fix memory leak in vfio_ap device driver
 Date:   Mon,  3 Apr 2023 16:08:55 +0200
-Message-Id: <20230403140404.360383298@linuxfoundation.org>
+Message-Id: <20230403140418.354175413@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,115 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Kawar <Siddharth.Kawar@microsoft.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-[ Upstream commit 943d045a6d796175e5d08f9973953b1d2c07d797 ]
+[ Upstream commit 8f8cf767589f2131ae5d40f3758429095c701c84 ]
 
-NFS server Duplicate Request Cache (DRC) algorithms rely on NFS clients
-reconnecting using the same local TCP port. Unique NFS operations are
-identified by the per-TCP connection set of XIDs. This prevents file
-corruption when non-idempotent NFS operations are retried.
+The device release callback function invoked to release the matrix device
+uses the dev_get_drvdata(device *dev) function to retrieve the
+pointer to the vfio_matrix_dev object in order to free its storage. The
+problem is, this object is not stored as drvdata with the device; since the
+kfree function will accept a NULL pointer, the memory for the
+vfio_matrix_dev object is never freed.
 
-Currently, NFS client TCP connections are using different local TCP ports
-when reconnecting to NFS servers.
+Since the device being released is contained within the vfio_matrix_dev
+object, the container_of macro will be used to retrieve its pointer.
 
-After an NFS server initiates shutdown of the TCP connection, the NFS
-client's TCP socket is set to NULL after the socket state has reached
-TCP_LAST_ACK(9). When reconnecting, the new socket attempts to reuse
-the same local port but fails with EADDRNOTAVAIL (99). This forces the
-socket to use a different local TCP port to reconnect to the remote NFS
-server.
-
-State Transition and Events:
-TCP_CLOSE_WAIT(8)
-TCP_LAST_ACK(9)
-connect(fail EADDRNOTAVAIL(99))
-TCP_CLOSE(7)
-bind on new port
-connect success
-
-dmesg excerpts showing reconnect switching from TCP local port of 926 to
-763 after commit 7c81e6a9d75b:
-[13354.947854] NFS call  mkdir testW
-...
-[13405.654781] RPC:       xs_tcp_state_change client 00000000037d0f03...
-[13405.654813] RPC:       state 8 conn 1 dead 0 zapped 1 sk_shutdown 1
-[13405.654826] RPC:       xs_data_ready...
-[13405.654892] RPC:       xs_tcp_state_change client 00000000037d0f03...
-[13405.654895] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
-[13405.654899] RPC:       xs_tcp_state_change client 00000000037d0f03...
-[13405.654900] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
-[13405.654950] RPC:       xs_connect scheduled xprt 00000000037d0f03
-[13405.654975] RPC:       xs_bind 0.0.0.0:926: ok (0)
-[13405.654980] RPC:       worker connecting xprt 00000000037d0f03 via tcp
-			  to 10.101.6.228 (port 2049)
-[13405.654991] RPC:       00000000037d0f03 connect status 99 connected 0
-			  sock state 7
-[13405.655001] RPC:       xs_tcp_state_change client 00000000037d0f03...
-[13405.655002] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
-[13405.655024] RPC:       xs_connect scheduled xprt 00000000037d0f03
-[13405.655038] RPC:       xs_bind 0.0.0.0:763: ok (0)
-[13405.655041] RPC:       worker connecting xprt 00000000037d0f03 via tcp
-			  to 10.101.6.228 (port 2049)
-[13405.655065] RPC:       00000000037d0f03 connect status 115 connected 0
-			  sock state 2
-
-State Transition and Events with patch applied:
-TCP_CLOSE_WAIT(8)
-TCP_LAST_ACK(9)
-TCP_CLOSE(7)
-connect(reuse of port succeeds)
-
-dmesg excerpts showing reconnect on same TCP local port of 936 with patch
-applied:
-[  257.139935] NFS: mkdir(0:59/560857152), testQ
-[  257.139937] NFS call  mkdir testQ
-...
-[  307.822702] RPC:       state 8 conn 1 dead 0 zapped 1 sk_shutdown 1
-[  307.822714] RPC:       xs_data_ready...
-[  307.822817] RPC:       xs_tcp_state_change client 00000000ce702f14...
-[  307.822821] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
-[  307.822825] RPC:       xs_tcp_state_change client 00000000ce702f14...
-[  307.822826] RPC:       state 9 conn 0 dead 0 zapped 1 sk_shutdown 3
-[  307.823606] RPC:       xs_tcp_state_change client 00000000ce702f14...
-[  307.823609] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
-[  307.823629] RPC:       xs_tcp_state_change client 00000000ce702f14...
-[  307.823632] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
-[  307.823676] RPC:       xs_connect scheduled xprt 00000000ce702f14
-[  307.823704] RPC:       xs_bind 0.0.0.0:936: ok (0)
-[  307.823709] RPC:       worker connecting xprt 00000000ce702f14 via tcp
-			  to 10.101.1.30 (port 2049)
-[  307.823748] RPC:       00000000ce702f14 connect status 115 connected 0
-			  sock state 2
-...
-[  314.916193] RPC:       state 7 conn 0 dead 0 zapped 1 sk_shutdown 3
-[  314.916251] RPC:       xs_connect scheduled xprt 00000000ce702f14
-[  314.916282] RPC:       xs_bind 0.0.0.0:936: ok (0)
-[  314.916292] RPC:       worker connecting xprt 00000000ce702f14 via tcp
-			  to 10.101.1.30 (port 2049)
-[  314.916342] RPC:       00000000ce702f14 connect status 115 connected 0
-			  sock state 2
-
-Fixes: 7c81e6a9d75b ("SUNRPC: Tweak TCP socket shutdown in the RPC client")
-Signed-off-by: Siddharth Rajendra Kawar <sikawar@microsoft.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 1fde573413b5 ("s390: vfio-ap: base implementation of VFIO AP device driver")
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230320150447.34557-1-akrowiak@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtsock.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/crypto/vfio_ap_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 897dfce7dd271..bf801adff63db 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2140,6 +2140,7 @@ static void xs_tcp_shutdown(struct rpc_xprt *xprt)
- 	switch (skst) {
- 	case TCP_FIN_WAIT1:
- 	case TCP_FIN_WAIT2:
-+	case TCP_LAST_ACK:
- 		break;
- 	case TCP_ESTABLISHED:
- 	case TCP_CLOSE_WAIT:
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index f43cfeabd2cc8..0afceb63ac43c 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -54,8 +54,9 @@ static struct ap_driver vfio_ap_drv = {
+ 
+ static void vfio_ap_matrix_dev_release(struct device *dev)
+ {
+-	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
++	struct ap_matrix_dev *matrix_dev;
+ 
++	matrix_dev = container_of(dev, struct ap_matrix_dev, device);
+ 	kfree(matrix_dev);
+ }
+ 
 -- 
 2.39.2
 
