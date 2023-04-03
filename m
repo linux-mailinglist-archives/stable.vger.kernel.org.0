@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D661F6D4809
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03B266D4A20
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233268AbjDCOZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:25:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52768 "EHLO
+        id S233933AbjDCOo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233244AbjDCOZR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:25:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E3202B0D6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:25:16 -0700 (PDT)
+        with ESMTP id S233937AbjDCOoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:44:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2B97283
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C74EF61D93
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:25:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDF0AC433D2;
-        Mon,  3 Apr 2023 14:25:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CE9AB81D2C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17E43C433D2;
+        Mon,  3 Apr 2023 14:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531915;
-        bh=yd9XK92dBvylX5xDPEBYWBCxoYN3rgxRUCTi1OyXLkA=;
+        s=korg; t=1680533025;
+        bh=hRI07d01gZ1BQajozshHCpd8OZCc6ZBZz5yD0oyspYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/qlAPN/vnH7Z1QhIsvAlzSBbNa4TOt1+DrngbJD+FOiYHLkIM8vugtJc9iiK41cV
-         Ne1kETJZ4QIs5Xy/sIqGHAMpNvsVXf6rlz62Bx8Aaa1GN/OPZOVTxVmDv4mhpLE57h
-         UMrSL08nJNn9LhJQIvt61Tl+zrE7xStz2gN2V26Y=
+        b=oNBlydlBeF31zKtKqqAiBEzHqgDgn+oZMJY7n3WhIx4MwA3CTmYW12OkoGSCKMO/w
+         aOxBWJSV/t3VIqbtZEZK7iQNXy11FZZ4dny5+1mdkrTjl1s7nWCvWOZV2v15D4Ayk8
+         ORuM2wyLhBlSfliwb80kSh3SU6osTqqffSJWdYcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/173] Bluetooth: btsdio: fix use after free bug in btsdio_remove due to unfinished work
+Subject: [PATCH 6.2 026/187] ACPI: x86: Add skip i2c clients quirk for Acer Iconia One 7 B1-750
 Date:   Mon,  3 Apr 2023 16:07:51 +0200
-Message-Id: <20230403140416.270425064@linuxfoundation.org>
+Message-Id: <20230403140416.874938767@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 1e9ac114c4428fdb7ff4635b45d4f46017e8916f ]
+[ Upstream commit a5cb0695c5f0ac2ab0cedf2c1c0d75826cb73448 ]
 
-In btsdio_probe, &data->work was bound with btsdio_work.In
-btsdio_send_frame, it was started by schedule_work.
+The Acer Iconia One 7 B1-750 is a x86 tablet which ships with Android x86
+as factory OS. The Android x86 kernel fork ignores I2C devices described
+in the DSDT, except for the PMIC and Audio codecs.
 
-If we call btsdio_remove with an unfinished job, there may
-be a race condition and cause UAF bug on hdev.
+As usual the Acer Iconia One 7 B1-750's DSDT contains a bunch of extra I2C
+devices which are not actually there, causing various resource conflicts.
+Add an ACPI_QUIRK_SKIP_I2C_CLIENTS quirk for the Acer Iconia One 7 B1-750
+to the acpi_quirk_skip_dmi_ids table to woraround this.
 
-Fixes: ddbaf13e3609 ("[Bluetooth] Add generic driver for Bluetooth SDIO devices")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The DSDT also contains broken ACPI GPIO event handlers, disable those too.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rjw@rjwysocki.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btsdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/x86/utils.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/bluetooth/btsdio.c b/drivers/bluetooth/btsdio.c
-index 199e8f7d426d9..7050a16e7efeb 100644
---- a/drivers/bluetooth/btsdio.c
-+++ b/drivers/bluetooth/btsdio.c
-@@ -352,6 +352,7 @@ static void btsdio_remove(struct sdio_func *func)
- 
- 	BT_DBG("func %p", func);
- 
-+	cancel_work_sync(&data->work);
- 	if (!data)
- 		return;
- 
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 4bf57cce30bbf..b2b0e2701333a 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -280,6 +280,16 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 	 *    need the x86-android-tablets module to properly work.
+ 	 */
+ #if IS_ENABLED(CONFIG_X86_ANDROID_TABLETS)
++	{
++		/* Acer Iconia One 7 B1-750 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "VESPA2"),
++		},
++		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY |
++					ACPI_QUIRK_SKIP_GPIO_EVENT_HANDLERS),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 -- 
 2.39.2
 
