@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36EBE6D499B
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A53E6D4869
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233765AbjDCOjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51636 "EHLO
+        id S233367AbjDCO21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233756AbjDCOjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:32 -0400
+        with ESMTP id S233363AbjDCO20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1825E29512
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E163F31280
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7A5161EA8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABF9C433D2;
-        Mon,  3 Apr 2023 14:39:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D2D61DBF
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D3C7C433EF;
+        Mon,  3 Apr 2023 14:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532769;
-        bh=QoDgpTPMnrfzSxVXMXXzSd+OwMlPZ2ishQ+D34FEtUI=;
+        s=korg; t=1680532104;
+        bh=9c5q+RRvk0Gpkk4KBxd4qoIs3IlyHdm46ev3J2FHPos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2Cph97OYTs1WIZElxNHtLcEQWLvo+RALcPZJfhCyJ/ziXk7Ye7diDi3dNTtN+01N
-         6q9rNag9FgAC+TT7ssbyFyNJj/WBDt8obmEEgG/An7Bocf41I6agTq/uby6pjWhOip
-         7Kvrc3oHRggWfdWQiT0PZAqrEz8awPoyRWtknW+Y=
+        b=B0JheTuKW6EgVpclz8STG8Z2Ngh8qwqkTcIUd0FdxRtz4IIS5vQzoIX699j4M1xAt
+         b/mW1Fac4oM8Rs9FLk3kUeoCLJ3ntNqheFM7MknhmvlU/f/bflRNXquh18fptodBf4
+         yBEtssK2HcTKKFYNjOiTodujGMRmrFl6EPCR9zqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Arpana Arland <arpanax.arland@intel.com>
-Subject: [PATCH 6.1 109/181] ice: fix invalid check for empty list in ice_sched_assoc_vsi_to_agg()
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 129/173] scsi: megaraid_sas: Fix crash after a double completion
 Date:   Mon,  3 Apr 2023 16:09:04 +0200
-Message-Id: <20230403140418.650449160@linuxfoundation.org>
+Message-Id: <20230403140418.629719805@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
+References: <20230403140414.174516815@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jkl820.git@gmail.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit e9a1cc2e4c4ee7c7e60fb26345618c2522a2a10f ]
+[ Upstream commit 2309df27111a51734cb9240b4d3c25f2f3c6ab06 ]
 
-The code implicitly assumes that the list iterator finds a correct
-handle. If 'vsi_handle' is not found the 'old_agg_vsi_info' was
-pointing to an bogus memory location. For safety a separate list
-iterator variable should be used to make the != NULL check on
-'old_agg_vsi_info' correct under any circumstances.
+When a physical disk is attached directly "without JBOD MAP support" (see
+megasas_get_tm_devhandle()) then there is no real error handling in the
+driver.  Return FAILED instead of SUCCESS.
 
-Additionally Linus proposed to avoid any use of the list iterator
-variable after the loop, in the attempt to move the list iterator
-variable declaration into the macro to avoid any potential misuse after
-the loop. Using it in a pointer comparison after the loop is undefined
-behavior and should be omitted if possible [1].
-
-Fixes: 37c592062b16 ("ice: remove the VSI info from previous agg")
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
-Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 18365b138508 ("megaraid_sas: Task management support")
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Link: https://lore.kernel.org/r/20230324150134.14696-1-thenzl@redhat.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_sched.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_sched.c b/drivers/net/ethernet/intel/ice/ice_sched.c
-index 118595763bba3..2c62c1763ee0d 100644
---- a/drivers/net/ethernet/intel/ice/ice_sched.c
-+++ b/drivers/net/ethernet/intel/ice/ice_sched.c
-@@ -2756,7 +2756,7 @@ static int
- ice_sched_assoc_vsi_to_agg(struct ice_port_info *pi, u32 agg_id,
- 			   u16 vsi_handle, unsigned long *tc_bitmap)
- {
--	struct ice_sched_agg_vsi_info *agg_vsi_info, *old_agg_vsi_info = NULL;
-+	struct ice_sched_agg_vsi_info *agg_vsi_info, *iter, *old_agg_vsi_info = NULL;
- 	struct ice_sched_agg_info *agg_info, *old_agg_info;
- 	struct ice_hw *hw = pi->hw;
- 	int status = 0;
-@@ -2774,11 +2774,13 @@ ice_sched_assoc_vsi_to_agg(struct ice_port_info *pi, u32 agg_id,
- 	if (old_agg_info && old_agg_info != agg_info) {
- 		struct ice_sched_agg_vsi_info *vtmp;
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 7838c7911adde..8eb126d48462b 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -4656,7 +4656,7 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
+ 	devhandle = megasas_get_tm_devhandle(scmd->device);
  
--		list_for_each_entry_safe(old_agg_vsi_info, vtmp,
-+		list_for_each_entry_safe(iter, vtmp,
- 					 &old_agg_info->agg_vsi_list,
- 					 list_entry)
--			if (old_agg_vsi_info->vsi_handle == vsi_handle)
-+			if (iter->vsi_handle == vsi_handle) {
-+				old_agg_vsi_info = iter;
- 				break;
-+			}
- 	}
+ 	if (devhandle == (u16)ULONG_MAX) {
+-		ret = SUCCESS;
++		ret = FAILED;
+ 		sdev_printk(KERN_INFO, scmd->device,
+ 			"task abort issued for invalid devhandle\n");
+ 		mutex_unlock(&instance->reset_mutex);
+@@ -4726,7 +4726,7 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
+ 	devhandle = megasas_get_tm_devhandle(scmd->device);
  
- 	/* check if entry already exist */
+ 	if (devhandle == (u16)ULONG_MAX) {
+-		ret = SUCCESS;
++		ret = FAILED;
+ 		sdev_printk(KERN_INFO, scmd->device,
+ 			"target reset issued for invalid devhandle\n");
+ 		mutex_unlock(&instance->reset_mutex);
 -- 
 2.39.2
 
