@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29AEB6D485A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4A796D4A78
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233349AbjDCO16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:27:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57342 "EHLO
+        id S233989AbjDCOri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233351AbjDCO15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:27:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B851319AA
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:27:56 -0700 (PDT)
+        with ESMTP id S234041AbjDCOrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:47:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F9229BDC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:46:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBE97B81C1D
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:27:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DE52C4339E;
-        Mon,  3 Apr 2023 14:27:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1D7FB81D4C
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B66DC433EF;
+        Mon,  3 Apr 2023 14:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532073;
-        bh=IKQomHzk0YuxwGm+Zh7vyflVXcYZUmY63Ox9zyNiL6A=;
+        s=korg; t=1680533184;
+        bh=GZPVYcrHtGWQvUQ8YdKknhqUfDuUeXv2O0AacKE8YH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2+aeaRSXCHwonVooyoLAgg7k/FHtyQULEGUeG6/RtMpR9t5hxaIJ3Tb6+2HnvlZq
-         URrLVLUoHY/uh44WUTJUPbstT3oxweTIB85ZONGJA5u5yVF+PZuvUrvjXqZVR+X7pS
-         oBUC34slsCft2c4CFae8eeHraxGhrpq1+OMfj/AI=
+        b=m6+vAHmzsEc3tzd2bl+zo9fhiBTNa06+PP0/5uY482pXW2be8jVszzzgNsryfkLUt
+         euT9Zo/wbqAgwe4TuGK6pvwQaHE3lKfVqvzU4Ks32WGG7vYQdLcXF0fiobfAwkjq5N
+         jd3t2rgfjwPVigi4sJeI8HmBO5CnzTcLiIMQESfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
-        Xu Yang <xu.yang_2@nxp.com>
-Subject: [PATCH 5.10 085/173] usb: chipdea: core: fix return -EINVAL if request role is the same with current role
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 055/187] fbdev: lxfb: Fix potential divide by zero
 Date:   Mon,  3 Apr 2023 16:08:20 +0200
-Message-Id: <20230403140417.175338548@linuxfoundation.org>
+Message-Id: <20230403140417.782187994@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,38 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yang <xu.yang_2@nxp.com>
+From: Wei Chen <harperchen1110@gmail.com>
 
-commit 3670de80678961eda7fa2220883fc77c16868951 upstream.
+[ Upstream commit 61ac4b86a4c047c20d5cb423ddd87496f14d9868 ]
 
-It should not return -EINVAL if the request role is the same with current
-role, return non-error and without do anything instead.
+var->pixclock can be assigned to zero by user. Without proper
+check, divide by zero would occur in lx_set_clock.
 
-Fixes: a932a8041ff9 ("usb: chipidea: core: add sysfs group")
-cc: <stable@vger.kernel.org>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Link: https://lore.kernel.org/r/20230317061516.2451728-1-xu.yang_2@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Error out if var->pixclock is zero.
+
+Signed-off-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/core.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/geode/lxfb_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/chipidea/core.c
-+++ b/drivers/usb/chipidea/core.c
-@@ -966,9 +966,12 @@ static ssize_t role_store(struct device
- 			     strlen(ci->roles[role]->name)))
- 			break;
+diff --git a/drivers/video/fbdev/geode/lxfb_core.c b/drivers/video/fbdev/geode/lxfb_core.c
+index 8130e9eee2b4b..556d8b1a9e06a 100644
+--- a/drivers/video/fbdev/geode/lxfb_core.c
++++ b/drivers/video/fbdev/geode/lxfb_core.c
+@@ -235,6 +235,9 @@ static void get_modedb(struct fb_videomode **modedb, unsigned int *size)
  
--	if (role == CI_ROLE_END || role == ci->role)
-+	if (role == CI_ROLE_END)
+ static int lxfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ {
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	if (var->xres > 1920 || var->yres > 1440)
  		return -EINVAL;
  
-+	if (role == ci->role)
-+		return n;
-+
- 	pm_runtime_get_sync(dev);
- 	disable_irq(ci->irq);
- 	ci_role_stop(ci);
+-- 
+2.39.2
+
 
 
