@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75D2F6D4A9A
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A70F86D49A3
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234177AbjDCOsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:48:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38594 "EHLO
+        id S233757AbjDCOjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234099AbjDCOs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:48:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66D71766B
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:47:15 -0700 (PDT)
+        with ESMTP id S233758AbjDCOjv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DA21766E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E0F661F50
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:47:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D0EC4339B;
-        Mon,  3 Apr 2023 14:47:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58DE5B81CDC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4C61C433D2;
+        Mon,  3 Apr 2023 14:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533234;
-        bh=CMj4c/ZIUVRCCzFUFSz9++mPH9R/HYaVVlufubWf4wQ=;
+        s=korg; t=1680532787;
+        bh=2RXm2wa3A9FC+yqYtJ4MiGv0GflYG/3NkCVxITDf+1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV3l7/5c5j1rcFdL8IY3QtOPqkmwlxpJyZZlw82WVyKZYea5MAoKpb70XWXzLueH1
-         Rn1CAOo/GvfWCfmihFiYF+QtTixGMJ5WG/oBBSHPaS6cy0zaDaOx5NEYi6nwKel67P
-         gwPMWammosW4z0pMahO8aP7Iso1ajxGDNZtRsukg=
+        b=MYPGZfTxjb6WJnV66j/5R8SzZYULocx+ad4C83eSGyC+x9sSssbx5JGctOvVhtLis
+         yVGuYAt0hFnuGtbFaP1ip4tOPf0wzWSnVy9pENomCGyromwWQfjvFF7EZjP1iWmHPS
+         zE0Qu1Ltow34/JAX910+e0tI98vExNBykA7cuEZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robert Malz <robertx.malz@intel.com>,
-        Brett Creeley <brett.creeley@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Piotr Raczynski <piotr.raczynski@intel.com>,
-        Jakub Andrysiak <jakub.andrysiak@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 105/187] ice: Fix ice_cfg_rdma_fltr() to only update relevant fields
+Subject: [PATCH 6.1 115/181] bnxt_en: Fix typo in PCI id to device description string mapping
 Date:   Mon,  3 Apr 2023 16:09:10 +0200
-Message-Id: <20230403140419.429179529@linuxfoundation.org>
+Message-Id: <20230403140418.833260598@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,76 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Kalesh AP <kalesh-anakkur.purayil@broadcom.com>
 
-[ Upstream commit d94dbdc4e0209b5e7d736ab696f8d635b034e3ee ]
+[ Upstream commit 62aad36ed31abc80f35db11e187e690448a79f7d ]
 
-The current implementation causes ice_vsi_update() to update all VSI
-fields based on the cached VSI context. This also assumes that the
-ICE_AQ_VSI_PROP_Q_OPT_VALID bit is set. This can cause problems if the
-VSI context is not correctly synced by the driver. Fix this by only
-updating the fields that correspond to ICE_AQ_VSI_PROP_Q_OPT_VALID.
-Also, make sure to save the updated result in the cached VSI context
-on success.
+Fix 57502 and 57508 NPAR description string entries.  The typos
+caused these devices to not match up with lspci output.
 
-Fixes: 348048e724a0 ("ice: Implement iidc operations")
-Co-developed-by: Robert Malz <robertx.malz@intel.com>
-Signed-off-by: Robert Malz <robertx.malz@intel.com>
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
-Tested-by: Jakub Andrysiak <jakub.andrysiak@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 49c98421e6ab ("bnxt_en: Add PCI IDs for 57500 series NPAR devices.")
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Kalesh AP <kalesh-anakkur.purayil@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_switch.c | 26 +++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_switch.c b/drivers/net/ethernet/intel/ice/ice_switch.c
-index 61f844d225123..46b36851af460 100644
---- a/drivers/net/ethernet/intel/ice/ice_switch.c
-+++ b/drivers/net/ethernet/intel/ice/ice_switch.c
-@@ -1780,18 +1780,36 @@ ice_update_vsi(struct ice_hw *hw, u16 vsi_handle, struct ice_vsi_ctx *vsi_ctx,
- int
- ice_cfg_rdma_fltr(struct ice_hw *hw, u16 vsi_handle, bool enable)
- {
--	struct ice_vsi_ctx *ctx;
-+	struct ice_vsi_ctx *ctx, *cached_ctx;
-+	int status;
-+
-+	cached_ctx = ice_get_vsi_ctx(hw, vsi_handle);
-+	if (!cached_ctx)
-+		return -ENOENT;
- 
--	ctx = ice_get_vsi_ctx(hw, vsi_handle);
-+	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
--		return -EIO;
-+		return -ENOMEM;
-+
-+	ctx->info.q_opt_rss = cached_ctx->info.q_opt_rss;
-+	ctx->info.q_opt_tc = cached_ctx->info.q_opt_tc;
-+	ctx->info.q_opt_flags = cached_ctx->info.q_opt_flags;
-+
-+	ctx->info.valid_sections = cpu_to_le16(ICE_AQ_VSI_PROP_Q_OPT_VALID);
- 
- 	if (enable)
- 		ctx->info.q_opt_flags |= ICE_AQ_VSI_Q_OPT_PE_FLTR_EN;
- 	else
- 		ctx->info.q_opt_flags &= ~ICE_AQ_VSI_Q_OPT_PE_FLTR_EN;
- 
--	return ice_update_vsi(hw, vsi_handle, ctx, NULL);
-+	status = ice_update_vsi(hw, vsi_handle, ctx, NULL);
-+	if (!status) {
-+		cached_ctx->info.q_opt_flags = ctx->info.q_opt_flags;
-+		cached_ctx->info.valid_sections |= ctx->info.valid_sections;
-+	}
-+
-+	kfree(ctx);
-+	return status;
- }
- 
- /**
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 251b102d2792b..c6e36603bd2db 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -175,12 +175,12 @@ static const struct pci_device_id bnxt_pci_tbl[] = {
+ 	{ PCI_VDEVICE(BROADCOM, 0x1750), .driver_data = BCM57508 },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1751), .driver_data = BCM57504 },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1752), .driver_data = BCM57502 },
+-	{ PCI_VDEVICE(BROADCOM, 0x1800), .driver_data = BCM57508_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1800), .driver_data = BCM57502_NPAR },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1801), .driver_data = BCM57504_NPAR },
+-	{ PCI_VDEVICE(BROADCOM, 0x1802), .driver_data = BCM57502_NPAR },
+-	{ PCI_VDEVICE(BROADCOM, 0x1803), .driver_data = BCM57508_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1802), .driver_data = BCM57508_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1803), .driver_data = BCM57502_NPAR },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1804), .driver_data = BCM57504_NPAR },
+-	{ PCI_VDEVICE(BROADCOM, 0x1805), .driver_data = BCM57502_NPAR },
++	{ PCI_VDEVICE(BROADCOM, 0x1805), .driver_data = BCM57508_NPAR },
+ 	{ PCI_VDEVICE(BROADCOM, 0xd802), .driver_data = BCM58802 },
+ 	{ PCI_VDEVICE(BROADCOM, 0xd804), .driver_data = BCM58804 },
+ #ifdef CONFIG_BNXT_SRIOV
 -- 
 2.39.2
 
