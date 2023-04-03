@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D1226D48E8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8C26D4786
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:21:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233529AbjDCOcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37806 "EHLO
+        id S233136AbjDCOVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:21:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233541AbjDCOcs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593F3E5F
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:46 -0700 (PDT)
+        with ESMTP id S233142AbjDCOVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:21:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF029312AC
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:20:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1E33B81C82
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 680D8C433D2;
-        Mon,  3 Apr 2023 14:32:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05FF361A2D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 179EEC4339C;
+        Mon,  3 Apr 2023 14:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532364;
-        bh=2pa5qYOH99HejMlK7P61qqxdiYP9eVCz52UkJjVO/bc=;
+        s=korg; t=1680531612;
+        bh=9d7Anayty8RhvVuNsOs31H6y62ZkLu4OYTN4Le6kfuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3GDhJ/IgEu6L0iM7y2k1mbd3pFZPj8oyNVUFVOkf0I6FcJuPZ47uKC6VhMTN95BU
-         jSukjjvSxHjOuKPKwd6zuqinLkrjZT2cUeUv2ymDZB92boUaINXVxYzNRnJYHbv2hB
-         GYYLpPb35aqiVsdqA8XTuNoNjOHtJDwpksBCGMms=
+        b=GbbsFGRI1K92c/CA+ADqwx0Qz/86XvClUUND5G1kanggcsc8LKsYm+EqREEcK+zzI
+         6VpRxYgXbqVauiKmSoAL7OBnJNKBQfRwr5qZiZ9MsWjbyI0LSMgs6XmWSrFemPnbQw
+         bA+5EAav5bwofTbAZMi6JthhgtG3+P11pSR5by6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 14/99] ALSA: hda/ca0132: fixup buffer overrun at tuning_ctl_set()
+        patches@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.4 045/104] fsverity: Remove WQ_UNBOUND from fsverity read workqueue
 Date:   Mon,  3 Apr 2023 16:08:37 +0200
-Message-Id: <20230403140358.021934279@linuxfoundation.org>
+Message-Id: <20230403140406.159854304@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 98e5eb110095ec77cb6d775051d181edbf9cd3cf ]
+commit f959325e6ac3f499450088b8d9c626d1177be160 upstream.
 
-tuning_ctl_set() might have buffer overrun at (X) if it didn't break
-from loop by matching (A).
+WQ_UNBOUND causes significant scheduler latency on ARM64/Android.  This
+is problematic for latency sensitive workloads, like I/O
+post-processing.
 
-	static int tuning_ctl_set(...)
-	{
-		for (i = 0; i < TUNING_CTLS_COUNT; i++)
-(A)			if (nid == ca0132_tuning_ctls[i].nid)
-				break;
+Removing WQ_UNBOUND gives a 96% reduction in fsverity workqueue related
+scheduler latency and improves app cold startup times by ~30ms.
+WQ_UNBOUND was also removed from the dm-verity workqueue for the same
+reason [1].
 
-		snd_hda_power_up(...);
-(X)		dspio_set_param(..., ca0132_tuning_ctls[i].mid, ...);
-		snd_hda_power_down(...);                ^
+This code was tested by running Android app startup benchmarks and
+measuring how long the fsverity workqueue spent in the runnable state.
 
-		return 1;
-	}
+Before
+Total workqueue scheduler latency: 553800us
+After
+Total workqueue scheduler latency: 18962us
 
-We will get below error by cppcheck
+[1]: https://lore.kernel.org/all/20230202012348.885402-1-nhuck@google.com/
 
-	sound/pci/hda/patch_ca0132.c:4229:2: note: After for loop, i has value 12
-	 for (i = 0; i < TUNING_CTLS_COUNT; i++)
-	 ^
-	sound/pci/hda/patch_ca0132.c:4234:43: note: Array index out of bounds
-	 dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
-	                                           ^
-This patch cares non match case.
-
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87sfe9eap7.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Fixes: 8a1d0f9cacc9 ("fs-verity: add data verification hooks for ->readpages()")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230310193325.620493-1-nhuck@google.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_ca0132.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/verity/verify.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index c0cb6e49a9b65..2646663e03426 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -4231,8 +4231,10 @@ static int tuning_ctl_set(struct hda_codec *codec, hda_nid_t nid,
- 
- 	for (i = 0; i < TUNING_CTLS_COUNT; i++)
- 		if (nid == ca0132_tuning_ctls[i].nid)
--			break;
-+			goto found;
- 
-+	return -EINVAL;
-+found:
- 	snd_hda_power_up(codec);
- 	dspio_set_param(codec, ca0132_tuning_ctls[i].mid, 0x20,
- 			ca0132_tuning_ctls[i].req,
--- 
-2.39.2
-
+--- a/fs/verity/verify.c
++++ b/fs/verity/verify.c
+@@ -259,15 +259,15 @@ EXPORT_SYMBOL_GPL(fsverity_enqueue_verif
+ int __init fsverity_init_workqueue(void)
+ {
+ 	/*
+-	 * Use an unbound workqueue to allow bios to be verified in parallel
+-	 * even when they happen to complete on the same CPU.  This sacrifices
+-	 * locality, but it's worthwhile since hashing is CPU-intensive.
++	 * Use a high-priority workqueue to prioritize verification work, which
++	 * blocks reads from completing, over regular application tasks.
+ 	 *
+-	 * Also use a high-priority workqueue to prioritize verification work,
+-	 * which blocks reads from completing, over regular application tasks.
++	 * For performance reasons, don't use an unbound workqueue.  Using an
++	 * unbound workqueue for crypto operations causes excessive scheduler
++	 * latency on ARM64.
+ 	 */
+ 	fsverity_read_workqueue = alloc_workqueue("fsverity_read_queue",
+-						  WQ_UNBOUND | WQ_HIGHPRI,
++						  WQ_HIGHPRI,
+ 						  num_online_cpus());
+ 	if (!fsverity_read_workqueue)
+ 		return -ENOMEM;
 
 
