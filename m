@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A9166D4AB0
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A95CE6D47C8
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:23:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234061AbjDCOta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:49:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S233236AbjDCOXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234062AbjDCOtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:49:13 -0400
+        with ESMTP id S233163AbjDCOXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:23:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D26529055
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:48:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9F05275
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:23:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D771A61F6A
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:48:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC94C4339E;
-        Mon,  3 Apr 2023 14:48:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D70261D65
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:23:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C829C433D2;
+        Mon,  3 Apr 2023 14:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533284;
-        bh=a7axbQYD8z8Xc7gCC1YfckJxcJAG4ev05FD4JTZNsjc=;
+        s=korg; t=1680531779;
+        bh=Cs99oUpa9z7eVb4echWlvv/QYQMGoWYfLDwzNBgj2gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtoSPjZjgGt43yEtJWwlBt+1KXE75vhrAvvI/O3KNgvmCcS7ftoJQtQs+cyGrw6da
-         MTm/0DgZDKU99ygh6qpkPR3Wb+baHOb8qiTl1TGAiSnY/sgF9QMBIGEDJxVZ69j/oD
-         43ui2asat8wobz7K9IH4hUBvcQFHIBzdnFf9hQms=
+        b=BwhskhRAxz/Cncabcye7vKB93pwGLMoZ9/BnVC31EtaURMgYrVN7lfl/Lcq1FNZfD
+         jAMREsn4Ch3p6K5HQnCmF6qk6rs9kny1qxoPzv7TzfwCza8FU5TKHxLUE5d/fHCYKA
+         ItcZrydtNXlSvs3qfhSzPYvlPetKSNed1g9PquI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthias Benkmann <matthias.benkmann@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 125/187] Input: xpad - fix incorrectly applied patch for MAP_PROFILE_BUTTON
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 098/104] s390/uaccess: add missing earlyclobber annotations to __clear_user()
 Date:   Mon,  3 Apr 2023 16:09:30 +0200
-Message-Id: <20230403140420.077047248@linuxfoundation.org>
+Message-Id: <20230403140408.004909351@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
-References: <20230403140416.015323160@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Benkmann <matthias.benkmann@gmail.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit ffa6206ebf8d39e83d87ac226df68dbbe155819a ]
+commit 89aba4c26fae4e459f755a18912845c348ee48f3 upstream.
 
-When commit commit fff1011a26d6 ("Input: xpad - add X-Box Adaptive Profile
-button") was applied, one hunk ended up in the wrong function; move it to
-where it belongs.
+Add missing earlyclobber annotation to size, to, and tmp2 operands of the
+__clear_user() inline assembly since they are modified or written to before
+the last usage of all input operands. This can lead to incorrect register
+allocation for the inline assembly.
 
-Fixes: fff1011a26d6 ("Input: xpad - add X-Box Adaptive Profile button")
-Signed-off-by: Matthias Benkmann <matthias.benkmann@gmail.com>
-Link: https://lore.kernel.org/r/20230318162106.0aef4ba5@ninja
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6c2a9e6df604 ("[S390] Use alternative user-copy operations for new hardware.")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/all/20230321122514.1743889-3-mark.rutland@arm.com/
+Cc: stable@vger.kernel.org
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/s390/lib/uaccess.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 2959d80f7fdb6..cd36cf7165423 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -779,9 +779,6 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- 	input_report_key(dev, BTN_C, data[8]);
- 	input_report_key(dev, BTN_Z, data[9]);
- 
--	/* Profile button has a value of 0-3, so it is reported as an axis */
--	if (xpad->mapping & MAP_PROFILE_BUTTON)
--		input_report_abs(dev, ABS_PROFILE, data[34]);
- 
- 	input_sync(dev);
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -339,7 +339,7 @@ static inline unsigned long clear_user_m
+ 		"4: slgr  %0,%0\n"
+ 		"5:\n"
+ 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
+-		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
++		: "+&a" (size), "+&a" (to), "+a" (tmp1), "=&a" (tmp2)
+ 		: "a" (empty_zero_page), "d" (reg0) : "cc", "memory");
+ 	return size;
  }
-@@ -1059,6 +1056,10 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
- 					(__u16) le16_to_cpup((__le16 *)(data + 8)));
- 		}
- 
-+		/* Profile button has a value of 0-3, so it is reported as an axis */
-+		if (xpad->mapping & MAP_PROFILE_BUTTON)
-+			input_report_abs(dev, ABS_PROFILE, data[34]);
-+
- 		/* paddle handling */
- 		/* based on SDL's SDL_hidapi_xboxone.c */
- 		if (xpad->mapping & MAP_PADDLES) {
--- 
-2.39.2
-
 
 
