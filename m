@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C650F6D46DA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA67C6D4991
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:39:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232885AbjDCOOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
+        id S233740AbjDCOjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:39:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232883AbjDCOOs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA8D4EFD
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:46 -0700 (PDT)
+        with ESMTP id S233682AbjDCOjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:39:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA9722EA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:39:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C1ABB81B49
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A92C433D2;
-        Mon,  3 Apr 2023 14:14:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AB4EB81CA5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:39:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63079C433D2;
+        Mon,  3 Apr 2023 14:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531284;
-        bh=ko5ax+OAK5fAVAAVNTrQOuTVQCrHkrQbCobV2lkkRPw=;
+        s=korg; t=1680532745;
+        bh=K6uvNA7yH0Minio83kio7ISml0YM8O5J/t1spzUr9fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWxNHpRBOvHJ82jF08PhxbJDexzf/BD/SvbcsGdMQwBG/KRL6U+yz15QjQ+yniHAd
-         a81BnkIXW+rzkzSBQJ0NK9zwIOjbnSNNPFjvtTUntXHFm05LeOI5xjEvIU2A2OI48H
-         jzVmmEGMp3lrL6YaY2Kg32QvdGMZWrVWMn4EFFuI=
+        b=dNiH1MWkYnWUYjprRyl51cFA5kdBBZsjiztVpS316SgdARTZQrJs3lCxViYAPFm4u
+         Zndy6waIFQvFEi+OikplS7w9EMqNUi5OyFc6cwjthuyJ4t76ckgOD5yVTR4OPjS53F
+         lAEyLjJD45z0izX9MXuAqsMiPPVHcfqvziq9n0Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 48/66] fbdev: nvidia: Fix potential divide by zero
+        patches@lists.linux.dev, Pierre Asselin <pa@panix.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 101/181] ACPI: bus: Rework system-level device notification handling
 Date:   Mon,  3 Apr 2023 16:08:56 +0200
-Message-Id: <20230403140353.512697225@linuxfoundation.org>
+Message-Id: <20230403140418.383270540@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,38 +53,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 92e2a00f2987483e1f9253625828622edd442e61 ]
+[ Upstream commit c56610a869bce03490faf4f157076370c71b8ae3 ]
 
-variable var->pixclock can be set by user. In case it
-equals to zero, divide by zero would occur in nvidiafb_set_par.
+For ACPI drivers that provide a ->notify() callback and set
+ACPI_DRIVER_ALL_NOTIFY_EVENTS in their flags, that callback can be
+invoked while either the ->add() or the ->remove() callback is running
+without any synchronization at the bus type level which is counter to
+the common-sense expectation that notification handling should only be
+enabled when the driver is actually bound to the device.  As a result,
+if the driver is not careful enough, it's ->notify() callback may crash
+when it is invoked too early or too late [1].
 
-Similar crashes have happened in other fbdev drivers. There
-is no check and modification on var->pixclock along the call
-chain to nvidia_check_var and nvidiafb_set_par. We believe it
-could also be triggered in driver nvidia from user site.
+This issue has been amplified by commit d6fb6ee1820c ("ACPI: bus: Drop
+driver member of struct acpi_device") that made acpi_bus_notify() check
+for the presence of the driver and its ->notify() callback directly
+instead of using an extra driver pointer that was only set and cleared
+by the bus type code, but it was present before that commit although
+it was harder to reproduce then.
 
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+It can be addressed by using the observation that
+acpi_device_install_notify_handler() can be modified to install the
+handler for all types of events when ACPI_DRIVER_ALL_NOTIFY_EVENTS is
+set in the driver flags, in which case acpi_bus_notify() will not need
+to invoke the driver's ->notify() callback any more and that callback
+will only be invoked after acpi_device_install_notify_handler() has run
+and before acpi_device_remove_notify_handler() runs, which implies the
+correct ordering with respect to the other ACPI driver callbacks.
+
+Modify the code accordingly and while at it, drop two redundant local
+variables from acpi_bus_notify() and turn its description comment into
+a proper kerneldoc one.
+
+Fixes: d6fb6ee1820c ("ACPI: bus: Drop driver member of struct acpi_device")
+Link: https://lore.kernel.org/linux-acpi/9f6cba7a8a57e5a687c934e8e406e28c.squirrel@mail.panix.com # [1]
+Reported-by: Pierre Asselin <pa@panix.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Pierre Asselin <pa@panix.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/nvidia/nvidia.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/bus.c | 83 +++++++++++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/video/fbdev/nvidia/nvidia.c b/drivers/video/fbdev/nvidia/nvidia.c
-index 418a2d0d06a95..68e4bcdd38717 100644
---- a/drivers/video/fbdev/nvidia/nvidia.c
-+++ b/drivers/video/fbdev/nvidia/nvidia.c
-@@ -766,6 +766,8 @@ static int nvidiafb_check_var(struct fb_var_screeninfo *var,
- 	int pitch, err = 0;
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index d466c81953146..3b6146b1e25cc 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -456,85 +456,67 @@ static void acpi_bus_osc_negotiate_usb_control(void)
+                              Notification Handling
+    -------------------------------------------------------------------------- */
  
- 	NVTRACE_ENTER();
-+	if (!var->pixclock)
-+		return -EINVAL;
+-/*
+- * acpi_bus_notify
+- * ---------------
+- * Callback for all 'system-level' device notifications (values 0x00-0x7F).
++/**
++ * acpi_bus_notify - Global system-level (0x00-0x7F) notifications handler
++ * @handle: Target ACPI object.
++ * @type: Notification type.
++ * @data: Ignored.
++ *
++ * This only handles notifications related to device hotplug.
+  */
+ static void acpi_bus_notify(acpi_handle handle, u32 type, void *data)
+ {
+ 	struct acpi_device *adev;
+-	u32 ost_code = ACPI_OST_SC_NON_SPECIFIC_FAILURE;
+-	bool hotplug_event = false;
  
- 	var->transp.offset = 0;
- 	var->transp.length = 0;
+ 	switch (type) {
+ 	case ACPI_NOTIFY_BUS_CHECK:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_BUS_CHECK event\n");
+-		hotplug_event = true;
+ 		break;
+ 
+ 	case ACPI_NOTIFY_DEVICE_CHECK:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_CHECK event\n");
+-		hotplug_event = true;
+ 		break;
+ 
+ 	case ACPI_NOTIFY_DEVICE_WAKE:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_WAKE event\n");
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_EJECT_REQUEST:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_EJECT_REQUEST event\n");
+-		hotplug_event = true;
+ 		break;
+ 
+ 	case ACPI_NOTIFY_DEVICE_CHECK_LIGHT:
+ 		acpi_handle_debug(handle, "ACPI_NOTIFY_DEVICE_CHECK_LIGHT event\n");
+ 		/* TBD: Exactly what does 'light' mean? */
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_FREQUENCY_MISMATCH:
+ 		acpi_handle_err(handle, "Device cannot be configured due "
+ 				"to a frequency mismatch\n");
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_BUS_MODE_MISMATCH:
+ 		acpi_handle_err(handle, "Device cannot be configured due "
+ 				"to a bus mode mismatch\n");
+-		break;
++		return;
+ 
+ 	case ACPI_NOTIFY_POWER_FAULT:
+ 		acpi_handle_err(handle, "Device has suffered a power fault\n");
+-		break;
++		return;
+ 
+ 	default:
+ 		acpi_handle_debug(handle, "Unknown event type 0x%x\n", type);
+-		break;
++		return;
+ 	}
+ 
+ 	adev = acpi_get_acpi_dev(handle);
+-	if (!adev)
+-		goto err;
+-
+-	if (adev->dev.driver) {
+-		struct acpi_driver *driver = to_acpi_driver(adev->dev.driver);
+-
+-		if (driver && driver->ops.notify &&
+-		    (driver->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS))
+-			driver->ops.notify(adev, type);
+-	}
+-
+-	if (!hotplug_event) {
+-		acpi_put_acpi_dev(adev);
+-		return;
+-	}
+ 
+-	if (ACPI_SUCCESS(acpi_hotplug_schedule(adev, type)))
++	if (adev && ACPI_SUCCESS(acpi_hotplug_schedule(adev, type)))
+ 		return;
+ 
+ 	acpi_put_acpi_dev(adev);
+ 
+- err:
+-	acpi_evaluate_ost(handle, type, ost_code, NULL);
++	acpi_evaluate_ost(handle, type, ACPI_OST_SC_NON_SPECIFIC_FAILURE, NULL);
+ }
+ 
+ static void acpi_notify_device(acpi_handle handle, u32 event, void *data)
+@@ -559,42 +541,51 @@ static u32 acpi_device_fixed_event(void *data)
+ 	return ACPI_INTERRUPT_HANDLED;
+ }
+ 
+-static int acpi_device_install_notify_handler(struct acpi_device *device)
++static int acpi_device_install_notify_handler(struct acpi_device *device,
++					      struct acpi_driver *acpi_drv)
+ {
+ 	acpi_status status;
+ 
+-	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON)
++	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON) {
+ 		status =
+ 		    acpi_install_fixed_event_handler(ACPI_EVENT_POWER_BUTTON,
+ 						     acpi_device_fixed_event,
+ 						     device);
+-	else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON)
++	} else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON) {
+ 		status =
+ 		    acpi_install_fixed_event_handler(ACPI_EVENT_SLEEP_BUTTON,
+ 						     acpi_device_fixed_event,
+ 						     device);
+-	else
+-		status = acpi_install_notify_handler(device->handle,
+-						     ACPI_DEVICE_NOTIFY,
++	} else {
++		u32 type = acpi_drv->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS ?
++				ACPI_ALL_NOTIFY : ACPI_DEVICE_NOTIFY;
++
++		status = acpi_install_notify_handler(device->handle, type,
+ 						     acpi_notify_device,
+ 						     device);
++	}
+ 
+ 	if (ACPI_FAILURE(status))
+ 		return -EINVAL;
+ 	return 0;
+ }
+ 
+-static void acpi_device_remove_notify_handler(struct acpi_device *device)
++static void acpi_device_remove_notify_handler(struct acpi_device *device,
++					      struct acpi_driver *acpi_drv)
+ {
+-	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON)
++	if (device->device_type == ACPI_BUS_TYPE_POWER_BUTTON) {
+ 		acpi_remove_fixed_event_handler(ACPI_EVENT_POWER_BUTTON,
+ 						acpi_device_fixed_event);
+-	else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON)
++	} else if (device->device_type == ACPI_BUS_TYPE_SLEEP_BUTTON) {
+ 		acpi_remove_fixed_event_handler(ACPI_EVENT_SLEEP_BUTTON,
+ 						acpi_device_fixed_event);
+-	else
+-		acpi_remove_notify_handler(device->handle, ACPI_DEVICE_NOTIFY,
++	} else {
++		u32 type = acpi_drv->flags & ACPI_DRIVER_ALL_NOTIFY_EVENTS ?
++				ACPI_ALL_NOTIFY : ACPI_DEVICE_NOTIFY;
++
++		acpi_remove_notify_handler(device->handle, type,
+ 					   acpi_notify_device);
++	}
+ }
+ 
+ /* Handle events targeting \_SB device (at present only graceful shutdown) */
+@@ -1036,7 +1027,7 @@ static int acpi_device_probe(struct device *dev)
+ 		 acpi_drv->name, acpi_dev->pnp.bus_id);
+ 
+ 	if (acpi_drv->ops.notify) {
+-		ret = acpi_device_install_notify_handler(acpi_dev);
++		ret = acpi_device_install_notify_handler(acpi_dev, acpi_drv);
+ 		if (ret) {
+ 			if (acpi_drv->ops.remove)
+ 				acpi_drv->ops.remove(acpi_dev);
+@@ -1059,7 +1050,7 @@ static void acpi_device_remove(struct device *dev)
+ 	struct acpi_driver *acpi_drv = to_acpi_driver(dev->driver);
+ 
+ 	if (acpi_drv->ops.notify)
+-		acpi_device_remove_notify_handler(acpi_dev);
++		acpi_device_remove_notify_handler(acpi_dev, acpi_drv);
+ 
+ 	if (acpi_drv->ops.remove)
+ 		acpi_drv->ops.remove(acpi_dev);
 -- 
 2.39.2
 
