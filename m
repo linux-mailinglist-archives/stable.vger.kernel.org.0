@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4456D4702
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 016336D4977
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232936AbjDCOQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:16:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33920 "EHLO
+        id S233708AbjDCOiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:38:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232878AbjDCOQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E704C37
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:14 -0700 (PDT)
+        with ESMTP id S233722AbjDCOiJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:38:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C5159F8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:38:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BE3361CC4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A456CC433D2;
-        Mon,  3 Apr 2023 14:16:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 074F1B81CBD
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78429C433EF;
+        Mon,  3 Apr 2023 14:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531374;
-        bh=nD/p5Flp6LuUhsPojE0Dk0+s5ZY25hB+PXBH1ZDKZ4c=;
+        s=korg; t=1680532685;
+        bh=6q0Ps7XB8faagxeptPEDGa8C3aWgFEcEf3qeY75/eCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zoqdh9Z/MCGp5XMkZzDj+aKPsF93znNnCsmnF+NQZeY290mkd/imN9bHF6ZHC9RPF
-         c9FpskO9hb8b+f5l1ptD1dawnAkVeNwIae1TPc/lGmz4XC5bqlUG/EKuCXm0fhkY8M
-         w5a+kvFbv+369WPs4qRTOAG+YD07c+bwKIazAMsg=
+        b=x/Z+raefoDM1PTVC0aZ2oTlev7c5znCgGgnWvNHv17c58iQQ80uHdp89qkXKzVJZz
+         v78tBJHff7GAnYD3z4pZGL/wEeZGPEzraUtcymtBAN8bmIolkmB3SRNMy2NhMY5Hww
+         z+QAhGsxkt3nfu3nEGzv7W4xMjC1da88bbGY9b4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Mark Pearson <mpearson-lenovo@squebb.ca>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 31/84] scsi: target: iscsi: Fix an error message in iscsi_check_key()
+Subject: [PATCH 6.1 077/181] platform/x86: think-lmi: only display possible_values if available
 Date:   Mon,  3 Apr 2023 16:08:32 +0200
-Message-Id: <20230403140354.428659091@linuxfoundation.org>
+Message-Id: <20230403140417.642823124@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
-References: <20230403140353.406927418@linuxfoundation.org>
+In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
+References: <20230403140415.090615502@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,52 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-[ Upstream commit 6cc55c969b7ce8d85e09a636693d4126c3676c11 ]
+[ Upstream commit cf337f27f3bfc4aeab4954c468239fd6233c7638 ]
 
-The first half of the error message is printed by pr_err(), the second half
-is printed by pr_debug(). The user will therefore see only the first part
-of the message and will miss some useful information.
+Some attributes don't have any values available. In those cases don't
+make the possible_values entry visible.
 
-Link: https://lore.kernel.org/r/20230214141556.762047-1-mlombard@redhat.com
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a40cd7ef22fb ("platform/x86: think-lmi: Add WMI interface support on Lenovo platforms")
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230320003221.561750-3-mpearson-lenovo@squebb.ca
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target_parameters.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/platform/x86/think-lmi.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target_parameters.c b/drivers/target/iscsi/iscsi_target_parameters.c
-index 29a37b242d30a..01f93de93c8c7 100644
---- a/drivers/target/iscsi/iscsi_target_parameters.c
-+++ b/drivers/target/iscsi/iscsi_target_parameters.c
-@@ -1270,18 +1270,20 @@ static struct iscsi_param *iscsi_check_key(
- 		return param;
+diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
+index 62241680c8a90..ccd085bacf298 100644
+--- a/drivers/platform/x86/think-lmi.c
++++ b/drivers/platform/x86/think-lmi.c
+@@ -941,9 +941,6 @@ static ssize_t possible_values_show(struct kobject *kobj, struct kobj_attribute
+ {
+ 	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
  
- 	if (!(param->phase & phase)) {
--		pr_err("Key \"%s\" may not be negotiated during ",
--				param->name);
-+		char *phase_name;
+-	if (!tlmi_priv.can_get_bios_selections)
+-		return -EOPNOTSUPP;
+-
+ 	return sysfs_emit(buf, "%s\n", setting->possible_values);
+ }
+ 
+@@ -1052,6 +1049,18 @@ static struct kobj_attribute attr_current_val = __ATTR_RW_MODE(current_value, 06
+ 
+ static struct kobj_attribute attr_type = __ATTR_RO(type);
+ 
++static umode_t attr_is_visible(struct kobject *kobj,
++					     struct attribute *attr, int n)
++{
++	struct tlmi_attr_setting *setting = to_tlmi_attr_setting(kobj);
 +
- 		switch (phase) {
- 		case PHASE_SECURITY:
--			pr_debug("Security phase.\n");
-+			phase_name = "Security";
- 			break;
- 		case PHASE_OPERATIONAL:
--			pr_debug("Operational phase.\n");
-+			phase_name = "Operational";
- 			break;
- 		default:
--			pr_debug("Unknown phase.\n");
-+			phase_name = "Unknown";
- 		}
-+		pr_err("Key \"%s\" may not be negotiated during %s phase.\n",
-+				param->name, phase_name);
- 		return NULL;
- 	}
++	/* We don't want to display possible_values attributes if not available */
++	if ((attr == &attr_possible_values.attr) && (!setting->possible_values))
++		return 0;
++
++	return attr->mode;
++}
++
+ static struct attribute *tlmi_attrs[] = {
+ 	&attr_displ_name.attr,
+ 	&attr_current_val.attr,
+@@ -1061,6 +1070,7 @@ static struct attribute *tlmi_attrs[] = {
+ };
+ 
+ static const struct attribute_group tlmi_attr_group = {
++	.is_visible = attr_is_visible,
+ 	.attrs = tlmi_attrs,
+ };
  
 -- 
 2.39.2
