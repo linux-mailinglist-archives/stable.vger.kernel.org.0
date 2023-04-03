@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BC16D4AF7
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09C96D4ACC
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234246AbjDCOvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38348 "EHLO
+        id S234096AbjDCOu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:50:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234152AbjDCOvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:18 -0400
+        with ESMTP id S234088AbjDCOuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:50:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583C82987C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4382D4A1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:49:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED72A61F8C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11571C433EF;
-        Mon,  3 Apr 2023 14:50:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D57AF6136F
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEE7DC433EF;
+        Mon,  3 Apr 2023 14:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533446;
-        bh=rvDxnpxMCENmFryhKk66DKvKmEFYKucWaQbQmY1G3wo=;
+        s=korg; t=1680533365;
+        bh=VJ8fSE6cPSnFA9ct74l+U//TUQbG/ORxZtqTFAi4G1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGtDZ0wZ7mJpq2AUaTjkU+K/5Lxi/0pQe3gNrYk7Qi4yXgwNnrBRgxBviCCLHUMw8
-         HtAETHUw3hf0GyOp4f8SkgjsYixa7ez8ewt0weniYv8cu3kb3mdy/U+qOteYD7M+LD
-         VqwcFEYHAWjloY4yn1EFJK+yPM58efb0CF48RIrc=
+        b=YQKd5iaoZkUGAC31d0zIImZrRDcE2ZWLDXSHz99E4DA3EpEcn8e3KhND3s7H2sQap
+         R0IuABr7BE3U/ko1l9o7lYaudni+vMfqJiMnTJ7uJBHyztop/NiSY1kT1weQzFe+cy
+         Ig2M4KlxmNYtjIZgdniykBekMA2gpKuRcRiQ42I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Paul Durrant <paul@xen.org>, Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 6.2 147/187] xen/netback: dont do grant copy across page boundary
-Date:   Mon,  3 Apr 2023 16:09:52 +0200
-Message-Id: <20230403140420.855583925@linuxfoundation.org>
+        patches@lists.linux.dev, Yazan Shhady <yazan.shhady@solid-run.com>,
+        Josua Mayer <josua@solid-run.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 148/187] net: phy: dp83869: fix default value for tx-/rx-internal-delay
+Date:   Mon,  3 Apr 2023 16:09:53 +0200
+Message-Id: <20230403140420.894519955@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -52,118 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Josua Mayer <josua@solid-run.com>
 
-commit 05310f31ca74673a96567fb14637b7d5d6c82ea5 upstream.
+commit 82e2c39f9ef78896e9b634dfd82dc042e6956bb7 upstream.
 
-Fix xenvif_get_requests() not to do grant copy operations across local
-page boundaries. This requires to double the maximum number of copy
-operations per queue, as each copy could now be split into 2.
+dp83869 internally uses a look-up table for mapping supported delays in
+nanoseconds to register values.
+When specific delays are defined in device-tree, phy_get_internal_delay
+does the lookup automatically returning an index.
 
-Make sure that struct xenvif_tx_cb doesn't grow too large.
+The default case wrongly assigns the nanoseconds value from the lookup
+table, resulting in numeric value 2000 applied to delay configuration
+register, rather than the expected index values 0-7 (7 for 2000).
+Ultimately this issue broke RX for 1Gbps links.
+
+Fix default delay configuration by assigning the intended index value
+directly.
 
 Cc: stable@vger.kernel.org
-Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 736b25afe284 ("net: dp83869: Add RGMII internal delay configuration")
+Co-developed-by: Yazan Shhady <yazan.shhady@solid-run.com>
+Signed-off-by: Yazan Shhady <yazan.shhady@solid-run.com>
+Signed-off-by: Josua Mayer <josua@solid-run.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230323102536.31988-1-josua@solid-run.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/common.h  |    2 +-
- drivers/net/xen-netback/netback.c |   25 +++++++++++++++++++++++--
- 2 files changed, 24 insertions(+), 3 deletions(-)
+ drivers/net/phy/dp83869.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -166,7 +166,7 @@ struct xenvif_queue { /* Per-queue data
- 	struct pending_tx_info pending_tx_info[MAX_PENDING_REQS];
- 	grant_handle_t grant_tx_handle[MAX_PENDING_REQS];
+--- a/drivers/net/phy/dp83869.c
++++ b/drivers/net/phy/dp83869.c
+@@ -588,15 +588,13 @@ static int dp83869_of_init(struct phy_de
+ 						       &dp83869_internal_delay[0],
+ 						       delay_size, true);
+ 	if (dp83869->rx_int_delay < 0)
+-		dp83869->rx_int_delay =
+-				dp83869_internal_delay[DP83869_CLK_DELAY_DEF];
++		dp83869->rx_int_delay = DP83869_CLK_DELAY_DEF;
  
--	struct gnttab_copy tx_copy_ops[MAX_PENDING_REQS];
-+	struct gnttab_copy tx_copy_ops[2 * MAX_PENDING_REQS];
- 	struct gnttab_map_grant_ref tx_map_ops[MAX_PENDING_REQS];
- 	struct gnttab_unmap_grant_ref tx_unmap_ops[MAX_PENDING_REQS];
- 	/* passed to gnttab_[un]map_refs with pages under (un)mapping */
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -334,6 +334,7 @@ static int xenvif_count_requests(struct
- struct xenvif_tx_cb {
- 	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
- 	u8 copy_count;
-+	u32 split_mask;
- };
+ 	dp83869->tx_int_delay = phy_get_internal_delay(phydev, dev,
+ 						       &dp83869_internal_delay[0],
+ 						       delay_size, false);
+ 	if (dp83869->tx_int_delay < 0)
+-		dp83869->tx_int_delay =
+-				dp83869_internal_delay[DP83869_CLK_DELAY_DEF];
++		dp83869->tx_int_delay = DP83869_CLK_DELAY_DEF;
  
- #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
-@@ -361,6 +362,8 @@ static inline struct sk_buff *xenvif_all
- 	struct sk_buff *skb =
- 		alloc_skb(size + NET_SKB_PAD + NET_IP_ALIGN,
- 			  GFP_ATOMIC | __GFP_NOWARN);
-+
-+	BUILD_BUG_ON(sizeof(*XENVIF_TX_CB(skb)) > sizeof(skb->cb));
- 	if (unlikely(skb == NULL))
- 		return NULL;
- 
-@@ -396,11 +399,13 @@ static void xenvif_get_requests(struct x
- 	nr_slots = shinfo->nr_frags + 1;
- 
- 	copy_count(skb) = 0;
-+	XENVIF_TX_CB(skb)->split_mask = 0;
- 
- 	/* Create copy ops for exactly data_len bytes into the skb head. */
- 	__skb_put(skb, data_len);
- 	while (data_len > 0) {
- 		int amount = data_len > txp->size ? txp->size : data_len;
-+		bool split = false;
- 
- 		cop->source.u.ref = txp->gref;
- 		cop->source.domid = queue->vif->domid;
-@@ -413,6 +418,13 @@ static void xenvif_get_requests(struct x
- 		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
- 				               - data_len);
- 
-+		/* Don't cross local page boundary! */
-+		if (cop->dest.offset + amount > XEN_PAGE_SIZE) {
-+			amount = XEN_PAGE_SIZE - cop->dest.offset;
-+			XENVIF_TX_CB(skb)->split_mask |= 1U << copy_count(skb);
-+			split = true;
-+		}
-+
- 		cop->len = amount;
- 		cop->flags = GNTCOPY_source_gref;
- 
-@@ -420,7 +432,8 @@ static void xenvif_get_requests(struct x
- 		pending_idx = queue->pending_ring[index];
- 		callback_param(queue, pending_idx).ctx = NULL;
- 		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
--		copy_count(skb)++;
-+		if (!split)
-+			copy_count(skb)++;
- 
- 		cop++;
- 		data_len -= amount;
-@@ -441,7 +454,8 @@ static void xenvif_get_requests(struct x
- 			nr_slots--;
- 		} else {
- 			/* The copy op partially covered the tx_request.
--			 * The remainder will be mapped.
-+			 * The remainder will be mapped or copied in the next
-+			 * iteration.
- 			 */
- 			txp->offset += amount;
- 			txp->size -= amount;
-@@ -539,6 +553,13 @@ static int xenvif_tx_check_gop(struct xe
- 		pending_idx = copy_pending_idx(skb, i);
- 
- 		newerr = (*gopp_copy)->status;
-+
-+		/* Split copies need to be handled together. */
-+		if (XENVIF_TX_CB(skb)->split_mask & (1U << i)) {
-+			(*gopp_copy)++;
-+			if (!newerr)
-+				newerr = (*gopp_copy)->status;
-+		}
- 		if (likely(!newerr)) {
- 			/* The first frag might still have this slot mapped */
- 			if (i < copy_count(skb) - 1 || !sharedslot)
+ 	return ret;
+ }
 
 
