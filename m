@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0BEF6D492D
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 826766D4A12
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233590AbjDCOf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:35:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42322 "EHLO
+        id S233888AbjDCOoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:44:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233565AbjDCOf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:35:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E08EF88
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:35:25 -0700 (PDT)
+        with ESMTP id S233923AbjDCOnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:43:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A42718240
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:43:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 864B7B81CA0
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7DFC4339B;
-        Mon,  3 Apr 2023 14:35:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03FA5B81D1D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 707AFC4339B;
+        Mon,  3 Apr 2023 14:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532523;
-        bh=mMZl9Vi4nPwhVrUiv1pJsBG2yi9AgwwPmCWL0tI4Ka4=;
+        s=korg; t=1680533006;
+        bh=ZkfgDjV3RQ9WSvSj2S1NzPgS5V5r0hDi3SKwPGTDsNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHP0Chm2q5xwX9ECU+BBRhhZb+z5MkY8GwN7QOhwZJ8+y7G7udzhGIaFSbvkgtE36
-         fvsupKQXeYrwWgt9+Br0dOOcUPTeBEhf0oidNq7IE/CpccL318srvSH9G7Huq1HGEU
-         uQ0gpI0dr8yoKV92MZdMeZMyUjmIZUJRvMUiXtE0=
+        b=2o3+l0gwirUslR4wQrlz/XVomnJyjs0DSpfoDg7f3iF5zq8IvIlYKFFV8RpTELb9Y
+         GD25thz4ECygayjU32aT23RI7/g67TQZCMaAijqvXS0hUAsrhazL+1Nljdb4VEoevx
+         8B0gpPzuGjXQ6szLawBneB8/j/6sORX1qxEQGexU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Chiu <andy.chiu@sifive.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 016/181] riscv: ftrace: Fixup panic by disabling preemption
+Subject: [PATCH 6.2 006/187] zonefs: Simplify IO error handling
 Date:   Mon,  3 Apr 2023 16:07:31 +0200
-Message-Id: <20230403140415.648037204@linuxfoundation.org>
+Message-Id: <20230403140416.237787621@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,55 +54,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chiu <andy.chiu@sifive.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 8547649981e6631328cd64f583667501ae385531 ]
+[ Upstream commit 46a9c526eef7fb68a00321e2a9591ce5276ae92b ]
 
-In RISCV, we must use an AUIPC + JALR pair to encode an immediate,
-forming a jump that jumps to an address over 4K. This may cause errors
-if we want to enable kernel preemption and remove dependency from
-patching code with stop_machine(). For example, if a task was switched
-out on auipc. And, if we changed the ftrace function before it was
-switched back, then it would jump to an address that has updated 11:0
-bits mixing with previous XLEN:12 part.
+Simplify zonefs_check_zone_condition() by moving the code that changes
+an inode access rights to the new function zonefs_inode_update_mode().
+Furthermore, since on mount an inode wpoffset is always zero when
+zonefs_check_zone_condition() is called during an inode initialization,
+the "mount" boolean argument is not necessary for the readonly zone
+case. This argument is thus removed.
 
-p: patched area performed by dynamic ftrace
-ftrace_prologue:
-p|      REG_S   ra, -SZREG(sp)
-p|      auipc   ra, 0x? ------------> preempted
-					...
-				change ftrace function
-					...
-p|      jalr    -?(ra) <------------- switched back
-p|      REG_L   ra, -SZREG(sp)
-func:
-	xxx
-	ret
+zonefs_io_error_cb() is also modified to use the inode offline and
+zone state flags instead of checking the device zone condition. The
+multiple calls to zonefs_check_zone_condition() are reduced to the first
+call on entry, which allows removing the "warn" argument.
+zonefs_inode_update_mode() is also used to update an inode access rights
+as zonefs_io_error_cb() modifies the inode flags depending on the volume
+error handling mode (defined with a mount option). Since an inode mode
+change differs for read-only zones between mount time and IO error time,
+the flag ZONEFS_ZONE_INIT_MODE is used to differentiate both cases.
 
-Fixes: afc76b8b8011 ("riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT")
-Signed-off-by: Andy Chiu <andy.chiu@sifive.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20230112090603.1295340-2-guoren@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Stable-dep-of: 88b170088ad2 ("zonefs: Fix error message in zonefs_file_dio_append()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/zonefs/super.c  | 110 ++++++++++++++++++++++++---------------------
+ fs/zonefs/zonefs.h |   9 ++--
+ 2 files changed, 64 insertions(+), 55 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index ae11d5647f9d4..06b9b2f60b9fb 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -278,7 +278,7 @@ config ARCH_RV64I
- 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
- 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
- 	select HAVE_FUNCTION_GRAPH_TRACER
--	select HAVE_FUNCTION_TRACER if !XIP_KERNEL
-+	select HAVE_FUNCTION_TRACER if !XIP_KERNEL && !PREEMPTION
- 	select SWIOTLB if MMU
+diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
+index e808276b88018..6307cc95be061 100644
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -155,48 +155,31 @@ void zonefs_update_stats(struct inode *inode, loff_t new_isize)
+  * amount of readable data in the zone.
+  */
+ static loff_t zonefs_check_zone_condition(struct inode *inode,
+-					  struct blk_zone *zone, bool warn,
+-					  bool mount)
++					  struct blk_zone *zone)
+ {
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
  
- endchoice
+ 	switch (zone->cond) {
+ 	case BLK_ZONE_COND_OFFLINE:
+-		/*
+-		 * Dead zone: make the inode immutable, disable all accesses
+-		 * and set the file size to 0 (zone wp set to zone start).
+-		 */
+-		if (warn)
+-			zonefs_warn(inode->i_sb, "inode %lu: offline zone\n",
+-				    inode->i_ino);
+-		inode->i_flags |= S_IMMUTABLE;
+-		inode->i_mode &= ~0777;
+-		zone->wp = zone->start;
++		zonefs_warn(inode->i_sb, "inode %lu: offline zone\n",
++			    inode->i_ino);
+ 		zi->i_flags |= ZONEFS_ZONE_OFFLINE;
+ 		return 0;
+ 	case BLK_ZONE_COND_READONLY:
+ 		/*
+-		 * The write pointer of read-only zones is invalid. If such a
+-		 * zone is found during mount, the file size cannot be retrieved
+-		 * so we treat the zone as offline (mount == true case).
+-		 * Otherwise, keep the file size as it was when last updated
+-		 * so that the user can recover data. In both cases, writes are
+-		 * always disabled for the zone.
++		 * The write pointer of read-only zones is invalid, so we cannot
++		 * determine the zone wpoffset (inode size). We thus keep the
++		 * zone wpoffset as is, which leads to an empty file
++		 * (wpoffset == 0) on mount. For a runtime error, this keeps
++		 * the inode size as it was when last updated so that the user
++		 * can recover data.
+ 		 */
+-		if (warn)
+-			zonefs_warn(inode->i_sb, "inode %lu: read-only zone\n",
+-				    inode->i_ino);
+-		inode->i_flags |= S_IMMUTABLE;
+-		if (mount) {
+-			zone->cond = BLK_ZONE_COND_OFFLINE;
+-			inode->i_mode &= ~0777;
+-			zone->wp = zone->start;
+-			zi->i_flags |= ZONEFS_ZONE_OFFLINE;
+-			return 0;
+-		}
++		zonefs_warn(inode->i_sb, "inode %lu: read-only zone\n",
++			    inode->i_ino);
+ 		zi->i_flags |= ZONEFS_ZONE_READONLY;
+-		inode->i_mode &= ~0222;
+-		return i_size_read(inode);
++		if (zi->i_ztype == ZONEFS_ZTYPE_CNV)
++			return zi->i_max_size;
++		return zi->i_wpoffset;
+ 	case BLK_ZONE_COND_FULL:
+ 		/* The write pointer of full zones is invalid. */
+ 		return zi->i_max_size;
+@@ -207,6 +190,30 @@ static loff_t zonefs_check_zone_condition(struct inode *inode,
+ 	}
+ }
+ 
++/*
++ * Check a zone condition and adjust its inode access permissions for
++ * offline and readonly zones.
++ */
++static void zonefs_inode_update_mode(struct inode *inode)
++{
++	struct zonefs_inode_info *zi = ZONEFS_I(inode);
++
++	if (zi->i_flags & ZONEFS_ZONE_OFFLINE) {
++		/* Offline zones cannot be read nor written */
++		inode->i_flags |= S_IMMUTABLE;
++		inode->i_mode &= ~0777;
++	} else if (zi->i_flags & ZONEFS_ZONE_READONLY) {
++		/* Readonly zones cannot be written */
++		inode->i_flags |= S_IMMUTABLE;
++		if (zi->i_flags & ZONEFS_ZONE_INIT_MODE)
++			inode->i_mode &= ~0777;
++		else
++			inode->i_mode &= ~0222;
++	}
++
++	zi->i_flags &= ~ZONEFS_ZONE_INIT_MODE;
++}
++
+ struct zonefs_ioerr_data {
+ 	struct inode	*inode;
+ 	bool		write;
+@@ -228,10 +235,9 @@ static int zonefs_io_error_cb(struct blk_zone *zone, unsigned int idx,
+ 	 * as there is no inconsistency between the inode size and the amount of
+ 	 * data writen in the zone (data_size).
+ 	 */
+-	data_size = zonefs_check_zone_condition(inode, zone, true, false);
++	data_size = zonefs_check_zone_condition(inode, zone);
+ 	isize = i_size_read(inode);
+-	if (zone->cond != BLK_ZONE_COND_OFFLINE &&
+-	    zone->cond != BLK_ZONE_COND_READONLY &&
++	if (!(zi->i_flags & (ZONEFS_ZONE_READONLY | ZONEFS_ZONE_OFFLINE)) &&
+ 	    !err->write && isize == data_size)
+ 		return 0;
+ 
+@@ -264,24 +270,22 @@ static int zonefs_io_error_cb(struct blk_zone *zone, unsigned int idx,
+ 	 * zone condition to read-only and offline respectively, as if the
+ 	 * condition was signaled by the hardware.
+ 	 */
+-	if (zone->cond == BLK_ZONE_COND_OFFLINE ||
+-	    sbi->s_mount_opts & ZONEFS_MNTOPT_ERRORS_ZOL) {
++	if ((zi->i_flags & ZONEFS_ZONE_OFFLINE) ||
++	    (sbi->s_mount_opts & ZONEFS_MNTOPT_ERRORS_ZOL)) {
+ 		zonefs_warn(sb, "inode %lu: read/write access disabled\n",
+ 			    inode->i_ino);
+-		if (zone->cond != BLK_ZONE_COND_OFFLINE) {
+-			zone->cond = BLK_ZONE_COND_OFFLINE;
+-			data_size = zonefs_check_zone_condition(inode, zone,
+-								false, false);
+-		}
+-	} else if (zone->cond == BLK_ZONE_COND_READONLY ||
+-		   sbi->s_mount_opts & ZONEFS_MNTOPT_ERRORS_ZRO) {
++		if (!(zi->i_flags & ZONEFS_ZONE_OFFLINE))
++			zi->i_flags |= ZONEFS_ZONE_OFFLINE;
++		zonefs_inode_update_mode(inode);
++		data_size = 0;
++	} else if ((zi->i_flags & ZONEFS_ZONE_READONLY) ||
++		   (sbi->s_mount_opts & ZONEFS_MNTOPT_ERRORS_ZRO)) {
+ 		zonefs_warn(sb, "inode %lu: write access disabled\n",
+ 			    inode->i_ino);
+-		if (zone->cond != BLK_ZONE_COND_READONLY) {
+-			zone->cond = BLK_ZONE_COND_READONLY;
+-			data_size = zonefs_check_zone_condition(inode, zone,
+-								false, false);
+-		}
++		if (!(zi->i_flags & ZONEFS_ZONE_READONLY))
++			zi->i_flags |= ZONEFS_ZONE_READONLY;
++		zonefs_inode_update_mode(inode);
++		data_size = isize;
+ 	} else if (sbi->s_mount_opts & ZONEFS_MNTOPT_ERRORS_RO &&
+ 		   data_size > isize) {
+ 		/* Do not expose garbage data */
+@@ -295,8 +299,7 @@ static int zonefs_io_error_cb(struct blk_zone *zone, unsigned int idx,
+ 	 * close of the zone when the inode file is closed.
+ 	 */
+ 	if ((sbi->s_mount_opts & ZONEFS_MNTOPT_EXPLICIT_OPEN) &&
+-	    (zone->cond == BLK_ZONE_COND_OFFLINE ||
+-	     zone->cond == BLK_ZONE_COND_READONLY))
++	    (zi->i_flags & (ZONEFS_ZONE_READONLY | ZONEFS_ZONE_OFFLINE)))
+ 		zi->i_flags &= ~ZONEFS_ZONE_OPEN;
+ 
+ 	/*
+@@ -378,6 +381,7 @@ static struct inode *zonefs_alloc_inode(struct super_block *sb)
+ 
+ 	inode_init_once(&zi->i_vnode);
+ 	mutex_init(&zi->i_truncate_mutex);
++	zi->i_wpoffset = 0;
+ 	zi->i_wr_refcnt = 0;
+ 	zi->i_flags = 0;
+ 
+@@ -594,7 +598,7 @@ static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+ 
+ 	zi->i_max_size = min_t(loff_t, MAX_LFS_FILESIZE,
+ 			       zone->capacity << SECTOR_SHIFT);
+-	zi->i_wpoffset = zonefs_check_zone_condition(inode, zone, true, true);
++	zi->i_wpoffset = zonefs_check_zone_condition(inode, zone);
+ 
+ 	inode->i_uid = sbi->s_uid;
+ 	inode->i_gid = sbi->s_gid;
+@@ -605,6 +609,10 @@ static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+ 	inode->i_fop = &zonefs_file_operations;
+ 	inode->i_mapping->a_ops = &zonefs_file_aops;
+ 
++	/* Update the inode access rights depending on the zone condition */
++	zi->i_flags |= ZONEFS_ZONE_INIT_MODE;
++	zonefs_inode_update_mode(inode);
++
+ 	sb->s_maxbytes = max(zi->i_max_size, sb->s_maxbytes);
+ 	sbi->s_blocks += zi->i_max_size >> sb->s_blocksize_bits;
+ 	sbi->s_used_blocks += zi->i_wpoffset >> sb->s_blocksize_bits;
+diff --git a/fs/zonefs/zonefs.h b/fs/zonefs/zonefs.h
+index 839ebe9afb6c1..439096445ee53 100644
+--- a/fs/zonefs/zonefs.h
++++ b/fs/zonefs/zonefs.h
+@@ -39,10 +39,11 @@ static inline enum zonefs_ztype zonefs_zone_type(struct blk_zone *zone)
+ 	return ZONEFS_ZTYPE_SEQ;
+ }
+ 
+-#define ZONEFS_ZONE_OPEN	(1U << 0)
+-#define ZONEFS_ZONE_ACTIVE	(1U << 1)
+-#define ZONEFS_ZONE_OFFLINE	(1U << 2)
+-#define ZONEFS_ZONE_READONLY	(1U << 3)
++#define ZONEFS_ZONE_INIT_MODE	(1U << 0)
++#define ZONEFS_ZONE_OPEN	(1U << 1)
++#define ZONEFS_ZONE_ACTIVE	(1U << 2)
++#define ZONEFS_ZONE_OFFLINE	(1U << 3)
++#define ZONEFS_ZONE_READONLY	(1U << 4)
+ 
+ /*
+  * In-memory inode data.
 -- 
 2.39.2
 
