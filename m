@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 176C36D4861
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3C26D4755
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbjDCO2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57910 "EHLO
+        id S233037AbjDCOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233357AbjDCO2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:28:11 -0400
+        with ESMTP id S233034AbjDCOTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:19:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40964191F3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:28:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E1A22CAD6
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:19:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAD65B81C23
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61BFAC433EF;
-        Mon,  3 Apr 2023 14:28:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16A19B81BA8
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:19:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6BCC4339B;
+        Mon,  3 Apr 2023 14:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532086;
-        bh=ofs2jD6JL/nr2hVtNEEt4cyqmDWgNc/8F3k/RHHvP8Q=;
+        s=korg; t=1680531556;
+        bh=oTYcsKz5mlHTMJn7GtLdLz8Ts0xxU/HsY4xWh9XaYkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHaOwbzBRWL5Dn/ozHkfE+tKrO72E5PlpEkSLoheaY/bD3kX/31KOqgi2Rr18XwMB
-         BHro62TgUCXUfe1CNYzCqchau4hPBCxZnEQ20V7OcKVay2RFwTbTzyPR0SCPhyv9r1
-         4z2bhaxKspdsM54pEhaNY8HA9+BgBDmdX0y7CbdE=
+        b=1cBt3M7rs3kSzkNJZ8Ww9yjBrHfXjHS+6CYZo3bB/RIhxUR7jkMKeveChy08sz9rx
+         +oK4yx/+ICxX7jZZEA0zVzJVebNmz5W6CBz5dCfSos52hX+wGbdKsitpF8bCeMMmsQ
+         0B/44yjADw5Yob5d1tFG27lG0FPv1f9pAgXnJ4FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
-        John Keeping <john@metanate.com>
-Subject: [PATCH 5.10 080/173] usb: gadget: u_audio: dont let userspace block driver unbind
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 023/104] net: dsa: mt7530: move setting ssc_delta to PHY_INTERFACE_MODE_TRGMII case
 Date:   Mon,  3 Apr 2023 16:08:15 +0200
-Message-Id: <20230403140417.008576908@linuxfoundation.org>
+Message-Id: <20230403140405.153933489@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140414.174516815@linuxfoundation.org>
-References: <20230403140414.174516815@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <alsi@bang-olufsen.dk>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-commit 6c67ed9ad9b83e453e808f9b31a931a20a25629b upstream.
+[ Upstream commit 407b508bdd70b6848993843d96ed49ac4108fb52 ]
 
-In the unbind callback for f_uac1 and f_uac2, a call to snd_card_free()
-via g_audio_cleanup() will disconnect the card and then wait for all
-resources to be released, which happens when the refcount falls to zero.
-Since userspace can keep the refcount incremented by not closing the
-relevant file descriptor, the call to unbind may block indefinitely.
-This can cause a deadlock during reboot, as evidenced by the following
-blocked task observed on my machine:
+Move setting the ssc_delta variable to under the PHY_INTERFACE_MODE_TRGMII
+case as it's only needed when trgmii is used.
 
-  task:reboot  state:D stack:0   pid:2827  ppid:569    flags:0x0000000c
-  Call trace:
-   __switch_to+0xc8/0x140
-   __schedule+0x2f0/0x7c0
-   schedule+0x60/0xd0
-   schedule_timeout+0x180/0x1d4
-   wait_for_completion+0x78/0x180
-   snd_card_free+0x90/0xa0
-   g_audio_cleanup+0x2c/0x64
-   afunc_unbind+0x28/0x60
-   ...
-   kernel_restart+0x4c/0xac
-   __do_sys_reboot+0xcc/0x1ec
-   __arm64_sys_reboot+0x28/0x30
-   invoke_syscall+0x4c/0x110
-   ...
-
-The issue can also be observed by opening the card with arecord and
-then stopping the process through the shell before unbinding:
-
-  # arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
-  Recording WAVE '/dev/null' : Signed 32 bit Little Endian, Rate 48000 Hz, Stereo
-  ^Z[1]+  Stopped                    arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
-  # echo gadget.0 > /sys/bus/gadget/drivers/configfs-gadget/unbind
-  (observe that the unbind command never finishes)
-
-Fix the problem by using snd_card_free_when_closed() instead, which will
-still disconnect the card as desired, but defer the task of freeing the
-resources to the core once userspace closes its file descriptor.
-
-Fixes: 132fcb460839 ("usb: gadget: Add Audio Class 2.0 Driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Reviewed-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20230302163648.3349669-1-alvin@pqrs.dk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Link: https://lore.kernel.org/r/20230320190520.124513-3-arinc.unal@arinc9.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/mt7530.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -613,7 +613,7 @@ void g_audio_cleanup(struct g_audio *g_a
- 	uac = g_audio->uac;
- 	card = uac->card;
- 	if (card)
--		snd_card_free(card);
-+		snd_card_free_when_closed(card);
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 2d8382eb9add3..5bd282cb3d9f2 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -396,6 +396,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, int mode)
+ 		break;
+ 	case PHY_INTERFACE_MODE_TRGMII:
+ 		trgint = 1;
++		if (xtal == HWTRAP_XTAL_25MHZ)
++			ssc_delta = 0x57;
++		else
++			ssc_delta = 0x87;
+ 		if (priv->id == ID_MT7621) {
+ 			/* PLL frequency: 150MHz: 1.2GBit */
+ 			if (xtal == HWTRAP_XTAL_40MHZ)
+@@ -414,11 +418,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, int mode)
+ 		return -EINVAL;
+ 	}
  
- 	kfree(uac->p_prm.ureq);
- 	kfree(uac->c_prm.ureq);
+-	if (xtal == HWTRAP_XTAL_25MHZ)
+-		ssc_delta = 0x57;
+-	else
+-		ssc_delta = 0x87;
+-
+ 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
+ 		   P6_INTF_MODE(trgint));
+ 
+-- 
+2.39.2
+
 
 
