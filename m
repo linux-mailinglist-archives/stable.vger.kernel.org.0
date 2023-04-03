@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A88116D48B8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4456D4702
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233467AbjDCObU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:31:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34566 "EHLO
+        id S232936AbjDCOQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:16:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233406AbjDCObT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:31:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD284EF4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:18 -0700 (PDT)
+        with ESMTP id S232878AbjDCOQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:16:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E704C37
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:16:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64A91B81C64
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A31C433EF;
-        Mon,  3 Apr 2023 14:31:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BE3361CC4
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:16:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A456CC433D2;
+        Mon,  3 Apr 2023 14:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532276;
-        bh=A6pt0fBfN/Zyrl5nc6/78At8qWhXZtk4cMhzsh+ULBo=;
+        s=korg; t=1680531374;
+        bh=nD/p5Flp6LuUhsPojE0Dk0+s5ZY25hB+PXBH1ZDKZ4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ga0lTrZf60eh1SB29HyOy1+KeskK7g1XMNHohfXZK9+y1ZibgIOsMxTvdmzR9fYIp
-         vxgpi4kr3aaRP8Ow0O6VYruVUmxwL2GqurQznYPnHGkoy9CpyRqfZ+trkjjO/Xyt9x
-         h753311SA8Tm5SD/i++ppw5AKSGUIKDCuHOOeswY=
+        b=Zoqdh9Z/MCGp5XMkZzDj+aKPsF93znNnCsmnF+NQZeY290mkd/imN9bHF6ZHC9RPF
+         c9FpskO9hb8b+f5l1ptD1dawnAkVeNwIae1TPc/lGmz4XC5bqlUG/EKuCXm0fhkY8M
+         w5a+kvFbv+369WPs4qRTOAG+YD07c+bwKIazAMsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Maurizio Lombardi <mlombard@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 09/99] ASoC: codecs: tx-macro: Fix for KASAN: slab-out-of-bounds
+Subject: [PATCH 4.19 31/84] scsi: target: iscsi: Fix an error message in iscsi_check_key()
 Date:   Mon,  3 Apr 2023 16:08:32 +0200
-Message-Id: <20230403140356.412368336@linuxfoundation.org>
+Message-Id: <20230403140354.428659091@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140353.406927418@linuxfoundation.org>
+References: <20230403140353.406927418@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit e5e7e398f6bb7918dab0612eb6991f7bae95520d ]
+[ Upstream commit 6cc55c969b7ce8d85e09a636693d4126c3676c11 ]
 
-When we run syzkaller we get below Out of Bound.
-    "KASAN: slab-out-of-bounds Read in regcache_flat_read"
+The first half of the error message is printed by pr_err(), the second half
+is printed by pr_debug(). The user will therefore see only the first part
+of the message and will miss some useful information.
 
-    Below is the backtrace of the issue:
-
-    dump_backtrace+0x0/0x4c8
-    show_stack+0x34/0x44
-    dump_stack_lvl+0xd8/0x118
-    print_address_description+0x30/0x2d8
-    kasan_report+0x158/0x198
-    __asan_report_load4_noabort+0x44/0x50
-    regcache_flat_read+0x10c/0x110
-    regcache_read+0xf4/0x180
-    _regmap_read+0xc4/0x278
-    _regmap_update_bits+0x130/0x290
-    regmap_update_bits_base+0xc0/0x15c
-    snd_soc_component_update_bits+0xa8/0x22c
-    snd_soc_component_write_field+0x68/0xd4
-    tx_macro_digital_mute+0xec/0x140
-
-    Actually There is no need to have decimator with 32 bits.
-    By limiting the variable with short type u8 issue is resolved.
-
-Signed-off-by: Ravulapati Vishnu Vardhan Rao <quic_visr@quicinc.com>
-Link: https://lore.kernel.org/r/20230304080702.609-1-quic_visr@quicinc.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20230214141556.762047-1-mlombard@redhat.com
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-tx-macro.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/target/iscsi/iscsi_target_parameters.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index 2b7ba78551fab..35d148e60c334 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -239,7 +239,7 @@ enum {
+diff --git a/drivers/target/iscsi/iscsi_target_parameters.c b/drivers/target/iscsi/iscsi_target_parameters.c
+index 29a37b242d30a..01f93de93c8c7 100644
+--- a/drivers/target/iscsi/iscsi_target_parameters.c
++++ b/drivers/target/iscsi/iscsi_target_parameters.c
+@@ -1270,18 +1270,20 @@ static struct iscsi_param *iscsi_check_key(
+ 		return param;
  
- struct tx_mute_work {
- 	struct tx_macro *tx;
--	u32 decimator;
-+	u8 decimator;
- 	struct delayed_work dwork;
- };
- 
-@@ -632,7 +632,7 @@ static int tx_macro_mclk_enable(struct tx_macro *tx,
- 	return 0;
- }
- 
--static bool is_amic_enabled(struct snd_soc_component *component, int decimator)
-+static bool is_amic_enabled(struct snd_soc_component *component, u8 decimator)
- {
- 	u16 adc_mux_reg, adc_reg, adc_n;
- 
-@@ -843,7 +843,7 @@ static int tx_macro_enable_dec(struct snd_soc_dapm_widget *w,
- 			       struct snd_kcontrol *kcontrol, int event)
- {
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
--	unsigned int decimator;
-+	u8 decimator;
- 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg, tx_gain_ctl_reg;
- 	u8 hpf_cut_off_freq;
- 	int hpf_delay = TX_MACRO_DMIC_HPF_DELAY_MS;
-@@ -1058,7 +1058,8 @@ static int tx_macro_hw_params(struct snd_pcm_substream *substream,
- 			      struct snd_soc_dai *dai)
- {
- 	struct snd_soc_component *component = dai->component;
--	u32 decimator, sample_rate;
-+	u32 sample_rate;
-+	u8 decimator;
- 	int tx_fs_rate;
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
- 
-@@ -1122,7 +1123,7 @@ static int tx_macro_digital_mute(struct snd_soc_dai *dai, int mute, int stream)
- {
- 	struct snd_soc_component *component = dai->component;
- 	struct tx_macro *tx = snd_soc_component_get_drvdata(component);
--	u16 decimator;
-+	u8 decimator;
- 
- 	decimator = tx->active_decimator[dai->id];
+ 	if (!(param->phase & phase)) {
+-		pr_err("Key \"%s\" may not be negotiated during ",
+-				param->name);
++		char *phase_name;
++
+ 		switch (phase) {
+ 		case PHASE_SECURITY:
+-			pr_debug("Security phase.\n");
++			phase_name = "Security";
+ 			break;
+ 		case PHASE_OPERATIONAL:
+-			pr_debug("Operational phase.\n");
++			phase_name = "Operational";
+ 			break;
+ 		default:
+-			pr_debug("Unknown phase.\n");
++			phase_name = "Unknown";
+ 		}
++		pr_err("Key \"%s\" may not be negotiated during %s phase.\n",
++				param->name, phase_name);
+ 		return NULL;
+ 	}
  
 -- 
 2.39.2
