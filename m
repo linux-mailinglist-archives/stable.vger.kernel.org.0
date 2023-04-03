@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECF666D4AF8
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D1B6D4AF9
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233980AbjDCOve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:51:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37492 "EHLO
+        id S234161AbjDCOvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234161AbjDCOvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:21 -0400
+        with ESMTP id S234215AbjDCOvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AF128E86
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36BD29BFE
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91AE761FB3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64E7C433EF;
-        Mon,  3 Apr 2023 14:50:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C82361FA5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40AE7C433EF;
+        Mon,  3 Apr 2023 14:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680533449;
-        bh=gJ016sqzJQxqEjvfTMBfOhvk6EinTxxMh5BJM1UUeJI=;
+        s=korg; t=1680533451;
+        bh=wsmN8xBV05QAiIWNu5aEi78vipZZCpfL8hARWo+pfYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofX5NGaeuuKYjxFo5h1m5cWDwRerUyACdk0oR9YMn7Xl1KffX999kLpIElXoya7Hi
-         5g2s6uFLjdAUeDryXwD2Po04kHQdPqSbfZE/+6lyX43PaUaYytZ4ke+D6Sh4381PQB
-         n7LFxo3ZdSIfLhfkxrAIXQlZ4t3dtfQT/V2UaV+0=
+        b=mt2zkOGSblimQ/J+Ka9ybwXRkPMvl3sPgVGfKCwjCTZAh9i90IWw7hcV+3ClKmegX
+         6lQ2XP9VwiacVt9j3IDWVkSIhBV9puDJV+4+ZMUqY3il2KWzki007vjWP0SmIpGwz/
+         tmQ0f6T0AI45tRjKATM0JXj6P5LbvyAnlLg+QoP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oliver.upton@linux.dev>
-Subject: [PATCH 6.2 180/187] KVM: arm64: Check for kvm_vma_mte_allowed in the critical section
-Date:   Mon,  3 Apr 2023 16:10:25 +0200
-Message-Id: <20230403140422.230511109@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Subject: [PATCH 6.2 181/187] usb: ucsi: Fix ucsi->connector race
+Date:   Mon,  3 Apr 2023 16:10:26 +0200
+Message-Id: <20230403140422.269787806@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
 References: <20230403140416.015323160@linuxfoundation.org>
@@ -52,57 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 8c2e8ac8ad4be68409e806ce1cc78fc7a04539f3 upstream.
+commit 0482c34ec6f8557e06cd0f8e2d0e20e8ede6a22c upstream.
 
-On page fault, we find about the VMA that backs the page fault
-early on, and quickly release the mmap_read_lock. However, using
-the VMA pointer after the critical section is pretty dangerous,
-as a teardown may happen in the meantime and the VMA be long gone.
+ucsi_init() which runs from a workqueue sets ucsi->connector and
+on an error will clear it again.
 
-Move the sampling of the MTE permission early, and NULL-ify the
-VMA pointer after that, just to be on the safe side.
+ucsi->connector gets dereferenced by ucsi_resume(), this checks for
+ucsi->connector being NULL in case ucsi_init() has not finished yet;
+or in case ucsi_init() has failed.
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+ucsi_init() setting ucsi->connector and then clearing it again on
+an error creates a race where the check in ucsi_resume() may pass,
+only to have ucsi->connector free-ed underneath it when ucsi_init()
+hits an error.
+
+Fix this race by making ucsi_init() store the connector array in
+a local variable and only assign it to ucsi->connector on success.
+
+Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230316174546.3777507-3-maz@kernel.org
-Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230308154244.722337-3-hdegoede@redhat.com
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/mmu.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi.c |   22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
---- a/arch/arm64/kvm/mmu.c
-+++ b/arch/arm64/kvm/mmu.c
-@@ -1218,7 +1218,7 @@ static int user_mem_abort(struct kvm_vcp
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1039,9 +1039,8 @@ static struct fwnode_handle *ucsi_find_f
+ 	return NULL;
+ }
+ 
+-static int ucsi_register_port(struct ucsi *ucsi, int index)
++static int ucsi_register_port(struct ucsi *ucsi, struct ucsi_connector *con)
  {
- 	int ret = 0;
- 	bool write_fault, writable, force_pte = false;
--	bool exec_fault;
-+	bool exec_fault, mte_allowed;
- 	bool device = false;
- 	unsigned long mmu_seq;
- 	struct kvm *kvm = vcpu->kvm;
-@@ -1309,6 +1309,10 @@ static int user_mem_abort(struct kvm_vcp
- 		fault_ipa &= ~(vma_pagesize - 1);
+-	struct ucsi_connector *con = &ucsi->connector[index];
+ 	struct typec_capability *cap = &con->typec_cap;
+ 	enum typec_accessory *accessory = cap->accessory;
+ 	enum usb_role u_role = USB_ROLE_NONE;
+@@ -1062,7 +1061,6 @@ static int ucsi_register_port(struct ucs
+ 	init_completion(&con->complete);
+ 	mutex_init(&con->lock);
+ 	INIT_LIST_HEAD(&con->partner_tasks);
+-	con->num = index + 1;
+ 	con->ucsi = ucsi;
  
- 	gfn = fault_ipa >> PAGE_SHIFT;
-+	mte_allowed = kvm_vma_mte_allowed(vma);
-+
-+	/* Don't use the VMA after the unlock -- it may have vanished */
-+	vma = NULL;
+ 	cap->fwnode = ucsi_find_fwnode(con);
+@@ -1204,7 +1202,7 @@ out_unlock:
+  */
+ static int ucsi_init(struct ucsi *ucsi)
+ {
+-	struct ucsi_connector *con;
++	struct ucsi_connector *con, *connector;
+ 	u64 command, ntfy;
+ 	int ret;
+ 	int i;
+@@ -1235,16 +1233,16 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	}
  
- 	/*
- 	 * Read mmu_invalidate_seq so that KVM can detect if the results of
-@@ -1379,7 +1383,7 @@ static int user_mem_abort(struct kvm_vcp
+ 	/* Allocate the connectors. Released in ucsi_unregister() */
+-	ucsi->connector = kcalloc(ucsi->cap.num_connectors + 1,
+-				  sizeof(*ucsi->connector), GFP_KERNEL);
+-	if (!ucsi->connector) {
++	connector = kcalloc(ucsi->cap.num_connectors + 1, sizeof(*connector), GFP_KERNEL);
++	if (!connector) {
+ 		ret = -ENOMEM;
+ 		goto err_reset;
+ 	}
  
- 	if (fault_status != ESR_ELx_FSC_PERM && !device && kvm_has_mte(kvm)) {
- 		/* Check the VMM hasn't introduced a new disallowed VMA */
--		if (kvm_vma_mte_allowed(vma)) {
-+		if (mte_allowed) {
- 			sanitise_mte_tags(kvm, pfn, vma_pagesize);
- 		} else {
- 			ret = -EFAULT;
+ 	/* Register all connectors */
+ 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
+-		ret = ucsi_register_port(ucsi, i);
++		connector[i].num = i + 1;
++		ret = ucsi_register_port(ucsi, &connector[i]);
+ 		if (ret)
+ 			goto err_unregister;
+ 	}
+@@ -1256,11 +1254,12 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	if (ret < 0)
+ 		goto err_unregister;
+ 
++	ucsi->connector = connector;
+ 	ucsi->ntfy = ntfy;
+ 	return 0;
+ 
+ err_unregister:
+-	for (con = ucsi->connector; con->port; con++) {
++	for (con = connector; con->port; con++) {
+ 		ucsi_unregister_partner(con);
+ 		ucsi_unregister_altmodes(con, UCSI_RECIPIENT_CON);
+ 		ucsi_unregister_port_psy(con);
+@@ -1269,10 +1268,7 @@ err_unregister:
+ 		typec_unregister_port(con->port);
+ 		con->port = NULL;
+ 	}
+-
+-	kfree(ucsi->connector);
+-	ucsi->connector = NULL;
+-
++	kfree(connector);
+ err_reset:
+ 	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+ 	ucsi_reset_ppm(ucsi);
 
 
