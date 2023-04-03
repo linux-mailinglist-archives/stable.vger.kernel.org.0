@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3616D4909
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342A86D47AA
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233512AbjDCOea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:34:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
+        id S233103AbjDCOWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:22:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233472AbjDCOe3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:34:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DCEE16F24
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:33:59 -0700 (PDT)
+        with ESMTP id S233094AbjDCOWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:22:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F8C312A1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:21:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1A47B81C77
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:33:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16851C433EF;
-        Mon,  3 Apr 2023 14:33:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5BD561A2D
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:21:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC396C433EF;
+        Mon,  3 Apr 2023 14:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532437;
-        bh=eenWOeQQNPEv5V0c223t71Q3Y9U/3KJA4MKAx62PM4A=;
+        s=korg; t=1680531717;
+        bh=rdiOb6aB6IMXNSRwUVLojaJ0MoxQY4JfMOqOQjjqpiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0T32tt7BD4rF5i/uw94EgNc1T4MFb2UuwnDk+JzAZXtqELj7FH4SH2SQx47U9Mz3a
-         fpjPjXDVRjCpMD2pSzs3olSbZ5fSxPqlvkO25STh4oAWLa1Ckr40GTap86R0Loje6i
-         7/k9Qw239rzJIpXVXvu3AhNZ3TOb86u61iQmevOQ=
+        b=ji7uYws04fMHsgI3GcM+H8IsA0ITC3YUT4iAhsdIuRRIijjVxxVkoHKEuSZomhOW/
+         ipf/zu9X95K1CWp3f6sfPZNZm7oHYm9CmfDYok4NfsgxfgyDLRiUwjvrlAnTCxNX+C
+         ajCtqK5FN4re8S36F59qJtKizwPC96tFzcaWHcB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Arpana Arland <arpanax.arland@intel.com>
-Subject: [PATCH 5.15 53/99] ice: fix invalid check for empty list in ice_sched_assoc_vsi_to_agg()
+        patches@lists.linux.dev,
+        =?UTF-8?q?Steffen=20B=C3=A4tz?= <steffen@innosonix.de>,
+        Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 084/104] net: dsa: mv88e6xxx: Enable IGMP snooping on user ports only
 Date:   Mon,  3 Apr 2023 16:09:16 +0200
-Message-Id: <20230403140405.341981874@linuxfoundation.org>
+Message-Id: <20230403140407.429960034@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
-References: <20230403140356.079638751@linuxfoundation.org>
+In-Reply-To: <20230403140403.549815164@linuxfoundation.org>
+References: <20230403140403.549815164@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jkl820.git@gmail.com>
+From: Steffen Bätz <steffen@innosonix.de>
 
-[ Upstream commit e9a1cc2e4c4ee7c7e60fb26345618c2522a2a10f ]
+[ Upstream commit 7bcad0f0e6fbc1d613e49e0ee35c8e5f2e685bb0 ]
 
-The code implicitly assumes that the list iterator finds a correct
-handle. If 'vsi_handle' is not found the 'old_agg_vsi_info' was
-pointing to an bogus memory location. For safety a separate list
-iterator variable should be used to make the != NULL check on
-'old_agg_vsi_info' correct under any circumstances.
+Do not set the MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP bit on CPU or DSA ports.
 
-Additionally Linus proposed to avoid any use of the list iterator
-variable after the loop, in the attempt to move the list iterator
-variable declaration into the macro to avoid any potential misuse after
-the loop. Using it in a pointer comparison after the loop is undefined
-behavior and should be omitted if possible [1].
+This allows the host CPU port to be a regular IGMP listener by sending out
+IGMP Membership Reports, which would otherwise not be forwarded by the
+mv88exxx chip, but directly looped back to the CPU port itself.
 
-Fixes: 37c592062b16 ("ice: remove the VSI info from previous agg")
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
-Tested-by: Arpana Arland <arpanax.arland@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 54d792f257c6 ("net: dsa: Centralise global and port setup code into mv88e6xxx.")
+Signed-off-by: Steffen Bätz <steffen@innosonix.de>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20230329150140.701559-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_sched.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_sched.c b/drivers/net/ethernet/intel/ice/ice_sched.c
-index 2d9b10277186b..0b61fde449152 100644
---- a/drivers/net/ethernet/intel/ice/ice_sched.c
-+++ b/drivers/net/ethernet/intel/ice/ice_sched.c
-@@ -2758,7 +2758,7 @@ static enum ice_status
- ice_sched_assoc_vsi_to_agg(struct ice_port_info *pi, u32 agg_id,
- 			   u16 vsi_handle, unsigned long *tc_bitmap)
- {
--	struct ice_sched_agg_vsi_info *agg_vsi_info, *old_agg_vsi_info = NULL;
-+	struct ice_sched_agg_vsi_info *agg_vsi_info, *iter, *old_agg_vsi_info = NULL;
- 	struct ice_sched_agg_info *agg_info, *old_agg_info;
- 	enum ice_status status = 0;
- 	struct ice_hw *hw = pi->hw;
-@@ -2776,11 +2776,13 @@ ice_sched_assoc_vsi_to_agg(struct ice_port_info *pi, u32 agg_id,
- 	if (old_agg_info && old_agg_info != agg_info) {
- 		struct ice_sched_agg_vsi_info *vtmp;
- 
--		list_for_each_entry_safe(old_agg_vsi_info, vtmp,
-+		list_for_each_entry_safe(iter, vtmp,
- 					 &old_agg_info->agg_vsi_list,
- 					 list_entry)
--			if (old_agg_vsi_info->vsi_handle == vsi_handle)
-+			if (iter->vsi_handle == vsi_handle) {
-+				old_agg_vsi_info = iter;
- 				break;
-+			}
- 	}
- 
- 	/* check if entry already exist */
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index b336ed071fa89..ea32be579e7b1 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2433,9 +2433,14 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
+ 	 * If this is the upstream port for this switch, enable
+ 	 * forwarding of unknown unicasts and multicasts.
+ 	 */
+-	reg = MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP |
+-		MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
++	reg = MV88E6185_PORT_CTL0_USE_TAG | MV88E6185_PORT_CTL0_USE_IP |
+ 		MV88E6XXX_PORT_CTL0_STATE_FORWARDING;
++	/* Forward any IPv4 IGMP or IPv6 MLD frames received
++	 * by a USER port to the CPU port to allow snooping.
++	 */
++	if (dsa_is_user_port(ds, port))
++		reg |= MV88E6XXX_PORT_CTL0_IGMP_MLD_SNOOP;
++
+ 	err = mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_CTL0, reg);
+ 	if (err)
+ 		return err;
 -- 
 2.39.2
 
