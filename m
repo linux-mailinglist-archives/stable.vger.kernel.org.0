@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7C76D3F4C
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C67B6D3F4E
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 10:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231793AbjDCIn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 04:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S231624AbjDCIoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 04:44:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231845AbjDCInt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:43:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94457E1B8
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:43:47 -0700 (PDT)
+        with ESMTP id S231860AbjDCIn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 04:43:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6136783F1
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 01:43:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E096610FB
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 244F2C433D2;
-        Mon,  3 Apr 2023 08:43:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 957AC610FB
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 08:43:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A8CC433EF;
+        Mon,  3 Apr 2023 08:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680511426;
-        bh=KnCt8tY3DLqg2NY901nOQnhE+2ORYx1zKA0JISY/eiQ=;
+        s=korg; t=1680511430;
+        bh=kglANB278DgnniVK8RS+KRAQsksH+SuoBRzri11fZj4=;
         h=Subject:To:Cc:From:Date:From;
-        b=1tn5qWaZmQYNYwV0MWPWDDNdErJx6HcM9HY197iu/h2kzH6CYDp1nxPv74mIeBPT0
-         huuIdKL5kllI1QGvem4t6rP/syL8CTbN38LvaJvT0/mF7OB4hl1szQHeodBDdmP8rq
-         +QfZri+k7ZA9nKhNdWHJatCpExmVf1SKhDfPaI/Q=
-Subject: FAILED: patch "[PATCH] s390/uaccess: add missing earlyclobber annotations to" failed to apply to 4.19-stable tree
+        b=MmJQ4nZd6s5VORjoatjA/g/IymrQ4o5dbr3t8ao1ssEIi9bgGaHdZkZdx67AsuERC
+         FmDmeOy2b10GcY7++m6xZ/y0rCYQz91bC7TWn4UO6LG7UgB59MQkHAnEQJONudSrZA
+         1K/I6cSq4gq5nMd/K8IP0Kr1asDjMSGh8b4IdFKo=
+Subject: FAILED: patch "[PATCH] s390/uaccess: add missing earlyclobber annotations to" failed to apply to 4.14-stable tree
 To:     hca@linux.ibm.com, gerald.schaefer@linux.ibm.com,
         gor@linux.ibm.com, mark.rutland@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 03 Apr 2023 10:43:38 +0200
-Message-ID: <2023040338-emphases-eggbeater-ad1c@gregkh>
+Date:   Mon, 03 Apr 2023 10:43:39 +0200
+Message-ID: <2023040339-copartner-curliness-0c67@gregkh>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.2 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-2.5 required=5.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x 89aba4c26fae4e459f755a18912845c348ee48f3
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040338-emphases-eggbeater-ad1c@gregkh' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '2023040339-copartner-curliness-0c67@gregkh' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
