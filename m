@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CCE16D49EB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 370336D49ED
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233827AbjDCOm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
+        id S233837AbjDCOma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:42:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233818AbjDCOmR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:42:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D8117AF3
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:08 -0700 (PDT)
+        with ESMTP id S233863AbjDCOmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:42:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514AB1824E
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:42:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA717B81CF6
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDBEC4339B;
-        Mon,  3 Apr 2023 14:42:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6CC561EE5
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:42:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA919C4339B;
+        Mon,  3 Apr 2023 14:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532925;
-        bh=cFr06l2Tn5CLKkR5WYLH+cc7IAZdw8aEQ7+IH/MbG/Q=;
+        s=korg; t=1680532928;
+        bh=I33yJAT4KiFZSXPo/3E9ruaP8eATWEbCpjRbyNNyFzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ0h6RPlGJWcPNmoER+giv8wzLPOPzC2NRx7Mx8J9VJI4V5nd/JLfbWMgiRfwnHE2
-         Zh1c42po3yBsdROjE0+h0jNys9dc6ZkyHmzt7xkWzll/I+0fAmdGqDqZ2hCbrXsaOK
-         7ly2fG8Pf/ey4JU89LY3PWIgVX9aZLXwoiIzpFvo=
+        b=oYCt0p5fakHLGBKeakxKHEm5ac5EFvfCtMFw7iDIgSz07HvtZyP6q5xL7Tv/RNPU/
+         lgk0JvaCEitb/AzXz5LE+hhAXvrhR1RUoRUxXY/SRURKiGSINd7Zy4R/CAxwWvVFi4
+         hRJ6ATsy6Hj4VXsMYpyEbGsK3zmOIuNEYEkJ3AxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
-        Reiji Watanabe <reijiw@google.com>,
         Oliver Upton <oliver.upton@linux.dev>
-Subject: [PATCH 6.1 169/181] KVM: arm64: PMU: Fix GET_ONE_REG for vPMC regs to return the current value
-Date:   Mon,  3 Apr 2023 16:10:04 +0200
-Message-Id: <20230403140420.618744195@linuxfoundation.org>
+Subject: [PATCH 6.1 170/181] KVM: arm64: Disable interrupts while walking userspace PTs
+Date:   Mon,  3 Apr 2023 16:10:05 +0200
+Message-Id: <20230403140420.661602557@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
 References: <20230403140415.090615502@linuxfoundation.org>
@@ -53,78 +52,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reiji Watanabe <reijiw@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 9228b26194d1cc00449f12f306f53ef2e234a55b upstream.
+commit e86fc1a3a3e9b4850fe74d738e3cfcf4297d8bba upstream.
 
-Have KVM_GET_ONE_REG for vPMU counter (vPMC) registers (PMCCNTR_EL0
-and PMEVCNTR<n>_EL0) return the sum of the register value in the sysreg
-file and the current perf event counter value.
+We walk the userspace PTs to discover what mapping size was
+used there. However, this can race against the userspace tables
+being freed, and we end-up in the weeds.
 
-Values of vPMC registers are saved in sysreg files on certain occasions.
-These saved values don't represent the current values of the vPMC
-registers if the perf events for the vPMCs count events after the save.
-The current values of those registers are the sum of the sysreg file
-value and the current perf event counter value.  But, when userspace
-reads those registers (using KVM_GET_ONE_REG), KVM returns the sysreg
-file value to userspace (not the sum value).
+Thankfully, the mm code is being generous and will IPI us when
+doing so. So let's implement our part of the bargain and disable
+interrupts around the walk. This ensures that nothing terrible
+happens during that time.
 
-Fix this to return the sum value for KVM_GET_ONE_REG.
+We still need to handle the removal of the page tables before
+the walk. For that, allow get_user_mapping_size() to return an
+error, and make sure this error can be propagated all the way
+to the the exit handler.
 
-Fixes: 051ff581ce70 ("arm64: KVM: Add access handler for event counter register")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Reiji Watanabe <reijiw@google.com>
-Link: https://lore.kernel.org/r/20230313033208.1475499-1-reijiw@google.com
+Link: https://lore.kernel.org/r/20230316174546.3777507-2-maz@kernel.org
 Signed-off-by: Oliver Upton <oliver.upton@linux.dev>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/sys_regs.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/mmu.c |   45 ++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 38 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -767,6 +767,22 @@ static bool pmu_counter_idx_valid(struct
- 	return true;
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -646,14 +646,33 @@ static int get_user_mapping_size(struct
+ 				   CONFIG_PGTABLE_LEVELS),
+ 		.mm_ops		= &kvm_user_mm_ops,
+ 	};
++	unsigned long flags;
+ 	kvm_pte_t pte = 0;	/* Keep GCC quiet... */
+ 	u32 level = ~0;
+ 	int ret;
+ 
++	/*
++	 * Disable IRQs so that we hazard against a concurrent
++	 * teardown of the userspace page tables (which relies on
++	 * IPI-ing threads).
++	 */
++	local_irq_save(flags);
+ 	ret = kvm_pgtable_get_leaf(&pgt, addr, &pte, &level);
+-	VM_BUG_ON(ret);
+-	VM_BUG_ON(level >= KVM_PGTABLE_MAX_LEVELS);
+-	VM_BUG_ON(!(pte & PTE_VALID));
++	local_irq_restore(flags);
++
++	if (ret)
++		return ret;
++
++	/*
++	 * Not seeing an error, but not updating level? Something went
++	 * deeply wrong...
++	 */
++	if (WARN_ON(level >= KVM_PGTABLE_MAX_LEVELS))
++		return -EFAULT;
++
++	/* Oops, the userspace PTs are gone... Replay the fault */
++	if (!kvm_pte_valid(pte))
++		return -EAGAIN;
+ 
+ 	return BIT(ARM64_HW_PGTABLE_LEVEL_SHIFT(level));
  }
+@@ -1006,7 +1025,7 @@ static bool fault_supports_stage2_huge_m
+  *
+  * Returns the size of the mapping.
+  */
+-static unsigned long
++static long
+ transparent_hugepage_adjust(struct kvm *kvm, struct kvm_memory_slot *memslot,
+ 			    unsigned long hva, kvm_pfn_t *pfnp,
+ 			    phys_addr_t *ipap)
+@@ -1018,8 +1037,15 @@ transparent_hugepage_adjust(struct kvm *
+ 	 * sure that the HVA and IPA are sufficiently aligned and that the
+ 	 * block map is contained within the memslot.
+ 	 */
+-	if (fault_supports_stage2_huge_mapping(memslot, hva, PMD_SIZE) &&
+-	    get_user_mapping_size(kvm, hva) >= PMD_SIZE) {
++	if (fault_supports_stage2_huge_mapping(memslot, hva, PMD_SIZE)) {
++		int sz = get_user_mapping_size(kvm, hva);
++
++		if (sz < 0)
++			return sz;
++
++		if (sz < PMD_SIZE)
++			return PAGE_SIZE;
++
+ 		/*
+ 		 * The address we faulted on is backed by a transparent huge
+ 		 * page.  However, because we map the compound huge page and
+@@ -1138,7 +1164,7 @@ static int user_mem_abort(struct kvm_vcp
+ 	bool logging_active = memslot_is_logging(memslot);
+ 	bool use_read_lock = false;
+ 	unsigned long fault_level = kvm_vcpu_trap_get_fault_level(vcpu);
+-	unsigned long vma_pagesize, fault_granule;
++	long vma_pagesize, fault_granule;
+ 	enum kvm_pgtable_prot prot = KVM_PGTABLE_PROT_R;
+ 	struct kvm_pgtable *pgt;
  
-+static int get_pmu_evcntr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r,
-+			  u64 *val)
-+{
-+	u64 idx;
+@@ -1295,6 +1321,11 @@ static int user_mem_abort(struct kvm_vcp
+ 			vma_pagesize = transparent_hugepage_adjust(kvm, memslot,
+ 								   hva, &pfn,
+ 								   &fault_ipa);
 +
-+	if (r->CRn == 9 && r->CRm == 13 && r->Op2 == 0)
-+		/* PMCCNTR_EL0 */
-+		idx = ARMV8_PMU_CYCLE_IDX;
-+	else
-+		/* PMEVCNTRn_EL0 */
-+		idx = ((r->CRm & 3) << 3) | (r->Op2 & 7);
-+
-+	*val = kvm_pmu_get_counter_value(vcpu, idx);
-+	return 0;
-+}
-+
- static bool access_pmu_evcntr(struct kvm_vcpu *vcpu,
- 			      struct sys_reg_params *p,
- 			      const struct sys_reg_desc *r)
-@@ -983,7 +999,7 @@ static bool access_pmuserenr(struct kvm_
- /* Macro to expand the PMEVCNTRn_EL0 register */
- #define PMU_PMEVCNTR_EL0(n)						\
- 	{ PMU_SYS_REG(SYS_PMEVCNTRn_EL0(n)),				\
--	  .reset = reset_pmevcntr,					\
-+	  .reset = reset_pmevcntr, .get_user = get_pmu_evcntr,		\
- 	  .access = access_pmu_evcntr, .reg = (PMEVCNTR0_EL0 + n), }
++		if (vma_pagesize < 0) {
++			ret = vma_pagesize;
++			goto out_unlock;
++		}
+ 	}
  
- /* Macro to expand the PMEVTYPERn_EL0 register */
-@@ -1632,7 +1648,8 @@ static const struct sys_reg_desc sys_reg
- 	{ PMU_SYS_REG(SYS_PMCEID1_EL0),
- 	  .access = access_pmceid, .reset = NULL },
- 	{ PMU_SYS_REG(SYS_PMCCNTR_EL0),
--	  .access = access_pmu_evcntr, .reset = reset_unknown, .reg = PMCCNTR_EL0 },
-+	  .access = access_pmu_evcntr, .reset = reset_unknown,
-+	  .reg = PMCCNTR_EL0, .get_user = get_pmu_evcntr},
- 	{ PMU_SYS_REG(SYS_PMXEVTYPER_EL0),
- 	  .access = access_pmu_evtyper, .reset = NULL },
- 	{ PMU_SYS_REG(SYS_PMXEVCNTR_EL0),
+ 	if (fault_status != FSC_PERM && !device && kvm_has_mte(kvm)) {
 
 
