@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BB46D46CA
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4666D48D6
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbjDCOOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58122 "EHLO
+        id S233521AbjDCOcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:32:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232867AbjDCOOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E38B4C37
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:03 -0700 (PDT)
+        with ESMTP id S233501AbjDCOcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E0335020
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:32:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF17C61C99
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1290C433EF;
-        Mon,  3 Apr 2023 14:14:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D0C3B81C6B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:32:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A68C433D2;
+        Mon,  3 Apr 2023 14:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531242;
-        bh=pR6dVImNUpI3i4tk65yAw4Wyr9DpfFAfNgJ0R0OcflE=;
+        s=korg; t=1680532330;
+        bh=Fn7qqgorP1Mw8fSOarHmoufqPczPTSd6anV2WbnlafQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EyTsGvPAXOLCbhnVZw6Phpv19i5NophPaAy4veUMvCB0tvaTs8iyJxseHmrs6rKhv
-         NOWFWIbD5MD2ezXY/emgUC3nRjajOdTZe63zvdQEpBT6cIIysiflP7OB+nsKRzdP1n
-         dgaeOmDAPQntpdtPagXBrH+1hA1EaEiTorF+ezuI=
+        b=uXpJXvHFw0jXkHLScVDaIdavxRMg2JQJa77Xb+zCqgPolljzuPLqaO1i7Z2CMq3n4
+         jySeow/zrOSo6c1IO49p/ZDlPwKxesCDH3Xtw/jyrRpmYlTBHNdG7au4FaZT86aIJi
+         eEQN3Ao9ToL7ijrTIuIFvzWjeVa5OcBK3vfzNFac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Disseldorp <ddiss@suse.de>,
-        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 56/66] cifs: fix DFS traversal oops without CONFIG_CIFS_DFS_UPCALL
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 41/99] net: stmmac: dont reject VLANs when IFF_PROMISC is set
 Date:   Mon,  3 Apr 2023 16:09:04 +0200
-Message-Id: <20230403140353.757516420@linuxfoundation.org>
+Message-Id: <20230403140404.786943357@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,289 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 179a88a8558bbf42991d361595281f3e45d7edfc upstream.
+[ Upstream commit a7602e7332b97cfbec7bacb0f1ade99a575fe104 ]
 
-When compiled with CONFIG_CIFS_DFS_UPCALL disabled, cifs_dfs_d_automount
-is NULL. cifs.ko logic for mapping CIFS_FATTR_DFS_REFERRAL attributes to
-S_AUTOMOUNT and corresponding dentry flags is retained regardless of
-CONFIG_CIFS_DFS_UPCALL, leading to a NULL pointer dereference in
-VFS follow_automount() when traversing a DFS referral link:
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  ...
-  Call Trace:
-   <TASK>
-   __traverse_mounts+0xb5/0x220
-   ? cifs_revalidate_mapping+0x65/0xc0 [cifs]
-   step_into+0x195/0x610
-   ? lookup_fast+0xe2/0xf0
-   path_lookupat+0x64/0x140
-   filename_lookup+0xc2/0x140
-   ? __create_object+0x299/0x380
-   ? kmem_cache_alloc+0x119/0x220
-   ? user_path_at_empty+0x31/0x50
-   user_path_at_empty+0x31/0x50
-   __x64_sys_chdir+0x2a/0xd0
-   ? exit_to_user_mode_prepare+0xca/0x100
-   do_syscall_64+0x42/0x90
-   entry_SYSCALL_64_after_hwframe+0x72/0xdc
+The blamed commit has introduced the following tests to
+dwmac4_add_hw_vlan_rx_fltr(), called from stmmac_vlan_rx_add_vid():
 
-This fix adds an inline cifs_dfs_d_automount() {return -EREMOTE} handler
-when CONFIG_CIFS_DFS_UPCALL is disabled. An alternative would be to
-avoid flagging S_AUTOMOUNT, etc. without CONFIG_CIFS_DFS_UPCALL. This
-approach was chosen as it provides more control over the error path.
+	if (hw->promisc) {
+		netdev_err(dev,
+			   "Adding VLAN in promisc mode not supported\n");
+		return -EPERM;
+	}
 
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+"VLAN promiscuous" mode is keyed in this driver to IFF_PROMISC, and so,
+vlan_vid_add() and vlan_vid_del() calls cannot take place in IFF_PROMISC
+mode. I have the following 2 arguments that this restriction is.... hm,
+how shall I put it nicely... unproductive :)
+
+First, take the case of a Linux bridge. If the kernel is compiled with
+CONFIG_BRIDGE_VLAN_FILTERING=y, then this bridge shall have a VLAN
+database. The bridge shall try to call vlan_add_vid() on its bridge
+ports for each VLAN in the VLAN table. It will do this irrespectively of
+whether that port is *currently* VLAN-aware or not. So it will do this
+even when the bridge was created with vlan_filtering 0.
+But the Linux bridge, in VLAN-unaware mode, configures its ports in
+promiscuous (IFF_PROMISC) mode, so that they accept packets with any
+MAC DA (a switch must do this in order to forward those packets which
+are not directly targeted to its MAC address).
+
+As a result, the stmmac driver does not work as a bridge port, when the
+kernel is compiled with CONFIG_BRIDGE_VLAN_FILTERING=y.
+
+$ ip link add br0 type bridge && ip link set br0 up
+$ ip link set eth0 master br0 && ip link set eth0 up
+[ 2333.943296] br0: port 1(eth0) entered blocking state
+[ 2333.943381] br0: port 1(eth0) entered disabled state
+[ 2333.943782] device eth0 entered promiscuous mode
+[ 2333.944080] 4033c000.ethernet eth0: Adding VLAN in promisc mode not supported
+[ 2333.976509] 4033c000.ethernet eth0: failed to initialize vlan filtering on this port
+RTNETLINK answers: Operation not permitted
+
+Secondly, take the case of stmmac as DSA master. Some switch tagging
+protocols are based on 802.1Q VLANs (tag_sja1105.c), and as such,
+tag_8021q.c uses vlan_vid_add() to work with VLAN-filtering DSA masters.
+But also, when a DSA port becomes promiscuous (for example when it joins
+a bridge), the DSA framework also makes the DSA master promiscuous.
+
+Moreover, for every VLAN that a DSA switch sends to the CPU, DSA also
+programs a VLAN filter on the DSA master, because if the the DSA switch
+uses a tail tag, then the hardware frame parser of the DSA master will
+see VLAN as VLAN, and might filter them out, for being unknown.
+
+Due to the above 2 reasons, my belief is that the stmmac driver does not
+get to choose to not accept vlan_vid_add() calls while IFF_PROMISC is
+enabled, because the 2 are completely independent and there are code
+paths in the network stack which directly lead to this situation
+occurring, without the user's direct input.
+
+In fact, my belief is that "VLAN promiscuous" mode should have never
+been keyed on IFF_PROMISC in the first place, but rather, on the
+NETIF_F_HW_VLAN_CTAG_FILTER feature flag which can be toggled by the
+user through ethtool -k, when present in netdev->hw_features.
+
+In the stmmac driver, NETIF_F_HW_VLAN_CTAG_FILTER is only present in
+"features", making this feature "on [fixed]".
+
+I have this belief because I am unaware of any definition of promiscuity
+which implies having an effect on anything other than MAC DA (therefore
+not VLAN). However, I seem to be rather alone in having this opinion,
+looking back at the disagreements from this discussion:
+https://lore.kernel.org/netdev/20201110153958.ci5ekor3o2ekg3ky@ipetronik.com/
+
+In any case, to remove the vlan_vid_add() dependency on !IFF_PROMISC,
+one would need to remove the check and see what fails. I guess the test
+was there because of the way in which dwmac4_vlan_promisc_enable() is
+implemented.
+
+For context, the dwmac4 supports Perfect Filtering for a limited number
+of VLANs - dwmac4_get_num_vlan(), priv->hw->num_vlan, with a fallback on
+Hash Filtering - priv->dma_cap.vlhash - see stmmac_vlan_update(), also
+visible in cat /sys/kernel/debug/stmmaceth/eth0/dma_cap | grep 'VLAN
+Hash Filtering'.
+
+The perfect filtering is based on MAC_VLAN_Tag_Filter/MAC_VLAN_Tag_Data
+registers, accessed in the driver through dwmac4_write_vlan_filter().
+
+The hash filtering is based on the MAC_VLAN_Hash_Table register, named
+GMAC_VLAN_HASH_TABLE in the driver and accessed by dwmac4_update_vlan_hash().
+The control bit for enabling hash filtering is GMAC_VLAN_VTHM
+(MAC_VLAN_Tag_Ctrl bit VTHM: VLAN Tag Hash Table Match Enable).
+
+Now, the description of dwmac4_vlan_promisc_enable() is that it iterates
+through the driver's cache of perfect filter entries (hw->vlan_filter[i],
+added by dwmac4_add_hw_vlan_rx_fltr()), and evicts them from hardware by
+unsetting their GMAC_VLAN_TAG_DATA_VEN (MAC_VLAN_Tag_Data bit VEN - VLAN
+Tag Enable) bit. Then it unsets the GMAC_VLAN_VTHM bit, which disables
+hash matching.
+
+This leaves the MAC, according to table "VLAN Match Status" from the
+documentation, to always enter these data paths:
+
+VID    |VLAN Perfect Filter |VTHM Bit |VLAN Hash Filter |Final VLAN Match
+       |Match Result        |         |Match Result     |Status
+-------|--------------------|---------|-----------------|----------------
+VID!=0 |Fail                |0        |don't care       |Pass
+
+So, dwmac4_vlan_promisc_enable() does its job, but by unsetting
+GMAC_VLAN_VTHM, it conflicts with the other code path which controls
+this bit: dwmac4_update_vlan_hash(), called through stmmac_update_vlan_hash()
+from stmmac_vlan_rx_add_vid() and from stmmac_vlan_rx_kill_vid().
+This is, I guess, why dwmac4_add_hw_vlan_rx_fltr() is not allowed to run
+after dwmac4_vlan_promisc_enable() has unset GMAC_VLAN_VTHM: because if
+it did, then dwmac4_update_vlan_hash() would set GMAC_VLAN_VTHM again,
+breaking the "VLAN promiscuity".
+
+It turns out that dwmac4_vlan_promisc_enable() is way too complicated
+for what needs to be done. The MAC_Packet_Filter register also has the
+VTFE bit (VLAN Tag Filter Enable), which simply controls whether VLAN
+tagged packets which don't match the filtering tables (either perfect or
+hash) are dropped or not. At the moment, this driver unconditionally
+sets GMAC_PACKET_FILTER_VTFE if NETIF_F_HW_VLAN_CTAG_FILTER was detected
+through the priv->dma_cap.vlhash capability bits of the device, in
+stmmac_dvr_probe().
+
+I would suggest deleting the unnecessarily complex logic from
+dwmac4_vlan_promisc_enable(), and simply unsetting GMAC_PACKET_FILTER_VTFE
+when becoming IFF_PROMISC, which has the same effect of allowing packets
+with any VLAN tags, but has the additional benefit of being able to run
+concurrently with stmmac_vlan_rx_add_vid() and stmmac_vlan_rx_kill_vid().
+
+As much as I believe that the VTFE bit should have been exclusively
+controlled by NETIF_F_HW_VLAN_CTAG_FILTER through ethtool, and not by
+IFF_PROMISC, changing that is not a punctual fix to the problem, and it
+would probably break the VFFQ feature added by the later commit
+e0f9956a3862 ("net: stmmac: Add option for VLAN filter fail queue
+enable"). From the commit description, VFFQ needs IFF_PROMISC=on and
+VTFE=off in order to work (and this change respects that). But if VTFE
+was changed to be controlled through ethtool -k, then a user-visible
+change would have been introduced in Intel's scripts (a need to run
+"ethtool -k eth0 rx-vlan-filter off" which did not exist before).
+
+The patch was tested with this set of commands:
+
+  ip link set eth0 up
+  ip link add link eth0 name eth0.100 type vlan id 100
+  ip addr add 192.168.100.2/24 dev eth0.100 && ip link set eth0.100 up
+  ip link set eth0 promisc on
+  ip link add link eth0 name eth0.101 type vlan id 101
+  ip addr add 192.168.101.2/24 dev eth0.101 && ip link set eth0.101 up
+  ip link set eth0 promisc off
+  ping -c 5 192.168.100.1
+  ping -c 5 192.168.101.1
+  ip link set eth0 promisc on
+  ping -c 5 192.168.100.1
+  ping -c 5 192.168.101.1
+  ip link del eth0.100
+  ip link del eth0.101
+  # Wait for VLAN-tagged pings from the other end...
+  # Check with "tcpdump -i eth0 -e -n -p" and we should see them
+  ip link set eth0 promisc off
+  # Wait for VLAN-tagged pings from the other end...
+  # Check with "tcpdump -i eth0 -e -n -p" and we shouldn't see them
+  # anymore, but remove the "-p" argument from tcpdump and they're there.
+
+Fixes: c89f44ff10fd ("net: stmmac: Add support for VLAN promiscuous mode")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/common.h  |  1 -
+ .../net/ethernet/stmicro/stmmac/dwmac4_core.c | 61 +------------------
+ 2 files changed, 3 insertions(+), 59 deletions(-)
 
---- a/fs/cifs/cifsfs.h
-+++ b/fs/cifs/cifsfs.h
-@@ -122,7 +122,10 @@ extern const struct dentry_operations ci
- #ifdef CONFIG_CIFS_DFS_UPCALL
- extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
- #else
--#define cifs_dfs_d_automount NULL
-+static inline struct vfsmount *cifs_dfs_d_automount(struct path *path)
-+{
-+	return ERR_PTR(-EREMOTE);
-+}
- #endif
+diff --git a/drivers/net/ethernet/stmicro/stmmac/common.h b/drivers/net/ethernet/stmicro/stmmac/common.h
+index b6d945ea903d4..c113ec56f5b02 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/common.h
++++ b/drivers/net/ethernet/stmicro/stmmac/common.h
+@@ -530,7 +530,6 @@ struct mac_device_info {
+ 	unsigned int xlgmac;
+ 	unsigned int num_vlan;
+ 	u32 vlan_filter[32];
+-	unsigned int promisc;
+ 	bool vlan_fail_q_en;
+ 	u8 vlan_fail_q;
+ };
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index 60638bf18f1fe..cd85a2d076c99 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -478,12 +478,6 @@ static int dwmac4_add_hw_vlan_rx_fltr(struct net_device *dev,
+ 	if (vid > 4095)
+ 		return -EINVAL;
  
- /* Functions related to symlinks */
+-	if (hw->promisc) {
+-		netdev_err(dev,
+-			   "Adding VLAN in promisc mode not supported\n");
+-		return -EPERM;
+-	}
+-
+ 	/* Single Rx VLAN Filter */
+ 	if (hw->num_vlan == 1) {
+ 		/* For single VLAN filter, VID 0 means VLAN promiscuous */
+@@ -533,12 +527,6 @@ static int dwmac4_del_hw_vlan_rx_fltr(struct net_device *dev,
+ {
+ 	int i, ret = 0;
+ 
+-	if (hw->promisc) {
+-		netdev_err(dev,
+-			   "Deleting VLAN in promisc mode not supported\n");
+-		return -EPERM;
+-	}
+-
+ 	/* Single Rx VLAN Filter */
+ 	if (hw->num_vlan == 1) {
+ 		if ((hw->vlan_filter[0] & GMAC_VLAN_TAG_VID) == vid) {
+@@ -563,39 +551,6 @@ static int dwmac4_del_hw_vlan_rx_fltr(struct net_device *dev,
+ 	return ret;
+ }
+ 
+-static void dwmac4_vlan_promisc_enable(struct net_device *dev,
+-				       struct mac_device_info *hw)
+-{
+-	void __iomem *ioaddr = hw->pcsr;
+-	u32 value;
+-	u32 hash;
+-	u32 val;
+-	int i;
+-
+-	/* Single Rx VLAN Filter */
+-	if (hw->num_vlan == 1) {
+-		dwmac4_write_single_vlan(dev, 0);
+-		return;
+-	}
+-
+-	/* Extended Rx VLAN Filter Enable */
+-	for (i = 0; i < hw->num_vlan; i++) {
+-		if (hw->vlan_filter[i] & GMAC_VLAN_TAG_DATA_VEN) {
+-			val = hw->vlan_filter[i] & ~GMAC_VLAN_TAG_DATA_VEN;
+-			dwmac4_write_vlan_filter(dev, hw, i, val);
+-		}
+-	}
+-
+-	hash = readl(ioaddr + GMAC_VLAN_HASH_TABLE);
+-	if (hash & GMAC_VLAN_VLHT) {
+-		value = readl(ioaddr + GMAC_VLAN_TAG);
+-		if (value & GMAC_VLAN_VTHM) {
+-			value &= ~GMAC_VLAN_VTHM;
+-			writel(value, ioaddr + GMAC_VLAN_TAG);
+-		}
+-	}
+-}
+-
+ static void dwmac4_restore_hw_vlan_rx_fltr(struct net_device *dev,
+ 					   struct mac_device_info *hw)
+ {
+@@ -715,22 +670,12 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
+ 	}
+ 
+ 	/* VLAN filtering */
+-	if (dev->features & NETIF_F_HW_VLAN_CTAG_FILTER)
++	if (dev->flags & IFF_PROMISC && !hw->vlan_fail_q_en)
++		value &= ~GMAC_PACKET_FILTER_VTFE;
++	else if (dev->features & NETIF_F_HW_VLAN_CTAG_FILTER)
+ 		value |= GMAC_PACKET_FILTER_VTFE;
+ 
+ 	writel(value, ioaddr + GMAC_PACKET_FILTER);
+-
+-	if (dev->flags & IFF_PROMISC && !hw->vlan_fail_q_en) {
+-		if (!hw->promisc) {
+-			hw->promisc = 1;
+-			dwmac4_vlan_promisc_enable(dev, hw);
+-		}
+-	} else {
+-		if (hw->promisc) {
+-			hw->promisc = 0;
+-			dwmac4_restore_hw_vlan_rx_fltr(dev, hw);
+-		}
+-	}
+ }
+ 
+ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+-- 
+2.39.2
+
 
 
