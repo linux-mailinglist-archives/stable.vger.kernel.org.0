@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AC16D46DB
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B261D6D48CD
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232870AbjDCOOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:14:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59450 "EHLO
+        id S233483AbjDCOcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:32:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232887AbjDCOOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:14:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDBC54EF4
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:14:47 -0700 (PDT)
+        with ESMTP id S233499AbjDCOcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:32:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274EFD4F8B
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E48F61C9C
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:14:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D5AC433EF;
-        Mon,  3 Apr 2023 14:14:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3088B81C64
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BB72C433D2;
+        Mon,  3 Apr 2023 14:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680531286;
-        bh=95OnjUFgts2qjKb/jFfpXjpPJsfmbkMLtlubSbuSs1A=;
+        s=korg; t=1680532312;
+        bh=k66i/i8PwyozQXW037uw3riCeJj4csVfrDjvmlNfV4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WkrZXsUpCmA7C8vbjL9Bu4GE7Vd089faDek7zDZSNmweW8A17eXe5AG3hxOdJyme9
-         73Toaq4Eu81pzf42r/Qjd0LXfHyN2kRlhpGcL3I/coyjV/p71qL9gbOacT4hI8V79R
-         MVhTs08I6Aj7Nzja36gF2p4NzjFPYM8Dyh4gAr0w=
+        b=x2dTewjEirhs6OlR+SfrEiZb9bRsbDhTFW1ktIK6+tl4GJMz6KKTs+bxzRqmzcbQC
+         bcxnm914j+ZOjwA7YYVVBKjEn0D5t0T4v3ccj0f81KcDXW2hDNRADYdI3pxI0bbhCy
+         AJOgFYlJgsZTkaZkS2em5Hb3uQ/nKet9VkFB60rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/66] fbdev: intelfb: Fix potential divide by zero
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 34/99] scsi: megaraid_sas: Fix crash after a double completion
 Date:   Mon,  3 Apr 2023 16:08:57 +0200
-Message-Id: <20230403140353.542480318@linuxfoundation.org>
+Message-Id: <20230403140404.458019750@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140351.636471867@linuxfoundation.org>
-References: <20230403140351.636471867@linuxfoundation.org>
+In-Reply-To: <20230403140356.079638751@linuxfoundation.org>
+References: <20230403140356.079638751@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Chen <harperchen1110@gmail.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit d823685486a3446d061fed7c7d2f80af984f119a ]
+[ Upstream commit 2309df27111a51734cb9240b4d3c25f2f3c6ab06 ]
 
-Variable var->pixclock is controlled by user and can be assigned
-to zero. Without proper check, divide by zero would occur in
-intelfbhw_validate_mode and intelfbhw_mode_to_hw.
+When a physical disk is attached directly "without JBOD MAP support" (see
+megasas_get_tm_devhandle()) then there is no real error handling in the
+driver.  Return FAILED instead of SUCCESS.
 
-Error out if var->pixclock is zero.
-
-Signed-off-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 18365b138508 ("megaraid_sas: Task management support")
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Link: https://lore.kernel.org/r/20230324150134.14696-1-thenzl@redhat.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/intelfb/intelfbdrv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/intelfb/intelfbdrv.c b/drivers/video/fbdev/intelfb/intelfbdrv.c
-index d7463a2a5d83f..c97c0c8514809 100644
---- a/drivers/video/fbdev/intelfb/intelfbdrv.c
-+++ b/drivers/video/fbdev/intelfb/intelfbdrv.c
-@@ -1215,6 +1215,9 @@ static int intelfb_check_var(struct fb_var_screeninfo *var,
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 056837849ead5..c254254aa72f8 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -4737,7 +4737,7 @@ int megasas_task_abort_fusion(struct scsi_cmnd *scmd)
+ 	devhandle = megasas_get_tm_devhandle(scmd->device);
  
- 	dinfo = GET_DINFO(info);
+ 	if (devhandle == (u16)ULONG_MAX) {
+-		ret = SUCCESS;
++		ret = FAILED;
+ 		sdev_printk(KERN_INFO, scmd->device,
+ 			"task abort issued for invalid devhandle\n");
+ 		mutex_unlock(&instance->reset_mutex);
+@@ -4807,7 +4807,7 @@ int megasas_reset_target_fusion(struct scsi_cmnd *scmd)
+ 	devhandle = megasas_get_tm_devhandle(scmd->device);
  
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	/* update the pitch */
- 	if (intelfbhw_validate_mode(dinfo, var) != 0)
- 		return -EINVAL;
+ 	if (devhandle == (u16)ULONG_MAX) {
+-		ret = SUCCESS;
++		ret = FAILED;
+ 		sdev_printk(KERN_INFO, scmd->device,
+ 			"target reset issued for invalid devhandle\n");
+ 		mutex_unlock(&instance->reset_mutex);
 -- 
 2.39.2
 
