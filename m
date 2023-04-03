@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFA96D49D4
-	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D666D4AF0
+	for <lists+stable@lfdr.de>; Mon,  3 Apr 2023 16:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233813AbjDCOlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Apr 2023 10:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55278 "EHLO
+        id S234242AbjDCOvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Apr 2023 10:51:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233809AbjDCOlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:41:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25EF817AEC
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:41:43 -0700 (PDT)
+        with ESMTP id S234233AbjDCOvM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Apr 2023 10:51:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4882E29053
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 07:50:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4D5D61ED7
-        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD662C433D2;
-        Mon,  3 Apr 2023 14:41:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E882AB81D88
+        for <stable@vger.kernel.org>; Mon,  3 Apr 2023 14:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48BC4C433D2;
+        Mon,  3 Apr 2023 14:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1680532902;
-        bh=/7UESJaSbLuYjJRWmY3fdKk3XgzPi1J1U01kCfYsG8w=;
+        s=korg; t=1680533430;
+        bh=B7kr7ib0X8ahw1RrJw2/2MBTQDz0u/HYQhcSXhGHsv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwNYIEJWkKnYYqyLCh6ahMFWaVLjDfwVnejPJxGqtAelxT3AQ2bWdShC226Rv089+
-         eDLjHV9RTQLMoXojo0sfTAmIcp9etC9wKS6pIwzL9fdqPBIb9CjA2krmNxI6ehIawF
-         81WlvB24hFIuU3GkC5ihQSFEN5MZgVn1ZE33SjvU=
+        b=vUVdzSsK59zeMAnEpx+Rd2zVOyNtB0vEete2qfS53mmuejBH0b6PYY9hokR/bae/C
+         uDGBTUzzD1LgQlM9CAv6J2LZ6+8WEdPaygBMBvUrNirJI2IjzEik028dUNmfIqPUAn
+         nruh169BgOM2rqCFbNaaRx/IvSrYC7HI25V/ouk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 6.1 161/181] drm/etnaviv: fix reference leak when mmaping imported buffer
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 6.2 151/187] pinctrl: at91-pio4: fix domain name assignment
 Date:   Mon,  3 Apr 2023 16:09:56 +0200
-Message-Id: <20230403140420.324710253@linuxfoundation.org>
+Message-Id: <20230403140421.021549391@linuxfoundation.org>
 X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230403140415.090615502@linuxfoundation.org>
-References: <20230403140415.090615502@linuxfoundation.org>
+In-Reply-To: <20230403140416.015323160@linuxfoundation.org>
+References: <20230403140416.015323160@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 963b2e8c428f79489ceeb058e8314554ec9cbe6f upstream.
+commit 7bb97e360acdd38b68ad0a1defb89c6e89c85596 upstream.
 
-drm_gem_prime_mmap() takes a reference on the GEM object, but before that
-drm_gem_mmap_obj() already takes a reference, which will be leaked as only
-one reference is dropped when the mapping is closed. Drop the extra
-reference when dma_buf_mmap() succeeds.
+Since commit d59f6617eef0 ("genirq: Allow fwnode to carry name
+information only") an IRQ domain is always given a name during
+allocation (e.g. used for the debugfs entry).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Drop the no longer valid name assignment, which would lead to an attempt
+to free a string constant when removing the domain on late probe
+failures (e.g. probe deferral).
+
+Fixes: d59f6617eef0 ("genirq: Allow fwnode to carry name information only")
+Cc: stable@vger.kernel.org	# 4.13
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com> # on SAMA7G5
+Link: https://lore.kernel.org/r/20230224130828.27985-1-johan+linaro@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-at91-pio4.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-@@ -91,7 +91,15 @@ static void *etnaviv_gem_prime_vmap_impl
- static int etnaviv_gem_prime_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
- 		struct vm_area_struct *vma)
- {
--	return dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	int ret;
-+
-+	ret = dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-+	if (!ret) {
-+		/* Drop the reference acquired by drm_gem_mmap_obj(). */
-+		drm_gem_object_put(&etnaviv_obj->base);
-+	}
-+
-+	return ret;
- }
+--- a/drivers/pinctrl/pinctrl-at91-pio4.c
++++ b/drivers/pinctrl/pinctrl-at91-pio4.c
+@@ -1206,7 +1206,6 @@ static int atmel_pinctrl_probe(struct pl
+ 		dev_err(dev, "can't add the irq domain\n");
+ 		return -ENODEV;
+ 	}
+-	atmel_pioctrl->irq_domain->name = "atmel gpio";
  
- static const struct etnaviv_gem_ops etnaviv_gem_prime_ops = {
+ 	for (i = 0; i < atmel_pioctrl->npins; i++) {
+ 		int irq = irq_create_mapping(atmel_pioctrl->irq_domain, i);
 
 
